@@ -1,32 +1,27 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
+const db = Config.getDBByID();
+
+const async = require("async");
 
 function Change (object)
 {
-    Change.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "change", Change);
+    Change.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
-    self.rdf.type = "ddr:Change";
-
     const now = new Date();
-    self.dcterms.created = now.toISOString();
+    self.ddr.created = now.toISOString();
 
     return self;
 }
@@ -53,11 +48,11 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
             }
         ],
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 const fetchFullChange = function (changeResultRow, cb) {
                     Change.findByUri(changeResultRow.uri, function (err, change) {
-                        if (!err) {
+                        if (isNull(err)) {
                             cb(null, change);
                         }
                         else {
@@ -67,7 +62,7 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
                 };
 
                 async.map(results, fetchFullChange, function(err, fullChanges){
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, fullChanges);
                     }
@@ -100,10 +95,10 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
     else
     {
         console.error("Attempt to record a change on a locked descriptor. debug please. ");
-        return callback(0, null);
+        return callback(null, null);
     }
 }*/
 
-Change = Class.extend(Change, Resource);
+Change = Class.extend(Change, Resource, "ddr:Change");
 
 module.exports.Change = Change;

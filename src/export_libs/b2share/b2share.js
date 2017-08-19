@@ -1,11 +1,8 @@
-/**
- * Created by Fábio on 31/03/2016.
- */
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 B2Share.apiURL = Config.eudatBaseUrl + "/api";
 B2Share.depositionURL = B2Share.apiURL + "/deposition/";
@@ -14,7 +11,7 @@ B2Share.depositionFilesPath =  "/files";
 B2Share.commitDepositionPath = "/commit";
 B2Share.recordPath = Config.eudatBaseUrl + "/record";
 
-const request = require('request');
+const request = require("request");
 
 function B2Share(accessToken){
     if(isNull(accessToken)){
@@ -40,14 +37,14 @@ B2Share.prototype.createDeposition = function(callback){
             }
             else{
                 console.log("[B2SHARE] Deposition Created");
-                return callback(false, deposition);
+                return callback(null, deposition);
             }
         }
     });
 };
 
 B2Share.prototype.uploadFileToDeposition = function(depositionID, file, callback){
-    const fs = require('fs');
+    const fs = require("fs");
     const r = request.post({
         url: B2Share.depositionURL + depositionID + B2Share.depositionFilesPath + "?access_token=" + this.accessToken,
         json: true,
@@ -74,7 +71,7 @@ B2Share.prototype.uploadFileToDeposition = function(depositionID, file, callback
 };
 
 B2Share.prototype.uploadMultipleFilesToDeposition = function (depositionID, files, callback) {
-    const async = require('async');
+    const async = require("async");
     const self = this;
 
     async.each(files, function(file, callback){
@@ -114,7 +111,7 @@ B2Share.prototype.depositionPublish = function(depositionID, metadata, callback)
             }
             else{
                 console.log("[B2SHARE] Success Committing Deposit: " + JSON.stringify(result));
-                return callback(false, result);
+                return callback(null, result);
             }
         }
     });

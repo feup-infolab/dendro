@@ -1,4 +1,4 @@
-var commentData = {
+const commentData = {
     msg: "THIS IS A TEST COMMENT"
 };
 

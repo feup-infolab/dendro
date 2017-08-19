@@ -1,64 +1,46 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const moment = require('moment');
-const async = require('async');
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const async = require("async");
+const db = Config.getDBByID();
 
-const mysql = function () {
-    return GLOBAL.mysql.pool;
+const mysql = Config.getMySQLByID();
+
+let Interaction = function(object)
+{
+    const self = this;
+    self.addURIAndRDFType(object, "interaction", Interaction);
+    Interaction.baseConstructor.call(this, object);
+    self.copyOrInitDescriptors(object);
+    return self;
 };
 
-function Interaction (object, callback)
+Interaction.create = function(object, callback)
 {
-    Interaction.baseConstructor.call(this, object);
-    const self = this;
-
-    self.rdf.type = "ddr:Interaction";
-
+    let self = new Interaction(object);
     const now = new Date();
 
-    if(isNull(object.dcterms))
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.dcterms = {
-            created : now.toISOString()
-        }
-    }
-    else
-    {
-        if(isNull(object.dcterms.created))
-        {
-            self.dcterms.created = now.toISOString();
-        }
-        else
-        {
-            self.dcterms.created = object.dcterms.created;
-        }
-    }
-
-    if(isNull(self.uri))
-    {
-        const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+        const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
         if(self.ddr.performedBy instanceof Object)
         {
-            self.uri = db.baseURI+"/user/"+self.ddr.performedBy.ddr.username+"/interaction/"+self.dcterms.created;
+            self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.performedBy.ddr.username+"/interaction/"+self.ddr.created;
             return callback(null, self);
         }
         else if(typeof self.ddr.performedBy === "string")
         {
             User.findByUri(self.ddr.performedBy, function(err, user){
-               if(!err && !isNull(user))
+               if(isNull(err) && !isNull(user))
                {
-                   self.uri = db.baseURI+"/user/"+user.ddr.username+"/interaction/"+self.dcterms.created;
-                   return callback(null, self);
+                   self.ddr.humanReadableURI = db.baseURI+"/user/"+user.ddr.username+"/interaction/"+self.ddr.created;
                }
                else
                {
@@ -71,10 +53,8 @@ function Interaction (object, callback)
             return callback(1, "no author user specified for interaction. " + self.ddr.performedBy);
         }
     }
-    else
-    {
-        return callback(0, self);
-    }
+    
+    return callback(null, self);
 }
 
 Interaction.all = function(callback, streaming, customGraphUri) {
@@ -89,7 +69,7 @@ Interaction.all = function(callback, streaming, customGraphUri) {
         // get all the information about all the interaction
         // and return the array of interactions, complete with that info
         async.map(interactions, getInteractionInformation, function (err, interactionsToReturn) {
-            if (!err) {
+            if (isNull(err)) {
                 return callback(null, interactionsToReturn);
             }
             else {
@@ -117,10 +97,10 @@ Interaction.all = function(callback, streaming, customGraphUri) {
             ],
 
             function(err, interactions) {
-                if(!err && interactions instanceof Array)
+                if(isNull(err) && interactions instanceof Array)
                 {
                     getFullInteractions(interactions, function(err, interactions){
-                        if(!err)
+                        if(isNull(err))
                         {
                             return callback(null, interactions);
                         }
@@ -157,7 +137,7 @@ Interaction.all = function(callback, streaming, customGraphUri) {
 
             function (err, result)
             {
-                if (!err && result instanceof Array && result.length === 1)
+                if (isNull(err) && result instanceof Array && result.length === 1)
                 {
                     const count = result[0].n_interactions;
                     const n_pages = Math.ceil(count / Config.streaming.db.page_size);
@@ -220,7 +200,7 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     getFullInteractions(interactions, function(err, interactions){
                                         return callback(err, interactions, cb);
@@ -324,8 +304,8 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
             [
                 targetTable,
                 self.uri,
-                moment(self.dcterms.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
-                moment(self.dcterms.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
+                moment(self.ddr.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
+                moment(self.ddr.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
                 self.ddr.performedBy,
                 self.ddr.interactionType,
                 self.ddr.executedOver,
@@ -339,15 +319,18 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
             inserts.push(moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"));
         }
 
-        console.log(insertNewInteractionQuery);
+        if(Config.debug.database.log_all_queries)
+            console.log(insertNewInteractionQuery);
 
-        mysql().getConnection(function (err, connection) {
-            if (!err) {
+        mysql.pool.getConnection(function (err, connection) {
+            if (isNull(err)) {
                 connection.query(
                     insertNewInteractionQuery,
                     inserts,
                     function (err, rows, fields) {
-                        if (!err) {
+                        connection.release();
+                        
+                        if (isNull(err)) {
                             return callback(null, rows, fields);
                         }
                         else {
@@ -355,11 +338,10 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                             console.error(msg);
                             return callback(1, msg);
                         }
-
                     });
             }
             else {
-                var msg = "Unable to get MYSQL connection when registering new interaction";
+                const msg = "Unable to get MYSQL connection when registering new interaction";
                 console.error(msg);
                 console.error(err.stack);
                 return callback(1, msg);
@@ -375,12 +357,13 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
     }
     else
     {
-        mysql().getConnection(function(err, connection) {
-            if (!err)
+        mysql.pool.getConnection(function(err, connection) {
+            if (isNull(err))
             {
                 connection.query('SELECT * from ?? WHERE uri = ?', [targetTable, self.uri], function (err, rows, fields)
                 {
-                    if (!err)
+                    connection.release();
+                    if (isNull(err))
                     {
                         if (!isNull(rows) && rows instanceof Array && rows.length > 0)
                         {
@@ -569,8 +552,6 @@ Interaction.types =
     }
 };
 
-Interaction.prefixedRDFType = "ddr:Interaction";
-
-Interaction = Class.extend(Interaction, Resource);
+Interaction = Class.extend(Interaction, Resource, "ddr:Interaction");
 
 module.exports.Interaction = Interaction;

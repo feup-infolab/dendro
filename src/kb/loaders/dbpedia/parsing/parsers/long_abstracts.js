@@ -1,9 +1,12 @@
+const Pathfinder = global.Pathfinder;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
 function parseFile(dbConnection, fileName, cb)
 {
 	const lineReader = require('line-reader');
     const n3 = require('n3');
     const parser = new n3.Parser();
-    const async = require('async');
+    const async = require("async");
     const listOfErrorsThatOccurred = [];
 
     const runAfterFinishing = function () {
@@ -28,7 +31,7 @@ function parseFile(dbConnection, fileName, cb)
 
                         parser.parse(line,
                             function (err, triple) {
-                                if (triple && !err)
+                                if (triple && isNull(err))
                                 {
                                     return callback(null, triple);
                                 }

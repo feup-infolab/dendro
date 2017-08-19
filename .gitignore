@@ -60,3 +60,4 @@ running.pid
 .vs/dendro/v15/.suo
 .vs/VSWorkspaceState.json
 .vs/slnx.sqlite
+package-lock\.json

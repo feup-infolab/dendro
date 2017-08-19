@@ -1,10 +1,10 @@
 const lib = require('./lib/sword-connection');
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 /*
  Example of options
@@ -96,7 +96,7 @@ exports.sendFiles = function(options, callback){
                     return callback(true, "Error sending files to " + options.collectionRef);
                 }
                 else{
-                    return callback(false, "Files sent successfully");
+                    return callback(null, "Files sent successfully");
                 }
             }
         );

@@ -15,7 +15,8 @@ angular.module('dendroApp.controllers')
         $timeout,
         metadataService,
         windowService,
-        filesService
+        filesService,
+        projectsService
     ) {
         $scope.revert_to_version = function(version) {
             metadataService.revert_to_version(
@@ -25,12 +26,35 @@ angular.module('dendroApp.controllers')
 
         $scope.get_project_stats = function()
         {
+            function getStats(uri)
+            {
+                filesService.get_stats(uri)
+                    .then(function(response)
+                    {
+                        $scope.shared.project_stats = response.data;
+                    });
+            };
 
-            filesService.get_stats($scope.get_owner_project_uri())
-                .then(function(response)
-                {
-                    $scope.shared.project_stats = response.data;
-                });
+            if($scope.showing_project_root())
+            {
+                getStats($scope.get_calling_uri());
+            }
+            else
+            {
+                $scope.get_owner_project()
+                    .then(function(ownerProject)
+                    {
+                        if(ownerProject != null)
+                        {
+                            getStats(ownerProject.uri);
+                        }
+                    })
+                    .catch(function(e){
+                        console.error("Unable to fetch parent project of the currently selected file.");
+                        console.error(JSON.stringify(e));
+                        windowService.show_popup("error", "Error", e.statusText);
+                    });
+            }
         };
 
         $scope.get_recent_changes_of_resource = function()
@@ -38,7 +62,7 @@ angular.module('dendroApp.controllers')
             $scope.getting_change_log = true;
 
             /**INIT**/
-            metadataService.get_recent_changes_of_resource(windowService.get_current_url())
+            metadataService.get_recent_changes_of_resource($scope.get_calling_uri())
                 .then(function(response)
                 {
                     var recent_versions = response.data;
@@ -53,17 +77,35 @@ angular.module('dendroApp.controllers')
 
         $scope.get_recent_changes_of_project = function()
         {
-            /**INIT**/
-            metadataService.get_recent_changes_of_project($scope.get_owner_project_uri())
-                .then(function(response)
+            function getChangesOfProject(rootProject)
+            {
+                if(rootProject != null)
                 {
-                    var recent_versions = response.data;
-                    for(var i = 0; i < recent_versions.length; i++)
-                    {
-                        recent_versions[i].thumbnail = '/images/icons/extensions/file_extension_'+ recent_versions[i].ddr.isVersionOf.ddr.fileExtension + ".png";
-                    }
+                    metadataService.get_recent_changes_of_project(rootProject)
+                        .then(function(response)
+                        {
+                            var recent_versions = response.data;
+                            for(var i = 0; i < recent_versions.length; i++)
+                            {
+                                recent_versions[i].thumbnail = '/images/icons/extensions/file_extension_'+ recent_versions[i].ddr.isVersionOf.ddr.fileExtension + ".png";
+                            }
 
-                    $scope.shared.recent_versions = recent_versions;
-                });
+                            $scope.shared.recent_versions = recent_versions;
+                        });
+                }
+            };
+
+            if($scope.showing_project_root())
+            {
+                getChangesOfProject($scope.get_calling_uri());
+            }
+            else
+            {
+                projectsService.get_owner_project_of_resource($scope.get_calling_uri())
+                    .then(function(rootProject)
+                    {
+                        getChangesOfProject(rootProject.uri);
+                    });
+            }
         };
     });

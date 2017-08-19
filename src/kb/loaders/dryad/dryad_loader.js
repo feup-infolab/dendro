@@ -1,17 +1,11 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const Loader = require(Config.absPathInSrcFolder("/kb/loaders/loader.js")).Loader;
-const HarvestedResource = require(Config.absPathInSrcFolder("/models/harvesting/harvested_resource.js")).HarvestedResource;
-const ExternalRepository = require(Config.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
-
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const Loader = require(Pathfinder.absPathInSrcFolder("/kb/loaders/loader.js")).Loader;
+const HarvestedResource = require(Pathfinder.absPathInSrcFolder("/models/harvesting/harvested_resource.js")).HarvestedResource;
+const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
 
 function DryadLoader ()
 {
@@ -34,7 +28,7 @@ DryadLoader.prototype.downloadFiles = function() {
 
 DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
     const dir = (__dirname + "/DryadCrawler/dryad_mets");
-    const fs = require('fs');
+    const fs = require("fs");
 
     const dryadRepository = new ExternalRepository({
         uri: "http://dryad.org",
@@ -48,16 +42,16 @@ DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
 
     dryadRepository.save(function(err, result)
     {
-        if(!err)
+        if(isNull(err))
         {
             fs.readdir(dir,function(err,files)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     files.forEach(function(file)
                     {
                         fs.readFile(dir+"/"+file,'utf-8',function(err,contents){
-                            if (!err)
+                            if (isNull(err))
                             {
                                 console.log("No error, parsing file " + file);
                                 const xmlParser = require('xml2js').parseString;

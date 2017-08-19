@@ -7,7 +7,7 @@ angular.module('dendroApp.services')
 
             if(typeof typed != "undefined")
             {
-                var requestUri = '/ontologies/autocomplete?query=' + typed;
+                var requestUri = "/ontologies/autocomplete?query=" + typed;
 
                 return $http.get(requestUri).then(function(response) {
                     return response.data;

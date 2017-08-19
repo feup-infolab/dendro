@@ -1,49 +1,31 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
-const uuid = require('uuid');
-
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const db_social = function () {
-    return GLOBAL.db.social;
-}();
-
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Event = require(Pathfinder.absPathInSrcFolder("/models/social/event.js")).Event;
+const uuid = require("uuid");
 
 function Comment (object)
 {
+    const self = this;
+    self.addURIAndRDFType(object, "comment", Comment);
     Comment.baseConstructor.call(this, object);
-    let self = this;
 
     self.copyOrInitDescriptors(object);
 
-    self.rdf.type = "ddr:Comment";
-
-    if(!isNull(object.uri))
+    const newId = uuid.v4();
+    
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/comments/" + uuid.v4();
+        self.ddr.humanReadableURI = Config.baseUri + "/comments/" + newId;
     }
 
     return self;
 }
 
-Comment = Class.extend(Comment, Event);
+Comment = Class.extend(Comment, Event, "ddr:Comment");
 
 module.exports.Comment = Comment;
 

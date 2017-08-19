@@ -29,12 +29,37 @@ angular.module('dendroApp.controllers')
                         .then(
                             function(metadata)
                             {
-                                $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
-                                $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
+                                $scope.reset_metadata(metadata);
                             }
                         );
                 }
             });
+        };
+
+        $scope.has_editable_metadata = function()
+        {
+            if($scope.shared.metadata == null ||  ($scope.shared.metadata instanceof Array && $scope.shared.metadata.length === 0))
+                return false;
+            else
+            {
+                const is_editable = function(descriptor)
+                {
+                    return !descriptor.private &&
+                    !descriptor.locked &&
+                    !( descriptor.locked_for_project && $scope.shared.showing_project_root);
+                }
+
+                for(var i = 0; i < $scope.shared.metadata.length; i++)
+                {
+                    var descriptor = $scope.shared.metadata[i];
+                    if(is_editable(descriptor))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         };
 
         $scope.descriptor_is_valid = function(descriptor) {
@@ -121,7 +146,7 @@ angular.module('dendroApp.controllers')
                 {
                     console.log(fault);
                     windowService.show_popup("error", "Error", fault);
-                    deferred.reject(msg);
+                    deferred.reject(fault);
                 };
 
                 save_metadata()
@@ -388,7 +413,7 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function()
         {
-            $scope.load_metadata();
+
         };
     })
 ;

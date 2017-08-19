@@ -1,15 +1,13 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const DryadLoader = require(Config.absPathInSrcFolder("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
-const IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DryadLoader = require(Pathfinder.absPathInSrcFolder("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const db = Config.getDBByGraphUri();
 
 module.exports.home = function(req, res) {
     res.render('admin/home',
@@ -26,10 +24,10 @@ module.exports.reload = function(req, res)
     const async = require("async");
 
     const renderResponse = function (err, messages) {
-        if (!err) {
+        if (isNull(err)) {
             const util = require('util');
             //noinspection ES6ConvertVarToLetConst
-            var messages = "All resources successfully loaded in graph(s) : ";
+            let messages = "All resources successfully loaded in graph(s) : ";
 
             for (let i = 0; i < graphNames.length; i++) {
                 messages = messages + " " + graphNames[i];
@@ -114,13 +112,93 @@ module.exports.reload = function(req, res)
 
 module.exports.reindex = function(req, res)
 {
-    const self = this;
-
     const indexConnection = req.index;
     const graphsToBeIndexed = req.query.graphs;
     const graphsToDelete = req.query.graphs_to_delete;
 
-    const async = require('async');
+    const async = require("async");
+
+    const rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindexing, callback)
+    {
+        const self = this;
+        let index = null;
+
+        for(let graph in IndexConnection.indexes)
+        {
+            if(IndexConnection.indexes.hasOwnProperty(graph) && IndexConnection.indexes[graph].short_name === graphShortName)
+            {
+                index = IndexConnection.indexes[graph];
+                break;
+            }
+        }
+
+        if(!isNull(index))
+        {
+            const async = require("async");
+
+            async.waterfall([
+                    function(callback) //delete current index if requested
+                    {
+                        indexConnection.create_new_index(1, 1, deleteBeforeReindexing, function(err,result)
+                        {
+                            if(isNull(err) && result)
+                            {
+                                console.log("Index "+indexConnection.index.short_name+" recreated .");
+                                return callback(null);
+
+                            }
+                            else
+                            {
+                                console.log("Error recreating index "+indexConnection.index.short_name+" . " + result);
+                                return callback(1); //delete success, move on
+                            }
+                        });
+                    },
+                    function(callback) //select all elements in the knowledge base
+                    {
+                        Resource.all(null, function(err, resources) {
+                            if(isNull(err))
+                            {
+                                for(let i = 0; i < resources.length; i++)
+                                {
+                                    const resource = resources[i];
+                                    console.log("Resource " + resource.uri + " now being reindexed.");
+
+                                    resource.reindex(indexConnection, function(err, results)
+                                    {
+                                        if(err)
+                                        {
+                                            console.error("Error indexing Resource " + resource.uri + " : " + results);
+                                        }
+                                    });
+                                }
+
+                                return callback(null, null);
+                            }
+                            else
+                            {
+                                return callback(1, "Error fetching all resources in the graph : " + results);
+                            }
+                        });
+                    }
+                ],
+                function(err, results)
+                {
+                    if(isNull(err))
+                    {
+                        return callback(null, results);
+                    }
+                    else
+                    {
+                        return callback(1, results);
+                    }
+                });
+        }
+        else
+        {
+            return callback(1, "Non-existent index : " + graphShortName);
+        }
+    };
 
     for(graph in graphsToBeIndexed)
     {
@@ -154,86 +232,5 @@ module.exports.reindex = function(req, res)
     }
 };
 
-var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindexing, callback)
-{
-    const self = this;
-    let index = null;
-
-    for(let graph in IndexConnection.indexes)
-    {
-        if(IndexConnection.indexes.hasOwnProperty(graph) && IndexConnection.indexes[graph].short_name === graphShortName)
-        {
-            index = IndexConnection.indexes[graph];
-            break;
-        }
-    }
-
-    if(!isNull(index))
-    {
-        const async = require('async');
-
-        async.waterfall([
-            function(callback) //delete current index if requested
-            {
-                indexConnection.create_new_index(1, 1, deleteBeforeReindexing, function(err,result)
-                {
-                    if(!err && result)
-                    {
-                        console.log("Index "+indexConnection.index.short_name+" recreated .");
-                        return callback(null);
-
-                    }
-                    else
-                    {
-                        console.log("Error recreating index "+indexConnection.index.short_name+" . " + result);
-                        return callback(1); //delete success, move on
-                    }
-                });
-            },
-            function(callback) //select all elements in the knowledge base
-            {
-                Resource.all(null, function(err, resources) {
-                    if(!err)
-                    {
-                        for(let i = 0; i < resources.length; i++)
-                        {
-                            const resource = resources[i];
-                            console.log("Resource " + resource.uri + " now being reindexed.");
-
-                            resource.reindex(indexConnection, function(err, results)
-                            {
-                                if(err)
-                                {
-                                    console.error("Error indexing Resource " + resource.uri + " : " + results);
-                                }
-                            });
-                        }
-
-                        return callback(0, null);
-                    }
-                    else
-                    {
-                        return callback(1, "Error fetching all resources in the graph : " + results);
-                    }
-                });
-            }
-        ],
-            function(err, results)
-            {
-                if(!err)
-                {
-                    return callback(null, results);
-                }
-                else
-                {
-                    return callback(1, results);
-                }
-            });
-    }
-    else
-    {
-        return callback(1, "Non-existent index : " + graphShortName);
-    }
-};
 
 

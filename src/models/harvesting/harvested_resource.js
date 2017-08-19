@@ -1,18 +1,13 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const db = Config.getDBByID();
 
 function HarvestedResource(object)
 {
@@ -23,8 +18,6 @@ function HarvestedResource(object)
     self.ddr.lastHarvested = object.ddr.lastHarvested;
     self.ddr.md5Checksum = object.ddr.md5Checksum;
     self.ddr.sourceRepository = object.ddr.sourceRepository;
-
-    self.rdf.type = "ddr:HarvestedResource";
 
     return self;
 }
@@ -144,11 +137,11 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
         argumentsArray,
         function(err, result)
         {
-            if(!err)
+            if(isNull(err))
             {
                 self.reindex(indexConnection, function(err, result)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, "Metadata successfully inserted for resource : "+ self.uri + " Virtuoso error : " + result);
                     }
@@ -169,6 +162,6 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
     );
 };
 
-HarvestedResource = Class.extend(HarvestedResource, Resource);
+HarvestedResource = Class.extend(HarvestedResource, Resource, "ddr:HarvestedResource");
 
 module.exports.HarvestedResource = HarvestedResource;

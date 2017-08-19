@@ -1,13 +1,13 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const ResearchDomain = require(Config.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
+const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 exports.autocomplete = function(req, res) {
 
@@ -19,7 +19,7 @@ exports.autocomplete = function(req, res) {
             query,
             function(err, research_domains)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     for(let i = 0; i < research_domains.length; i++)
                     {
@@ -63,7 +63,7 @@ exports.all = function(req, res) {
     ResearchDomain.all(req,
         function(err, research_domains)
         {
-            if(!err)
+            if(isNull(err))
             {
                 const getResearchDomainProperties = function (resultRow, cb) {
                     ResearchDomain.findByUri(resultRow.uri, function (err, project) {
@@ -73,7 +73,7 @@ exports.all = function(req, res) {
 
                 async.map(research_domains, getResearchDomainProperties, function(err, researchDomains)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         res.json({
                             result: "ok",
@@ -111,7 +111,7 @@ exports.edit = function(req, res) {
     {
         async.map(newResearchDomains,
         function(domain, callback){
-            new ResearchDomain(domain, function(err, rd){
+            ResearchDomain.create(domain, function(err, rd){
                 rd.save(function(err, result){
                     if(err)
                     {
@@ -124,7 +124,7 @@ exports.edit = function(req, res) {
             });
         },
         function(err, results){
-            if(!err)
+            if(isNull(err))
             {
                 res.json({
                         result : "ok",
@@ -151,12 +151,12 @@ exports.delete = function(req, res) {
     if(!isNull(uriOfResearchDomainToDelete))
     {
         ResearchDomain.findByUri(uriOfResearchDomainToDelete, function(err, research_domain){
-            if(!err)
+            if(isNull(err))
             {
                 if(typeof research_domain !== "undefined")
                 {
                     research_domain.deleteAllMyTriples(function(err, result){
-                        if(!err)
+                        if(isNull(err))
                         {
                             res.json({
                                     result : "ok",

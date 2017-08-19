@@ -39,7 +39,7 @@ angular.module('dendroApp.services')
                         var objectOfInteractionString = JSON.stringify(objectOfInteraction);
 
                         return $http({
-                            method: 'POST',
+                            method: "POST",
                             url: url,
                             data: objectOfInteractionString,
                             contentType: "application/json",

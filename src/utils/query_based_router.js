@@ -1,12 +1,12 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const _ = require('underscore');
+const _ = require("underscore");
 
-const Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
 const QueryBasedRouter = function () {
 };
@@ -17,7 +17,6 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
     const method = req.originalMethod.toLowerCase();
     let matchingRoute;
     let routeThatMatchesTheMostQueries;
-
 
     function extractFirstElementFromArray(array)
     {
@@ -94,7 +93,6 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
         });
     }
 
-    var methodRoutes;
     if(!isNull(routes[method])) {
         matchingRoute = getMatchingRoute(routes[method]);
 

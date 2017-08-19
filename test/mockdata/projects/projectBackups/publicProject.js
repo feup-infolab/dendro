@@ -1,5 +1,5 @@
-var projectBackupData = {
-    path : process.cwd() + "\\test\\mockdata\\files\\projectZipBackUp.zip"
+const projectBackupData = {
+    path: process.cwd() + "\\test\\mockdata\\files\\projectZipBackUp.zip"
 };
 
 module.exports = projectBackupData;

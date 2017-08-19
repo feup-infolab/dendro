@@ -1,6 +1,6 @@
 module.exports.parseAllFiles = function(dbConnection, rootFolder, cb) {
 
-    const async = require('async');
+    const async = require("async");
     const allMessages = [];
 
     async.waterfall([
@@ -16,8 +16,8 @@ module.exports.parseAllFiles = function(dbConnection, rootFolder, cb) {
                         allMessages.push.apply(allMessages, messagesFromThisParser);
                     }
 
-                    return callback(null); //continue with the other parsers
                     console.log("Finished long abstracts.");
+                    return callback(null); //continue with the other parsers
                 }
             );
         },

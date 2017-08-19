@@ -20,7 +20,7 @@ angular.module('dendroApp.services')
                     var URL = windowService.get_current_url();
 
                     $http({
-                        method: 'POST',
+                        method: "POST",
                         url: URL,
                         data: requestPayload,
                         contentType: "application/json",
@@ -54,7 +54,7 @@ angular.module('dendroApp.services')
                     URL += "?administer";
 
                     $http({
-                        method: 'POST',
+                        method: "POST",
                         url: URL,
                         data: requestPayload,
                         contentType: "application/json",
@@ -103,5 +103,38 @@ angular.module('dendroApp.services')
                     );
 
                     return deferred.promise;
+                };
+
+                this.get_owner_project_of_resource = function(uri)
+                {
+                    if(uri == null)
+                    {
+                        uri = windowService.get_current_url();
+                    }
+
+                    var requestUri = uri + "?owner_project";
+
+                    var deserialize = $q.defer();
+
+                    $http({
+                        method: 'GET',
+                        url: requestUri,
+                        data: JSON.stringify({}),
+                        contentType: "application/json",
+                        headers: {'Accept': "application/json"}
+                    }).then(
+                        function(response)
+                        {
+                            if(response.data != null && response.data instanceof Object)
+                            {
+                                deserialize.resolve(response.data);
+                            }
+                            else
+                            {
+                                deserialize.reject([]);
+                            }
+                        });
+
+                    return deserialize.promise;
                 };
         }]);

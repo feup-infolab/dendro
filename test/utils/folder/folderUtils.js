@@ -1,5 +1,5 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 const binaryParser = require('../file/fileUtils.js').binaryParser;
@@ -10,7 +10,7 @@ exports.createFolderInProject = function(jsonOnly, agent, targetFolderInProject,
         ///project/PROJECTHANDLE?mkdir=FOLDERNAME
         agent
             .post('/project/' + projectHandle  + targetFolderInProject  + '?mkdir=' + folderName)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -31,7 +31,7 @@ exports.viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -53,7 +53,7 @@ exports.downloadFolder= function (jsonOnly, agent, targetFolderInProject, folder
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .buffer()
             .parse(binaryParser)
             .end(function (err, res) {
@@ -79,7 +79,7 @@ exports.backupFolder= function (jsonOnly, agent, targetFolderInProject, folderNa
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .buffer()
             .parse(binaryParser)
             .end(function (err, res) {
@@ -105,7 +105,7 @@ exports.removeFolder= function (jsonOnly, agent, targetFolderInProject, folderNa
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

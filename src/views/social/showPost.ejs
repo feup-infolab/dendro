@@ -4,7 +4,7 @@
     <div ng-init='getPost("<%= postUri %>", null);postLikesInfo("<%= postUri %>");getCommentsFromPost("<%= postUri %>");getSharesFromPost("<%= postUri %>")'>
         <div class="panel panel-info" ng-if='postList["<%= postUri %>"].rdf.isShare'>
             <div class="panel-heading">
-                <h3 class="panel-title"> {{postList["<%= postUri %>"].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postList['<%= postUri %>'].ddr.userWhoShared}}"> {{postList["<%= postUri %>"].ddr.userWhoShared.split('/').pop()}} </a> : "{{postList["<%= postUri %>"].ddr.shareMsg}}"</h3>
+                <h3 class="panel-title"> {{postList["<%= postUri %>"].ddr.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postList['<%= postUri %>'].ddr.userWhoShared}}"> {{postList["<%= postUri %>"].ddr.userWhoShared.split('/').pop()}} </a> : "{{postList["<%= postUri %>"].ddr.shareMsg}}"</h3>
             </div>
             <div class="panel-body">
                 <!-- obtain the original post information-->
@@ -12,7 +12,7 @@
                     <!-- The info from the original post-->
                     <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
                         <div class="panel-heading">
-                            <h3 class="panel-title"> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.modified | date : "dd/MMM/yyyy"}} <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].dcterms.creator}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType]}} a descriptor </h3>
+                            <h3 class="panel-title"> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.modified | date : "dd/MMM/yyyy"}} <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].dcterms.creator}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType]}} a descriptor </h3>
                         </div>
                         <div class="panel-body">
                             <table class="table changelog-table text-center">
@@ -62,7 +62,7 @@
         <!-- aqui -->
         <div class="panel panel-success" ng-if='!postList["<%= postUri %>"].rdf.isShare'>
             <div class="panel-heading">
-                <h3 class="panel-title"> {{postList["<%= postUri %>"].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postList['<%= postUri %>'].dcterms.creator}}"> {{postList["<%= postUri %>"].dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postList["<%= postUri %>"].ddr.changeType]}} a descriptor </h3>
+                <h3 class="panel-title"> {{postList["<%= postUri %>"].ddr.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postList['<%= postUri %>'].dcterms.creator}}"> {{postList["<%= postUri %>"].dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postList["<%= postUri %>"].ddr.changeType]}} a descriptor </h3>
             </div>
             <div class="panel-body">
                 <img width="10%" height="10%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
@@ -116,10 +116,10 @@
 
     <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
         <div class="wall">
-            <div ng-repeat="comment in commentList[postList['<%= postUri %>'].uri] | orderBy: 'dcterms.created'">
+            <div ng-repeat="comment in commentList[postList['<%= postUri %>'].uri] | orderBy: 'ddr.created'">
                 <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
                 <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
-                <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+                <span>{{comment.ddr.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
                 <hr>
             </div>
             <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>

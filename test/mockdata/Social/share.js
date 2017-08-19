@@ -1,4 +1,4 @@
-var shareData = {
+const shareData = {
     msg: "THIS IS A SHARE TEST MESSAGE"
 };
 

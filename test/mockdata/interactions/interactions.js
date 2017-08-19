@@ -1,10 +1,12 @@
-let Config = global.Config;
+const path = require("path");
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
 const demouser1 = require("../users/demouser1.js");
 const folder = require("../folders/folder.js");
 
 const dcAbstractDescriptor = require("../descriptors/dcterms_abstract");
-const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 
 //TODO
 const interactionTemplate = {

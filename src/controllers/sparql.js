@@ -1,16 +1,14 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const db = Config.getDBByID();
 
 /*
  * GET users listing.
@@ -28,7 +26,7 @@ exports.show = function(req, res){
 
     User.all(function(err, users)
     {
-        if(!err)
+        if(isNull(err))
         {
             viewVars.users = users;
 

@@ -1,9 +1,8 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Post = require('../models/social/post.js').Post;
 const Like = require('../models/social/like.js').Like;
 const Comment = require('../models/social/comment.js').Comment;
 const Share = require('../models/social/share.js').Share;
@@ -12,20 +11,176 @@ const Project = require('../models/project.js').Project;
 const FileVersion = require('../models/versions/file_version.js').FileVersion;
 const Notification = require('../models/notifications/notification.js').Notification;
 const DbConnection = require("../kb/db.js").DbConnection;
-const _ = require('underscore');
+const _ = require("underscore");
 
-const async = require('async');
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const async = require("async");
+const db = Config.getDBByID();
+
 const db_social = function () {
-    return GLOBAL.db.social;
+    return Config.db.social;
 }();
+
 const db_notifications = function () {
-    return GLOBAL.db.notifications;
+    return Config.db.notifications;
 }();
 
 const app = require('../app');
+
+const getNumLikesForAFileVersion = function(fileVersionUri, cb) {
+    const self = this;
+
+    const query =
+        "SELECT ?likeURI ?userURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : fileVersionUri
+            }
+        ]),
+        function(err, results) {
+            if(isNull(err))
+            {
+                cb(false, results);
+            }
+            else
+            {
+                cb(true, "Error fetching number of likes for a fileVersion");
+            }
+        });
+};
+
+const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) {
+    const self = this;
+
+    const query =
+        "SELECT ?likeURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked [2]. \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : fileVersionUri
+            },
+            {
+                type : DbConnection.resource,
+                value : currentUserUri
+            }
+        ]),
+        function(err, results) {
+            if(isNull(err))
+            {
+                let likeExists = false;
+                if(results.length > 0)
+                {
+                    const removeLikeInFileVersion = function (likeUri, currentUserUri, cb) {
+                        const query =
+                            "WITH [0] \n" +
+                            "DELETE {[1] ?p ?v}\n" +
+                            "WHERE { \n" +
+                            "[1] ?p ?v \n" +
+                            "} \n";
+
+                        db.connection.execute(query,
+                            DbConnection.pushLimitsArguments([
+                                {
+                                    type: DbConnection.resourceNoEscape,
+                                    value: db_social.graphUri
+                                },
+                                {
+                                    type: DbConnection.resource,
+                                    value: likeUri
+                                }
+                            ]),
+                            function (err, results) {
+                                if (isNull(err)) {
+                                    let likeExists = false;
+                                    if (results.length > 0) {
+                                        likeExists = true;
+                                    }
+                                    cb(false, likeExists);
+                                }
+                                else {
+                                    cb(true, "Error Liking a fileVersion");
+                                }
+                            });
+                    };
+                    
+                    removeLikeInFileVersion(results[0].likeURI, currentUserUri, function (err, data) {
+                        likeExists = true;
+                        cb(err, likeExists);
+                    });
+                }
+                else
+                    cb(err, likeExists);
+            }
+            else
+            {
+                cb(true, "Error Liking FileVersion");
+            }
+        });
+};
+
+const getSharesForAFileVersion = function (fileVersionUri, cb) {
+
+    const query =
+        "SELECT ?shareURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?shareURI rdf:type ddr:Share. \n" +
+        "?shareURI ddr:fileVersionUri [1]. \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : fileVersionUri
+            }
+        ]),
+        function(err, results) {
+            if(isNull(err))
+            {
+                async.map(results, function(shareObject, callback){
+                    Share.findByUri(shareObject.shareURI, function(err, share)
+                    {
+                        return callback(false,share);
+                    }, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                }, function (err, shares) {
+                    cb(false, shares);
+                });
+            }
+            else
+            {
+                cb(true, "Error shares for a FileVersion");
+            }
+        });
+};
 
 const numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
     if (projectUrisArray && projectUrisArray.length > 0) {
@@ -54,7 +209,7 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
                     }
                 ]),
                 function (err, results) {
-                    if (!err) {
+                    if (isNull(err)) {
                         return callback(err, results[0].count);
                     }
                     else {
@@ -75,13 +230,13 @@ exports.numFileVersionsInDatabase = function (req, res) {
     const currentUserUri = req.user.uri;
 
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
-        if(!err)
+        if(isNull(err))
         {
             async.map(projects, function (project, cb1) {
                 cb1(null, project.uri);
             }, function (err, fullProjectsUris) {
                 numFileVersionsDatabaseAux(fullProjectsUris, function (err, count) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         res.json(count);
                     }
@@ -119,7 +274,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
                 "VALUES ?project { \n" +
                 projectsUris + "\n" +
                 "}. \n" +
-                "?fileVersion dcterms:modified ?date. \n" +
+                "?fileVersion ddr:modified ?date. \n" +
                 "{?fileVersion rdf:type ddr:FileVersion. }\n" +
                 "UNION \n" +
                 "{?fileVersion ddr:fileVersionUri ?x }\n" +
@@ -137,7 +292,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
                     }
                 ]),
                 function (err, results) {
-                    if (!err) {
+                    if (isNull(err)) {
                         return callback(err, results);
                     }
                     else {
@@ -161,13 +316,13 @@ exports.all = function (req, res) {
     const maxResults = 5;
     
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
-       if(!err)
+       if(isNull(err))
        {
            async.map(projects, function (project, cb1) {
                cb1(null, project.uri);
            }, function (err, projectsUris) {
                getProjectFileVersions(projectsUris, index, maxResults, function (err, fileVersions) {
-                   if(!err)
+                   if(isNull(err))
                    {
                        res.json(fileVersions);
                    }
@@ -189,7 +344,7 @@ exports.getFileVersion = function (req, res) {
     const fileVersionUri = req.body.fileVersionUri;
 
     FileVersion.findByUri(fileVersionUri, function (err, fileVersion) {
-        if(!err)
+        if(isNull(err))
         {
             res.json(fileVersion);
         }
@@ -210,7 +365,7 @@ exports.fileVersionLikesInfo = function (req, res) {
     let resultInfo;
 
     getNumLikesForAFileVersion(fileVersionUri, function (err, likesArray) {
-        if(!err)
+        if(isNull(err))
         {
             if(likesArray.length)
             {
@@ -237,48 +392,12 @@ exports.fileVersionLikesInfo = function (req, res) {
     });
 };
 
-var getNumLikesForAFileVersion = function(fileVersionUri, cb)
-{
-    const self = this;
-
-    const query =
-        "SELECT ?likeURI ?userURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked ?userURI . \n" +
-        "} \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value : fileVersionUri
-            }
-        ]),
-        function(err, results) {
-            if(!err)
-            {
-                cb(false, results);
-            }
-            else
-            {
-                cb(true, "Error fetching number of likes for a fileVersion");
-            }
-        });
-};
-
 exports.like = function (req, res) {
     const fileVersionUri = req.body.fileVersionUri;
     const currentUser = req.user;
 
     removeOrAdLikeFileVersion(fileVersionUri, currentUser.uri, function (err, likeExists) {
-        if(!err)
+        if(isNull(err))
         {
             if(likeExists)
             {
@@ -313,10 +432,10 @@ exports.like = function (req, res) {
 
                     newLike.save(function(err, resultLike)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             newNotification.save(function (error, resultNotification) {
-                                if(!error)
+                                if(isNull(error))
                                 {
                                     res.json({
                                         result : "OK",
@@ -354,89 +473,6 @@ exports.like = function (req, res) {
     });
 };
 
-const removeLikeInFileVersion = function (likeUri, currentUserUri, cb) {
-    const self = this;
-
-    const query =
-        "WITH [0] \n" +
-        "DELETE {[1] ?p ?v}\n" +
-        "WHERE { \n" +
-        "[1] ?p ?v \n" +
-        "} \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type: DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type: DbConnection.resource,
-                value: likeUri
-            }
-        ]),
-        function (err, results) {
-            if (!err) {
-                let likeExists = false;
-                if (results.length > 0) {
-                    likeExists = true;
-                }
-                cb(false, likeExists);
-            }
-            else {
-                cb(true, "Error Liking a fileVersion");
-            }
-        });
-};
-
-var removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) {
-    const self = this;
-
-    const query =
-        "SELECT ?likeURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked [2]. \n" +
-        "} \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value : fileVersionUri
-            },
-            {
-                type : DbConnection.resource,
-                value : currentUserUri
-            }
-        ]),
-        function(err, results) {
-            if(!err)
-            {
-                let likeExists = false;
-                if(results.length > 0)
-                {
-                    removeLikeInFileVersion(results[0].likeURI, currentUserUri, function (err, data) {
-                        likeExists = true;
-                        cb(err, likeExists);
-                    });
-                }
-                else
-                    cb(err, likeExists);
-            }
-            else
-            {
-                cb(true, "Error Liking FileVersion");
-            }
-        });
-};
-
 exports.comment = function (req, res) {
     const currentUser = req.user;
     const fileVersionUri = req.body.fileVersionUri;
@@ -465,10 +501,10 @@ exports.comment = function (req, res) {
 
         newComment.save(function(err, resultComment)
         {
-            if(!err)
+            if(isNull(err))
             {
                 newNotification.save(function (error, resultNotification) {
-                    if(!error)
+                    if(isNull(error))
                     {
                         res.json({
                             result : "OK",
@@ -531,10 +567,10 @@ exports.share = function (req, res) {
 
         newShare.save(function(err, resultShare)
         {
-            if(!err)
+            if(isNull(err))
             {
                 newNotification.save(function (error, resultNotification) {
-                    if(!error)
+                    if(isNull(error))
                     {
                         res.json({
                             result : "OK",
@@ -592,45 +628,4 @@ exports.fileVersion = function (req, res) {
             fileVersionUri : fileVersionUri
         }
     );
-};
-
-var getSharesForAFileVersion = function (fileVersionUri, cb) {
-    const self = this;
-
-    const query =
-        "SELECT ?shareURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?shareURI rdf:type ddr:Share. \n" +
-        "?shareURI ddr:fileVersionUri [1]. \n" +
-        "} \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value : fileVersionUri
-            }
-        ]),
-        function(err, results) {
-            if(!err)
-            {
-                async.map(results, function(shareObject, callback){
-                    Share.findByUri(shareObject.shareURI, function(err, share)
-                    {
-                        return callback(false,share);
-                    }, Ontology.getAllOntologiesUris(), db_social.graphUri);
-                }, function (err, shares) {
-                    cb(false, shares);
-                });
-            }
-            else
-            {
-                cb(true, "Error shares for a FileVersion");
-            }
-        });
 };
