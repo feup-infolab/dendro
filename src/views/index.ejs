@@ -20,7 +20,7 @@
           <div class="col-md-3 col-md-offset-2 text-center">
             <div class="service-item">
               <i class="fa fa-file-text fa-6" aria-hidden="true"></i>
-              <h2>Read papers<!--<a href="/papers/all">papers</a>--></h2>
+              <h3>Read papers<!--<a href="/papers/all">papers</a>--></h3>
               <!--<h4><span class="label label-primary">18917827</span> and counting</h4>-->
               <p>Find relevant bibliography by searching on high-quality metadata. The papers and other documents are contributed by researchers like yourself. </p>
             </div>
@@ -28,7 +28,7 @@
           <div class="col-md-3 text-center">
             <div class="service-item">
                 <i class="fa fa-archive fa-3"></i>
-                <h2>Browse datasets<!--<a href="/datasets/all">Datasets</a>--></h2>
+                <h3>Browse datasets<!--<a href="/datasets/all">Datasets</a>--></h3>
                 <!--<h4><span class="label label-primary">18917827</span> and counting</h4>-->
                 <p>Find high-quality, community-managed datasets, including domain-specific descriptions</p>
             </div>
@@ -36,7 +36,7 @@
           <div class="col-md-3 text-center">
             <div class="service-item">
               <i class="fa fa-user"></i>
-              <h2>Contact researchers<!--<a href="/researchers/all">Researchers</a>--></h2>
+              <h3>Contact researchers<!--<a href="/researchers/all">Researchers</a>--></h3>
               <!--<h4><span class="label label-primary">19811</span> and counting</h4>-->
               <p>Contact researchers who shared <!--<a href="/datasets/all">data</a>--> data on this Dendro</p>
             </div>
@@ -46,70 +46,66 @@
             Got it!
         </button>
       </div>
-        <div class="container">
+        <div ng-controller="registryCtrl" class="container">
             <div class="row">
 
                 <section class="content">
                     <h3>Latest deposits</h3>
-                    <div class="col-sm-12 col-md-8 col-md-offset-2">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <div class="table-container">
-                                    <table class="table table-responsive table-striped ">
-                                        <tbody>
-                                        <tr data-status="pagado">
-                                            <td>
-                                                <div class="media">
-                                                    <div class="media-body">
-                                                        <span class="media-meta pull-right">Febrero 13, 2016</span>
-                                                        <h4 class="title">
-                                                            <a href="">Username1</a> deposited the folder <a
-                                                                    href="" class="foldersLabel">boom</a> from private project <a href="">project1</a> in CKAN
-                                                        </h4>
-                                                        <p class="summary">Midway deposit for checkpoint</p>
-                                                        <img src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="ckan">
-                                                    </div>
-                                                </div>
-                                            </td>
+                    <div class="col-sm-12">
+                        <div class="table-container">
+                            <table class="table table-responsive table-striped table-bordered">
+                                <tbody>
+                                <tr data-status="pagado">
+                                    <td>
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <span class="media-meta pull-right">Febrero 13, 2016</span>
+                                                <h4 class="title">
+                                                    <a href="">Username1</a> deposited the folder <a
+                                                            href="" class="foldersLabel">boom</a> from private project <a href="">project1</a> in CKAN
+                                                </h4>
+                                                <p class="summary">Midway deposit for checkpoint</p>
+                                                <img src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="ckan">
+                                            </div>
+                                        </div>
+                                    </td>
 
-                                        </tr>
-                                        <tr data-status="pendiente">
+                                </tr>
+                                <tr data-status="pendiente">
 
-                                            <td>
-                                                <div class="media">
-                                                    <div class="media-body">
-                                                        <span class="media-meta pull-right">Febrero 13, 2016</span>
-                                                        <h4 class="title">
-                                                            <a href="">Username1</a> deposited the folder <a
-                                                                    href="" class="foldersLabel">boom/ola/asd/qwasdasdadadasdsaadaddadasdadaddadadaddaadawdadsade/dweq</a> from public project <a href="">project1</a> in CKAN
-                                                        </h4>
-                                                        <p class="summary">Ut enim ad minim veniam, quis nostrud exercitation...</p>
-                                                        <img src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="ckan">
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                    <td>
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <span class="media-meta pull-right">Febrero 13, 2016</span>
+                                                <h4 class="title">
+                                                    <a href="">Username1</a> deposited the folder <a
+                                                            href="" class="foldersLabel">boom/ola/asd/qwasdasdadadasdsaadaddadasdadaddadadaddaadawdadsade/dweq</a> from public project <a href="">project1</a> in CKAN
+                                                </h4>
+                                                <p class="summary">Ut enim ad minim veniam, quis nostrud exercitation...</p>
+                                                <img src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="ckan">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
 
-                                        <tr data-status="cancelado">
+                                <tr data-status="cancelado">
 
-                                            <td>
-                                                <div class="media">
-                                                    <div class="media-body">
-                                                        <span class="media-meta pull-right">Febrero 13, 2016</span>
-                                                        <h4 class="title">
-                                                            <a href="">Username1</a> deposited the folder <a
-                                                                    href="" class="foldersLabel">boom</a> from metadata only project <a href="">project1</a> in FigShare
-                                                        </h4>
-                                                        <p class="summary">Ut enim ad minim veniam, quis nostrud exercitation...</p>
-                                                        <img src="https://photos-2.dropbox.com/t/2/AACETOCqwQpgONXDe9SIy3PlIZSMfXqk8WPw8rQo5QfuMg/12/408809375/png/32x32/1/_/1/2/spiralsticker.png/ENmX4KIDGJ38ASACKAI/OOncbaHNp7yJfs0jN1b8XFVASTDZ0b-t2GMSL2UnWLc?size=2048x1536&size_mode=3" class="pull-right" height="20px" width="20px" alt="FigShare">
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                                    <td>
+                                        <div class="media">
+                                            <div class="media-body">
+                                                <span class="media-meta pull-right">Febrero 13, 2016</span>
+                                                <h4 class="title">
+                                                    <a href="">Username1</a> deposited the folder <a
+                                                            href="" class="foldersLabel">boom</a> from metadata only project <a href="">project1</a> in FigShare
+                                                </h4>
+                                                <p class="summary">Ut enim ad minim veniam, quis nostrud exercitation...</p>
+                                                <img src="https://photos-2.dropbox.com/t/2/AACETOCqwQpgONXDe9SIy3PlIZSMfXqk8WPw8rQo5QfuMg/12/408809375/png/32x32/1/_/1/2/spiralsticker.png/ENmX4KIDGJ38ASACKAI/OOncbaHNp7yJfs0jN1b8XFVASTDZ0b-t2GMSL2UnWLc?size=2048x1536&size_mode=3" class="pull-right" height="20px" width="20px" alt="FigShare">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>

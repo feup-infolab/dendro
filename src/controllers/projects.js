@@ -13,6 +13,8 @@ const Permissions = require(Config.absPathInSrcFolder("/models/meta/permissions.
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
+const Registry = require(Config.absPathInSrcFolder("/models/registry.js")).Registry;
+
 const nodemailer = require('nodemailer');
 const db = function () {
     return GLOBAL.db.default;
@@ -746,6 +748,18 @@ exports.new = function(req, res) {
                             {
                                 req.flash('success', "New project " + projectData.dcterms.title +" with handle "+ projectData.ddr.handle +" created successfully");
                                 res.redirect('/projects/my');
+
+                                const registryData = {
+                                    dcterms: {
+                                        title: "new project",
+                                        description: "ckan",
+                                        creator: "demouser2",
+                                        date: "today"
+                                    }
+                                };
+                                Registry.createDepositRegistry(registryData, function(err, result){
+
+                                });
                             }
                             else
                             {

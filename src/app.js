@@ -1083,6 +1083,7 @@ async.series([
         const posts = require(Config.absPathInSrcFolder("/controllers/posts"));
         const fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
         const notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
+        const registry = require(Config.absPathInSrcFolder("/models/registry"));
 
         const auth = require(Config.absPathInSrcFolder("/controllers/auth"));
         const auth_orcid = require(Config.absPathInSrcFolder("/controllers/auth_orcid"));
@@ -1331,6 +1332,9 @@ async.series([
         app.get('/register', auth.register);
         app.post('/register', auth.register);
         app.get('/logout', async.apply(Permissions.require, [Permissions.role.system.user]), auth.logout);
+
+        //TODO Here
+        app.get('/deposit', registry.getDeposits);
 
         //people listing
         app.get('/users', users.all);

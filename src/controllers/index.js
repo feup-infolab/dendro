@@ -3,9 +3,14 @@ const Config = function () {
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const registry = require(Config.absPathInSrcFolder("/models/registry"));
+
 
 exports.index = function(req, res){
 
+    registry.getDeposits();
+
+    //TODO query to get latest deposits
     res.render('index',
         {}
     );
