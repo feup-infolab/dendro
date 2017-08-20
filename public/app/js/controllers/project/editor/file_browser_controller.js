@@ -201,10 +201,10 @@ angular.module('dendroApp.controllers')
                             $scope.get_calling_uri()
                         ).then(function(result){
                             $scope.load_folder_contents();
-                            windowService.show_popup('success', ' There was an error renaming the resource', 'Server returned status code ' + status + " and message :\n" + error);
+                            windowService.show_popup("success", "OK", "Rename successful");
                         }).catch(function(error){
                             console.error("Unable to rename resource: " + JSON.stringify(error));
-                            windowService.show_popup('error', ' There was an error renaming the resource', 'Server returned status code ' + status + " and message :\n" + error);
+                            windowService.show_popup("error", "There was an error renaming the resource", "Server returned status code " + status + " and message :\n" + error);
                         });
                     }
                 }
@@ -218,6 +218,19 @@ angular.module('dendroApp.controllers')
             windowService.show_popup('info',  $scope.cut_files.length + " files cut", "Go to the target folder and paste them");
         else
             windowService.show_popup('info',  "Nothing selected", "Please select the files before cutting");
+    };
+
+    $scope.get_clipboard_file_count = function() {
+        if($scope.copied_files != null)
+            return $scope.copied_files.length;
+        else if($scope.cut_files != null)
+            return  $scope.cut_files.length;
+        else
+            return 0;
+    };
+
+    $scope.files_exist_in_clipboard = function() {
+        return ($scope.get_clipboard_file_count() > 0);
     };
 
     $scope.cut = function() {

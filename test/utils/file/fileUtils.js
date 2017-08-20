@@ -139,9 +139,42 @@ module.exports.downloadFile = function(acceptsJSON, agent, projectHandle, folder
     }
 };
 
+module.exports.renameProject = function(acceptsJSON, agent, projectHandle, newName, cb)
+{
+    //this function should always fail because projects cannot be renamed
+    let targetUrl = "/project/" + projectHandle;
+
+    if(acceptsJSON)
+    {
+        agent
+            .post(targetUrl)
+            .query(
+                {
+                    rename : newName
+                })
+            .set("Accept", "application/json")
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(targetUrl)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports.renameFile = function(acceptsJSON, agent, projectHandle, folderName, fileName, newName, cb)
 {
-    const parentUrl = "/project/" + projectHandle + "/data/" + folderName;
+    let parentUrl = "/project/" + projectHandle;
+
+    if(folderName)
+    {
+        parentUrl += "/data/" + folderName;
+    }
 
     agent
         .get(parentUrl)
@@ -151,38 +184,45 @@ module.exports.renameFile = function(acceptsJSON, agent, projectHandle, folderNa
             })
         .set("Accept", "application/json")
         .end(function(err, res) {
-            const contents = JSON.parse(res.text);
-            const file = _.find(contents, function(file){
-                return file.nie.title === fileName;
-            });
-
-            if(!file)
+            if(res.statusCode != 200)
             {
-                cb("File with name " + fileName + " not found in " + folderName, res);
+                cb(err, res);
             }
             else
             {
-                if(acceptsJSON)
+                const contents = JSON.parse(res.text);
+                const file = _.find(contents, function(file){
+                    return file.nie.title === fileName;
+                });
+
+                if(!file)
                 {
-                    const targetUrl = file.uri;
-                    agent
-                        .post(targetUrl)
-                        .query(
-                            {
-                                rename : newName
-                            })
-                        .set("Accept", "application/json")
-                        .end(function(err, res) {
-                            cb(err, res);
-                        });
+                    cb("File with name " + fileName + " not found in " + folderName, res);
                 }
                 else
                 {
-                    agent
-                        .post(targetUrl)
-                        .end(function(err, res) {
-                            cb(err, res);
-                        });
+                    if(acceptsJSON)
+                    {
+                        const targetUrl = file.uri;
+                        agent
+                            .post(targetUrl)
+                            .query(
+                                {
+                                    rename : newName
+                                })
+                            .set("Accept", "application/json")
+                            .end(function(err, res) {
+                                cb(err, res);
+                            });
+                    }
+                    else
+                    {
+                        agent
+                            .post(targetUrl)
+                            .end(function(err, res) {
+                                cb(err, res);
+                            });
+                    }
                 }
             }
         });

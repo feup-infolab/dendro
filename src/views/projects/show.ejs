@@ -83,7 +83,7 @@
                             <li role="separator" class="divider"></li>
                             <li ng-click="copy()" ><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li>
                             <li ng-click="cut()"><a href="#"><img class="icon16" id="cut_button"  src="/images/icons/cut.png">Cut</a></li>
-                            <li ng-click="paste()"><a href="#"><img class="icon16" id="paste_button" src="/images/icons/page_paste.png">Paste</a></li>
+                            <li ng-click="paste()" ng-class="{ disabled : !files_exist_in_clipboard()}"><a href="#"><img class="icon16" id="paste_button" src="/images/icons/page_paste.png">Paste&nbsp;&nbsp;<span ng-show="files_exist_in_clipboard()" class="badge">{{get_clipboard_file_count()}}</span></a></li>
                             <li ng-click="rename()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="rename_button" src="/images/icons/textfield_rename.png">Rename</a></li>
                             <li role="separator" class="divider"></li>
                             <li ng-click="download_folder()"><a href="#"><img class="icon16" id="download_folder_button" data-loading-text="Preparing Package..." src="/images/icons/arrow_down.png">Download</a></li>

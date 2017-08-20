@@ -263,3 +263,7 @@ Animations (uncomment to have animations)
   color: #ccc;
   content: "\276D\00a0";
 }
+.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}

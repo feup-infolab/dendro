@@ -36,17 +36,17 @@ const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtM
 const allFiles = [txtMockFile]; //adding more would be too heavy
 
 describe("Private project testFolder1 ?rename", function () {
-    describe("[POST] [FOLDER] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?rename", function ()
-    {
-        before(function (done) {
-            this.timeout(10*Config.testsTimeout);
-            createFilesUnit.setup(function (err, results) {
-                should.equal(err, null);
-                done();
-            });
+    before(function (done) {
+        this.timeout(10*Config.testsTimeout);
+        createFilesUnit.setup(function (err, results) {
+            should.equal(err, null);
+            done();
         });
+    });
 
-        it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done)
+    describe("[POST] [FOLDER] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?cut", function ()
+    {
+        it("Should give an error if the request is of type HTML even if the user is logged in as demouser1 (the creator of the project)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -70,7 +70,7 @@ describe("Private project testFolder1 ?rename", function () {
             });
         });
 
-        it("Should give an error when the user is logged in as demouser3(not a collaborador nor creator in a project by demouser1)", function (done)
+        it("Should give an error when the user is logged in as demouser3(not a collaborador nor creator in a project created by demouser1)", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -82,78 +82,58 @@ describe("Private project testFolder1 ?rename", function () {
             });
         });
 
-        it("Should give an error if an invalid name is specified for the file, even if the user is logged in as a creator or collaborator on the project", function (done)
+        it("Should give an error if any of the cut files do not exist", function (done)
         {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                async.map(allFiles, function(file, callback){
-                    const newName = "123987621873512)(/&(/#%#(/)=)()/&%$#";
-                    fileUtils.renameFile(true, agent, privateProject.handle, testFolder1.name, file.name, newName,  function (err, res) {
-                        res.statusCode.should.equal(400);
-                        callback(null, res);
-                    });
-                }, function(err, result){
-                    done(err);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, "*aRandomFolder", function (err, res)
+                {
+                    res.statusCode.should.equal(400);
+                    res.body.message.should.equal("invalid file name specified");
+                    done();
                 });
             });
         });
 
-        it("Should be unable to find the file if we try to rename a file that does not exist, even if the user is logged in as a creator or collaborator on the project", function (done)
+        it("Should give an error if the destination folder of the operation does not exist", function (done)
         {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                async.map(allFiles, function(file, callback){
-                    const newName = "RenamedFile";
-                    const inexistentFileName = "A_FILE_THAT_DOES_NOT_EXIST";
-                    fileUtils.renameFile(true, agent, privateProject.handle, testFolder1.name, inexistentFileName, newName,  function (err, res) {
-                        res.statusCode.should.equal(200);
-                        should.equal(err, "File with name " + inexistentFileName + " not found in " + testFolder1.name);
-                        const contents = JSON.parse(res.text);
-                        const file = _.find(contents, function(file){
-                            return file.nie.title === inexistentFileName;
-                        });
-                        should.equal(typeof file, "undefined");
-                        callback(null, res);
-                    });
-                }, function(err, result){
-                    done(err);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
+                {
+                    res.statusCode.should.equal(404);
+                    done();
                 });
             });
         });
 
-        it("Should give an error if we try to rename a project instead of a file, even if the user is logged in as a creator or collaborator on the project", function (done)
+        it("Should give an error if the user does not have permission to cut files into the destination folder (demouser3 is neither a creator nor a collaborator of its owner project", function (done)
         {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                async.map(allFiles, function(file, callback){
-                    const newName = "RenamedFile";
-                    fileUtils.renameProject(true, agent, privateProject.handle, newName,  function (err, res) {
-                        res.statusCode.should.equal(404);
-                        callback(null, res);
-                    });
-                }, function(err, result){
-                    done(err);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
+                {
+                    res.statusCode.should.equal(404);
+                    done();
                 });
             });
         });
 
-        after(function (done) {
-            //destroy graphs
-            this.timeout(Config.testsTimeout);
-            appUtils.clearAppState(function (err, data) {
-                should.equal(err, null);
-                done();
+        it("Should give an error if the user does not have permission to cut a file (demouser3 is neither a creator nor a collaborator of its owner project", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
+                {
+                    res.statusCode.should.equal(404);
+                    done();
+                });
             });
         });
     });
 
     describe("[POST] [FILE] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?rename", function () {
-        beforeEach(function (done) {
-            this.timeout(10*Config.testsTimeout);
-            createFilesUnit.setup(function (err, results) {
-                should.equal(err, null);
-                done();
-            });
-        });
-
-        it("Should rename files with success if the user is logged in as demouser1(the creator of the project)", function (done) {
+        it("Should cut files with success if the user is logged in as demouser1(the creator of the project)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 async.map(allFiles, function(file, callback){
                     const newName = "RenamedFile";
@@ -167,27 +147,22 @@ describe("Private project testFolder1 ?rename", function () {
             });
         });
 
-        it("Should rename files with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
+        it("Should cut files with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                async.map(allFiles, function(file, callback){
-                    const newName = "RenamedFile";
-                    fileUtils.renameFile(true, agent, privateProject.handle, testFolder1.name, file.name, newName,  function (err, res) {
-                        res.statusCode.should.equal(200);
-                        callback(err, res);
-                    });
-                }, function(err, result){
-                    done(err);
+                itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, folderForDemouser2.name, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    done();
                 });
             });
         });
+    });
 
-        afterEach(function (done) {
-            //destroy graphs
-            this.timeout(Config.testsTimeout);
-            appUtils.clearAppState(function (err, data) {
-                should.equal(err, null);
-                done();
-            });
+    after(function (done) {
+        //destroy graphs
+        this.timeout(Config.testsTimeout);
+        appUtils.clearAppState(function (err, data) {
+            should.equal(err, null);
+            done();
         });
     });
 });
