@@ -350,7 +350,7 @@ angular.module('dendroApp.controllers')
                     }
                     else
                     {
-                        bootbox.alert("Invalid value supplied. You must input an integer between 0 and 15", function() {});
+                        bootbox.alert("Invalid value supplied. You must input an integer between 1 and 15", function() {});
                     }
                 }
             });
