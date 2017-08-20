@@ -6,6 +6,7 @@ const md5File = require('md5-file');
 module.exports = {
     md5 : md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/docxTest.docx")),
     name : "docxTest.docx",
+    extension : "docx",
     location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/docxTest.docx"),
     metadata: [{
         prefix:"nie",

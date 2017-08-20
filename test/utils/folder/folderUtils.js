@@ -72,6 +72,25 @@ exports.downloadFolder= function (jsonOnly, agent, targetFolderInProject, folder
     }
 };
 
+exports.getFolderContents = function (jsonOnly, agent, projectHandle, folderName, cb) {
+    if (jsonOnly) {
+        agent
+            .get('/project/' + projectHandle + "/data/" + folderName + '?ls')
+            .set("Accept", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get('/project/' + projectHandle + "/" + folderName + '?ls')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+
 exports.backupFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
     const path = '/project/' + projectHandle + '/data/' + targetFolderInProject + folderName + "?backup";
 
@@ -115,6 +134,31 @@ exports.removeFolder= function (jsonOnly, agent, targetFolderInProject, folderNa
         agent
             .get(path)
             .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+exports.renameFolderByUri = function(acceptsJSON, agent, folderUri, newName, cb)
+{
+    if(acceptsJSON)
+    {
+        agent
+            .post(folderUri)
+            .query(
+                {
+                    rename : newName
+                })
+            .set("Accept", "application/json")
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(folderUri)
+            .end(function(err, res) {
                 cb(err, res);
             });
     }
