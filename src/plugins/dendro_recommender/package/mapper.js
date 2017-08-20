@@ -1,12 +1,17 @@
-var DescriptorMapper = require("mappers/descriptor_mapper.js").DescriptorMapper;
-var InteractionMapper = require("mappers/interaction_mapper.js").InteractionMapper;
-var UserMapper = require("mappers/user_mapper.js").UserMapper;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-var DRConnection = require("connection.js").Connection;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
+const DescriptorMapper = require("mappers/descriptor_mapper.js").DescriptorMapper;
+const InteractionMapper = require("mappers/interaction_mapper.js").InteractionMapper;
+const UserMapper = require("mappers/user_mapper.js").UserMapper;
+
+const DRConnection = require("connection.js").Connection;
 
 function Mapper (connection)
 {
-    var self = this;
+    const self = this;
     self.active = false;
     self.connection = connection;
 }
@@ -16,7 +21,7 @@ Mapper.register_in_recommender = function(object, callback)
     var mappedObject = Mapper.map(object);
 
     DRConnection.send("POST", mappedObject, Mapper.getEndpoint(object), function(err, result){
-        if(!err)
+        if(isNull(err))
         {
             callback(null, result);
         }
@@ -29,10 +34,10 @@ Mapper.register_in_recommender = function(object, callback)
 
 Mapper.getEndpoint = function(object)
 {
-    var objectClassName = object.constructor.name;
-    var mapper = Mapper.mappingsTable[objectClassName];
+    const objectClassName = object.constructor.name;
+    const mapper = Mapper.mappingsTable[objectClassName];
 
-    if(mapper != null)
+    if(!isNull(mapper))
     {
         var mappedObject = mapper.endpoint;
         return mappedObject;
@@ -41,12 +46,12 @@ Mapper.getEndpoint = function(object)
 
 Mapper.map = function(object)
 {
-    var objectClassName = object.constructor.name;
-    var mapper = Mapper.mappingsTable[objectClassName];
+    const objectClassName = object.constructor.name;
+    const mapper = Mapper.mappingsTable[objectClassName];
 
-    if(mapper != null)
+    if(!isNull(mapper))
     {
-        var mappedObject = mapper.mapperClass.map(object);
+        const mappedObject = mapper.mapperClass.map(object);
         return mappedObject;
     }
 };

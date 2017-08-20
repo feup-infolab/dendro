@@ -57,10 +57,10 @@ angular.module('dendroApp.controllers')
             storageService.save_to_local_storage("manual_descriptors", null);
         };
 
-        $scope.get_manual_descriptors_from_ontology = function(ontology_prefix)
+        $scope.get_manual_descriptors_from_ontology = function(ontology_uri)
         {
             $scope.fetching_descriptors_from_manual_ontology = true;
-            descriptorsService.get_descriptors_from_ontology(ontology_prefix)
+            descriptorsService.get_descriptors_from_ontology_annotated_for_a_resource(ontology_uri, $scope.get_calling_uri())
                 .then(function(manual_descriptors){
                     $scope.manual_descriptors = manual_descriptors;
                     storageService.save_to_local_storage("manual_descriptors", $scope.manual_descriptors);
@@ -443,9 +443,9 @@ angular.module('dendroApp.controllers')
                         $scope.get_public_ontologies();
                     }
 
-                    if($scope.manually_selected_ontology != null && typeof $scope.manually_selected_ontology.prefix === "string")
+                    if($scope.manually_selected_ontology != null && typeof $scope.manually_selected_ontology.uri === "string")
                     {
-                        descriptorsService.get_descriptors_from_ontology($scope.manually_selected_ontology.prefix);
+                        descriptorsService.get_descriptors_from_ontology_annotated_for_a_resource($scope.manually_selected_ontology.uri, $scope.get_calling_uri());
                     }
                 }
                 else if(newMode == recommendationService.descriptor_selection_modes.recommendation)

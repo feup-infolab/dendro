@@ -1,10 +1,10 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 function Connection ()
 {
@@ -17,7 +17,7 @@ Connection.prototype.init = function(callback)
 {
     var self = this;
     this.check_connection(function(err, active){
-        if(!err)
+        if(isNull(err))
         {
             self.active = true;
             callback(null, self);
@@ -35,7 +35,7 @@ Connection.prototype.check_connection = function(callback)
 
     var fullUrl = "http://" + self.config.network.host;
 
-    if(self.config.network.port != null)
+    if(!isNull(self.config.network.port))
     {
         fullUrl = fullUrl + ":" + self.config.network.port;
     }
@@ -57,7 +57,7 @@ Connection.prototype.check_connection = function(callback)
         },
         function(err, response, body)
         {
-            if(!err)
+            if(isNull(err))
             {
                 if(body.result == "ok" && body.message == "Dendro Recommender Online")
                 {
@@ -107,7 +107,7 @@ Connection.prototype.send = function(httpMethod, dataObject, urlEndpoint, callba
                 },
                 function(err, response, body)
                 {
-                    if (!err && response.statusCode == 200)
+                    if (isNull(err) && response.statusCode == 200)
                     {
                         callback(err, body);
                     }
@@ -136,7 +136,7 @@ Connection.prototype.send = function(httpMethod, dataObject, urlEndpoint, callba
                 },
                 function(err, response, body)
                 {
-                    if (!err && response.statusCode == 200)
+                    if (isNull(err) && response.statusCode == 200)
                     {
                         callback(err, response, body);
                     }
@@ -164,7 +164,7 @@ Connection.prototype.send = function(httpMethod, dataObject, urlEndpoint, callba
                     },
                     function(err, response, body)
                     {
-                        if (!err && response.statusCode == 200)
+                        if (isNull(err) && response.statusCode == 200)
                         {
                             callback(err, response, body);
                         }

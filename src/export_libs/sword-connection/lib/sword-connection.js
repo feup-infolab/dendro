@@ -12,7 +12,7 @@ function SwordConnection(user, password, serviceDocumentRef){
     return newConnection;
 }
 executeCommand = function(command,callback){
-    const exec = require('child_process').exec;
+    const exec = require("child_process").exec;
 
     const child = exec(command, function (error, stdout, stderr) {
         if (error) {
@@ -21,7 +21,7 @@ executeCommand = function(command,callback){
             const data = JSON.parse(stdout);
 
             if (data.success === 'true') {
-                return callback(false, data.message, data.response);
+                return callback(null, data.message, data.response);
             }
             else {
                 if ('message' in data) {

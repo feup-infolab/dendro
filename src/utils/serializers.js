@@ -3,7 +3,6 @@ const self = this;
 const isNull = require("../utils/null.js").isNull;
 
 module.exports.dataToJSON = function(data){
-
     return JSON.stringify(data,null, 4);
 };
 module.exports.metadataToRDF = function(metadata){

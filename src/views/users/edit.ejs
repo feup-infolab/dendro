@@ -4,9 +4,54 @@
     Editing user <%= user.foaf.firstName %> <%= user.foaf.surname %>
 </h1>
 
+<div ng-controller="avatarCtrl">
+    <div class="text-center">
+        <img class="img-circle show-avatar-in-profile" ng-src="/user/<%=user.ddr.username%>/avatar">
+    </div>
+    <div class="text-center">
+        <button data-toggle="modal" data-target="#myModal">Edit Avatar</button>
+    </div>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Upload a new Avatar</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div>
+                                <input id="fileInput" type="file" accept="image/*" ng-model="imageCompressed" image="imageCompressed" resize-max-height="800" resize-max-width="800" resize-quality="0.2" resize-type="image/jpg" ng-image-compress/>
+                            </div>
+
+                            <div class="cropArea">
+                                <img-crop image="myImage" result-image="myCroppedImage"></img-crop>
+                            </div>
+
+                            <div ng-if="myCroppedImage != null">
+                                <div ng-show class="help-block">Your public avatar picture:</div>
+                                <div>
+                                    <img ng-src="{{myCroppedImage}}" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" ng-click="closeEditAvatarModal()" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" ng-click="updateProfilePic();closeEditAvatarModal()" class="btn btn-primary">Update Avatar Picture</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <br/>
 
-<form action="/register" method="POST">
+<!--<form action="/register" method="POST">-->
+<form action="/user/edit" method="POST">
     <div class="row">
         <div class="span6 offset3">
             <div class="row">
@@ -14,7 +59,7 @@
                     <label for="email" class="col-sm-2 control-label">Email</label>
                     <div class="col-sm-10">
                         <input
-                                type="text"
+                                type="email"
                                 class="form-control"
                                 id="email"
                                 placeholder="Email"
@@ -39,7 +84,7 @@
                                     value="jrocha"
                                 <%}%>
                                 name="password">
-                        <p class="help-block">Your intended password</p>
+                        <p class="help-block">Your intended password, leave this field blank if you do not wish to change your password.</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -53,7 +98,7 @@
                                     value="jrocha"
                                 <%} %>
                                name="repeat_password">
-                        <p class="help-block">Repeat your intended password</p>
+                        <p class="help-block">Repeat your intended password, leave this field blank if you do not wish to change your password</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -88,17 +133,6 @@
                         <p class="help-block">Your surname</p>
                     </div>
                 </div>
-                <!-- TODO
-                <div class="form-group">
-                    <label for="avatar" class="col-sm-2 control-label">Avatar Picture</label>
-                    <div class="col-sm-10">
-                        <span class="btn btn-default btn-file">
-                            Browse <input type="file">
-                        </span>
-                        <p class="help-block">Your public avatar picture</p>
-                    </div>
-                </div>
-                -->
             </div>
 
             <button class="btn btn-primary">Update</button>

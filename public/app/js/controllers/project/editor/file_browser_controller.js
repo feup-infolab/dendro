@@ -106,15 +106,17 @@ angular.module('dendroApp.controllers')
                 if(result)
                 {
                     async.map(selectedFiles, function(selectedFile, callback){
-                        var extension = selectedFile.ddr.fileExtension;
+                        const extension = selectedFile.ddr.fileExtension;
 
-                        if(extension == "folder")
+                        let successMessage;
+
+                        if(extension === "folder")
                         {
-                            var successMessage = "Folder " + selectedFile.nie.title + " undeleted successfully";
+                            successMessage = "Folder " + selectedFile.nie.title + " undeleted successfully";
                         }
                         else
                         {
-                            var successMessage = "File " + selectedFile.nie.title + " undeleted successfully";
+                            successMessage = "File " + selectedFile.nie.title + " undeleted successfully";
                         }
 
                         filesService.undelete(selectedFile).then(function(response){
@@ -172,12 +174,67 @@ angular.module('dendroApp.controllers')
                             $scope.load_folder_contents();
                         }).catch(function(error){
                             console.error("Unable to create new folder " + JSON.stringify(error));
-                            windowService.show_popup('error', ' There was an error creating the new folder', 'Server returned status code ' + status + " and message :\n" + data);
+                            windowService.show_popup('error', ' There was an error creating the new folder', 'Server returned status code ' + status + " and message :\n" + error);
                         });
                     }
                 }
             }
         });
+    };
+
+    $scope.rename = function() {
+        bootbox.prompt('Please enter the new name', function(newName) {
+            if(newName != null)
+            {
+
+                if (!newName.match(/^[^\\\/:*?"<>|]{1,}$/g))
+                {
+                    bootbox.alert("Invalid name specified", function ()
+                    {
+                    });
+                }
+                else
+                {
+                    if (newName != null)
+                    {
+                        filesService.rename(newName,
+                            $scope.get_calling_uri()
+                        ).then(function(result){
+                            $scope.load_folder_contents();
+                            windowService.show_popup('success', ' There was an error renaming the resource', 'Server returned status code ' + status + " and message :\n" + error);
+                        }).catch(function(error){
+                            console.error("Unable to rename resource: " + JSON.stringify(error));
+                            windowService.show_popup('error', ' There was an error renaming the resource', 'Server returned status code ' + status + " and message :\n" + error);
+                        });
+                    }
+                }
+            }
+        });
+    };
+
+    $scope.cut = function() {
+        $scope.cut_files = $scope.get_selected_files();
+        if($scope.cut_files.length > 0)
+            windowService.show_popup('info',  $scope.cut_files.length + " files cut", "Go to the target folder and paste them");
+        else
+            windowService.show_popup('info',  "Nothing selected", "Please select the files before cutting");
+    };
+
+    $scope.cut = function() {
+        $scope.copied_files = $scope.get_selected_files();
+        if($scope.copied_files.length > 0)
+            windowService.show_popup('info',  $scope.copied_files.length + " files copied", "Go to the target folder and paste them");
+        else
+            windowService.show_popup('info',  "Nothing selected", "Please select the files before copying");
+    };
+
+    $scope.paste = function() {
+        if($scope.cut_files.length > 0)
+            filesService.move($scope.cut_files, $scope.get_calling_uri());
+        if($scope.copied_files.length > 0)
+            filesService.copy($scope.cut_files, $scope.get_calling_uri());
+        else
+            windowService.show_popup('info',  "Nothing selected", "Please select the files before cutting");
     };
 
     $scope.upload_callback = function(err, result)
@@ -210,7 +267,7 @@ angular.module('dendroApp.controllers')
     $scope.clear_selection_and_get_parent_metadata = function()
     {
         $scope.clear_selected_files();
-        $scope.load_metadata();
+        return $scope.load_metadata();
     };
 
     $scope.toggle_select_file_at_index_for_multiple_selection = function(index)
@@ -369,8 +426,7 @@ angular.module('dendroApp.controllers')
                     .then(
                         function(metadata)
                         {
-                            $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
-                            $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
+                            $scope.reset_metadata(metadata);
                         }
                     );
 
@@ -411,8 +467,7 @@ angular.module('dendroApp.controllers')
 
                             metadataService.load_metadata($scope.get_calling_uri())
                                 .then(function(metadata){
-                                    $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
-                                    $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
+                                    $scope.reset_metadata(metadata);
                                 });
 
                             if ($scope.preview_available()) // && !is_chrome())
@@ -460,6 +515,12 @@ angular.module('dendroApp.controllers')
         }
     };
 
+    $scope.toggle_select_all_files = function()
+    {
+        $scope.shared.multiple_selection_active = !$scope.shared.multiple_selection_active;
+        $scope.select_all_files($scope.shared.multiple_selection_active);
+    };
+
     $scope.download_folder = function()
     {
         windowService.download_url($scope.get_current_url(), "?download");
@@ -476,7 +537,6 @@ angular.module('dendroApp.controllers')
         $scope.set_from_local_storage_and_then_from_value("upload_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("restore_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("showing_deleted_files", false, $scope, "shared");
-        $scope.get_folder_contents(true);
 
         $scope.modelOptionsObj = {
             debounce:100

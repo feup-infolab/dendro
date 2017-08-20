@@ -1,28 +1,23 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const uuid = require('uuid');
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const uuid = require("uuid");
 
 function Notification (object)
 {
-    Notification.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "notification", Notification);
+    Notification.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
-    self.rdf.type = "ddr:Notification";
-
-    if(!isNull(object.uri))
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/notifications/" + uuid.v4();
+        self.ddr.humanReadableURI = Config.baseUri + "/notifications/" + uuid.v4();
     }
 
     return self;
@@ -39,6 +34,6 @@ function Notification (object)
 //actionType -> comment/like/share
 //status-> read/unread
 
-Notification = Class.extend(Notification, Resource);
+Notification = Class.extend(Notification, Resource, "ddr:Notification");
 
 module.exports.Notification = Notification;

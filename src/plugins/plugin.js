@@ -1,73 +1,70 @@
-var path = require('path');
-var async = require('async');
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const async = require("async");
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
-
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-var Permissions = require(Config.absPathInSrcFolder("models/meta/permissions.js")).Permissions;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Permissions = require(Pathfinder.absPathInSrcFolder("models/meta/permissions.js")).Permissions;
 
 function Plugin (object)
 {
-    var self = this;
+    const self = this;
     Plugin.baseConstructor.call(this, object);
     return self;
 }
 
 Plugin.registerStaticFilesRoute = function(app)
 {
-    var self = this;
-    var pluginBaseFolderName = self.config.plugin_folder_name;
-    var fullRoute = '/plugins/' + pluginBaseFolderName +  "/public";
-    var absPathToPluginPublicFolder = path.join(self.getPluginRootFolder(), "package", "public");
+    const self = this;
+    self.pluginBaseFolderName = self.config.plugin_folder_name;
+    self.fullRoute = "/plugins/" + self.pluginBaseFolderName +  "/public";
+    const absPathToPluginPublicFolder = path.join(self.getPluginRootFolder(), "package", "public");
 
-    var express = require('express');
+    const express = require('express');
 
-    app.use(fullRoute, express.static(absPathToPluginPublicFolder));
+    app.use(self.fullRoute, express.static(absPathToPluginPublicFolder));
 
     return app;
 };
 
 Plugin.registerRoute = function(app, method, route, permissions, controllerMethod)
 {
-    var self = this;
-    var pluginBaseFolderName = self.config.plugin_folder_name;
-
+    const self = this;
+    const pluginBaseFolderName = self.config.plugin_folder_name;
+    let fullRoute;
 
     if(route instanceof RegExp)
     {
-        fullRoute = '\\/plugins\\/' + pluginBaseFolderName + "\\" + route.toString();
-        if(fullRoute[fullRoute.length - 1] == "/")
+        fullRoute = "\\/plugins\\/" + pluginBaseFolderName + "\\" + route.toString();
+        if(fullRoute[fullRoute.length - 1] === "/")
         {
             fullRoute = fullRoute.substring(0, fullRoute.length - 1);
         }
-        fullRoute = new RegExp(fullRoute);
+        self.fullRoute = new RegExp(fullRoute);
     }
-    else if(route == "/")
+    else if(route === "/")
     {
-        var fullRoute = '/plugins/' + pluginBaseFolderName;
+        self.fullRoute = "/plugins/" + pluginBaseFolderName;
     }
     else
     {
-        var fullRoute = '/plugins/' + pluginBaseFolderName + "/" + route;
+        self.fullRoute = "/plugins/" + pluginBaseFolderName + "/" + route;
     }
 
-    if(method.toLowerCase() == 'get')
+    if(method.toLowerCase() === "get")
     {
-        app = app.get(fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
+        app = app.get(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
     }
-    else if(method.toLowerCase() == 'post')
+    else if(method.toLowerCase() === "post")
     {
-        app = app.post(fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
+        app = app.post(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
     }
-    else if(method.toLowerCase() == 'put')
+    else if(method.toLowerCase() === "put")
     {
-        app = app.put(fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
+        app = app.put(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
     }
-    else if(method.toLowerCase() == 'delete')
+    else if(method.toLowerCase() === "delete")
     {
-        app = app.delete(fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
+        app = app.delete(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
     }
 
     return app;
@@ -76,18 +73,17 @@ Plugin.registerRoute = function(app, method, route, permissions, controllerMetho
 
 Plugin.getPluginRootFolder = function()
 {
-    var self = this;
-    var allPluginsRootFolder = Config.getAbsolutePathToPluginsFolder();
-    var myConfig = self.config;
-    var pluginRootFolder = path.join(allPluginsRootFolder, myConfig.plugin_folder_name);
+    const self = this;
+    const allPluginsRootFolder = Pathfinder.getAbsolutePathToPluginsFolder();
+    const myConfig = self.config;
 
-    return pluginRootFolder;
+    return path.join(allPluginsRootFolder, myConfig.plugin_folder_name);
 };
 
 Plugin.renderView = function(res, viewPath, dataObject)
 {
-    var self = this;
-    var ejs = require('ejs');
+    const self = this;
+    const ejs = require('ejs');
 
     /**
      * Add the ".ejs" suffix if it is not present
@@ -97,7 +93,7 @@ Plugin.renderView = function(res, viewPath, dataObject)
         viewPath = viewPath + ".ejs";
     }
 
-    var pluginViewAbsPath = path.join(Config.getAbsolutePathToPluginsFolder(), self.config.plugin_folder_name, "package", "views", viewPath);
+    const pluginViewAbsPath = path.join(Pathfinder.getAbsolutePathToPluginsFolder(), self.config.plugin_folder_name, "package", "views", viewPath);
 
     /**
      * Copy global data objects so that they are accessible in the plugins' views
@@ -113,7 +109,7 @@ Plugin.renderView = function(res, viewPath, dataObject)
             dataObject,
             function(error, html)
             {
-                if(!error)
+                if(isNull(error))
                 {
                     res.send(html);
                 }

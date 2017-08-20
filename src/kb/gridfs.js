@@ -1,8 +1,8 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const util = require('util');
 const GridFSBucket = require('mongodb').GridFSBucket;
@@ -18,7 +18,8 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
     self.username = username;
     self.password = password;
 }
-GridFSConnection.prototype.openConnection = function(callback) {
+
+GridFSConnection.prototype.open = function(callback) {
     const self = this;
 
     if(!isNull(self.gfs))
@@ -27,10 +28,11 @@ GridFSConnection.prototype.openConnection = function(callback) {
     }
     else
     {
-        const mongo = require('mongodb');
-        const Grid = require('gridfs-stream');
+        const mongo = require("mongodb");
+        const Grid = require("gridfs-stream");
+        const slug = require("slug");
 
-        const db = new mongo.Db(self.collectionName, new mongo.Server(
+        const db = new mongo.Db(slug(self.collectionName, "_"), new mongo.Server(
             self.hostname,
             self.port,
             {
@@ -46,7 +48,7 @@ GridFSConnection.prototype.openConnection = function(callback) {
 
         // make sure the db instance is open before passing into `Grid`
         db.open(function (err) {
-            if (!err)
+            if (isNull(err))
             {
                 self.db = db;
                 self.gfs = Grid(db, mongo);
@@ -58,6 +60,14 @@ GridFSConnection.prototype.openConnection = function(callback) {
             }
         });
     }
+};
+
+GridFSConnection.prototype.close = function(cb)
+{
+    const self = this;
+    self.db.close(function(err, result){
+        cb(err, result);
+    });
 };
 
 GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metadata, customBucket) {
@@ -86,8 +96,8 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
 
         //callback on complete
         uploadStream.once('finish', function (file) {
-            console.log('GridFS: Write stream closed for file with uri :'+fileUri);
-            
+            //console.log('GridFS: Write stream closed for file with uri :'+fileUri);
+
             if(!hasError)
             {
                 
@@ -133,14 +143,23 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
         });
 
         downloadStream.on('end', function() {
-            const msg = "EOF of file";
-            console.log(msg);
+            if(Config.debug.log_temp_file_reads)
+            {
+                const msg = "EOF of file";
+                console.log(msg);
+            }
         });
 
         downloadStream.on('close', function() {
             const msg = "Finished reading the file";
-            console.log(msg);
-            return callback(0, msg);
+
+            if(Config.debug.log_temp_file_reads)
+            {
+
+                console.log(msg);
+            }
+
+            return callback(null, msg);
         });
 
         downloadStream.pipe(outputStream);
@@ -157,27 +176,75 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
 
     if(!isNull(self.gfs) && !isNull(self.db))
     {
-        let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
-        bucket.delete(fileUri, function (err)
+        let collectionName;
+        if(!isNull(customBucket))
         {
-            if (!err)
+            collectionName = customBucket;
+        }
+        else
+        {
+            collectionName = "fs.files";
+
+        }
+
+        const collection = self.db.collection(collectionName);
+
+        collection.findOne({"filename": fileUri }, { _id : 1 }, function (err, obj) {
+            if (isNull(err))
             {
-                // Verify that the file no longer exists
-                self.db.find(fileUri, function (err, exists)
+                let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
+                bucket.delete(obj._id, function (err)
                 {
-                    if (!err && !exists)
+                    if (isNull(err))
                     {
-                        return callback(null, "File " + fileUri + "successfully deleted");
+                        // Verify that the file no longer exists
+                        collection.findOne({"filename": fileUri } , function (err, exists)
+                        {
+                            if (isNull(err) && !exists)
+                            {
+                                return callback(null, "File " + fileUri + "successfully deleted");
+                            }
+                            else
+                            {
+                                return callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
+                            }
+                        });
                     }
                     else
                     {
-                        return callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
+                        return callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
                     }
                 });
             }
             else
             {
-                return callback(err, "Error deleting file " + fileUri + ". Error reported " + result);
+                return callback(err);
+            }
+        });
+    }
+    else
+    {
+        return callback(1, "Must open connection to database first!");
+    }
+
+};
+
+
+GridFSConnection.prototype.deleteAvatar = function(fileUri, callback, customBucket) {
+    let self = this;
+
+    if(!isNull(self.gfs) && !isNull(self.db))
+    {
+        let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
+        bucket.delete(fileUri, function (err)
+        {
+            if (!err)
+            {
+                return callback(null, "File " + fileUri + "successfully deleted");
+            }
+            else
+            {
+                return callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
             }
         });
     }

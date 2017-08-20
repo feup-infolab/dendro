@@ -23,33 +23,73 @@ angular.module('dendroApp.services')
                 })
                 .catch(function(error)
                 {
-                    console.error("Unable to fetch autocompleted descriptors. Query was: " + typed + " Error : " + JSON.stringify(error));
-                    $scope.autocompleted_descriptors = [];
+                    console.error(error);
+                    throw error;
                 });
             }
         };
 
-        this.get_descriptors_from_ontology = function(ontologyPrefix)
+        this.get_descriptors_from_ontology = function(ontologyUri)
         {
-            if(ontologyPrefix != null)
+            if(ontologyUri != null)
             {
-                var requestUri = "/descriptors/from_ontology/"+ontologyPrefix;
-                var projectHandle = Utils.getCurrentProjectHandle();
-
                 return $http({
                     method: 'GET',
                     params : {
-                        project_handle : projectHandle
+                        from_ontology : ontologyUri
                     },
-                    url: requestUri,
+                    url: "/descriptors",
                     responseType: 'json',
                     headers: {'Accept': "application/json"}
                 }).then(function(response) {
                         return response.data.descriptors;
                     }
                 ).catch(function(error){
-                    throw "Error fetching ontologies from ontology " + ontologyPrefix + " : " + JSON.stringify(error);
+                    throw "Error fetching ontologies from ontology " + ontologyUri + " : " + JSON.stringify(error);
                 });
+            }
+        };
+
+        this.get_descriptors_from_ontology_annotated_for_a_resource = function(ontologyUri, resourceUri)
+        {
+            if(ontologyUri != null)
+            {
+                if(resourceUri != null)
+                {
+                    return $http({
+                        method: 'GET',
+                        params : {
+                            "descriptors_from_ontology" : ontologyUri
+                        },
+                        url: resourceUri,
+                        responseType: 'json',
+                        headers: {'Accept': "application/json"}
+                    }).then(function(response) {
+                            return response.data.descriptors;
+                        }
+                    ).catch(function(error){
+                        throw "Error fetching ontologies from ontology " + ontologyUri + " in the context of resource "+resourceUri+": " + JSON.stringify(error);
+                    });
+                }
+                else
+                {
+                    return $http({
+                        method: 'GET',
+                        params : {
+                            "from_ontology" : ontologyUri
+                        },
+                        url: "/descriptors",
+                        responseType: 'json',
+                        headers: {'Accept': "application/json"}
+                    }).then(function(response) {
+                            return response.data.descriptors;
+                        }
+                    ).catch(function(error){
+                        throw "Error fetching ontologies from ontology " + ontologyUri + " : " + JSON.stringify(error);
+                    });
+                }
+
+
             }
         };
 

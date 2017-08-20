@@ -2,8 +2,8 @@
 
 <script type="text/javascript" src="/js/utils.js"></script>
 <div class="col-md-12 text-center" style="{vertical-align: middle}">
-    <form action="/project/<%=handle%>/request_access" method="POST">
-        <button type="submit" class="btn btn-sm btn-success">Request access for project '<%=handle%>'</button>
+    <form action="<%=project.uri + "?request_access" %>" method="POST">
+        <button type="submit" class="btn btn-sm btn-success">Request access for project '<%=project.ddr.handle%>'</button>
     </form>
 </div>
 

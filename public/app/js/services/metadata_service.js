@@ -21,7 +21,7 @@ angular.module('dendroApp.factories')
                     {
                         var descriptor = JSON.parse(JSON.stringify(descriptorsArray[i]));
 
-                        if(descriptor.control == "date_picker")
+                        if(descriptor.control === "date_picker")
                         {
                             descriptor.value = new Date(descriptor.value);
                         }
@@ -94,7 +94,13 @@ angular.module('dendroApp.factories')
                 {
                     if(response.data != null && response.data instanceof Object)
                     {
-                        deserialize.resolve(self.deserialize_metadata(response.data.descriptors));
+                        deserialize.resolve({
+                            descriptors : self.deserialize_metadata(response.data.descriptors),
+                            is_project_root : response.data.is_project_root,
+                            is_a_file : response.data.is_a_file,
+                            file_extension : response.data.file_extension,
+                            data_processing_error : response.data.data_processing_error
+                        });
                     }
                     else
                     {
@@ -139,7 +145,7 @@ angular.module('dendroApp.factories')
                 var url = resource_uri + "?update_metadata";
 
                 return $http({
-                    method: 'POST',
+                    method: "POST",
                     url: url,
                     data: metadataString,
                     contentType: "application/json",

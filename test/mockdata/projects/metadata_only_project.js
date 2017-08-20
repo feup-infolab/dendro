@@ -1,8 +1,9 @@
 const metadataProjectHandle = 'metadataonlyprojectcreatedbydemouser1';
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const projectData = {
     creator: "http://" + Config.host + "/user/demouser1",
-    contributors: ["http://" + Config.host + "/user/demouser3"],
     title: 'This is a metadata only test project with handle ' + metadataProjectHandle + " and created by demouser1",
     description: 'This is a test project description for a metadata-only project type',
     publisher: 'UP',

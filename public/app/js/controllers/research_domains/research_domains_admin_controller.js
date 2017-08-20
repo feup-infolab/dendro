@@ -51,7 +51,7 @@ angular.module('dendroApp.controllers')
 
             if(typeof typed != "undefined")
             {
-                var requestUri = '/research_domains/autocomplete?query=' + typed;
+                var requestUri = "/research_domains/autocomplete?query=" + typed;
 
                 return $http.get(requestUri);
             }
@@ -129,7 +129,7 @@ angular.module('dendroApp.controllers')
         $scope.update_research_domains = function(){
             //console.log("updating research domains with " + JSON.stringify($scope.research_domains));
             $http({
-                method: 'POST',
+                method: "POST",
                 url: "/research_domains",
                 data: $scope.research_domains
             }).then(function(response) {

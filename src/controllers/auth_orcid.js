@@ -1,11 +1,13 @@
-const Config = function() { return GLOBAL.Config; }();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
 module.exports.login = function(req, res, next){
         req.passport.authenticate('orcid', function(err, user, info) {
-            if (err) { return res.redirect('/login'); }
+            if (err) { return res.status(500).redirect('/login'); }
             if( !user && info instanceof Object)
             {
                 let rp = require('request-promise');
@@ -52,12 +54,5 @@ module.exports.login = function(req, res, next){
                 });
             }
         })(req, res, next);
-
-    /*req.passport.authenticate('orcid', module.exports.register);
-
-        // NOTE: `profile` is empty, use `params` instead
-    User.findByORCID(params.orcid, function (err, user) {
-        return done(err, user);
-    });*/
 };
 

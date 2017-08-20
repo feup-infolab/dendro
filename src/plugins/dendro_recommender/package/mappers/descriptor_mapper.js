@@ -1,12 +1,10 @@
-var path = require('path');
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
-
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+var Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
 
 function DescriptorMapper ()
@@ -18,9 +16,9 @@ DescriptorMapper.map = function(descriptorUri, callback)
 {
     Descriptor.findByUri(descriptorUri, function(err, descriptor){
 
-        if(!err && descriptor != null)
+        if(isNull(err) && !isNull(descriptor))
         {
-            var result = {
+            let result = {
                 entity_type : {
                     identifier : Ontology.allOntologies.ddr.uri + "Descriptor",
                     name : "Dendro Descriptor",

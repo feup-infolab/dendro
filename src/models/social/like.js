@@ -1,50 +1,30 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const uuid = require('uuid');
-
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const db_social = function () {
-    return GLOBAL.db.social;
-}();
-
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Event = require(Pathfinder.absPathInSrcFolder("/models/social/event.js")).Event;
+const uuid = require("uuid");
 
 function Like (object)
 {
-    Like.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "like", Like);
+    Like.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
-    self.rdf.type = "ddr:Like";
+    const newId = uuid.v4();
 
-    //self.dcterms.postURI = "";
-
-    if(!isNull(object.uri))
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/likes/" + uuid.v4();
+        self.ddr.humanReadableURI = Config.baseUri + "/likes/" + newId;
     }
 
     return self;
 }
 
-Like = Class.extend(Like, Event);
+Like = Class.extend(Like, Event, "ddr:Like");
 
 module.exports.Like = Like;

@@ -1,20 +1,17 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Notification = require('../models/notifications/notification.js').Notification;
 const DbConnection = require("../kb/db.js").DbConnection;
-const _ = require('underscore');
+const _ = require("underscore");
 
-const async = require('async');
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const db_notifications = function () {
-    return GLOBAL.db.notifications;
-}();
+const async = require("async");
+const db = Config.getDBByID();
+
+const db_notifications = Config.getDBByID("notifications");
 
 const app = require('../app');
 
@@ -31,7 +28,7 @@ exports.get_unread_user_notifications = function (req ,res) {
             "WHERE {\n" +
             "?uri rdf:type ddr:Notification. \n" +
             "?uri ddr:resourceAuthorUri [1]. \n" +
-            "?uri dcterms:modified ?date. \n" +
+            "?uri ddr:modified ?date. \n" +
             "?uri foaf:status \"unread\". \n" +
             "} \n" +
             "ORDER BY DESC(?date)";
@@ -50,7 +47,7 @@ exports.get_unread_user_notifications = function (req ,res) {
                 }
             ]),
             function(err, notifications) {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(notifications);
                 }
@@ -66,7 +63,7 @@ exports.get_unread_user_notifications = function (req ,res) {
     }
     else
     {
-        var errorMsg = "Invalid user when searching for notifications";
+        const errorMsg = "Invalid user when searching for notifications";
         res.status(500).json({
             result: "Error",
             message: errorMsg
@@ -88,7 +85,7 @@ exports.get_notification_info = function (req, res) {
             "[1] ddr:userWhoActed ?userWhoActed. \n" +
             "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
             "[1] ddr:resourceAuthorUri [2]. \n" +
-            "[1] dcterms:modified ?modified. \n" +
+            "[1] ddr:modified ?modified. \n" +
             "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n" +
             "} \n";
 
@@ -110,7 +107,7 @@ exports.get_notification_info = function (req, res) {
                 }
             ]),
             function(err, notification) {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(notification);
                 }
@@ -126,7 +123,7 @@ exports.get_notification_info = function (req, res) {
     }
     else
     {
-        var errorMsg = "Invalid user and notification Uri";
+        const errorMsg = "Invalid user and notification Uri";
         res.status(500).json({
             result: "Error",
             message: errorMsg
@@ -167,7 +164,7 @@ exports.delete = function (req, res) {
                 }
             ]),
             function(err, result) {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json({
                         result : "OK",
@@ -186,7 +183,7 @@ exports.delete = function (req, res) {
     }
     else
     {
-        var errorMsg = "Invalid user and notification Uri";
+        const errorMsg = "Invalid user and notification Uri";
         res.status(500).json({
             result: "Error",
             message: errorMsg

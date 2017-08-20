@@ -1,9 +1,12 @@
-var folderName = "notFoundFolder";
-var publicProject = require("../projects/public_project");
-var privateProject = require("../projects/private_project");
-var metadataOnlyProject = require("../projects/metadata_only_project");
-var projectsArray = [publicProject, privateProject, metadataOnlyProject];
-var activeProjectIndex = 0;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+
+const folderName = "notFoundFolder";
+const publicProject = require("../projects/public_project");
+const privateProject = require("../projects/private_project");
+const metadataOnlyProject = require("../projects/metadata_only_project");
+const projectsArray = [publicProject, privateProject, metadataOnlyProject];
+const activeProjectIndex = 0;
 let folderData = {
     name : folderName,
     version: 0,
@@ -11,9 +14,9 @@ let folderData = {
     download_md5 : '',
     backup_md5 : '',
     files : [
-        require("../files/pdfMockfile"),
-        require("../files/pngMockfile"),
-        require("../files/xlsxMockfile")
+        require(Config.absPathInTestsFolder("mockdata/files/pdfMockfile.js")),
+        require(Config.absPathInTestsFolder("mockdata/files/pngMockfile.js")),
+        require(Config.absPathInTestsFolder("mockdata/files/xlsxMockfile.js"))
     ],
     metadata : [
         {uri:"http://purl.org/dc/terms/creator",
