@@ -195,30 +195,64 @@ describe("[Test File Cut / Move] Private project cutFiles ?paste", function () {
         });
 
         it("Should cut files with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
+            const cutFilesFolderName = "cutFiles",
+                filesToMove = [txtMockFile];
+
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, folderForDemouser2.name, function (err, res) {
+                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function(err, res){
                     res.statusCode.should.equal(200);
-                    done();
+                    should.equal(err, null);
+                    should.equal(folderUtils.responseContainsAllMockFiles(res, allFiles), true);
+
+                    const urisOfFilesToMove = _.map(JSON.parse(res.text), function(file){
+                        return file.uri;
+                    });
+
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function(err, res){
+                        res.statusCode.should.equal(200);
+                        should.equal(err, null);
+                        const destinationFolderUri = JSON.parse(res.text).id;
+
+                        folderUtils.getFolderContents(true,agent, privateProject.handle, cutFilesFolderName, function(err, res){
+                            res.statusCode.should.equal(200);
+                            should.equal(err, null);
+
+                            JSON.parse(res.text).should.be.instanceof(Array);
+                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+
+                            folderUtils.moveFilesIntoFolder(true, agent, urisOfFilesToMove, destinationFolderUri, function(err, res){
+                                res.statusCode.should.equal(200);
+                                should.equal(err, null);
+
+                                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function(err, res){
+                                    res.statusCode.should.equal(200);
+                                    should.equal(err, null);
+                                    JSON.parse(res.text).should.be.instanceof(Array);
+                                    JSON.parse(res.text).length.should.equal(0);
+
+                                    folderUtils.getFolderContents(true,agent, privateProject.handle, cutFilesFolderName, function(err, res){
+                                        res.statusCode.should.equal(200);
+                                        should.equal(err, null);
+
+                                        JSON.parse(res.text).should.be.instanceof(Array);
+                                        should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), true);
+                                        done();
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
 
-        afterEach(function (done) {
+        after(function (done) {
             //destroy graphs
             this.timeout(Config.testsTimeout);
             appUtils.clearAppState(function (err, data) {
                 should.equal(err, null);
                 done();
             });
-        });
-    });
-
-    after(function (done) {
-        //destroy graphs
-        this.timeout(Config.testsTimeout);
-        appUtils.clearAppState(function (err, data) {
-            should.equal(err, null);
-            done();
         });
     });
 });

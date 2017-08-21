@@ -1,12 +1,14 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
+const async = require("async");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
@@ -327,13 +329,19 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
         {
             if(isNull(err))
             {
-                //invalidate caches on parent and child...
-                Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
-                {
-                    Cache.getByGraphUri(db.graphUri).delete(newParentFolder.uri, function (err, result)
-                    {
-                        return callback(err, result);
-                    });
+                //invalidate caches on parent, old parent and child...
+                async.series([
+                    function(callback){
+                        Cache.getByGraphUri(db.graphUri).delete(self.uri, callback);
+                    },
+                    function(callback){
+                        Cache.getByGraphUri(db.graphUri).delete(newParent, callback);
+                    },
+                    function(callback){
+                        Cache.getByGraphUri(db.graphUri).delete(oldParent, callback);
+                    }
+                ], function(err){
+                    return callback(err, result);
                 });
             }
             else

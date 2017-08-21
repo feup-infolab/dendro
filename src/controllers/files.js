@@ -2677,8 +2677,7 @@ exports.cut = function(req, res){
                                 {
                                     return res.json({
                                         result : "ok",
-                                        message : "Files moved successfully",
-                                        details : result
+                                        message : "Files moved successfully"
                                     })
                                 }
                                 else
