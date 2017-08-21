@@ -2,6 +2,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
+const _ = require('underscore');
 const binaryParser = require('../file/fileUtils.js').binaryParser;
 
 exports.createFolderInProject = function(jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
@@ -158,6 +159,74 @@ exports.renameFolderByUri = function(acceptsJSON, agent, folderUri, newName, cb)
     {
         agent
             .post(folderUri)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+
+exports.responseContainsAllMockFiles = function(res, mockFilesArray)
+{
+    const files = JSON.parse(res.text);
+
+    for(let i = 0; i < mockFilesArray.length; i++)
+    {
+        const mockFile = mockFilesArray[i];
+
+        let fileWithTitle = _.find(files, function(file){
+            return file.nie.title === mockFile.name;
+        });
+
+        if(!fileWithTitle)
+            return false;
+    }
+
+    return true;
+};
+
+exports.responseContainsMockFile = function(res, mockFile)
+{
+    const files = JSON.parse(res.text);
+
+    for(let i = 0; i < files.length; i++)
+    {
+        const file = files[i];
+
+        if(file.nie.title === mockFile.name)
+        {
+            return true;
+        }
+    }
+
+    return false;
+};
+
+module.exports.moveFilesIntoFolder = function(acceptsJSON, agent, fileUrisArray, destinationFolderUri, cb)
+{
+    if(acceptsJSON)
+    {
+        agent
+            .post(destinationFolderUri)
+            .query(
+                {
+                    files: fileUrisArray,
+                    cut : ""
+                })
+            .set("Accept", "application/json")
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(destinationFolderUri)
+            .query(
+                {
+                    files: fileUrisArray,
+                    cut : ""
+                })
             .end(function(err, res) {
                 cb(err, res);
             });

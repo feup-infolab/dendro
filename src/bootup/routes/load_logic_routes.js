@@ -971,6 +971,18 @@ const loadRoutes = function(app, callback)
                             handler: files.rename,
                             permissions: modificationPermissionsBranch,
                             authentication_error: "Permission denied : cannot rename resource because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['cut'],
+                            handler: files.cut,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot move resources because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['copy'],
+                            handler: files.copy,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot copy resources because you do not have permissions to edit resources inside this project."
                         }
                     ],
                     delete: [

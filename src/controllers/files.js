@@ -2602,82 +2602,113 @@ const getTargetFolder = function(req, callback)
 const checkIfUserHasPermissionsOverFiles = function(req, permissions, files, callback)
 {
     const user = req.user;
+    const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
     async.map(files, function(file, callback){
-        async.detect(permissions, function(role, callback){
-            Permissions.checkUsersRoleInParentProject(req, user, role, project, function (err, hasRole) {
-                return callback(err, hasRole);
-            });
-        }, function(err, role){
-            if(err || isNull(role))
+        InformationElement.findByUri(file, function(err, file){
+            if(isNull(err) && !isNull(file))
             {
-                callback(1, "You do not have the necessary permissions to move resource " + file.uri + ". Details: You are not a creator or contributor of the project to which the resource belongs.");
+                async.detect(permissions, function(role, callback){
+                    Permissions.checkUsersRoleInParentProject(req, user, role, file, function (err, hasRole) {
+                        return callback(err, hasRole);
+                    });
+                }, function(err, role){
+                    if(isNull(err) && !isNull(role))
+                    {
+                        return callback(null);
+                    }
+                    else
+                    {
+                        return callback(1, "You do not have the necessary permissions to move resource " + file.uri + ". Details: You are not a creator or contributor of the project to which the resource belongs.");
+                    }
+                });
             }
             else
             {
-                callback(null);
+                return callback(1, "Resource " + file.uri + " not found while checking permissions.");
             }
         });
     }, function(err, result){
-        callback(err, result);
+        return callback(err, result);
     });
 };
 
 exports.cut = function(req, res){
-    let files;
     if(!isNull(req.query.files))
     {
-        try{
-            files = JSON.parse(req.query.files);
-        }
-        catch(e)
-        {
-            return res.status(500).json({
-                result : "error",
-                message : "Unable to parse array of files ('files' query parameter).",
-                error : e.message
-            })
-        }
-
-        if(files instanceof Array)
+        if(req.query.files instanceof Array)
         {
             let files = req.query.files;
+            const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
             const permissions = [
                 Permissions.settings.role.in_owner_project.contributor,
                 Permissions.settings.role.in_owner_project.creator
             ];
 
-            const cutResources = function(resources, targetFolder, callback)
+            const cutResources = function(resourceUris, targetFolder, callback)
             {
-                async.map(resources, function(resource, callback){
-                    resource.moveToFolder(targetFolder, function(err, result){
-                        callback(err, result);
+                async.map(resourceUris, function(resourceUri, callback)
+                {
+                    InformationElement.findByUri(resourceUri, function(err, resource){
+                        if(isNull(err) && !isNull(resource))
+                        {
+                            resource.moveToFolder(targetFolder, function (err, result)
+                            {
+                                callback(err, result);
+                            });
+                        }
+                        else
+                        {
+                            callback(err, resource);
+                        }
                     });
-                });
+                }, callback);
             };
 
             getTargetFolder(req, function(err, targetFolder){
-                checkIfUserHasPermissionsOverFiles(req, permissions, files, function(err, hasPermissions){
-                    cutResources(files, targetFolder, function(err, result){
+                if(!err && targetFolder instanceof Folder)
+                {
+                    checkIfUserHasPermissionsOverFiles(req, permissions, files, function(err, hasPermissions){
                         if(isNull(err))
                         {
-                            return res.json({
-                                result : "ok",
-                                message : "Files moved successfully",
-                                details : result
-                            })
+                            cutResources(files, targetFolder, function(err, result){
+                                if(isNull(err))
+                                {
+                                    return res.json({
+                                        result : "ok",
+                                        message : "Files moved successfully",
+                                        details : result
+                                    })
+                                }
+                                else
+                                {
+                                    return res.status(500).json({
+                                        result : "error",
+                                        message : "An error occurred while moving files.",
+                                        error : result
+                                    })
+                                }
+                            });
                         }
                         else
                         {
                             return res.status(500).json({
                                 result : "error",
-                                message : "An error occurred while moving files.",
-                                error : result
-                            })
+                                message : "An error occurred while checking permissions over the files you are trying to move.",
+                                error : hasPermissions
+                            });
                         }
                     });
-                });
+                }
+                else
+                {
+                    return res.status(500).json({
+                        result : "error",
+                        message : "An error occurred while fetching the destination folder of the move operation.",
+                        error : result
+                    });
+                }
             });
         }
         else

@@ -12,6 +12,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -33,7 +34,7 @@ const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xls
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const allFiles = [txtMockFile]; //adding more would be too heavy
+const allFiles = [txtMockFile, zipMockFile]; //adding more would be too heavy
 
 describe("[Test File Cut / Move] Private project cutFiles ?paste", function () {
     before(function (done) {
@@ -44,105 +45,151 @@ describe("[Test File Cut / Move] Private project cutFiles ?paste", function () {
         });
     });
 
-    describe("[PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?paste", function ()
-    {
-        it("Should give an error if the request is of type HTML even if the user is logged in as demouser1 (the creator of the project)", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                itemUtils.createFolder(false, agent, privateProject.handle, testFolder1.name, folder.name, function (err, res)
-                {
-                    res.statusCode.should.equal(400);
-                    res.text.should.equal("HTML Request not valid for this route.");
-                    done();
-                });
-            });
-        });
+    // describe("[PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()
+    // {
+    //     it("Should give an error if the request is of type HTML even if the user is logged in as demouser1 (the creator of the project)", function (done)
+    //     {
+    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+    //         {
+    //             itemUtils.createFolder(false, agent, privateProject.handle, testFolder1.name, folder.name, function (err, res)
+    //             {
+    //                 res.statusCode.should.equal(400);
+    //                 res.text.should.equal("HTML Request not valid for this route.");
+    //                 done();
+    //             });
+    //         });
+    //     });
+    //
+    //     it("Should give an error when the user is unauthenticated", function (done)
+    //     {
+    //         const app = global.tests.app;
+    //         const agent = chai.request.agent(app);
+    //         itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, folder.name, function (err, res)
+    //         {
+    //             res.statusCode.should.equal(401);
+    //             done();
+    //         });
+    //     });
+    //
+    //     it("Should give an error when the user is logged in as demouser3 (not a collaborador nor creator in a project created by demouser1)", function (done)
+    //     {
+    //         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+    //         {
+    //             itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, folder.name, function (err, res)
+    //             {
+    //                 res.statusCode.should.equal(401);
+    //                 done();
+    //             });
+    //         });
+    //     });
+    //
+    //     it("Should give an error if any of the cut files do not exist", function (done)
+    //     {
+    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+    //         {
+    //             itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, "*aRandomFolder", function (err, res)
+    //             {
+    //                 res.statusCode.should.equal(400);
+    //                 res.body.message.should.equal("invalid file name specified");
+    //                 done();
+    //             });
+    //         });
+    //     });
+    //
+    //     it("Should give an error if the destination folder of the operation does not exist", function (done)
+    //     {
+    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+    //         {
+    //             itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
+    //             {
+    //                 res.statusCode.should.equal(404);
+    //                 done();
+    //             });
+    //         });
+    //     });
+    //
+    //     it("Should give an error if the user does not have permission to cut files into the destination folder (demouser3 is neither a creator nor a collaborator of its owner project", function (done)
+    //     {
+    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+    //         {
+    //             itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
+    //             {
+    //                 res.statusCode.should.equal(404);
+    //                 done();
+    //             });
+    //         });
+    //     });
+    //
+    //     it("Should give an error if the user does not have permission to cut a file (demouser3 is neither a creator nor a collaborator of its owner project", function (done)
+    //     {
+    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+    //         {
+    //             itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
+    //             {
+    //                 res.statusCode.should.equal(404);
+    //                 done();
+    //             });
+    //         });
+    //     });
+    // });
 
-        it("Should give an error when the user is unauthenticated", function (done)
-        {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-            itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, folder.name, function (err, res)
-            {
-                res.statusCode.should.equal(401);
+    describe("[Move files] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?cut", function () {
+        beforeEach(function (done) {
+            this.timeout(10*Config.testsTimeout);
+            createFilesUnit.setup(function (err, results) {
+                should.equal(err, null);
                 done();
             });
         });
 
-        it("Should give an error when the user is logged in as demouser3(not a collaborador nor creator in a project created by demouser1)", function (done)
-        {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
-            {
-                itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, folder.name, function (err, res)
-                {
-                    res.statusCode.should.equal(401);
-                    done();
-                });
-            });
-        });
+        it("Should cut files with success if the user is logged in as demouser1 (the creator of the project)", function (done) {
+            const cutFilesFolderName = "cutFiles",
+                filesToMove = [txtMockFile];
 
-        it("Should give an error if any of the cut files do not exist", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, "*aRandomFolder", function (err, res)
-                {
-                    res.statusCode.should.equal(400);
-                    res.body.message.should.equal("invalid file name specified");
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error if the destination folder of the operation does not exist", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
-                {
-                    res.statusCode.should.equal(404);
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error if the user does not have permission to cut files into the destination folder (demouser3 is neither a creator nor a collaborator of its owner project", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
-                {
-                    res.statusCode.should.equal(404);
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error if the user does not have permission to cut a file (demouser3 is neither a creator nor a collaborator of its owner project", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
-                {
-                    res.statusCode.should.equal(404);
-                    done();
-                });
-            });
-        });
-    });
-
-    describe("[PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?rename", function () {
-        it("Should cut files with success if the user is logged in as demouser1(the creator of the project)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                async.map(allFiles, function(file, callback){
-                    const newName = "RenamedFile";
-                    fileUtils.renameFile(agent, privateProject.handle, testFolder1.name, file.name, newName,  function (err, res) {
-                        res.statusCode.should.equal(200);
-                        callback(err, res);
+                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function(err, res){
+                    res.statusCode.should.equal(200);
+                    should.equal(err, null);
+                    should.equal(folderUtils.responseContainsAllMockFiles(res, allFiles), true);
+
+                    const urisOfFilesToMove = _.map(JSON.parse(res.text), function(file){
+                        return file.uri;
                     });
-                }, function(err, result){
-                    done(err);
+
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function(err, res){
+                        res.statusCode.should.equal(200);
+                        should.equal(err, null);
+                        const destinationFolderUri = JSON.parse(res.text).id;
+
+                        folderUtils.getFolderContents(true,agent, privateProject.handle, cutFilesFolderName, function(err, res){
+                            res.statusCode.should.equal(200);
+                            should.equal(err, null);
+
+                            JSON.parse(res.text).should.be.instanceof(Array);
+                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+
+                            folderUtils.moveFilesIntoFolder(true, agent, urisOfFilesToMove, destinationFolderUri, function(err, res){
+                                res.statusCode.should.equal(200);
+                                should.equal(err, null);
+
+                                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function(err, res){
+                                    res.statusCode.should.equal(200);
+                                    should.equal(err, null);
+                                    JSON.parse(res.text).should.be.instanceof(Array);
+                                    JSON.parse(res.text).length.should.equal(0);
+
+                                    folderUtils.getFolderContents(true,agent, privateProject.handle, cutFilesFolderName, function(err, res){
+                                        res.statusCode.should.equal(200);
+                                        should.equal(err, null);
+
+                                        JSON.parse(res.text).should.be.instanceof(Array);
+                                        should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), true);
+                                        done();
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
@@ -153,6 +200,15 @@ describe("[Test File Cut / Move] Private project cutFiles ?paste", function () {
                     res.statusCode.should.equal(200);
                     done();
                 });
+            });
+        });
+
+        afterEach(function (done) {
+            //destroy graphs
+            this.timeout(Config.testsTimeout);
+            appUtils.clearAppState(function (err, data) {
+                should.equal(err, null);
+                done();
             });
         });
     });

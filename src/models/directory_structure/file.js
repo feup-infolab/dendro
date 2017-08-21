@@ -1107,6 +1107,57 @@ File.prototype.generateThumbnails = function (callback) {
     }
 };
 
+File.prototype.moveToFolder = function(newParentFolder, callback)
+{
+    const self = this;
+
+    const oldParent = self.nie.isLogicalPartOf;
+    const newParent = newParentFolder.uri;
+
+    const query =
+        "DELETE DATA " +
+        "{ " +
+        "GRAPH [0] " +
+        "{ " +
+        "[1] nie:title ?title . " +
+        "} " +
+        "}; " +
+
+        "INSERT DATA " +
+        "{ " +
+        "GRAPH [0] " +
+        "{ " +
+        "[1] nie:title [2] " +
+        "} " +
+        "}; ";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.resource,
+                value: self.uri
+            },
+            {
+                type: DbConnection.string,
+                value: newTitle
+            }
+        ],
+        function(err, result)
+        {
+            Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+            {
+                Cache.getByGraphUri(db.graphUri).delete(newParentFolder.uri, function (err, result)
+                {
+                    return callback(err, result);
+                });
+            });
+        });
+};
+
 File = Class.extend(File, InformationElement, "nfo:FileDataObject");
 
 module.exports.File = File;

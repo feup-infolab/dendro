@@ -35,7 +35,7 @@ const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xls
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const allFiles = [txtMockFile]; //adding more would be too heavy
+const allFiles = [txtMockFile, zipMockFile]; //adding more would be too heavy
 
 describe("Private project testFolder1 ?rename", function () {
     describe("[POST] [FOLDER] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?rename", function ()

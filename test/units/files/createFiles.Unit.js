@@ -43,7 +43,7 @@ module.exports.setup = function(finish)
 {
     const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
     const foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
-    const filesData = [txtMockFile]; //adding more would be too heavy
+    const filesData =  [txtMockFile, zipMockFile]; //adding more would be too heavy
 
     createFoldersUnit.setup(function (err, results) {
         if(err)

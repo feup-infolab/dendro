@@ -282,26 +282,27 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
 {
     const self = this;
 
-    //an update is made through a delete followed by an insert
-    // http://www.w3.org/TR/2013/REC-sparql11-update-20130321/#insertData
+    const oldParent = self.nie.isLogicalPartOf;
+    const newParent = newParentFolder.uri;
 
-    //TODO CACHE DONE
     const query =
-        "DELETE DATA " +
-        "{ " +
-        "GRAPH [0] " +
-        "{ " +
-        "[1] nie:title ?title . " +
-        "} " +
-        "}; " +
+        "DELETE DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       [1] nie:hasLogicalPart [2]. \n" +
+        "       [2] nie:isLogicalPartOf [1]. \n" +
+        "   } \n" +
+        "}; \n" +
 
-        "INSERT DATA " +
-        "{ " +
-        "GRAPH [0] " +
-        "{ " +
-        "[1] nie:title [2] " +
-        "} " +
-        "}; ";
+        "INSERT DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       [3] nie:hasLogicalPart [2]. \n" +
+        "       [2] nie:isLogicalPartOf [3]. \n" +
+        "   } " +
+        "}; \n";
 
     db.connection.execute(query,
         [
@@ -311,19 +312,35 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
             },
             {
                 type: DbConnection.resource,
+                value: oldParent
+            },
+            {
+                type: DbConnection.resource,
                 value: self.uri
             },
             {
-                type: DbConnection.string,
-                value: newTitle
+                type: DbConnection.resource,
+                value: newParent
             }
         ],
-        function(err, result) {
-            Cache.getByGraphUri(db.graphUri).delete(self.uri, function(err, result){
+        function(err, result)
+        {
+            if(isNull(err))
+            {
+                //invalidate caches on parent and child...
+                Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+                {
+                    Cache.getByGraphUri(db.graphUri).delete(newParentFolder.uri, function (err, result)
+                    {
+                        return callback(err, result);
+                    });
+                });
+            }
+            else
+            {
                 return callback(err, result);
-            });
-        }
-    );
+            }
+        });
 };
 
 InformationElement.prototype.unlinkFromParent = function(callback)
