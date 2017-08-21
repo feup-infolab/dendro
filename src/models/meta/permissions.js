@@ -189,7 +189,7 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
     }
 };
 
-const checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
+const checkUsersRoleInParentProject = Permissions.checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
     if (!isNull(user)) {
         getOwnerProject(resource, function (err, project) {
             if (isNull(err)) {

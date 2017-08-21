@@ -35,7 +35,7 @@ const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtM
 
 const allFiles = [txtMockFile]; //adding more would be too heavy
 
-describe("Private project testFolder1 ?rename", function () {
+describe("[Test File Cut / Move] Private project cutFiles ?paste", function () {
     before(function (done) {
         this.timeout(10*Config.testsTimeout);
         createFilesUnit.setup(function (err, results) {
@@ -44,7 +44,7 @@ describe("Private project testFolder1 ?rename", function () {
         });
     });
 
-    describe("[POST] [FOLDER] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?cut", function ()
+    describe("[PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?paste", function ()
     {
         it("Should give an error if the request is of type HTML even if the user is logged in as demouser1 (the creator of the project)", function (done)
         {
@@ -132,7 +132,7 @@ describe("Private project testFolder1 ?rename", function () {
         });
     });
 
-    describe("[POST] [FILE] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?rename", function () {
+    describe("[PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?rename", function () {
         it("Should cut files with success if the user is logged in as demouser1(the creator of the project)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 async.map(allFiles, function(file, callback){

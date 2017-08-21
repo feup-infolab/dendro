@@ -278,6 +278,54 @@ InformationElement.prototype.rename = function(newTitle, callback)
     );
 };
 
+InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
+{
+    const self = this;
+
+    //an update is made through a delete followed by an insert
+    // http://www.w3.org/TR/2013/REC-sparql11-update-20130321/#insertData
+
+    //TODO CACHE DONE
+    const query =
+        "DELETE DATA " +
+        "{ " +
+        "GRAPH [0] " +
+        "{ " +
+        "[1] nie:title ?title . " +
+        "} " +
+        "}; " +
+
+        "INSERT DATA " +
+        "{ " +
+        "GRAPH [0] " +
+        "{ " +
+        "[1] nie:title [2] " +
+        "} " +
+        "}; ";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.resource,
+                value: self.uri
+            },
+            {
+                type: DbConnection.string,
+                value: newTitle
+            }
+        ],
+        function(err, result) {
+            Cache.getByGraphUri(db.graphUri).delete(self.uri, function(err, result){
+                return callback(err, result);
+            });
+        }
+    );
+};
+
 InformationElement.prototype.unlinkFromParent = function(callback)
 {
     const self = this;

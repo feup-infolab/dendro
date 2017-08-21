@@ -2535,5 +2535,169 @@ exports.rename = function(req, res){
     }
 };
 
+const getTargetFolder = function(req, callback)
+{
+    const resourceUri = req.params.requestedResourceUri;
+    if(req.params.is_project_root)
+    {
+        Project.findByUri(resourceUri , function(err, project){
+            if(isNull(err))
+            {
+                if(!isNull(project) && project instanceof Project)
+                {
+                    project.getRootFolder(function(err, result){
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    res.status(404).json({
+                        result : "error",
+                        message : "Project with uri " + resourceURI + " does not exist",
+                        error : project
+                    })
+                }
+            }
+            else
+            {
+                res.status(500).json({
+                    result : "error",
+                    message : "Error occurred while fetching project with uri " + resourceURI,
+                    error : project
+                })
+            }
+        })
+    }
+    else
+    {
+        Folder.findByUri(resourceUri, function(err, folder)
+        {
+            if (isNull(err))
+            {
+                if(!isNull(folder))
+                {
+                    callback(err, folder);
+                }
+                else
+                {
+                    res.status(404).json({
+                        result: "error",
+                        message: "Folder " + resourceURI + " does not exist.",
+                        error: folder
+                    })
+                }
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "error",
+                    message: "Error occurred while fetching project with uri " + resourceURI,
+                    error: folder
+                })
+            }
+        });
+    }
+};
 
+const checkIfUserHasPermissionsOverFiles = function(req, permissions, files, callback)
+{
+    const user = req.user;
+
+    async.map(files, function(file, callback){
+        async.detect(permissions, function(role, callback){
+            Permissions.checkUsersRoleInParentProject(req, user, role, project, function (err, hasRole) {
+                return callback(err, hasRole);
+            });
+        }, function(err, role){
+            if(err || isNull(role))
+            {
+                callback(1, "You do not have the necessary permissions to move resource " + file.uri + ". Details: You are not a creator or contributor of the project to which the resource belongs.");
+            }
+            else
+            {
+                callback(null);
+            }
+        });
+    }, function(err, result){
+        callback(err, result);
+    });
+};
+
+exports.cut = function(req, res){
+    let files;
+    if(!isNull(req.query.files))
+    {
+        try{
+            files = JSON.parse(req.query.files);
+        }
+        catch(e)
+        {
+            return res.status(500).json({
+                result : "error",
+                message : "Unable to parse array of files ('files' query parameter).",
+                error : e.message
+            })
+        }
+
+        if(files instanceof Array)
+        {
+            let files = req.query.files;
+
+            const permissions = [
+                Permissions.settings.role.in_owner_project.contributor,
+                Permissions.settings.role.in_owner_project.creator
+            ];
+
+            const cutResources = function(resources, targetFolder, callback)
+            {
+                async.map(resources, function(resource, callback){
+                    resource.moveToFolder(targetFolder, function(err, result){
+                        callback(err, result);
+                    });
+                });
+            };
+
+            getTargetFolder(req, function(err, targetFolder){
+                checkIfUserHasPermissionsOverFiles(req, permissions, files, function(err, hasPermissions){
+                    cutResources(files, targetFolder, function(err, result){
+                        if(isNull(err))
+                        {
+                            return res.json({
+                                result : "ok",
+                                message : "Files moved successfully",
+                                details : result
+                            })
+                        }
+                        else
+                        {
+                            return res.status(500).json({
+                                result : "error",
+                                message : "An error occurred while moving files.",
+                                error : result
+                            })
+                        }
+                    });
+                });
+            });
+        }
+        else
+        {
+            const error = "The 'files' parameter is not a valid array of files and folders";
+            console.error(error);
+            return res.status(400).json({
+                result : "error",
+                message : error
+            });
+        }
+    }
+    else
+    {
+        const error = "Missing 'files' parameter; Unable to determine which files to move!";
+        console.error(error);
+        return res.status(400).json({
+            result: "error",
+            message: error
+        });
+    }
+};
 

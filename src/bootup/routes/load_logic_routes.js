@@ -663,6 +663,18 @@ const loadRoutes = function(app, callback)
                             handler: projects.undelete,
                             permissions: administrationPermissions,
                             authentication_error: "Permission denied : cannot undelete project because you do not have permissions to administer this project."
+                        },
+                        {
+                            queryKeys: ['cut'],
+                            handler: files.cut,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot cut resources into this folder because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['copy'],
+                            handler: files.copy,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot paste resources into this folder because you do not have permissions to edit resources inside this project."
                         }
                     ],
                     all:
