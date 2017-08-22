@@ -213,51 +213,75 @@ angular.module('dendroApp.controllers')
     };
 
     $scope.cut = function() {
-        $localStorage["cut_files"] = $scope.cut_files = $scope.get_selected_files();
-        if($scope.cut_files.length > 0)
+        $scope.clear_clipboard(true);
+        if($scope.get_selected_files().length > 0)
+        {
+            $localStorage["cut_files"] = $scope.get_selected_files();
+            $scope.cut_files = $scope.get_selected_files();
             windowService.show_popup('info',  $scope.cut_files.length + " files cut", "Go to the target folder and paste them", 700);
+        }
         else
+        {
             windowService.show_popup('warning',  "Nothing selected", "Please select the files before cutting", 1000)
+        }
     };
 
-
     $scope.copy = function() {
-        $localStorage["copied_files"] = $scope.copied_files = $scope.get_selected_files();
-        if($scope.copied_files.length > 0)
+        $scope.clear_clipboard(true);
+        if($scope.get_selected_files().length > 0)
+        {
+            $localStorage["copied_files"] = $scope.get_selected_files();
+            $scope.copied_files = $scope.get_selected_files();
             windowService.show_popup('info',  $scope.copied_files.length + " files copied", "Go to the target folder and paste them", 700);
+        }
         else
+        {
             windowService.show_popup('warning',  "Nothing selected", "Please select the files before copying", 1000);
+        }
     };
 
     $scope.get_clipboard_file_count = function() {
-        if($scope.copied_files != null)
+        if($scope.copied_files.length > 0)
+        {
             return $scope.copied_files.length;
-        else if($scope.cut_files != null)
-            return  $scope.cut_files.length;
+        }
+        else if($scope.cut_files.length > 0)
+        {
+            return $scope.cut_files.length;
+        }
         else
+        {
             return 0;
+        }
     };
 
     $scope.files_exist_in_clipboard = function() {
         return ($scope.get_clipboard_file_count() > 0);
     };
 
-    $scope.clear_clipboard = function() {
-        delete $scope["copied_files"];
-        delete $localStorage["copied_files"];
-        delete $scope["cut_files"];
-        delete $localStorage["cut_files"];
+    $scope.clear_clipboard = function(hide_popup) {
+        $scope["copied_files"] = [];
+        $localStorage["copied_files"] = [];
+        $scope["cut_files"] = [];
+        $localStorage["cut_files"] = [];
 
-        windowService.show_popup('info',  "Clipboard cleared", "No files waiting to be copied or moved", 700);
+        if(!hide_popup)
+            windowService.show_popup('info',  "Clipboard cleared", "No files waiting to be copied or moved", 700);
     };
 
     $scope.paste = function() {
         if($scope.cut_files.length > 0)
-            filesService.move($scope.cut_files, $scope.get_calling_uri());
-        if($scope.copied_files.length > 0)
-            filesService.copy($scope.cut_files, $scope.get_calling_uri());
+        {
+            filesService.cut($scope.cut_files, $scope.get_calling_uri());
+        }
+        else if($scope.copied_files.length > 0)
+        {
+            filesService.copy($scope.copied_files, $scope.get_calling_uri());
+        }
         else
+        {
             windowService.show_popup('info',  "Nothing selected", "Please select the files before cutting");
+        }
     };
 
     $scope.upload_callback = function(err, result)
@@ -559,6 +583,8 @@ angular.module('dendroApp.controllers')
     {
         $scope.set_from_local_storage_and_then_from_value("upload_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("restore_area_visible", false);
+        $scope.set_from_local_storage_and_then_from_value("cut_files", []);
+        $scope.set_from_local_storage_and_then_from_value("copied_files", []);
         $scope.set_from_local_storage_and_then_from_value("showing_deleted_files", false, $scope, "shared");
 
         $scope.modelOptionsObj = {

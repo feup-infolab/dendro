@@ -74,7 +74,7 @@
                         <button type="button" class="btn btn-default" ng-hide="files_exist_in_clipboard()" ng-click="toggle_upload_area()">
                             <img class="icon16" id="upload_button" data-loading-text="Uploading..." src="/images/icons/page_white_get.png"> Upload
                         </button>
-                        <button type="button" class="btn btn-success" ng-show="files_exist_in_clipboard()" ng-click="paste_files()">
+                        <button type="button" class="btn btn-success" ng-show="files_exist_in_clipboard()" ng-click="paste()">
                             <img class="icon16" id="paste_button" src="/images/icons/page_paste.png">&nbsp; Paste &nbsp; <span ng-show="files_exist_in_clipboard()" class="badge badge-info">{{get_clipboard_file_count()}}</span>
                         </button>
                         <button type="button" class="btn btn-default" ng-show="files_exist_in_clipboard()" ng-click="clear_clipboard()">

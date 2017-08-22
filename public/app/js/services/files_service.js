@@ -102,14 +102,31 @@ angular.module('dendroApp.services')
             }
         };
 
-        this.paste = function(resourcesToPaste, targetFolderUri)
+        this.cut = function(resourcesToCut, targetFolderUri)
         {
-            var pasteUrl = targetFolderUri + "?paste";
+            var cutUrl = targetFolderUri + "?cut";
 
             return $http({
                 method: "POST",
-                url: pasteUrl,
-                data: JSON.stringify(resourcesToPaste),
+                url: cutUrl,
+                query : {
+                    files : JSON.stringify(resourcesToCut)
+                },
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
+        this.copy = function(resourcesToCopy, targetFolderUri)
+        {
+            var copyUrl = targetFolderUri + "?copy";
+
+            return $http({
+                method: "POST",
+                url: copyUrl,
+                query : {
+                    files : JSON.stringify(resourcesToCopy)
+                },
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             });
