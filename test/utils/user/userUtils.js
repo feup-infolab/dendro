@@ -20,9 +20,7 @@ exports.loginUser = function (username, password, cb) {
         });
 };
 
-exports.logoutUser = function (cb) {
-    const app = global.tests.app;
-    agent = chai.request.agent(app);
+exports.logoutUser = function (agent, cb) {
     agent
         .get('/logout')
         .end(function (err, res) {

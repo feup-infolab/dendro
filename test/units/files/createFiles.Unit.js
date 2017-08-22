@@ -39,12 +39,12 @@ const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xls
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
+const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
+const foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
+const allFiles = exports.allFiles = [txtMockFile, zipMockFile, docxMockFile];
+
 module.exports.setup = function(finish)
 {
-    const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
-    const foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
-    const filesData =  [txtMockFile, zipMockFile]; //adding more would be too heavy
-
     createFoldersUnit.setup(function (err, results) {
         if(err)
         {
@@ -61,7 +61,7 @@ module.exports.setup = function(finish)
                 {
                     async.mapSeries(projectsData, function (projectData, cb) {
                         async.mapSeries(foldersData, function (folderData, cb) {
-                            async.mapSeries(filesData, function (file, cb) {
+                            async.mapSeries(allFiles, function (file, cb) {
                                 fileUtils.uploadFile(true, agent, projectData.handle, folderData.name,  file, function (err, res) {
                                     cb(err, res);
                                 });

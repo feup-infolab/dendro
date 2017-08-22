@@ -35,7 +35,7 @@ const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xls
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const allFiles = [txtMockFile, zipMockFile]; //adding more would be too heavy
+const allFiles = [txtMockFile, zipMockFile, docxMockFile];
 
 describe("Private project testFolder1 ?rename", function () {
     describe("[POST] [FOLDER] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?rename", function ()
@@ -68,7 +68,7 @@ describe("Private project testFolder1 ?rename", function () {
                     should.not.equal(typeof folder, "undefined");
                     should.equal(folder.nie.title, testFolder1.name);
 
-                    userUtils.logoutUser(function (err, agent)
+                    userUtils.logoutUser(agent, function (err, agent)
                     {
                         res.statusCode.should.equal(200);
 
@@ -101,7 +101,7 @@ describe("Private project testFolder1 ?rename", function () {
                     should.not.equal(typeof folder, "undefined");
                     should.equal(folder.nie.title, testFolder1.name);
 
-                    userUtils.logoutUser(function (err, agent)
+                    userUtils.logoutUser(agent, function (err, agent)
                     {
                         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
                         {

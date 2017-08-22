@@ -307,7 +307,7 @@ const loadRoutes = function(app, callback)
             ]
         };
 
-        QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        QueryBasedRouter.applyRoutes(queryBasedRoutes,false, req, res, next);
     });
 
     //research domains
@@ -403,7 +403,7 @@ const loadRoutes = function(app, callback)
                     ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, true, req, res, next);
             };
 
             async.waterfall([
@@ -688,7 +688,7 @@ const loadRoutes = function(app, callback)
                      ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, true, req, res, next);
             };
 
             async.waterfall([
@@ -1010,7 +1010,7 @@ const loadRoutes = function(app, callback)
                     ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, true, req, res, next);
             };
 
             async.waterfall([

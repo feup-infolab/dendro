@@ -202,8 +202,8 @@ exports.users_autocomplete = function(req, res){
 
 exports.all = function(req, res){
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     let viewVars = {
         title: 'Researchers in the knowledge base'
@@ -312,8 +312,8 @@ exports.username_exists = function(req, res){
 exports.show = function(req, res){
     const username = req.params["username"];
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     const sendResponse = function(err, user)
     {
@@ -636,8 +636,8 @@ exports.reset_password = function (req, res) {
 
 exports.getLoggedUser = function (req, res) {
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(!isNull(req.user))
     {

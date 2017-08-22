@@ -14,8 +14,8 @@ const _ = require("underscore");
 const request = require("request");
 
 exports.show_deep = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -96,8 +96,8 @@ exports.show_deep = function(req, res) {
 };
 
 exports.show = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -169,8 +169,8 @@ exports.show = function(req, res) {
 };
 
 exports.show_parent = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -246,8 +246,8 @@ exports.show_parent = function(req, res) {
 };
 
 exports.update = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -417,8 +417,8 @@ exports.update = function(req, res) {
 };
 
 exports.show_version = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -483,8 +483,8 @@ exports.show_version = function(req, res) {
 };
 
 exports.restore_metadata_version = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {

@@ -29,8 +29,8 @@ exports.all = function(req, res) {
     );
 
     const validateRequestType = function (cb) {
-        let acceptsHTML = req.accepts('html');
-        const acceptsJSON = req.accepts('json');
+        let acceptsHTML = req.accepts("html");
+        const acceptsJSON = req.accepts("json");
 
         if (acceptsJSON && !acceptsHTML) {
             res.status(400).json({
@@ -105,8 +105,8 @@ exports.my = function(req, res) {
     Project.findByCreatorOrContributor(req.user.uri, function(err, projects) {
         if(isNull(err) && !isNull(projects))
         {
-            let acceptsHTML = req.accepts('html');
-            const acceptsJSON = req.accepts('json');
+            let acceptsHTML = req.accepts("html");
+            const acceptsJSON = req.accepts("json");
 
             if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
@@ -722,8 +722,8 @@ exports.show = function(req, res) {
 };
 
 exports.new = function(req, res) {
-    let acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(req.originalMethod === "GET")
     {
@@ -744,8 +744,8 @@ exports.new = function(req, res) {
     }
     else if (req.originalMethod === "POST")
     {
-        acceptsHTML = req.accepts('html');
-        acceptsJSON = req.accepts('json');
+        acceptsHTML = req.accepts("html");
+        acceptsJSON = req.accepts("json");
 
         if(isNull(req.body.handle) || req.body.handle === "")
         {
@@ -1201,8 +1201,8 @@ exports.delete = function(req,res)
                     {
                         const success_messages = ["Project " + project.ddr.handle + " successfully marked as deleted"];
 
-                        let acceptsHTML = req.accepts('html');
-                        const acceptsJSON = req.accepts('json');
+                        let acceptsHTML = req.accepts("html");
+                        const acceptsJSON = req.accepts("json");
 
                         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                         {
@@ -1257,8 +1257,8 @@ exports.undelete = function(req,res)
                     {
                         const success_messages = ["Project " + project.ddr.handle + " successfully recovered"];
 
-                        let acceptsHTML = req.accepts('html');
-                        const acceptsJSON = req.accepts('json');
+                        let acceptsHTML = req.accepts("html");
+                        const acceptsJSON = req.accepts("json");
 
                         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                         {
@@ -1302,8 +1302,8 @@ exports.undelete = function(req,res)
 };
 
 exports.recent_changes = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -1489,8 +1489,8 @@ exports.stats = function(req, res) {
 exports.interactions = function(req, res) {
     let username = req.params["username"];
     const currentUser = req.user;
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(!username)
     {
@@ -1542,8 +1542,8 @@ exports.interactions = function(req, res) {
 };
 
 exports.requestAccess = function(req, res){
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(req.originalMethod === "GET")
     {
@@ -1635,8 +1635,8 @@ exports.requestAccess = function(req, res){
 };
 
 exports.import = function(req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(req.originalMethod === "GET")
     {

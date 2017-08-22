@@ -438,8 +438,8 @@ exports.by_user = function(req, res)
 {
     let username = req.params["username"];
     const currentUser = req.user;
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(!username)
     {

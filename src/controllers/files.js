@@ -1185,8 +1185,8 @@ exports.upload = function(req, res)
 
 exports.resume = function(req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
 
     if (req.originalMethod === "GET")
@@ -1401,8 +1401,8 @@ exports.restore = function(req, res){
 };
 
 exports.rm = function(req, res){
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)
     {
@@ -1592,8 +1592,8 @@ exports.rm = function(req, res){
 };
 
 exports.undelete = function(req, res){
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)
     {
@@ -1733,8 +1733,8 @@ exports.undelete = function(req, res){
 };
 
 exports.mkdir = function(req, res){
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)
     {
@@ -2157,8 +2157,8 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
 };
 
 exports.recent_changes = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -2604,12 +2604,12 @@ const checkIfUserHasPermissionsOverFiles = function(req, permissions, files, cal
     const user = req.user;
     const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
-    async.map(files, function(file, callback){
-        InformationElement.findByUri(file, function(err, file){
-            if(isNull(err) && !isNull(file))
+    async.map(files, function(fileUri, callback){
+        InformationElement.findByUri(fileUri, function(err, fetchedFile){
+            if(isNull(err) && !isNull(fetchedFile))
             {
                 async.detect(permissions, function(role, callback){
-                    Permissions.checkUsersRoleInParentProject(req, user, role, file, function (err, hasRole) {
+                    Permissions.checkUsersRoleInParentProject(req, user, role, fetchedFile, function (err, hasRole) {
                         return callback(err, hasRole);
                     });
                 }, function(err, role){
@@ -2619,13 +2619,31 @@ const checkIfUserHasPermissionsOverFiles = function(req, permissions, files, cal
                     }
                     else
                     {
-                        return callback(1, "You do not have the necessary permissions to move resource " + file.uri + ". Details: You are not a creator or contributor of the project to which the resource belongs.");
+                        return callback(1, "You do not have the necessary permissions to move resource " + fetchedFile.uri + ". Details: You are not a creator or contributor of the project to which the resource belongs.");
                     }
                 });
             }
             else
             {
-                return callback(1, "Resource " + file.uri + " not found while checking permissions.");
+                return callback(1, "Resource " + fileUri + " not found while checking permissions.");
+            }
+        });
+    }, function(err, result){
+        return callback(err, result);
+    });
+};
+
+const checkIfFilesExist = function(files, callback)
+{
+    async.map(files, function(fileUri, callback){
+        InformationElement.exists(fileUri, function(err, exists){
+            if(isNull(err) && exists)
+            {
+                callback(null, exists);
+            }
+            else
+            {
+                return callback(1, "Resource " + fileUri + " does not exist.");
             }
         });
     }, function(err, result){
@@ -2634,99 +2652,129 @@ const checkIfUserHasPermissionsOverFiles = function(req, permissions, files, cal
 };
 
 exports.cut = function(req, res){
-    if(!isNull(req.query.files))
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    if(acceptsJSON && !acceptsHTML)
     {
-        if(req.query.files instanceof Array)
+        if (!isNull(req.query.files))
         {
-            let files = req.query.files;
-            const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
-
-            const permissions = [
-                Permissions.settings.role.in_owner_project.contributor,
-                Permissions.settings.role.in_owner_project.creator
-            ];
-
-            const cutResources = function(resourceUris, targetFolder, callback)
+            if (req.query.files instanceof Array)
             {
-                async.map(resourceUris, function(resourceUri, callback)
-                {
-                    InformationElement.findByUri(resourceUri, function(err, resource){
-                        if(isNull(err) && !isNull(resource))
-                        {
-                            resource.moveToFolder(targetFolder, function (err, result)
-                            {
-                                callback(err, result);
-                            });
-                        }
-                        else
-                        {
-                            callback(err, resource);
-                        }
-                    });
-                }, callback);
-            };
+                let files = req.query.files;
+                const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
-            getTargetFolder(req, function(err, targetFolder){
-                if(!err && targetFolder instanceof Folder)
+                const permissions = [
+                    Permissions.settings.role.in_owner_project.contributor,
+                    Permissions.settings.role.in_owner_project.creator
+                ];
+
+                const cutResources = function (resourceUris, targetFolder, callback)
                 {
-                    checkIfUserHasPermissionsOverFiles(req, permissions, files, function(err, hasPermissions){
-                        if(isNull(err))
+                    async.map(resourceUris, function (resourceUri, callback)
+                    {
+                        InformationElement.findByUri(resourceUri, function (err, resource)
                         {
-                            cutResources(files, targetFolder, function(err, result){
-                                if(isNull(err))
+                            if (isNull(err) && !isNull(resource))
+                            {
+                                resource.moveToFolder(targetFolder, function (err, result)
                                 {
-                                    return res.json({
-                                        result : "ok",
-                                        message : "Files moved successfully"
-                                    })
-                                }
-                                else
-                                {
-                                    return res.status(500).json({
-                                        result : "error",
-                                        message : "An error occurred while moving files.",
-                                        error : result
-                                    })
-                                }
-                            });
-                        }
-                        else
-                        {
-                            return res.status(500).json({
-                                result : "error",
-                                message : "An error occurred while checking permissions over the files you are trying to move.",
-                                error : hasPermissions
-                            });
-                        }
-                    });
-                }
-                else
+                                    callback(err, result);
+                                });
+                            }
+                            else
+                            {
+                                callback(err, resource);
+                            }
+                        });
+                    }, callback);
+                };
+
+                getTargetFolder(req, function (err, targetFolder)
                 {
-                    return res.status(500).json({
-                        result : "error",
-                        message : "An error occurred while fetching the destination folder of the move operation.",
-                        error : result
-                    });
-                }
-            });
+                    if (!err && targetFolder instanceof Folder)
+                    {
+                        checkIfFilesExist(files, function(err, result){
+                            if (isNull(err))
+                            {
+                                checkIfUserHasPermissionsOverFiles(req, permissions, files, function (err, hasPermissions)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        cutResources(files, targetFolder, function (err, result)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                return res.json({
+                                                    result: "ok",
+                                                    message: "Files moved successfully"
+                                                })
+                                            }
+                                            else
+                                            {
+                                                return res.status(500).json({
+                                                    result: "error",
+                                                    message: "An error occurred while moving files.",
+                                                    error: result
+                                                })
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        return res.status(500).json({
+                                            result: "error",
+                                            message: "An error occurred while checking permissions over the files you are trying to move.",
+                                            error: hasPermissions
+                                        });
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                return res.status(404).json({
+                                    result: "error",
+                                    message: "Some of the files that were asked to be moved do not exist.",
+                                    error: result
+                                });
+                            }
+                        })
+                    }
+                    else
+                    {
+                        return res.status(500).json({
+                            result: "error",
+                            message: "An error occurred while fetching the destination folder of the move operation.",
+                            error: result
+                        });
+                    }
+                });
+            }
+            else
+            {
+                const error = "The 'files' parameter is not a valid array of files and folders";
+                console.error(error);
+                return res.status(400).json({
+                    result: "error",
+                    message: error
+                });
+            }
         }
         else
         {
-            const error = "The 'files' parameter is not a valid array of files and folders";
+            const error = "Missing 'files' parameter; Unable to determine which files to move!";
             console.error(error);
             return res.status(400).json({
-                result : "error",
-                message : error
+                result: "error",
+                message: error
             });
         }
     }
     else
     {
-        const error = "Missing 'files' parameter; Unable to determine which files to move!";
-        console.error(error);
-        return res.status(400).json({
+        res.status(400).json({
             result: "error",
-            message: error
+            message: "HTML Request not valid for this route."
         });
     }
 };

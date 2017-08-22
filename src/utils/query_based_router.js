@@ -1,22 +1,50 @@
 const path = require("path");
+const async = require('async');
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-
-const _ = require("underscore");
-
 const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
 const QueryBasedRouter = function () {
 };
 
-
-QueryBasedRouter.applyRoutes = function(routes, req, res, next)
+QueryBasedRouter.applyRoutes = function(routes, validateExistenceOfRequestedResourceUri, req, res, next)
 {
     const method = req.originalMethod.toLowerCase();
     let matchingRoute;
     let routeThatMatchesTheMostQueries;
+
+    function resourceExists(callback)
+    {
+        const resourceUri = req.params.requestedResourceUri;
+        if(!isNull(resourceUri))
+        {
+            const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+            Resource.exists(resourceUri, function(err, exists){
+                if(isNull(err))
+                {
+                    if(exists)
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        callback(404, "Resource with URI " + resourceUri + " does not exist");
+                    }
+                }
+                else
+                {
+                    callback(500, exists);
+                }
+            })
+        }
+        else
+        {
+            callback(400, "Unable to determine which resource is being referenced in this HTTP request.");
+        }
+    }
 
     function extractFirstElementFromArray(array)
     {
@@ -93,38 +121,56 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
         });
     }
 
-    if(!isNull(routes[method])) {
-        matchingRoute = getMatchingRoute(routes[method]);
-
-        //try all
-        if(isNull(matchingRoute))
+    async.series([
+        function(callback)
         {
-            matchingRoute = getMatchingRoute(routes['all']);
+            if(validateExistenceOfRequestedResourceUri)
+                resourceExists(callback);
+            else
+                callback(null);
         }
-
-        if(!isNull(matchingRoute))
+    ], function(err, result){
+        if(isNull(err))
         {
-            passRequestToRoute(matchingRoute);
+            if(!isNull(routes[method])) {
+                matchingRoute = getMatchingRoute(routes[method]);
+
+                //try all
+                if(isNull(matchingRoute))
+                {
+                    matchingRoute = getMatchingRoute(routes['all']);
+                }
+
+                if(!isNull(matchingRoute))
+                {
+                    passRequestToRoute(matchingRoute);
+                }
+                else
+                {
+                    next();
+                }
+            }
+            else
+            {
+                //try all
+                matchingRoute = getMatchingRoute(routes['all']);
+
+                if(!isNull(matchingRoute))
+                {
+                    passRequestToRoute(matchingRoute);
+                }
+                else
+                {
+                    next();
+                }
+            }
         }
         else
         {
             next();
         }
-    }
-    else
-    {
-        //try all
-        matchingRoute = getMatchingRoute(routes['all']);
+    });
 
-        if(!isNull(matchingRoute))
-        {
-            passRequestToRoute(matchingRoute);
-        }
-        else
-        {
-            next();
-        }
-    }
 };
 
 module.exports.QueryBasedRouter = QueryBasedRouter;
