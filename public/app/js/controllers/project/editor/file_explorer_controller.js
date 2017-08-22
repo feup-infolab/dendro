@@ -274,13 +274,13 @@ angular.module('dendroApp.controllers')
         {
             filesService.cut($scope.cut_files, $scope.get_calling_uri())
                 .then(function(response){
-                    windowService.show_popup('success',  "Files copied", response.data.message);
+                    windowService.show_popup('success',  "Files moved", response.data.message);
                     $scope.clear_clipboard(true);
                     $scope.load_folder_contents($scope.showing_deleted_files);
                 })
                 .catch(function(error){
                     console.error(JSON.stringify(error));
-                    windowService.show_popup('error',  "Error moving files.", JSON.stringify(error.message), 5000);
+                    windowService.show_popup('error',  "Error moving files.", error.data.message, 5000);
                 });
         }
         else if($scope.copied_files.length > 0)
@@ -293,7 +293,7 @@ angular.module('dendroApp.controllers')
                 })
                 .catch(function(error){
                     console.error(JSON.stringify(error));
-                    windowService.show_popup('error',  "Error moving files", JSON.stringify(error.message), 5000);
+                    windowService.show_popup('error',  "Error copying files", JSON.stringify(error.message), 5000);
                 });
         }
         else

@@ -140,7 +140,7 @@ const saveAvatarInGfs = function (avatar, user, extension, callback) {
                         }, function (err, results) {
                             if (err) {
                                 console.error("Error deleting one of the old avatars");
-                                console.error(JSON.stringify(results));
+                                //console.error(JSON.stringify(results));
                             }
                             uploadAvatarToGrifs(user, avatarUri, base64Data, extension, function (err, data) {
                                 callback(err, data);

@@ -490,7 +490,7 @@ Permissions.check = function(permissionsRequired, req, callback) {
 Permissions.require = function(permissionsRequired, req, res, next) {
     if(Config.debug.permissions.enable_permissions_system)
     {
-        if(Config.debug.permissions.log_requests_and_permissions)
+        if(Config.debug.active && Config.debug.permissions.log_requests_and_permissions)
         {
             console.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
             console.log(JSON.stringify(permissionsRequired, null, 2));
@@ -504,7 +504,7 @@ Permissions.require = function(permissionsRequired, req, res, next) {
             Permissions.check(permissionsRequired, req, function(err, req){
                 if(req.permissions_management.reasons_for_authorizing.length > 0)
                 {
-                    if(Config.debug.permissions.log_authorizations)
+                    if(Config.debug.active && Config.debug.permissions.log_authorizations)
                     {
                         console.log("[AUTHORIZED] : Checking for permissions on request " + req.originalUrl);
                         console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
@@ -514,7 +514,7 @@ Permissions.require = function(permissionsRequired, req, res, next) {
                 }
                 else if(req.permissions_management.reasons_for_denying.length > 0)
                 {
-                    if (Config.debug.permissions.log_denials)
+                    if (Config.debug.active && Config.debug.permissions.log_denials)
                     {
                         console.log("[DENIED] : Checking for permissions on request " + req.originalUrl);
                         console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));

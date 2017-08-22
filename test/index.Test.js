@@ -14,6 +14,10 @@ global.Config = Config;
 
 global.tests = {};
 
+//test file moving
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js"));
+return;
+
 /*
  require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
  */
@@ -365,6 +369,3 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/te
 
 //test file renaming
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__rename/routes.project.privateProject.data.testFolder1.a_filename.__rename.Test.js"));
-
-//test file moving
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js"));

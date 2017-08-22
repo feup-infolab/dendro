@@ -566,6 +566,58 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
     }, null, null, null, [Config.types.private], [Config.types.api_accessible]);
 };
 
+InformationElement.prototype.containedIn = function(parentResource, callback, customGraphUri)
+{
+    const self = this;
+
+    if(parentResource.uri === self.uri)
+    {
+        callback(null, true);
+    }
+    else
+    {
+        const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+        db.connection.execute(
+            "WITH [0]\n"+
+            "ASK \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   {\n" +
+            "       [2] nie:isLogicalPartOf+ [1]. \n" +
+            "       [1] nie:hasLogicalPart+ [2]. \n" +
+            "   }\n" +
+            "} \n",
+
+            [
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value : graphUri
+                },
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value : parentResource.uri
+                },
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value : self.uri
+                }
+            ],
+            function(err, result) {
+                if(isNull(err))
+                {
+                    return callback(null, result);
+                }
+                else
+                {
+                    const msg = "Error checking if resource " + self.uri + " is contained in " + anotherResourceUri;
+                    console.error(msg);
+                    return callback(err, msg);
+                }
+            });
+    }
+};
+
 InformationElement = Class.extend(InformationElement, Resource, "nie:InformationElement");
 
 module.exports.InformationElement = InformationElement;

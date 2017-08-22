@@ -6,11 +6,18 @@ const _ = require('underscore');
 const binaryParser = require('../file/fileUtils.js').binaryParser;
 
 exports.createFolderInProject = function(jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
+    let uri = '/project/' + projectHandle;
+
+    if(targetFolderInProject)
+        uri = uri + "/data/" + targetFolderInProject;
+
+    uri = uri + '?mkdir=' + folderName;
+
     if(jsonOnly)
     {
         ///project/PROJECTHANDLE?mkdir=FOLDERNAME
         agent
-            .post('/project/' + projectHandle  + targetFolderInProject  + '?mkdir=' + folderName)
+            .post(uri)
             .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
@@ -19,7 +26,7 @@ exports.createFolderInProject = function(jsonOnly, agent, targetFolderInProject,
     else
     {
         agent
-            .post('/project/' + projectHandle + targetFolderInProject  + '?mkdir=' + folderName)
+            .post(uri)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -208,9 +215,11 @@ module.exports.moveFilesIntoFolder = function(acceptsJSON, agent, fileUrisArray,
     {
         agent
             .post(destinationFolderUri)
+            .send({
+                files: fileUrisArray
+            })
             .query(
                 {
-                    files: fileUrisArray,
                     cut : ""
                 })
             .set("Accept", "application/json")
@@ -222,9 +231,11 @@ module.exports.moveFilesIntoFolder = function(acceptsJSON, agent, fileUrisArray,
     {
         agent
             .post(destinationFolderUri)
+            .send({
+                files: fileUrisArray
+            })
             .query(
                 {
-                    files: fileUrisArray,
                     cut : ""
                 })
             .end(function(err, res) {

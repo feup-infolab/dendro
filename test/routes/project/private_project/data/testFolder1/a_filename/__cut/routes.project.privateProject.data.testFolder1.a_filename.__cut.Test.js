@@ -39,8 +39,8 @@ const allFiles = createFilesUnit.allFiles;
 const cutFilesFolderName = "cutFiles";
 const filesToMove = [txtMockFile, docxMockFile];
 
-describe("[Test File Cut / Move] Private project cutFiles ?paste", function () {
-    describe("[PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()
+describe("[Test File Cut / Move] [Private project] cutFiles ?paste", function () {
+    describe("[Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()
     {
         beforeEach(function (done) {
             this.timeout(10*Config.testsTimeout);
@@ -256,9 +256,76 @@ describe("[Test File Cut / Move] Private project cutFiles ?paste", function () {
                 });
             });
         });
+
+        it("Should give an error if one tries to move a file to inside a file (the destination has to be a folder instead of a file, of course...)", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function(err, res){
+                    res.statusCode.should.equal(200);
+                    should.equal(err, null);
+                    JSON.parse(res.text).should.be.instanceof(Array);
+                    JSON.parse(res.text).length.should.equal(allFiles.length);
+                    should.equal(folderUtils.responseContainsAllMockFiles(res, allFiles), true);
+
+                    const urisOfFilesToMove = _.map(JSON.parse(res.text), function(file){
+                        return file.uri;
+                    });
+
+                    folderUtils.moveFilesIntoFolder(true, agent, [urisOfFilesToMove[0]], urisOfFilesToMove[1], function(err, res){
+                        res.statusCode.should.equal(404);
+                        JSON.parse(res.text).message.should.include("Are you trying to copy or move files to inside a file instead of a folder?");
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should give an error if one tries to move a folder to inside itself", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function(err, res){
+                    res.statusCode.should.equal(200);
+                    should.equal(err, null);
+                    JSON.parse(res.text).should.be.instanceof(Array);
+                    JSON.parse(res.text).length.should.equal(allFiles.length);
+                    should.equal(folderUtils.responseContainsAllMockFiles(res, allFiles), true);
+
+                    const urisOfFilesToMove = _.map(JSON.parse(res.text), function(file){
+                        return file.uri;
+                    });
+
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function(err, res){
+                        res.statusCode.should.equal(200);
+                        should.equal(err, null);
+                        const destinationFolderUri = JSON.parse(res.text).id;
+
+                        folderUtils.getFolderContents(true,agent, privateProject.handle, cutFilesFolderName, function(err, res){
+                            res.statusCode.should.equal(200);
+                            should.equal(err, null);
+
+                            JSON.parse(res.text).should.be.instanceof(Array);
+                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+
+                            folderUtils.createFolderInProject(true, agent, cutFilesFolderName, cutFilesFolderName, privateProject.handle, function(err, res){
+                                res.statusCode.should.equal(200);
+                                should.equal(err, null);
+                                const childOfDestinationFolderUri = JSON.parse(res.text).id;
+
+                                folderUtils.moveFilesIntoFolder(true, agent, [destinationFolderUri], childOfDestinationFolderUri, function(err, res){
+                                    res.statusCode.should.equal(400);
+                                    JSON.parse(res.text).error.should.be.instanceof(Array);
+                                    JSON.parse(res.text).error[0].should.contain("Cannot move a folder or resource to inside itself");
+                                    done();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
     });
 
-    describe("[Move files] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?cut", function () {
+    describe("[Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?cut", function () {
         beforeEach(function (done) {
             this.timeout(10*Config.testsTimeout);
             createFilesUnit.setup(function (err, results) {
