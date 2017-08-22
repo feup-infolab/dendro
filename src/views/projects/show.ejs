@@ -66,13 +66,19 @@
     </div>
 
     <div class="row">
-        <div class="col-md-3 col-xs-12 col-sm-3" ng-controller="fileBrowserCtrl" ng-init="init()">
+        <div class="col-md-3 col-xs-12 col-sm-3" ng-controller="fileExplorerCtrl" ng-init="init()">
             <div class="row">
                 <div class="col-xs-12">
                     <!-- Split button -->
                     <div class="btn-group">
-                        <button type="button" class="btn btn-default" ng-click="toggle_upload_area()">
-                            <img class="icon16" id="upload_button" data-loading-text="Uploading..." src="/images/icons/page_white_get.png"> Upload files
+                        <button type="button" class="btn btn-default" ng-hide="files_exist_in_clipboard()" ng-click="toggle_upload_area()">
+                            <img class="icon16" id="upload_button" data-loading-text="Uploading..." src="/images/icons/page_white_get.png"> Upload
+                        </button>
+                        <button type="button" class="btn btn-success" ng-show="files_exist_in_clipboard()" ng-click="paste_files()">
+                            <img class="icon16" id="paste_button" src="/images/icons/page_paste.png">&nbsp; Paste &nbsp; <span ng-show="files_exist_in_clipboard()" class="badge badge-info">{{get_clipboard_file_count()}}</span>
+                        </button>
+                        <button type="button" class="btn btn-default" ng-show="files_exist_in_clipboard()" ng-click="clear_clipboard()">
+                            <img class="icon16" id="paste_button" src="/images/icons/cancel.png">&nbsp; Abort</span>
                         </button>
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="caret"></span>
@@ -83,7 +89,6 @@
                             <li role="separator" class="divider"></li>
                             <li ng-click="copy()" ><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li>
                             <li ng-click="cut()"><a href="#"><img class="icon16" id="cut_button"  src="/images/icons/cut.png">Cut</a></li>
-                            <li ng-click="paste()" ng-class="{ disabled : !files_exist_in_clipboard()}"><a href="#"><img class="icon16" id="paste_button" src="/images/icons/page_paste.png">Paste&nbsp;&nbsp;<span ng-show="files_exist_in_clipboard()" class="badge">{{get_clipboard_file_count()}}</span></a></li>
                             <li ng-click="rename()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="rename_button" src="/images/icons/textfield_rename.png">Rename</a></li>
                             <li role="separator" class="divider"></li>
                             <li ng-click="download_folder()"><a href="#"><img class="icon16" id="download_folder_button" data-loading-text="Preparing Package..." src="/images/icons/arrow_down.png">Download</a></li>

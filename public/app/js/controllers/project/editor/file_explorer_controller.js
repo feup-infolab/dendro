@@ -2,7 +2,7 @@ angular.module('dendroApp.controllers')
     /*
     *  File Browser controller
     */
-    .controller('fileBrowserCtrl', function (
+    .controller('fileExplorerCtrl', function (
         $scope,
         $rootScope,
         $http,
@@ -213,11 +213,20 @@ angular.module('dendroApp.controllers')
     };
 
     $scope.cut = function() {
-        $scope.cut_files = $scope.get_selected_files();
+        $localStorage["cut_files"] = $scope.cut_files = $scope.get_selected_files();
         if($scope.cut_files.length > 0)
-            windowService.show_popup('info',  $scope.cut_files.length + " files cut", "Go to the target folder and paste them");
+            windowService.show_popup('info',  $scope.cut_files.length + " files cut", "Go to the target folder and paste them", 700);
         else
-            windowService.show_popup('info',  "Nothing selected", "Please select the files before cutting");
+            windowService.show_popup('warning',  "Nothing selected", "Please select the files before cutting", 1000)
+    };
+
+
+    $scope.copy = function() {
+        $localStorage["copied_files"] = $scope.copied_files = $scope.get_selected_files();
+        if($scope.copied_files.length > 0)
+            windowService.show_popup('info',  $scope.copied_files.length + " files copied", "Go to the target folder and paste them", 700);
+        else
+            windowService.show_popup('warning',  "Nothing selected", "Please select the files before copying", 1000);
     };
 
     $scope.get_clipboard_file_count = function() {
@@ -233,12 +242,13 @@ angular.module('dendroApp.controllers')
         return ($scope.get_clipboard_file_count() > 0);
     };
 
-    $scope.cut = function() {
-        $scope.copied_files = $scope.get_selected_files();
-        if($scope.copied_files.length > 0)
-            windowService.show_popup('info',  $scope.copied_files.length + " files copied", "Go to the target folder and paste them");
-        else
-            windowService.show_popup('info',  "Nothing selected", "Please select the files before copying");
+    $scope.clear_clipboard = function() {
+        delete $scope["copied_files"];
+        delete $localStorage["copied_files"];
+        delete $scope["cut_files"];
+        delete $localStorage["cut_files"];
+
+        windowService.show_popup('info',  "Clipboard cleared", "No files waiting to be copied or moved", 700);
     };
 
     $scope.paste = function() {

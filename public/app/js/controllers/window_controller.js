@@ -50,9 +50,9 @@ angular.module('dendroApp.controllers')
         return url.substr(url.lastIndexOf('/') + 1);
     };
 
-    $scope.show_popup = function(type, title, message)
+    $scope.show_popup = function(type, title, message, delay)
     {
-        windowService.show_popup(type,title,message);
+        windowService.show_popup(type,title,message, delay);
     };
 
     $scope.valid_date = function(descriptor)
