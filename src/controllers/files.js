@@ -2602,35 +2602,42 @@ const getTargetFolder = function(req, callback)
 const checkIfUserHasPermissionsOverFiles = function(req, permissions, files, callback)
 {
     const user = req.user;
-    const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+    if(req.session.isAdmin) //admin is GOD
+    {
+        callback(null);
+    }
+    else
+    {
+        const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
-    async.map(files, function(fileUri, callback){
-        InformationElement.findByUri(fileUri, function(err, fetchedFile){
-            if(isNull(err) && !isNull(fetchedFile))
-            {
-                async.detect(permissions, function(role, callback){
-                    Permissions.checkUsersRoleInParentProject(req, user, role, fetchedFile, function (err, hasRole) {
-                        return callback(err, hasRole);
+        async.map(files, function(fileUri, callback){
+            InformationElement.findByUri(fileUri, function(err, fetchedFile){
+                if(isNull(err) && !isNull(fetchedFile))
+                {
+                    async.detect(permissions, function(role, callback){
+                        Permissions.checkUsersRoleInParentProject(req, user, role, fetchedFile, function (err, hasRole) {
+                            return callback(err, hasRole);
+                        });
+                    }, function(err, role){
+                        if(isNull(err) && !isNull(role))
+                        {
+                            return callback(null);
+                        }
+                        else
+                        {
+                            return callback(1, "You do not have the necessary permissions to move resource " + fetchedFile.uri + ". Details: You are not a creator or contributor of the project to which the resource belongs.");
+                        }
                     });
-                }, function(err, role){
-                    if(isNull(err) && !isNull(role))
-                    {
-                        return callback(null);
-                    }
-                    else
-                    {
-                        return callback(1, "You do not have the necessary permissions to move resource " + fetchedFile.uri + ". Details: You are not a creator or contributor of the project to which the resource belongs.");
-                    }
-                });
-            }
-            else
-            {
-                return callback(1, "Resource " + fileUri + " not found while checking permissions.");
-            }
+                }
+                else
+                {
+                    return callback(1, "Resource " + fileUri + " not found while checking permissions.");
+                }
+            });
+        }, function(err, result){
+            return callback(err, result);
         });
-    }, function(err, result){
-        return callback(err, result);
-    });
+    }
 };
 
 const checkIfFilesExist = function(files, callback)
@@ -2657,11 +2664,11 @@ exports.cut = function(req, res){
 
     if(acceptsJSON && !acceptsHTML)
     {
-        if (!isNull(req.query.files))
+        if (!isNull(req.body.files))
         {
-            if (req.query.files instanceof Array)
+            if (req.body.files instanceof Array)
             {
-                let files = req.query.files;
+                let files = req.body.files;
                 const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
                 const permissions = [
