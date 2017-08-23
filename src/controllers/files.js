@@ -2348,7 +2348,7 @@ exports.data = function(req, res){
                                 }
                                 else
                                 {
-                                    console.error(error);
+                                    console.error(result);
                                     res.status(500).json({
                                         result : "error",
                                         message : result

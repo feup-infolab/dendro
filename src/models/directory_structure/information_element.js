@@ -461,7 +461,7 @@ InformationElement.isSafePath = function(absPath, callback)
             return (b.indexOf(a) === 0);
         }
 
-        const validDirs = [Config.tempFilesCreationMode, Config.tempUploadsDir];
+        const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];
 
         for(let i = 0; i < validDirs.length; i++)
         {
