@@ -258,7 +258,7 @@ function binaryParser(res, callback) {
 
 
 exports.getAvatar = function (jsonOnly, username, agent, cb) {
-    let path = "/user/" + username + "/avatar";
+    let path = "/user/" + username + "?avatar";
     if(jsonOnly)
     {
         agent

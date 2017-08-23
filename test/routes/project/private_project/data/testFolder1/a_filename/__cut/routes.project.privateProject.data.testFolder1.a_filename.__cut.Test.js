@@ -245,6 +245,7 @@ describe("[Test File Cut / Move] [Private project] cutFiles ?paste", function ()
             });
         });
 
+        //TODO
         it("Should give an error if the user does not have permission to cut a file (demouser3 is neither a creator nor a collaborator of the owner project of the file being cut, even though he is the creator of the project that contains the destination folder)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

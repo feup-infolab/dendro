@@ -444,35 +444,49 @@ Permissions.check = function(permissionsRequired, req, callback) {
             }
         };
 
-        async.map(permissionsRequired,
-            async.apply(checkPermission, req, user, resource),
-            function(err, results)
-            {
-                const reasonsForDenying = _.filter(results, function (result) {
-                    if (!isNull(result)) {
-                        return !result.authorized
-                    }
-                    else {
-                        return false;
-                    }
-                });
+        if(permissionsRequired instanceof Array && permissionsRequired.length > 0)
+        {
+            async.map(permissionsRequired,
+                async.apply(checkPermission, req, user, resource),
+                function(err, results)
+                {
+                    const reasonsForDenying = _.filter(results, function (result) {
+                        if (!isNull(result)) {
+                            return !result.authorized
+                        }
+                        else {
+                            return false;
+                        }
+                    });
 
-                const reasonsForAuthorizing = _.filter(results, function (result) {
-                    if (!isNull(result)) {
-                        return result.authorized
-                    }
-                    else {
-                        return false;
-                    }
-                });
+                    const reasonsForAuthorizing = _.filter(results, function (result) {
+                        if (!isNull(result)) {
+                            return result.authorized
+                        }
+                        else {
+                            return false;
+                        }
+                    });
 
-                req = Permissions.addToReasons(req, reasonsForDenying, false);
+                    req = Permissions.addToReasons(req, reasonsForDenying, false);
 
-                req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
+                    req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
 
-                return callback(err, req, results);
-            }
-        );
+                    return callback(err, req, results);
+                }
+            );
+        }
+        else
+        {
+            const reasonsForAllowing = [{
+                authorized: true,
+                role: "Anyone"
+            }];
+
+            req = Permissions.addToReasons(req, reasonsForAllowing, true);
+
+            return callback(null, req , reasonsForAllowing);
+        }
     }
     else
     {

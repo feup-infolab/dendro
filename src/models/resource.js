@@ -79,6 +79,68 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
     }
 };
 
+Resource.exists = function(uri, callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    let typesRestrictions = "";
+    let types;
+
+    if(self.prefixedRDFType instanceof Array)
+    {
+        types = self.prefixedRDFType;
+    }
+    else
+    {
+        types = [self.prefixedRDFType];
+    }
+
+    for (let i = 0; i < types.length; i++)
+    {
+        typesRestrictions = typesRestrictions + "[1] rdf:type " + types[i];
+
+        if(i < types.length - 1)
+        {
+            typesRestrictions =  typesRestrictions + ".\n";
+        }
+    }
+
+    db.connection.execute(
+        "WITH [0]\n"+
+        "ASK \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   {\n" +
+        "       [1] ?p ?o. \n" +
+        typesRestrictions +
+        "   }\n" +
+        "} \n",
+
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : uri
+            }
+        ],
+        function(err, result) {
+            if(isNull(err))
+            {
+                return callback(null, result);
+            }
+            else
+            {
+                const msg = "Error checking for the existence of resource with uri : " + uri;
+                console.error(msg);
+                return callback(err, msg);
+            }
+        });
+};
+
 Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 {
     const self = this;
@@ -3229,69 +3291,6 @@ Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
          }); */
     });
 };
-
-Resource.exists = function(uri, callback, customGraphUri)
-{
-    const self = this;
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
-
-    let typesRestrictions = "";
-    let types;
-
-    if(self.prefixedRDFType instanceof Array)
-    {
-        types = self.prefixedRDFType;
-    }
-    else
-    {
-        types = [self.prefixedRDFType];
-    }
-
-    for (let i = 0; i < types.length; i++)
-    {
-        typesRestrictions = typesRestrictions + "[1] rdf:type " + types[i];
-
-        if(i < types.length - 1)
-        {
-            typesRestrictions =  typesRestrictions + ".\n";
-        }
-    }
-
-    db.connection.execute(
-        "WITH [0]\n"+
-        "ASK \n" +
-        "WHERE \n" +
-        "{ \n" +
-        "   {\n" +
-        "       [1] ?p ?o. \n" +
-                typesRestrictions +
-        "   }\n" +
-        "} \n",
-
-        [
-            {
-                type : DbConnection.resourceNoEscape,
-                value : graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value : uri
-            }
-        ],
-        function(err, result) {
-            if(isNull(err))
-            {
-                return callback(null, result);
-            }
-            else
-            {
-                const msg = "Error checking for the existence of resource with uri : " + uri;
-                console.error(msg);
-                return callback(err, msg);
-            }
-        });
-};
-
 
 Resource.getCount = function(callback) {
     const self = this;

@@ -19,7 +19,6 @@ const getAvatarFromGfs = function (user, callback) {
     const tmp = require('tmp');
     const fs = require("fs");
     let avatarUri = user.getAvatarUri();
-    // /avatar/" + user.ddr.username + "/avatar." + "png";
     if (avatarUri) {
         let ext = avatarUri.split(".").pop();
 
@@ -667,13 +666,28 @@ exports.getLoggedUser = function (req, res) {
 
 exports.get_avatar = function (req, res) {
     let username = req.params['username'];
+    let requestedResourceUri = req.params.uri;
+    let fetcherFunction;
+    let identifier;
 
-    User.findByUsername(username, function (err, user) {
+    const getUser = function(callback)
+    {
+        if(!isNull(username))
+        {
+            User.findByUsername(username, callback);
+        }
+        else if (!isNull(req.params.requestedResourceUri))
+        {
+            User.findByUri(req.params.requestedResourceUri, callback);
+        }
+    }
+
+    getUser(function (err, user) {
         if (!err) {
             if (!user) {
                 res.status(404).json({
                     result: "Error",
-                    message: "Error trying to find user with username " + username + " User does not exist"
+                    message: "Error trying to find user with identifier " + identifier + " User does not exist"
                 });
             }
             else {
@@ -709,7 +723,7 @@ exports.get_avatar = function (req, res) {
                         else {
                             res.status(500).json({
                                 result: "Error",
-                                message: "Error trying to get from gridFs user Avatar from user " + username + " Error reported: " + JSON.stringify(avatarFilePath)
+                                message: "Error trying to get from gridFs user Avatar from user identifier " + identifier + " Error reported: " + JSON.stringify(avatarFilePath)
                             });
                         }
                     });

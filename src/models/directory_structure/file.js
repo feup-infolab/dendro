@@ -198,7 +198,7 @@ File.deleteOnLocalFileSystem = function(absPathToFile, callback)
     });
 };
 
-File.prototype.save = function (callback) {
+File.prototype.save = function (callback, rename) {
     const self = this;
 
     const newDescriptorsOfParent = [
@@ -208,28 +208,75 @@ File.prototype.save = function (callback) {
         })
     ];
 
-    db.connection.insertDescriptorsForSubject(
-        self.nie.isLogicalPartOf,
-        newDescriptorsOfParent,
-        db.graphUri,
-        function (err, result) {
-            if (isNull(err)) {
-                self.baseConstructor.prototype.save.call(self, function (err, result) {
+    const renameIfFileNameExists = function(callback)
+    {
+        if(rename){
+            const getParent = function(callback)
+            {
+                self.getParent(callback);
+            };
+
+            const getChildrenOfParent = function(parent, callback)
+            {
+                parent.getLogicalParts(callback);
+            };
+
+            const renameIfChildExistsWithSameName = function(children, callback)
+            {
+                if(
+                    _.find(children, function(child){
+                        return child.nie.title === self.nie.title
+                    }).length > 0
+                )
+                {
+                    self.nie.title === self.title + " (Copy created at " + new Date().toISOString() + ")"
+                }
+            };
+
+            async.waterfall([
+                getParent,
+                getChildrenOfParent,
+                renameIfChildExistsWithSameName
+            ], callback);
+        }
+        else
+        {
+            callback(null);
+        }
+    };
+
+
+    renameIfFileNameExists(function(err, result){
+        if(isNull(err))
+        {
+            db.connection.insertDescriptorsForSubject(
+                self.nie.isLogicalPartOf,
+                newDescriptorsOfParent,
+                db.graphUri,
+                function (err, result) {
                     if (isNull(err)) {
-                        return callback(null, self);
+                        self.baseConstructor.prototype.save.call(self, function (err, result) {
+                            if (isNull(err)) {
+                                return callback(null, self);
+                            }
+                            else {
+                                console.error("Error adding child file descriptors : " + result);
+                                return callback(1, "Error adding child file descriptors : " + result);
+                            }
+                        });
                     }
                     else {
-                        console.error("Error adding child file descriptors : " + result);
-                        return callback(1, "Error adding child file descriptors : " + result);
+                        console.error("Error adding parent file descriptors : " + result);
+                        return callback(1, "Error adding parent file descriptors: " + result);
                     }
-                });
-            }
-            else {
-                console.error("Error adding parent file descriptors : " + result);
-                return callback(1, "Error adding parent file descriptors: " + result);
-            }
+                }
+            );
         }
-    );
+        else
+        {
+            callback(1, "There is a file with the same name " + self.nie.title + " in this folder and there was an error renaming the new duplicate.");
+        }
+    });
 };
 
 File.prototype.saveWithFileAndContents = function(localFilePath, indexConnectionToReindexContents, callback) {

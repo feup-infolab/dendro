@@ -14,7 +14,7 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 var createAvatarsForUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createAvatarsForUsers.Unit.js"));
 const md5 = require("md5");
 
-describe("[GET] /user/demouser2/avatar", function (done) {
+describe("[GET] /user/demouser2?avatar", function (done) {
 
     before(function (done) {
         this.timeout(Config.testsTimeout);

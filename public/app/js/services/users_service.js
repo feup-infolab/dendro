@@ -84,7 +84,7 @@ angular.module('dendroApp.services')
 
                 this.receiveAvatar = function(username)
                 {
-                    var requestUri = "/user/" + username +"/avatar";
+                    var requestUri = "/user/" + username +"?avatar";
 
                     return $http({
                         method: "GET",
