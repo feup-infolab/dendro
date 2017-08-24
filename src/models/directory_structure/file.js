@@ -79,7 +79,7 @@ File.estimateUnzippedSize = function(pathOfZipFile, callback)
 File.unzip = function(pathOfFile, callback) {
     const fs = require("fs");
     const exec = require("child_process").exec;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
 
     tmp.dir(
         {
@@ -114,7 +114,7 @@ File.unzip = function(pathOfFile, callback) {
 };
 
 File.createBlankTempFile = function (fileName, callback) {
-    const tmp = require('tmp');
+    const tmp = require("tmp");
     const path = require("path");
 
     tmp.dir(
@@ -452,7 +452,7 @@ File.prototype.writeDataContentToStream = function (stream, callback) {
 
 File.prototype.writeToTempFile = function (callback) {
     let self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
 
     let fetchMetadataCallback = function (err, tempFolderPath) {
         if (isNull(err)) {
@@ -500,7 +500,7 @@ File.prototype.writeToTempFile = function (callback) {
 
 File.prototype.getThumbnail = function (size, callback) {
     let self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
     const fs = require("fs");
 
     if (isNull(size)) {
@@ -536,7 +536,7 @@ File.prototype.getThumbnail = function (size, callback) {
 
 File.prototype.loadFromLocalFile = function (localFile, callback) {
     const self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
     const fs = require("fs");
 
     self.getOwnerProject(function (err, ownerProject) {
@@ -882,7 +882,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
 File.prototype.rebuildData = function(callback)
 {
     const self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
 
     tmp.dir(
         {

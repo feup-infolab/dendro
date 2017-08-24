@@ -11,7 +11,8 @@ angular.module('dendroApp.controllers')
             $http,
             $q,
             $location,
-            projectsService
+            projectsService,
+            licensesService
         ) {
             $scope.new_project = {
                 "privacy" : "private"
@@ -32,4 +33,33 @@ angular.module('dendroApp.controllers')
                     });
             };
 
+            $scope.load_licenses = function()
+            {
+                var deferred = $q.defer();
+
+                licensesService.get_licenses()
+                    .then(function(licenses){
+                        $scope.licenses = [];
+                        var keys = Object.keys(licenses);
+                        for(var i = 0; i < keys.length; i++)
+                        {
+                            $scope.licenses.push(licenses[keys[i]]);
+                        }
+
+                        deferred.resolve($scope.licenses);
+                    });
+
+                return deferred.promise;
+            };
+
+            $scope.init = function()
+            {
+                $scope.load_licenses()
+                    .then(function(licenses)
+                    {
+                        $scope.new_project.license = _.find(licenses, function(license){
+                            return license.id === "CC-BY-4.0";
+                        });
+                    });
+            }
         });

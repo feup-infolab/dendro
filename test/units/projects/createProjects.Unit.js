@@ -24,6 +24,8 @@ const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("m
 const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
 const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
+const projectsData = module.exports.projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
+
 function requireUncached(module) {
     delete require.cache[require.resolve(module)];
     return require(module);

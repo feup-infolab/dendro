@@ -34,7 +34,7 @@ const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xls
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const allFiles = createFilesUnit.allFiles;
+const allFiles = createFilesUnit.filesData;
 
 const cutFilesFolderName = "cutFiles";
 const filesToMove = [txtMockFile, docxMockFile];

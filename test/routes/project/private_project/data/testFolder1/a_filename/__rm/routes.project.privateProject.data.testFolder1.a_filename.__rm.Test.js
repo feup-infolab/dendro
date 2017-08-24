@@ -31,7 +31,9 @@ const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xls
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const allFiles = [csvMockFile, docxMockFile, xlsxMockFile, zipMockFile, txtMockFile];
+const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+
+const allFiles = createFilesUnit.filesData;
 
 describe("Private project testFolder1 ?rename", function () {
     before(function (done) {

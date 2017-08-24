@@ -81,7 +81,7 @@ Project.prototype.backup = function(callback)
                             contactName: 'Contact Name',
                             contactPhone: '555-555-5555',
                             contactEmail: 'test@example.org',
-                            externalDescription: 'An example description'
+                            externalDescription: self.dcterms.description
                         };
 
                         folder.bagit(

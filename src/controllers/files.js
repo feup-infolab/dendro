@@ -74,7 +74,7 @@ exports.download = function(req, res){
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
 
-                            res.on('end', function () {
+                            res.on("end", function () {
                                 File.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr) {
                                     if (err) {
                                         console.error("Unable to delete " + writtenFilePath);
@@ -136,7 +136,7 @@ exports.download = function(req, res){
                                     'Content-type': mimeType
                                 });
 
-                            res.on('end', function () {
+                            res.on("end", function () {
                                 Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
                                     if(err)
                                     {
@@ -304,7 +304,7 @@ exports.serve = function(req, res){
                                     }
                                 );
 
-                                res.on('end', function () {
+                                res.on("end", function () {
                                     Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr) {
                                         if (err) {
                                             console.error("Unable to delete " + writtenFilePath);
@@ -400,7 +400,7 @@ exports.serve = function(req, res){
                                                     'Content-type': mimeType
                                                 });
 
-                                            res.on('end', function () {
+                                            res.on("end", function () {
                                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
                                                     if(err)
                                                     {
@@ -498,13 +498,13 @@ exports.serve_base64 = function(req, res){
                                         const fs = require("fs");
                                         const fileStream = fs.createReadStream(writtenFilePath);
 
-                                        res.on('end', function(){
+                                        res.on("end", function(){
                                             console.log("close");
                                             deleteTempFile(writtenFilePath);
                                         });
                                         const base64 = require('base64-stream');
 
-                                        res.on('end', function () {
+                                        res.on("end", function () {
                                             Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
                                                 if(err)
                                                 {
@@ -714,10 +714,10 @@ exports.upload = function(req, res)
 {
     const async = require("async");
     const fs = require("fs");
-    const md5File = require('md5-file');
-    const multiparty = require('multiparty');
-    const tmp = require('tmp');
-    const path = require('path');
+    const md5File = require("md5-file");
+    const multiparty = require("multiparty");
+    const tmp = require("tmp");
+    const path = require("path");
 
     const requestedResourceURI = req.params.requestedResourceUri;
     const upload_id = req.query.upload_id;

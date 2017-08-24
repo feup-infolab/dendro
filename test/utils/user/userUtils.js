@@ -232,7 +232,7 @@ function binaryParser(res, callback) {
     res.on('data', function (chunk) {
         res.data += chunk;
     });
-    res.on('end', function () {
+    res.on("end", function () {
         callback(null, new Buffer(res.data, 'binary'));
     });
 }

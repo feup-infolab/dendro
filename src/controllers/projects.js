@@ -853,11 +853,18 @@ exports.new = function(req, res) {
                                 description: req.body.description,
                                 publisher: req.body.publisher,
                                 language: req.body.language,
-                                coverage: req.body.coverage
+                                coverage: req.body.coverage,
                             },
                             ddr: {
                                 handle: req.body.handle,
                                 privacyStatus: req.body.privacy
+                            },
+                            schema : {
+                                provider : req.body.contact_name,
+                                telephone : req.body.contact_phone,
+                                address : req.body.contact_address,
+                                email: req.body.contact_email,
+                                license : req.body.license
                             }
                         };
 
@@ -1139,7 +1146,7 @@ exports.bagit = function(req,res)
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(baggedContentsZipFileAbsPath);
 
-                            res.on('end', function () {
+                            res.on("end", function () {
                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
                                     if(err)
                                     {

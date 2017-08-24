@@ -20,6 +20,13 @@ global.tests = {};
 
 //require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
 
+//PRIVATE PROJECT
+/*require(Pathfinder.absPathInTestsFolder("/routes/projects/private_project/request_access/route.projects.privateProject.requestAccess.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__bagit/routes.project.privateProject.__bagit.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__bagit/routes.project.publicProject.__bagit.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__bagit/routes.project.metadataOnlyProject.__bagit.Test.js"));
+return;
+
 //USERS
 require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));

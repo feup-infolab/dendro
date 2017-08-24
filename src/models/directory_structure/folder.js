@@ -210,7 +210,7 @@ Folder.prototype.createTempFolderWithContents = function(
     const self = this;
     const fs = require("fs");
 
-    const tmp = require('tmp');
+    const tmp = require("tmp");
     tmp.dir({
             dir : Config.tempFilesDir
         },

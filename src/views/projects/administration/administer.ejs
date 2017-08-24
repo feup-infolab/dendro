@@ -59,6 +59,85 @@
                                 <p class="help-block">Your project's description, maybe the abstract of its public grant application? Example: "Results of the third Gravimetry run campaign over the Azores</p>
                             </div>
                         </div>
+
+                        <div class="control-group has-feedback">
+                            <label for="publisher" class="col-sm-2 control-label">Publisher</label>
+                            <div class="col-sm-10">
+                                <input type="text"
+                                       class="form-control"
+                                       id="publisher"
+                                       placeholder="Publisher"
+                                       value="<%=locals.project.dcterms.publisher%>"
+                                       name="publisher">
+                                <p class="help-block">An entity responsible for making the resource available. Example: "University of Porto"</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contact_address" class="col-sm-2 control-label">Contact Address</label>
+                            <div class="col-sm-10">
+                                <input type="text"
+                                       class="form-control"
+                                       id="contact_address"
+                                       placeholder="Contact Address"
+                                       value="<%=locals.project.schema.address%>"
+                                       name="contact_address">
+                                <p class="help-block">The address of the entity to contact about this project if it eventually becomes public</p>
+                            </div>
+                        </div>
+
+                        <div class="control-group has-feedback">
+                            <label for="contact_name" class="col-sm-2 control-label">Contact Name</label>
+                            <div class="col-sm-10">
+                                <input type="text"
+                                       class="form-control"
+                                       id="contact_name"
+                                       placeholder="Contact Name"
+                                       value="<%=locals.project.schema.provider%>"
+                                       name="contact_name">
+                                <p class="help-block">The name of the person or entity that should be contacted in the future if any other person wants to know more about the project and its data</p>
+                            </div>
+                        </div>
+
+                        <div class="control-group has-feedback">
+                            <label for="contact_phone" class="col-sm-2 control-label">Contact Phone</label>
+                            <div class="col-sm-10">
+                                <input type="text"
+                                       class="form-control"
+                                       id="contact_phone"
+                                       placeholder="Contact Phone"
+                                       value="<%=locals.project.schema.telephone%>"
+                                       name="contact_phone">
+                                <p class="help-block">The phone number of the person that should be contacted about the project and its data</p>
+                            </div>
+                        </div>
+
+                        <div class="control-group has-feedback">
+                            <label for="contact_email" class="col-sm-2 control-label">Contact Email</label>
+                            <div class="col-sm-10">
+                                <input type="text"
+                                       class="form-control"
+                                       id="contact_email"
+                                       placeholder="Contact Email"
+                                       value="<%=locals.project.schema.email%>"
+                                       name="contact_email">
+                                <p class="help-block">The email of the person that should be contacted about the project and its data</p>
+                            </div>
+                        </div>
+
+                        <div class="control-group has-feedback">
+                            <label for="language" class="col-sm-2 control-label">Language</label>
+                            <div class="col-sm-10">
+                                <input type="text"
+                                       class="form-control"
+                                       id="language"
+                                       placeholder="Language"
+                                       value="<%=locals.project.dcterms.language%>"
+                                       name="language">
+                                <p class="help-block">A language of the resource. Example: "en"</p>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label for="privacy" class="col-sm-2 control-label">Privacy</label>
                             <div class="col-sm-10">

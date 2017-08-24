@@ -13,7 +13,21 @@ Elements.schema = {
     {
         type : DbConnection.string,
         control : Controls.input_box
-
+    },
+    provider :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box
+    },
+    telephone :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box
+    },
+    address :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box
     }
 };
 

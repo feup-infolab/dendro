@@ -1,8 +1,28 @@
 const chai = require("chai");
+const fs = require("fs");
+const tmp = require("tmp");
+const path = require("path");
+const async = require("async");
 const chaiHttp = require("chai-http");
 const _ = require("underscore");
+const recursive = require("recursive-readdir");
+
 chai.use(chaiHttp);
 
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const File = require(Pathfinder.absPathInSrcFolder("models/directory_structure/file.js")).File;
+
+const binaryParser = function (res, cb) {
+    res.setEncoding("binary");
+    res.data = "";
+    res.on("data", function (chunk) {
+        res.data += chunk;
+    });
+    res.on("end", function () {
+        cb(null, new Buffer(res.data, "binary"));
+    });
+};
 
 const listAllMyProjects = function (jsonOnly, agent, cb) {
     const path = "/projects/my";
@@ -507,46 +527,14 @@ const administer = function (agent, modify, projectData, projectHandle, cb) {
     }
 };
 
-const backup = function (agent, projectHandle, filepath, cb) {
+const bagit = function (agent, projectHandle, cb) {
     agent
-        .get('/project/' + projectHandle + filepath + '?backup')
+        .get('/project/' + projectHandle + '?bagit')
+        .buffer()
+        .parse(binaryParser)
         .end(function (err, res) {
             cb(err, res);
         });
-};
-
-const bagit = function (agent, projectHandle, filepath, cb) {
-    agent
-        .get('/project/' + projectHandle + filepath + '?bagit')
-        .end(function (err, res) {
-            cb(err, res);
-        });
-};
-
-const download = function (agent, projectHandle, filepath, cb) {
-    agent
-        .get('/project/' + projectHandle + filepath + '?download')
-        .end(function (err, res) {
-            cb(err, res);
-        });
-};
-
-const serve = function (agent, projectHandle, filepath, cb) {
-    agent
-        .get('/project/' + projectHandle + filepath + '?serve')
-        .end(function (err, res) {
-            cb(err, res);
-        });
-};
-
-
-
-const thumbnail = function (agent, filepath, projectHandle, cb) {
-    agent
-        .get('/project/' + projectHandle + filepath + '?thumbnail')
-        .end(function (err, res) {
-            cb(err, res);
-        })
 };
 
 const getProjectContributors = function (agent, projectHandle, cb) {
@@ -557,6 +545,111 @@ const getProjectContributors = function (agent, projectHandle, cb) {
         .end(function (err, res) {
             cb(err, res);
         });
+};
+
+const getContentsOfFile = function(zipPath, callback)
+{
+    File.unzip(zipPath, function(err, pathOfUnzippedContents){
+        let contentsOfZippedFile = "";
+        recursive(pathOfUnzippedContents, function (err, files)
+        {
+            if (!err)
+            {
+                for(let i = 0; i < files.length; i++)
+                {
+                    let file = files[i];
+                    file = files[i].replace(pathOfUnzippedContents, "");
+                    contentsOfZippedFile += file;
+                }
+
+                callback(null, contentsOfZippedFile);
+            }
+            else
+            {
+                callback(err);
+            }
+        });
+    });
+};
+
+const getMetadataFromBackup = function(zipPath, callback)
+{
+    File.unzip(zipPath, function(err, pathOfUnzippedContents){
+        const metadataFilePath = path.join(pathOfUnzippedContents, "bag-info.txt");
+        const metadataContents = fs.readFileSync(metadataFilePath, "utf8");
+        callback(err, metadataContents);
+    });
+};
+
+const metadataMatchesBackup = function (project, bodyBuffer, callback) {
+    tmp.dir(
+        {
+            mode: Config.tempFilesCreationMode,
+            dir: Config.tempFilesDir
+        },
+        function (err, tempFolderPath) {
+            if(!err)
+            {
+                const tempBackupFilePath = path.join(tempFolderPath, project.handle + ".zip");
+                const mockBackupFilePath = Pathfinder.absPathInTestsFolder(path.join("mockdata", "projects", "projectBackups", project.handle + ".zip"));
+                fs.writeFileSync(tempBackupFilePath, bodyBuffer);
+
+                getMetadataFromBackup(tempBackupFilePath, function(err1, result1){
+                    getMetadataFromBackup(mockBackupFilePath, function(err2, result2){
+                        if(!err1 && !err2)
+                        {
+                            callback(null, result1 === result2);
+                        }
+                        else
+                        {
+                            callback(1);
+                        }
+                    });
+                });
+            }
+            else
+            {
+                callback(err);
+            }
+        });
+};
+
+const contentsMatchBackup = function (project, bodyBuffer, callback) {
+    const fs = require("fs");
+    const tmp = require("tmp");
+    const path = require("path");
+
+    tmp.dir(
+        {
+            mode: Config.tempFilesCreationMode,
+            dir: Config.tempFilesDir
+        },
+        function (err, tempFolderPath) {
+            if(!err)
+            {
+                const tempBackupFilePath = path.join(tempFolderPath, project.handle + ".zip");
+                const mockBackupFilePath = Pathfinder.absPathInTestsFolder(path.join("mockdata", "projects", "projectBackups", project.handle + ".zip"));
+                fs.writeFileSync(tempBackupFilePath, bodyBuffer);
+
+                getContentsOfFile(tempBackupFilePath, function(err1, result1){
+                    getContentsOfFile(mockBackupFilePath, function(err2, result2){
+                        if(!err1 && !err2)
+                        {
+                            callback(null, result1 === result2);
+                        }
+                        else
+                        {
+                            callback(1);
+                        }
+                    });
+                });
+            }
+            else
+            {
+                callback(err);
+            }
+        });
+
 };
 
 module.exports = {
@@ -581,13 +674,11 @@ module.exports = {
     undeleteProject: undeleteProject,
     createFolderInProjectRoot: createFolderInProjectRoot,
     administer : administer,
-    backup : backup,
     bagit : bagit,
-    download : download,
-    serve : serve,
-    thumbnail : thumbnail,
     getProjectContributors: getProjectContributors,
     getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
     getProjectMetadata: getProjectMetadata,
-    getProjectMetadataDeep: getProjectMetadataDeep
+    getProjectMetadataDeep: getProjectMetadataDeep,
+    contentsMatchBackup : contentsMatchBackup,
+    metadataMatchesBackup : metadataMatchesBackup
 };

@@ -16,7 +16,7 @@ const tmp = require("tmp");
 
 const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
 const getAvatarFromGfs = function (user, callback) {
-    const tmp = require('tmp');
+    const tmp = require("tmp");
     const fs = require("fs");
     let avatarUri = user.getAvatarUri();
     if (avatarUri) {

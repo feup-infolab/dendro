@@ -39,7 +39,6 @@ angular.module('dendroApp.services')
                     );
 
                     return deferred.promise;
-
                 };
 
                 this.update_contributors = function(contributors){
