@@ -25,7 +25,7 @@ angular.module('dendroApp.controllers')
 
         $scope.get_project = function()
         {
-            var url = $scope.get_current_url()+"?metadata&deep=true";
+            var url = $scope.get_current_url();
 
             $http({
                 method: 'GET',
@@ -34,16 +34,41 @@ angular.module('dendroApp.controllers')
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             }).then(function(response) {
-                //console.log(data);
-                $scope.project = response.data;
+                var descriptors = response.data.descriptors;
 
-                for(var i = 0; i < $scope.project.descriptors.length; i++)
-                {
-                    var descriptor = $scope.project.descriptors[i];
-                    if(descriptor.prefixedForm == "ddr:deleted" && descriptor.value == true)
-                    {
-                        project.deleted = true;
+                $scope.project =  {
+                    dcterms: {
+                        creator: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:creator"),
+                        title: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:title"),
+                        description: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:description"),
+                        publisher: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:publisher"),
+                        language: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:language"),
+                        coverage: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:coverage"),
+                    },
+                    ddr: {
+                        handle: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:handle"),
+                        privacyStatus: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:privacyStatus")
+                    },
+                    schema : {
+                        provider : $scope.get_descriptor_by_prefixed_form(descriptors, "schema:provider"),
+                        telephone : $scope.get_descriptor_by_prefixed_form(descriptors, "schema:telephone"),
+                        address : $scope.get_descriptor_by_prefixed_form(descriptors, "schema:address"),
+                        email: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:email"),
+                        license : $scope.get_descriptor_by_prefixed_form(descriptors, "schema:license")
                     }
+                };
+
+                $scope.load_licenses()
+                    .then(function(licenses)
+                    {
+                        $scope.project.schema.license = _.find(licenses, function(license){
+                            return license.title === $scope.project.schema.license;
+                        });
+                    });
+
+                if($scope.get_descriptor_by_prefixed_form("ddr:deleted") === true)
+                {
+                    project.deleted = true;
                 }
             })
                 .catch(function(error){
@@ -98,7 +123,7 @@ angular.module('dendroApp.controllers')
         {
             $scope.get_contributors(contributors);
             $scope.active_tab = $localStorage.active_tab;
-            //return $location.url();
+            $scope.get_project();
         };
 
         $scope.get_users_by_text_search = function(typed) {
@@ -203,4 +228,17 @@ angular.module('dendroApp.controllers')
             $scope.active_tab = 'people';
             $localStorage.active_tab = $scope.active_tab;
         };
+
+        $scope.update_project_metadata = function()
+        {
+            $scope.project.schema.license = $scope.project.schema.license.title;
+
+            projectsService.update_metadata($scope.project)
+                .then(function(response){
+
+                })
+                .catch(function(error){
+
+                });
+        }
     });

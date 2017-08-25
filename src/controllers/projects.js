@@ -920,17 +920,36 @@ exports.administer = function(req, res) {
                 {
                     let updateProjectMetadata = function(callback)
                     {
-                        if (!isNull(req.body.description))
+                        if (!isNull(req.body.description) && req.body.description !== "")
                         {
                             project.dcterms.description = req.body.description;
                         }
-                        if (!isNull(req.body.title))
+                        if (!isNull(req.body.contact_name) && req.body.contact_name !== "")
+                        {
+                            project.schema.provider = req.body.contact_name;
+                        }
+                        if (!isNull(req.body.contact_phone) && req.body.contact_phone !== "")
+                        {
+                            project.schema.telephone = req.body.contact_phone;
+                        }
+                        if (!isNull(req.body.contact_address) && req.body.contact_address !== "")
+                        {
+                            project.schema.address = req.body.contact_address;
+                        }
+                        if (!isNull(req.body.contact_email) && req.body.contact_email !== "")
+                        {
+                            project.schema.email = req.body.contact_email;
+                        }
+                        if (!isNull(req.body.license) && req.body.license !== "")
+                        {
+                            project.schema.license = req.body.license;
+                        }
+                        if (!isNull(req.body.title) && req.body.title !== "")
                         {
                             project.dcterms.title = req.body.title;
                         }
 
-
-                        if (!isNull(req.body.privacy))
+                        if (!isNull(req.body.privacy) && req.body.privacy !== "")
                         {
                             viewVars.privacy = req.body.privacy;
                             switch (req.body.privacy)

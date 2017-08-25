@@ -14,7 +14,8 @@ angular.module('dendroApp.controllers')
         $timeout,
         metadataService,
         windowService,
-        storageService
+        storageService,
+        licensesService
     )
 {
     $scope.get_current_url = function()
@@ -148,6 +149,37 @@ angular.module('dendroApp.controllers')
             return regexp.test(word);
         }
 
+    }
+
+    $scope.load_licenses = function()
+    {
+        var deferred = $q.defer();
+
+        licensesService.get_licenses()
+            .then(function(licenses){
+                $scope.licenses = [];
+                var keys = Object.keys(licenses);
+                for(var i = 0; i < keys.length; i++)
+                {
+                    $scope.licenses.push(licenses[keys[i]]);
+                }
+
+                deferred.resolve($scope.licenses);
+            });
+
+        return deferred.promise;
+    };
+
+    $scope.get_descriptor_by_prefixed_form = function(descriptorsArray, prefixedForm)
+    {
+        var descriptor = _.find(descriptorsArray, function(descriptor){
+            return descriptor.prefixedForm === prefixedForm;
+        });
+
+        if(!descriptor)
+            return null;
+        else
+            return descriptor.value;
     }
 
 });

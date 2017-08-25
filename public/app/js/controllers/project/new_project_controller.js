@@ -11,8 +11,7 @@ angular.module('dendroApp.controllers')
             $http,
             $q,
             $location,
-            projectsService,
-            licensesService
+            projectsService
         ) {
             $scope.new_project = {
                 "privacy" : "private"
@@ -31,25 +30,6 @@ angular.module('dendroApp.controllers')
                     .catch(function (error) {
                         $scope.show_popup("error", "Error", error.message);
                     });
-            };
-
-            $scope.load_licenses = function()
-            {
-                var deferred = $q.defer();
-
-                licensesService.get_licenses()
-                    .then(function(licenses){
-                        $scope.licenses = [];
-                        var keys = Object.keys(licenses);
-                        for(var i = 0; i < keys.length; i++)
-                        {
-                            $scope.licenses.push(licenses[keys[i]]);
-                        }
-
-                        deferred.resolve($scope.licenses);
-                    });
-
-                return deferred.promise;
             };
 
             $scope.init = function()
