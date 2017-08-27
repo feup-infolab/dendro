@@ -15,7 +15,8 @@ angular.module('dendroApp.controllers')
         metadataService,
         windowService,
         storageService,
-        licensesService
+        licensesService,
+        languagesService
     )
 {
     $scope.get_current_url = function()
@@ -165,6 +166,25 @@ angular.module('dendroApp.controllers')
                 }
 
                 deferred.resolve($scope.licenses);
+            });
+
+        return deferred.promise;
+    };
+
+    $scope.load_languages = function()
+    {
+        var deferred = $q.defer();
+
+        languagesService.get_languages()
+            .then(function(languages){
+                $scope.languages = [];
+                var keys = Object.keys(languages);
+                for(var i = 0; i < keys.length; i++)
+                {
+                    $scope.languages.push(languages[keys[i]]);
+                }
+
+                deferred.resolve($scope.languages);
             });
 
         return deferred.promise;

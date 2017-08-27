@@ -66,6 +66,14 @@ angular.module('dendroApp.controllers')
                         });
                     });
 
+                $scope.load_languages()
+                    .then(function(languages)
+                    {
+                        $scope.project.dcterms.language = _.find(languages, function(language){
+                            return language.alpha2 === $scope.project.dcterms.language;
+                        });
+                    });
+
                 if($scope.get_descriptor_by_prefixed_form("ddr:deleted") === true)
                 {
                     project.deleted = true;
@@ -232,13 +240,15 @@ angular.module('dendroApp.controllers')
         $scope.update_project_metadata = function()
         {
             $scope.project.schema.license = $scope.project.schema.license.title;
+            $scope.project.dcterms.language = $scope.project.dcterms.language.alpha2;
 
             projectsService.update_metadata($scope.project)
                 .then(function(response){
-
+                    $scope.show_popup("success", "Project Updated", response.message);
+                    $scope.get_project();
                 })
                 .catch(function(error){
-
+                    $scope.show_popup("error", "Error occurred", error.message);
                 });
         }
     });

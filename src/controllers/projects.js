@@ -901,6 +901,37 @@ exports.administer = function(req, res) {
         title: "Administration Area"
     };
 
+    const sendResponse = function(viewPath, viewVars, jsonResponse, statusCode)
+    {
+        const acceptsHTML = req.accepts("html");
+        const acceptsJSON = req.accepts("json");
+
+        if(acceptsJSON && !acceptsHTML)
+        {
+            if(isNull(statusCode) || statusCode === 200)
+            {
+                jsonResponse.result = "ok";
+                res.json(jsonResponse);
+            }
+            else
+            {
+                jsonResponse.result = "error";
+                res.status(statusCode).json(jsonResponse);
+            }
+        }
+        else
+        {
+            if(isNull(statusCode) || statusCode === 200)
+            {
+                res.render(viewPath, viewVars);
+            }
+            else
+            {
+                res.status(statusCode).render(viewPath, viewVars);
+            }
+        }
+    };
+
     Project.findByUri(req.params.requestedResourceUri, function(err, project)
     {
         if (isNull(err))
@@ -920,9 +951,17 @@ exports.administer = function(req, res) {
                 {
                     let updateProjectMetadata = function(callback)
                     {
+                        if (!isNull(req.body.title) && req.body.title !== "")
+                        {
+                            project.dcterms.title = req.body.title;
+                        }
                         if (!isNull(req.body.description) && req.body.description !== "")
                         {
                             project.dcterms.description = req.body.description;
+                        }
+                        if (!isNull(req.body.publisher) && req.body.publisher !== "")
+                        {
+                            project.dcterms.publisher= req.body.publisher;
                         }
                         if (!isNull(req.body.contact_name) && req.body.contact_name !== "")
                         {
@@ -944,9 +983,9 @@ exports.administer = function(req, res) {
                         {
                             project.schema.license = req.body.license;
                         }
-                        if (!isNull(req.body.title) && req.body.title !== "")
+                        if (!isNull(req.body.language) && req.body.language !== "")
                         {
-                            project.dcterms.title = req.body.title;
+                            project.dcterms.language = req.body.language;
                         }
 
                         if (!isNull(req.body.privacy) && req.body.privacy !== "")
@@ -1062,23 +1101,34 @@ exports.administer = function(req, res) {
                         {
                             viewVars.project = project;
                             viewVars.success_messages = ["Project " + project.ddr.handle + " successfully updated."];
-                            res.render('projects/administration/administer',
-                                viewVars
-                            );
+
+                            sendResponse(
+                                "projects/administration/administer",
+                                viewVars,
+                                {
+                                    message : viewVars.success_messages,
+                                    project : project
+                                });
                         }
                         else
                         {
                             viewVars.error_messages = [project];
-                            res.render('projects/administration/administer',
-                                viewVars
-                            );
+
+                            sendResponse(
+                                "projects/administration/administer",
+                                viewVars,
+                                {
+                                    message : viewVars.error_messages,
+                                    project : project
+                                },
+                                400);
                         }
                     })
                 }
                 else if (req.originalMethod === "GET")
                 {
                     viewVars.project = project;
-                    res.render('projects/administration/administer',
+                    res.render("projects/administration/administer",
                         viewVars
                     );
                 }
@@ -1086,17 +1136,29 @@ exports.administer = function(req, res) {
             else
             {
                 viewVars.error_messages = ["Project " + requestedResourceUri + " does not exist."];
-                res.status(401).render('index',
-                    viewVars
-                );
+
+                sendResponse(
+                    "projects/administration/administer",
+                    viewVars,
+                    {
+                        message : viewVars.error_messages,
+                        project : project
+                    },
+                    401);
             }
         }
         else
         {
             viewVars.error_messages = ["Error reported " + project];
-            res.render('projects/administration/administer',
-                viewVars
-            );
+
+            sendResponse(
+                "projects/administration/administer",
+                viewVars,
+                {
+                    message : viewVars.error_messages,
+                    project : project
+                },
+                500);
         }
     });
 };

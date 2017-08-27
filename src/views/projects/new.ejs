@@ -86,17 +86,27 @@
                         <span ng-show="new_project.publisher" class="glyphicon glyphicon-ok form-control-feedback"></span>
                     </div>
 
-                    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.language}">
+                    <div class="control-group" ng-class="{'has-success' : new_project.language}">
                         <label for="language" class="control-label">Language</label>
-                        <input type="text"
-                               class="form-control"
-                               id="language"
-                               ng-model="new_project.language"
-                               placeholder="Language"
-                               name="language">
-                        <p class="help-block">A language of the resource. Example: "en"</p>
-                        <span ng-show="new_project.language" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                        <div class="control-group has-feedback" ng-class="{'has-success' : new_project.language, 'has-warning' : !new_project.language}">
+                            <div class="col-sm-11" id="language">
+                                <ui-select ng-model="new_project.language" theme="bootstrap" style="min-width: 300px;" title="Choose a language">
+                                    <ui-select-match placeholder="Select a language for your project...">{{$select.selected.English}}</ui-select-match>
+                                    <ui-select-choices repeat="language in languages">
+                                        <div ng-bind-html="language.English | highlight: $select.search"></div>
+                                        <small>
+                                            Language: {{language.English}}({{language.alpha2}})
+                                        </small>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
                     </div>
+                    <div>
+                        <p class="help-block">The language of your project</p>
+                    </div>
+
+
                     <div class="control-group has-feedback" ng-class="{'has-success' : new_project.coverage}">
                         <label for="coverage" class="control-label">Coverage</label>
                         <input type="text"
