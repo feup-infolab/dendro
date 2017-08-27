@@ -1240,6 +1240,12 @@ exports.bagit = function(req,res)
                                 });
                             });
 
+                            res.writeHead(200,
+                                {
+                                    "Content-disposition": 'filename="Project ' + project.dcterms.title + " (Backup at "+new Date().toISOString()+").zip" + "\"",
+                                    "Content-type": Config.mimeType("zip")
+                                });
+
                             fileStream.pipe(res);
                         }
                         else

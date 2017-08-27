@@ -41,7 +41,7 @@ const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipM
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 const odsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/odsMockFile.js"));
 
-describe("Backup Private project", function () {
+describe("Backup Public project", function () {
     before(function (done) {
         this.timeout(60000);
         createFilesUnit.setup(function (err, results) {
@@ -65,17 +65,14 @@ describe("Backup Private project", function () {
 
         it("Should NOT give an error when the user is not authenticated and produce a proper backup, because the project is public", function (done) {
             this.timeout(60000);
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                projectUtils.bagit(agent, project.handle, function (err, res) {
+            projectUtils.bagit(agent, project.handle, function (err, res) {
+                should.equal(err, null);
+                res.statusCode.should.equal(200);
+                projectUtils.contentsMatchBackup(project, res.body, function(err, result){
                     should.equal(err, null);
-                    res.statusCode.should.equal(200);
-                    projectUtils.contentsMatchBackup(project, res.body, function(err, result){
+                    projectUtils.metadataMatchesBackup(project, res.body, function(err, result){
                         should.equal(err, null);
-                        projectUtils.metadataMatchesBackup(project, res.body, function(err, result){
-                            should.equal(err, null);
-                            done();
-                        });
+                        done();
                     });
                 });
             });
@@ -83,7 +80,7 @@ describe("Backup Private project", function () {
 
         it("Should NOT give an error and produce a proper backup when the user is authenticated, even though not as a creator nor contributor of the project, because the project is public", function (done) {
             this.timeout(60000);
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
                 projectUtils.bagit(agent, project.handle, function (err, res) {
                     should.equal(err, null);

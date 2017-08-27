@@ -9,7 +9,6 @@ const projectData = {
     publisher: 'UP',
     contact_address : "Universidade do Porto, Praça dos Leões 31",
     contact_name : "João Rocha da Silva",
-    contact_address: "A minha casinha, 45, 2º Esquerdo",
     contact_phone: "+351 930000000",
     contact_email: "teste@teste.com",
     language: 'En',

@@ -73,14 +73,13 @@ Project.prototype.backup = function(callback)
                 Folder.findByUri(self.ddr.rootFolder, function(err, folder){
                     if(isNull(err) && folder instanceof Folder)
                     {
-                        //TODO Add this information
                         const bagItOptions = {
                             cryptoMethod: 'sha256',
                             sourceOrganization: self.dcterms.publisher,
-                            organizationAddress: '123 Street',
-                            contactName: 'Contact Name',
-                            contactPhone: '555-555-5555',
-                            contactEmail: 'test@example.org',
+                            organizationAddress: self.schema.address,
+                            contactName: self.schema.provider,
+                            contactPhone: self.schema.telephone,
+                            contactEmail: self.schema.email,
                             externalDescription: self.dcterms.description
                         };
 

@@ -41,7 +41,7 @@ const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipM
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 const odsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/odsMockFile.js"));
 
-describe("Backup Public project", function () {
+describe("Backup Private project", function () {
     before(function (done) {
         this.timeout(60000);
         createFilesUnit.setup(function (err, results) {

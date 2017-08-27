@@ -650,7 +650,7 @@ const loadRoutes = function(app, callback)
                         {
                            queryKeys : ['bagit'],
                            handler : projects.bagit,
-                           permissions : defaultPermissionsInProjectRoot,
+                           permissions : [Permissions.settings.privacy.of_project.public, Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator],
                            authentication_error : "Permission denied : cannot backup this project because you do not have permissions to access it."
                         },
                     ],

@@ -133,7 +133,7 @@ exports.download = function(req, res){
                             res.writeHead(200,
                                 {
                                     "Content-disposition": "attachment; filename=\"" + file.nie.title+"\"",
-                                    'Content-type': mimeType
+                                    "Content-type": mimeType
                                 });
 
                             res.on("end", function () {
@@ -397,7 +397,7 @@ exports.serve = function(req, res){
                                             res.writeHead(200,
                                                 {
                                                     "Content-disposition": 'filename="' + file.nie.title+"\"",
-                                                    'Content-type': mimeType
+                                                    "Content-type": mimeType
                                                 });
 
                                             res.on("end", function () {
@@ -628,7 +628,7 @@ exports.get_thumbnail = function(req, res) {
                                                 res.writeHead(200,
                                                     {
                                                         "Content-disposition": 'filename="' + filename+"\"",
-                                                        'Content-type': mimeType
+                                                        "Content-type": mimeType
                                                     });
 
                                                 fileStream.pipe(res);
@@ -2072,7 +2072,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
         res.writeHead(statusCode,
             {
                 "Content-disposition": 'filename="' + filename + "\"",
-                'Content-type': mimeType
+                "Content-type": mimeType
             });
 
         const fileStream = fs.createReadStream(absPathOfFileToServe);

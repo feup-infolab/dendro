@@ -73,6 +73,7 @@ describe("Backup Metadata Only project", function () {
                 res.statusCode.should.equal(401);
                 done();
             });
+
         });
 
         it("Should give an error when the user is authenticated, but not as a creator nor contributor of the project", function (done) {
