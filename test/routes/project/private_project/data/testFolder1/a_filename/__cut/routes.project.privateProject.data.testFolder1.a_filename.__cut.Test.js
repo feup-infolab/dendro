@@ -39,7 +39,7 @@ const allFiles = createFilesUnit.allFiles;
 const cutFilesFolderName = "cutFiles";
 const filesToMove = [txtMockFile, docxMockFile];
 
-describe("[Test File Cut / Move] [Private project] cutFiles ?paste", function () {
+describe("[File Cut / Move] [Private project] cutFiles ?paste", function () {
     describe("[Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()
     {
         beforeEach(function (done) {
