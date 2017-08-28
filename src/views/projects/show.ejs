@@ -85,12 +85,12 @@
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li ng-click="mkdir()"><a href="#" ng-hide="showing_a_file()"><img class="icon16" id="new_folder_button" data-loading-text="Creating folder..." src="/images/icons/folder_add.png">Add folder</a></li>
+                            <li ng-click="mkdir()" ng-hide="showing_a_file()"><a href="#"><img class="icon16" id="new_folder_button" data-loading-text="Creating folder..." src="/images/icons/folder_add.png">Add folder</a></li>
                             <li role="separator" class="divider"></li>
-                            <li ng-click="copy()" ><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li>
-                            <li ng-click="cut()"><a href="#"><img class="icon16" id="cut_button"  src="/images/icons/cut.png">Cut</a></li>
+                            <li ng-click="copy()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li>
+                            <li ng-click="cut()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="cut_button"  src="/images/icons/cut.png">Cut</a></li>
                             <li ng-click="rename()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="rename_button" src="/images/icons/textfield_rename.png">Rename</a></li>
-                            <li role="separator" class="divider"></li>
+                            <li role="separator" class="divider" ng-hide="showing_project_root()"></li>
                             <li ng-click="download_folder()"><a href="#"><img class="icon16" id="download_folder_button" data-loading-text="Preparing Package..." src="/images/icons/arrow_down.png">Download</a></li>
                             <li ng-click="backup_folder()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="backup_button" data-loading-text="Preparing Package..." src="/images/icons/folder_vertical_zipper.png">Backup</a></li>
                             <li role="separator" class="divider" ng-hide="showing_project_root() || showing_a_file()"></li>

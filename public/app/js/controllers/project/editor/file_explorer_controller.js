@@ -185,33 +185,41 @@ angular.module('dendroApp.controllers')
     };
 
     $scope.rename = function() {
-        bootbox.prompt('Please enter the new name', function(newName) {
-            if(newName != null)
-            {
 
-                if (!newName.match(/^[^\\\/:*?"<>|]{1,}$/g))
+        if($scope.get_selected_files().length === 1)
+        {
+            bootbox.prompt('Please enter the new name', function(newName) {
+                if(newName != null)
                 {
-                    bootbox.alert("Invalid name specified", function ()
+
+                    if (!newName.match(/^[^\\\/:*?"<>|]{1,}$/g))
                     {
-                    });
-                }
-                else
-                {
-                    if (newName != null)
-                    {
-                        filesService.rename(newName,
-                            $scope.get_calling_uri()
-                        ).then(function(result){
-                            $scope.load_folder_contents();
-                            windowService.show_popup("success", "OK", "Rename successful");
-                        }).catch(function(error){
-                            console.error("Unable to rename resource: " + JSON.stringify(error));
-                            windowService.show_popup("error", "There was an error renaming the resource", "Server returned status code " + status + " and message :\n" + error);
+                        bootbox.alert("Invalid name specified", function ()
+                        {
                         });
                     }
+                    else
+                    {
+                        if (newName != null)
+                        {
+                            filesService.rename(newName,
+                                $scope.get_calling_uri()
+                            ).then(function(result){
+                                $scope.load_folder_contents();
+                                windowService.show_popup("success", "OK", "Rename successful");
+                            }).catch(function(error){
+                                console.error("Unable to rename resource: " + JSON.stringify(error));
+                                windowService.show_popup("error", "There was an error renaming the resource", "Server returned status code " + status + " and message :\n" + error);
+                            });
+                        }
+                    }
                 }
-            }
-        });
+            });
+        }
+        else
+        {
+            windowService.show_popup('warning',  "Selection a file or folder", "Please select a single file or folder before renaming", 1000)
+        }
     };
 
     $scope.cut = function() {

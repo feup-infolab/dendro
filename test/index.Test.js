@@ -21,6 +21,9 @@ global.tests = {};
 
 //require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
 
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js"));
+return;
+
 //USERS
 require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));

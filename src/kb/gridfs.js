@@ -226,9 +226,56 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
     {
         return callback(1, "Must open connection to database first!");
     }
-
 };
 
+
+GridFSConnection.prototype.deleteByQuery = function(query, callback, customBucket) {
+    let self = this;
+
+    if(!isNull(self.gfs) && !isNull(self.db))
+    {
+        let collectionName;
+        if(!isNull(customBucket))
+        {
+            collectionName = customBucket;
+        }
+        else
+        {
+            collectionName = "fs.files";
+
+        }
+
+        const collection = self.db.collection(collectionName);
+
+        let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
+        bucket.delete(query, function (err)
+        {
+            if (isNull(err))
+            {
+                // Verify that the file no longer exists
+                collection.findOne(query , function (err, exists)
+                {
+                    if (isNull(err) && !exists)
+                    {
+                        return callback(null, "Files successfully deleted after query " + JSON.stringify(query));
+                    }
+                    else
+                    {
+                        return callback(err, "Error verifying deletion of files after query " + JSON.stringify(query) + ". Error reported " + exists);
+                    }
+                });
+            }
+            else
+            {
+                return callback(err, "Error deleting files after query " + JSON.stringify(query) + ". Error reported " + err);
+            }
+        });
+    }
+    else
+    {
+        return callback(1, "Must open connection to database first!");
+    }
+};
 
 GridFSConnection.prototype.deleteAvatar = function(fileUri, callback, customBucket) {
     let self = this;
@@ -252,7 +299,6 @@ GridFSConnection.prototype.deleteAvatar = function(fileUri, callback, customBuck
     {
         return callback(1, "Must open connection to database first!");
     }
-
 };
 
 GridFSConnection.default = {};

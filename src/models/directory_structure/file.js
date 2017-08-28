@@ -319,7 +319,7 @@ File.prototype.deleteThumbnails = function () {
         for (let i = 0; i < Config.thumbnails.sizes.length; i++) {
             const dimension = Config.thumbnails.sizes[i];
             if (Config.thumbnails.size_parameters.hasOwnProperty(dimension)) {
-                gfs.connection.delete(self.uri + "?thumbnail&size=" + dimension, function (err, result) {
+                gfs.connection.deleteByFileUri(self.uri + "?thumbnail&size=" + dimension, function (err, result) {
                     if (err) {
                         console.error("Error deleting thumbnail " + self.uri + "?thumbnail&size=" + dimension);
                     }
@@ -348,7 +348,7 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
             if (isNull(err)) {
                 self.unlinkFromParent(function (err, result) {
                     if (isNull(err)) {
-                        gfs.connection.delete(self.uri, function (err, result) {
+                        gfs.connection.deleteByFileUri(self.uri, function (err, result) {
                             self.deleteThumbnails();
                             self.deleteDatastoreData();
                             return callback(err, result);

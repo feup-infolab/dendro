@@ -685,12 +685,6 @@ const loadRoutes = function(app, callback)
                             authentication_error: "Permission denied : cannot request access to this project."
                         },
                         {
-                            queryKeys: ['delete'],
-                            handler: projects.delete,
-                            permissions: administrationPermissions,
-                            authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
-                        },
-                        {
                             queryKeys: ['undelete'],
                             handler: projects.undelete,
                             permissions: administrationPermissions,
@@ -716,8 +710,15 @@ const loadRoutes = function(app, callback)
                              queryKeys: ['upload'],
                              handler: files.upload,
                              permissions: modificationPermissions
+                         },
+                         //delete projects
+                         {
+                             queryKeys: ['delete'],
+                             handler: projects.delete,
+                             permissions: administrationPermissions,
+                             authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
                          }
-                     ]
+                    ]
                 };
 
                 QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);

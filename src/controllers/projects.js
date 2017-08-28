@@ -1767,14 +1767,13 @@ exports.import = function(req, res) {
                 Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
                     if(isNull(err))
                     {
-                        const rebased_structure = JSON.parse(JSON.stringify(structure));
-                        Project.rebaseAllUris(rebased_structure, Config.baseUri);
+                        //const rebased_structure = JSON.parse(JSON.stringify(structure));
+                        //Project.rebaseAllUris(rebased_structure, Config.baseUri);
 
                         res.status(200).json(
                             {
                                 "result" : "success",
-                                "original_contents" : structure,
-                                "modified_contents" : rebased_structure
+                                "contents" : structure,
                             }
                         );
                     }
@@ -1811,6 +1810,92 @@ exports.import = function(req, res) {
                 }
             );
         }
+    }
+};
+
+exports.delete = function(req, res) {
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    const getProject = function(callback)
+    {
+        Project.findByUri(req.params.requestedResourceUri, function(err, project){
+            if(isNull(err))
+            {
+                if(!isNull(project) && project instanceof Project)
+                {
+                    callback(null, project);
+                }
+                else
+                {
+                    res.render('projects/delete',
+                        {
+                            title: "Delete a project",
+                            success_messages : [ "Project with URI " + req.params.requestedResourceUri + " does not exist" ]
+                        }
+                    );
+                }
+            }
+            else
+            {
+                res.status(500).render('projects/delete',
+                    {
+                        title: "Delete a project",
+                        error_messages : [ "Error fetching project with uri " + project.uri ]
+                    }
+                );
+            }
+        });
+    }
+
+    if(req.originalMethod === "GET")
+    {
+        if(acceptsJSON && !acceptsHTML)
+        {
+            res.status(400).json({
+                result: "error",
+                message : "API Request not valid for this route."
+            });
+        }
+        else
+        {
+            getProject(function(err, project){
+                res.render('projects/delete',
+                    {
+                        title: "Delete a project",
+                        project : project
+                    }
+                );
+            });
+        }
+    }
+    else if(req.originalMethod === "DELETE")
+    {
+        getProject(function(err, project){
+            if(!err && project instanceof Project)
+            {
+                project.delete(function(err, result){
+                    if(isNull(err))
+                    {
+                        res.render('projects/delete',
+                            {
+                                title: "Delete a project",
+                                success_messages : [ "Project " + project.uri + " deleted successfully" ]
+                            }
+                        );
+                    }
+                    else
+                    {
+                        res.status(500).render('projects/delete',
+                            {
+                                title: "Delete a project",
+                                error_messages : [ "Error deleting project "+project.uri+" : " + JSON.stringify(result) ]
+                            }
+                        );
+                    }
+                })
+            }
+        });
     }
 };
 

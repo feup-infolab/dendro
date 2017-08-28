@@ -423,7 +423,7 @@ const deleteProject = function (jsonOnly, agent, projectHandle, cb) {
     const path = "/project/" + projectHandle + "?delete";
     if (jsonOnly) {
         agent
-            .post(path)
+            .delete(path)
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
             .end(function (err, res) {
@@ -432,7 +432,7 @@ const deleteProject = function (jsonOnly, agent, projectHandle, cb) {
     }
     else {
         agent
-            .post(path)
+            .delete(path)
             .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);

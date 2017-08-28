@@ -1693,6 +1693,114 @@ Project.rebaseAllUris = function(structure, newBaseUri)
     modifyNode(structure);
 };
 
+Project.prototype.clearCacheRecords = function(callback, customGraphUri)
+{
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const pageSize = Config.limits.db.maxResults;
+    let currentPage = 0;
+    let currentResults = [];
+
+    const findMoreMembersOfProject = function(callback){
+        let findQuery =
+            "SELECT ?part \n" +
+            "FROM [0] \n"+
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart* ?part \n" +
+            "} \n";
+
+        findQuery = DbConnection.addLimitsClauses(query, pageSize * currentPage, pageSize);
+
+        db.connection.execute(query,
+            [
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value: graphUri
+                },
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value: self.uri
+                }
+
+            ],
+            function(err, results)
+            {
+                callback(err, results);
+            }
+        );
+    };
+
+    async.doUntil(
+        function(callback)
+        {
+            findMoreMembersOfProject(function(err, members){
+                if(!isNull(err))
+                {
+                    callback(err, members);
+                }
+                else
+                {
+                    currentResults = members;
+                    Cache.getByGraphUri(graphUri).delete(members, function(err, result){
+                        callback(err, result);
+                    })
+                }
+            });
+        },
+        function()
+        {
+            return currentResults.length === 0;
+        },
+        callback
+    );
+};
+
+Project.prototype.delete = function(callback)
+{
+    const self = this;
+
+    const deleteProjectTriples = function(callback)
+    {
+        const deleteQuery =
+            "WITH [0] \n"+
+            "DELETE \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   ?project nie:hasLogicalPart* ?part \n" +
+            "} \n";
+
+        db.connection.execute(query,
+            [
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value: db.graphUri
+                }
+            ],
+            callback
+        );
+    };
+
+    const deleteProjectFiles = function()
+    {
+        gfs.connection.deleteByQuery({ "metadata.project.uri" : self.uri}, function(err, result){
+            callback(err, result);
+        })
+    };
+
+    const clearCacheRecords = function(callback)
+    {
+        self.clearCacheRecords(callback);
+    };
+
+    async.series([
+        clearCacheRecords,
+        deleteProjectTriples,
+        deleteProjectFiles
+    ], function(err, results){
+        callback(err, results);
+    });
+};
+
 Project = Class.extend(Project, Resource, "ddr:Project");
 
 module.exports.Project = Project;
