@@ -184,7 +184,7 @@ describe("Private project testFolder1 ?rename", function () {
 
     describe("[POST] [FILE] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?rename", function () {
         beforeEach(function (done) {
-            this.timeout(10*Config.testsTimeout);
+            this.timeout(Config.longTestsTimeout);
             createFilesUnit.setup(function (err, results) {
                 should.equal(err, null);
                 done();

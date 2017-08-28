@@ -36,7 +36,9 @@ describe("Delete Public Project Tests", function () {
     });
 
     beforeEach(function(done) {
-        userUtils.logoutUser(function (err, agent)
+        const app = global.tests.app;
+        const agent = chai.request.agent(app);
+        userUtils.logoutUser(agent, function (err, agent)
         {
             done();
         });

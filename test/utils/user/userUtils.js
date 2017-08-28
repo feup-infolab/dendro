@@ -205,7 +205,7 @@ exports.editUser = function (jsonOnly, agent, dataToEdit, cb) {
 };
 
 exports.uploadAvatar = function (jsonOnly, agent, avatar, cb) {
-    let path = "/user/avatar";
+    let path = "/user_avatar";
     if(jsonOnly){
         agent
             .post(path)

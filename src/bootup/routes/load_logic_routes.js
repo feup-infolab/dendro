@@ -307,7 +307,7 @@ const loadRoutes = function(app, callback)
             ]
         };
 
-        QueryBasedRouter.applyRoutes(queryBasedRoutes,false, req, res, next);
+        QueryBasedRouter.applyRoutes(queryBasedRoutes,req, res, next);
     });
 
     //research domains
@@ -349,25 +349,24 @@ const loadRoutes = function(app, callback)
                         handler: users.get_avatar,
                         permissions: [],
                         authentication_error: "Permission denied : cannot get the avatar of a user because you do not have permissions to do so."
-                    }
+                    },
+                    {
+                        queryKeys: [],
+                        handler: users.show,
+                        permissions: [Permissions.settings.role.in_system.user],
+                        authentication_error: "Permission denied : cannot get information of the user because you are not logged in."
+                    },
                 ]
             };
 
-            QueryBasedRouter.applyRoutes(queryBasedRoutes, true, req, res, next);
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
         };
 
         processRequest(req.params.requestedResourceUri);
-    }
-    );
+    });
 
-    app.post('/user/avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.upload_avatar);
     app.post('/user/edit', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.edit);
-
-    app.get([
-            getNonHumanReadableRouteRegex("user"),
-            '/user/:username'
-        ], async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.show);
-
+    app.post('/user_avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.upload_avatar);
 
     app.all('/reset_password', users.reset_password);
     app.all('/set_new_password', users.set_new_password);
@@ -430,7 +429,7 @@ const loadRoutes = function(app, callback)
                     ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, true, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
             };
 
             async.waterfall([
@@ -640,19 +639,19 @@ const loadRoutes = function(app, callback)
                             authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access it."
 
                         },
-                        //default case
-                        {
-                            queryKeys: [],
-                            handler: projects.show,
-                            permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
-                        },
                         {
                            queryKeys : ['bagit'],
                            handler : projects.bagit,
                            permissions : [Permissions.settings.privacy.of_project.public, Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator],
                            authentication_error : "Permission denied : cannot backup this project because you do not have permissions to access it."
                         },
+                        //default case
+                        {
+                            queryKeys: [],
+                            handler: projects.show,
+                            permissions: defaultPermissionsInProjectRoot,
+                            authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
+                        }
                     ],
                     post: [
                         {
@@ -721,7 +720,7 @@ const loadRoutes = function(app, callback)
                      ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, true, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
             };
 
             async.waterfall([
@@ -1043,7 +1042,7 @@ const loadRoutes = function(app, callback)
                     ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, true, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
             };
 
             async.waterfall([

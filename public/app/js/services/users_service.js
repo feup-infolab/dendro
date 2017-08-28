@@ -65,7 +65,7 @@ angular.module('dendroApp.services')
 
                 this.updateAvatar = function(newAvatarPicture)
                 {
-                    var requestUri = "/user/avatar";
+                    var requestUri = "/user_avatar";
 
                     var params = {
                         newAvatar : newAvatarPicture

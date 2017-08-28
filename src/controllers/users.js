@@ -15,6 +15,7 @@ const gfs = Config.getGFSByID();
 const tmp = require("tmp");
 
 const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
+
 const getAvatarFromGfs = function (user, callback) {
     const tmp = require("tmp");
     const fs = require("fs");
@@ -744,31 +745,46 @@ exports.upload_avatar = function (req, res) {
     let currentUser = req.user;
     User.findByUri(currentUser.uri, function (err, user) {
         if (!err) {
-            let avatarExt = avatar.split(';')[0].split('/')[1];
-            let avatarUri = "/avatar/" + currentUser.ddr.username + "/avatar." + avatarExt;
+            let avatarExt;
+            let avatarUri;
+
+            try
+            {
+                avatarExt = avatar.split(';')[0].split('/')[1];
+                avatarUri = "/avatar/" + currentUser.ddr.username + "/avatar." + avatarExt;
+            }
+            catch(e)
+            {
+                return res.status(400).json({
+                    result: "error",
+                    message: e.message
+                });
+            }
 
             saveAvatarInGfs(avatar, user, avatarExt, function (err, data) {
                 if (!err) {
                     user.ddr.hasAvatar = avatarUri;
                     user.save(function (err, newUser) {
                         if (!err) {
-                            res.status(200).json({
+                            return res.status(200).json({
                                 result: "Success",
                                 message: "Avatar saved successfully."
                             });
                         }
-                        else {
+                        else
+                        {
                             let msg = "Error updating hasAvatar for user " + user.uri + ". Error reported :" + newUser;
                             console.error(msg);
-                            res.status(500).json({
+                            return res.status(500).json({
                                 result: "Error",
                                 message: msg
                             });
                         }
                     });
                 }
-                else {
-                    res.status(500).json({
+                else
+                {
+                    return res.status(500).json({
                         result: "Error",
                         message: "Error user " + currentUser.uri + " avatar. Error reported: " + JSON.stringify(data)
                     });
@@ -776,7 +792,7 @@ exports.upload_avatar = function (req, res) {
             });
         }
         else {
-            res.status(500).json({
+            return res.status(500).json({
                 result: "Error",
                 message: "Error trying to find user with uri " + currentUser.uri + " Error reported: " + JSON.stringify(err)
             });

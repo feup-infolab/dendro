@@ -54,7 +54,7 @@ exports.show_deep = function(req, res) {
                                 result.data_processing_error = resource.ddr.hasDataProcessingError;
 
                                 res.set("Content-Type", contentType);
-                                res.set("Content-disposition", "attachment; filename=\"" + result.nie.title + "\"");
+                                res.set("Content-disposition", "attachment; filename=\"" + resource.nie.title + "\"");
                                 res.send(serializer(result));
 
                             }

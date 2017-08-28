@@ -10,7 +10,7 @@ const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models
 const QueryBasedRouter = function () {
 };
 
-QueryBasedRouter.applyRoutes = function(routes, validateExistenceOfRequestedResourceUri, req, res, next)
+QueryBasedRouter.applyRoutes = function(routes, req, res, next, validateExistenceOfRequestedResourceUri)
 {
     const method = req.originalMethod.toLowerCase();
     let matchingRoute;
@@ -108,26 +108,37 @@ QueryBasedRouter.applyRoutes = function(routes, validateExistenceOfRequestedReso
 
     function passRequestToRoute (matchingRoute)
     {
-        Permissions.check(matchingRoute.permissions, req, function(err, req)
+        if(!isNull(matchingRoute.permissions))
         {
-            if (typeof req.permissions_management.reasons_for_authorizing !== "undefined" && req.permissions_management.reasons_for_authorizing.length > 0)
+            Permissions.check(matchingRoute.permissions, req, function(err, req)
             {
-                matchingRoute.handler(req, res);
-            }
-            else
-            {
-                Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying, matchingRoute.authentication_error);
-            }
-        });
+                if (typeof req.permissions_management.reasons_for_authorizing !== "undefined" && req.permissions_management.reasons_for_authorizing.length > 0)
+                {
+                    matchingRoute.handler(req, res);
+                }
+                else
+                {
+                    Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying, matchingRoute.authentication_error);
+                }
+            });
+        }
+        else
+        {
+            matchingRoute.handler(req, res);
+        }
     }
 
     async.series([
         function(callback)
         {
             if(validateExistenceOfRequestedResourceUri)
+            {
                 resourceExists(callback);
+            }
             else
+            {
                 callback(null);
+            }
         }
     ], function(err, result){
         if(isNull(err))

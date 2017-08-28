@@ -7,7 +7,8 @@ global.Pathfinder = Pathfinder;
 Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
-Config.testsTimeout = 10000;
+Config.testsTimeout = 20000;
+Config.longTestsTimeout = 60000;
 console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
 
 global.Config = Config;
@@ -31,8 +32,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/route.user.demou
 
 //EDIT USERS
 require(Pathfinder.absPathInTestsFolder("/routes/user/edit/routes.user.edit.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user_avatar/routes.user_avatar.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));

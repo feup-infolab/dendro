@@ -19,12 +19,13 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const privateProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const projectCreatedByDemoUser3 = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_created_by_demouser3.js"));
 
 const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
 const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
 const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
-const projectsData = module.exports.projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
+const projectsData = module.exports.projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData, projectCreatedByDemoUser3];
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)];
@@ -54,8 +55,6 @@ const end = function()
 module.exports.setup = function(finish)
 {
     start();
-    const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
-    //let bootupUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
     let createUsersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
     createUsersUnit.setup(function (err, results) {

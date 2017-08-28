@@ -34,7 +34,7 @@ const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xls
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const allFiles = createFilesUnit.filesData;
+const allFiles = createFilesUnit.allFiles;
 
 const cutFilesFolderName = "cutFiles";
 const filesToMove = [txtMockFile, docxMockFile];
@@ -43,7 +43,7 @@ describe("[Test File Cut / Move] [Private project] cutFiles ?paste", function ()
     describe("[Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()
     {
         beforeEach(function (done) {
-            this.timeout(10*Config.testsTimeout);
+            this.timeout(Config.longTestsTimeout);
             createFilesUnit.setup(function (err, results) {
                 should.equal(err, null);
                 done();
@@ -248,12 +248,45 @@ describe("[Test File Cut / Move] [Private project] cutFiles ?paste", function ()
         //TODO
         it("Should give an error if the user does not have permission to cut a file (demouser3 is neither a creator nor a collaborator of the owner project of the file being cut, even though he is the creator of the project that contains the destination folder)", function (done)
         {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res)
-                {
-                    res.statusCode.should.equal(404);
-                    done();
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function(err, res){
+                    res.statusCode.should.equal(200);
+                    should.equal(err, null);
+                    JSON.parse(res.text).should.be.instanceof(Array);
+                    JSON.parse(res.text).length.should.equal(allFiles.length);
+                    should.equal(folderUtils.responseContainsAllMockFiles(res, allFiles), true);
+
+                    const urisOfFilesToMove = _.map(JSON.parse(res.text), function(file){
+                        return file.uri;
+                    });
+
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function(err, res){
+                        res.statusCode.should.equal(200);
+                        should.equal(err, null);
+                        const destinationFolderUri = JSON.parse(res.text).id;
+
+                        folderUtils.getFolderContents(true,agent, privateProject.handle, cutFilesFolderName, function(err, res){
+                            res.statusCode.should.equal(200);
+                            should.equal(err, null);
+
+                            JSON.parse(res.text).should.be.instanceof(Array);
+                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+
+
+                            //here we introduce the error. We log in with demouser3 and
+                            // cut the folders inside the private project (created by demouser1)
+                            // and try to paste inside a project created by demouser3.
+                            //
+                            //it should FAIL because demouser3 does not have permissions over the project created by demouser1,
+                            // even though he has permission to access the destination project of the operation
+                            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+                                folderUtils.moveFilesIntoFolder(true, agent, urisOfFilesToMove, destinationFolderUri, function(err, res){
+                                    res.statusCode.should.equal(401);
+                                    done();
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
@@ -328,7 +361,7 @@ describe("[Test File Cut / Move] [Private project] cutFiles ?paste", function ()
 
     describe("[Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?cut", function () {
         beforeEach(function (done) {
-            this.timeout(10*Config.testsTimeout);
+            this.timeout(Config.longTestsTimeout);
             createFilesUnit.setup(function (err, results) {
                 should.equal(err, null);
                 done();

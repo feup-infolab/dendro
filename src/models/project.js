@@ -75,12 +75,12 @@ Project.prototype.backup = function(callback)
                     {
                         const bagItOptions = {
                             cryptoMethod: 'sha256',
-                            sourceOrganization: self.dcterms.publisher,
-                            organizationAddress: self.schema.address,
-                            contactName: self.schema.provider,
-                            contactPhone: self.schema.telephone,
-                            contactEmail: self.schema.email,
-                            externalDescription: self.dcterms.description
+                            sourceOrganization: (self.dcterms.publisher)? self.dcterms.publisher : "No publisher specified",
+                            organizationAddress: (self.schema.address)? self.schema.address : "No contact physical address specified",
+                            contactName: (self.schema.provider)? self.schema.provider : "No contact name specified",
+                            contactPhone: (self.schema.telephone)? self.schema.telephone : "No contact phone specified",
+                            contactEmail: (self.schema.email)? self.schema.email : "No contact email specified",
+                            externalDescription: (self.dcterms.description)? self.dcterms.description : "No project description specified"
                         };
 
                         folder.bagit(
