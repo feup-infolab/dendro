@@ -11,6 +11,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project")).Project;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -57,23 +58,30 @@ Registry.createDepositRegistry = function (object, callback) {
 };
 
 Registry.getDeposits = function(req, res){
-    const loggedIn = req.body.user;
+    //const loggedIn = req.body.user;
 
     const query =
         "SELECT * \n" +
         "FROM [0] \n"  +
         "WHERE { \n" +
-        "?uri ?e ddr:Registry. " +
-        "?uri ?p ?o. \n" +
+        "?uri rdf:type ddr:Registry. " +
+        "?uri dcterms:uri ?projUsed \n" +
+        "?projUsed ddr:privacyStatus [1] " +
         "}";
 
     db.connection.execute(query,
-        [{
-            type: DbConnection.resourceNoEscape,
-            value: db.graphUri
-
-        }], function (err, regs){
+        [   {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : "public"
+            }
+        ], function (err, regs){
             res.json({regs});
+
+            //Project.findByUri()
         });
 };
 

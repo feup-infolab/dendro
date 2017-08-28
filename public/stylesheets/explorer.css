@@ -180,7 +180,7 @@ Animations (uncomment to have animations)
 .file_explorer_icon {
   text-shadow: 1px 1px 1px #ccc;
 }
-.folderss {
+.foldersLabel {
   display: inline-block;
   width: 100px;
   overflow: hidden;
@@ -188,12 +188,6 @@ Animations (uncomment to have animations)
   text-overflow: ellipsis;
   vertical-align: top;
 }
-.intro {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #9e76ab;
-}
-
 .social-dendro-btn {
   font-size: 10px;
 }

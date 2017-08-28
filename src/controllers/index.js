@@ -2,12 +2,14 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
+const registry = require(Pathfinder.absPathInSrcFolder("models/registry"));
+
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 
 exports.index = function(req, res){
 
-    //registry.getDeposits();
+    registry.getDeposits(req);
 
     //TODO query to get latest deposits
     res.render('index',
