@@ -58,3 +58,5 @@ running.pid
 .vs/VSWorkspaceState.json
 .vs/slnx.sqlite
 package-lock\.json
+
+profiling/
