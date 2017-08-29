@@ -16,7 +16,7 @@ angular.module('dendroApp.services')
                         method: 'GET',
                         url: requestUri,
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                     }).then(
                         function (response)
                         {
@@ -76,9 +76,9 @@ angular.module('dendroApp.services')
                         url: requestUri,
                         data: params,
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                         //contentType: "data:image/png;base64",
-                        //headers: {'Accept': "data:image/png;base64"}
+                        //headers: {"Accept": "data:image/png;base64"}
                     });
                 };
 
@@ -90,7 +90,7 @@ angular.module('dendroApp.services')
                         method: "GET",
                         url: requestUri,
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                     });
                 };
             }]);

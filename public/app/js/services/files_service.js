@@ -26,7 +26,7 @@ angular.module('dendroApp.services')
                 url: uri,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(function(response) {
                     if(response.data != null && response.data instanceof Object)
                     {
@@ -56,7 +56,7 @@ angular.module('dendroApp.services')
                 url: uri,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(function(response) {
                     if(response.data != null && response.data instanceof Object)
                     {
@@ -81,7 +81,7 @@ angular.module('dendroApp.services')
                     url: mkdirUrl,
                     data: JSON.stringify({}),
                     contentType: "application/json",
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 });
             }
         };
@@ -97,7 +97,7 @@ angular.module('dendroApp.services')
                     url: renameUrl,
                     data: JSON.stringify({}),
                     contentType: "application/json",
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 });
             }
         };
@@ -115,7 +115,7 @@ angular.module('dendroApp.services')
                     files : resourcesToCutUris
                 }),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -132,7 +132,7 @@ angular.module('dendroApp.services')
                     files : resourcesToCopyUris
                 }),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -150,7 +150,7 @@ angular.module('dendroApp.services')
                 url: uri,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -161,7 +161,7 @@ angular.module('dendroApp.services')
                 url: fileOrFolder.uri + "?undelete",
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
     }]);

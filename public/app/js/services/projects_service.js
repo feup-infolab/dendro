@@ -26,7 +26,7 @@ angular.module('dendroApp.services')
                         url: URL,
                         data: JSON.stringify(requestPayload),
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                     }).then(function (response)
                         {
                             $location.url('/');
@@ -59,7 +59,7 @@ angular.module('dendroApp.services')
                         url: URL,
                         data: requestPayload,
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                     }).then(function (response)
                         {
                             $location.url('/');
@@ -90,7 +90,7 @@ angular.module('dendroApp.services')
                         url: URL,
                         data: payload,
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                     }).then(function (response)
                         {
                             var data = response.data;
@@ -122,7 +122,7 @@ angular.module('dendroApp.services')
                         url: requestUri,
                         data: JSON.stringify({}),
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                     }).then(
                         function(response)
                         {
@@ -164,7 +164,7 @@ angular.module('dendroApp.services')
                         url: URL,
                         data: requestPayload,
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                     }).then(function (response)
                         {
                             //$location.url('/');

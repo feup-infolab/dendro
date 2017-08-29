@@ -57,7 +57,7 @@ var dendroApp = angular.module('dendroApp', [
         method: 'GET',
         url: "/analytics_tracking_code",
         contentType: "application/json",
-        headers: {'Accept': "application/json"}
+        headers: {"Accept": "application/json"}
     }).then(
         function (response)
         {

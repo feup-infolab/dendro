@@ -32,7 +32,7 @@ angular.module('dendroApp.controllers')
                 url: url,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(function(response) {
                 var descriptors = response.data.descriptors;
 
