@@ -6,30 +6,29 @@ chai.use(chaiHttp);
 const fs = require('fs');
 const path = require('path');
 const async = require('async');
-const Config = GLOBAL.Config;
+const Config = global.Config;
 
 const should = chai.should();
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProject = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProject= require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const privateProject= require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
 const md5File = require('md5-file');
 
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
-const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
+var demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+var demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
+var demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
+var demouser4 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser4"));
+var demouser5 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser5"));
 
-var demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
-var demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
-var demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3"));
-var demouser4 = require(Config.absPathInTestsFolder("mockdata/users/demouser4"));
-var demouser5 = require(Config.absPathInTestsFolder("mockdata/users/demouser5"));
-
-const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-var createFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
+var db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+var createFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 
 let Project;
 let User;
@@ -44,8 +43,8 @@ describe("Administer data projects", function (done) {
         this.timeout(60000);
         createFoldersUnit.setup(function (err, res) {
             should.equal(err, null);
-            Project = require(Config.absPathInSrcFolder("models/project.js")).Project;
-            User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+            Project = require(Pathfinder.absPathInTestsFolder("models/project.js")).Project;
+            User = require(Pathfinder.absPathInTestsFolder("/models/user.js")).User;
             done();
         });
     });

@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 const path = require("path");
 const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
@@ -15,11 +15,8 @@ global.Config = Config;
 
 global.tests = {};
 
-/*
- require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
- */
-
-//require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
+//administer projects
+//require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
 
 //USERS
 require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
@@ -367,3 +364,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/_
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__delete/routes.project.publicProject.__delete.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__delete/routes.project.metadataOnlyProject.__delete.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js"));
+
+/*
+ require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
+ */
