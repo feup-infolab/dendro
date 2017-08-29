@@ -21,9 +21,6 @@ global.tests = {};
 
 //require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js"));
-return;
-
 //USERS
 require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));
@@ -53,19 +50,16 @@ require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route
 /*require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));*/
 
 //PUBLIC PROJECT
-/*require(Pathfinder.absPathInTestsFolder("/routes/projects/public_project/request_access/route.projects.publicProject.requestAccess.Test.js"));*/
-require(Pathfinder.absPathInTestsFolder("/routes/projects/public_project/delete/route.projects.publicProject.delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/projects/public_project/undelete/route.projects.publicProject.undelete.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/request_access/route.projects.publicProject.__request_access.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__delete/routes.project.publicProject.__delete.Test.js"));
 
 //METADATA PROJECT
-/*require(Pathfinder.absPathInTestsFolder("/routes/projects/metadataonly_project/request_access/route.projects.metadataonlyProject.requestAccess.Test.js"));*/
-require(Pathfinder.absPathInTestsFolder("/routes/projects/metadataonly_project/delete/route.projects.metadataonlyProject.delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/projects/metadataonly_project/undelete/route.projects.metadataonlyProject.undelete.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/project/metadataonly_project/request_access/route.projects.metadataonlyProject.__request_access.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__delete/routes.project.metadataOnlyProject.__delete.Test.js"));
 
 //PRIVATE PROJECT
-/*require(Pathfinder.absPathInTestsFolder("/routes/projects/private_project/request_access/route.projects.privateProject.requestAccess.Test.js"));*/
-require(Pathfinder.absPathInTestsFolder("/routes/projects/private_project/delete/route.projects.privateProject.delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/projects/private_project/undelete/route.projects.privateProject.undelete.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/request_access/route.projects.privateProject.__request_access.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js"));
 
 
 //PROJECT CHANGES PUBLIC PROJECT
@@ -376,3 +370,4 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/te
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__bagit/routes.project.privateProject.__bagit.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__bagit/routes.project.publicProject.__bagit.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__bagit/routes.project.metadataOnlyProject.__bagit.Test.js"));
+

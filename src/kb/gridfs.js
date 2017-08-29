@@ -254,13 +254,13 @@ GridFSConnection.prototype.deleteByQuery = function(query, callback, customBucke
         const q = async.queue(function(fileRecord, callback) {
             bucket.delete(fileRecord._id, function (err, result)
             {
-                callback(err, result)
+                callback(err, result);
             });
         }, 1);
 
         // assign a callback
         q.drain = function() {
-            console.log("All files deleted in query " + JSON.stringify(query));
+            //console.log("All files deleted in query " + JSON.stringify(query));
             if (cursor.isClosed()) {
                 collection.find(query, { _id : 1 }, function (err, exists)
                 {

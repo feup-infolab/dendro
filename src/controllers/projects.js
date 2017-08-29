@@ -1339,62 +1339,6 @@ exports.delete = function(req,res)
     });
 };
 
-exports.undelete = function(req,res)
-{
-    Project.findByUri(req.params.requestedResourceUri, function(err, project){
-        if(isNull(err))
-        {
-            if(!isNull(project))
-            {
-                project.undelete(function(err, result){
-                    if(isNull(err))
-                    {
-                        const success_messages = ["Project " + project.ddr.handle + " successfully recovered"];
-
-                        let acceptsHTML = req.accepts("html");
-                        const acceptsJSON = req.accepts("json");
-
-                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                        {
-                            res.json(
-                                {
-                                    result : "ok",
-                                    message : success_messages
-                                }
-                            );
-                        }
-                        else
-                        {
-                            res.redirect('/projects/my');
-                        }
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result: "error",
-                            message : "project " + req.params.requestedResourceUri + " was found but it was impossible to undelete because of error : " + result
-                        })
-                    }
-                });
-            }
-            else
-            {
-                res.status(404).json({
-                    result : "error",
-                    message : "Unable to find project " + req.params.requestedResourceUri
-                });
-            }
-        }
-        else
-        {
-            res.status(500).json({
-                result : "error",
-                message : "Invalid project : " + req.params.requestedResourceUri +  " : " + project
-            });
-        }
-    });
-};
-
 exports.recent_changes = function(req, res) {
     const acceptsHTML = req.accepts("html");
     let acceptsJSON = req.accepts("json");

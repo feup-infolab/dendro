@@ -685,12 +685,6 @@ const loadRoutes = function(app, callback)
                             authentication_error: "Permission denied : cannot request access to this project."
                         },
                         {
-                            queryKeys: ['undelete'],
-                            handler: projects.undelete,
-                            permissions: administrationPermissions,
-                            authentication_error: "Permission denied : cannot undelete project because you do not have permissions to administer this project."
-                        },
-                        {
                             queryKeys: ['cut'],
                             handler: files.cut,
                             permissions: modificationPermissions,
