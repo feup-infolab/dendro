@@ -6,7 +6,10 @@ const util = require('util');
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const uuid = require("uuid");
-let queue = require('queue');
+let queue = require("queue");
+
+let profiling_logfile;
+let boot_start_timestamp = new Date().toISOString()
 
 function DbConnection (host, port, username, password, maxSimultaneousConnections) {
     let self = this;
@@ -349,7 +352,6 @@ DbConnection.buildFilterStringForOntologies = function(ontologyURIsArray, filter
 DbConnection.prototype.create = function(callback) {
     const self = this;
     const xmlHttp = new XMLHttpRequest();
-    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
     // prepare callback
     xmlHttp.onreadystatechange = function() {
@@ -367,9 +369,8 @@ DbConnection.prototype.create = function(callback) {
                     });
                 }
 
-                self.q.on('success', function(result, job) {
-                    //console.log('query finished processing:', job.toString().replace(/\n/g, ''));
-                });
+                //self.q.on('success', function(result, job) {
+                //});
 
                 return callback(self);
             }
@@ -436,7 +437,35 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                     json: true
                 };
 
+                const finishQuery = function(cb, startQueryTime, query)
+                {
+                    const msec = new Date().getTime() - startQueryTime.getTime();
+                    if(Config.debug.database.log_query_times)
+                    {
+                        const fs = require("fs");
+                        const path = require("path");
+                        const mkdirp = require("mkdirp");
+                        const queryProfileLogFilePath = path.join(Config.tempFilesDir, "database_profiling_" + boot_start_timestamp + ".csv");
+                        if(!fs.existsSync(queryProfileLogFilePath))
+                        {
+                            mkdirp.sync(Config.tempFilesDir);
+                            profiling_logfile = fs.openSync(queryProfileLogFilePath, 'w');
+                        }
+                        fs.appendFileSync(queryProfileLogFilePath, query.replace(/(?:\r\n|\r|\n)/g,"") + "," + msec + "\n");
+                        cb();
+                    }
+                    else
+                    {
+                        cb();
+                    }
+                };
+
                 self.q.push(function(cb){
+                    let queryStartTime;
+                    if(Config.debug.database.log_query_times)
+                    {
+                        queryStartTime = new Date();
+                    }
 
                     if (Config.debug.active && Config.debug.database.log_all_queries)
                     {
@@ -451,7 +480,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
 
                             if (!isNull(parsedBody.boolean))
                             {
-                                cb();
+                                finishQuery(cb, queryStartTime, query);
                                 return callback(null, parsedBody.boolean);
                             }
                             else
@@ -461,7 +490,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
 
                                 if (numberOfRows === 0)
                                 {
-                                    cb();
+                                    finishQuery(cb, queryStartTime, query);
                                     return callback(null, []);
                                 }
                                 else
@@ -521,7 +550,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                     }
 
                                     callback(null, transformedResults);
-                                    cb();
+                                    finishQuery(cb, queryStartTime, query);
                                 }
                             }
                         })
@@ -529,7 +558,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                             const error = "Virtuoso server returned error: \n " + util.inspect(err);
                             console.error(error);
                             console.trace(err);
-                            cb();
+                            finishQuery(cb, queryStartTime, query);
                             return callback(1, err);
                         });
                 });

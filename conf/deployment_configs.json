@@ -175,7 +175,8 @@
       "database": {
         "log_all_queries": false,
         "log_all_cache_queries" : false,
-        "log_query_timeouts": false
+        "log_query_timeouts": false,
+        "log_query_times": false
       },
       "session": {
         "auto_login": false,
@@ -549,7 +550,8 @@
       "active": true,
       "database": {
         "log_all_queries": false,
-        "log_all_cache_queries": false
+        "log_all_cache_queries": false,
+        "log_query_times": true
       },
       "session": {
         "auto_login": false,
@@ -906,7 +908,8 @@
       "active": true,
       "database": {
         "log_all_queries": false,
-        "log_all_cache_queries" : false
+        "log_all_cache_queries" : false,
+        "log_query_times": false
       },
       "session": {
         "auto_login": false,
