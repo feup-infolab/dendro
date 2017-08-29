@@ -1848,17 +1848,18 @@ exports.delete = function(req, res) {
         });
     }
 
-    if(req.originalMethod === "GET")
+    if(acceptsJSON && !acceptsHTML)
     {
-        if(acceptsJSON && !acceptsHTML)
+        res.status(400).json({
+            result: "error",
+            message : "API Request not valid for this route."
+        });
+    }
+    else
+    {
+        if(req.originalMethod === "GET")
         {
-            res.status(400).json({
-                result: "error",
-                message : "API Request not valid for this route."
-            });
-        }
-        else
-        {
+
             getProject(function(err, project){
                 res.render('projects/delete',
                     {
@@ -1868,34 +1869,48 @@ exports.delete = function(req, res) {
                 );
             });
         }
-    }
-    else if(req.originalMethod === "DELETE")
-    {
-        getProject(function(err, project){
-            if(!err && project instanceof Project)
-            {
-                project.delete(function(err, result){
-                    if(isNull(err))
+        else if(req.originalMethod === "DELETE")
+        {
+            getProject(function(err, project){
+                if(!err)
+                {
+                    if(!isNull(project) && project instanceof Project)
                     {
-                        res.render('projects/delete',
+                        project.delete(function(err, result){
+                            if(isNull(err))
                             {
-                                title: "Delete a project",
-                                success_messages : [ "Project " + project.uri + " deleted successfully" ]
+                                res.render('projects/delete',
+                                    {
+                                        title: "Delete a project",
+                                        success_messages : [ "Project " + project.uri + " deleted successfully" ]
+                                    }
+                                );
                             }
-                        );
+                            else
+                            {
+                                res.status(500).render('projects/delete',
+                                    {
+                                        title: "Delete a project",
+                                        error_messages : [ "Error deleting project "+project.uri+" : " + JSON.stringify(result) ]
+                                    }
+                                );
+                            }
+                        });
                     }
                     else
                     {
-                        res.status(500).render('projects/delete',
-                            {
-                                title: "Delete a project",
-                                error_messages : [ "Error deleting project "+project.uri+" : " + JSON.stringify(result) ]
-                            }
-                        );
+                        req.flash("error", "Project "+req.params.requestedResourceUri+" does not exist");
+                        res.status(404).redirect('/projects/my');
                     }
-                })
-            }
-        });
+                }
+                else
+                {
+                    req.flash("error", "Error retrieving project " + req.params.requestedResourceUri);
+                    req.flash("error", "Error details" + project);
+                    res.status(500).redirect('/projects/my');
+                }
+            });
+        }
     }
 };
 

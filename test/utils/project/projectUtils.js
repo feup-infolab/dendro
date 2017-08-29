@@ -649,7 +649,116 @@ const contentsMatchBackup = function (project, bodyBuffer, callback) {
                 callback(err);
             }
         });
+};
 
+const countProjectTriples = function(projectUri, callback)
+{
+    const self = this;
+
+    const query =
+        "SELECT COUNT(*) as ?resource_count \n" +
+        "FROM [0] \n" +
+        "WHERE " +
+        "{ \n" +
+        "   { \n" +
+        "       [1] nie:hasLogicalPart* ?child . \n" +
+        "   } \n" +
+        "   UNION \n" +
+        "   { \n" +
+        "       ?resource nie:isLogicalPartOf* [1] . \n" +
+        "   } \n" +
+        "} \n";
+
+    const db = Config.getDBByID();
+    db.connection.execute(query,
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : projectUri
+            }
+        ],
+        function(err, result)
+        {
+            if (isNull(err))
+            {
+                if(result instanceof Array && result.length > 0)
+                {
+                    return callback(null, result[0].resource_count);
+                }
+                else
+                {
+                    return callback(1, "invalid result retrieved when querying for project resource count");
+                }
+            }
+            else
+            {
+                return callback(err, -1);
+            }
+        });
+};
+
+const countProjectFilesInGridFS = function(projectUri, callback, customBucket)
+{
+    const self = this;
+
+    let collectionName;
+    if(!isNull(customBucket))
+    {
+        collectionName = customBucket;
+    }
+    else
+    {
+        collectionName = "fs.files";
+    }
+
+    /**
+     * YOU NEED MONGODB 10GEN to run this, or it will give errors.
+     */
+
+    const gfs = Config.getGFSByID();
+    gfs.connection.db.collection(collectionName, function(err, collection) {
+        if(isNull(err))
+        {
+            collection.aggregate([
+                {
+                    $match: {"metadata.project" : self.uri}
+                },
+                {
+                    $group:
+                        {
+                            _id : null,
+                            count : {}
+                        }
+                }
+            ],function(err, result){
+                if(isNull(err))
+                {
+                    if(!isNull(result) && result instanceof Array && result.length === 1 && !isNull(result[0].sum))
+                    {
+                        return callback(null, result[0].count);
+                    }
+                    else
+                    {
+                        return callback(null, 0);
+                    }
+                }
+                else
+                {
+                    console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
+                    return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                }
+            });
+        }
+        else
+        {
+            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
+            return callback(1, "Error retrieving files collection : " + collection);
+        }
+    });
 };
 
 module.exports = {
@@ -680,5 +789,7 @@ module.exports = {
     getProjectMetadata: getProjectMetadata,
     getProjectMetadataDeep: getProjectMetadataDeep,
     contentsMatchBackup : contentsMatchBackup,
-    metadataMatchesBackup : metadataMatchesBackup
+    metadataMatchesBackup : metadataMatchesBackup,
+    countProjectTriples : countProjectTriples,
+    countProjectFilesInGridFS : countProjectFilesInGridFS
 };

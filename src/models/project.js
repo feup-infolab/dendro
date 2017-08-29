@@ -8,6 +8,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
@@ -856,14 +857,24 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
         });
 };
 
-Project.prototype.getStorageSize = function(callback)
+Project.prototype.getStorageSize = function(callback, customBucket)
 {
     const self = this;
+
+    let collectionName;
+    if(!isNull(customBucket))
+    {
+        collectionName = customBucket;
+    }
+    else
+    {
+        collectionName = "fs.files";
+    }
 
     /**
      * YOU NEED MONGODB 10GEN to run this, or it will give errors.
      */
-    gfs.connection.db.collection("fs.files", function(err, collection) {
+    gfs.connection.db.collection(collectionName, function(err, collection) {
         if(isNull(err))
         {
             collection.aggregate([
@@ -1695,6 +1706,7 @@ Project.rebaseAllUris = function(structure, newBaseUri)
 
 Project.prototype.clearCacheRecords = function(callback, customGraphUri)
 {
+    const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const pageSize = Config.limits.db.maxResults;
     let currentPage = 0;
@@ -1709,9 +1721,9 @@ Project.prototype.clearCacheRecords = function(callback, customGraphUri)
             "   [1] nie:hasLogicalPart* ?part \n" +
             "} \n";
 
-        findQuery = DbConnection.addLimitsClauses(query, pageSize * currentPage, pageSize);
+        findQuery = DbConnection.addLimitsClauses(findQuery, pageSize * currentPage, pageSize);
 
-        db.connection.execute(query,
+        db.connection.execute(findQuery,
             [
                 {
                     type: DbConnection.resourceNoEscape,
@@ -1749,6 +1761,7 @@ Project.prototype.clearCacheRecords = function(callback, customGraphUri)
         },
         function()
         {
+            currentPage++;
             return currentResults.length === 0;
         },
         callback
@@ -1769,14 +1782,17 @@ Project.prototype.delete = function(callback)
             "   ?project nie:hasLogicalPart* ?part \n" +
             "} \n";
 
-        db.connection.execute(query,
+        db.connection.execute(deleteQuery,
             [
                 {
                     type: DbConnection.resourceNoEscape,
                     value: db.graphUri
                 }
             ],
-            callback
+            function(err, result)
+            {
+                callback(err, result);
+            }
         );
     };
 
