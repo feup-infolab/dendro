@@ -1,4 +1,5 @@
 const path = require("path");
+const async = require("async");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -232,28 +233,36 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
 GridFSConnection.prototype.deleteByQuery = function(query, callback, customBucket) {
     let self = this;
 
+    let collectionName;
+    if(!isNull(customBucket))
+    {
+        collectionName = customBucket;
+    }
+    else
+    {
+        collectionName = "fs.files";
+    }
+
+    const collection = self.db.collection(collectionName);
+    let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
+
     if(!isNull(self.gfs) && !isNull(self.db))
     {
-        let collectionName;
-        if(!isNull(customBucket))
-        {
-            collectionName = customBucket;
-        }
-        else
-        {
-            collectionName = "fs.files";
+        const cursor = collection.find(query);
 
-        }
-
-        const collection = self.db.collection(collectionName);
-
-        let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
-        bucket.delete(query, function (err)
-        {
-            if (isNull(err))
+        // create a queue object with concurrency 1
+        const q = async.queue(function(fileRecord, callback) {
+            bucket.delete(fileRecord._id, function (err, result)
             {
-                // Verify that the file no longer exists
-                collection.findOne(query , function (err, exists)
+                callback(err, result)
+            });
+        }, 1);
+
+        // assign a callback
+        q.drain = function() {
+            console.log("All files deleted in query " + JSON.stringify(query));
+            if (cursor.isClosed()) {
+                collection.find(query, { _id : 1 }, function (err, exists)
                 {
                     if (isNull(err) && !exists)
                     {
@@ -266,6 +275,17 @@ GridFSConnection.prototype.deleteByQuery = function(query, callback, customBucke
                 });
             }
             else
+            {
+                callback(1, "There was a problem deleting files after query " + JSON.stringify(query));
+            }
+        };
+        cursor.forEach(function(fileRecord){
+            if(!isNull(fileRecord))
+            {
+                q.push(fileRecord);
+            }
+        }, function(err) {
+            if(!isNull(err))
             {
                 return callback(err, "Error deleting files after query " + JSON.stringify(query) + ". Error reported " + err);
             }

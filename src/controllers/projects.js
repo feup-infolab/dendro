@@ -1882,7 +1882,8 @@ exports.delete = function(req, res) {
                                 res.render('projects/delete',
                                     {
                                         title: "Delete a project",
-                                        success_messages : [ "Project " + project.uri + " deleted successfully" ]
+                                        success_messages : [ "Project " + project.uri + " deleted successfully" ],
+                                        project : project
                                     }
                                 );
                             }
@@ -1891,7 +1892,8 @@ exports.delete = function(req, res) {
                                 res.status(500).render('projects/delete',
                                     {
                                         title: "Delete a project",
-                                        error_messages : [ "Error deleting project "+project.uri+" : " + JSON.stringify(result) ]
+                                        error_messages : [ "Error deleting project "+project.uri+" : " + JSON.stringify(result) ],
+                                        project : project
                                     }
                                 );
                             }

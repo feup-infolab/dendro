@@ -1,4 +1,5 @@
 const chai = require("chai");
+const async = require("async");
 const chaiHttp = require("chai-http");
 const should = chai.should();
 const _ = require("underscore");
@@ -18,6 +19,7 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
@@ -84,27 +86,66 @@ describe("Private Project delete", function (done) {
     describe("[Valid Cases] /project/:handle?delete " + privateProject.handle, function () {
         it("Should delete the project if the user is logged in as demouser1 (creator of the project)", function (done) {
             this.timeout(Config.longTestsTimeout);
+
+            const fileCountsBefore = {};
+            const tripleCountsBefore = {};
+            let deletedProjectUris = {};
+
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 should.equal(err, null);
-                projectUtils.deleteProject(false, agent, privateProject.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
 
-                    projectUtils.listAllMyProjects(true, agent, function (err, res) {
-                        const myProjects = res.body.projects;
-                        const project = _.find(myProjects, function(project){
-                            return project.ddr.handle === privateProject.handle;
-                        });
+                async.map(createProjectsUnit.projectsData, function(aProject, callback){
+                    projectUtils.getProjectUriFromHandle(agent, aProject.handle, function(err, projectUri){
+                        deletedProjectUris[aProject.handle] = projectUri;
+                        should.equal(null, err);
 
-                        projectUtils.countProjectTriples(project.uri, function(err, fileCount){
+                        projectUtils.countProjectTriples(projectUri, function(err, tripleCount){
                             should.equal(err, null);
-                            fileCount.should.equal(0);
-
-                            projectUtils.countProjectFilesInGridFS(project.uri, function(err, filesCount)
+                            tripleCountsBefore[projectUri] = tripleCount;
+                            projectUtils.countProjectFilesInGridFS(projectUri, function(err, fileCount)
                             {
                                 should.equal(err, null);
-                                fileCount.should.equal(0);
-                                done();
+                                fileCountsBefore[projectUri] = fileCount;
+                                callback(err);
                             });
+                        });
+                    });
+                }, function(err, results){
+                    should.equal(err, null);
+                    projectUtils.deleteProject(false, agent, privateProject.handle, function (err, res) {
+                        res.statusCode.should.equal(200);
+
+                        async.map(createProjectsUnit.projectsData, function(aProject, callback){
+                            let projectUri = deletedProjectUris[aProject.handle];
+                            projectUtils.countProjectTriples(projectUri, function(err, tripleCount, results){
+                                should.equal(err, null);
+
+                                if(aProject.handle === privateProject.handle)
+                                {
+                                    tripleCount.should.equal(0);
+                                }
+                                else
+                                {
+                                    tripleCount.should.equal(tripleCountsBefore[deletedProjectUris[aProject.handle]]);
+                                }
+
+                                projectUtils.countProjectFilesInGridFS(projectUri, function(err, fileCount)
+                                {
+                                    should.equal(err, null);
+                                    if(aProject.handle === privateProject.handle)
+                                    {
+                                        fileCount.should.equal(0);
+                                    }
+                                    else
+                                    {
+                                        fileCount.should.equal(fileCountsBefore[projectUri]);
+                                    }
+
+                                    callback(err, fileCount);
+                                });
+                            });
+                        }, function(err, results){
+                            done(err);
                         });
                     });
                 });

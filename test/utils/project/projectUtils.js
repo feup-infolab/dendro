@@ -12,6 +12,8 @@ chai.use(chaiHttp);
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const File = require(Pathfinder.absPathInSrcFolder("models/directory_structure/file.js")).File;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const binaryParser = function (res, cb) {
     res.setEncoding("binary");
@@ -661,11 +663,11 @@ const countProjectTriples = function(projectUri, callback)
         "WHERE " +
         "{ \n" +
         "   { \n" +
-        "       [1] nie:hasLogicalPart* ?child . \n" +
+        "       [1] ?p1 ?o1 . \n" +
         "   } \n" +
         "   UNION \n" +
         "   { \n" +
-        "       ?resource nie:isLogicalPartOf* [1] . \n" +
+        "       ?s ?p [1] . \n" +
         "   } \n" +
         "} \n";
 
@@ -685,9 +687,9 @@ const countProjectTriples = function(projectUri, callback)
         {
             if (isNull(err))
             {
-                if(result instanceof Array && result.length > 0)
+                if(result instanceof Array && result.length === 1)
                 {
-                    return callback(null, result[0].resource_count);
+                    return callback(null, parseInt(result[0].resource_count));
                 }
                 else
                 {
@@ -723,41 +725,46 @@ const countProjectFilesInGridFS = function(projectUri, callback, customBucket)
     gfs.connection.db.collection(collectionName, function(err, collection) {
         if(isNull(err))
         {
-            collection.aggregate([
+            collection.count(
                 {
-                    $match: {"metadata.project" : self.uri}
+                    "metadata.project.uri" : projectUri
                 },
-                {
-                    $group:
-                        {
-                            _id : null,
-                            count : {}
-                        }
-                }
-            ],function(err, result){
-                if(isNull(err))
-                {
-                    if(!isNull(result) && result instanceof Array && result.length === 1 && !isNull(result[0].sum))
+                function(err, result){
+                    if(isNull(err))
                     {
-                        return callback(null, result[0].count);
+                        if(!isNull(result) && typeof result === "number")
+                        {
+                            return callback(null, result);
+                        }
+                        else
+                        {
+                            return callback(null, 0);
+                        }
                     }
                     else
                     {
-                        return callback(null, 0);
+                        console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
+                        return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                     }
-                }
-                else
-                {
-                    console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
-                    return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
-                }
-            });
+                });
         }
         else
         {
             console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
             return callback(1, "Error retrieving files collection : " + collection);
         }
+    });
+};
+
+const getProjectUriFromHandle = function(agent, projectHandle, callback)
+{
+    listAllMyProjects(true, agent, function (err, res) {
+        const myProjects = res.body.projects;
+        const project = _.find(myProjects, function(project){
+            return project.ddr.handle === projectHandle;
+        });
+
+        callback(err, (project)? project.uri : null);
     });
 };
 
@@ -791,5 +798,6 @@ module.exports = {
     contentsMatchBackup : contentsMatchBackup,
     metadataMatchesBackup : metadataMatchesBackup,
     countProjectTriples : countProjectTriples,
-    countProjectFilesInGridFS : countProjectFilesInGridFS
+    countProjectFilesInGridFS : countProjectFilesInGridFS,
+    getProjectUriFromHandle : getProjectUriFromHandle
 };

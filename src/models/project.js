@@ -1775,11 +1775,19 @@ Project.prototype.delete = function(callback)
     const deleteProjectTriples = function(callback)
     {
         const deleteQuery =
-            "WITH [0] \n"+
+            "WITH [0] \n" +
             "DELETE \n" +
+            "{\n" +
+            "    ?resource ?p ?o \n" +
+            "} \n" +
             "WHERE \n" +
             "{ \n" +
-            "   ?project nie:hasLogicalPart* ?part \n" +
+            "   SELECT ?resource ?p ?o \n" +
+            "   WHERE \n" +
+            "   { \n" +
+            "    [1] nie:hasLogicalPart* ?resource .\n" +
+            "    ?resource ?p ?o \n" +
+            "   } \n"+
             "} \n";
 
         db.connection.execute(deleteQuery,
@@ -1787,6 +1795,10 @@ Project.prototype.delete = function(callback)
                 {
                     type: DbConnection.resourceNoEscape,
                     value: db.graphUri
+                },
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value: self.uri
                 }
             ],
             function(err, result)
