@@ -41,20 +41,6 @@ function Project(object)
     return self;
 }
 
-Project.prototype.delete = function(callback)
-{
-    const self = this;
-    self.ddr.deleted = true;
-    this.save(callback);
-};
-
-Project.prototype.undelete = function(callback)
-{
-    const self = this;
-    delete self.ddr.deleted;
-    this.save(callback);
-};
-
 Project.prototype.backup = function(callback)
 {
     const self = this;
@@ -1808,7 +1794,7 @@ Project.prototype.delete = function(callback)
         );
     };
 
-    const deleteProjectFiles = function()
+    const deleteProjectFiles = function(callback)
     {
         gfs.connection.deleteByQuery({ "metadata.project.uri" : self.uri}, function(err, result){
             callback(err, result);
@@ -1817,7 +1803,9 @@ Project.prototype.delete = function(callback)
 
     const clearCacheRecords = function(callback)
     {
-        self.clearCacheRecords(callback);
+        self.clearCacheRecords(function(err, result){
+            callback(err, result);
+        });
     };
 
     async.series([

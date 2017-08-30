@@ -1,7 +1,7 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 
-const util = require('util');
+const util = require("util");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
@@ -352,6 +352,7 @@ DbConnection.buildFilterStringForOntologies = function(ontologyURIsArray, filter
 };
 
 DbConnection.prototype.create = function(callback) {
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     const self = this;
     const xmlHttp = new XMLHttpRequest();
 
@@ -441,9 +442,9 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
 
                 const finishQuery = function(cb, startQueryTime, query)
                 {
-                    const msec = new Date().getTime() - startQueryTime.getTime();
                     if(Config.debug.database.log_query_times)
                     {
+                        const msec = new Date().getTime() - startQueryTime.getTime();
                         const fs = require("fs");
                         const path = require("path");
                         const mkdirp = require("mkdirp");

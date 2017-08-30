@@ -5,8 +5,7 @@
         Delete a project
     </h1>
 
-    <form action="" method="DELETE">
-        <
+    <form action="" method="POST">
         <div class="panel panel-danger">
             <div class="panel-heading"><strong>Really delete project?</strong></div>
             <div class="panel-body text-center" >
@@ -25,13 +24,14 @@
                 <h5>
                     Title: <%=(project.dcterms.title)? project.dcterms.title: "No description available"%>
                 </h5>
+
                 <div class="control-group has-feedback">
                     <label for="handle" class="control-label"></label>
+                    <input type="hidden" value="<%=project.ddr.handle%>" name="delete">
                     <input type="text"
                            class="form-control"
                            id="handle"
                            placeholder="Handle"
-                           name="handle"
                            required>
 
                     <p class="help-block danger">To confirm the delete operation, type the handle of the project in this box</p>

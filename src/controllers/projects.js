@@ -1283,62 +1283,6 @@ exports.bagit = function(req,res)
     });
 };
 
-exports.delete = function(req,res)
-{
-    Project.findByUri(req.params.requestedResourceUri, function(err, project){
-        if(isNull(err))
-        {
-            if(!isNull(project))
-            {
-                project.delete(function(err, result){
-                    if(isNull(err))
-                    {
-                        const success_messages = ["Project " + project.ddr.handle + " successfully marked as deleted"];
-
-                        let acceptsHTML = req.accepts("html");
-                        const acceptsJSON = req.accepts("json");
-
-                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                        {
-                            res.json(
-                                {
-                                    result : "ok",
-                                    message : success_messages
-                                }
-                            );
-                        }
-                        else
-                        {
-                            res.redirect('/projects/my');
-                        }
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result: "error",
-                            message : "project " + req.params.requestedResourceUri + " was found but it was impossible to delete because of error : " + result
-                        })
-                    }
-                });
-            }
-            else
-            {
-                res.status(404).json({
-                    result : "error",
-                    message : "Unable to find project with handle : " + req.params.requestedResourceUri
-                });
-            }
-        }
-        else
-        {
-            res.status(500).json({
-                result : "error",
-                message : "Invalid project : " + req.params.requestedResourceUri + " : " + project
-            });
-        }
-    });
-};
-
 exports.recent_changes = function(req, res) {
     const acceptsHTML = req.accepts("html");
     let acceptsJSON = req.accepts("json");
@@ -1813,7 +1757,7 @@ exports.delete = function(req, res) {
                 );
             });
         }
-        else if(req.originalMethod === "DELETE")
+        else if(req.originalMethod === "POST" || req.originalMethod === "DELETE")
         {
             getProject(function(err, project){
                 if(!err)
@@ -1823,23 +1767,13 @@ exports.delete = function(req, res) {
                         project.delete(function(err, result){
                             if(isNull(err))
                             {
-                                res.render('projects/delete',
-                                    {
-                                        title: "Delete a project",
-                                        success_messages : [ "Project " + project.uri + " deleted successfully" ],
-                                        project : project
-                                    }
-                                );
+                                req.flash("success", [ "Project " + project.uri + " deleted successfully" ]);
+                                res.redirect("/projects/my");
                             }
                             else
                             {
-                                res.status(500).render('projects/delete',
-                                    {
-                                        title: "Delete a project",
-                                        error_messages : [ "Error deleting project "+project.uri+" : " + JSON.stringify(result) ],
-                                        project : project
-                                    }
-                                );
+                                req.flash("error", [ "Error deleting project "+project.uri+" : " + JSON.stringify(result) ]);
+                                res.status(500).redirect(req.url);
                             }
                         });
                     }

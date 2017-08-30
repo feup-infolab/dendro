@@ -699,11 +699,12 @@ const loadRoutes = function(app, callback)
                     ],
                     all:
                     [
-                        //uploads
+                         //uploads
                          {
                              queryKeys: ['upload'],
                              handler: files.upload,
-                             permissions: modificationPermissions
+                             permissions: modificationPermissions,
+                             authentication_error: "Permission denied : cannot upload to this project because you do not have permissions to modify it."
                          },
                          //delete projects
                          {
@@ -712,6 +713,7 @@ const loadRoutes = function(app, callback)
                              permissions: administrationPermissions,
                              authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
                          }
+
                     ]
                 };
 

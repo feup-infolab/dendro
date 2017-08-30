@@ -264,7 +264,7 @@ GridFSConnection.prototype.deleteByQuery = function(query, callback, customBucke
             if (cursor.isClosed()) {
                 collection.find(query, { _id : 1 }, function (err, exists)
                 {
-                    if (isNull(err) && !exists)
+                    if (isNull(err) && !exists.toArray().length > 0)
                     {
                         return callback(null, "Files successfully deleted after query " + JSON.stringify(query));
                     }
@@ -279,10 +279,15 @@ GridFSConnection.prototype.deleteByQuery = function(query, callback, customBucke
                 callback(1, "There was a problem deleting files after query " + JSON.stringify(query));
             }
         };
-        cursor.forEach(function(fileRecord){
+
+        cursor.each(function(fileRecord){
             if(!isNull(fileRecord))
             {
                 q.push(fileRecord);
+            }
+            else
+            {
+                return callback(null, "There are no files corresponding to query " + JSON.stringify(query));
             }
         }, function(err) {
             if(!isNull(err))
