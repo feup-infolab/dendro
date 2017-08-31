@@ -1643,61 +1643,92 @@ exports.import = function(req, res) {
     }
     else if (req.originalMethod === "POST")
     {
-        if(!isNull(req.files) && req.files.file instanceof Object)
+        const multiparty = require("multiparty");
+        const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
+
+        form.on('error', function (err)
         {
-            const uploadedFile = req.files.file;
-            const path = require("path");
 
-            const tempFilePath = uploadedFile.path;
 
-            if(path.extname(tempFilePath) === ".zip")
-            {
-                Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
-                    if(isNull(err))
+        });
+
+        form.on('aborted', function ()
+        {
+
+        });
+
+        // Parts are emitted when parsing the form
+        form.on('part', function(part) {
+
+            if (!part.filename) {
+                part.resume();
+            }
+
+            if (part.filename) {
+                if(!isNull(req.files) && req.files.file instanceof Object)
+                {
+                    const uploadedFile = req.files.file;
+                    const path = require("path");
+
+                    const tempFilePath = uploadedFile.path;
+
+                    if(path.extname(tempFilePath) === ".zip")
                     {
-                        //const rebased_structure = JSON.parse(JSON.stringify(structure));
-                        //Project.rebaseAllUris(rebased_structure, Config.baseUri);
-
-                        res.status(200).json(
+                        Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
+                            if(isNull(err))
                             {
-                                "result" : "success",
-                                "contents" : structure,
+                                //const rebased_structure = JSON.parse(JSON.stringify(structure));
+                                //Project.rebaseAllUris(rebased_structure, Config.baseUri);
+
+                                res.status(200).json(
+                                    {
+                                        "result" : "success",
+                                        "contents" : structure,
+                                    }
+                                );
                             }
-                        );
+                            else
+                            {
+                                const msg = "Error restoring zip file to folder : " + result;
+                                console.log(msg);
+
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : msg
+                                    }
+                                );
+                            }
+                        });
                     }
                     else
                     {
-                        const msg = "Error restoring zip file to folder : " + result;
-                        console.log(msg);
-
-                        res.status(500).json(
+                        res.status(400).json(
                             {
                                 "result" : "error",
-                                "message" : msg
+                                "message" : "Backup file is not a .zip file"
                             }
                         );
                     }
-                });
-            }
-            else
-            {
-                res.status(400).json(
-                    {
-                        "result" : "error",
-                        "message" : "Backup file is not a .zip file"
-                    }
-                );
-            }
-        }
-        else
-        {
-            res.status(500).json(
-                {
-                    "result" : "error",
-                    "message" : "invalid request"
                 }
-            );
-        }
+                else
+                {
+                    res.status(500).json(
+                        {
+                            "result" : "error",
+                            "message" : "invalid request"
+                        }
+                    );
+                }
+            }
+
+            part.on('error', function(err) {
+                // decide what to do
+            });
+        });
+
+        // Parse req
+        form.parse(req);
     }
 };
 

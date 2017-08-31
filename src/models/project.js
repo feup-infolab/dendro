@@ -1810,8 +1810,8 @@ Project.prototype.delete = function(callback)
 
     async.series([
         clearCacheRecords,
-        deleteProjectTriples,
-        deleteProjectFiles
+        deleteProjectFiles,
+        deleteProjectTriples
     ], function(err, results){
         callback(err, results);
     });

@@ -17,7 +17,9 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const projectBackupData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/projectBackups/publicProject"));
+const publicProjectBackupData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/projectBackups/publicProject"));
+const privateProjectBackupData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/projectBackups/privateProject"));
+const metadataOnlyProjectBackupData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/projectBackups/metadataOnlyProjectBackupData"));
 
 const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
@@ -74,15 +76,11 @@ describe("Import projects tests", function (done) {
             });
         });
 
-        it("Should give a status code of 200 when the user is logged in and the zip file used to import the project is not corrupted", function (done) {
+        it("Should import a project correctly when the user is logged in and the zip file used to import the project is not corrupted", function (done) {
             done(1);
         });
 
         it("Should give an error with a status code of 500 when the zip file used to import the project is corrupted even thought the user is logged in", function (done) {
-            done(1);
-        });
-
-        it("[HTML] Should give an error if the request type for this route is the HTML type", function (done) {
             done(1);
         });
     });

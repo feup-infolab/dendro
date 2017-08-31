@@ -248,51 +248,67 @@ GridFSConnection.prototype.deleteByQuery = function(query, callback, customBucke
 
     if(!isNull(self.gfs) && !isNull(self.db))
     {
-        const cursor = collection.find(query);
-
-        // create a queue object with concurrency 1
-        const q = async.queue(function(fileRecord, callback) {
-            bucket.delete(fileRecord._id, function (err, result)
+        collection.find(query).count(function(err, count){
+            if(!err)
             {
-                callback(err, result);
-            });
-        }, 1);
-
-        // assign a callback
-        q.drain = function() {
-            //console.log("All files deleted in query " + JSON.stringify(query));
-            if (cursor.isClosed()) {
-                collection.find(query, { _id : 1 }, function (err, exists)
+                if(count > 0)
                 {
-                    if (isNull(err) && !exists.toArray().length > 0)
-                    {
-                        return callback(null, "Files successfully deleted after query " + JSON.stringify(query));
-                    }
-                    else
-                    {
-                        return callback(err, "Error verifying deletion of files after query " + JSON.stringify(query) + ". Error reported " + exists);
-                    }
-                });
-            }
-            else
-            {
-                callback(1, "There was a problem deleting files after query " + JSON.stringify(query));
-            }
-        };
+                    const cursor = collection.find(query);
 
-        cursor.each(function(fileRecord){
-            if(!isNull(fileRecord))
-            {
-                q.push(fileRecord);
+                    // create a queue object with concurrency 1
+                    const q = async.queue(function(fileRecord, callback) {
+                        if(fileRecord != null)
+                        {
+                            bucket.delete(fileRecord._id, function (err, result)
+                            {
+                                callback(err, result);
+                            });
+                        }
+                        else
+                        {
+                            callback(null);
+                        }
+                    }, 1);
+
+                    // assign a callback
+                    q.drain = function() {
+                        //console.log("All files deleted in query " + JSON.stringify(query));
+                        if (cursor.isClosed()) {
+                            collection.find(query).count(function (err, count)
+                            {
+                                if (isNull(err) && count === 0)
+                                {
+                                    return callback(null, "Files successfully deleted after query " + JSON.stringify(query));
+                                }
+                                else
+                                {
+                                    return callback(err, "Error verifying deletion of files after query " + JSON.stringify(query) + ". Error reported " + count);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            callback(1, "There was a problem deleting files after query " + JSON.stringify(query));
+                        }
+                    };
+
+                    cursor.each(function(err, fileRecord){
+                        q.push(fileRecord);
+                    }, function(err) {
+                        if(!isNull(err))
+                        {
+                            return callback(err, "Error deleting files after query " + JSON.stringify(query) + ". Error reported " + err);
+                        }
+                    });
+                }
+                else
+                {
+                    return callback(null, "There are no files corresponding to query " + JSON.stringify(query));
+                }
             }
             else
             {
-                return callback(null, "There are no files corresponding to query " + JSON.stringify(query));
-            }
-        }, function(err) {
-            if(!isNull(err))
-            {
-                return callback(err, "Error deleting files after query " + JSON.stringify(query) + ". Error reported " + err);
+                return callback(1, "Unable to determine the number of files that match query " + JSON.stringify(query));
             }
         });
     }

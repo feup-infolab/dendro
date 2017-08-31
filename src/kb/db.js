@@ -455,7 +455,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                         {
                             mkdirp.sync(logParentFolder);
                             fs.openSync(queryProfileLogFilePath, 'w'); //truncate / create blank file
-                            fs.appendFileSync(queryProfileLogFilePath, "query" + profiling_logfile_separator + "time_msecs");
+                            fs.appendFileSync(queryProfileLogFilePath, "query" + profiling_logfile_separator + "time_msecs\n");
                             self.created_profiling_logfile = true;
                         }
 
