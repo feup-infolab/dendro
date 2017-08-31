@@ -67,7 +67,7 @@ Registry.getDeposits = function(req, res){
         "FROM [0] \n"  +
         "WHERE { \n" +
         "?uri rdf:type ddr:Registry . \n" +
-        "?uri dddr:exportedFromProject ?projused . \n" +
+        "?uri ddr:exportedFromProject ?projused . \n" +
         "?projused ddr:privacyStatus [1] . \n" +
         "}";
 
