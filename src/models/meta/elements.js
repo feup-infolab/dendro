@@ -1103,7 +1103,12 @@ Elements.ddr = {
         control : Controls.input_box,
         locked : true,
         api_readable : true
-    }
+    },
+    exportedFromProject :
+        {
+            type : DbConnection.resourceNoEscape,
+            control : Controls.combo_box
+        }
 };
 
 /**

@@ -873,11 +873,14 @@ exports.new = function(req, res) {
                                         title: "new project",
                                         description: "ckan",
                                         creator: "demouser2",
-                                        date: "today"
+                                        date: "today",
+                                    },
+                                    ddr: {
+                                        exportedFromProject: result.uri
                                     }
                                 };
                                 Registry.createDepositRegistry(registryData, function(err, result){
-
+                                    console.log(result);
                                 });
                             }
                             else

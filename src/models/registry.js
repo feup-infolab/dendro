@@ -29,10 +29,12 @@ const async = require("async");
 const _ = require("underscore");
 
 function Registry(object){
-    Registry.baseConstructor.call(this, object);
-    const self = this;
 
-    self.rdf.type = "ddr:Registry";
+    const self = this;
+    self.addURIAndRDFType(object, "registry", Registry);
+    Registry.baseConstructor.call(this, object);
+
+    self.copyOrInitDescriptors(object);
 
     const now = new Date();
     self.dcterms.created = now.toDateString();
@@ -64,9 +66,9 @@ Registry.getDeposits = function(req, res){
         "SELECT * \n" +
         "FROM [0] \n"  +
         "WHERE { \n" +
-        "?uri rdf:type ddr:Registry. " +
-        "?uri dcterms:uri ?projUsed \n" +
-        "?projUsed ddr:privacyStatus [1] " +
+        "?uri rdf:type ddr:Registry . \n" +
+        "?uri dddr:exportedFromProject ?projused . \n" +
+        "?projused ddr:privacyStatus [1] . \n" +
         "}";
 
     db.connection.execute(query,
@@ -75,13 +77,14 @@ Registry.getDeposits = function(req, res){
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : DbConnection.string,
                 value : "public"
             }
         ], function (err, regs){
-            res.json({regs});
 
-            //Project.findByUri()
+            res.json(regs)
+
+
         });
 };
 
@@ -106,8 +109,18 @@ Registry.getPublicRegistry = function(req, callback){
 
 };
 
-Registry.prefixedRDFType = "ddr:Registry";
+Registry.createAndInsertFromObject = function(object, callback){
+    const self = Object.create(this.prototype);
+    self.constructor(object);
+    self.save(function(err, newRegistry){
+        if(isNull(err)){
 
-Registry = Class.extend(Registry, Resource);
+        }else{
 
-module.exports = Registry;
+        }
+    })
+};
+
+Registry = Class.extend(Registry, Resource, "ddr:Registry");
+
+module.exports.Registry = Registry;
