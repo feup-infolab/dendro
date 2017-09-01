@@ -43,6 +43,14 @@ angular.module('dendroApp.controllers')
                 $scope.is_sending_data = false;
                 //$scope.show_popup("info", "Deleted in dendro", JSON.stringify(data.dendroDiffs[0]));
                 //$scope.show_popup("info", "Created in dendro", JSON.stringify(data.dendroDiffs[1]));
+                if(data.message === "Package was not previously exported")
+                {
+                    $scope.firstTimeExporting = true;
+                }
+                else
+                {
+                    $scope.firstTimeExporting = false;
+                }
                 $scope.deleteInCkanDeletedDendroFiles = data.dendroDiffs;
                 $scope.deleteCkanChanges = data.ckanDiffs;
                 $scope.show_popup("info", "Ckan diffs", JSON.stringify(data));

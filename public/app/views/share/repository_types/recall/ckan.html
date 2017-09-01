@@ -37,7 +37,7 @@
             <button type="cancel" class="btn btn-success pull-right" disabled="disabled"> <img src="/images/loading.gif">Sending</button>
         </div>
 
-        <div class="col-lg-2">
+        <div class="col-lg-2" ng-show="firstTimeExporting ===false">
             <div class="checkbox">
                 <label><input type="checkbox" ng-model="overwrite"><span class="label label-warning"><span class="glyphicon glyphicon-warning-sign"></span>Overwrite if exists</span></label>
             </div>
