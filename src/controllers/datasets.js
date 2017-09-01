@@ -834,7 +834,373 @@ export_to_repository_ckan = function (req, res) {
         if (!isNull(req.body.repository) && !isNull(req.body.repository.ddr)) {
             const organization = req.body.repository.ddr.hasOrganization;
 
-            Folder.findByUri(requestedResourceUri, function (err, folder) {
+            async.waterfall([
+                function (callback) {
+                    Folder.findByUri(requestedResourceUri, function (err, folder) {
+                        if(!isNull(err))
+                        {
+                            let errorInfo = {
+                                msg : "Error fetching " + requestedResourceUri + " from the Dendro platform. Error reported : " + folder,
+                                statusCode : 500
+                            };
+                            console.error(JSON.stringify(errorInfo));
+                            callback(err, folder, errorInfo);
+                        }
+                        else if(isNull(folder))
+                        {
+                            let errorInfo = {
+                                msg : requestedResourceUri + " does not exist in Dendro or is not a folder. You cannot export an entire project to an external repository.",
+                                statusCode: 400
+                            };
+                            console.error(JSON.stringify(errorInfo));
+                            callback(true, folder, errorInfo);
+                            /*res.status(400).json(
+                                {
+                                    "result": "error",
+                                    "message": msg
+                                }
+                            );*/
+                        }
+                        else
+                        {
+                            //A folder existe, verificar os descritores
+                            if (isNull(folder.dcterms.title)) {
+                                /*const msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
+                                console.error(msg);
+                                res.status(400).json(
+                                    {
+                                        "result": "error",
+                                        "message": msg
+                                    }
+                                );*/
+
+                                let errorInfo = {
+                                    msg: "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.",
+                                    statusCode : 400
+                                };
+
+                                console.error(JSON.stringify(errorInfo));
+                                callback(true, folder, errorInfo);
+                            }
+                            else if (isNull(folder.dcterms.description)) {
+                                /*const msg = "Folder " + folder.uri + " has no description! Please set the Description property (from the dcterms metadata schema) and try the exporting process again.";
+                                console.error(msg);
+                                res.status(400).json(
+                                    {
+                                        "result": "error",
+                                        "message": msg
+                                    }
+                                );*/
+
+                                let errorInfo = {
+                                    msg: "Folder " + folder.uri + " has no description! Please set the Description property (from the dcterms metadata schema) and try the exporting process again.",
+                                    statusCode : 400
+                                };
+
+                                console.error(JSON.stringify(errorInfo));
+                                callback(true, folder, errorInfo);
+                            }
+                            else if (isNull(targetRepository.ddr.hasExternalUri)) {
+                                /*const msg = "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute";
+                                console.error(msg);
+                                res.status(500).json(
+                                    {
+                                        "result": "error",
+                                        "message": msg
+                                    }
+                                );*/
+
+                                let errorInfo = {
+                                    msg: "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute",
+                                    statusCode : 500
+                                };
+
+                                console.error(JSON.stringify(errorInfo));
+                                callback(true, folder, errorInfo);
+                            }
+                            else
+                            {
+                                //construir o extrasJSONArray
+                                const jsonDescriptors = folder.getDescriptors([Config.types.private, Config.types.locked]);
+
+                                const extrasJSONArray = [];
+
+                                jsonDescriptors.forEach(function (column) {
+                                    const extraJson = {};
+                                    extraJson["key"] = column.uri;
+                                    extraJson["value"] = column.value;
+                                    extrasJSONArray.push(extraJson);
+                                });
+
+                                callback(null, folder, extrasJSONArray);
+                            }
+                        }
+                    });
+                },
+                function (folder, extrasJSONArray, callback) {
+                    //construir o client e fazer o resto das funções
+                    const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
+                    //organization show e depois package show
+
+                    /**Check if organization exists**/
+                    client.action("organization_show",
+                        {
+                            id: targetRepository.ddr.hasOrganization
+                        },
+                        function (err, info) {
+                            if (isNull(err)) {
+                                const slug = require('slug');
+                                //var slugifiedTitle = slug(folder.dcterms.title, "-");
+                                let packageId = slug(folder.uri, "-");
+
+                                //ckan only accepts alphanumeric characters and dashes for the dataset ids
+                                //slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
+                                packageId = packageId.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+
+                                folder.createTempFolderWithContents(true, true, true, function (err, parentFolderPath, absolutePathOfFinishedFolder, datasetFolderMetadata) {
+                                    if (isNull(err)) {
+                                        createPackage(parentFolderPath, folder, function (err, files, extraFiles) {
+                                            if (isNull(err)) {
+                                                const packageContents = [
+                                                    {
+                                                        name: packageId,
+                                                        package_id: packageId,
+                                                        title: folder.dcterms.title,
+                                                        description: folder.dcterms.description,
+                                                        extras: extrasJSONArray,
+                                                        owner_org: organization
+                                                    }
+                                                ];
+
+                                                client.action("package_show",
+                                                    {
+                                                        id: packageId
+                                                    },
+                                                    function (err, result) {
+                                                        //dataset was found, do we want to update or not?
+                                                        //TODO callback here
+                                                        //callback(err, result, parentFolderPath, packageId, extraFiles, datasetFolderMetadata, client, packageContents);
+                                                        //tem de ser com error a false caso contrário entra logo no último callback
+                                                        callback(null, result, parentFolderPath, packageId, extraFiles, datasetFolderMetadata, client, packageContents);
+                                                    }
+                                                );
+                                            }
+                                            else {
+                                                /*const msg = "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.";
+                                                console.error(msg);
+                                                res.status(500).json(
+                                                    {
+                                                        "result": "error",
+                                                        "message": msg
+                                                    }
+                                                );*/
+
+                                                let errorInfo = {
+                                                    msg: "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.",
+                                                    statusCode : 500
+                                                };
+
+                                                console.error(JSON.stringify(errorInfo));
+                                                callback(true, folder, errorInfo);
+                                            }
+                                        }, datasetFolderMetadata);
+                                    }
+                                    else {
+                                        /*const msg = "Error creating temporary folder for export folder " + folder.nie.title + " from the Dendro platform.";
+                                        console.error(msg);
+                                        res.status(500).json(
+                                            {
+                                                "result": "error",
+                                                "message": msg
+                                            }
+                                        );*/
+
+                                        let errorInfo = {
+                                            msg: "Error creating temporary folder for export folder " + folder.nie.title + " from the Dendro platform.",
+                                            statusCode : 500
+                                        };
+                                        console.error(JSON.stringify(errorInfo));
+                                        callback(true, folder, errorInfo);
+                                    }
+
+                                });
+                            }
+                            else {
+                                let msg = "Unable to check if organization " + targetRepository.ddr.hasOrganization + "  exists.";
+
+                                if (!isNull(info) && !isNull(info.error) && (typeof info.error.message === "string")) {
+                                    msg += " Error returned : " + info.error.message;
+                                }
+
+                                /*console.error(msg);
+                                res.status(401).json(
+                                    {
+                                        "result": "error",
+                                        "message": msg
+                                    }
+                                );*/
+
+                                let errorInfo = {
+                                    msg: msg,
+                                    statusCode : 401
+                                };
+                                console.error(JSON.stringify(errorInfo));
+                                callback(true, folder, errorInfo);
+                            }
+                        });
+
+                },
+                function (result, parentFolderPath, packageId, extraFiles, datasetFolderMetadata, client, packageContents, callback) {
+                    //parentFolderPath, packageId, extraFiles, datasetFolderMetadata, client, packageContents
+                    //dataset was found, do we want to update or not?
+                    if (result.success) {
+                        if (!overwrite) //package was found and we are not overwriting
+                        {
+                            deleteFolderRecursive(parentFolderPath);
+
+                            const datasetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
+                            const msg = "This dataset was already exported to this CKAN instance and is available at: <a href=\"" + datasetLocationOnCkan + "\">" + datasetLocationOnCkan + "</a> <br/><br/> Activate the Overwrite option to force an update.";
+                            /*res.status(500).json(
+                                {
+                                    "result": "error",
+                                    "message": msg
+                                }
+                            );*/
+
+                            let errorInfo = {
+                                msg: msg,
+                                statusCode : 500
+                            };
+                            console.error(JSON.stringify(errorInfo));
+                            callback(true, packageId, errorInfo);
+                        }
+                        else //package was found BUT we are OVERWRITING
+                        {
+                            Utils.copyFromObjectToObject(packageContents[0], result.result);
+                            updatePackageInCkan(parentFolderPath, extraFiles, result, datasetFolderMetadata, packageId, client, function (err, result, finalMsg) {
+                                if (isNull(err)) {
+                                    /*res.json(
+                                        {
+                                            "result": "OK",
+                                            "message": finalMsg
+                                        }
+                                    );*/
+
+                                    let resultInfo = {
+                                        "result": "OK",
+                                        "message" : finalMsg
+                                    };
+                                    callback(null, packageId, resultInfo);
+                                }
+                                else {
+                                    /*const msg = "Error exporting package to CKAN.";
+                                    res.json(
+                                        {
+                                            "result": "error",
+                                            "message": msg
+                                        }
+                                    );*/
+
+                                    const msg = "Error exporting package to CKAN: " + JSON.stringify(err);
+                                    let errorInfo = {
+                                        msg: msg,
+                                        statusCode : 500
+                                    };
+                                    console.error(JSON.stringify(errorInfo));
+                                    callback(true, packageId, errorInfo);
+                                }
+                            });
+                        }
+                    }
+                    //dataset not found
+                    else if (!result.success && result.error.__type === "Not Found Error") {
+
+                        createPackageInCkan(parentFolderPath, extraFiles, packageContents[0], datasetFolderMetadata, packageId, client, function (err, finalMsg) {
+                            if (isNull(err)) {
+                                /*res.json(
+                                    {
+                                        "result": "OK",
+                                        "message": finalMsg
+                                    }
+                                );*/
+                                let resultInfo = {
+                                    "result": "OK",
+                                    "message" : finalMsg
+                                };
+                                callback(null, packageId, resultInfo);
+                            }
+                            else {
+                                /*res.json(
+                                    {
+                                        "result": "Error",
+                                        "message": finalMsg
+                                    }
+                                );*/
+                                const msg = "Error: " + JSON.stringify(err);
+                                let errorInfo = {
+                                    msg: msg,
+                                    statusCode : 500
+                                };
+                                console.error(JSON.stringify(errorInfo));
+                                callback(true, packageId, errorInfo);
+                            }
+                        });
+                    }
+                    //dataset not found and error occurred
+                    else if (!result.success && result.error.__type !== "Not Found Error") {
+                        deleteFolderRecursive(parentFolderPath);
+                        const msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " + result;
+                        console.error(msg);
+
+                        /*res.status(500).json(
+                            {
+                                "result": "error",
+                                "message": msg
+                            }
+                        );*/
+                        let errorInfo = {
+                            msg: msg,
+                            statusCode : 500
+                        };
+                        console.error(JSON.stringify(errorInfo));
+                        callback(true, folder, errorInfo);
+                    }
+                    else {
+                        const msg = "Unable to parse response from CKAN repository.";
+                        let errorInfo = {
+                            msg: msg,
+                            statusCode : 401
+                        };
+                        console.error(JSON.stringify(errorInfo));
+                        callback(true, folder, errorInfo);
+
+                        /*res.status(401).json(
+                            {
+                                "result": "error",
+                                "message": "Unable to parse response from CKAN repository."
+                            }
+                        );*/
+                    }
+                }
+            ], function (err, result, resultInfo) {
+                if(!isNull(err))
+                {
+                    res.status(resultInfo.statusCode).json({
+                     "result": "error",
+                     "message": resultInfo.msg
+                    });
+                }
+                else
+                {
+                    res.json({
+                     "result": resultInfo.result,
+                     "message": resultInfo.message
+                    });
+                }
+            });
+
+            //TODO tudo o que está daqui para baixo da deste endpoint vai ser passado para async.waterfall
+            /*Folder.findByUri(requestedResourceUri, function (err, folder) {
                 if (isNull(err)) {
                     if (!isNull(folder)) {
                         if (isNull(folder.dcterms.title)) {
@@ -882,7 +1248,7 @@ export_to_repository_ckan = function (req, res) {
                             else {
                                 const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
 
-                                /**Check if organization exists**/
+                                /!**Check if organization exists**!/
                                 client.action("organization_show",
                                     {
                                         id: targetRepository.ddr.hasOrganization
@@ -1067,7 +1433,7 @@ export_to_repository_ckan = function (req, res) {
                         }
                     );
                 }
-            });
+            });*/
         }
         else {
             const msg = "Request body must contain the organization to which the user wants to submit the datataset in the field \"repository.ddr.hasOrganization\"";
