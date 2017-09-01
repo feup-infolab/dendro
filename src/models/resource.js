@@ -1849,12 +1849,25 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
             ]
         };
 
-        let valueRestriction = {};
+        const getValueRestriction = function(descriptor)
+        {
+            let valueRestriction = {};
+            valueRestriction[descriptor.prefix] = {};
+            valueRestriction[descriptor.prefix][descriptor.shortName] = descriptor.value;
+            return valueRestriction;
+        };
 
-        valueRestriction[descriptor.prefix] = {};
-        valueRestriction[descriptor.prefix][descriptor.shortName] = descriptor.value;
-
-        queryObject["$and"].push(valueRestriction);
+        if(!isNull(descriptor) && descriptor instanceof Array)
+        {
+            for(let i = 0; i < descriptor.length; i++)
+            {
+                queryObject["$and"].push(getValueRestriction(descriptor[i]));
+            }
+        }
+        else
+        {
+            queryObject["$and"].push(getValueRestriction(descriptor));
+        }
 
         Cache.getByGraphUri(customGraphUri).getByQuery(
             queryObject,
@@ -1913,7 +1926,12 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
             const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
             let typesRestrictions = "";
+
+            let descriptorValueRestrictions = "";
+            let descriptorValueArguments = [];
+
             let types;
+            let argumentsOffset = 1;
 
             if(self.prefixedRDFType instanceof Array)
             {
@@ -1926,12 +1944,40 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
 
             for (let i = 0; i < types.length; i++)
             {
-                typesRestrictions = typesRestrictions + "?uri rdf:type " + types[i];
+                typesRestrictions = typesRestrictions + "       ?uri rdf:type " + types[i];
 
                 if(i < types.length - 1)
                 {
                     typesRestrictions =  typesRestrictions + ".\n";
                 }
+            }
+
+            if(!isNull(descriptor) && descriptor instanceof Array)
+            {
+                for(let i = 0; i < descriptor.length; i++)
+                {
+                    descriptorValueRestrictions += "       ?uri ["+( argumentsOffset) +"] ["+( argumentsOffset + 1)+ "]. \n";
+                    descriptorValueArguments.push({
+                        type : descriptor[i].type,
+                        value : descriptor[i].value
+                    });
+                }
+
+                argumentsOffset += 2;
+            }
+            else
+            {
+                descriptorValueRestrictions = "       ?uri [1] [2]. \n";
+
+                descriptorValueArguments.push({
+                    type : DbConnection.prefixedResource,
+                    value : descriptor.getPrefixedForm()
+                });
+
+                descriptorValueArguments.push({
+                    type : descriptor.type,
+                    value : descriptor.value
+                });
             }
 
             db.connection.execute(
@@ -1940,8 +1986,8 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                 "WHERE \n" +
                 "{ \n" +
                 "   {\n" +
-                "       ?uri [1] [2]. \n" +
-                typesRestrictions +
+                        descriptorValueRestrictions +
+                        typesRestrictions +
                 "   }\n" +
                 "} \n",
 
@@ -1950,15 +1996,7 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                         type : DbConnection.resourceNoEscape,
                         value : graphUri
                     },
-                    {
-                        type : DbConnection.prefixedResource,
-                        value : descriptor.getPrefixedForm()
-                    },
-                    {
-                        type : descriptor.type,
-                        value : descriptor.value
-                    }
-                ],
+                ].concat(descriptorValueArguments),
                 function(err, result) {
                     if(isNull(err))
                     {
@@ -2019,7 +2057,16 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                 }
             }
             else {
-                const msg = "Error " + result + " while trying to check existence of resource with value " + descriptor.value + " of property " + descriptor.getPrefixedForm() + " from triple store.";
+                let msg;
+                if(!(descriptor instanceof Array))
+                {
+                    msg = "Error " + result + " while trying to check existence of resource with value " + descriptor.value + " of property " + descriptor.getPrefixedForm() + " from triple store.";
+                }
+                else
+                {
+                    msg = "Error " + result + " while trying to check existence of resources with values " + JSON.stringify(descriptor) + " from triple store.";
+                }
+
                 console.error(msg);
                 return callback(1, msg);
             }

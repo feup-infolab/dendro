@@ -15,7 +15,8 @@ const projectData = {
     coverage: 'Porto',
     handle: metadataProjectHandle,
     privacy: 'metadata_only',
-    uri: "http://" + Config.host + "/" + metadataProjectHandle
+    uri: "http://" + Config.host + "/" + metadataProjectHandle,
+    backup_path: Pathfinder.absPathInTestsFolder("/mockdata/projects/projectBackups/metadataonlyprojectcreatedbydemouser1.zip")
 };
 
 

@@ -16,13 +16,11 @@ const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folder
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
-const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
-const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
-const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
-const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
+const projectsData = createProjectsUnit.projectsData;
+const foldersData = createFoldersUnit.foldersData;
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
@@ -52,8 +50,6 @@ const end = function()
 module.exports.setup = function(finish)
 {
     start();
-    const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
-    let createProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
     createProjectsUnit.setup(function (err, results) {
         if(err)

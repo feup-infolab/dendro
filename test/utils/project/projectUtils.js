@@ -331,7 +331,6 @@ const getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
 };
 
 const importProjectHTMLPage = function (jsonOnly, agent, cb) {
-    // /projects/import
     const path = "/projects/import";
     if (jsonOnly) {
         agent
@@ -345,7 +344,6 @@ const importProjectHTMLPage = function (jsonOnly, agent, cb) {
     else {
         agent
             .get(path)
-            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

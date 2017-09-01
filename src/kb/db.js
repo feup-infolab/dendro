@@ -10,7 +10,7 @@ let queue = require("queue");
 
 let profiling_logfile;
 let boot_start_timestamp = new Date().toISOString();
-const profiling_logfile_separator = "###!!!!###";
+const profiling_logfile_separator = "@";
 
 function DbConnection (host, port, username, password, maxSimultaneousConnections) {
     let self = this;

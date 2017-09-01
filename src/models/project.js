@@ -67,7 +67,7 @@ Project.prototype.backup = function(callback)
                             contactName: (self.schema.provider)? self.schema.provider : "No contact name specified",
                             contactPhone: (self.schema.telephone)? self.schema.telephone : "No contact phone specified",
                             contactEmail: (self.schema.email)? self.schema.email : "No contact email specified",
-                            externalDescription: (self.dcterms.description)? self.dcterms.description : "No project description specified"
+                            externalDescription: (self.dcterms.description)? self.dcterms.description : "No project description specified",
                         };
 
                         folder.bagit(
@@ -1522,7 +1522,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
     });
 };
 
-Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSize, callback)
+ Project.unzipAndValidateBagItBackupStructure = function(absPathToZipFile, maxStorageSize, callback)
 {
     const path = require("path");
 
@@ -1541,9 +1541,7 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
                             {
                                 if(valid)
                                 {
-                                    const metadataFileAbsPath = path.join(pathToFolderToRestore, Config.packageMetadataFileName);
-                                    const metadata = require(metadataFileAbsPath);
-                                    return callback(null, true, metadata);
+                                    return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
                                 }
                                 else
                                 {
@@ -1583,111 +1581,93 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
             return callback(err, msg);
         }
     });
-
-
 };
 
-Project.restoreFromFolder = function(absPathOfRootFolder,
+Project.prototype.restoreFromFolder = function(absPathOfRootFolder,
                                      entityLoadingTheMetadata,
                                      attemptToRestoreMetadata,
                                      replaceExistingFolder,
-                                     callback,
-                                     runningOnRoot
-                            )
+                                     callback)
 {
     const self = this;
     const path = require("path");
+    let entityLoadingTheMetadataUri;
 
     if(!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
     {
-        let entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
+        entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
     }
     else
     {
-        let entityLoadingTheMetadataUri = User.anonymous.uri;
+        entityLoadingTheMetadataUri = User.anonymous.uri;
     }
 
-    self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function(err, result){
-        if(isNull(err))
+    const metadataFileAbsPath = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
+    const metadata = require(metadataFileAbsPath);
+
+    self.getRootFolder(function (err, rootFolder)
+    {
+        if (isNull(err))
         {
-            if(runningOnRoot)
+            rootFolder.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function (err, result)
             {
-                /**
-                 * Restore metadata values from metadata.json file
-                 */
-                const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-                const fs = require("fs");
+                if (isNull(err))
+                {
+                    /**
+                     * Restore metadata values from metadata.json file
+                     */
+                    const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
+                    const fs = require("fs");
 
-                fs.exists(metadataFileLocation, function (existsMetadataFile) {
-                    if(attemptToRestoreMetadata && existsMetadataFile)
+                    fs.exists(metadataFileLocation, function (existsMetadataFile)
                     {
-                        fs.readFile(metadataFileLocation, 'utf8', function (err, data) {
-                            if (err) {
-                                console.log('Error: ' + err);
-                                return;
-                            }
-
-                            const node = JSON.parse(data);
-
-                            self.loadMetadata(node, function(err, result){
-                                if(isNull(err))
+                        if (attemptToRestoreMetadata && existsMetadataFile)
+                        {
+                            fs.readFile(metadataFileLocation, 'utf8', function (err, data)
+                            {
+                                if (err)
                                 {
-                                    return callback(null, "Data and metadata restored successfully. Result : " + result);
+                                    console.log('Error: ' + err);
+                                    return;
                                 }
-                                else
+
+                                const node = JSON.parse(data);
+
+                                rootFolder.loadMetadata(node, function (err, result)
                                 {
-                                    return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
-                                }
-                            }, entityLoadingTheMetadataUri, [Config.types.locked],[Config.types.restorable])
-                        });
-                    }
-                    else
-                    {
-                        return callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
-                    }
-                });
-            }
-            else
-            {
-                return callback(null, result);
-            }
+                                    if (isNull(err))
+                                    {
+                                        return callback(null, "Data and metadata restored successfully. Result : " + result);
+                                    }
+                                    else
+                                    {
+                                        return callback(1, "Error restoring metadata for project " + self.uri + " : " + result);
+                                    }
+                                }, entityLoadingTheMetadataUri, [Config.types.locked], [Config.types.restorable])
+                            });
+                        }
+                        else
+                        {
+                            return callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
+                        }
+                    });
+                }
+                else
+                {
+                    return callback(err, result);
+                }
+            });
         }
         else
         {
-            return callback(err, result);
+            callback(err, rootFolder);
         }
-    }, runningOnRoot);
+    });
 };
 
-Project.rebaseAllUris = function(structure, newBaseUri)
+Project.restoreFromBackupFolder = function(absPathOfUnzippedBagItBackupFolder, callback)
 {
-    const modifyNode = function (node) {
-        node.resource = Utils.replaceBaseUri(node.resource, newBaseUri);
-
-        for (let i = 0; i < node.metadata.length; i++) {
-            let value = node.metadata[i].value;
-
-            if (value instanceof Array) {
-                for (let j = 0; j < value.length; j++) {
-                    if (Utils.valid_url(value[j])) {
-                        value[j] = Utils.replaceBaseUri(value[j], newBaseUri);
-                    }
-                }
-            }
-            else if (typeof value === "string" && Utils.valid_url(value)) {
-                value = Utils.replaceBaseUri(value, newBaseUri);
-            }
-        }
-
-        if (!isNull(node.children) && node.children instanceof Array) {
-            for (let i = 0; i < node.children.length; i++) {
-                const child = node.children[i];
-                modifyNode(child);
-            }
-        }
-    };
-
-    modifyNode(structure);
+    callback(null);
 };
 
 Project.prototype.clearCacheRecords = function(callback, customGraphUri)

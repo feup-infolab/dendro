@@ -15,6 +15,9 @@ global.Config = Config;
 
 global.tests = {};
 
+require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
+return;
+
 //administer projects
 //require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
 

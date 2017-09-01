@@ -616,7 +616,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
         const createFile = function (fileName, cb) {
             File.findByParentAndName(self.uri, fileName, function (err, childFile) {
                 if (isNull(childFile)) {
-                    var childFile = new File({
+                    const childFile = new File({
                         nie: {
                             isLogicalPartOf: self.uri,
                             title: fileName
@@ -626,7 +626,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
                     childFile.save(cb);
                 }
                 else {
-                    var childFile = new File(childFile);
+                    const childFile = new File(childFile);
 
                     if (childFile.nie.isLogicalPartOf instanceof Array) {
                         childFile.nie.isLogicalPartOf.push(self.uri)
@@ -714,152 +714,230 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
     });
 };
 
-Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes)
+Folder.prototype.loadMetadata = function(
+    node,
+    callback,
+    entityLoadingTheMetadata,
+    excludedDescriptorTypes,
+    exceptionedDescriptorTypes
+)
 {
     const self = this;
     console.log("Restoring " + node.resource + " into "+ self.uri);
-    if(!isNull(node))
+
+    const getDescriptor = function(prefixedForm, node)
     {
-        if(node.resource === self.uri)
-        {
-            const metadata = node.metadata;
-            if(!isNull(metadata) && metadata instanceof Array)
-            {
-                var descriptors = [];
-                for(let i = 0; i < metadata.length; i++)
-                {
-                    descriptors.push(
-                        new Descriptor(
-                            metadata[i]
-                        )
-                    );
-                }
+        const titleObject = _.find(node.metadata, function(descriptor){
+            return descriptor.prefixedForm === prefixedForm;
+        });
+
+        const descriptor = new Descriptor(titleObject);
+
+        return descriptor;
+    };
+
+    const loadMetadataIntoThisFolder = function(node, callback)
+    {
+        const metadata = node.metadata;
+
+        const folderCallback = function(folder, err, result, callback) {
+            if (isNull(err)) {
+                return callback(null, "Folder " + folder.uri + " successfully restored. ");
             }
+            else {
+                return callback(err, "Error restoring folder " + folder.uri + " : " + result);
+            }
+        };
+        const fileCallback = function (file, err, result, callback) {
+            if (isNull(err)) {
+                return callback(null, "File " + file.uri + " successfully restored .");
+            }
+            else {
+                return callback(err, "Error restoring file " + file.uri + " : " + result);
+            }
+        };
 
-            Descriptor.mergeDescriptors(descriptors, function(err, oldDescriptors)
+        const loadMetadataForChildFolder = function (childNode, callback) {
+            if (!isNull(childNode.children) && childNode.children instanceof Array)
             {
-                if(!isNull(node.children) && node.children instanceof Array)
-                {
-                    Folder.findByUri(node.resource, function(err, currentFolder){
-                        if(!isNull(currentFolder))
-                        {
-                            /**
-                             * Function to carry on metadata loading for children
-                             * @param childNode
-                             * @param callback
-                             */
-                            const loadMetadataForChildFolder = function (childNode, callback) {
-                                if (!isNull(childNode.children) && childNode.children instanceof Array) {
-                                    Folder.findByUri(childNode.resource, function (err, folder) {
-                                        if (isNull(err) && !isNull(folder)) {
-                                            folder.loadMetadata(
-                                                childNode,
-                                                function (err, result) {
-                                                    if (isNull(err)) {
-                                                        return callback(null, "Folder " + folder.uri + " successfully restored. ");
-                                                    }
-                                                    else {
-                                                        return callback(err, "Error restoring folder " + folder.uri + " : " + result);
-                                                    }
-                                                },
-                                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
-                                            );
-                                        }
-                                        else {
-                                            return callback(null, "Folder " + childNode.resource + " does not exist or there was an error retrieving it. Error " + folder);
-                                        }
-                                    });
-                                }
-                                else {
-                                    File.findByUri(childNode.resource, function (err, file) {
-                                        if (isNull(err) && !isNull(file)) {
-                                            file.loadMetadata(
-                                                childNode,
-                                                function (err, result) {
-                                                    if (isNull(err)) {
-                                                        return callback(null, "File " + file.uri + " successfully restored. ");
-                                                    }
-                                                    else {
-                                                        return callback(err, "Error restoring file " + file.uri + " : " + result);
-                                                    }
-                                                },
-                                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
-                                            );
-                                        }
-                                        else {
-                                            return callback(null, "File " + childNode.resource + " does not exist or there was an error retrieving it. Error " + file);
-                                        }
-                                    });
-                                }
-                            };
-
-                            async.map(node.children, loadMetadataForChildFolder, function(err, results){
-                                if(isNull(err))
-                                {
-                                    currentFolder.replaceDescriptors(oldDescriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
-                                    currentFolder.save(function(err, result){
-                                        if(isNull(err))
-                                        {
-                                            return callback(null, result)
-                                        }
-                                        else
-                                        {
-                                            return callback(err, result);
-                                        }
-                                    }, true, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
-                                }
-                                else
-                                {
-                                    return callback(err, results);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            return callback(null, "Folder " + currentFolder.uri +" does not exist ");
-                        }
-                    });
-                }
-                else
-                {
-                    File.findByUri(node.resource, function(err, currentFile)
+                Folder.findByUri(childNode.resource, function (err, folder) {
+                    if (isNull(err) && !isNull(folder)) {
+                        folder.loadMetadata(
+                            childNode,
+                            function (err, result) {
+                                folderCallback(folder, err, result, callback);
+                            },
+                            entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                        );
+                    }
+                    else
                     {
-                        if(isNull(err))
-                        {
-                            if(!isNull(currentFile))
+                        Folder.findByPropertyValue([getDescriptor("nie:isLogicalPartOf", childNode), getDescriptor("nie:title", childNode)], function(err, folder){
+                            if(isNull(err) && !isNull(folder))
                             {
-                                currentFile.loadMetadata(
-                                    node,
-                                    function(err, result){
-                                        if(isNull(err))
-                                        {
-                                            return callback(null, "File " + currentFile.uri +" successfully restored. ");
-                                        }
-                                        else
-                                        {
-                                            return callback(err, "Error restoring file " + currentFile.uri + " : " + result);
-                                        }
+                                folder.loadMetadata(
+                                    childNode,
+                                    function (err, result) {
+                                        folderCallback(folder, err, result, callback);
                                     },
                                     entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
                                 );
                             }
+                        });
+
+                    }
+                });
+            }
+            else
+            {
+                File.findByUri(childNode.resource, function (err, file) {
+                    if (isNull(err) && !isNull(file))
+                    {
+                        file.loadMetadata(
+                            childNode,
+                            function (err, result) {
+                                fileCallback(file, err, result, callback);
+                            },
+                            entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                        );
+                    }
+                    else
+                    {
+                        File.findByPropertyValue([getDescriptor("nie:isLogicalPartOf", childNode), getDescriptor("nie:title", childNode)], function(err, file)
+                        {
+                            file.loadMetadata(
+                                childNode,
+                                function (err, result) {
+                                    folderCallback(folder, err, result, callback);
+                                },
+                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                            );
+                        });
+                    }
+                });
+            }
+        };
+
+        const descriptors = [];
+        if(!isNull(metadata) && metadata instanceof Array)
+        {
+            for(let i = 0; i < metadata.length; i++)
+            {
+                descriptors.push(
+                    new Descriptor(
+                        metadata[i]
+                    )
+                );
+            }
+        }
+
+        Descriptor.mergeDescriptors(descriptors, function(err, oldDescriptors)
+        {
+            if(!isNull(node.children) && node.children instanceof Array)
+            {
+                async.map(node.children, loadMetadataForChildFolder, function(err, results){
+                    if(isNull(err))
+                    {
+                        self.replaceDescriptors(oldDescriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                        self.save(function(err, result){
+                            if(isNull(err))
+                            {
+                                return callback(null, result)
+                            }
                             else
                             {
-                                return callback(null, "File " + currentFile.uri +" does not exist ");
+                                return callback(err, result);
                             }
+                        }, true, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                    }
+                    else
+                    {
+                        return callback(err, results);
+                    }
+                });
+            }
+            else
+            {
+                File.findByUri(node.resource, function(err, currentFile)
+                {
+                    if(isNull(err))
+                    {
+                        if(!isNull(currentFile))
+                        {
+                            currentFile.loadMetadata(
+                                node,
+                                function(err, result){
+                                    if(isNull(err))
+                                    {
+                                        return callback(null, "File " + currentFile.uri +" successfully restored. ");
+                                    }
+                                    else
+                                    {
+                                        return callback(err, "Error restoring file " + currentFile.uri + " : " + result);
+                                    }
+                                },
+                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                            );
                         }
                         else
                         {
-                            return callback(err, currentFile);
+                            self.loadMetadata(
+                                node,
+                                function(err, result){
+                                    if(isNull(err))
+                                    {
+                                        return callback(null, "File " + self.uri +" successfully restored. ");
+                                    }
+                                    else
+                                    {
+                                        return callback(err, "Error restoring file " + self.uri + " : " + result);
+                                    }
+                                },
+                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                            );
                         }
+                    }
+                    else
+                    {
+                        return callback(err, currentFile);
+                    }
+                });
+            }
+        });
+    };
+
+    if(!isNull(node))
+    {
+        loadMetadataIntoThisFolder(node, callback);
+
+        Folder.findByUri(node.resource, function(err, existingFolder){
+            if(isNull(err))
+            {
+                if(!isNull(existingFolder))
+                {
+                    const getTitleDescriptor = _.find(node.metadata, function(descriptor){
+                        return descriptor.prefixedForm === "nie:title";
                     });
+
+                    if(node.resource === self.uri)
+                    {
+                        existingFolder.loadMetadata(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                    }
+                    else
+                    {
+                        return callback(1, "Unable to match backup folder to the folder in Dendro. Is the uploaded metadata .json file a backup of this folder?");
+                    }
                 }
-            });
-        }
-        else
-        {
-            return callback(1, "Unable to match backup folder to the folder in Dendro. Is the uploaded metadata .json file a backup of this folder?");
-        }
+                else
+                {
+                    loadMetadataIntoThisFolder(node, callback);
+                }
+            }
+            else
+            {
+                return callback(1, "Unable to match backup folder to the folder in Dendro. Is the uploaded metadata .json file a backup of this folder?");
+            }
+        });
     }
     else
     {

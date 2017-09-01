@@ -1,6 +1,7 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -223,10 +224,13 @@ File.prototype.save = function (callback, rename) {
 
             const renameIfChildExistsWithSameName = function(children, callback)
             {
+
+                const childrenWithTheSameName = _.find(children, function(child){
+                    return child.nie.title === self.nie.title
+                })
+
                 if(
-                    _.find(children, function(child){
-                        return child.nie.title === self.nie.title
-                    }).length > 0
+                    !isNull(childrenWithTheSameName) && childrenWithTheSameName.length > 0
                 )
                 {
                     self.nie.title === self.title + " (Copy created at " + new Date().toISOString() + ")"
@@ -1039,7 +1043,7 @@ File.prototype.loadMetadata = function (node, callback, entityLoadingTheMetadata
     if (!isNull(node)) {
         const metadata = node.metadata;
         if (!isNull(metadata) && metadata instanceof Array) {
-            var descriptors = [];
+            let descriptors = [];
             for (let i = 0; i < metadata.length; i++) {
                 descriptors.push(
                     new Descriptor(

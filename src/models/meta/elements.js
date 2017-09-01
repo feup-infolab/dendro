@@ -1132,6 +1132,13 @@ Elements.ddr = {
         control : Controls.input_box,
         locked : true,
         api_readable : true
+    },
+    is_being_imported :
+    {
+        type : DbConnection.boolean,
+        control : Controls.input_box,
+        locked : true,
+        api_readable : true
     }
 };
 
