@@ -227,14 +227,16 @@ File.prototype.save = function (callback, rename) {
 
                 const childrenWithTheSameName = _.find(children, function(child){
                     return child.nie.title === self.nie.title
-                })
+                });
 
                 if(
                     !isNull(childrenWithTheSameName) && childrenWithTheSameName.length > 0
                 )
                 {
-                    self.nie.title === self.title + " (Copy created at " + new Date().toISOString() + ")"
+                    self.nie.title = self.title + " (Copy created at " + new Date().toISOString() + ")";
                 }
+
+                callback(null);
             };
 
             async.waterfall([

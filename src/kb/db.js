@@ -563,6 +563,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                             }
                         })
                         .catch(function(err){
+                            console.error("Query Failed!\n" + query + "\n");
                             const error = "Virtuoso server returned error: \n " + util.inspect(err);
                             console.error(error);
                             console.trace(err);

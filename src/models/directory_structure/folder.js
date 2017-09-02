@@ -482,6 +482,34 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
     }
 };
 
+Folder.prototype.findChildWithDescriptor = function(descriptor, callback)
+{
+    const self = this;
+    const thisFolderAsParentDescriptor = new Descriptor({
+        prefixedForm : "nie:isLogicalPartOf",
+        value : self.uri
+    });
+
+    let queryDescriptors;
+
+    if(descriptor instanceof Descriptor)
+    {
+        queryDescriptors = [thisFolderAsParentDescriptor, descriptor];
+    }
+    else if(descriptor instanceof Array)
+    {
+        queryDescriptors = descriptor.concat([thisFolderAsParentDescriptor]);
+    }
+    else
+    {
+        return callback(1, "Invalid descriptor array when querying for children of folder with a certain descriptor value.");
+    }
+
+    InformationElement.findByPropertyValue(queryDescriptors, function(err, child){
+        callback(err, child);
+    }, null, null, null, null, null, true);
+}
+
 Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, userRestoringTheFolder, callback)
 {
     const self = this;
@@ -535,20 +563,18 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
     const self = this;
     const path = require("path");
 
-    console.error("Starting to load children of " + self.uri);
-
     const deleteFolder = function (cb) {
         if (runningOnRoot) {
             self.delete(function (err, result) {
                 cb(err, result);
-            });
+            }, userPerformingTheOperation.uri, null, replaceExistingFolder);
         }
         else {
             cb(null, self);
         }
     };
 
-    const addChildrenToMe = function (childrenFileNamesArray, cb) {
+    const addChildrenTriples = function (childrenFileNamesArray, cb) {
         for (let i = 0; i < childrenFileNamesArray.length; i++) {
             childrenFileNamesArray[i] = self.uri + "/" + childrenFileNamesArray[i];
         }
@@ -568,52 +594,59 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
     };
 
     const loadChildFolder = function (folderName, cb) {
-        const createFolder = function (folderName, cb) {
+
+        const createChildFolderTriples = function (folderName, cb) {
             Folder.findByParentAndName(self.uri, folderName, function (err, childFolder) {
                 if (isNull(childFolder)) {
-                    var childFolder = new Folder({
+                    const childFolder = new Folder({
                         nie: {
                             isLogicalPartOf: self.uri,
                             title: folderName
                         }
                     });
 
-                    childFolder.save(cb);
+                    childFolder.save(function(err, newFolder){
+                        cb(err, newFolder);
+                    });
                 }
-                else {
-                    var childFolder = new Folder(childFolder);
+                else
+                {
+                    const childFolder = new Folder(childFolder);
 
                     if (childFolder.nie.isLogicalPartOf instanceof Array) {
                         childFolder.nie.isLogicalPartOf.push(self.uri)
                     }
-                    else {
-                        childFolder.nie.isLogicalPartOf = self.uri;
+                    else if (typeof childFolder.nie.isLogicalPartOf === "string") {
+                        childFolder.nie.isLogicalPartOf = [childFolder.nie.isLogicalPartOf, self.uri];
                     }
 
                     childFolder.nie.title = folderName;
 
                     childFolder.save(function (err, result) {
-                        cb(null, childFolder);
+                        cb(err, childFolder);
                     });
                 }
             });
         };
 
-        createFolder(folderName, function (err, childFolder) {
+        createChildFolderTriples(folderName, function (err, childFolder) {
             if (isNull(err)) {
                 const childPathAbsFolder = path.join(absolutePathOfLocalFolder, folderName);
                 childFolder.loadContentsOfFolderIntoThis(childPathAbsFolder, replaceExistingFolder, function (err, loadedFolder) {
-                    childFolder.undelete(cb, userPerformingTheOperation, true);
-                });
+                    childFolder.undelete(function(err, result){
+                        cb(err, result);
+                    }, userPerformingTheOperation.uri, true);
+                }, false, userPerformingTheOperation);
             }
-            else {
+            else
+            {
                 cb(1, "Unable to create subfolder of " + self.uri + " with title " + folderName);
             }
         });
     };
 
     const loadChildFile = function (fileName, cb) {
-        const createFile = function (fileName, cb) {
+        const createNewFileTriples = function (fileName, cb) {
             File.findByParentAndName(self.uri, fileName, function (err, childFile) {
                 if (isNull(childFile)) {
                     const childFile = new File({
@@ -645,21 +678,24 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
             });
         };
 
-        createFile(fileName, function (err, childFile) {
+        createNewFileTriples(fileName, function (err, childFile) {
             if (isNull(err)) {
                 const localFilePath = path.join(absolutePathOfLocalFolder, fileName);
                 childFile.loadFromLocalFile(localFilePath, function (err, childFile) {
                     if (isNull(err)) {
                         if (!isNull(childFile) && childFile instanceof File) {
-                            childFile.undelete(cb, userPerformingTheOperation, false);
+                            childFile.undelete(function(err, res){
+                                cb(err, res);
+                            }, userPerformingTheOperation.uri, false);
                         }
-                        else {
+                        else
+                        {
                             console.err("File was loaded but was not returned " + childFile);
-                            return callback(1, "File was loaded but was not returned " + childFile);
+                            return cb(1, "File was loaded but was not returned " + childFile);
                         }
                     }
                     else {
-                        return callback(1, "Error loading file " + self.uri + " from local file " + localFilePath);
+                        return cb(1, "Error loading file " + self.uri + " from local file " + localFilePath);
                     }
                 });
             }
@@ -684,30 +720,32 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
 
             if(files.length > 0)
             {
-                _.each(files, function(fileName){
+                console.error("Starting to load children of folder " + absolutePathOfLocalFolder + " into a folder with title " + self.nie.title + " ("+ self.uri +")");
 
+                async.mapSeries(files, function(fileName, cb){
                     const absPath = path.join(absolutePathOfLocalFolder, fileName);
                     fs.stat(absPath, function(err, stats){
                         if(stats.isFile())
                         {
                             loadChildFile(fileName, function(err, savedChildFile){
                                 console.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
-                                //cb(err, savedChildFile);
+                                cb(err, savedChildFile);
                             });
                         }
                         else if(stats.isDirectory())
                         {
                             loadChildFolder(fileName, function(err, savedChildFolder){
-                                console.log("Saved FOLDER: " + savedChildFolder.uri + ". result : " + err);
-                                //cb(err, savedChildFolder);
+                                console.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
+                                cb(err, savedChildFolder);
                             });
                         }
                     });
-                });
-
-                addChildrenToMe(files, function(err, result){
-                    console.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
-                    return callback(null, self);
+                }, function(err, results){
+                    console.log("Adding pointers to children of " + path.basename(absolutePathOfLocalFolder) + " loaded into " + self.nie.title);
+                    addChildrenTriples(files, function(err, result){
+                        console.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
+                        return callback(null, self);
+                    });
                 });
             }
         });
@@ -723,7 +761,7 @@ Folder.prototype.loadMetadata = function(
 )
 {
     const self = this;
-    console.log("Restoring " + node.resource + " into "+ self.uri);
+    console.log("Restoring metadata of " + node.resource + " into "+ self.uri);
 
     const getDescriptor = function(prefixedForm, node)
     {
@@ -772,7 +810,7 @@ Folder.prototype.loadMetadata = function(
                     }
                     else
                     {
-                        Folder.findByPropertyValue([getDescriptor("nie:isLogicalPartOf", childNode), getDescriptor("nie:title", childNode)], function(err, folder){
+                        self.findChildWithDescriptor([getDescriptor("nie:title", childNode)], function(err, folder){
                             if(isNull(err) && !isNull(folder))
                             {
                                 folder.loadMetadata(
@@ -782,6 +820,10 @@ Folder.prototype.loadMetadata = function(
                                     },
                                     entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
                                 );
+                            }
+                            else
+                            {
+                                callback(404, "Unable to find a folder with title ")
                             }
                         });
 

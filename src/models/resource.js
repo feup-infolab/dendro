@@ -1821,7 +1821,16 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     }
 };
 
-Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+Resource.findByPropertyValue = function(
+    descriptor,
+    callback,
+    allowedGraphsArray,
+    customGraphUri,
+    skipCache,
+    descriptorTypesToRemove,
+    descriptorTypesToExemptFromRemoval,
+    ignoreArchivedResources
+)
 {
     const self = this;
 
@@ -1952,18 +1961,33 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                 }
             }
 
+            if(!isNull(ignoreArchivedResources) && ignoreArchivedResources === true )
+            {
+                typesRestrictions = typesRestrictions + "       FILTER NOT EXISTS { ?uri rdf:type ddr:ArchivedResource }";
+            }
+
             if(!isNull(descriptor) && descriptor instanceof Array)
             {
                 for(let i = 0; i < descriptor.length; i++)
                 {
-                    descriptorValueRestrictions += "       ?uri ["+( argumentsOffset) +"] ["+( argumentsOffset + 1)+ "]. \n";
+                    descriptorValueRestrictions += "       ?uri  ";
+
+                    descriptorValueArguments.push({
+                        type : DbConnection.prefixedResource,
+                        value : descriptor[i].getPrefixedForm()
+                    });
+
+                    descriptorValueRestrictions += " ["+( argumentsOffset ) +"]";
+                    argumentsOffset++;
+
                     descriptorValueArguments.push({
                         type : descriptor[i].type,
                         value : descriptor[i].value
                     });
-                }
 
-                argumentsOffset += 2;
+                    descriptorValueRestrictions += " ["+ argumentsOffset +"] . \n";
+                    argumentsOffset++;
+                }
             }
             else
             {
@@ -2005,7 +2029,22 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                             if(result.length === 1)
                                 return callback(null, result[0]);
                             else if(result.length > 1)
-                                return callback(1, "There are more than one " + JSON.stringify(self.prefixedRDFType) + " with property " + descriptor.getPrefixedForm() + " with value " + descriptor.value + ". ");
+                            {
+                                if(descriptor instanceof Array)
+                                {
+                                    let descriptorValues = "";
+                                    for(let i = 0; i < descriptor.length;i++)
+                                    {
+                                        descriptorValues += descriptor[i].getPrefixedForm() + " : " + descriptor[i].value  + " || ";
+                                    }
+
+                                    return callback(1, "There are more than one " + JSON.stringify(self.prefixedRDFType) + " with properties " + descriptorValues);
+                                }
+                                else
+                                {
+                                    return callback(1, "There are more than one " + JSON.stringify(self.prefixedRDFType) + " with property " + descriptor.getPrefixedForm() + " with value " + descriptor.value + ". ");
+                                }
+                            }
                             else if(result.length === 0)
                                 return callback(null, null);
                         }
@@ -2064,7 +2103,13 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                 }
                 else
                 {
-                    msg = "Error " + result + " while trying to check existence of resources with values " + JSON.stringify(descriptor) + " from triple store.";
+                    let descriptorValues = "";
+                    for(let i = 0; i < descriptor.length;i++)
+                    {
+                        descriptorValues += descriptor[i].getPrefixedForm() + " : " + descriptor[i].value  + " || "
+                    }
+
+                    msg = "Error " + result + " while trying to check existence of resources with values " + descriptorValues + " from triple store.";
                 }
 
                 console.error(msg);

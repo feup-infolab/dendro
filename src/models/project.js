@@ -1656,7 +1656,7 @@ Project.prototype.restoreFromFolder = function(absPathOfRootFolder,
                 {
                     return callback(err, result);
                 }
-            });
+            }, true, entityLoadingTheMetadata);
         }
         else
         {
