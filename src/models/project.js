@@ -1448,7 +1448,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                             fs.readdir(dataFolder, function (err, folderContents) {
                                 if(isNull(err))
                                 {
-                                    if(folderContents instanceof Array && folderContents.length === 1)
+                                    if(!isNull(folderContents) && folderContents instanceof Array && folderContents.length === 1)
                                     {
                                         const childOfDataFolderAbsPath = path.join(dataFolder, folderContents[0]);
 
@@ -1462,7 +1462,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                                                     {
                                                         if (isNull(err))
                                                         {
-                                                            if(folderContents.indexOf(Config.packageMetadataFileName) >= 0)
+                                                            if(!isNull(folderContents) && folderContents instanceof Array && folderContents.indexOf(Config.packageMetadataFileName) >= 0)
                                                             {
                                                                 return callback(null, true, childOfDataFolderAbsPath);
                                                             }
@@ -1545,7 +1545,7 @@ Project.unzipAndValidateBagItBackupStructure = function(absPathToZipFile, maxSto
                                 }
                                 else
                                 {
-                                    return callback(1, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
                                 }
                             }
                             else

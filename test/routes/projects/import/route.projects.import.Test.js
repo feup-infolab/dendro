@@ -33,7 +33,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Import projects tests", function (done) {
     this.timeout(Config.testsTimeout);
-    before(function (done) {
+    beforeEach(function (done) {
         createUsersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -75,7 +75,7 @@ describe("Import projects tests", function (done) {
     });
 
     describe("[POST] /projects/import", function () {
-        //TODO API ONLY
+
         it("Should give an error when the user is not authenticated", function (done) {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
@@ -84,6 +84,105 @@ describe("Import projects tests", function (done) {
                 done();
             });
         });
+
+        it("Should give an error with a status code of 400 if no proposed handle was specified for the imported project", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                should.equal(err, null);
+
+                const projectData = JSON.parse(JSON.stringify(simpleProject));
+                delete projectData.handle;
+
+                projectUtils.importProject(true, agent, projectData, function (err, res) {
+                    should.not.equal(err, null);
+                    res.statusCode.should.equal(400);
+                    done();
+                });
+            });
+        });
+
+        it("Should give an error with a status code of 400 if the proposed handle specified for the imported project is INVALID", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                should.equal(err, null);
+
+                const projectData = JSON.parse(JSON.stringify(simpleProject));
+                projectData.handle = "@€@‰@¶@£@€@@€@€@asdasdsadsadsadasd";
+
+                projectUtils.importProject(true, agent, projectData, function (err, res) {
+                    should.not.equal(err, null);
+                    res.statusCode.should.equal(400);
+                    done();
+                });
+            });
+        });
+
+        it("Should give an error with a status code of 400 if the proposed handle of the imported project is the same as a currently existing project", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                should.equal(err, null);
+
+                async.mapSeries(projectsData, function(projectData, callback){
+                    projectUtils.importProject(true, agent, projectData, function (err, res) {
+                        should.equal(err, null);
+                        res.statusCode.should.equal(200);
+
+                        //we import a second time every project. Should be refused for every second attempt
+                        projectUtils.importProject(true, agent, projectData, function (err, res) {
+                            const result = JSON.parse(res.text);
+                            result.result.should.equal("error");
+                            result.message.should.be.instanceof(Array);
+                            result.message[0].should.equal("A project with handle "+projectData.handle+" already exists. Please choose another one.");
+                            res.statusCode.should.equal(400);
+                            callback(null);
+                        });
+                    });
+                }, function(err, results){
+                    done(err);
+                });
+            });
+        });
+
+        it("Should give an error with a status code of 500 when the zip file used to import the project is not in a correct BagIt Format, even though the user is logged in", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                should.equal(err, null);
+
+                const projectData = JSON.parse(JSON.stringify(simpleProject));
+                projectData.backup_path = Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/zipTest.zip");
+
+                projectUtils.importProject(true, agent, projectData, function (err, res) {
+                    should.not.equal(err, null);
+                    const result = JSON.parse(res.text);
+                    result.result.should.equal("error");
+                    should.equal(typeof result.message, "string");
+                    result.message.should.contain("Invalid Bagit structure. Are you sure this is a Dendro project backup?");
+                    res.statusCode.should.equal(500);
+                    done();
+                });
+            });
+        });
+
+        //TODO
+        /*it("Should give an error with a status code of 400 when the zip file used to import the project specifies children in a node of the metadata.json file when the node is a file (which cannot have children)", function (done) {
+            done(1);
+        });
+
+        it("Should give an error with a status code of 400 when the zip file used to import the project specifies unparametrized metadata in the metadata.json file", function (done) {
+            done(1);
+        });
+
+        it("Should give an error with a status code of 400 when the zip file used to import the project contains a wrong nie:title in the metadata section (title does not match the title of the folder that it refers to", function (done) {
+            done(1);
+        });
+
+        it("Should give an error with a status code of 400 when the zip file used to import the project contains a wrong nie:title in the metadata section (title does not match the title of the file that it refers to", function (done) {
+            done(1);
+        });*/
 
         it("Should import all projects correctly when the user is logged in and the zip file used to import the project is not corrupted", function (done) {
             const app = global.tests.app;
@@ -115,30 +214,6 @@ describe("Import projects tests", function (done) {
                     done(err);
                 });
             });
-        });
-
-        it("Should give an error with a status code of 400 the proposed handle of the imported project is the same as a currently existing project", function (done) {
-            done(1);
-        });
-
-        it("Should give an error with a status code of 400 when the zip file used to import the project specifies children in the metadata file when the node is a file (which cannot have children)", function (done) {
-            done(1);
-        });
-
-        it("Should give an error with a status code of 400 when the zip file used to import the project specifies unparametrized metadata in the metadata.json file", function (done) {
-            done(1);
-        });
-
-        it("Should give an error with a status code of 400 when the zip file used to import the project is not in a correct BagIt Format, even though the user is logged in", function (done) {
-            done(1);
-        });
-
-        it("Should give an error with a status code of 400 when the zip file used to import the project contains a wrong nie:title in the metadata section (title does not match the title of the folder that it refers to", function (done) {
-            done(1);
-        });
-
-        it("Should give an error with a status code of 400 when the zip file used to import the project contains a wrong nie:title in the metadata section (title does not match the title of the file that it refers to", function (done) {
-            done(1);
         });
     });
 

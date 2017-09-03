@@ -1624,7 +1624,7 @@ exports.import = function(req, res) {
     if(req.originalMethod === "GET")
     {
         if(acceptsJSON && !acceptsHTML){
-            res.status(400).json({
+            return res.status(400).json({
                 result: "error",
                 message : "API Request not valid for this route."
             })
@@ -1633,7 +1633,7 @@ exports.import = function(req, res) {
         {
             const filesize = require('file-size');
 
-            res.render('projects/import/import',
+            return res.render('projects/import/import',
                 {
                     title: "Import a project",
                     maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
@@ -1648,6 +1648,21 @@ exports.import = function(req, res) {
         const multiparty = require("multiparty");
         const tmp = require("tmp");
         const path = require("path");
+
+        if(isNull(req.query.imported_project_handle))
+        {
+            return res.status(400).json({
+                result: "error",
+                message : "No 'imported_project_handle' parameter specified. This is the new handle of the project after it is imported into Dendro",
+            });
+        }
+        else if (!req.query.imported_project_handle.match(/^[0-9a-z]+$/))
+        {
+            return res.status(400).json({
+                result: "error",
+                message : "Project handle --- 'imported_project_handle' parameter ---  can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "
+            });
+        }
 
         const receiveUpload = function(callback)
         {
@@ -1703,6 +1718,34 @@ exports.import = function(req, res) {
 
                 // Parse req
                 form.parse(req);
+            });
+        };
+
+        const projectHandleCannotExist = function(callback)
+        {
+            Project.findByHandle(req.query.imported_project_handle, function(err, project){
+                if(isNull(err))
+                {
+                    if(isNull(project))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        callback(400, {
+                            result : "error",
+                            message : ["A project with handle " + req.query.imported_project_handle+ " already exists. Please choose another one."]
+                        })
+                    }
+                }
+                else
+                {
+                    callback(500, {
+                        result : "error",
+                        message : ["Error checking if project with handle " + req.query.imported_project_handle+ " already exists. "],
+                        error : project
+                    })
+                }
             });
         };
 
@@ -1885,6 +1928,7 @@ exports.import = function(req, res) {
         };
 
         async.waterfall([
+            projectHandleCannotExist,
             receiveUpload,
             processImport
         ], function(err, results){
