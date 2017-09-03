@@ -177,6 +177,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
 File.deleteOnLocalFileSystem = function(absPathToFile, callback)
 {
     const isWin = /^win/.test(process.platform);
+    const exec = require("child_process").exec;
     let command;
 
     if(isWin)
@@ -1044,8 +1045,8 @@ File.prototype.loadMetadata = function (node, callback, entityLoadingTheMetadata
     const self = this;
     if (!isNull(node)) {
         const metadata = node.metadata;
+        let descriptors = [];
         if (!isNull(metadata) && metadata instanceof Array) {
-            let descriptors = [];
             for (let i = 0; i < metadata.length; i++) {
                 descriptors.push(
                     new Descriptor(

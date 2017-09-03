@@ -8,7 +8,6 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
@@ -505,10 +504,35 @@ Folder.prototype.findChildWithDescriptor = function(descriptor, callback)
         return callback(1, "Invalid descriptor array when querying for children of folder with a certain descriptor value.");
     }
 
-    InformationElement.findByPropertyValue(queryDescriptors, function(err, child){
-        callback(err, child);
+    Folder.findByPropertyValue(queryDescriptors, function(err, child){
+        if(!err)
+        {
+            if(isNull(child))
+            {
+                File.findByPropertyValue(queryDescriptors, function(err, child){
+                    if(!err)
+                    {
+                        callback(err, child);
+                    }
+                    else
+                    {
+                        callback(500, "Error occurred while getting File child of " +self.uri + " with property/properties " + JSON.stringify(queryDescriptors));
+                    }
+
+                }, null, null, null, null, null, true);
+            }
+            else
+            {
+                callback(err, child);
+            }
+        }
+        else
+        {
+            callback(500, "Error occurred while getting Folder child of " +self.uri + " with property/properties " + JSON.stringify(queryDescriptors));
+        }
+
     }, null, null, null, null, null, true);
-}
+};
 
 Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, userRestoringTheFolder, callback)
 {
@@ -574,29 +598,20 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
         }
     };
 
-    const addChildrenTriples = function (childrenFileNamesArray, cb) {
-        for (let i = 0; i < childrenFileNamesArray.length; i++) {
-            childrenFileNamesArray[i] = self.uri + "/" + childrenFileNamesArray[i];
-        }
-
-        if (self.nie.hasLogicalPart instanceof Array) {
-            self.nie.hasLogicalPart.push(childrenFileNamesArray);
-        }
-        else if (!isNull(self.nie.hasLogicalPart)) {
-            childrenFileNamesArray.push(self.nie.hasLogicalPart);
-            self.nie.hasLogicalPart = childrenFileNamesArray;
-        }
-        else {
-            self.nie.hasLogicalPart = childrenFileNamesArray;
-        }
+    const addChildrenTriples = function (childrenResources, cb) {
+        self.nie.hasLogicalPart = _.map(childrenResources, function(child){
+            return child.uri;
+        });
 
         self.save(cb);
     };
 
     const loadChildFolder = function (folderName, cb) {
-
         const createChildFolderTriples = function (folderName, cb) {
-            Folder.findByParentAndName(self.uri, folderName, function (err, childFolder) {
+            self.findChildWithDescriptor(new Descriptor({
+                prefixedForm: "nie:title",
+                value : folderName
+            }), function (err, childFolder) {
                 if (isNull(childFolder)) {
                     const childFolder = new Folder({
                         nie: {
@@ -647,7 +662,10 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
 
     const loadChildFile = function (fileName, cb) {
         const createNewFileTriples = function (fileName, cb) {
-            File.findByParentAndName(self.uri, fileName, function (err, childFile) {
+            self.findChildWithDescriptor(new Descriptor({
+                prefixedForm: "nie:title",
+                value : fileName
+            }), function (err, childFile) {
                 if (isNull(childFile)) {
                     const childFile = new File({
                         nie: {
@@ -685,7 +703,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
                     if (isNull(err)) {
                         if (!isNull(childFile) && childFile instanceof File) {
                             childFile.undelete(function(err, res){
-                                cb(err, res);
+                                return cb(err, res);
                             }, userPerformingTheOperation.uri, false);
                         }
                         else
@@ -700,14 +718,12 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
                 });
             }
             else {
-                cb(err, childFile);
+                return cb(err, childFile);
             }
         });
     };
 
-    /**
-     * LOGIC
-     */
+
     deleteFolder(function(err, result){
         fs.readdir(absolutePathOfLocalFolder, function(err, files){
 
@@ -729,24 +745,37 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
                         {
                             loadChildFile(fileName, function(err, savedChildFile){
                                 console.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
-                                cb(err, savedChildFile);
+                                return cb(err, savedChildFile);
                             });
                         }
                         else if(stats.isDirectory())
                         {
                             loadChildFolder(fileName, function(err, savedChildFolder){
                                 console.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
-                                cb(err, savedChildFolder);
+                                return cb(err, savedChildFolder);
                             });
                         }
                     });
                 }, function(err, results){
-                    console.log("Adding pointers to children of " + path.basename(absolutePathOfLocalFolder) + " loaded into " + self.nie.title);
-                    addChildrenTriples(files, function(err, result){
-                        console.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
-                        return callback(null, self);
-                    });
+                    if(isNull(err))
+                    {
+                        console.log("Adding pointers to children of " + path.basename(absolutePathOfLocalFolder) + " loaded into " + self.nie.title);
+                        addChildrenTriples(results, function(err, result){
+                            console.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
+                            return callback(null, self);
+                        });
+                    }
+                    else
+                    {
+                        const msg  = "Unable to load children of " + self.uri + ": " + JSON.stringify(results);
+                        console.error(msg);
+                        return callback(500, msg);
+                    }
                 });
+            }
+            else
+            {
+                return callback(null, "There are no files to load. The data folder in the backup is empty.");
             }
         });
     });
@@ -782,10 +811,12 @@ Folder.prototype.loadMetadata = function(
             if (isNull(err)) {
                 return callback(null, "Folder " + folder.uri + " successfully restored. ");
             }
-            else {
+            else
+            {
                 return callback(err, "Error restoring folder " + folder.uri + " : " + result);
             }
         };
+
         const fileCallback = function (file, err, result, callback) {
             if (isNull(err)) {
                 return callback(null, "File " + file.uri + " successfully restored .");
@@ -795,7 +826,8 @@ Folder.prototype.loadMetadata = function(
             }
         };
 
-        const loadMetadataForChildFolder = function (childNode, callback) {
+        const loadMetadataForChildFolder = function (childNode, callback)
+        {
             if (!isNull(childNode.children) && childNode.children instanceof Array)
             {
                 Folder.findByUri(childNode.resource, function (err, folder) {
@@ -810,7 +842,8 @@ Folder.prototype.loadMetadata = function(
                     }
                     else
                     {
-                        self.findChildWithDescriptor([getDescriptor("nie:title", childNode)], function(err, folder){
+                        const titleDescriptor = getDescriptor("nie:title", childNode);
+                        self.findChildWithDescriptor(titleDescriptor, function(err, folder){
                             if(isNull(err) && !isNull(folder))
                             {
                                 folder.loadMetadata(
@@ -823,15 +856,17 @@ Folder.prototype.loadMetadata = function(
                             }
                             else
                             {
-                                callback(404, "Unable to find a folder with title ")
+                                const msg  = "Unable to find a folder with title " + titleDescriptor.value
+                                console.error(msg);
+                                callback(404, msg);
                             }
                         });
-
                     }
                 });
             }
             else
             {
+
                 File.findByUri(childNode.resource, function (err, file) {
                     if (isNull(err) && !isNull(file))
                     {
@@ -845,15 +880,35 @@ Folder.prototype.loadMetadata = function(
                     }
                     else
                     {
-                        File.findByPropertyValue([getDescriptor("nie:isLogicalPartOf", childNode), getDescriptor("nie:title", childNode)], function(err, file)
+                        const titleDescriptor = getDescriptor("nie:title", childNode);
+
+                        self.findChildWithDescriptor(titleDescriptor, function(err, file)
                         {
-                            file.loadMetadata(
-                                childNode,
-                                function (err, result) {
-                                    folderCallback(folder, err, result, callback);
-                                },
-                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
-                            );
+                            if(isNull(err))
+                            {
+                                if(!isNull(file))
+                                {
+                                    file.loadMetadata(
+                                        childNode,
+                                        function (err, result) {
+                                            fileCallback(file, err, result, callback);
+                                        },
+                                        entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                                    );
+                                }
+                                else
+                                {
+                                    const msg  = "Unable to find a folder with title " + titleDescriptor.value;
+                                    console.error(msg);
+                                    callback(404, msg);
+                                }
+                            }
+                            else
+                            {
+                                const msg  = "Error finding a folder with title " + titleDescriptor.value + JSON.stringify(file);
+                                console.error(msg);
+                                callback(500, msg);
+                            }
                         });
                     }
                 });
@@ -877,26 +932,31 @@ Folder.prototype.loadMetadata = function(
         {
             if(!isNull(node.children) && node.children instanceof Array)
             {
-                async.map(node.children, loadMetadataForChildFolder, function(err, results){
-                    if(isNull(err))
+                async.mapSeries(
+                    node.children,
+                    loadMetadataForChildFolder,
+                    function(err, results)
                     {
-                        self.replaceDescriptors(oldDescriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
-                        self.save(function(err, result){
-                            if(isNull(err))
-                            {
-                                return callback(null, result)
-                            }
-                            else
-                            {
-                                return callback(err, result);
-                            }
-                        }, true, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                        if(isNull(err))
+                        {
+                            self.replaceDescriptors(oldDescriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                            self.save(function(err, result){
+                                if(isNull(err))
+                                {
+                                    return callback(null, result)
+                                }
+                                else
+                                {
+                                    return callback(err, result);
+                                }
+                            }, true, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                        }
+                        else
+                        {
+                            return callback(err, results);
+                        }
                     }
-                    else
-                    {
-                        return callback(err, results);
-                    }
-                });
+                );
             }
             else
             {
@@ -950,8 +1010,6 @@ Folder.prototype.loadMetadata = function(
 
     if(!isNull(node))
     {
-        loadMetadataIntoThisFolder(node, callback);
-
         Folder.findByUri(node.resource, function(err, existingFolder){
             if(isNull(err))
             {

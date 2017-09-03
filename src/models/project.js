@@ -1522,7 +1522,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
     });
 };
 
- Project.unzipAndValidateBagItBackupStructure = function(absPathToZipFile, maxStorageSize, callback)
+Project.unzipAndValidateBagItBackupStructure = function(absPathToZipFile, maxStorageSize, callback)
 {
     const path = require("path");
 
@@ -1583,11 +1583,13 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
     });
 };
 
-Project.prototype.restoreFromFolder = function(absPathOfRootFolder,
-                                     entityLoadingTheMetadata,
-                                     attemptToRestoreMetadata,
-                                     replaceExistingFolder,
-                                     callback)
+Project.prototype.restoreFromFolder = function(
+    absPathOfRootFolder,
+    entityLoadingTheMetadata,
+    attemptToRestoreMetadata,
+    replaceExistingFolder,
+    callback
+)
 {
     const self = this;
     const path = require("path");
@@ -1641,7 +1643,7 @@ Project.prototype.restoreFromFolder = function(absPathOfRootFolder,
                                     }
                                     else
                                     {
-                                        return callback(1, "Error restoring metadata for project " + self.uri + " : " + result);
+                                        return callback(err, "Error restoring metadata for project " + self.uri + " : " + result);
                                     }
                                 }, entityLoadingTheMetadataUri, [Config.types.locked], [Config.types.restorable])
                             });
@@ -1663,11 +1665,6 @@ Project.prototype.restoreFromFolder = function(absPathOfRootFolder,
             callback(err, rootFolder);
         }
     });
-};
-
-Project.restoreFromBackupFolder = function(absPathOfUnzippedBagItBackupFolder, callback)
-{
-    callback(null);
 };
 
 Project.prototype.clearCacheRecords = function(callback, customGraphUri)

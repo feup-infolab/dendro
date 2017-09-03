@@ -7,6 +7,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
@@ -1705,19 +1706,11 @@ exports.import = function(req, res) {
             });
         };
 
-        const deleteTempFile = function(uploadedBackupAbsPath, callback)
-        {
-            Folder.deleteOnLocalFileSystem(uploadedBackupAbsPath, function(err, result){
-                callback(err, result);
-            });
-        };
-
         const processImport = function(uploadedBackupAbsPath, callback)
         {
             const getMetadata = function(absPathOfBagItBackupRootFolder, callback)
             {
                 const bagItMetadataFileAbsPath = path.join(absPathOfBagItBackupRootFolder, "bag-info.txt");
-                const newProjectObject = {};
                 const projectDescriptors = [];
 
                 const lineReader = require('readline').createInterface({
@@ -1728,7 +1721,7 @@ exports.import = function(req, res) {
                 {
                     const fieldMatcher = {
                         "Source-Organization" : "dcterms:publisher",
-                        "Organization-Address" : "schema:email",
+                        "Organization-Address" : "schema:address",
                         "Contact-Name" : "schema:provider",
                         "Contact-Phone" : "schema:telephone",
                         "External-Description" : "dcterms:description",
@@ -1740,7 +1733,7 @@ exports.import = function(req, res) {
                     if(separator)
                     {
                         const bagitField = line.substring(0, separator);
-                        const bagitValue = line.substring(separator + 1); //1 extra char after index of : must be rejected, which is the space.
+                        const bagitValue = line.substring(separator + 2); //2 extra char after index of : must be rejected, which is the space.
                         const descriptor = fieldMatcher[bagitField];
 
                         if(descriptor)
@@ -1784,90 +1777,103 @@ exports.import = function(req, res) {
                     uploadedBackupAbsPath,
                     Config.maxProjectSize,
                     function(err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt){
-                    if(isNull(err))
-                    {
-                        if(valid)
+                        File.deleteOnLocalFileSystem(uploadedBackupAbsPath, function(err, result){
+                            if(!isNull(err))
+                            {
+                                console.error("Error occurred while deleting backup zip file at " + uploadedBackupAbsPath + " : " + JSON.stringify(result));
+                            }
+                        });
+
+                        if(isNull(err))
                         {
-                            getMetadata(absPathOfUnzippedBagIt, function(descriptors){
+                            if(valid)
+                            {
+                                getMetadata(absPathOfUnzippedBagIt, function(descriptors){
 
-                                const newProject = new Project({});
-                                newProject.ddr.is_being_imported = true;
-                                newProject.dcterms.creator = req.user;
-                                newProject.updateDescriptors(descriptors, [Config.types.locked, Config.types.private]);
+                                    const newProject = new Project({
+                                        ddr: {
+                                            is_being_imported : true,
+                                            handle : req.query.imported_project_handle
+                                        },
+                                        dcterms : {
+                                            creator : req.user.uri
+                                        }
+                                    });
 
-                                Project.createAndInsertFromObject(newProject, function(err, newProject){
-                                    if(isNull(err))
-                                    {
-                                        newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
+                                    newProject.updateDescriptors(descriptors);
+
+                                    Project.createAndInsertFromObject(newProject, function(err, newProject){
+                                        if(isNull(err))
                                         {
-                                            if(isNull(err))
+                                            newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
                                             {
-                                                delete newProject.ddr.is_being_imported;
-
-                                                newProject.save(function(err, result){
-                                                    if (isNull(err))
-                                                    {
-                                                        callback(null,
-                                                            uploadedBackupAbsPath,
-                                                            {
-                                                                "result": "success",
-                                                                "message" : "Project imported successfully."
-                                                            }
-                                                        );
-                                                    }
-                                                    else
-                                                    {
-                                                        callback(500,
-                                                            {
-                                                                "result": "error",
-                                                                "message": "Error marking project restore as complete.",
-                                                                "error": result
-                                                            }
-                                                        );
-                                                    }
-                                                });
-                                            }
-                                            else
-                                            {
-                                                callback(500,
-                                                    {
-                                                        "result": "error",
-                                                        "message": "Error restoring project contents from unzipped backup folder",
-                                                        "error": result
-                                                    }
-                                                );
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-                                        callback(500,
-                                            {
-                                                "result": "error",
-                                                "message": "Error creating new project record before import operation could start",
-                                                "error": result
-                                            }
-                                        );
-                                    }
+                                                if(isNull(err))
+                                                {
+                                                    delete newProject.ddr.is_being_imported;
+                                                    newProject.save(function(err, result){
+                                                        if (isNull(err))
+                                                        {
+                                                            callback(null,
+                                                                {
+                                                                    "result": "ok",
+                                                                    "message" : "Project imported successfully.",
+                                                                    "new_project" : newProject.uri
+                                                                }
+                                                            );
+                                                        }
+                                                        else
+                                                        {
+                                                            callback(500,
+                                                                {
+                                                                    "result": "error",
+                                                                    "message": "Error marking project restore as complete.",
+                                                                    "error": result
+                                                                }
+                                                            );
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    callback(500,
+                                                        {
+                                                            "result": "error",
+                                                            "message": "Error restoring project contents from unzipped backup folder",
+                                                            "error": result
+                                                        }
+                                                    );
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            callback(500,
+                                                {
+                                                    "result": "error",
+                                                    "message": "Error creating new project record before import operation could start",
+                                                    "error": result
+                                                }
+                                            );
+                                        }
+                                    });
                                 });
-                            });
+                            }
+                            else
+                            {
+
+                            }
                         }
                         else
                         {
+                            const msg = "Error restoring zip file to folder : " + valid;
+                            console.error(msg);
 
+                            callback(500, {
+                                "result" : "error",
+                                "message" : msg
+                            });
                         }
-                    }
-                    else
-                    {
-                        const msg = "Error restoring zip file to folder : " + valid;
-                        console.error(msg);
-
-                        callback(500, {
-                            "result" : "error",
-                            "message" : msg
-                        });
-                    }
-                });
+                    });
             }
             else
             {
@@ -1880,8 +1886,7 @@ exports.import = function(req, res) {
 
         async.waterfall([
             receiveUpload,
-            processImport,
-            deleteTempFile
+            processImport
         ], function(err, results){
             if(isNull(err))
             {

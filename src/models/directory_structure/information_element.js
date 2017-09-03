@@ -437,21 +437,6 @@ InformationElement.removeInvalidFileNames = function(fileNamesArray)
     return validFiles;
 };
 
-
-InformationElement.findByParentAndName = function(parentURI, name, callback)
-{
-    const self = this;
-
-    const ie = Object.create(self.prototype).constructor({
-        nie: {
-            isLogicalPartOf: parentURI,
-            title: name
-        }
-    });
-
-    self.findByUri(ie.uri, callback);
-};
-
 InformationElement.isSafePath = function(absPath, callback)
 {
     let fs = require('fs');

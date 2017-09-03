@@ -350,7 +350,7 @@ const importProjectHTMLPage = function (jsonOnly, agent, cb) {
     }
 };
 
-const importProject = function (jsonOnly, agent, projectBackupPath, cb) {
+const importProject = function (jsonOnly, agent, project, cb) {
     // /projects/import
     const path = "/projects/import";
     if (jsonOnly) {
@@ -358,7 +358,8 @@ const importProject = function (jsonOnly, agent, projectBackupPath, cb) {
             .post(path)
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .attach('file', projectBackupPath)
+            .query({ "imported_project_handle" : project.handle} )
+            .attach('file', project.backup_path)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -367,7 +368,8 @@ const importProject = function (jsonOnly, agent, projectBackupPath, cb) {
         agent
             .post(path)
             .set("Content-Type", "application/json")
-            .attach('file', projectBackupPath)
+            .query({ "imported_project_handle" : project.handle} )
+            .attach('file', project.backup_path)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -555,11 +557,12 @@ const getContentsOfFile = function(zipPath, callback)
         {
             if (!err)
             {
+                files = files.sort();
                 for(let i = 0; i < files.length; i++)
                 {
                     let file = files[i];
                     file = files[i].replace(pathOfUnzippedContents, "");
-                    contentsOfZippedFile += file;
+                    contentsOfZippedFile += file+"\n";
                 }
 
                 callback(null, contentsOfZippedFile);
@@ -582,6 +585,36 @@ const getMetadataFromBackup = function(zipPath, callback)
 };
 
 const metadataMatchesBackup = function (project, bodyBuffer, callback) {
+
+    const parseMetadata = function(result)
+    {
+        const split = result.split("\n");
+        const parsed = {};
+
+        function sortObject(obj) {
+            return Object.keys(obj)
+                .sort().reduce((a, v) => {
+                    a[v] = obj[v];
+                    return a; }, {});
+        }
+
+        for(let i = 0; i < split.length;i++)
+        {
+            if(split !== "")
+            {
+                let piece = split[i];
+                let indexOfColon = piece.indexOf(":");
+
+                let descriptor = piece.substr(0, indexOfColon);
+                let value = piece.substr(indexOfColon + 1);
+
+                parsed[descriptor] = value;
+            }
+        }
+
+        return sortObject(parsed);
+    };
+
     tmp.dir(
         {
             mode: Config.tempFilesCreationMode,
@@ -591,14 +624,14 @@ const metadataMatchesBackup = function (project, bodyBuffer, callback) {
             if(!err)
             {
                 const tempBackupFilePath = path.join(tempFolderPath, project.handle + ".zip");
-                const mockBackupFilePath = Pathfinder.absPathInTestsFolder(path.join("mockdata", "projects", "projectBackups", project.handle + ".zip"));
+                const mockBackupFilePath = project.backup_path;
                 fs.writeFileSync(tempBackupFilePath, bodyBuffer);
 
                 getMetadataFromBackup(tempBackupFilePath, function(err1, result1){
                     getMetadataFromBackup(mockBackupFilePath, function(err2, result2){
                         if(!err1 && !err2)
                         {
-                            callback(null, result1 === result2);
+                            callback(null, JSON.stringify(parseMetadata(result1)) === JSON.stringify(parseMetadata(result2)));
                         }
                         else
                         {
@@ -628,7 +661,7 @@ const contentsMatchBackup = function (project, bodyBuffer, callback) {
             if(!err)
             {
                 const tempBackupFilePath = path.join(tempFolderPath, project.handle + ".zip");
-                const mockBackupFilePath = Pathfinder.absPathInTestsFolder(path.join("mockdata", "projects", "projectBackups", project.handle + ".zip"));
+                const mockBackupFilePath = project.backup_path;
                 fs.writeFileSync(tempBackupFilePath, bodyBuffer);
 
                 getContentsOfFile(tempBackupFilePath, function(err1, result1){

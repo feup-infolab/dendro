@@ -28,7 +28,7 @@ function Resource (object)
     }
 
     if(!isNull(object.ddr) && !isNull(object.ddr.humanReadableUri)) {
-        self.ddr.humanReadableUri = object.ddr.humanReadable;
+        self.ddr.humanReadableUri = object.ddr.humanReadableUri;
     }
 
     return self;
@@ -2095,7 +2095,8 @@ Resource.findByPropertyValue = function(
                     return callback(null, null);
                 }
             }
-            else {
+            else
+            {
                 let msg;
                 if(!(descriptor instanceof Array))
                 {

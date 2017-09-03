@@ -24,9 +24,9 @@ const createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const simpleProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/simple_project.js"));
 
-//const projectsData = [publicProject, privateProject, metadataOnlyProject];
-const projectsData = [publicProject];
+const projectsData = [simpleProject, publicProject, privateProject, metadataOnlyProject];
 
 const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
@@ -79,7 +79,7 @@ describe("Import projects tests", function (done) {
         it("Should give an error when the user is not authenticated", function (done) {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
-            projectUtils.importProject(true, agent, privateProject.backup_path, function (err, res) {
+            projectUtils.importProject(true, agent, privateProject, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();
             });
@@ -91,8 +91,8 @@ describe("Import projects tests", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 should.equal(err, null);
 
-                async.map(projectsData, function(projectData, callback){
-                    projectUtils.importProject(true, agent, projectData.backup_path, function (err, res) {
+                async.mapSeries(projectsData, function(projectData, callback){
+                    projectUtils.importProject(true, agent, projectData, function (err, res) {
                         should.equal(err, null);
                         res.statusCode.should.equal(200);
 
@@ -102,8 +102,10 @@ describe("Import projects tests", function (done) {
 
                             projectUtils.contentsMatchBackup(projectData, res.body, function(err, result){
                                 should.equal(err, null);
+                                should.equal(result, true);
                                 projectUtils.metadataMatchesBackup(projectData, res.body, function(err, result){
                                     should.equal(err, null);
+                                    should.equal(result, true);
                                     callback(err, res);
                                 });
                             });
@@ -113,6 +115,10 @@ describe("Import projects tests", function (done) {
                     done(err);
                 });
             });
+        });
+
+        it("Should give an error with a status code of 400 the proposed handle of the imported project is the same as a currently existing project", function (done) {
+            done(1);
         });
 
         it("Should give an error with a status code of 400 when the zip file used to import the project specifies children in the metadata file when the node is a file (which cannot have children)", function (done) {
