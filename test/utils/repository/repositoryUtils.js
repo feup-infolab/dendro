@@ -25,6 +25,27 @@ const exportToRepository = function (jsonOnly, projectHandle, agent, exportData,
     }
 };
 
+const calculate_ckan_repository_diffs = function (jsonOnly, resourceUri, agent, exportData, cb) {
+    const path = resourceUri + "?calculate_ckan_repository_diffs";
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .set("Accept", "application/json")
+            .send(exportData)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .send(exportData)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 const exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, agent, exportData, cb) {
     //http://127.0.0.1:3001/project/publicproject/data/folder1?export_to_repository
     //http://127.0.0.1:3001/project/publicprojectcreatedbydemouser1/data/pastinhaLinda
@@ -120,5 +141,6 @@ module.exports = {
     exportToRepository: exportToRepository,
     createExportConfig: createExportConfig,
     getMyExternalRepositories : getMyExternalRepositories,
-    getAllExternalRepositories : getAllExternalRepositories
+    getAllExternalRepositories : getAllExternalRepositories,
+    calculate_ckan_repository_diffs: calculate_ckan_repository_diffs
 };

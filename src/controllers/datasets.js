@@ -6,6 +6,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 const records = require(Pathfinder.absPathInSrcFolder("/controllers/records.js"));
@@ -1926,37 +1927,126 @@ export_to_repository_b2share = function (req, res) {
 };
 
 exports.export_to_repository = function (req, res) {
-
+    let nick;
     try {
 
         const targetRepository = req.body.repository;
 
-        if (targetRepository.ddr.hasPlatform.foaf.nick === 'ckan') {
-            export_to_repository_ckan(req, res);
-        }
-        else if (targetRepository.ddr.hasPlatform.foaf.nick === 'dspace' || targetRepository.ddr.hasPlatform.foaf.nick === 'eprints') {
-            export_to_repository_sword(req, res);
-        }
-        else if (targetRepository.ddr.hasPlatform.foaf.nick === 'figshare') {
-            export_to_repository_figshare(req, res);
-        }
-        else if (targetRepository.ddr.hasPlatform.foaf.nick === 'zenodo') {
-            export_to_repository_zenodo(req, res);
-        }
-        else if (targetRepository.ddr.hasPlatform.foaf.nick === 'b2share') {
-            export_to_repository_b2share(req, res);
-        }
-        else {
-            const msg = "Invalid target repository";
-            console.error(msg);
-            res.status(500).json(
+        async.waterfall([
+            function (callback) {
+                if(typeof targetRepository.ddr.hasPlatform === "string")
                 {
-                    "result": "error",
-                    "message": msg
+                    ExternalRepository.findByUri(targetRepository.uri, function (err, externalRepo) {
+                        if(!isNull(err) || isNull(externalRepo))
+                        {
+                            const msg = "Invalid target repository: " + JSON.stringify(externalRepo);
+                            console.error(msg);
+                            callback(true, msg)
+                        }
+                        else
+                        {
+                            nick = externalRepo.ddr.hasPlatform.foaf.nick;
+                            callback(null, nick);
+                        }
+                    });
+                    /*ExternalRepository.getUriFromHumanReadableUri(targetRepository.uri, function(err, resourceUri){
+                        if(!isNull(err) || isNull(resourceUri))
+                        {
+                            const msg = "Invalid target repository: " + JSON.stringify(resourceUri);
+                            console.error(msg);
+                            callback(true, msg);
+                        }
+                        else
+                        {
+                            ExternalRepository.findByUri(resourceUri, function (err, externalRepo) {
+                                if(!isNull(err) || isNull(externalRepo))
+                                {
+                                    const msg = "Invalid target repository: " + JSON.stringify(externalRepo);
+                                    console.error(msg);
+                                    callback(true, msg)
+                                }
+                                else
+                                {
+                                    nick = externalRepo.ddr.hasPlatform.foaf.nick;
+                                    callback(null, nick);
+                                }
+                            });
+                        }
+                    });*/
                 }
-            );
-        }
+                else
+                {
+                    //nick = targetRepository.ddr.hasPlatform.foaf.nick;
+                    //callback(null, nick);
+                    ExternalRepository.findByUri(targetRepository.uri, function (err, externalRepo) {
+                        if(!isNull(err) || isNull(externalRepo))
+                        {
+                            const msg = "Invalid target repository: " + JSON.stringify(externalRepo);
+                            console.error(msg);
+                            callback(true, msg)
+                        }
+                        else
+                        {
+                            nick = externalRepo.ddr.hasPlatform.foaf.nick;
+                            callback(null, nick);
+                        }
+                    });
+                }
+            }
+        ], function (err, results) {
 
+            if (nick === 'ckan') {
+                export_to_repository_ckan(req, res);
+            }
+            else if (nick === 'dspace' || nick === 'eprints') {
+                export_to_repository_sword(req, res);
+            }
+            else if (nick === 'figshare') {
+                export_to_repository_figshare(req, res);
+            }
+            else if (nick === 'zenodo') {
+                export_to_repository_zenodo(req, res);
+            }
+            else if (nick === 'b2share') {
+                export_to_repository_b2share(req, res);
+            }
+            else {
+                const msg = "Invalid target repository";
+                console.error(msg);
+                res.status(500).json(
+                    {
+                        "result": "error",
+                        "message": msg
+                    }
+                );
+            }
+
+            /*if (targetRepository.ddr.hasPlatform.foaf.nick === 'ckan') {
+                export_to_repository_ckan(req, res);
+            }
+            else if (targetRepository.ddr.hasPlatform.foaf.nick === 'dspace' || targetRepository.ddr.hasPlatform.foaf.nick === 'eprints') {
+                export_to_repository_sword(req, res);
+            }
+            else if (targetRepository.ddr.hasPlatform.foaf.nick === 'figshare') {
+                export_to_repository_figshare(req, res);
+            }
+            else if (targetRepository.ddr.hasPlatform.foaf.nick === 'zenodo') {
+                export_to_repository_zenodo(req, res);
+            }
+            else if (targetRepository.ddr.hasPlatform.foaf.nick === 'b2share') {
+                export_to_repository_b2share(req, res);
+            }
+            else {
+                const msg = "Invalid target repository";
+                console.error(msg);
+                res.status(500).json(
+                    {
+                        "result": "error",
+                        "message": msg
+                    }
+                );
+            }*/
+        });
     }
     catch (e) {
         const msg = "Error exporting to repository: " + e.message;
