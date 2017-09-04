@@ -25,8 +25,8 @@ Permissions.messages = {
 
 Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllowingOrDenying, errorMessage)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(allow_access)
     {
@@ -189,7 +189,7 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
     }
 };
 
-const checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
+const checkUsersRoleInParentProject = Permissions.checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
     if (!isNull(user)) {
         getOwnerProject(resource, function (err, project) {
             if (isNull(err)) {
@@ -444,35 +444,49 @@ Permissions.check = function(permissionsRequired, req, callback) {
             }
         };
 
-        async.map(permissionsRequired,
-            async.apply(checkPermission, req, user, resource),
-            function(err, results)
-            {
-                const reasonsForDenying = _.filter(results, function (result) {
-                    if (!isNull(result)) {
-                        return !result.authorized
-                    }
-                    else {
-                        return false;
-                    }
-                });
+        if(permissionsRequired instanceof Array && permissionsRequired.length > 0)
+        {
+            async.map(permissionsRequired,
+                async.apply(checkPermission, req, user, resource),
+                function(err, results)
+                {
+                    const reasonsForDenying = _.filter(results, function (result) {
+                        if (!isNull(result)) {
+                            return !result.authorized
+                        }
+                        else {
+                            return false;
+                        }
+                    });
 
-                const reasonsForAuthorizing = _.filter(results, function (result) {
-                    if (!isNull(result)) {
-                        return result.authorized
-                    }
-                    else {
-                        return false;
-                    }
-                });
+                    const reasonsForAuthorizing = _.filter(results, function (result) {
+                        if (!isNull(result)) {
+                            return result.authorized
+                        }
+                        else {
+                            return false;
+                        }
+                    });
 
-                req = Permissions.addToReasons(req, reasonsForDenying, false);
+                    req = Permissions.addToReasons(req, reasonsForDenying, false);
 
-                req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
+                    req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
 
-                return callback(err, req, results);
-            }
-        );
+                    return callback(err, req, results);
+                }
+            );
+        }
+        else
+        {
+            const reasonsForAllowing = [{
+                authorized: true,
+                role: "Anyone"
+            }];
+
+            req = Permissions.addToReasons(req, reasonsForAllowing, true);
+
+            return callback(null, req , reasonsForAllowing);
+        }
     }
     else
     {
@@ -490,11 +504,10 @@ Permissions.check = function(permissionsRequired, req, callback) {
 Permissions.require = function(permissionsRequired, req, res, next) {
     if(Config.debug.permissions.enable_permissions_system)
     {
-        if(Config.debug.permissions.log_requests_and_permissions)
+        if(Config.debug.active && Config.debug.permissions.log_requests_and_permissions)
         {
             console.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
             console.log(JSON.stringify(permissionsRequired, null, 2));
-
         }
 
         const async = require("async");
@@ -505,7 +518,7 @@ Permissions.require = function(permissionsRequired, req, res, next) {
             Permissions.check(permissionsRequired, req, function(err, req){
                 if(req.permissions_management.reasons_for_authorizing.length > 0)
                 {
-                    if(Config.debug.permissions.log_authorizations)
+                    if(Config.debug.active && Config.debug.permissions.log_authorizations)
                     {
                         console.log("[AUTHORIZED] : Checking for permissions on request " + req.originalUrl);
                         console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
@@ -515,7 +528,7 @@ Permissions.require = function(permissionsRequired, req, res, next) {
                 }
                 else if(req.permissions_management.reasons_for_denying.length > 0)
                 {
-                    if (Config.debug.permissions.log_denials)
+                    if (Config.debug.active && Config.debug.permissions.log_denials)
                     {
                         console.log("[DENIED] : Checking for permissions on request " + req.originalUrl);
                         console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));

@@ -18,7 +18,7 @@ function RedisCache (options)
     self.id = options.id;
 }
 
-RedisCache.prototype.openConnection = function(callback) {
+RedisCache.prototype.open = function(callback) {
     const self = this;
 
     if(Config.cache.active)
@@ -72,7 +72,7 @@ RedisCache.prototype.openConnection = function(callback) {
     }
 };
 
-RedisCache.prototype.closeConnection = function(cb)
+RedisCache.prototype.close = function(cb)
 {
     let self = this;
     self.redis.end(true);

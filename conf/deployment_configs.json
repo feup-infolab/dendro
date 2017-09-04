@@ -13,6 +13,16 @@
     "sendGridPassword": "__FIXME",
     "elasticSearchHost": "192.168.56.249",
     "elasticSearchPort": "9200",
+    "datastore" :
+    {
+      "database": "127.0.0.1:3001_datastore_dev",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default",
+      "log" : {
+        "log_datastore_ops" : true
+      }
+    },
     "cache": {
       "active": true,
       "type": "mongodb",
@@ -44,14 +54,14 @@
         "instances": {
           "default": {
             "database": "127.0.0.1:3001",
-            "collection": "default_cache_dev",
+            "collection": "default_cache",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "default"
           },
           "social": {
             "database": "127.0.0.1:3001",
-            "collection": "social_cache_dev",
+            "collection": "social_cache",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "social"
@@ -59,7 +69,7 @@
           "notifications": {
             "options": {
               "database": "127.0.0.1:3001",
-              "collection": "notifications_cache_dev",
+              "collection": "notifications_cache",
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
@@ -80,8 +90,8 @@
     },
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
-    "mongoDbCollectionName": "dendro_data_dev",
-    "mongoDBSessionStoreCollection": "dendro_data_dev_sessions",
+    "mongoDbCollectionName": "127.0.0.1:3001_files",
+    "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "user": "",
@@ -165,7 +175,8 @@
       "database": {
         "log_all_queries": false,
         "log_all_cache_queries" : false,
-        "log_query_timeouts": false
+        "log_query_timeouts": false,
+        "log_query_times": false
       },
       "session": {
         "auto_login": false,
@@ -223,8 +234,8 @@
     },
     "startup": {
       "load_databases": true,
-      "reload_administrators_on_startup": true,
-      "reload_demo_users_on_startup": true,
+      "reload_administrators_on_startup": false,
+      "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,
@@ -233,7 +244,8 @@
       "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": false,
-      "destroy_all_indexes": false
+      "destroy_all_indexes": false,
+      "destroy_datastore": false
     },
     "baselines": {
     },
@@ -377,6 +389,16 @@
     "sendGridPassword": "__FIXME",
     "elasticSearchHost": "192.168.56.249",
     "elasticSearchPort": "9200",
+    "datastore" :
+    {
+      "database": "127.0.0.1:3002_datastore",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default",
+      "log" : {
+        "log_datastore_ops" : true
+      }
+    },
     "cache": {
       "active": true,
       "type": "mongodb",
@@ -407,23 +429,23 @@
         "active": true,
         "instances": {
           "default": {
-            "database": "127.0.0.1:3001",
-            "collection": "default_cache_test",
+            "database": "127.0.0.1:3002",
+            "collection": "default_cache",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "default"
           },
           "social": {
-            "database": "127.0.0.1:3001",
-            "collection": "social_cache_test",
+            "database": "127.0.0.1:3002",
+            "collection": "social_cache",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "social"
           },
           "notifications": {
             "options": {
-              "database": "127.0.0.1:3001",
-              "collection": "notifications_cache_test",
+              "database": "127.0.0.1:3002",
+              "collection": "notifications_cache",
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
@@ -444,8 +466,8 @@
     },
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
-    "mongoDbCollectionName": "dendro_data_test",
-    "mongoDBSessionStoreCollection": "dendro_data_test_sessions",
+    "mongoDbCollectionName": "127.0.0.1:3002_files",
+    "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "user": "",
@@ -460,7 +482,7 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 10,
+    "maxSimultaneousConnectionsToDb": 4,
     "dbOperationTimeout": 5000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -528,7 +550,8 @@
       "active": true,
       "database": {
         "log_all_queries": false,
-        "log_all_cache_queries": false
+        "log_all_cache_queries": false,
+        "log_query_times": false
       },
       "session": {
         "auto_login": false,
@@ -594,7 +617,8 @@
       "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
-      "destroy_all_indexes": true
+      "destroy_all_indexes": true,
+      "destroy_datastore": true
     },
     "baselines": {
     },
@@ -739,6 +763,16 @@
     "sendGridPassword": "__FIXME",
     "elasticSearchHost": "127.0.0.1",
     "elasticSearchPort": "9200",
+    "datastore" :
+    {
+      "database": "127.0.0.1:3001_jenkins_test_datastore",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default",
+      "log" : {
+        "log_datastore_ops" : true
+      }
+    },
     "cache": {
       "active": true,
       "type": "mongodb",
@@ -804,8 +838,8 @@
     },
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
-    "mongoDbCollectionName": "dendro_data_dev_jenkins_test",
-    "mongoDBSessionStoreCollection": "dendro_data_dev_sessions_jenkins_test",
+    "mongoDbCollectionName": "127.0.0.1:3001_files",
+    "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "user": "",
@@ -874,7 +908,8 @@
       "active": true,
       "database": {
         "log_all_queries": false,
-        "log_all_cache_queries" : false
+        "log_all_cache_queries" : false,
+        "log_query_times": false
       },
       "session": {
         "auto_login": false,
@@ -940,7 +975,8 @@
       "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
-      "destroy_all_indexes": true
+      "destroy_all_indexes": true,
+      "destroy_datastore": true
     },
     "baselines": {
     },

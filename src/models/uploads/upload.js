@@ -53,7 +53,7 @@ Upload.create = function(object, callback)
 
     if(typeof object.tmp_file_dir === "undefined")
     {
-        const tmp = require('tmp');
+        const tmp = require("tmp");
         const path = require("path");
 
         tmp.dir(

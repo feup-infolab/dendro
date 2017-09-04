@@ -88,7 +88,7 @@ angular.module('dendroApp.factories')
                 url: requestUri,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(
                 function(response)
                 {
@@ -98,7 +98,8 @@ angular.module('dendroApp.factories')
                             descriptors : self.deserialize_metadata(response.data.descriptors),
                             is_project_root : response.data.is_project_root,
                             is_a_file : response.data.is_a_file,
-                            file_extension : response.data.file_extension
+                            file_extension : response.data.file_extension,
+                            data_processing_error : response.data.data_processing_error
                         });
                     }
                     else
@@ -148,7 +149,7 @@ angular.module('dendroApp.factories')
                     url: url,
                     data: metadataString,
                     contentType: "application/json",
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 }).then(function (response)
                     {
                         var data = response.data;
@@ -181,7 +182,7 @@ angular.module('dendroApp.factories')
                 return $http({
                     method: 'GET',
                     url: url,
-                    headers: {'Accept': mt},
+                    headers: {"Accept": mt},
                     data : {}
                 }).then(function(response) {
                     var data = response.data;
@@ -292,7 +293,7 @@ angular.module('dendroApp.factories')
                     url: requestUri,
                     data: JSON.stringify({}),
                     contentType: "application/json",
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 }).then(function(response) {
                     return response;
                 });
@@ -311,7 +312,7 @@ angular.module('dendroApp.factories')
                         url: requestUri,
                         data: JSON.stringify({}),
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                 }).then(function(response) {
                     return response;
                 });

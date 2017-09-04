@@ -39,7 +39,7 @@ const setupGracefulClose = function(app, server, callback)
             async.map(global.gfs, function(gridFSConnection, cb){
                 if(global.gfs.hasOwnProperty(gridFSConnection))
                 {
-                    global.gfs[gridFSConnection].connection.closeConnection(cb);
+                    global.gfs[gridFSConnection].connection.close(cb);
                 }
             }, function(err, results){
                 if(!err)
@@ -50,6 +50,7 @@ const setupGracefulClose = function(app, server, callback)
                 {
                     Logger.log_boot_message("error", "Error closing all GridFS connections");
                 }
+
                 cb(err, results);
             });
         };
@@ -108,9 +109,19 @@ const setupGracefulClose = function(app, server, callback)
     };
 
     nodeCleanup(function (exitCode, signal) {
-        Logger.log_boot_message("warning", "Signal " + signal + " received!");
 
-        if(signal)
+        //if this fancy cleanup fails, we drop the hammer in 5 secs
+        const setupForceKillTimer = function()
+        {
+            setTimeout(function(){
+                Logger.log_boot_message("info", "Graceful close timed out. Forcing server closing!");
+                process.kill(process.pid);
+            }, 5000);
+        };
+
+        setupForceKillTimer();
+
+        if(exitCode || signal)
         {
             app.freeResources(function(err){
                 if(!err)
@@ -126,15 +137,18 @@ const setupGracefulClose = function(app, server, callback)
                 nodeCleanup.uninstall(); // don't call cleanup handler again
                 Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server with PID "+process.pid+" now. ");
                 process.kill(process.pid, signal);
-                return false;
             });
 
             return false;
         }
-        else
+        else if(exitCode === 0)
         {
-            return true;
+            process.exit(0);
         }
+
+        return true;
+
+        Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code "+exitCode+"!");
     });
 
     callback(null);

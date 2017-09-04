@@ -60,6 +60,7 @@
     "ng-jsonpath": "^0.1.3",
     "angular-tree-widget": "git://github.com/feup-infolab/angular-tree-widget.git",
     "ng-alerts": "git://github.com/feup-infolab/ng-alerts.git#99ab122c9e4c262711bbc06e23518a613ca29e01",
+    "okfn-licenses": "git://https://github.com/feup-infolab/licenses.git#b1b3969b759a95e01d439436b4aece9ad91c988b",
     "angular-utils-pagination": "0.11.1",
     "fileapi": "^2.0.20",
     "urijs": "uri.js#^1.18.4",
@@ -75,7 +76,9 @@
     "spin.js": "~2.0.0",
     "parsleyjs": "^2.7.2",
     "ng-img-crop": "^0.3.2",
-    "angular-image-compress": "^0.1.5"
+    "angular-image-compress": "^0.1.5",
+    "elasticsearch-okfn-reclinejs-backend": "git://github.com/okfn/elasticsearch.js#7fd7b9783e27faf20b34e4a72532c686f8138194",
+    "angular-ui-select": "^0.19.8"
   },
   "resolutions": {
     "bootstrap": "~3",

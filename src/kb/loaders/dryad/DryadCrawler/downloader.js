@@ -12,7 +12,6 @@ const numberOfConcurrentConnections = 3;
 const fs = require('fs'),
     JSONStream = require('JSONStream'),
     sleep = require('sleep'),
-    path = require('path'),
     rimraf = require('rimraf'),
     request = require("request"),
     sem = require('semaphore')(numberOfConcurrentConnections);
@@ -21,7 +20,7 @@ const makeRequestAndSaveToFile = function (url, absolutePath) {
     sem.take(function () {
         console.log("Sending request to " + url + "   ... and saving to file " + absolutePath);
         request(url, function (error, response, body) {
-            if (isNull(err)or && response.statusCode === 200) {
+            if (isNull(error) && response.statusCode === 200) {
                 fs.writeFile(absolutePath, body, function (err) {
                     sem.leave();
 

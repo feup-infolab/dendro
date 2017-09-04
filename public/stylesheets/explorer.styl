@@ -205,13 +205,30 @@ Animations (uncomment to have animations)
 }
 .image1_stacked {
   position: relative;
-  top: 0;
-  left: 0;
+  top: 0px;
+  left: 0px;
 }
 .image2_stacked {
   position: absolute;
   top: 0px;
   left: 0px;
+}
+
+.icon16
+{
+  width: 16px;
+  height: 16px;
+}
+
+.image1_stacked_file_browser {
+  width: 32px;
+  height: 32px;
+}
+
+.image2_stacked_file_browser {
+  position: absolute;
+  top: -20px;
+  left: 12px;
 }
 
 .cropArea {
@@ -245,6 +262,12 @@ Animations (uncomment to have animations)
   width: 50%;
   height: 50%;
 }
+
+.show-avatar-in-project-list {
+  width:  28px;
+  height: 28px;
+}
+
 .breadcrumb_icon {
   width: 16px;
   height: 16px;
@@ -256,5 +279,10 @@ Animations (uncomment to have animations)
 .breadcrumb a:hover {color: rgba(42, 100, 150, 1);}
 .breadcrumb>.active {color: rgba(153, 153, 153, 1);}
 .breadcrumb>li+li:before {color: rgba(204, 204, 204, 1); content: "\276D\00a0";}
+
+.disabled {
+  pointer-events:none; //This makes it not clickable
+  opacity:0.6;         //This grays it out to look disabled
+}
 
 

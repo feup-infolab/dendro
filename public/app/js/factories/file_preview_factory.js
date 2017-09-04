@@ -10,28 +10,21 @@ angular.module('dendroApp.factories')
                     return false;
                 }
                 else{
-                    var fileExtension = fileExtension.toLowerCase();
+                    fileExtension = fileExtension.toLowerCase();
                     if(this.load_views()[fileExtension] != null){
                         return true;
                     }
                     else return;
                 }
             },
-            load : function($scope, file){
-                if(file.ddr != null)
-                {
-                    var fileExtension = file.ddr.fileExtension.toLowerCase();
-                    if(this.load_views()[fileExtension] != null){
-                        this.load_views()[fileExtension]($scope, file);
-                    }
-                }
-                else
-                {
-                    return;
+            load : function($scope, fileExtension, fileUri){
+                fileExtension = fileExtension.toLowerCase();
+                if(this.load_views()[fileExtension] != null){
+                    this.load_views()[fileExtension]($scope, fileExtension, fileUri);
                 }
             },
-            load_dataset: function($scope, file) {
-                var fileUri = file.uri + '?data';
+            load_dataset: function($scope, fileExtension, fileUri) {
+                fileUri = fileUri+ '?data&format=csv';
 
                 var dataset = new recline.Model.Dataset({
                     url: fileUri,
@@ -99,11 +92,13 @@ angular.module('dendroApp.factories')
                     });
 
                     multi_view.visible = true;
+                }).fail(function(err){
+                    console.log(err);
                 });
             },
-            load_text: function($scope, file) {
+            load_text: function($scope, fileExtension, fileUri) {
                 angular.element("#data-viewer").html('');
-                var fileUri = file.uri + '?serve';
+                fileUri = fileUri + '?serve';
 
                 $http.get(fileUri).
                     then(function(response) {
@@ -125,9 +120,9 @@ angular.module('dendroApp.factories')
                         }
                     });
             },
-            load_image: function($scope, file) {
+            load_image: function($scope, fileExtension, fileUri) {
                 angular.element("#data-viewer").html('');
-                var fileUri = file.uri + '?serve';
+                fileUri = fileUri + '?serve';
 
                 $http.get(fileUri).
                     then(function(response) {
@@ -141,10 +136,10 @@ angular.module('dendroApp.factories')
                         }
                     });
             },
-            load_pdf: function($scope, file) {
+            load_pdf: function($scope, fileExtension, fileUri) {
                 angular.element("#data-viewer").html('');
-                var fileUri = file.uri + '?serve_base64';
-                var downloadFileUri = file.uri + '/download';
+                fileUri = fileUri + '?serve_base64';
+                var downloadFileUri = fileUri + '?download';
 
                 $http.get(fileUri).
                     then(function(response) {
@@ -175,26 +170,26 @@ angular.module('dendroApp.factories')
                         }
                     });
             },
-            load_audio: function($scope, file) {
+            load_audio: function($scope, fileExtension, fileUri) {
                 angular.element("#data-viewer").html('');
                 var types = {
                     "mp3": "audio/mpeg",
                     "wav": "audio/wav",
                     "ogg": "audio/ogg"
                 };
-                if(types[file.ddr.fileExtension] == null){
+                if(types[fileExtension] == null){
                     $scope.show_popup("error", "Error", "Error playing audio file.");
                     return;
                 }
 
-                var fileUri = file.uri + '?serve_base64';
+                fileUri = fileUri + '?serve_base64';
 
                 $http.get(fileUri).
                     then(function(response) {
                         var data = response.data;
                         angular.element("#data-viewer").append('<audio preload="auto" controls="controls" id="audio-file-preview"></audio>');
 
-                        var src = angular.element('<source src="data:'+types[file.ddr.fileExtension]+';base64,'+data+'">');
+                        var src = angular.element('<source src="data:'+types[fileExtension]+';base64,'+data+'">');
 
                         angular.element("#audio-file-preview").append(src);
                         angular.element("#audio-file-preview").append("Your browser does not support the audio tag.");
@@ -206,7 +201,7 @@ angular.module('dendroApp.factories')
                         }
                     });
             },
-            load_video: function($scope, file) {
+            load_video: function($scope, fileExtension, fileUri) {
                 angular.element("#data-viewer").html('');
                 var types = {
                     "mp4": "video/mp4",
@@ -215,19 +210,19 @@ angular.module('dendroApp.factories')
                     "3gp": "video/3gp",
                     "flv": "video/flv"
                 };
-                if(types[file.ddr.fileExtension] == null){
+                if(types[fileExtension] == null){
                     $scope.show_popup("error", "Error", "Error playing audio file.");
                     return;
                 }
 
-                var fileUri = file.uri + '?serve_base64';
+                fileUri = fileUri + '?serve_base64';
 
                 $http.get(fileUri).
                     then(function(response) {
                         var data = response.data;
                         angular.element("#data-viewer").append('<video preload="auto" controls="controls"  id="video-file-preview"></video>');
 
-                        var src = angular.element('<source src="data:'+types[file.ddr.fileExtension]+';base64,'+data+'">');
+                        var src = angular.element('<source src="data:'+types[fileExtension]+';base64,'+data+'">');
 
                         angular.element("#video-file-preview").append(src);
                         angular.element("#video-file-preview").append("Your browser does not support the video tag.");

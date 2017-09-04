@@ -34,7 +34,9 @@ var dendroApp = angular.module('dendroApp', [
     'dendroApp.factories',
     "imageSpinner",
     "ngImgCrop",
-    "ngImageCompress"
+    "ngImageCompress",
+    'ngSanitize',
+    'ui.select'
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
         return $sce.trustAsResourceUrl(val);
@@ -55,7 +57,7 @@ var dendroApp = angular.module('dendroApp', [
         method: 'GET',
         url: "/analytics_tracking_code",
         contentType: "application/json",
-        headers: {'Accept': "application/json"}
+        headers: {"Accept": "application/json"}
     }).then(
         function (response)
         {

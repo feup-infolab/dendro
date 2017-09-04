@@ -1,12 +1,14 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
+const async = require("async");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
@@ -278,6 +280,77 @@ InformationElement.prototype.rename = function(newTitle, callback)
     );
 };
 
+InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
+{
+    const self = this;
+
+    const oldParent = self.nie.isLogicalPartOf;
+    const newParent = newParentFolder.uri;
+
+    const query =
+        "DELETE DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       [1] nie:hasLogicalPart [2]. \n" +
+        "       [2] nie:isLogicalPartOf [1]. \n" +
+        "   } \n" +
+        "}; \n" +
+
+        "INSERT DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       [3] nie:hasLogicalPart [2]. \n" +
+        "       [2] nie:isLogicalPartOf [3]. \n" +
+        "   } " +
+        "}; \n";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.resource,
+                value: oldParent
+            },
+            {
+                type: DbConnection.resource,
+                value: self.uri
+            },
+            {
+                type: DbConnection.resource,
+                value: newParent
+            }
+        ],
+        function(err, result)
+        {
+            if(isNull(err))
+            {
+                //invalidate caches on parent, old parent and child...
+                async.series([
+                    function(callback){
+                        Cache.getByGraphUri(db.graphUri).delete(self.uri, callback);
+                    },
+                    function(callback){
+                        Cache.getByGraphUri(db.graphUri).delete(newParent, callback);
+                    },
+                    function(callback){
+                        Cache.getByGraphUri(db.graphUri).delete(oldParent, callback);
+                    }
+                ], function(err){
+                    return callback(err, result);
+                });
+            }
+            else
+            {
+                return callback(err, result);
+            }
+        });
+};
+
 InformationElement.prototype.unlinkFromParent = function(callback)
 {
     const self = this;
@@ -364,20 +437,30 @@ InformationElement.removeInvalidFileNames = function(fileNamesArray)
     return validFiles;
 };
 
-
-InformationElement.findByParentAndName = function(parentURI, name, callback)
+InformationElement.isSafePath = function(absPath, callback)
 {
-    const self = this;
-
-    const ie = Object.create(self.prototype).constructor({
-        nie: {
-            isLogicalPartOf: parentURI,
-            title: name
+    let fs = require('fs');
+    fs.realpath(absPath, function(err, realPath){
+        function b_in_a (b, a)
+        {
+            return (b.indexOf(a) === 0);
         }
-    });
 
-    self.findByUri(ie.uri, callback);
+        const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];
+
+        for(let i = 0; i < validDirs.length; i++)
+        {
+            if(b_in_a(realPath, validDirs[i]))
+            {
+                return callback(null, true);
+            }
+        }
+
+        console.error("Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
+        return callback(null, false);
+    });
 };
+
 
 InformationElement.prototype.findMetadata = function(callback, typeConfigsToRetain){
     const async = require("async");
@@ -466,6 +549,58 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
             return callback(true, msg);
         }
     }, null, null, null, [Config.types.private], [Config.types.api_accessible]);
+};
+
+InformationElement.prototype.containedIn = function(parentResource, callback, customGraphUri)
+{
+    const self = this;
+
+    if(parentResource.uri === self.uri)
+    {
+        callback(null, true);
+    }
+    else
+    {
+        const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+        db.connection.execute(
+            "WITH [0]\n"+
+            "ASK \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   {\n" +
+            "       [2] nie:isLogicalPartOf+ [1]. \n" +
+            "       [1] nie:hasLogicalPart+ [2]. \n" +
+            "   }\n" +
+            "} \n",
+
+            [
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value : graphUri
+                },
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value : parentResource.uri
+                },
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value : self.uri
+                }
+            ],
+            function(err, result) {
+                if(isNull(err))
+                {
+                    return callback(null, result);
+                }
+                else
+                {
+                    const msg = "Error checking if resource " + self.uri + " is contained in " + anotherResourceUri;
+                    console.error(msg);
+                    return callback(err, msg);
+                }
+            });
+    }
 };
 
 InformationElement = Class.extend(InformationElement, Resource, "nie:InformationElement");

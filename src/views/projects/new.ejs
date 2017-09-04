@@ -14,136 +14,246 @@
     }
 </style>
 
-<div ng-controller="projCtrl">
-    <div class="control-group has-feedback" ng-class="{'has-success' : valid_word(new_project.handle), 'has-warning' : new_project.handle && !valid_word(new_project.handle)}">
-        <label for="handle" class="control-label">Handle *</label>
-        <input type="text"
-               class="form-control"
-               ng-model="new_project.handle"
-               id="handle"
-               placeholder="Handle"
-                <%if(locals.Config.debug.views.prefill_text_boxes){%>
-               value="datanotes"
-                <%}%>
-               name="handle" required>
+<div ng-controller="projCtrl" ng-init="init()">
+    <div class="form-horizontal">
+        <fieldset>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    1. Project handle
+                </div>
+                <div class="panel-body">
+                    <div class="control-group has-feedback" ng-class="{'has-success' : valid_word(new_project.handle), 'has-warning' : new_project.handle && !valid_word(new_project.handle)}">
+                        <label for="handle" class="control-label">Handle *</label>
+                        <input type="text"
+                               class="form-control"
+                               ng-model="new_project.handle"
+                               id="handle"
+                               placeholder="Handle"
+                               name="handle" required>
 
-        <p class="help-block">A unique handle in the system for your project. Only lower case and numbers. Example: "gravimetry01" </p>
-        <span ng-show="!new_project.handle" class="glyphicon glyphicon-remove form-control-feedback"></span>
-        <span ng-show="valid_word(new_project.handle) && new_project.handle" class="glyphicon glyphicon-ok form-control-feedback"></span>
-        <span ng-show="!valid_word(new_project.handle) && new_project.handle" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
-    </div>
+                        <p class="help-block">A unique handle in the system for your project. Only lower case and numbers. Example: "gravimetry01" </p>
+                        <span ng-show="!new_project.handle" class="glyphicon glyphicon-remove form-control-feedback"></span>
+                        <span ng-show="valid_word(new_project.handle) && new_project.handle" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                        <span ng-show="!valid_word(new_project.handle) && new_project.handle" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+                    </div>
+                </div>
+            </div>
 
-    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.title}">
-        <label for="title" class="control-label">Title *</label>
-        <input type="text"
-               class="form-control"
-               ng-model="new_project.title"
-               id="title"
-               placeholder="Title"
-                <%if(locals.Config.debug.views.prefill_text_boxes){%>
-               value="Gravimetry experiments ABC"
-                <%}%>
-               name="title" required>
-        <p class="help-block">Your project's title. Example: "Gravimetry run campaign over the Azores"</p>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    2. Generic metadata
+                </div>
+                <div class="panel-body">
+                    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.title}">
+                        <label for="title" class="control-label">Title *</label>
+                        <input type="text"
+                               class="form-control"
+                               ng-model="new_project.title"
+                               id="title"
+                               placeholder="Title"
+                               name="title" required>
+                        <p class="help-block">Your project's title. Example: "Gravimetry run campaign over the Azores"</p>
 
-        <span ng-show="new_project.title" class="glyphicon glyphicon-ok form-control-feedback"></span>
-        <span ng-show="!new_project.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
-    </div>
+                        <span ng-show="new_project.title" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                        <span ng-show="!new_project.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
+                    </div>
 
-    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.description}">
-        <label for="description" class="control-label">Description *</label>
-        <textarea
-                class="form-control"
-                id="description"
-                rows="3"
-                ng-model="new_project.description"
-                placeholder="Project description..."
-                name="description" required><%if(locals.Config.debug.views.prefill_text_boxes){%>An experiment with an aeroplane and gravity recording devices<%}%></textarea>
-        <p class="help-block">Your project's description, maybe the abstract of its public grant application? Example: "Results of the third Gravimetry run campaign over the Azores</p>
+                    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.description}">
+                        <label for="description" class="control-label">Description *</label>
+                        <textarea
+                                class="form-control"
+                                id="description"
+                                rows="3"
+                                ng-model="new_project.description"
+                                placeholder="Project description..."
+                                name="description" required><%if(locals.Config.debug.views.prefill_text_boxes){%>An experiment with an aeroplane and gravity recording devices<%}%></textarea>
+                        <p class="help-block">Your project's description, maybe the abstract of its public grant application? Example: "Results of the third Gravimetry run campaign over the Azores</p>
 
-        <span ng-show="new_project.description" class="glyphicon glyphicon-ok form-control-feedback"></span>
-        <span ng-show="!new_project.description" class="glyphicon glyphicon-remove form-control-feedback"></span>
-    </div>
+                        <span ng-show="new_project.description" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                        <span ng-show="!new_project.description" class="glyphicon glyphicon-remove form-control-feedback"></span>
+                    </div>
 
-    <div class="control-group has-feedback">
-        <label for="publisher" class="control-label">Publisher</label>
-        <input type="text"
-               class="form-control"
-               id="publisher"
-               ng-model="new_project.publisher"
-               placeholder="Publisher"
-                <%if(locals.Config.debug.views.prefill_text_boxes){%>
-               value="University of Porto"
-                <%}%>
-               name="publisher">
-        <p class="help-block">An entity responsible for making the resource available. Example: "University of Porto"</p>
-    </div>
+                    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.publisher}">
+                        <label for="publisher" class="control-label">Publisher</label>
+                        <input type="text"
+                               class="form-control"
+                               id="publisher"
+                               ng-model="new_project.publisher"
+                               placeholder="Publisher"
+                               name="publisher">
+                        <p class="help-block">An entity responsible for making the resource available. Example: "University of Porto" or "<%=locals.user.foaf.firstName + " " + locals.user.foaf.surname%>"</p>
 
-    <div class="control-group has-feedback">
-        <label for="language" class="control-label">Language</label>
-        <input type="text"
-               class="form-control"
-               id="language"
-               ng-model="new_project.language"
-               placeholder="Language"
-                <%if(locals.Config.debug.views.prefill_text_boxes){%>
-               value="pt"
-                <%}%>
-               name="language">
-        <p class="help-block">A language of the resource. Example: "en"</p>
-    </div>
+                        <span ng-show="new_project.publisher" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    </div>
 
-    <div class="control-group has-feedback">
-        <label for="coverage" class="control-label">Coverage</label>
-        <input type="text"
-               class="form-control"
-               id="coverage"
-               ng-model="new_project.coverage"
-               placeholder="Coverage"
-                <%if(locals.Config.debug.views.prefill_text_boxes){%>
-               value="porto"
-                <%}%>
-               name="coverage">
-        <p class="help-block">The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant.
-            Example: "Porto"</p>
-    </div>
+                    <div class="control-group" ng-class="{'has-success' : new_project.language}">
+                        <label for="language" class="control-label">Language</label>
+                        <div class="control-group has-feedback" ng-class="{'has-success' : new_project.language, 'has-warning' : !new_project.language}">
+                            <div class="col-sm-11" id="language">
+                                <ui-select ng-model="new_project.language" theme="bootstrap" style="min-width: 300px;" title="Choose a language">
+                                    <ui-select-match placeholder="Select a language for your project...">{{$select.selected.English}}</ui-select-match>
+                                    <ui-select-choices repeat="language in languages">
+                                        <div ng-bind-html="language.English | highlight: $select.search"></div>
+                                        <small>
+                                            Language: {{language.English}}({{language.alpha2}})
+                                        </small>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="help-block">The language of your project</p>
+                    </div>
 
-    <div class="form-group" ng-class="{'has-success' : new_project.privacy}">
-        <label for="privacy" class="col-sm-2 control-label">Privacy</label>
-        <div class="col-sm-10">
-            <input type="radio"
-                   name="privacy"
-                   ng-model="new_project.privacy"
-                   value="public"
-                   ng-checked="new_project.privacy == 'public'">
-                Public: The project's metadata will be exposed and the project made publicly available, as read-only.
-            </input>
-            <br>
-            <input type="radio"
-                   name="privacy"
-                   ng-model="new_project.privacy"
-                   value="private"
-                   ng-checked="new_project.privacy == 'private'">
-                Private: Your project won't have any exposure.
-            </input>
-            <br>
-            <input type="radio"
-                   name="privacy"
-                   ng-model="new_project.privacy"
-                   value="metadata_only"
-                   ng-checked="new_project.privacy == 'metadata_only'">
-                Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
-            </input>
 
-        </div>
-    </div>
+                    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.coverage}">
+                        <label for="coverage" class="control-label">Coverage</label>
+                        <input type="text"
+                               class="form-control"
+                               id="coverage"
+                               ng-model="new_project.coverage"
+                               placeholder="Coverage"
+                               name="coverage">
+                        <p class="help-block">The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant.
+                            Example: "Porto"</p>
+                        <span ng-show="new_project.coverage" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    </div>
+                </div>
+            </div>
 
-    <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-            <button type="submit"
-                    ng-click="create_project(new_project)"
-                    ng-disabled="!(valid_word(new_project.handle) && new_project.title && new_project.description)"
-                    class="btn btn-primary">Create</button>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    3. Contact information
+                </div>
+                <div class="panel-body">
+                    <%
+                    let firstName = locals.user.foaf.firstname + " " + locals.user.foaf.surname
+                    if(firstName === " ")
+                    {
+                        firstName = null;
+                    }
+                    %>
+
+                    <div class="control-group has-feedback">
+                        <label for="contact_name" class="control-label">Contact Name</label>
+                        <input type="text"
+                               class="form-control"
+                               id="contact_name"
+                               ng-model="new_project.contact_name"
+                               placeholder="Contact Name"
+                               value="<%firstName%>"
+                               name="contact_name">
+                        <p class="help-block">The name of the entity or person to contact about the project and its data</p>
+                        <span ng-show="new_project.contact_name" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    </div>
+
+                    <div class="control-group has-feedback">
+                        <label for="contact_address" class="control-label">Contact Address</label>
+                        <input type="text"
+                               class="form-control"
+                               id="contact_address"
+                               ng-model="new_project.contact_address"
+                               placeholder="Contact Address"
+                               name="contact_address">
+                        <p class="help-block">The address of the entity or person to contact about the project and its data</p>
+                        <span ng-show="new_project.contact_address" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    </div>
+
+                    <div class="control-group has-feedback">
+                        <label for="contact_phone" class="control-label">Contact Phone</label>
+                        <input type="text"
+                               class="form-control"
+                               id="contact_phone"
+                               ng-model="new_project.contact_phone"
+                               placeholder="Contact Phone"
+                               name="contact_phone">
+                        <p class="help-block">The phone number of the person that should be contacted about the project and its data</p>
+                        <span ng-show="new_project.contact_phone" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    </div>
+
+                    <div class="control-group has-feedback">
+                        <label for="contact_email" class="control-label">Contact Email</label>
+                        <input type="text"
+                               class="form-control"
+                               id="contact_email"
+                               ng-model="new_project.contact_email"
+                               placeholder="Contact Email"
+                               name="contact_email">
+                        <p class="help-block">The email of the person that should be contacted about the project and its data</p>
+                        <span ng-show="new_project.contact_email" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    4. Privacy and License
+                </div>
+                <div class="panel-body">
+                    <h4>Privacy</h4>
+                    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.privacy}" >
+                        <div class="col-sm-12">
+                            <input type="radio"
+                                   name="privacy"
+                                   ng-model="new_project.privacy"
+                                   value="public"
+                                   ng-checked="new_project.privacy == 'public'">
+                            Public: The project's metadata will be exposed and the project made publicly available, as read-only.
+                            </input>
+                            <br>
+                            <input type="radio"
+                                   name="privacy"
+                                   ng-model="new_project.privacy"
+                                   value="private"
+                                   ng-checked="new_project.privacy == 'private'">
+                            Private: Your project won't have any exposure.
+                            </input>
+                            <br>
+                            <input type="radio"
+                                   name="privacy"
+                                   ng-model="new_project.privacy"
+                                   value="metadata_only"
+                                   ng-checked="new_project.privacy == 'metadata_only'">
+                            Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
+                            </input>
+                        </div>
+                        <span ng-show="new_project.privacy" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <h4 >License</h4>
+                    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.license, 'has-warning' : !new_project.license}">
+                        <div class="col-sm-11" id="license">
+                            <p ng-show="new_project.license && new_project.license.id != 'notspecified'">{{new_project.license.title}}</p>
+                            <p ng-show="new_project.license && new_project.license.id != 'notspecified'">Link: <a href="{{new_project.license.url}}">{{new_project.license.url}}</a></p>
+                            <ui-select ng-model="new_project.license" theme="bootstrap" style="min-width: 300px;" title="Choose a license">
+                                <ui-select-match placeholder="Select a license for your project...">{{$select.selected.title}}</ui-select-match>
+                                <ui-select-choices repeat="license in licenses">
+                                    <div ng-bind-html="license.title | highlight: $select.search"></div>
+                                    <small>
+                                        License: {{license.title}}
+                                        <span ng-show="license.maintainer != ''">Maintainer: {{license.maintainer}}</span>
+                                    </small>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <span ng-show="new_project.license" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="control-group has-feedback">
+            <div class="col-sm-12">
+                <button type="submit"
+                        ng-click="create_project(new_project)"
+                        ng-disabled="!(valid_word(new_project.handle) && new_project.title && new_project.description) && new_project.license"
+                        class="btn btn-primary">Create</button>
+            </div>
         </div>
     </div>
 </div>

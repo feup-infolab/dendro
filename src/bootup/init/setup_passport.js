@@ -1,4 +1,5 @@
 const path = require("path");
+const slug = require("slug");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -6,8 +7,7 @@ const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
 
-let slug = require('slug'),
-    session_key = "dendro_" + slug(Config.host) + "_sessionKey",
+let session_key = "dendro_" + slug(Config.host) + "_sessionKey",
     csrf = require('csurf'),
     csrfProtection = csrf({cookie: true}),
     cookieParser = require('cookie-parser'),
@@ -36,12 +36,13 @@ const setupPassport = function(app, callback)
     let sessionMongoStore;
     if(process.env.NODE_ENV !== "test")
     {
+        const mongoDBSessionsDBName = slug(Config.mongoDBSessionStoreCollection, "_");
         sessionMongoStore = new MongoStore(
             {
                 "host": Config.mongoDBHost,
                 "port": Config.mongoDbPort,
-                "db": Config.mongoDBSessionStoreCollection,
-                "url": 'mongodb://' + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDBSessionStoreCollection
+                "db": mongoDBSessionsDBName,
+                "url": 'mongodb://' + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBSessionsDBName
             });
 
         expressSessionParameters.store = sessionMongoStore;

@@ -133,16 +133,6 @@ angular.module('dendroApp.controllers')
             }
         };
 
-        $scope.load_preview = function(){
-            if($scope.shared.selected_file == null )
-            {
-                //não ha nenhum ficheiro seleccionado
-            }
-            else{
-                preview.load($scope, $scope.shared.selected_file);
-            }
-        };
-
         $scope.remove_recommendations = function(removeValuesAlreadyFilledInByUser)
         {
             for(var i = 0; i < $scope.shared.metadata.length;i++){
@@ -216,12 +206,12 @@ angular.module('dendroApp.controllers')
         };
         
         $scope.load_preview = function(){
-            if($scope.shared.selected_file == null )
+            if($scope.shared.selected_file === null )
             {
-                //não ha nenhum ficheiro seleccionado
+                preview.load($scope, $scope.shared.file_extension, $scope.get_calling_uri());
             }
             else{
-                preview.load($scope,$scope.shared.selected_file);
+                preview.load($scope, $scope.shared.selected_file.ddr.fileExtension, $scope.shared.selected_file.uri);
             }
         };
 
@@ -353,6 +343,22 @@ angular.module('dendroApp.controllers')
             }
 
             $scope.shared.selected_file = null;
+        };
+
+        $scope.select_all_files = function(selected)
+        {
+            if($scope.shared.folder_contents != null && $scope.shared.folder_contents instanceof Array)
+            {
+                for(var i = 0; i < $scope.shared.folder_contents.length; i++)
+                {
+                    $scope.shared.folder_contents[i].selected = selected;
+                }
+            }
+
+            if(!selected)
+            {
+                $scope.shared.selected_file = null;
+            }
         };
 
         $scope.file_explorer_selected_contains_deleted = function()
@@ -494,6 +500,7 @@ angular.module('dendroApp.controllers')
             $scope.shared.is_project_root = metadata.is_project_root;
             $scope.shared.is_a_file = metadata.is_a_file;
             $scope.shared.file_extension = metadata.file_extension;
+            $scope.shared.data_processing_error = metadata.data_processing_error;
         };
 
         $scope.load_metadata = function()
@@ -503,7 +510,7 @@ angular.module('dendroApp.controllers')
             metadataService.load_metadata($scope.get_calling_uri())
                 .then(function(metadata){
                     $scope.reset_metadata(metadata);
-                    deferred.resolve();
+                    deferred.resolve(metadata);
                 })
                 .catch(function(error){
                     deferred.reject(error);
@@ -539,11 +546,15 @@ angular.module('dendroApp.controllers')
             });
 
             $scope.load_metadata().then(
-                function()
+                function(metadata)
                 {
                     if (!$scope.shared.is_a_file)
                     {
                         $scope.get_folder_contents(true);
+                    }
+                    else if(!$scope.edit_mode)
+                    {
+                        $scope.load_preview();
                     }
                 }
             );

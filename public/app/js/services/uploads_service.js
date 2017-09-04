@@ -39,15 +39,15 @@ angular.module('dendroApp.services')
                 this.uploadUsingUpload = function(file, upload_url, resumable, chunkSize)
                 {
                     var url = URI(upload_url)
-                        .addSearch("filename", encodeURIComponent(file.name))
-                        .addSearch("upload_id", encodeURIComponent(file.upload_id))
-                        .addSearch("username", encodeURIComponent(file.username)).toString();
-
-                    var resumeUrl = URI(upload_url)
-                        .addSearch("resume", "true")
                         .addSearch("upload_id", encodeURIComponent(file.upload_id))
                         .addSearch("username", encodeURIComponent(file.username))
-                        .addSearch("filename", encodeURIComponent(file.name)).toString();
+                        .addSearch("filename", encodeURIComponent(file.name))
+                        .addSearch("size", encodeURIComponent(file.size))
+                        .addSearch("md5_checksum", encodeURIComponent(file.md5))
+                        .toString();
+
+                    var resumeUrl = URI(url)
+                        .addSearch("resume", "true").toString();
 
                     file.upload = Upload.upload({
                         url: url,
@@ -150,7 +150,7 @@ angular.module('dendroApp.services')
                                     method: 'GET',
                                     url: uploadUri.toString(),
                                     contentType: "application/json",
-                                    headers: {'Accept': "application/json"}
+                                    headers: {"Accept": "application/json"}
                                 }).then(
                                     function (response)
                                     {

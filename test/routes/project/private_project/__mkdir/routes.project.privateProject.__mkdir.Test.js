@@ -101,7 +101,7 @@ describe("Private Project mkdir", function (done) {
         it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, "thisIsAn*InvalidFolderName", function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(400);
                     res.body.message.should.equal("invalid file name specified");
                     done();
                 });

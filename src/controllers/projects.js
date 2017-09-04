@@ -7,6 +7,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
@@ -29,8 +30,8 @@ exports.all = function(req, res) {
     );
 
     const validateRequestType = function (cb) {
-        let acceptsHTML = req.accepts('html');
-        const acceptsJSON = req.accepts('json');
+        let acceptsHTML = req.accepts("html");
+        const acceptsJSON = req.accepts("json");
 
         if (acceptsJSON && !acceptsHTML) {
             res.status(400).json({
@@ -105,8 +106,8 @@ exports.my = function(req, res) {
     Project.findByCreatorOrContributor(req.user.uri, function(err, projects) {
         if(isNull(err) && !isNull(projects))
         {
-            let acceptsHTML = req.accepts('html');
-            const acceptsJSON = req.accepts('json');
+            let acceptsHTML = req.accepts("html");
+            const acceptsJSON = req.accepts("json");
 
             if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
@@ -722,8 +723,8 @@ exports.show = function(req, res) {
 };
 
 exports.new = function(req, res) {
-    let acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(req.originalMethod === "GET")
     {
@@ -744,8 +745,8 @@ exports.new = function(req, res) {
     }
     else if (req.originalMethod === "POST")
     {
-        acceptsHTML = req.accepts('html');
-        acceptsJSON = req.accepts('json');
+        acceptsHTML = req.accepts("html");
+        acceptsJSON = req.accepts("json");
 
         if(isNull(req.body.handle) || req.body.handle === "")
         {
@@ -853,11 +854,18 @@ exports.new = function(req, res) {
                                 description: req.body.description,
                                 publisher: req.body.publisher,
                                 language: req.body.language,
-                                coverage: req.body.coverage
+                                coverage: req.body.coverage,
                             },
                             ddr: {
                                 handle: req.body.handle,
                                 privacyStatus: req.body.privacy
+                            },
+                            schema : {
+                                provider : req.body.contact_name,
+                                telephone : req.body.contact_phone,
+                                address : req.body.contact_address,
+                                email: req.body.contact_email,
+                                license : req.body.license
                             }
                         };
 
@@ -894,6 +902,37 @@ exports.administer = function(req, res) {
         title: "Administration Area"
     };
 
+    const sendResponse = function(viewPath, viewVars, jsonResponse, statusCode)
+    {
+        const acceptsHTML = req.accepts("html");
+        const acceptsJSON = req.accepts("json");
+
+        if(acceptsJSON && !acceptsHTML)
+        {
+            if(isNull(statusCode) || statusCode === 200)
+            {
+                jsonResponse.result = "ok";
+                res.json(jsonResponse);
+            }
+            else
+            {
+                jsonResponse.result = "error";
+                res.status(statusCode).json(jsonResponse);
+            }
+        }
+        else
+        {
+            if(isNull(statusCode) || statusCode === 200)
+            {
+                res.render(viewPath, viewVars);
+            }
+            else
+            {
+                res.status(statusCode).render(viewPath, viewVars);
+            }
+        }
+    };
+
     Project.findByUri(req.params.requestedResourceUri, function(err, project)
     {
         if (isNull(err))
@@ -913,17 +952,44 @@ exports.administer = function(req, res) {
                 {
                     let updateProjectMetadata = function(callback)
                     {
-                        if (!isNull(req.body.description))
-                        {
-                            project.dcterms.description = req.body.description;
-                        }
-                        if (!isNull(req.body.title))
+                        if (!isNull(req.body.title) && req.body.title !== "")
                         {
                             project.dcterms.title = req.body.title;
                         }
+                        if (!isNull(req.body.description) && req.body.description !== "")
+                        {
+                            project.dcterms.description = req.body.description;
+                        }
+                        if (!isNull(req.body.publisher) && req.body.publisher !== "")
+                        {
+                            project.dcterms.publisher= req.body.publisher;
+                        }
+                        if (!isNull(req.body.contact_name) && req.body.contact_name !== "")
+                        {
+                            project.schema.provider = req.body.contact_name;
+                        }
+                        if (!isNull(req.body.contact_phone) && req.body.contact_phone !== "")
+                        {
+                            project.schema.telephone = req.body.contact_phone;
+                        }
+                        if (!isNull(req.body.contact_address) && req.body.contact_address !== "")
+                        {
+                            project.schema.address = req.body.contact_address;
+                        }
+                        if (!isNull(req.body.contact_email) && req.body.contact_email !== "")
+                        {
+                            project.schema.email = req.body.contact_email;
+                        }
+                        if (!isNull(req.body.license) && req.body.license !== "")
+                        {
+                            project.schema.license = req.body.license;
+                        }
+                        if (!isNull(req.body.language) && req.body.language !== "")
+                        {
+                            project.dcterms.language = req.body.language;
+                        }
 
-
-                        if (!isNull(req.body.privacy))
+                        if (!isNull(req.body.privacy) && req.body.privacy !== "")
                         {
                             viewVars.privacy = req.body.privacy;
                             switch (req.body.privacy)
@@ -1036,23 +1102,34 @@ exports.administer = function(req, res) {
                         {
                             viewVars.project = project;
                             viewVars.success_messages = ["Project " + project.ddr.handle + " successfully updated."];
-                            res.render('projects/administration/administer',
-                                viewVars
-                            );
+
+                            sendResponse(
+                                "projects/administration/administer",
+                                viewVars,
+                                {
+                                    message : viewVars.success_messages,
+                                    project : project
+                                });
                         }
                         else
                         {
                             viewVars.error_messages = [project];
-                            res.render('projects/administration/administer',
-                                viewVars
-                            );
+
+                            sendResponse(
+                                "projects/administration/administer",
+                                viewVars,
+                                {
+                                    message : viewVars.error_messages,
+                                    project : project
+                                },
+                                400);
                         }
                     })
                 }
                 else if (req.originalMethod === "GET")
                 {
                     viewVars.project = project;
-                    res.render('projects/administration/administer',
+                    res.render("projects/administration/administer",
                         viewVars
                     );
                 }
@@ -1060,17 +1137,29 @@ exports.administer = function(req, res) {
             else
             {
                 viewVars.error_messages = ["Project " + requestedResourceUri + " does not exist."];
-                res.status(401).render('index',
-                    viewVars
-                );
+
+                sendResponse(
+                    "projects/administration/administer",
+                    viewVars,
+                    {
+                        message : viewVars.error_messages,
+                        project : project
+                    },
+                    401);
             }
         }
         else
         {
             viewVars.error_messages = ["Error reported " + project];
-            res.render('projects/administration/administer',
-                viewVars
-            );
+
+            sendResponse(
+                "projects/administration/administer",
+                viewVars,
+                {
+                    message : viewVars.error_messages,
+                    project : project
+                },
+                500);
         }
     });
 };
@@ -1139,7 +1228,7 @@ exports.bagit = function(req,res)
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(baggedContentsZipFileAbsPath);
 
-                            res.on('end', function () {
+                            res.on("end", function () {
                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
                                     if(err)
                                     {
@@ -1151,6 +1240,12 @@ exports.bagit = function(req,res)
                                     }
                                 });
                             });
+
+                            res.writeHead(200,
+                                {
+                                    "Content-disposition": 'filename="Project ' + project.dcterms.title + " (Backup at "+new Date().toISOString()+").zip" + "\"",
+                                    "Content-type": Config.mimeType("zip")
+                                });
 
                             fileStream.pipe(res);
                         }
@@ -1189,121 +1284,9 @@ exports.bagit = function(req,res)
     });
 };
 
-exports.delete = function(req,res)
-{
-    Project.findByUri(req.params.requestedResourceUri, function(err, project){
-        if(isNull(err))
-        {
-            if(!isNull(project))
-            {
-                project.delete(function(err, result){
-                    if(isNull(err))
-                    {
-                        const success_messages = ["Project " + project.ddr.handle + " successfully marked as deleted"];
-
-                        let acceptsHTML = req.accepts('html');
-                        const acceptsJSON = req.accepts('json');
-
-                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                        {
-                            res.json(
-                                {
-                                    result : "ok",
-                                    message : success_messages
-                                }
-                            );
-                        }
-                        else
-                        {
-                            res.redirect('/projects/my');
-                        }
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result: "error",
-                            message : "project " + req.params.requestedResourceUri + " was found but it was impossible to delete because of error : " + result
-                        })
-                    }
-                });
-            }
-            else
-            {
-                res.status(404).json({
-                    result : "error",
-                    message : "Unable to find project with handle : " + req.params.requestedResourceUri
-                });
-            }
-        }
-        else
-        {
-            res.status(500).json({
-                result : "error",
-                message : "Invalid project : " + req.params.requestedResourceUri + " : " + project
-            });
-        }
-    });
-};
-
-exports.undelete = function(req,res)
-{
-    Project.findByUri(req.params.requestedResourceUri, function(err, project){
-        if(isNull(err))
-        {
-            if(!isNull(project))
-            {
-                project.undelete(function(err, result){
-                    if(isNull(err))
-                    {
-                        const success_messages = ["Project " + project.ddr.handle + " successfully recovered"];
-
-                        let acceptsHTML = req.accepts('html');
-                        const acceptsJSON = req.accepts('json');
-
-                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                        {
-                            res.json(
-                                {
-                                    result : "ok",
-                                    message : success_messages
-                                }
-                            );
-                        }
-                        else
-                        {
-                            res.redirect('/projects/my');
-                        }
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result: "error",
-                            message : "project " + req.params.requestedResourceUri + " was found but it was impossible to undelete because of error : " + result
-                        })
-                    }
-                });
-            }
-            else
-            {
-                res.status(404).json({
-                    result : "error",
-                    message : "Unable to find project " + req.params.requestedResourceUri
-                });
-            }
-        }
-        else
-        {
-            res.status(500).json({
-                result : "error",
-                message : "Invalid project : " + req.params.requestedResourceUri +  " : " + project
-            });
-        }
-    });
-};
-
 exports.recent_changes = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -1489,8 +1472,8 @@ exports.stats = function(req, res) {
 exports.interactions = function(req, res) {
     let username = req.params["username"];
     const currentUser = req.user;
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(!username)
     {
@@ -1542,8 +1525,8 @@ exports.interactions = function(req, res) {
 };
 
 exports.requestAccess = function(req, res){
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(req.originalMethod === "GET")
     {
@@ -1635,13 +1618,13 @@ exports.requestAccess = function(req, res){
 };
 
 exports.import = function(req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(req.originalMethod === "GET")
     {
         if(acceptsJSON && !acceptsHTML){
-            res.status(400).json({
+            return res.status(400).json({
                 result: "error",
                 message : "API Request not valid for this route."
             })
@@ -1650,7 +1633,7 @@ exports.import = function(req, res) {
         {
             const filesize = require('file-size');
 
-            res.render('projects/import/import',
+            return res.render('projects/import/import',
                 {
                     title: "Import a project",
                     maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
@@ -1661,61 +1644,395 @@ exports.import = function(req, res) {
     }
     else if (req.originalMethod === "POST")
     {
-        if(!isNull(req.files) && req.files.file instanceof Object)
+
+        const multiparty = require("multiparty");
+        const tmp = require("tmp");
+        const path = require("path");
+
+        if(isNull(req.query.imported_project_handle))
         {
-            const uploadedFile = req.files.file;
-            const path = require("path");
+            return res.status(400).json({
+                result: "error",
+                message : "No 'imported_project_handle' parameter specified. This is the new handle of the project after it is imported into Dendro",
+            });
+        }
+        else if (!req.query.imported_project_handle.match(/^[0-9a-z]+$/))
+        {
+            return res.status(400).json({
+                result: "error",
+                message : "Project handle --- 'imported_project_handle' parameter ---  can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "
+            });
+        }
 
-            const tempFilePath = uploadedFile.path;
-
-            if(path.extname(tempFilePath) === ".zip")
-            {
-                Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
-                    if(isNull(err))
+        const receiveUpload = function(callback)
+        {
+            tmp.dir({dir : Config.tempFilesDir}, function _tempDirCreated(err, tempFolderPath) {
+                const form = new multiparty.Form(
                     {
-                        const rebased_structure = JSON.parse(JSON.stringify(structure));
-                        Project.rebaseAllUris(rebased_structure, Config.baseUri);
+                        maxFields: 1,
+                        autoFiles: true,
+                        maxFilesSize : Config.maxUploadSize,
+                        uploadDir : tempFolderPath
+                    });
 
-                        res.status(200).json(
-                            {
-                                "result" : "success",
-                                "original_contents" : structure,
-                                "modified_contents" : rebased_structure
-                            }
-                        );
+                form.on('error', function (err)
+                {
+                    callback(500, {
+                        result: "error",
+                        message : "Error parsing upload form.",
+                        error : err
+                    });
+                });
+
+                form.on('aborted', function ()
+                {
+                    callback(400, {
+                        result: "error",
+                        message : "Upload aborted.",
+                    });
+                });
+
+                // Parts are emitted when parsing the form
+                form.on('file', function(name, uploadedFile) {
+                    if (!isNull(uploadedFile)) {
+                        if(!isNull(uploadedFile.path))
+                        {
+                            callback(null, uploadedFile.path);
+                        }
+                        else
+                        {
+                            callback(400, {
+                                "result" : "error",
+                                "message" : "Unable to determine the temporary path of the uploaded file on the server"
+                            });
+                        }
                     }
                     else
                     {
-                        const msg = "Error restoring zip file to folder : " + result;
-                        console.log(msg);
-
-                        res.status(500).json(
-                            {
-                                "result" : "error",
-                                "message" : msg
-                            }
-                        );
+                        callback(400, {
+                            "result" : "error",
+                            "message" : "Unable to parse upload request"
+                        });
                     }
                 });
+
+                // Parse req
+                form.parse(req);
+            });
+        };
+
+        const projectHandleCannotExist = function(callback)
+        {
+            Project.findByHandle(req.query.imported_project_handle, function(err, project){
+                if(isNull(err))
+                {
+                    if(isNull(project))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        callback(400, {
+                            result : "error",
+                            message : ["A project with handle " + req.query.imported_project_handle+ " already exists. Please choose another one."]
+                        })
+                    }
+                }
+                else
+                {
+                    callback(500, {
+                        result : "error",
+                        message : ["Error checking if project with handle " + req.query.imported_project_handle+ " already exists. "],
+                        error : project
+                    })
+                }
+            });
+        };
+
+        const processImport = function(uploadedBackupAbsPath, callback)
+        {
+            const getMetadata = function(absPathOfBagItBackupRootFolder, callback)
+            {
+                const bagItMetadataFileAbsPath = path.join(absPathOfBagItBackupRootFolder, "bag-info.txt");
+                const projectDescriptors = [];
+
+                const lineReader = require('readline').createInterface({
+                    input: require('fs').createReadStream(bagItMetadataFileAbsPath)
+                });
+
+                const getDescriptor = function(line)
+                {
+                    const fieldMatcher = {
+                        "Source-Organization" : "dcterms:publisher",
+                        "Organization-Address" : "schema:address",
+                        "Contact-Name" : "schema:provider",
+                        "Contact-Phone" : "schema:telephone",
+                        "External-Description" : "dcterms:description",
+                        "Contact-Email" : "schema:email"
+                    };
+
+                    const separator = line.indexOf(":");
+
+                    if(separator)
+                    {
+                        const bagitField = line.substring(0, separator);
+                        const bagitValue = line.substring(separator + 2); //2 extra char after index of : must be rejected, which is the space.
+                        const descriptor = fieldMatcher[bagitField];
+
+                        if(descriptor)
+                        {
+                            return new Descriptor({
+                                prefixedForm : descriptor,
+                                value : bagitValue
+                            })
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                };
+
+
+                lineReader.on('line', function (line) {
+                    if(!isNull(line))
+                    {
+                        const descriptor = getDescriptor(line);
+                        if(descriptor)
+                        {
+                            projectDescriptors.push(descriptor);
+                        }
+                    }
+                });
+
+                lineReader.on('close', function (line) {
+                    callback(projectDescriptors);
+                })
+            };
+
+            if(path.extname(uploadedBackupAbsPath) === ".zip")
+            {
+                Project.unzipAndValidateBagItBackupStructure(
+                    uploadedBackupAbsPath,
+                    Config.maxProjectSize,
+                    function(err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt){
+                        File.deleteOnLocalFileSystem(uploadedBackupAbsPath, function(err, result){
+                            if(!isNull(err))
+                            {
+                                console.error("Error occurred while deleting backup zip file at " + uploadedBackupAbsPath + " : " + JSON.stringify(result));
+                            }
+                        });
+
+                        if(isNull(err))
+                        {
+                            if(valid)
+                            {
+                                getMetadata(absPathOfUnzippedBagIt, function(descriptors){
+
+                                    const newProject = new Project({
+                                        ddr: {
+                                            is_being_imported : true,
+                                            handle : req.query.imported_project_handle
+                                        },
+                                        dcterms : {
+                                            creator : req.user.uri
+                                        }
+                                    });
+
+                                    newProject.updateDescriptors(descriptors);
+
+                                    Project.createAndInsertFromObject(newProject, function(err, newProject){
+                                        if(isNull(err))
+                                        {
+                                            newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
+                                            {
+                                                if(isNull(err))
+                                                {
+                                                    delete newProject.ddr.is_being_imported;
+                                                    newProject.save(function(err, result){
+                                                        if (isNull(err))
+                                                        {
+                                                            callback(null,
+                                                                {
+                                                                    "result": "ok",
+                                                                    "message" : "Project imported successfully.",
+                                                                    "new_project" : newProject.uri
+                                                                }
+                                                            );
+                                                        }
+                                                        else
+                                                        {
+                                                            callback(500,
+                                                                {
+                                                                    "result": "error",
+                                                                    "message": "Error marking project restore as complete.",
+                                                                    "error": result
+                                                                }
+                                                            );
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    callback(500,
+                                                        {
+                                                            "result": "error",
+                                                            "message": "Error restoring project contents from unzipped backup folder",
+                                                            "error": result
+                                                        }
+                                                    );
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            callback(500,
+                                                {
+                                                    "result": "error",
+                                                    "message": "Error creating new project record before import operation could start",
+                                                    "error": result
+                                                }
+                                            );
+                                        }
+                                    });
+                                });
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            const msg = "Error restoring zip file to folder : " + valid;
+                            console.error(msg);
+
+                            callback(500, {
+                                "result" : "error",
+                                "message" : msg
+                            });
+                        }
+                    });
             }
             else
             {
-                res.status(400).json(
+                callback(400, {
+                    "result" : "error",
+                    "message" : "Backup file is not a .zip file"
+                });
+            }
+        };
+
+        async.waterfall([
+            projectHandleCannotExist,
+            receiveUpload,
+            processImport
+        ], function(err, results){
+            if(isNull(err))
+            {
+                res.json(results);
+            }
+            else
+            {
+                res.status(err).json(results);
+            }
+        });
+    }
+};
+
+exports.delete = function(req, res) {
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    const getProject = function(callback)
+    {
+        Project.findByUri(req.params.requestedResourceUri, function(err, project){
+            if(isNull(err))
+            {
+                if(!isNull(project) && project instanceof Project)
+                {
+                    callback(null, project);
+                }
+                else
+                {
+                    res.render('projects/delete',
+                        {
+                            title: "Delete a project",
+                            success_messages : [ "Project with URI " + req.params.requestedResourceUri + " does not exist" ]
+                        }
+                    );
+                }
+            }
+            else
+            {
+                res.status(500).render('projects/delete',
                     {
-                        "result" : "error",
-                        "message" : "Backup file is not a .zip file"
+                        title: "Delete a project",
+                        error_messages : [ "Error fetching project with uri " + project.uri ]
                     }
                 );
             }
-        }
-        else
+        });
+    }
+
+    if(acceptsJSON && !acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message : "API Request not valid for this route."
+        });
+    }
+    else
+    {
+        if(req.originalMethod === "GET")
         {
-            res.status(500).json(
+
+            getProject(function(err, project){
+                res.render('projects/delete',
+                    {
+                        title: "Delete a project",
+                        project : project
+                    }
+                );
+            });
+        }
+        else if(req.originalMethod === "POST" || req.originalMethod === "DELETE")
+        {
+            getProject(function(err, project){
+                if(!err)
                 {
-                    "result" : "error",
-                    "message" : "invalid request"
+                    if(!isNull(project) && project instanceof Project)
+                    {
+                        project.delete(function(err, result){
+                            if(isNull(err))
+                            {
+                                req.flash("success", [ "Project " + project.uri + " deleted successfully" ]);
+                                res.redirect("/projects/my");
+                            }
+                            else
+                            {
+                                req.flash("error", [ "Error deleting project "+project.uri+" : " + JSON.stringify(result) ]);
+                                res.status(500).redirect(req.url);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        req.flash("error", "Project "+req.params.requestedResourceUri+" does not exist");
+                        res.status(404).redirect('/projects/my');
+                    }
                 }
-            );
+                else
+                {
+                    req.flash("error", "Error retrieving project " + req.params.requestedResourceUri);
+                    req.flash("error", "Error details" + project);
+                    res.status(500).redirect('/projects/my');
+                }
+            });
         }
     }
 };

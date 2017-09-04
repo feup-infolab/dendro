@@ -285,7 +285,7 @@ angular.module('dendroApp.controllers')
                 url: url,
                 data: requestString,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(function(response) {
                 var data = response.data;
 

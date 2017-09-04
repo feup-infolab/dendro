@@ -35,9 +35,11 @@ function requireUncached(module) {
 
 module.exports.setup = function(finish)
 {
-    const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
-    const foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
+    let createProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+    const projectsData = createProjectsUnit.projectsData;
+
     let createFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+    const foldersData = createFoldersUnit.foldersData;
 
     createFoldersUnit.setup(function (err, results) {
         if(err)

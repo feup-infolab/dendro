@@ -12,8 +12,37 @@ Elements.schema = {
     sharedContent :
     {
         type : DbConnection.string,
-        control : Controls.input_box
-
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    provider :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    telephone :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    address :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    license :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
     }
 };
 
@@ -1088,6 +1117,34 @@ Elements.ddr = {
         control : Controls.input_box,
         private : true,
         locked : true,
+    },
+    hasDataContent :
+    {
+        type : DbConnection.boolean,
+        control : Controls.input_box,
+        locked : true,
+        api_readable : true
+    },
+    processingData :
+    {
+        type : DbConnection.boolean,
+        control : Controls.input_box,
+        locked : true,
+        api_readable : true
+    },
+    hasDataProcessingError :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true,
+        api_readable : true
+    },
+    is_being_imported :
+    {
+        type : DbConnection.boolean,
+        control : Controls.input_box,
+        locked : true,
+        api_readable : true
     }
 };
 

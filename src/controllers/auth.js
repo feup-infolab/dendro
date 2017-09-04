@@ -10,8 +10,8 @@ const async = require("async");
 
 module.exports.login = function(req, res, next){
 
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(req.originalMethod === "GET")
     {
@@ -155,8 +155,8 @@ module.exports.logout = function(req, res){
 };
 
 module.exports.register = function(req, res){
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {

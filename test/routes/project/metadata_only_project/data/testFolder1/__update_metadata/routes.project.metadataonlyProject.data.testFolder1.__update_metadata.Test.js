@@ -104,6 +104,7 @@ describe("Metadata only project testFolder1 level update_metadata", function () 
                     //jsonOnly, agent, projectHandle, itemPath, cb
                     itemUtils.getItemMetadata(true, agent, metadataProject.handle, folderForDemouser2.name, function (error, response) {
                         response.statusCode.should.equal(200);
+                        descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors).should.equal(true);
                         descriptorUtils.containsAllMetadata(folderForDemouser2.metadata, JSON.parse(response.text).descriptors).should.equal(true);
                         done();
                     });
@@ -131,6 +132,7 @@ describe("Metadata only project testFolder1 level update_metadata", function () 
                     //jsonOnly, agent, projectHandle, itemPath, cb
                     itemUtils.getItemMetadata(true, agent, metadataProject.handle, testFolder1.name, function (error, response) {
                         response.statusCode.should.equal(200);
+                        descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors).should.equal(true);
                         descriptorUtils.containsAllMetadata(testFolder1.metadata, JSON.parse(response.text).descriptors).should.equal(true);
                         done();
                     });

@@ -178,7 +178,7 @@ function Descriptor(object, typeConfigsToRetain)
                         {
                             self[type] = object[type];
                         }
-                        else if(!isNull(Elements[self.prefix][self.shortName][type]))
+                        else if(!isNull(Elements[self.prefix][self.shortName]) && isNull(Elements[self.prefix][self.shortName][type]))
                         {
                             self[type] = Elements[self.prefix][self.shortName][type];
                         }

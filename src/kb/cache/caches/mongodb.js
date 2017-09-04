@@ -18,7 +18,7 @@ function MongoDBCache (options)
     self.id = options.id;
 }
 
-MongoDBCache.prototype.openConnection = function(callback) {
+MongoDBCache.prototype.open = function(callback) {
     const self = this;
 
     if(!isNull(self.client))
@@ -43,7 +43,7 @@ MongoDBCache.prototype.openConnection = function(callback) {
     }
 };
 
-MongoDBCache.prototype.closeConnection = function(cb)
+MongoDBCache.prototype.close = function(cb)
 {
     const self = this;
     self.client.close(function(err, result){

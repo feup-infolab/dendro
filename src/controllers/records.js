@@ -14,8 +14,8 @@ const _ = require("underscore");
 const request = require("request");
 
 exports.show_deep = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -51,9 +51,10 @@ exports.show_deep = function(req, res) {
 
                                 result.is_project_root = false;
                                 result.is_a_file = resource.isA(File);
+                                result.data_processing_error = resource.ddr.hasDataProcessingError;
 
                                 res.set("Content-Type", contentType);
-                                res.set("Content-disposition", "attachment; filename=\"" + result.nie.title + "\"");
+                                res.set("Content-disposition", "attachment; filename=\"" + resource.nie.title + "\"");
                                 res.send(serializer(result));
 
                             }
@@ -95,8 +96,8 @@ exports.show_deep = function(req, res) {
 };
 
 exports.show = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -168,8 +169,8 @@ exports.show = function(req, res) {
 };
 
 exports.show_parent = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -245,8 +246,8 @@ exports.show_parent = function(req, res) {
 };
 
 exports.update = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -416,8 +417,8 @@ exports.update = function(req, res) {
 };
 
 exports.show_version = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -482,8 +483,8 @@ exports.show_version = function(req, res) {
 };
 
 exports.restore_metadata_version = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {

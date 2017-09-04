@@ -26,7 +26,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("private project recent changes", function () {
     before(function (done) {
-        this.timeout(Config.testsTimeout);
+        this.timeout(Config.longTestsTimeout);
         addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();

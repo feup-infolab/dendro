@@ -1,3 +1,6 @@
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+
 let folderData = {
     name : 'folderDemoUser2',
     version: 0,
@@ -6,9 +9,9 @@ let folderData = {
     backup_md5 : '',
     search_terms : 'folderDemoUser2',
     files : [
-        require("../files/pdfMockfile"),
-        require("../files/pngMockfile"),
-        require("../files/xlsxMockfile")
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockfile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockfile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockfile.js"))
     ],
     metadata :[
         {

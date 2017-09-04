@@ -77,6 +77,30 @@ const getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) 
     }
 };
 
+const getItemMetadataByUri = function (jsonOnly, agent, uri, cb) {
+    //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
+    const path = uri;
+
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 const getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata&deep
     const path = '/project/' + projectHandle + '/data/' + itemPath + '?metadata&deep';
@@ -330,6 +354,7 @@ const viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
 module.exports = {
     updateItemMetadata: updateItemMetadata,
     getItemMetadata: getItemMetadata,
+    getItemMetadataByUri: getItemMetadataByUri,
     getItemRecentChanges: getItemRecentChanges,
     getItemVersion: getItemVersion,
     deleteItem: deleteItem,

@@ -40,12 +40,15 @@
                                     <td ng-show="shared.multiple_selection_active">
                                         <input  type="checkbox" ng-model="file.selected" multiple>
                                     </td>
-                                    <td>
-                                        <img ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" image-spinner width=32 height=32"/>
+                                    <td class="parent_stacked_image">
+                                        <img class="image1_stacked_file_browser" ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" image-spinner/>
+                                        <img class="image2_stacked_file_browser" src="/images/icons/bullet_yellow.png" ng-if="file.ddr.processingData" image-spinner/>
+                                        <img class="image2_stacked_file_browser" src="/images/icons/bullet_green.png" ng-if="file.ddr.hasDataContent" image-spinner/>
+                                        <img class="image2_stacked_file_browser" src="/images/icons/bullet_orange.png" ng-if="file.ddr.hasDataProcessingError" image-spinner/>
+                                        <img class="image2_stacked_file_browser" src="/images/icons/bin.png" ng-if="file.ddr.deleted" image-spinner/>
                                     </td>
                                     <td class="filename-tablecell">
                                         <small>{{file.nie.title}}</small>
-                                        <span ng-show="file.ddr.deleted" class="label label-warning">Deleted</span>
                                     </td>
                                 </tr>
                             </table>
