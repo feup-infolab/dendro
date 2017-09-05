@@ -7,6 +7,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
+const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 const records = require(Pathfinder.absPathInSrcFolder("/controllers/records.js"));
@@ -1936,61 +1937,35 @@ exports.export_to_repository = function (req, res) {
             function (callback) {
                 if(typeof targetRepository.ddr.hasPlatform === "string")
                 {
-                    ExternalRepository.findByUri(targetRepository.uri, function (err, externalRepo) {
-                        if(!isNull(err) || isNull(externalRepo))
+                    RepositoryPlatform.getUriFromHumanReadableUri(targetRepository.ddr.hasPlatform, function (err, resourceUri) {
+                        if(isNull(err))
                         {
-                            const msg = "Invalid target repository: " + JSON.stringify(externalRepo);
-                            console.error(msg);
-                            callback(true, msg)
-                        }
-                        else
-                        {
-                            nick = externalRepo.ddr.hasPlatform.foaf.nick;
-                            callback(null, nick);
-                        }
-                    });
-                    /*ExternalRepository.getUriFromHumanReadableUri(targetRepository.uri, function(err, resourceUri){
-                        if(!isNull(err) || isNull(resourceUri))
-                        {
-                            const msg = "Invalid target repository: " + JSON.stringify(resourceUri);
-                            console.error(msg);
-                            callback(true, msg);
-                        }
-                        else
-                        {
-                            ExternalRepository.findByUri(resourceUri, function (err, externalRepo) {
-                                if(!isNull(err) || isNull(externalRepo))
+                            RepositoryPlatform.findByUri(resourceUri, function (err, repositoryPlatform) {
+                                if(isNull(err))
                                 {
-                                    const msg = "Invalid target repository: " + JSON.stringify(externalRepo);
-                                    console.error(msg);
-                                    callback(true, msg)
+                                    nick = repositoryPlatform.foaf.nick;
+                                    callback(null, nick);
                                 }
                                 else
                                 {
-                                    nick = externalRepo.ddr.hasPlatform.foaf.nick;
-                                    callback(null, nick);
+                                    const msg = "Invalid repository platform: " + JSON.stringify(repositoryPlatform);
+                                    console.error(msg);
+                                    callback(true, msg);
                                 }
                             });
                         }
-                    });*/
+                        else
+                        {
+                            const msg = "Invalid target repository hasPlatform value: " + JSON.stringify(resourceUri);
+                            console.error(msg);
+                            callback(true, msg);
+                        }
+                    });
                 }
                 else
                 {
-                    //nick = targetRepository.ddr.hasPlatform.foaf.nick;
-                    //callback(null, nick);
-                    ExternalRepository.findByUri(targetRepository.uri, function (err, externalRepo) {
-                        if(!isNull(err) || isNull(externalRepo))
-                        {
-                            const msg = "Invalid target repository: " + JSON.stringify(externalRepo);
-                            console.error(msg);
-                            callback(true, msg)
-                        }
-                        else
-                        {
-                            nick = externalRepo.ddr.hasPlatform.foaf.nick;
-                            callback(null, nick);
-                        }
-                    });
+                    nick = targetRepository.ddr.hasPlatform.foaf.nick;
+                    callback(null, nick);
                 }
             }
         ], function (err, results) {

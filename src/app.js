@@ -80,6 +80,10 @@ const prepareEnvironment = function(callback)
             require(Pathfinder.absPathInSrcFolder("bootup/load/load_ontologies.js")).loadOntologies(self.app, callback);
         },
         function(callback) {
+            //load or save repository platforms on the database
+            require(Pathfinder.absPathInSrcFolder("bootup/load/load_repository_platforms.js")).loadRepositoryPlatforms(self.app, callback);
+        },
+        function(callback) {
             //load Descriptor Information
             require(Pathfinder.absPathInSrcFolder("bootup/load/load_descriptor_information.js")).loadDescriptorInformation(self.app, callback);
         },

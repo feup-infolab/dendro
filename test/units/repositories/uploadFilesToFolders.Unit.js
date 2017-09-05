@@ -55,7 +55,7 @@ module.exports.setup = function(finish)
                         projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res) {
                             res.statusCode.should.equal(200);
                             async.mapSeries(res.body, function (folder, cb) {
-                                fileUtils.uploadFile(true, agent, privateProject.handle, folder.name, txtMockFile, function (err, res)
+                                fileUtils.uploadFile(true, agent, project.handle, folder.nie.title, txtMockFile, function (err, res)
                                 {
                                     res.statusCode.should.equal(200);
                                     res.body.should.be.instanceof(Array);

@@ -174,7 +174,7 @@ describe("Calculate public project folderExportCkan level ckan respository diffs
         });
     });
 
-    describe("[POST] [CKAN] Second time being exported but no diffs exit /project/:handle/data/:foldername?export_to_repository", function () {
+    describe("[POST] [CKAN] Second time being exported but no diffs exist /project/:handle/data/:foldername?export_to_repository", function () {
 
         it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
             /*userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -276,14 +276,15 @@ describe("Calculate public project folderExportCkan level ckan respository diffs
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanNoDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.message.should.not.equal("Package was not previously exported");
+                    res.body.ckanDiffs.length.should.equal(0);
+                    res.body.dendroDiffs.length.should.equal(0);
                     done();
                 });
             });
         });
     });
 
-    /*describe("[POST] [CKAN] Second time being exported but ckan diffs exit /project/:handle/data/:foldername?export_to_repository", function () {
+    /*describe("[POST] [CKAN] Second time being exported but ckan diffs exist /project/:handle/data/:foldername?export_to_repository", function () {
 
         it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
             /!*userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -386,7 +387,7 @@ describe("Calculate public project folderExportCkan level ckan respository diffs
         });
     });
 
-    describe("[POST] [CKAN] Second time being exported but dendro diffs exit /project/:handle/data/:foldername?export_to_repository", function () {
+    describe("[POST] [CKAN] Second time being exported but dendro diffs exist /project/:handle/data/:foldername?export_to_repository", function () {
 
         it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
             /!*userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
