@@ -27,8 +27,8 @@ const newExportRepoData =
                     homepage: "http://192.168.33.60:5000"
                 }
             },
-            hasExternalUri: "http://192.168.33.60:5000/cenas",
-            hasAccessToken: "6a50a8d3-44ce-4825-b3c7-9bca1c57165f"
+            hasExternalUri: "http://wrongUri.com",
+            hasAPIKey: "6a50a8d3-44ce-4825-b3c7-9bca1c"
         },
         foaf: {},
         nie: {},

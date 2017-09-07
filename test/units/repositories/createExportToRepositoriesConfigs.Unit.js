@@ -24,10 +24,11 @@ function requireUncached(module) {
 
 module.exports.setup = function(finish)
 {
-    //let addMetadataToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-    let uploadFilesToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFilesToFolders.Unit.js"));
+    //let uploadFilesToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFilesToFolders.Unit.js"));
+    let clearCkanOrganizationStateUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/clearCkanOrganizationState.Unit.js"));
 
-    uploadFilesToFoldersUnit.setup(function (err, results) {
+    //uploadFilesToFoldersUnit.setup(function (err, results) {
+    clearCkanOrganizationStateUnit.setup(function (err, results) {
         if(err)
         {
             finish(err, results);

@@ -28,7 +28,7 @@ const newExportRepoData =
                 }
             },
             hasExternalUri: "http://192.168.33.60:5000",
-            hasAccessToken: "6a50a8d3-44ce-4825-b3c7-9bca1c57165fCenas"
+            hasAPIKey: "6a50a8d3-44ce-4825-b3c7-9bca1c-cenas"
         },
         foaf: {},
         nie: {},
