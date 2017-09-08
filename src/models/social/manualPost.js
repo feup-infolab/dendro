@@ -1,5 +1,6 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 var Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
@@ -17,7 +18,7 @@ var async = require('async');
 
 function ManualPost (object)
 {
-    ManualPost.baseConstructor.call(this, object);
+    /*ManualPost.baseConstructor.call(this, object);
     var self = this;
 
     if(object.uri != null)
@@ -32,6 +33,27 @@ function ManualPost (object)
     self.copyOrInitDescriptors(object);
 
     self.rdf.type = "ddr:ManualPost";
+
+    return self;*/
+
+    const self = this;
+    //self.addURIAndRDFType(object, "post", Post);
+    self.addURIAndRDFType(object, "post", ManualPost);
+    ManualPost.baseConstructor.call(this, object);
+
+    self.copyOrInitDescriptors(object);
+
+    const newId = uuid.v4();
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
+    }
+
+
+
+
+    self.ddr.numLikes = 0;
 
     return self;
 }
@@ -52,9 +74,11 @@ ManualPost.buildManualPost = function (userUri, project, postInfo, callback) {
     callback(null, newPost);
 };
 
-
-/*ManualPost.prefixedRDFType = "ddr:ManualPost";*/
-
+/*
 ManualPost = Class.extend(ManualPost, Post);
+
+module.exports.ManualPost = ManualPost;*/
+
+ManualPost = Class.extend(ManualPost, Post, "ddr:ManualPost");
 
 module.exports.ManualPost = ManualPost;
