@@ -831,6 +831,44 @@ exports.upload = function(req, res)
                 });
 
             }, function (err, results) {
+                //TODO create here the FileSystemPost upload events
+                /*FileSystemPost.buildFromUpload(currentUserUri, fileVersion.metadata.project, fileVersion, function (err, newfileSystemPost) {
+                    if(!err)
+                    {
+                        newfileSystemPost.save(function (err, fileSystemPost)
+                        {
+                            if (!err)
+                            {
+                                cb(null, fileSystemPost);
+                            }
+                            else
+                            {
+                                console.error("Error when saving a FileSystemPost from a file upload");
+                                console.error(err);
+                                cb(true, fileSystemPost);
+                            }
+                        }, false, null, null, null, null, db_social.graphUri)
+                    }
+                    else
+                    {
+                        console.error("Error when building a FileSystemPost from a file upload");
+                        console.error(err);
+                        cb(true, newfileSystemPost);
+                    }
+                });*/
+                //TODO caso não exista erro, results é um array cada elemento tem a uri do ficheiro que foi uploaded
+                /*if(isNull(err))
+                {
+                    async.map(results, function (result, callback) {
+
+                    }, function (err, result) {
+
+                    })
+                }
+                else
+                {
+
+                }*/
                 return callback(err, results);
             });
         }

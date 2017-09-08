@@ -81,6 +81,35 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
         return callback(null, results);
     }
 };
+
+exports.getUserPostsUris = function (userUri, currentPage, callback) {
+    var index = currentPage == 1 ? 0 : (currentPage * 5) - 5;
+    var maxResults = 5;
+    Project.findByCreatorOrContributor(userUri, function (err, projects) {
+        if (!err) {
+            async.map(projects, function (project, cb1) {
+                cb1(null, project.uri);
+            }, function (err, fullProjectsUris) {
+                getAllPosts(fullProjectsUris, function (err, results) {
+                    if (!err) {
+                        callback(err, results);
+                    }
+                    else {
+                        console.error("Error getting a user post");
+                        console.error(err);
+                        callback(err, results)
+                    }
+                }, index, maxResults);
+            })
+        }
+        else {
+            console.error("Error finding user projects");
+            console.error(projects);
+            callback(err, projects)
+        }
+    });
+};
+
 const getNumLikesForAPost = function(postID, cb) {
     const query =
         "SELECT ?likeURI ?userURI \n" +
