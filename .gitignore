@@ -48,15 +48,15 @@ jspm_packages
 .idea/
 temp/
 
-*.csv
-
 .nyc_output
 build/config.gypi
 .idea/dendro.iml
 
-*.pdf
 running.pid
 
 .vs/dendro/v15/.suo
 .vs/VSWorkspaceState.json
 .vs/slnx.sqlite
+package-lock\.json
+
+profiling/

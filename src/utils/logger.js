@@ -1,5 +1,10 @@
+const Pathfinder = global.Pathfinder;
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+
 function Logger()
 {
+
 }
 
 Logger.override_console = function(window, morgan)
@@ -30,5 +35,25 @@ Logger.override_console = function(window, morgan)
     window.console = console;
 };
 
+Logger.log_boot_message = function(type, message)
+{
+    const path = require("path");
+    const colors = require("colors");
+    let intro = "[MISC]".cyan;
+    if(Config.startup.log_bootup_actions)
+    {
+        if(type === "info")
+        {
+            intro = "[INFO]".blue;
+        }
+        else if(type === "success")
+        {
+            intro = "[OK]".green;
+        }
 
-module.exports.logger = Logger;
+        console.log(intro + " " + message);
+    }
+};
+
+
+module.exports.Logger = Logger;

@@ -231,11 +231,11 @@ angular.module('dendroApp.controllers')
             $scope.is_sending_data = true;
 
             $http({
-                method: 'POST',
+                method: "POST",
                 url: url,
                 data: requestString,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(function(response) {
                 var data = response.data;
 
@@ -332,7 +332,7 @@ angular.module('dendroApp.controllers')
             var requestString = JSON.stringify(payload);
             $scope.show_popup("info", "Notice", "Accessing workspaces and collections of target repository");
             $http({
-                method: 'POST',
+                method: "POST",
                 url: "/external_repositories/sword_collections",
                 data: requestString
             }).then(function(response) {

@@ -1,14 +1,14 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const ExternalRepository = require(Config.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
-const RepositoryPlatform = require(Config.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
+const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 const validateNewBookmarkRequest = function (req, res) {
     const validator = require('validator');
@@ -201,11 +201,11 @@ exports.new = function(req, res) {
                         hasOrganization: req.body.ddr.hasOrganization,
                         hasAPIKey: req.body.ddr.hasAPIKey
                     }
-                }, req.user.ddr.username);
+                });
 
                 if (newBookmark instanceof ExternalRepository) {
                     newBookmark.save(function (err, result) {
-                        if (!err) {
+                        if (isNull(err)) {
                             res.json({
                                 result: "ok",
                                 message: "New bookmark saved as " + newBookmark.dcterms.title
@@ -270,11 +270,11 @@ returned format :
 
 exports.my = function(req, res) {
     ExternalRepository.findByCreator(req.user.uri, function(err, myRepositoryBookmarks){
-        if(!err)
+        if(isNull(err))
         {
             const getPlatformDetails = function (myRepositoryBookmark, callback) {
                 RepositoryPlatform.findByUri(myRepositoryBookmark.ddr.hasPlatform, function (err, platform) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (!isNull(platform)) {
                             myRepositoryBookmark.ddr.hasPlatform = platform;
                         }
@@ -288,7 +288,7 @@ exports.my = function(req, res) {
             };
 
             async.map(myRepositoryBookmarks, getPlatformDetails, function(err, bookmarksWithPlatforms){
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(bookmarksWithPlatforms);
                 }
@@ -305,7 +305,7 @@ exports.my = function(req, res) {
         }
         else
         {
-            var msg = "Unable to find repository bookmarks created by " + req.user.uri + " . Error returned : " + myRepositoryBookmarks;
+            const msg = "Unable to find repository bookmarks created by " + req.user.uri + " . Error returned : " + myRepositoryBookmarks;
 
             res.status(500).json({
                 result : "error",
@@ -316,8 +316,8 @@ exports.my = function(req, res) {
 };
 
 exports.all = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -330,7 +330,7 @@ exports.all = function(req, res) {
     {
         ExternalRepository.all(function(err, externalRepositories){
 
-            if(!err)
+            if(isNull(err))
             {
                 for(let i = 0; i < externalRepositories.length; i++)
                 {
@@ -357,11 +357,11 @@ exports.delete = function(req, res){
     if(req.originalMethod === "DELETE")
     {
         ExternalRepository.findByUri(requestedResourceUri, function(err, bookmark){
-            if(!err)
+            if(isNull(err))
             {
                 if(!bookmark)
                 {
-                    var msg = "Unable to retrieve the requested bookmark for deletion.";
+                    const msg = "Unable to retrieve the requested bookmark for deletion.";
                     res.status(400).json({
                         result : "error",
                         message : msg
@@ -370,9 +370,9 @@ exports.delete = function(req, res){
                 else
                 {
                     bookmark.deleteAllMyTriples(function(err, result){
-                        if(!err)
+                        if(isNull(err))
                         {
-                            var msg = "Bookmark " + bookmark.dcterms.title + " successfully deleted. ";
+                            const msg = "Bookmark " + bookmark.dcterms.title + " successfully deleted. ";
                             res.json({
                                 result : "ok",
                                 message : msg
@@ -380,7 +380,7 @@ exports.delete = function(req, res){
                         }
                         else
                         {
-                            var msg = "Error deleting bookmark " + requestedResourceUri + ". Error reported: " + result;
+                            const msg = "Error deleting bookmark " + requestedResourceUri + ". Error reported: " + result;
                             res.status(500).json({
                                 result : "error",
                                 message : msg
@@ -391,7 +391,7 @@ exports.delete = function(req, res){
             }
             else
             {
-                var msg = "Unable to retrieve types of external repository platforms for this Dendro instance.";
+                const msg = "Unable to retrieve types of external repository platforms for this Dendro instance.";
                 res.status(500).json({
                     result : "error",
                     message : msg
@@ -434,7 +434,7 @@ exports.delete = function(req, res){
 exports.repository_types = function(req, res){
 
     RepositoryPlatform.all(function(err, types){
-        if(!err)
+        if(isNull(err))
         {
             res.json(types);
         }

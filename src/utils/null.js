@@ -4,7 +4,8 @@ function isNull(object)
     {
         return true;
     }
-    else {
+    else
+    {
         if(typeof object === "undefined")
         {
             return true;

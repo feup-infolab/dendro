@@ -1,63 +1,52 @@
-const async = require('async');
+const async = require("async");
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const db = Config.getGFSByID();
 
-function ResearchDomain (object, callback)
+function ResearchDomain (object)
 {
-    ResearchDomain.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "research_domain", ResearchDomain);
+    ResearchDomain.baseConstructor.call(this, object);
 
-    self.rdf.type = ResearchDomain.prefixedRDFType;
+    self.copyOrInitDescriptors(object);
+    return self;
+}
 
-    const now = new Date();
+ResearchDomain.create = function(object, callback)
+{
+    const self = new ResearchDomain(object);
 
-    if(isNull(object.dcterms))
+    if(!isNull(self.ddr) && isNull(self.ddr.humanReadableName))
     {
-        self.dcterms = {
-            created : now.toISOString()
-        }
-    }
-    else
-    {
-        if(isNull(object.dcterms.created))
+        if(!isNull(object.ddr) && !isNull(object.ddr.humanReadableURI))
         {
-            self.dcterms.created = now.toISOString();
+            self.ddr.humanReadableURI = object.ddr.humanReadableURI;
         }
         else
         {
-            self.dcterms.created = object.dcterms.created;
+            if(typeof self.dcterms.title === "string")
+            {
+                const slug = require('slug');
+                const slugified_title = slug(self.dcterms.title);
+                self.ddr.humanReadableURI = Config.baseUri +"/research_domains/"+slugified_title;
+            }
+            else
+            {
+                return callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
+            }
         }
     }
 
-    if(isNull(self.uri))
-    {
-        if(typeof self.dcterms.title === "string")
-        {
-            const slug = require('slug');
-            const slugified_title = slug(self.dcterms.title);
-            self.uri = db.baseURI+"/research_domains/"+slugified_title;
-            return callback(null, self);
-        }
-        else
-        {
-            return callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
-        }
-    }
-    else
-    {
-        return callback(0, self);
-    }
+    return callback(null, self);
 }
 ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results)
 {
@@ -100,7 +89,7 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         queryArguments,
         function(err, results)
         {
-            if (!err)
+            if (isNull(err))
             {
                 const fetchResearchDomain = function (result, callback) {
                     ResearchDomain.findByUri(result.uri, function (err, domain) {
@@ -119,8 +108,6 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         });
 };
 
-ResearchDomain.prefixedRDFType = "ddr:ResearchDomain";
-
-ResearchDomain = Class.extend(ResearchDomain, Resource);
+ResearchDomain = Class.extend(ResearchDomain, Resource, "ddr:ResearchDomain");
 
 module.exports.ResearchDomain = ResearchDomain;

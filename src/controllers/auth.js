@@ -1,17 +1,17 @@
-const Config = function() { return GLOBAL.Config; }();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const db = function() { return GLOBAL.db.default; }();
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-
-const async = require('async');
+const async = require("async");
 
 module.exports.login = function(req, res, next){
 
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(req.originalMethod === "GET")
     {
@@ -32,10 +32,10 @@ module.exports.login = function(req, res, next){
                 },
                 function(err, user, info)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         req.logIn(user, function(err) {
-                            if (!err)
+                            if (isNull(err))
                             {
                                 req.session.isAdmin = info.isAdmin;
                                 req.session.upload_manager = new UploadManager(user.ddr.username);
@@ -52,8 +52,21 @@ module.exports.login = function(req, res, next){
                                 else
                                 {
                                     req.flash('success', "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
-                                    console.log("User " + user.ddr.username + " signed in.");
-                                    res.redirect('/projects/my');
+
+                                    if(Config.debug.permissions.log_authorizations)
+                                    {
+                                        console.log("User " + user.ddr.username + " signed in.");
+                                    }
+
+                                    if(req.body.redirect)
+                                    {
+                                        res.redirect(req.body.redirect);
+                                    }
+                                    else
+                                    {
+                                        res.redirect("/projects/my");
+                                    }
+
                                 }
                             }
                             else
@@ -90,8 +103,16 @@ module.exports.login = function(req, res, next){
                         }
                         else
                         {
-                            req.flash("error", err);
-                            res.redirect("/login");
+                            req.flash('error', err);
+
+                            if(req.body.redirect)
+                            {
+                                res.redirect('/login?redirect='+req.body.redirect);
+                            }
+                            else
+                            {
+                                res.redirect("/login");
+                            }
                         }
                     }
                 }
@@ -134,8 +155,8 @@ module.exports.logout = function(req, res){
 };
 
 module.exports.register = function(req, res){
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -226,7 +247,7 @@ module.exports.register = function(req, res){
                 const findByUsername = function(callback)
                 {
                     User.findByUsername(req.body.username, function(err, user){
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(user))
                             {
@@ -266,7 +287,7 @@ module.exports.register = function(req, res){
                 const findByORCID = function(callback)
                 {
                     User.findByORCID(req.body.orcid, function(err, user){
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(user))
                             {
@@ -307,7 +328,7 @@ module.exports.register = function(req, res){
                 const insertUserRecord = function(userData, callback)
                 {
                     User.createAndInsertFromObject(userData, function(err, newUser){
-                        if(!err)
+                        if(isNull(err))
                         {
                             return callback(null, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
                         }
@@ -344,7 +365,7 @@ module.exports.register = function(req, res){
 
                     }
                 ], function(err, user){
-                    if(!err)
+                    if(isNull(err))
                     {
                         req.flash("success", user);
                         res.redirect("/login");
@@ -355,6 +376,8 @@ module.exports.register = function(req, res){
                         console.error("Error registering a new user: " + JSON.stringify(err));
                         res.redirect("/register");
                     }
+
+
                 });
             }
         }

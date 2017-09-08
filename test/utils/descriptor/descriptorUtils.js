@@ -1,32 +1,67 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var _ = require('underscore');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const _ = require("underscore");
 chai.use(chaiHttp);
 
-var getProjectDescriptorsFromOntology = function (jsonOnly, agent, ontologyPrefix, projectHandle, cb) {
-    //http://127.0.0.1:3001/descriptors/from_ontology/dcterms?project_handle=proj1
-    var path = '/descriptors/from_ontology/' + ontologyPrefix + '?project_handle='+ projectHandle;
-    if(jsonOnly)
-    {
+const getProjectDescriptorsFromOntology = function (jsonOnly, agent, ontologyPrefix, projectHandle, cb) {
+    const path = '/project/' + projectHandle+ '?descriptors_from_ontology=' + ontologyPrefix;
+    if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
+const noPrivateDescriptors = function (descriptors) {
+    for(let i = 0; i < descriptors.length; i++)
+    {
+        if((!descriptors[i].api_acessible && (descriptors.locked || descriptors.private || descriptors.locked_for_project || descriptors.immutable)))
+            return false;
+    }
+
+    return true;
+};
+
+const containsAllMetadata = function (descriptorsThatShouldBePresent, descriptorsArray) {
+    for(let i = 0; i < descriptorsThatShouldBePresent.length; i++)
+    {
+        let found = false;
+        for(let j = 0; j < descriptorsArray.length; j++)
+        {
+            if( descriptorsThatShouldBePresent[i].prefix === descriptorsArray[j].prefix
+                &&
+                descriptorsThatShouldBePresent[i].shortName === descriptorsArray[j].shortName
+                &&
+                descriptorsThatShouldBePresent[i].value === descriptorsArray[j].value
+            )
+            {
+                found = true;
+            }
+        }
+
+        if(!found)
+        {
+            return false;
+        }
+    }
+
+    return true;
+};
+
 module.exports = {
-    getProjectDescriptorsFromOntology : getProjectDescriptorsFromOntology
+    getProjectDescriptorsFromOntology : getProjectDescriptorsFromOntology,
+    noPrivateDescriptors : noPrivateDescriptors,
+    containsAllMetadata: containsAllMetadata
 };

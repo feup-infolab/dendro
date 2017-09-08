@@ -1,19 +1,19 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 
 
 exports.recommend_descriptors = function(req, res) {
 
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -24,7 +24,7 @@ exports.recommend_descriptors = function(req, res) {
     }
     else
     {
-        const resourceUri = req.params.requestedResource;
+        const resourceUri = req.params.requestedResourceUri;
 
         if(!isNull(req.user))
         {
@@ -42,7 +42,7 @@ exports.recommend_descriptors = function(req, res) {
         const indexConnection = req.index;
 
         exports.shared.recommend_descriptors(resourceUri, userUri, req.query.page, allowedOntologies, indexConnection, function(err, descriptors){
-            if(!err)
+            if(isNull(err))
             {
                 res.json(
                     {
@@ -84,9 +84,9 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
      }
 
     Descriptor.all_in_ontologies(allowedOntologies, function(err, descriptors){
-        if(!err)
+        if(isNull(err))
         {
-            const uuid = require('uuid');
+            const uuid = require("uuid");
             const recommendation_call_id = uuid.v4();
             const recommendation_call_timestamp = new Date().toISOString();
             

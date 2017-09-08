@@ -1,40 +1,39 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 
 const recommendation_mode = RecommendationUtils.getActiveRecommender();
 let recommendation;
 
 if(recommendation_mode === "dendro_recommender")
 {
-    recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation.js")).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/dr_recommendation.js")).shared;
 }
 else if(recommendation_mode === "standalone")
 {
-    recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
 }
 else if(recommendation_mode === "project_descriptors")
 {
-    recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation.js")).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/project_descriptors_recommendation.js")).shared;
 }
 else if(recommendation_mode === "none")
 {
-    recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
 }
 
-const records = require(Config.absPathInSrcFolder("/controllers/records.js"));
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const records = require(Pathfinder.absPathInSrcFolder("/controllers/records.js"));
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 
 exports.metadata_evaluation = function(req, res)
 {
     exports.shared.evaluate_metadata(req, function(err, evaluation){
-        if(!err)
+        if(isNull(err))
         {
             res.json(evaluation);
         }
@@ -52,7 +51,7 @@ exports.shared = {};
 
 exports.shared.evaluate_metadata = function(req, callback)
 {
-    const requestedResourceURI = req.params.requestedResource;
+    const requestedResourceURI = req.params.requestedResourceUri;
     const recommendationsMode = req.query.recommendations_mode;
     let includeOnlyFavorites = false;
     let smartRecommendationMode = false;
@@ -79,7 +78,7 @@ exports.shared.evaluate_metadata = function(req, callback)
                 0,
                 recommendationOntologies,
                 req.index, function (err, descriptors) {
-                    if (!err) {
+                    if (isNull(err)) {
                         return callback(null, descriptors);
                     }
                     else {
@@ -97,13 +96,13 @@ exports.shared.evaluate_metadata = function(req, callback)
 
     const getMetadata = function (requestedResource, callback) {
         requestedResource.findMetadata(function (err, metadata) {
-            if (!err) {
+            if (isNull(err)) {
                 return callback(null, metadata);
             }
             else {
                 return callback(1, "Error finding metadata from " + requestedResource.uri + ". Error reported : " + metadata);
             }
-        });
+        }, true);
     };
 
     const evaluateMetadata = function (resource, metadata, recommendations) {
@@ -139,7 +138,7 @@ exports.shared.evaluate_metadata = function(req, callback)
 
         let metadata_evaluation_value = 0;
 
-        if (typeof recommendations_score !== 0) {
+        if (recommendations_score !== 0) {
             metadata_evaluation_value = Math.round((metadata_score / recommendations_score) * 100);
         }
 
@@ -153,7 +152,7 @@ exports.shared.evaluate_metadata = function(req, callback)
     };
 
     const calculateQuality = function (err, requestedResource) {
-        if (!err) {
+        if (isNull(err)) {
             if (!isNull(requestedResource)) {
                 async.series([
 

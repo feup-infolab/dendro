@@ -1,66 +1,35 @@
-var demouser2 = require("../users/demouser2");
-var folderName = "pastinhaLinda" + demouser2.username;
-var publicProject = require("../projects/public_project");
-var privateProject = require("../projects/private_project");
-var metadataOnlyProject = require("../projects/metadata_only_project");
-var projectsArray = [publicProject, privateProject, metadataOnlyProject];
-var activeProjectIndex = 0;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+
 let folderData = {
-    name : folderName,
+    name : 'folderDemoUser2',
     version: 0,
     pathInProject : '',
     download_md5 : '',
     backup_md5 : '',
+    search_terms : 'folderDemoUser2',
     files : [
-        require("../files/pdfMockfile"),
-        require("../files/pngMockfile"),
-        require("../files/xlsxMockfile")
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockfile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockfile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockfile.js"))
     ],
-    metadata : [
-        {uri:"http://purl.org/dc/terms/creator",
+    metadata :[
+        {
             prefix:"dcterms",
-            ontology:"http://purl.org/dc/terms/",
-            shortName:"creator",
-            prefixedForm:"dcterms:creator",
-            type:1,
-            control:"url_box",
-            label:"Creator",
-            comment:"An entity primarily responsible for making the resource.",
-            recommendation_types:{dc_element_forced:true},
-            recommendationCallId:"fc0cdf5f-5f85-4692-aa41-72ce268d048b",
-            recommendationCallTimeStamp:"2017-03-15T10:31:15.253Z",
-            $$hashKey:"object:314",
-            just_added:true,
-            added_from_manual_list:true,
-            rankingPosition:12,
-            pageNumber:0,
-            interactionType:"accept_descriptor_from_manual_list",
-            recommendedFor:"http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
-            value:"demouser1"
+            shortName:"abstract",
+            value:"This is a test folder and its search tag is folderDemoUser2. It is a fantastic test of search for specific metadata."
         },
-        {uri:"http://purl.org/dc/terms/title",
+        {
             prefix:"dcterms",
-            ontology:"http://purl.org/dc/terms/",
             shortName:"title",
-            prefixedForm:"dcterms:title",
-            type:3,
-            control:"input_box",
-            label:"Title",
-            comment:"A name given to the resource.",
-            recommendation_types:{dc_element_forced:true},
-            recommendationCallId:"fc0cdf5f-5f85-4692-aa41-72ce268d048b",
-            recommendationCallTimeStamp:"2017-03-15T10:31:15.253Z",
-            $$hashKey:"object:352",
-            just_added:true,
-            added_from_manual_list:true,
-            rankingPosition:50,
-            pageNumber:0,
-            interactionType:"accept_descriptor_from_manual_list",
-            recommendedFor:"http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
-            value: folderName + " title"
+            value:"This is the title for folderDemoUser2"
+        },
+        {
+            prefix:"dcterms",
+            shortName:"creator",
+            value:"NP"
         }
-    ],
-    invalidMetadata : ["Garbage"]
+    ]
 };
 
 module.exports = folderData;

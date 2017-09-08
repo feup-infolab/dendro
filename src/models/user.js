@@ -1,35 +1,33 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 
 const util = require('util');
-const async = require('async');
-const _ = require('underscore');
-const path = require('path');
+const async = require("async");
+const _ = require("underscore");
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const db = Config.getDBByID();
 
 function User (object)
 {
-    User.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "user", User);
+    User.baseConstructor.call(this, object);
 
-    if(isNull(self.uri))
+    self.copyOrInitDescriptors(object);
+
+
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = db.baseURI+"/user/"+self.ddr.username;
+        self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.username;
     }
 
     if(isNull(self.ddr.salt))
@@ -46,15 +44,16 @@ function User (object)
         }
     }
 
-    self.rdf.type = "ddr:User";
-
     return self;
 }
 
 User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 {
-    User.findByPropertyValue(orcid, "ddr:orcid", function(err, user){
-        if(!err && typeof user != null && user instanceof User)
+    User.findByPropertyValue(new Descriptor({
+        value : orcid,
+        prefixedForm : "ddr:orcid"
+    }), function(err, user){
+        if(isNull(err) && !isNull(user) && user instanceof User)
         {
             if(removePrivateDescriptors)
             {
@@ -73,19 +72,61 @@ User.findByORCID = function(orcid, callback, removePrivateDescriptors)
     });
 };
 
-User.findByUsername = function(username, callback, removePrivateDescriptors)
+User.findByUsername = function(username, callback, removeSensitiveDescriptors)
 {
-    User.findByPropertyValue(username, "ddr:username", function(err, user){
-        if(!err && !isNull(user) && user instanceof User)
+    User.findByPropertyValue(new Descriptor(
         {
-            if(removePrivateDescriptors)
+            value : username,
+            prefixedForm : "ddr:username"
+        }), function(err, user){
+        if(isNull(err))
+        {
+            if(!isNull(user) && user instanceof User)
             {
-                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
-                return callback(err, user);
+                if(removeSensitiveDescriptors)
+                {
+                    user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
+                    return callback(err, user);
+                }
+                else
+                {
+                    return callback(err, user);
+                }
             }
             else
             {
-                return callback(err, user);
+                return callback(err, null);
+
+                // User.findByPropertyValue(new Descriptor(
+                //     {
+                //         value : username,
+                //         prefixedForm : "ddr:username"
+                //     }), function(err, user){
+                //     if(isNull(err))
+                //     {
+                //         if(!isNull(user) && user instanceof User)
+                //         {
+                //             if(removeSensitiveDescriptors)
+                //             {
+                //                 console.log(user);
+                //             }
+                //             else
+                //             {
+                //                 console.log(user);
+                //             }
+                //         }
+                //         else
+                //         {
+                //             console.log(user);
+                //         }
+                //     }
+                //     else
+                //     {
+                //         console.log(user);
+                //     }
+                // });
+                //
+                // return;
             }
         }
         else
@@ -97,7 +138,11 @@ User.findByUsername = function(username, callback, removePrivateDescriptors)
 
 User.findByEmail = function(email, callback)
 {
-    User.findByPropertyValue(email, "foaf:mbox", callback);
+    User.findByPropertyValue(new Descriptor(
+        {
+            value : email,
+            prefixedForm : "foaf:mbox"
+        }), callback);
 };
 
 User.autocomplete_search = function(value, maxResults, callback) {
@@ -146,7 +191,7 @@ User.autocomplete_search = function(value, maxResults, callback) {
         ],
 
         function(err, users) {
-            if(!err && users instanceof Array)
+            if(isNull(err) && users instanceof Array)
             {
                 const getUserProperties = function (resultRow, cb) {
                     User.findByUri(resultRow.uri, function (err, user) {
@@ -165,102 +210,27 @@ User.autocomplete_search = function(value, maxResults, callback) {
         });
 };
 
-User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
-
-    if(Config.debug.users.log_fetch_by_username)
-    {
-        console.log("finding by username " + username);
-    }
-
-    const query =
-        "SELECT * \n" +
-        "FROM [0] \n" +
-        "WHERE \n" +
-        "{ \n" +
-        " ?uri [1] [2] . \n" +
-        "} \n";
-
-
-    db.connection.execute(query,
-        [
-            {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
-            },
-            {
-                type : DbConnection.prefixedResource,
-                value : propertyInPrefixedForm
-            },
-            {
-                type : DbConnection.string,
-                value : value
-            }
-        ],
-
-        function(err, user) {
-            if(!err)
-            {
-                if(user.length > 1)
-                {
-                    console.log("Duplicate username "+username+" found!!!!")
-                }
-
-                else if(user.length === 1)
-                {
-                    const uri = user[0].uri;
-                    User.findByUri(uri, function(err, fetchedUser)
-                    {
-                        if(!err)
-                        {
-                            const userToReturn = new User(fetchedUser);
-
-                            return callback(err, fetchedUser);
-
-                            /*userToReturn.loadOntologyRecommendations(function(err, user){
-
-                            });*/
-                        }
-                        else
-                        {
-                            return callback(1, "Unable to fetch user with uri :" + uri + ". Error reported : " + fetchedUser);
-                        }
-                    });
-                }
-                else
-                {
-                    return callback(0,null);
-                }
-            }
-            else
-            {
-                return callback(err, user);
-            }
-        });
-};
-
 User.createAndInsertFromObject = function(object, callback) {
-
-    const self = new User(object);
-
-    console.log("creating user from object" + util.inspect(object));
+    const self = Object.create(this.prototype);
+    self.constructor(object);
 
     //encrypt password
     const bcrypt = require('bcryptjs');
     bcrypt.hash(self.ddr.password, self.ddr.salt, function(err, password){
-        if(!err)
+        if(isNull(err))
         {
             self.ddr.password = password;
 
             self.save(function(err, newUser) {
-                if(!err)
+                if(isNull(err))
                 {
-                    if(newUser instanceof User)
+                    if(newUser instanceof self.constructor)
                     {
                         return callback(null, newUser);
                     }
                     else
                     {
-                        return callback(null, false);
+                        return callback(err, "The constructor should have returned an instance of User and returned something else: " + typeof newUser);
                     }
                 }
                 else
@@ -314,7 +284,7 @@ User.allInPage = function(page, pageSize, callback) {
     db.connection.execute(query,
         [],
         function(err, users) {
-            if(!err)
+            if(isNull(err))
             {
                 if(users instanceof Array)
                 {
@@ -322,7 +292,7 @@ User.allInPage = function(page, pageSize, callback) {
                     // and return the array of projects, complete with that info
                     async.map(users, User.findByUri, function(err, usersToReturn)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             return callback(null, usersToReturn);
                         }
@@ -385,7 +355,7 @@ User.prototype.getInteractions = function(callback)
         " ?interaction ddr:performedBy [1] .\n" +
         " ?interaction ddr:interactionType ?type. \n" +
         " ?interaction ddr:executedOver ?object .\n" +
-        " ?interaction dcterms:created ?created. \n" +
+        " ?interaction ddr:created ?created. \n" +
         "} \n";
 
     db.connection.execute(query, [
@@ -398,12 +368,12 @@ User.prototype.getInteractions = function(callback)
             value : self.uri
         }
     ], function(err, results) {
-        if(!err)
+        if(isNull(err))
         {
             if(!isNull(results) && results instanceof Array)
             {
                 const createInteraction = function (result, callback) {
-                    new Interaction({
+                    Interaction.create({
                         uri: result.interaction,
                         ddr: {
                             performedBy: self.uri,
@@ -458,15 +428,15 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
             suggestion.last_unhidden = Date.parse(result.last_unhidden);
 
             if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                return callback(0, suggestion);
+                return callback(null, suggestion);
             }
             else {
-                return callback(0, null);
+                return callback(null, null);
             }
         };
 
         async.map(descriptors, createDescriptor, function (err, fullDescriptors) {
-            if (!err) {
+            if (isNull(err)) {
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
@@ -540,7 +510,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "				   	?hide_interaction ddr:executedOver ?hidden_descriptor. \n" +
         "				   	?hide_interaction ddr:interactionType [2]. \n" +
         "				   	?hide_interaction ddr:performedBy [1] .  \n" +
-        "				   	?hide_interaction dcterms:created ?date_hidden. \n" +
+        "				   	?hide_interaction ddr:created ?date_hidden. \n" +
         "					FILTER NOT EXISTS \n" +
         "					{ \n" +
         "						SELECT ?unhidden_descriptor MAX(?date_unhidden) as ?last_unhidden \n" +
@@ -552,7 +522,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "				   			?unhide_interaction ddr:executedOver ?unhidden_descriptor. \n" +
         "				   			?unhide_interaction ddr:interactionType [3]. \n" +
         "				   			?unhide_interaction ddr:performedBy [1] .  \n" +
-        "				   			?unhide_interaction dcterms:created ?date_unhidden. \n" +
+        "				   			?unhide_interaction ddr:created ?date_unhidden. \n" +
         "						} \n" +
         "					} \n" +
         "				} \n" +
@@ -581,7 +551,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "				   	?hide_interaction ddr:executedOver ?hidden_descriptor. \n" +
         "				   	?hide_interaction ddr:interactionType [2] . \n" +
         "				   	?hide_interaction ddr:performedBy [1] .  \n" +
-        "				   	?hide_interaction dcterms:created ?date_hidden. \n" +
+        "				   	?hide_interaction ddr:created ?date_hidden. \n" +
         "				} \n" +
         "			}. \n" +
         "			{ \n" +
@@ -593,7 +563,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "				   	?unhide_interaction ddr:executedOver ?hidden_descriptor. \n" +
         "				   	?unhide_interaction ddr:interactionType [3]. \n" +
         "				   	?unhide_interaction ddr:performedBy [1] .  \n" +
-        "				   	?unhide_interaction dcterms:created ?date_unhidden. \n" +
+        "				   	?unhide_interaction ddr:created ?date_unhidden. \n" +
         "				} \n" +
         "			} \n" +
         "		   	FILTER(bound(?last_unhidden) && ?last_hidden > ?last_unhidden) \n" +
@@ -606,7 +576,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         argumentsArray,
 
         function(err, hidden) {
-            if(!err)
+            if(isNull(err))
             {
                 createDescriptorsList(hidden, function(err, fullDescriptors){
                     return callback(err, fullDescriptors);
@@ -649,15 +619,15 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
             suggestion.last_unfavorited = Date.parse(result.last_unfavorited);
 
             if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                return callback(0, suggestion);
+                return callback(null, suggestion);
             }
             else {
-                return callback(0, null);
+                return callback(null, null);
             }
         };
 
         async.map(descriptors, createDescriptor, function (err, fullDescriptors) {
-            if (!err) {
+            if (isNull(err)) {
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
@@ -731,7 +701,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
         "				   	?favorite_interaction ddr:interactionType [2]. \n" +
         "				   	?favorite_interaction ddr:performedBy [1] .  \n" +
-        "				   	?favorite_interaction dcterms:created ?date_favorited. \n" +
+        "				   	?favorite_interaction ddr:created ?date_favorited. \n" +
         "					FILTER NOT EXISTS \n" +
         "					{ \n" +
         "						SELECT ?unfavorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n" +
@@ -743,7 +713,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "				   			?unfavorite_interaction ddr:executedOver ?unfavorited_descriptor. \n" +
         "				   			?unfavorite_interaction ddr:interactionType [3]. \n" +
         "				   			?unfavorite_interaction ddr:performedBy [1] .  \n" +
-        "				   			?unfavorite_interaction dcterms:created ?date_unfavorited. \n" +
+        "				   			?unfavorite_interaction ddr:created ?date_unfavorited. \n" +
         "						} \n" +
         "					} \n" +
         "				} \n" +
@@ -772,7 +742,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
         "				   	?favorite_interaction ddr:interactionType [2] . \n" +
         "				   	?favorite_interaction ddr:performedBy [1] .  \n" +
-        "				   	?favorite_interaction dcterms:created ?date_favorited. \n" +
+        "				   	?favorite_interaction ddr:created ?date_favorited. \n" +
         "				} \n" +
         "			}. \n" +
         "			{ \n" +
@@ -784,7 +754,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "				   	?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
         "				   	?unfavorite_interaction ddr:interactionType [3]. \n" +
         "				   	?unfavorite_interaction ddr:performedBy [1] .  \n" +
-        "				   	?unfavorite_interaction dcterms:created ?date_unfavorited. \n" +
+        "				   	?unfavorite_interaction ddr:created ?date_unfavorited. \n" +
         "				} \n" +
         "			} \n" +
         "		   	FILTER(bound(?last_unfavorited) && ?last_favorited > ?last_unfavorited) \n" +
@@ -797,7 +767,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         argumentsArray,
 
         function(err, favorites) {
-            if(!err)
+            if(isNull(err))
             {
                 createDescriptorsList(favorites, function(err, fullDescriptors){
                     return callback(err, fullDescriptors);
@@ -881,7 +851,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
 
@@ -906,16 +876,16 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
                     suggestion.times_favorite_accepted_in_md_editor = parseInt(result.times_favorite_accepted_in_md_editor);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        return callback(0, suggestion);
+                        return callback(null, suggestion);
                     }
                     else {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                 };
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
@@ -1005,7 +975,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
 
@@ -1030,16 +1000,16 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
                     suggestion.times_smart_accepted_in_md_editor = parseInt(result.times_smart_accepted_in_md_editor);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        return callback(0, suggestion);
+                        return callback(null, suggestion);
                     }
                     else {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                 };
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
@@ -1107,7 +1077,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
 
     "OPTIONAL { ?descriptor rdfs:label ?label. }\n" +
     "OPTIONAL { ?descriptor rdfs:comment ?comment. }\n" +
-    "?version dcterms:created ?used_date. \n" +
+    "?version ddr:created ?used_date. \n" +
     filterString + "\n" +
     "} " +
     "ORDER BY DESC(?last_use) \n" +
@@ -1130,7 +1100,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
 
@@ -1156,16 +1126,16 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
                     suggestion.last_use = Date.parse(result.last_use);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        return callback(0, suggestion);
+                        return callback(null, suggestion);
                     }
                     else {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                 };
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
@@ -1187,112 +1157,13 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
         });
 };
 
-User.prototype.isAdmin = function(callback)
-{
-    const self = this;
-
-    if(typeof callback === "function")
-    {
-        self.checkIfHasPredicateValue("rdf:type", "ddr:Administrator", function(err, isAdmin)
-        {
-            return callback(err, isAdmin);
-        });
-    }
-    else
-    {
-        if(_.contains(self.rdf.type, "ddr:Administrator"))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-};
-
-User.prototype.makeGlobalAdmin = function(callback)
-{
-    const self = this;
-
-    self.isAdmin(function(err, isAdmin){
-        if(!err)
-        {
-            if(!isAdmin)
-            {
-                const newAdminDescriptor = new Descriptor({
-                    prefixedForm: "rdf:type",
-                    type: DbConnection.prefixedResource,
-                    value: "ddr:Administrator"
-                });
-
-                self.insertDescriptors([newAdminDescriptor], function(err, result){
-                    if(!err)
-                    {
-                        return callback(null, self);
-                    }
-                    else
-                    {
-                        const msg = "Error setting " + self.uri + " as global admin : " + result;
-                        console.error(msg);
-                        return callback(1, msg);
-                    }
-
-                });
-            }
-            else
-            {
-                var msg = "User " + self.uri + " is already an admin, nothing to be done.";
-                console.error(msg);
-                return callback(0, msg);
-            }
-        }
-        else
-        {
-            var msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
-            console.error(msg);
-            return callback(1, msg);
-        }
-    });
-};
-
-User.prototype.undoGlobalAdmin = function(callback)
-{
-    const self = this;
-
-    self.checkIfHasPredicateValue("rdf:type", "ddr:Administrator", function(err, isAdmin){
-        if(!err)
-        {
-            if (isAdmin)
-            {
-                self.deleteDescriptorTriples("rdf:type", function(err, result){
-                    return callback(err, result);
-                }, "ddr:Administrator");
-            }
-            else
-            {
-                var msg = "User " + self.uri + " is not admin, no need to remove the triples.";
-                console.error(msg);
-                return callback(0, msg);
-            }
-        }
-        else
-        {
-            var msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
-            console.error(msg);
-            return callback(1, msg);
-        }
-    })
-};
-
 User.prototype.finishPasswordReset = function(newPassword, token, callback)
 {
     const self = this;
 
     self.checkIfHasPredicateValue("ddr:password_reset_token", token, function(err, tokenIsCorrect)
     {
-        if(!err)
+        if(isNull(err))
         {
             if(tokenIsCorrect)
             {
@@ -1303,7 +1174,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
                 self.ddr.password_reset_token = null;
 
                 self.save(function(err, result){
-                    if(!err)
+                    if(isNull(err))
                     {
                         console.log("Successfully set new password for user : " + self.uri + ".");
                         return callback(err, result);
@@ -1330,14 +1201,14 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
 User.prototype.startPasswordReset = function(callback)
 {
     const self = this;
-    const uuid = require('uuid');
+    const uuid = require("uuid");
 
     const token = uuid.v4();
 
     self.ddr.password_reset_token = token;
 
     const sendConfirmationEmail = function (callback) {
-        const nodemailer = require('nodemailer');
+        const nodemailer = require("nodemailer");
 
         // create reusable transporter object using the default SMTP transport
 
@@ -1345,12 +1216,12 @@ User.prototype.startPasswordReset = function(callback)
         const gmailPassword = Config.email.gmail.password;
 
         const ejs = require('ejs');
-        const fs = require('fs');
+        const fs = require("fs");
 
 
         const appDir = path.dirname(require.main.filename);
 
-        const emailHTMLFilePath = Config.absPathInSrcFolder('views/users/password_reset_email.ejs');
+        const emailHTMLFilePath = Pathfinder.absPathInSrcFolder('views/users/password_reset_email.ejs');
         const emailTXTFilePath = path.join(appDir, 'views/users/password_reset_email_txt.ejs');
 
         const file = fs.readFileSync(emailHTMLFilePath, 'ascii');
@@ -1406,7 +1277,7 @@ User.prototype.startPasswordReset = function(callback)
     };
 
     self.save(function(err, updatedUser){
-        if(!err)
+        if(isNull(err))
         {
             sendConfirmationEmail(callback)
         }
@@ -1441,9 +1312,9 @@ User.removeAllAdmins = function(callback)
 
     Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(adminDescriptor, function(err, results)
     {
-        if (!err)
+        if (isNull(err))
         {
-            return callback(0, results);
+            return callback(null, results);
         }
         else
         {
@@ -1458,8 +1329,6 @@ User.anonymous = {
     uri: "http://dendro.fe.up.pt/user/anonymous"
 };
 
-User.prefixedRDFType = "ddr:User";
-
-User = Class.extend(User, Resource);
+User = Class.extend(User, Resource, "ddr:User");
 
 module.exports.User = User;

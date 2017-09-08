@@ -1,17 +1,16 @@
 var async = require('async');
-var path = require('path');
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+
 var needle = require('needle');
 var _ = require('underscore');
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+var File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 var DendroInteraction2CSV = require("../../dendro_interaction2csv").DendroInteraction2CSV;
 var InteractionAnalyser = require("../models/interaction_analyser.js").InteractionAnalyser;
@@ -28,7 +27,7 @@ var isValidURI = function(uriString)
     //from http://www.dzone.com/snippets/validate-url-regexp
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 
-    return uriString != null && regexp.test(uriString);
+    return !isNull(uriString) && regexp.test(uriString);
 };
 
 var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileNamePrefix, req, res, callback)
@@ -53,21 +52,21 @@ var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileN
 
         File.createBlankTempFile(fileName, function(err, tempFileAbsPath){
             queryFunction(function(err, results, fetchNextPageCallback){
-                if(!err)
+                if(isNull(err))
                 {
-                    var fs = require('fs');
+                    const fs = require("fs");
 
-                    if(results != null && results instanceof Array && results.length > 0)
+                    if(!isNull(results) && results instanceof Array && results.length > 0)
                     {
                         async.mapLimit(results, 1, function(result,callback){
 
                             //for those cases where the serialization function is already present in the result object
-                            if(result[csvMappingFunction] != null && typeof result[csvMappingFunction] == "function")
+                            if(!isNull(result[csvMappingFunction]) && typeof result[csvMappingFunction] === "function")
                             {
                                 var lineWriteResults = result[csvMappingFunction](headers);
                             }
                             //custom serialization function (non-model-based-object type of results)
-                            else if(csvMappingFunction != null && typeof csvMappingFunction == "function")
+                            else if(!isNull(csvMappingFunction) && typeof csvMappingFunction === "function")
                             {
                                 var lineWriteResults = csvMappingFunction(result, headers);
                             }
@@ -81,7 +80,7 @@ var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileN
                             });
                         }, function(err)
                         {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 fetchNextPageCallback(err);
                             }
@@ -133,14 +132,14 @@ var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileN
 
 var sendFile = function(err, fileName, tempFileAbsPath, req, res)
 {
-    if(!err)
+    if(isNull(err))
     {
         console.log("Wrote headers to file..." + tempFileAbsPath);
-        mimeType = Config.mimeType("csv");
+        var mimeType = Config.mimeType("csv");
         res.writeHead(200,
             {
-                'Content-disposition': 'attachment; filename="' + fileName+"\"",
-                'Content-Type': mimeType
+                "Content-disposition": "attachment; filename=\"" + fileName+"\"",
+                "Content-Type": mimeType
             }
         );
 
@@ -176,7 +175,7 @@ exports.average_metadata_sheet_size_per_interaction = function(req, res)
 {
     streamingExportToCSVFile(InteractionAnalyser.average_metadata_sheet_size_per_interaction,
         function(result){
-            var msg = "Average at : " + result.interaction_uri + " : " + result.avg_num_descriptors + ". Type: " + result.interaction_type;
+            const msg = "Average at : " + result.interaction_uri + " : " + result.avg_num_descriptors + ". Type: " + result.interaction_type;
             console.log(msg);
 
             var csvLine = result.interaction_uri+","+result.avg_num_descriptors+"\n";
@@ -247,7 +246,7 @@ exports.average_descriptor_length_per_interaction = function(req, res)
                     var pos = headers[descriptorPrefixedEscaped];
                     values[pos]= result[headerNames[i]];
                 }
-                else if(result[headerNames[i]] != null)
+                else if(!isNull(result[headerNames[i]]))
                 {
                     var pos = headers[headerNames[i]];
                     values[pos]= result[headerNames[i]];
@@ -375,7 +374,7 @@ exports.total_number_of_descriptors_per_interaction = function(req, res)
 {
     streamingExportToCSVFile(InteractionAnalyser.total_number_of_descriptors_per_interaction,
         function(result){
-            var msg = "Total at : " + result.interaction_uri + " : " + result.total_num_descriptors + ". Type: " + result.interaction_type;
+            const msg = "Total at : " + result.interaction_uri + " : " + result.total_num_descriptors + ". Type: " + result.interaction_type;
             console.log(msg);
 
             var csvLine = result.interaction_uri+","+result.date_created+","+result.total_num_descriptors+"\n";

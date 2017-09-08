@@ -7,7 +7,7 @@ angular.module('dendroApp.services')
 
             if(typeof typed != "undefined")
             {
-                var requestUri = '/ontologies/autocomplete?query=' + typed;
+                var requestUri = "/ontologies/autocomplete?query=" + typed;
 
                 return $http.get(requestUri).then(function(response) {
                     return response.data;
@@ -22,7 +22,7 @@ angular.module('dendroApp.services')
                 url: '/ontologies/public',
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             })
             .then(function( response ) {
                 storageService.save_to_local_storage("public_ontologies", response.data);
@@ -37,7 +37,7 @@ angular.module('dendroApp.services')
                 url: '/ontologies/all',
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             })
                 .then(function( response ) {
                     storageService.save_to_local_storage("all_ontologies", response.data);

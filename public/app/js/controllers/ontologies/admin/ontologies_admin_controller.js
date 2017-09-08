@@ -24,7 +24,7 @@ angular.module('dendroApp.controllers')
                 url: url,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(function (response)
                 {
                     var data = response.data;
@@ -110,7 +110,7 @@ angular.module('dendroApp.controllers')
 
             if(typeof typed != "undefined")
             {
-                var requestUri = '/research_domains/autocomplete?query=' + typed;
+                var requestUri = "/research_domains/autocomplete?query=" + typed;
 
                 $http.get(requestUri);
             }
@@ -119,7 +119,7 @@ angular.module('dendroApp.controllers')
         $scope.update_ontologies = function(ontology){
             //console.log(ontology);
             $http({
-                method: 'POST',
+                method: "POST",
                 url: "/ontologies/edit",
                 data: ontology
             }).then(function(response) {

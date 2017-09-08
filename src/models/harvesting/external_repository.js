@@ -1,37 +1,29 @@
-//DCTerms ontology : "http://purl.org/dc/elements/1.1/"
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const db = Config.getDBByID();
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const async = require("async");
 
-const async = require('async');
-
-function ExternalRepository (object, creatorUsername)
+function ExternalRepository (object)
 {
-    ExternalRepository.baseConstructor.call(this, object);
     const self = this;
-
-    self.rdf.type = "ddr:ExternalRepository";
+    self.addURIAndRDFType(object, "external_repository", ExternalRepository);
+    ExternalRepository.baseConstructor.call(this, object);
 
     const slug = require('slug');
 
-    if(isNull(object.uri))
+    if(isNull(self.ddr.humanReadableUri))
     {
-        if(!isNull(creatorUsername) && !isNull(self.dcterms.title))
+        if(!isNull(object.dcterms.creator) && !isNull(self.dcterms.title))
         {
-            self.uri = Config.baseUri + "/external_repository/" + creatorUsername + "/" + slug(self.dcterms.title);
+            self.humanReadableURI = Config.baseUri + "/external_repository/" + object.dcterms.creator + "/" + slug(self.dcterms.title);
         }
         else
         {
@@ -68,7 +60,7 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
             }
         ],
         function(err, rows) {
-            if(!err)
+            if(isNull(err))
             {
                 if(rows instanceof Array)
                 {
@@ -86,7 +78,7 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
                 else
                 {
                     //external repository does not exist, return null
-                    return callback(0, null);
+                    return callback(null, null);
                 }
             }
             else
@@ -96,6 +88,6 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
     });
 };
 
-ExternalRepository = Class.extend(ExternalRepository, Resource);
+ExternalRepository = Class.extend(ExternalRepository, Resource, "ddr:ExternalRepository");
 
 module.exports.ExternalRepository = ExternalRepository;

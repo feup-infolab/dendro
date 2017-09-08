@@ -1,9 +1,9 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 
 function Upload (object)
 {
@@ -36,7 +36,7 @@ function Upload (object)
             self.loaded = object.loaded;
         }
 
-        const uuid = require('uuid');
+        const uuid = require("uuid");
         self.id = uuid.v4();
     }
     else
@@ -53,8 +53,8 @@ Upload.create = function(object, callback)
 
     if(typeof object.tmp_file_dir === "undefined")
     {
-        const tmp = require('tmp');
-        const path = require('path');
+        const tmp = require("tmp");
+        const path = require("path");
 
         tmp.dir(
             {
@@ -63,7 +63,7 @@ Upload.create = function(object, callback)
             },
             function(err, tmp_dir)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     self.temp_dir = tmp_dir;
                     self.temp_file = path.join(tmp_dir, object.filename);
@@ -84,7 +84,7 @@ Upload.prototype.restart = function(callback)
 
     fs.unlink(self.temp_file, function(err)
     {
-        if(!err)
+        if(isNull(err))
         {
             self.loaded = 0;
             return callback(null);
@@ -121,7 +121,7 @@ Upload.prototype.set_expected = function(expected)
 Upload.prototype.pipe = function(part, callback)
 {
     const self = this;
-    const fs = require('fs');
+    const fs = require("fs");
 
     const targetStream = fs.createWriteStream(
         self.temp_file,
@@ -168,11 +168,11 @@ Upload.prototype.get_temp_file_size = function(callback)
 {
     const self = this;
 
-    const fs = require('fs');
+    const fs = require("fs");
     const stat = fs.statSync(self.temp_file);
     return callback(null, stat.size);
 };
 
-Upload = Class.extend(Upload, Class);
+Upload = Class.extend(Upload, Class, true, "ddr:Upload");
 
 module.exports.Upload = Upload;

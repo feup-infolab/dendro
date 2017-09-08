@@ -10,7 +10,7 @@ angular.module('dendroApp.services')
                 method: 'GET',
                 url: requestUri,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -43,7 +43,7 @@ angular.module('dendroApp.services')
                 method: 'GET',
                 url: requestUri,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"},
+                headers: {"Accept": "application/json"},
                 params: {currentPage: currentPage}
             });
         };
@@ -56,7 +56,7 @@ angular.module('dendroApp.services')
                 method: 'GET',
                 url: requestUri,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -71,11 +71,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -87,11 +87,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -120,11 +120,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -137,11 +137,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -153,11 +153,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -171,11 +171,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -189,11 +189,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -206,11 +206,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -223,11 +223,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         }
 

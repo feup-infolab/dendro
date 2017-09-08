@@ -1,8 +1,12 @@
-let Config = GLOBAL.Config;
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const md5File = require("md5-file");
 
 module.exports = {
-    md5 : "8a1fb73260a39d067997e287c9571085",
-    name : "text.xls",
-    location : Config.absPathInApp("/test/mockdata/files/test_uploads/test.xlsx")
+    md5 : md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/xlsxTest.xlsx")),
+    name : "xlsxTest.xlsx",
+    extension : "xlsx",
+    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/xlsxTest.xlsx")
 };
 

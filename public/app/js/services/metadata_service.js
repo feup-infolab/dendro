@@ -21,7 +21,7 @@ angular.module('dendroApp.factories')
                     {
                         var descriptor = JSON.parse(JSON.stringify(descriptorsArray[i]));
 
-                        if(descriptor.control == "date_picker")
+                        if(descriptor.control === "date_picker")
                         {
                             descriptor.value = new Date(descriptor.value);
                         }
@@ -88,13 +88,19 @@ angular.module('dendroApp.factories')
                 url: requestUri,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(
                 function(response)
                 {
                     if(response.data != null && response.data instanceof Object)
                     {
-                        deserialize.resolve(self.deserialize_metadata(response.data.descriptors));
+                        deserialize.resolve({
+                            descriptors : self.deserialize_metadata(response.data.descriptors),
+                            is_project_root : response.data.is_project_root,
+                            is_a_file : response.data.is_a_file,
+                            file_extension : response.data.file_extension,
+                            data_processing_error : response.data.data_processing_error
+                        });
                     }
                     else
                     {
@@ -139,11 +145,11 @@ angular.module('dendroApp.factories')
                 var url = resource_uri + "?update_metadata";
 
                 return $http({
-                    method: 'POST',
+                    method: "POST",
                     url: url,
                     data: metadataString,
                     contentType: "application/json",
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 }).then(function (response)
                     {
                         var data = response.data;
@@ -176,7 +182,7 @@ angular.module('dendroApp.factories')
                 return $http({
                     method: 'GET',
                     url: url,
-                    headers: {'Accept': mt},
+                    headers: {"Accept": mt},
                     data : {}
                 }).then(function(response) {
                     var data = response.data;
@@ -287,7 +293,7 @@ angular.module('dendroApp.factories')
                     url: requestUri,
                     data: JSON.stringify({}),
                     contentType: "application/json",
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 }).then(function(response) {
                     return response;
                 });
@@ -306,7 +312,7 @@ angular.module('dendroApp.factories')
                         url: requestUri,
                         data: JSON.stringify({}),
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                 }).then(function(response) {
                     return response;
                 });

@@ -151,15 +151,6 @@ Utils.add_line_breaks = function(sentence, every_x_words)
     return brokenSentence;
 };
 
-Utils.display_name = function()
-{
-    var myName = arguments.callee.toString();
-    myName = myName.substr('function '.length);
-    myName = myName.substr(0, myName.indexOf('('));
-
-    console.log(myName + " not implemented yet.");
-};
-
 Utils.isCyclic = function(obj) {
     var seenObjects = [];
 
@@ -184,7 +175,7 @@ Utils.isCyclic = function(obj) {
 
 Utils.extractEverythingAfterBaseUri = function(url)
 {
-    var URL = require('url');
+    var URL = require("url");
     var parsed = URL.parse(url);
 
     return parsed.pathname;
@@ -192,7 +183,7 @@ Utils.extractEverythingAfterBaseUri = function(url)
 
 Utils.replaceBaseUri = function(uri, newBaseUri)
 {
-    var URL = require('url');
+    var URL = require("url");
     var relativeResource = Utils.extractEverythingAfterBaseUri(uri);
     return URL.resolve(newBaseUri, relativeResource);
 }
@@ -200,7 +191,23 @@ Utils.replaceBaseUri = function(uri, newBaseUri)
 Utils.copyFromObjectToObject = function(fromObject, toObject)
 {
     for (var attrname in fromObject) { toObject[attrname] = fromObject[attrname]; }
-}
+};
+
+Utils.fade_messages = function()
+{
+    var timeout = 7000;
+    setTimeout(function(){
+        $("#error_messages").fadeOut("slow");
+    },timeout);
+
+    setTimeout(function(){
+        $("#success_messages").fadeOut("slow");
+    },timeout);
+
+    setTimeout(function(){
+        $("#info_messages").fadeOut("slow");
+    },timeout);
+};
 
 if(typeof exports != "undefined")
 {

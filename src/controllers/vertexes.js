@@ -1,17 +1,15 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const db = Config.getDBByID();
 
-const async = require('async');
+const async = require("async");
 
 /*
  * GET home page.
@@ -31,7 +29,7 @@ exports.all = function(req, res)
 
     Resource.all(req, function(err, results)
     {
-        if(!err)
+        if(isNull(err))
         {
             viewVars.vertexes = results;
             res.render('vertexes/all',
@@ -60,7 +58,7 @@ exports.show = function(req, res) {
             ],
 			function(err, results) {
 
-                if(!err)
+                if(isNull(err))
                 {
                     res.render('vertexes/show', {
                         title : 'Showing a single vertex',
@@ -87,7 +85,7 @@ exports.random = function(req, res) {
 				db.connection.execute("SELECT (count(?s) as ?c) WHERE {?s ?p ?o .}",
                         [],
 						function(err, results) {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 const randomNumber = Math.floor(Math.random() * results[0].c + 1);
                                 return callback(null, randomNumber);
@@ -112,7 +110,7 @@ exports.random = function(req, res) {
                             }
                         ],
                         function(err, results) {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 return callback(null, results[0].s, randomNumber);
                             }
@@ -172,8 +170,8 @@ exports.random = function(req, res) {
 
 exports.search = function(req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 	const query = req.query.q;
 
     if(query)
@@ -260,7 +258,7 @@ getOutNeighbours = function(req, vertexUri, callback)
                 }
             ],
             function(err, results) {
-                if(!err)
+                if(isNull(err))
                 {
                     return callback(results);
                 }

@@ -1,24 +1,12 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const db_social = function () {
-    return GLOBAL.db.social;
-}();
-
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
+const db = Config.getDBByID();
 
 function Event (object)
 {
@@ -27,10 +15,8 @@ function Event (object)
 
     self.copyOrInitDescriptors(object);
 
-    self.rdf.type = "ddr:Event";
-
     const now = new Date();
-    self.dcterms.created = now.toISOString();
+    self.ddr.created = now.toISOString();
 
     return self;
 }
@@ -45,7 +31,7 @@ function Event (object)
  });
  };*/
 
-Event = Class.extend(Event, Resource);
+Event = Class.extend(Event, Resource, "ddr:Event");
 
 module.exports.Event = Event;
 

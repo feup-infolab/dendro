@@ -95,7 +95,7 @@
     <script type="text/javascript" src="/app/js/controllers/project/admin/project_admin_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/admin/project_tree_viewer_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/descriptor_list_controller.js"></script>
-    <script type="text/javascript" src="/app/js/controllers/project/editor/file_browser_controller.js"></script>
+    <script type="text/javascript" src="/app/js/controllers/project/editor/file_explorer_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/metadata_editor_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/uploads/uploads_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/project_editor_controller.js"></script>

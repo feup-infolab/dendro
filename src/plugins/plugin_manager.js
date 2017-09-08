@@ -1,11 +1,10 @@
-var fs = require('fs');
-var path = require('path');
-var _ = require('underscore');
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const fs = require("fs");
+const path = require("path");
+const _ = require("underscore");
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 function PluginManager ()
 {
@@ -14,7 +13,7 @@ function PluginManager ()
 
 PluginManager.registerPlugins = function(app, callback)
 {
-    var pluginsFolderAbsPath = Config.getAbsolutePathToPluginsFolder();
+    var pluginsFolderAbsPath = Pathfinder.getAbsolutePathToPluginsFolder();
 
     var files = fs.readdirSync(pluginsFolderAbsPath);
 

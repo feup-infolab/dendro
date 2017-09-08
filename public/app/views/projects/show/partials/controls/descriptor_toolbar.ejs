@@ -1,18 +1,11 @@
-<div ng-mouseover="hovered_descriptor_index = $index" ng-mouseleave="hovered_descriptor_index = null">
-    <div class="row">
-        <div class="col-sm-1 col-xs-1">
-            <button type="button"
-                    class="btn btn-sm remove-descriptor-from-list-button"
-                    data-loading-text="..."
-                    ng-click="remove_descriptor($index)" onclick="return false;"
-                    onmouseover="$(this).toggleClass('btn-danger');"
-                    onmouseout="$(this).toggleClass('btn-danger');">
-                <i class="fa fa-trash"></i>
-            </button>
-        </div>
-
-        <div class="col-sm-11 col-xs-11"
-             ng-class="{
+<div class="row">
+    <div class="col-xs-11"
+             ng-mouseover="hovered_descriptor_index = $index" ng-mouseleave="hovered_descriptor_index = null"
+             uib-tooltip="{{descriptor.comment}}"
+             tooltip-placement="top"
+             tooltip-trigger="mouseenter">
+        <h4
+                ng-class="{
                         just_added: descriptor.just_added,
                         just_deleted: descriptor.just_deleted,
                         just_inherited : descriptor.just_inherited ,
@@ -20,132 +13,128 @@
                         favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites),
                         favorite_recommended : descriptor.favorite && descriptor.just_recommended
                     }"
+        >
+            {{descriptor.label}}
+            <span ng-show="descriptor.just_added && !descriptor.just_deleted" class="label label-info">
+                Add
+            </span>
+            <span ng-show="descriptor.just_deleted" class="label label-danger">
+                Remove
+            </span>
+            <span ng-show="descriptor.just_inherited" class="label label-primary">
+                Copied from parent
+            </span>
+            <span ng-show="descriptor.just_recommended && !descriptor.favorite" class="label label-warning">
+                Recommended
+            </span>
+            <span ng-show="descriptor.favorite && !descriptor.just_recommended"
+                  class="label label-success">
+                Favorite
+            </span>
+            <span ng-show="descriptor.favorite && descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.manual.key)"
+                  class="label favorite_recommended_label">
+                Recommended, Favorite
+            </span>
+        </h4>
+    </div>
+    <div class="col-xs-1" ng-show="hovered_descriptor_index == $index && (descriptor.favorite || descriptor.just_recommended)">
 
-                     uib-tooltip="{{descriptor.comment}}"
-                     tooltip-placement="top"
-                     tooltip-trigger="mouseenter">
-                    {{descriptor.label}}
+    <!-- not favorite in project -->
 
-                    <span ng-show="descriptor.just_added && !descriptor.just_deleted" class="label label-info small">
-                        Added
-                    </span>
-                    <span ng-show="descriptor.just_deleted"
-                          class="label label-danger">
-                        Removed
-                    </span>
-                    <span ng-show="descriptor.just_inherited"
-                          class="label label-primary">
-                        Copied from parent
-                    </span>
-                    <span ng-show="descriptor.just_recommended && !descriptor.favorite"
-                          class="label label-warning">
-                        Recommended
-                    </span>
-                    <span ng-show="descriptor.favorite && !descriptor.just_recommended"
-                      class="label label-success">
-                        Favorite
-                    </span>
-                    <span ng-show="descriptor.favorite && descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.manual.key)"
-                      class="label favorite_recommended_label">
-                        Recommended, Favorite
-                    </span>
-            </div>
-        <div class="pull-right col-md-2" ng-show="hovered_descriptor_index == $index && (descriptor.favorite || descriptor.just_recommended)">
-                <div class="btn-group pull-right">
+        <!-- not user's favorite -->
+        <button class="btn btn-sm fa fa-star favorite-recommendation-for-project"
+                ng-show="!descriptor.recommendation_types['project_favorite'] &&
+                         !descriptor.recommendation_types['user_favorite']"
+                ng-click="favorite_descriptor_from_quick_list_for_project(descriptor)"
+                onclick="return false;"
+                onmouseover="$(this).toggleClass('btn-info');"
+                onmouseout="$(this).toggleClass('btn-info');">
+        </button>
 
-                <!-- not favorite in project -->
+        <!-- user's favorite -->
+        <button class="btn btn-sm fa fa-heart btn-success unfavorite-recommendation-for-user"
+                ng-show="!descriptor.recommendation_types['project_favorite'] &&
+                          descriptor.recommendation_types['user_favorite']"
+                ng-click="unfavorite_descriptor_from_quick_list_for_user(descriptor)"
+                onclick="return false;"
+                onmouseover="$(this).toggleClass('fa-heart btn-success fa-undo');"
+                onmouseout="$(this).toggleClass('fa-heart btn-success fa-undo');">
+        </button>
 
-                    <!-- not user's favorite -->
-                    <button class="btn btn-sm fa fa-star favorite-recommendation-for-project"
-                            ng-show="!descriptor.recommendation_types['project_favorite'] &&
-                                     !descriptor.recommendation_types['user_favorite']"
-                            ng-click="favorite_descriptor_from_quick_list_for_project(descriptor)"
-                            onclick="return false;"
-                            onmouseover="$(this).toggleClass('btn-info');"
-                            onmouseout="$(this).toggleClass('btn-info');">
-                    </button>
+    <!-- favorite in project -->
 
-                    <!-- user's favorite -->
-                    <button class="btn btn-sm fa fa-heart btn-success unfavorite-recommendation-for-user"
-                            ng-show="!descriptor.recommendation_types['project_favorite'] &&
-                                      descriptor.recommendation_types['user_favorite']"
-                            ng-click="unfavorite_descriptor_from_quick_list_for_user(descriptor)"
-                            onclick="return false;"
-                            onmouseover="$(this).toggleClass('fa-heart btn-success fa-undo');"
-                            onmouseout="$(this).toggleClass('fa-heart btn-success fa-undo');">
-                    </button>
+        <!-- user's favorite -->
+        <button class="btn btn-sm fa fa-star btn-info unfavorite-recommendation-for-project"
+                ng-show=" descriptor.recommendation_types['project_favorite'] &&
+                          descriptor.recommendation_types['user_favorite']"
+                ng-click="unfavorite_descriptor_from_quick_list_for_project(descriptor)"
+                onclick="return false;"
+                onmouseover="$(this).toggleClass('fa-heart btn-info fa-undo');"
+                onmouseout="$(this).toggleClass('fa-heart btn-info fa-undo');">
+        </button>
 
-                <!-- favorite in project -->
+        <!-- not user's favorite -->
+        <button class="btn btn-sm fa fa-star btn-info favorite-recommendation-for-user"
+                ng-show=" descriptor.recommendation_types['project_favorite'] &&
+                         !descriptor.recommendation_types['user_favorite']"
+                ng-click="favorite_descriptor_from_quick_list_for_user(descriptor)"
+                onclick="return false;"
+                onmouseover="$(this).toggleClass('fa-star fa-heart btn-success btn-info');"
+                onmouseout="$(this).toggleClass('fa-star fa-heart btn-success btn-info');">
+        </button>
 
-                    <!-- user's favorite -->
-                    <button class="btn btn-sm fa fa-star btn-info unfavorite-recommendation-for-project"
-                            ng-show=" descriptor.recommendation_types['project_favorite'] &&
-                                      descriptor.recommendation_types['user_favorite']"
-                            ng-click="unfavorite_descriptor_from_quick_list_for_project(descriptor)"
-                            onclick="return false;"
-                            onmouseover="$(this).toggleClass('fa-heart btn-info fa-undo');"
-                            onmouseout="$(this).toggleClass('fa-heart btn-info fa-undo');">
-                    </button>
+    <!-- not hidden in project -->
 
-                    <!-- not user's favorite -->
-                    <button class="btn btn-sm fa fa-star btn-info favorite-recommendation-for-user"
-                            ng-show=" descriptor.recommendation_types['project_favorite'] &&
-                                     !descriptor.recommendation_types['user_favorite']"
-                            ng-click="favorite_descriptor_from_quick_list_for_user(descriptor)"
-                            onclick="return false;"
-                            onmouseover="$(this).toggleClass('fa-star fa-heart btn-success btn-info');"
-                            onmouseout="$(this).toggleClass('fa-star fa-heart btn-success btn-info');">
-                    </button>
+        <!-- user's hidden -->
 
-                <!-- not hidden in project -->
+        <button class="btn btn-sm fa fa-eye btn-danger unhide-recommendation-for-user"
+                ng-show="!descriptor.recommendation_types['project_hidden'] &&
+                          descriptor.recommendation_types['user_hidden']"
+                ng-click="unhide_descriptor_from_quick_list_for_user(descriptor)"
+                onclick="return false;"
+                onmouseover="$(this).toggleClass('fa-eye btn-danger fa-undo');"
+                onmouseout="$(this).toggleClass('fa-eye btn-danger fa-undo');">
+        </button>
 
-                    <!-- user's hidden -->
+        <!-- not user's hidden -->
 
-                    <button class="btn btn-sm fa fa-eye btn-danger unhide-recommendation-for-user"
-                            ng-show="!descriptor.recommendation_types['project_hidden'] &&
-                                      descriptor.recommendation_types['user_hidden']"
-                            ng-click="unhide_descriptor_from_quick_list_for_user(descriptor)"
-                            onclick="return false;"
-                            onmouseover="$(this).toggleClass('fa-eye btn-danger fa-undo');"
-                            onmouseout="$(this).toggleClass('fa-eye btn-danger fa-undo');">
-                    </button>
+        <button class="btn btn-sm fa fa-eye-slash hide-recommendation-for-project"
+                ng-show="!descriptor.recommendation_types['project_hidden'] &&
+                         !descriptor.recommendation_types['user_hidden']"
+                ng-click="hide_descriptor_from_quick_list_for_project(descriptor)"
+                onclick="return false;"
+                onmouseover="$(this).toggleClass('btn-warning');"
+                onmouseout="$(this).toggleClass('btn-warning');">
+        </button>
 
-                    <!-- not user's hidden -->
+    <!-- hidden in project -->
 
-                    <button class="btn btn-sm fa fa-eye-slash hide-recommendation-for-project"
-                            ng-show="!descriptor.recommendation_types['project_hidden'] &&
-                                     !descriptor.recommendation_types['user_hidden']"
-                            ng-click="hide_descriptor_from_quick_list_for_project(descriptor)"
-                            onclick="return false;"
-                            onmouseover="$(this).toggleClass('btn-warning');"
-                            onmouseout="$(this).toggleClass('btn-warning');">
-                    </button>
+        <!-- user's hidden -->
 
-                <!-- hidden in project -->
+        <button class="btn btn-sm fa fa-eye btn-danger unhide-recommendation-for-project"
+                ng-show="descriptor.recommendation_types['project_hidden'] &&
+                         descriptor.recommendation_types['user_hidden']"
+                ng-click="unhide_descriptor_from_quick_list_for_project(descriptor)"
+                onclick="return false;"
+                onmouseover="$(this).toggleClass('btn-danger fa-undo');"
+                onmouseout="$(this).toggleClass('btn-danger fa-undo');">
+        </button>
 
-                    <!-- user's hidden -->
+        <!-- not user's hidden -->
 
-                    <button class="btn btn-sm fa fa-eye btn-danger unhide-recommendation-for-project"
-                            ng-show="descriptor.recommendation_types['project_hidden'] &&
-                                     descriptor.recommendation_types['user_hidden']"
-                            ng-click="unhide_descriptor_from_quick_list_for_project(descriptor)"
-                            onclick="return false;"
-                            onmouseover="$(this).toggleClass('btn-danger fa-undo');"
-                            onmouseout="$(this).toggleClass('btn-danger fa-undo');">
-                    </button>
-
-                    <!-- not user's hidden -->
-
-                    <button class="btn btn-sm btn-warning fa fa-eye-slash hide-recommendation-for-user"
-                            ng-show="descriptor.recommendation_types['project_hidden'] &&
-                                     !descriptor.recommendation_types['user_hidden']"
-                            ng-click="hide_descriptor_from_quick_list_for_user(descriptor)"
-                            onclick="return false;"
-                            onmouseover="$(this).toggleClass('btn-danger btn-warning fa-eye-slash fa-eye');"
-                            onmouseout="$(this).toggleClass('btn-danger btn-warning fa-eye-slash fa-eye');">
-                    </button>
-                </div>
-            </div>
+        <button class="btn btn-sm btn-warning fa fa-eye-slash hide-recommendation-for-user"
+                ng-show="descriptor.recommendation_types['project_hidden'] &&
+                         !descriptor.recommendation_types['user_hidden']"
+                ng-click="hide_descriptor_from_quick_list_for_user(descriptor)"
+                onclick="return false;"
+                onmouseover="$(this).toggleClass('btn-danger btn-warning fa-eye-slash fa-eye');"
+                onmouseout="$(this).toggleClass('btn-danger btn-warning fa-eye-slash fa-eye');">
+        </button>
+    </div>
+    <div class="col-xs-1">
+        <a href ng-click="remove_descriptor($index)" onclick="return false;">
+            <img src="/images/icons/delete.png">
+        </a>
     </div>
 </div>
 

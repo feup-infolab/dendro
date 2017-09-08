@@ -1,8 +1,9 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const _ = require("underscore");
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 function Class(){
     const newClass = Object.create(Class);
@@ -34,38 +35,42 @@ const copyPrototypeFromParent = function (parentClass, childClass) {
             }
         }
 
-        const grandparentClass = parentClass.baseConstructor;
+        //const grandparentClass = parentClass.baseConstructor;
 
-        const childClassWithGrandparentMethods = copyPrototypeFromParent(grandparentClass, childClass);
-        return childClassWithGrandparentMethods;
+        //const childClassWithGrandparentMethods = copyPrototypeFromParent(grandparentClass, childClass);
+        return childClass;
     }
 };
 
 const getParentConstructor = function (parentClass) {
-    const parentConstructor = parentClass;
-    return parentConstructor;
+    return parentClass;
 };
 
-Class.extend = function(childClass, parentClass)
+Class.extend = function(childClass, parentClass, rdfTypeForSavingInDatabase)
 {
+    if(rdfTypeForSavingInDatabase)
+    {
+        if (isNull(parentClass.prefixedRDFType))
+        {
+            childClass.prefixedRDFType = rdfTypeForSavingInDatabase;
+        }
+        else if(parentClass.prefixedRDFType instanceof Array)
+        {
+            childClass.prefixedRDFType = [rdfTypeForSavingInDatabase];
+            childClass.prefixedRDFType = parentClass.prefixedRDFType.concat(childClass.prefixedRDFType);
+        }
+        else if(typeof parentClass.prefixedRDFType === "string")
+        {
+            childClass.prefixedRDFType = [parentClass.prefixedRDFType, rdfTypeForSavingInDatabase];
+        }
+    }
+
     childClass.baseConstructor = getParentConstructor(parentClass);
     childClass.prototype['baseConstructor'] = getParentConstructor(parentClass);
 
-    const childClassWithFamilyTreePrototypes = copyPrototypeFromParent(parentClass, childClass);
+    let childClassWithFamilyTreePrototypes = copyPrototypeFromParent(parentClass, childClass);
 
     return childClassWithFamilyTreePrototypes;
-};
-
-Class.prototype.isA = function (prototype) {
-    var object = this;
-
-    do {
-        if (object === prototype) return true;
-        var object = Object.getPrototypeOf(object);  //for debugging
-    }
-    while (object);
-
-    return false;
 };
 
 module.exports.Class = Class;

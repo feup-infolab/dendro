@@ -1,74 +1,70 @@
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var uuid = require('uuid');
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
+const uuid = require("uuid");
 
-var gfs = function() { return GLOBAL.gfs.default; }();
-var _ = require('underscore');
-var async = require('async');
+const db = Config.getDBByID();
+const db_social = Config.getDBByID("social");
+
+const gfs = Config.getGFSByID();
+
+const async = require("async");
 
 function Share (object)
 {
+    const self = this;
+    self.addURIAndRDFType(object, "share", Share);
     Share.baseConstructor.call(this, object);
-    var self = this;
-
-    if(object.uri != null)
-    {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/shares/" + uuid.v4();
-    }
 
     self.copyOrInitDescriptors(object);
-    /*self.ddr.numLikes = 0;*/
+    
+    let objectType;
+    if(object.ddr.postURI)
+    {
+        console.log('is postURI');
+        objectType = "ddr:Post";
+    }
+    else if(object.ddr.fileVersionUri){
+        console.log('is fileVersionURI');
+        objectType = "ddr:FileVersion";
+    }
 
-    self.rdf.type = "ddr:Share";
 
-    return self;
-    /*var descriptor = new Descriptor ({
-        prefixedForm : "rdf:type",
-        type : DbConnection.prefixedResource,
-        value : "ddr:Post"
-    });*/
+    const newId = uuid.v4();
 
-    /*self.insertDescriptors([descriptor], function(err, result){
-        return self;
-    }, db_social.graphUri);*/
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        self.ddr.humanReadableURI = Config.baseUri + "/shares/" + newId;
+    }
 
-    /*var descriptorForPostType = new Descriptor ({
-        prefixedForm : "rdf:type",
-        type : DbConnection.prefixedResource,
-        value : "ddr:Post"
+    const descriptor = new Descriptor({
+        prefixedForm: "rdf:type",
+        type: DbConnection.prefixedResource,
+        //value : "ddr:Post"
+        value: objectType
     });
 
-    var descriptorForShareType = new Descriptor ({
-        prefixedForm : "rdf:type",
-        type : DbConnection.prefixedResource,
-        value : "ddr:Share"
-    });
-
-    self.insertDescriptors([descriptorForPostType, descriptorForShareType], function(err, result){
-        self.copyOrInitDescriptors(object);
-        self.ddr.numLikes = 0;
+    /*var newAdminDescriptor = new Descriptor({
+     prefixedForm : "rdf:type",
+     type : DbConnection.prefixedResource,
+     value : "ddr:Administrator"
+     });*/
+    self.insertDescriptors([descriptor], function(err, result){
+        //return callback(err, newShare);
+        console.log('result:', result);
+        console.log('self here is:', self);
         return self;
-    }, db_social.graphUri);*/
+    }, db_social.graphUri);
+
+    //return self;
 }
 
-Share.buildFromInfo = function (info, callback) {
-    var newShare = new this(info);
-    callback(null, newShare);
-};
-
-Share = Class.extend(Share, Post);
+Share = Class.extend(Share, Post, "ddr:Share");
 
 module.exports.Share = Share;
-
-
-

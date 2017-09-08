@@ -1,19 +1,19 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
-const async = require('async');
+const async = require("async");
 
 exports.recommend = function(req, res) {
 
-    if(!isNull(req.params.requestedResource))
+    if(!isNull(req.params.requestedResourceUri))
     {
         Ontology.previouslyUsed(req.user, function(error, previouslyUsedOntologies){
-            if(!err)
+            if(isNull(err))
             {
                 res.json(previouslyUsedOntologies)
             }
@@ -26,8 +26,8 @@ exports.recommend = function(req, res) {
 };
 
 exports.get_recommendation_ontologies = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -38,7 +38,7 @@ exports.get_recommendation_ontologies = function(req, res) {
     }
     else
     {
-        if(!isNull(req.params.requestedResource))
+        if(!isNull(req.params.requestedResourceUri))
         {
             if(!isNull(req.user))
             {
@@ -105,7 +105,7 @@ exports.ontologies_autocomplete = function(req, res) {
             Config.recommendation.max_autocomplete_results,
             function(err, ontologies)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(
                         ontologies
@@ -132,8 +132,8 @@ exports.ontologies_autocomplete = function(req, res) {
 };
 
 exports.public = function(req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -150,8 +150,8 @@ exports.all = function(req, res) {
     //TODO JROCHA 24-11-2014
     // Remove attributes that should not be seen by external systems
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -203,10 +203,10 @@ exports.edit = function(req, res) {
         const newOntology = new Ontology(newOntologyData);
 
         newOntology.save(function(err, result){
-            if(!err)
+            if(isNull(err))
             {
                 Ontology.initAllFromDatabase(function(err, result){
-                    if(!err)
+                    if(isNull(err))
                     {
                         res.json({
                             result : "ok",

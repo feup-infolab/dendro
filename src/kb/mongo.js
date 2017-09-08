@@ -1,6 +1,8 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const slug = require("slug");
+
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
 
 const MongoClient = require("mongodb").MongoClient;
 const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDbCollectionName;
@@ -10,7 +12,7 @@ function DendroMongoClient(mongoDBHost, mongoDbPort, mongoDbCollectionName) {
 
     self.hostname = mongoDBHost;
     self.port = mongoDbPort;
-    self.collectionName = mongoDbCollectionName;
+    self.collectionName = slug(mongoDbCollectionName, "_");
 }
 
 

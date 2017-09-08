@@ -1,251 +1,233 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var _ = require('underscore');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const _ = require("underscore");
 chai.use(chaiHttp);
 
-var getAllPostsFromUserProjects = function (jsonOnly, agent, cb) {
+const getAllPostsFromUserProjects = function (jsonOnly, agent, cb) {
     // /posts/all
-    var path = '/posts/all';
-    if(jsonOnly)
-    {
+    const path = '/posts/all';
+    if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var getAPostInfo = function (jsonOnly, agent, postID, cb) {
+const getAPostInfo = function (jsonOnly, agent, postID, cb) {
     // /posts/post
-    var path = '/posts/post';
-    if(jsonOnly)
-    {
+    const path = '/posts/post';
+    if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var likeOrUnlikeAPost = function (jsonOnly, agent, postID, cb) {
+const likeOrUnlikeAPost = function (jsonOnly, agent, postID, cb) {
     // /posts/like
-    var path = '/posts/like';
-    if(jsonOnly)
-    {
+    const path = '/posts/like';
+    if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-};
-
-var checkIfPostIsLikedByUser = function (jsonOnly, agent, postID, cb) {
-    var path = "/posts/like/liked";
-    if(jsonOnly)
-    {
-        agent
-            .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-            .post(path)
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var getLikesInfoForAPost = function (jsonOnly, agent, postURI, cb) {
-    var path = "/posts/post/likesInfo";
-    if(jsonOnly)
-    {
+const checkIfPostIsLikedByUser = function (jsonOnly, agent, postID, cb) {
+    const path = "/posts/like/liked";
+    if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .send({postURI : postURI})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
-            .send({postURI : postURI})
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-};
-
-var addCommentToPost = function (jsonOnly, agent, postID, commentMsg, cb) {
-    var path = "/posts/comment";
-    if(jsonOnly)
-    {
-        agent
-            .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .send({postID : postID, commentMsg: commentMsg})
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-            .post(path)
-            .set('Content-Type', 'application/json')
-            .send({postID : postID, commentMsg: commentMsg})
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var getPostComments = function (jsonOnly, agent, postID, cb) {
-    var path = "/posts/comments";
-    if(jsonOnly)
-    {
+const getLikesInfoForAPost = function (jsonOnly, agent, postURI, cb) {
+    const path = "/posts/post/likesInfo";
+    if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send({postURI: postURI})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-};
-
-var shareAPost = function (jsonOnly, agent, postID, shareMsg, cb) {
-    var path = "/posts/share";
-    if(jsonOnly)
-    {
-        agent
-            .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .send({postID : postID, shareMsg: shareMsg})
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-            .post(path)
-            .set('Content-Type', 'application/json')
-            .send({postID : postID, shareMsg: shareMsg})
+            .set("Content-Type", "application/json")
+            .send({postURI: postURI})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var getSharesForAPost = function (jsonOnly, agent, postID, cb) {
-    var path = "/posts/shares";
-    if(jsonOnly)
-    {
+const addCommentToPost = function (jsonOnly, agent, postID, commentMsg, cb) {
+    const path = "/posts/comment";
+    if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send({postID: postID, commentMsg: commentMsg})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
-            .send({postID : postID})
+            .set("Content-Type", "application/json")
+            .send({postID: postID, commentMsg: commentMsg})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var countNumPostInDB = function (jsonOnly, agent, cb) {
-    var path = "/posts/countNum";
-    if(jsonOnly)
-    {
+const getPostComments = function (jsonOnly, agent, postID, cb) {
+    const path = "/posts/comments";
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+const shareAPost = function (jsonOnly, agent, postID, shareMsg, cb) {
+    const path = "/posts/share";
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send({postID: postID, shareMsg: shareMsg})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .set("Content-Type", "application/json")
+            .send({postID: postID, shareMsg: shareMsg})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+const getSharesForAPost = function (jsonOnly, agent, postID, cb) {
+    const path = "/posts/shares";
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .set("Content-Type", "application/json")
+            .send({postID: postID})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+const countNumPostInDB = function (jsonOnly, agent, cb) {
+    const path = "/posts/countNum";
+    if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -253,23 +235,21 @@ var countNumPostInDB = function (jsonOnly, agent, cb) {
 };
 
 //TODO the postURL is only the characters after the last "/"
-var getPostHTMLPageWithInfo = function (jsonOnly, agent, postURL, cb) {
-    var path = "/posts/" + postURL;
-    if(jsonOnly)
-    {
+const getPostHTMLPageWithInfo = function (jsonOnly, agent, postURL, cb) {
+    const path = "/posts/" + postURL;
+    if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -277,23 +257,21 @@ var getPostHTMLPageWithInfo = function (jsonOnly, agent, postURL, cb) {
 };
 
 //TODO the shareURL is only the characters after the last "/"
-var getAShareInfo = function (jsonOnly, agent, shareURL, cb) {
-    var path = "/shares/" + shareURL;
-    if(jsonOnly)
-    {
+const getAShareInfo = function (jsonOnly, agent, shareURL, cb) {
+    const path = "/shares/" + shareURL;
+    if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

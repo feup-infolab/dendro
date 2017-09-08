@@ -1,17 +1,17 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+var db = Config.getDBByGraphUri()
+var gfs = Config.getGFSByID();
+
 var async = require('async');
 var _ = require('underscore');
-var path = require('path');
 
 function InteractionAnalyser (object)
 {
@@ -29,7 +29,7 @@ InteractionAnalyser.getFullInteractions = function(interactions, callback)
     // and return the array of interactions, complete with that info
     async.map(interactions, getInteractionInformation, function(err, interactionsToReturn)
     {
-        if(!err)
+        if(isNull(err))
         {
             callback(null, interactionsToReturn);
         }
@@ -42,9 +42,9 @@ InteractionAnalyser.getFullInteractions = function(interactions, callback)
 
 InteractionAnalyser.average_descriptor_size_per_interaction = function(callback, streaming, customGraphUri)
 {
-    var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string")? customGraphUri : db.graphUri;
 
-    var query =
+    const query =
         "SELECT COUNT (?uri) as ?n_interactions " +
         "FROM [0] " +
         "WHERE " +
@@ -62,13 +62,13 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
 
         function (err, result)
         {
-            if (!err && result instanceof Array && result.length == 1)
+            if (isNull(err) && result instanceof Array && result.length == 1)
             {
-                var count = result[0].n_interactions;
-                var n_pages = Math.ceil(count / Config.streaming.db.page_size);
-                var pageNumbersArray = [];
+                const count = result[0].n_interactions;
+                const n_pages = Math.ceil(count / Config.streaming.db.page_size);
+                const pageNumbersArray = [];
 
-                for (var i = 0; i <= n_pages; i++)
+                for (let i = 0; i <= n_pages; i++)
                 {
                     pageNumbersArray.push(i);
                 }
@@ -77,9 +77,9 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                     {
                         console.log("Sending page " + pageNumber + " of " + n_pages);
 
-                        var pageOffset = pageNumber * Config.streaming.db.page_size;
+                        const pageOffset = pageNumber * Config.streaming.db.page_size;
 
-                        var query =
+                        const query =
                             "SELECT ?uri ?date_created ?interaction_type\n" +
                             "WHERE \n" +
                             "{ \n" +
@@ -89,7 +89,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                             "   WHERE \n" +
                             "   { \n" +
                             "       ?uri rdf:type ddr:Interaction. \n" +
-                            "       ?uri dcterms:created ?date_created. \n " +
+                            "       ?uri ddr:created ?date_created. \n " +
                             "       ?uri ddr:interactionType ?interaction_type \n " +
                             "   } \n" +
                             "   ORDER BY ?uri \n" +
@@ -115,7 +115,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     async.mapLimit(interactions, 1, function(interaction,callback){
                                         var query =
@@ -149,7 +149,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                                             "              }. \n" +
                                             "" +
                                             "              ?latest_version ddr:versionNumber ?latest_version_number. \n" +
-                                            "              ?latest_version dcterms:created ?date_last_version_created. \n" +
+                                            "              ?latest_version ddr:created ?date_last_version_created. \n" +
                                             "              ?latest_version ?descriptor ?value. \n" +
                                             "" +
                                             "              FILTER \n" +
@@ -189,12 +189,12 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                                             ],
                                             function (err, results)
                                             {
-                                                if (!err && results instanceof Array)
+                                                if (isNull(err) && results instanceof Array)
                                                 {
-                                                    var transposedResult = {};
-                                                    for(var i = 0; i < results.length; i++)
+                                                    const transposedResult = {};
+                                                    for(let i = 0; i < results.length; i++)
                                                     {
-                                                        var descriptor = results[i].descriptor;
+                                                        let descriptor = results[i].descriptor;
                                                         transposedResult[descriptor] = results[i].avg_descriptor_length;
                                                         if(transposedResult['interaction_uri'] == null)
                                                         {
@@ -247,9 +247,9 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
 
 InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = function(callback, streaming, customGraphUri)
 {
-    var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
+    let graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string")? customGraphUri : db.graphUri;
 
-    var query =
+    const query =
         "SELECT COUNT (?uri) as ?n_interactions " +
         "FROM [0] " +
         "WHERE " +
@@ -267,7 +267,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
 
         function (err, result)
         {
-            if (!err && result instanceof Array && result.length == 1)
+            if (isNull(err) && result instanceof Array && result.length === 1)
             {
                 var count = result[0].n_interactions;
                 var n_pages = Math.ceil(count / Config.streaming.db.page_size);
@@ -294,7 +294,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                             "   WHERE \n" +
                             "   { \n" +
                             "       ?uri rdf:type ddr:Interaction. \n" +
-                            "       ?uri dcterms:created ?date_created. \n " +
+                            "       ?uri ddr:created ?date_created. \n " +
                             "       ?uri ddr:interactionType ?interaction_type \n " +
                             "   } \n" +
                             "   ORDER BY ?uri \n" +
@@ -320,7 +320,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     async.mapLimit(interactions, 1, function(interaction,callback){
                                         var query =
@@ -354,7 +354,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                                             "              }. \n" +
                                             "" +
                                             "              ?latest_version ddr:versionNumber ?latest_version_number. \n" +
-                                            "              ?latest_version dcterms:created ?date_last_version_created. \n" +
+                                            "              ?latest_version ddr:created ?date_last_version_created. \n" +
                                             "              ?latest_version ?descriptor ?value. \n" +
                                             "" +
                                             "              FILTER \n" +
@@ -394,7 +394,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                                             ],
                                             function (err, results)
                                             {
-                                                if (!err && results instanceof Array && results.length == 1)
+                                                if (isNull(err) && results instanceof Array && results.length == 1)
                                                 {
                                                     callback(null, results[0]);
                                                 }
@@ -436,9 +436,9 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
 
 InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callback, streaming, customGraphUri)
 {
-    var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string")? customGraphUri : db.graphUri;
 
-    var query =
+    const query =
         "SELECT COUNT (?uri) as ?n_interactions " +
         "FROM [0] " +
         "WHERE " +
@@ -456,13 +456,13 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
 
         function (err, result)
         {
-            if (!err && result instanceof Array && result.length == 1)
+            if (isNull(err) && result instanceof Array && result.length == 1)
             {
-                var count = result[0].n_interactions;
-                var n_pages = Math.ceil(count / Config.streaming.db.page_size);
-                var pageNumbersArray = [];
+                const count = result[0].n_interactions;
+                const n_pages = Math.ceil(count / Config.streaming.db.page_size);
+                const pageNumbersArray = [];
 
-                for (var i = 0; i <= n_pages; i++)
+                for (let i = 0; i <= n_pages; i++)
                 {
                     pageNumbersArray.push(i);
                 }
@@ -483,7 +483,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                             "   WHERE \n" +
                             "   { \n" +
                             "       ?uri rdf:type ddr:Interaction. \n" +
-                            "       ?uri dcterms:created ?date_created. \n " +
+                            "       ?uri ddr:created ?date_created. \n " +
                             "       ?uri ddr:interactionType ?interaction_type \n " +
                             "   } \n" +
                             "   ORDER BY ?uri \n" +
@@ -509,7 +509,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     async.mapLimit(interactions, 1, function(interaction,callback){
                                         var query =
@@ -543,7 +543,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                                             "              }. \n" +
                                             "" +
                                             "              ?latest_version ddr:versionNumber ?latest_version_number. \n" +
-                                            "              ?latest_version dcterms:created ?date_last_version_created. \n" +
+                                            "              ?latest_version ddr:created ?date_last_version_created. \n" +
                                             "              ?latest_version ?descriptor ?value. \n" +
                                             "" +
                                             "              FILTER \n" +
@@ -583,7 +583,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                                             ],
                                             function (err, results)
                                             {
-                                                if (!err && results instanceof Array && results.length == 1)
+                                                if (isNull(err) && results instanceof Array && results.length == 1)
                                                 {
                                                     callback(null, results[0]);
                                                 }
@@ -625,9 +625,9 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
 
 InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callback, streaming, customGraphUri)
 {
-    var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string")? customGraphUri : db.graphUri;
 
-    var query =
+    const query =
         "SELECT COUNT (?uri) as ?n_interactions " +
         "FROM [0] " +
         "WHERE " +
@@ -645,13 +645,13 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
 
         function (err, result)
         {
-            if (!err && result instanceof Array && result.length == 1)
+            if (isNull(err) && result instanceof Array && result.length === 1)
             {
-                var count = result[0].n_interactions;
-                var n_pages = Math.ceil(count / Config.streaming.db.page_size);
-                var pageNumbersArray = [];
+                const count = result[0].n_interactions;
+                const n_pages = Math.ceil(count / Config.streaming.db.page_size);
+                const pageNumbersArray = [];
 
-                for (var i = 0; i <= n_pages; i++)
+                for (let i = 0; i <= n_pages; i++)
                 {
                     pageNumbersArray.push(i);
                 }
@@ -672,7 +672,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                             "   WHERE \n" +
                             "   { \n" +
                             "       ?uri rdf:type ddr:Interaction. \n" +
-                            "       ?uri dcterms:created ?date_created. \n " +
+                            "       ?uri ddr:created ?date_created. \n " +
                             "       ?uri ddr:interactionType ?interaction_type \n " +
                             "   } \n" +
                             "   ORDER BY ?uri \n" +
@@ -698,7 +698,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     async.mapLimit(interactions, 1, function(interaction,callback){
                                         var query =
@@ -732,7 +732,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                                             "              }. \n" +
                                             "" +
                                             "              ?latest_version ddr:versionNumber ?latest_version_number. \n" +
-                                            "              ?latest_version dcterms:created ?date_last_version_created. \n" +
+                                            "              ?latest_version ddr:created ?date_last_version_created. \n" +
                                             "              ?latest_version ?descriptor ?value. \n" +
                                             "" +
                                             "              FILTER \n" +
@@ -772,7 +772,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                                             ],
                                             function (err, results)
                                             {
-                                                if (!err && results instanceof Array && results.length == 1)
+                                                if (isNull(err) && results instanceof Array && results.length == 1)
                                                 {
                                                     callback(null, results[0]);
                                                 }

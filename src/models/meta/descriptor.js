@@ -1,20 +1,18 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("/models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const ObjectManipulator = require(Config.absPathInSrcFolder("/utils/object_manipulation.js"));
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const ObjectManipulator = require(Pathfinder.absPathInSrcFolder("/utils/object_manipulation.js"));
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const async = require('async');
-const _ = require('underscore');
+const db = Config.getDBByID();
+const async = require("async");
+const _ = require("underscore");
 
-function Descriptor(object)
+function Descriptor(object, typeConfigsToRetain)
 {
     const self = this;
 
@@ -41,7 +39,7 @@ function Descriptor(object)
             const indexOfColon = object.prefixedForm.indexOf(":");
             if(indexOfColon < 0)
             {
-                var error = "Invalid prefixed form for descriptor " + object.prefixedForm;
+                const error = "Invalid prefixed form for descriptor " + object.prefixedForm;
                 console.error(error);
                 throw error;
             }
@@ -63,7 +61,7 @@ function Descriptor(object)
         }
         else
         {
-            var error = "Invalid Descriptor." + JSON.stringify(object) +". " +
+            const error = "Invalid Descriptor." + JSON.stringify(object) +". " +
                 "Check that you have included one of the following: an uri; an ontology uri and shortName; a prefixed form; a prefix and a shortName. " +
                 "Also, does that descriptor really belong to that ontology?";
 
@@ -73,7 +71,7 @@ function Descriptor(object)
 
         if(isNull(Elements[self.prefix]))
         {
-            var error = "Unknown ontology for -> " + object.uri +". The owning ontology of the descriptor is not parametrized in this Dendro instance.";
+            const error = "Unknown ontology for -> " + object.uri +". The owning ontology of the descriptor is not parametrized in this Dendro instance.";
 
             if(Config.debug.log_missing_unknown_descriptors)
             {
@@ -84,7 +82,7 @@ function Descriptor(object)
         }
         else if(isNull(Elements[self.prefix][self.shortName]) && Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
         {
-            var error = "Unknown descriptor -> " + object.uri+". This descriptor is not parametrized in this Dendro instance; however, the ontology uri matches an ontology in this instance. Are you sure that descriptor belongs to that ontology? Check the final part of the URI, or parametrize the element in the elements.js file.";
+            const error = "Unknown descriptor -> " + object.uri+". This descriptor is not parametrized in this Dendro instance; however, the ontology uri matches an ontology in this instance. Are you sure that descriptor belongs to that ontology? Check the final part of the URI, or parametrize the element in the elements.js file.";
             console.error(error);
             return {error : error};
         }
@@ -94,6 +92,34 @@ function Descriptor(object)
             {
                 self.type = Elements[self.prefix][self.shortName].type;
                 self.control = Elements[self.prefix][self.shortName].control;
+                self.label = Elements[self.prefix][self.shortName].label;
+                self.comment = Elements[self.prefix][self.shortName].comment;
+
+
+                if(!isNull(object.label))
+                {
+                    self.label = object.label;
+                }
+                else
+                {
+                    self.label = Elements[self.prefix][self.shortName].label;
+                }
+
+                if(!isNull(object.comment))
+                {
+                    self.comment = object.comment;
+                }
+                else
+                {
+                    self.comment = Elements[self.prefix][self.shortName].comment;
+                }
+
+                //override type if supplied in object argument
+
+                if(!isNull(object.type))
+                {
+                    self.type = object.type;
+                }
 
                 if(!isNull(Elements[self.prefix][self.shortName].hasAlternative))
                 {
@@ -105,11 +131,14 @@ function Descriptor(object)
                     self.hasRegex = Elements[self.prefix][self.shortName].hasRegex;
                 }
 
-                for(var descriptorType in Config.types)
+                for(let descriptorType in Config.types)
                 {
-                    if(!isNull(Elements[self.prefix][self.shortName]))
+                    if(Config.types.hasOwnProperty(descriptorType))
                     {
-                        self[descriptorType] = Elements[self.prefix][self.shortName][descriptorType];
+                        if (Elements[self.prefix][self.shortName][descriptorType])
+                        {
+                            self[descriptorType] = Elements[self.prefix][self.shortName][descriptorType];
+                        }
                     }
                 }
             }
@@ -122,34 +151,47 @@ function Descriptor(object)
                 }
             }
 
-            self.label = object.label;
-            self.comment = object.comment;
-
-            //override type if supplied in object argument
-
-            if(!isNull(object.type))
-            {
-                self.type = object.type;
-            }
-
             self.setValue(object.value);
 
             //try to get parametrization from ontology level
-            for(var descriptorType in Config.types)
+            for(let descriptorType in Config.types)
             {
-                if(isNull(self[descriptorType]) &&
-                    !isNull(Ontology.allOntologies[self.prefix]) &&
-                    !isNull(Ontology.allOntologies[self.prefix][descriptorType]))
+                if(Config.types.hasOwnProperty(descriptorType))
                 {
-                    self[descriptorType] = Ontology.allOntologies[self.prefix][descriptorType];
+                    if(isNull(self[descriptorType]) &&
+                        !isNull(Ontology.allOntologies[self.prefix]) &&
+                        !isNull(Ontology.allOntologies[self.prefix][descriptorType]))
+                    {
+                        self[descriptorType] = Ontology.allOntologies[self.prefix][descriptorType];
+                    }
                 }
             }
+
+            if(!isNull(typeConfigsToRetain) && typeConfigsToRetain instanceof Array)
+            {
+                for(let i = 0; i < typeConfigsToRetain.length; i++)
+                {
+                    let type = typeConfigsToRetain[i];
+                    if (Config.types.hasOwnProperty(type))
+                    {
+                        if(!isNull(object[type]))
+                        {
+                            self[type] = object[type];
+                        }
+                        else if(!isNull(Elements[self.prefix][self.shortName]) && isNull(Elements[self.prefix][self.shortName][type]))
+                        {
+                            self[type] = Elements[self.prefix][self.shortName][type];
+                        }
+                    }
+                }
+            }
+
             return self;
         }
     }
     else
     {
-        var error = "No object supplied for descriptor creation";
+        const error = "No object supplied for descriptor creation";
         console.error(error);
         return {error : error};
     }
@@ -210,7 +252,7 @@ Descriptor.recommendation_types = {
     }
 };
 
-Descriptor.DCElements = function(callback)
+Descriptor.dublinCoreElements = function(callback)
 {
     const DCDescriptors = [
         new Descriptor({prefixedForm: "dcterms:contributor"}),
@@ -283,11 +325,11 @@ Descriptor.findByUri = function(uri, callback)
                 }*/
             ],
             function(err, descriptors) {
-                if(!err)
+                if(isNull(err))
                 {
                     if(descriptors.length === 0)
                     {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                     else
                     {
@@ -297,7 +339,7 @@ Descriptor.findByUri = function(uri, callback)
                         }
 
                         const formattedDescriptor = new Descriptor(descriptors[0]);
-                        return callback(0, formattedDescriptor);
+                        return callback(null, formattedDescriptor);
                     }
                 }
                 else
@@ -344,7 +386,7 @@ Descriptor.prototype.setValue = function(value)
 
 Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize) {
 
-    var query =
+    let query =
         " SELECT DISTINCT ?uri ?label ?comment \n"+
             " FROM [0] \n"+
             " WHERE \n" +
@@ -418,7 +460,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 
     db.connection.execute(query, args,
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const formattedResults = [];
 
@@ -428,7 +470,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
                     formattedResults.push(formattedDescriptor);
                 }
 
-                return callback(0, formattedResults);
+                return callback(null, formattedResults);
             }
             else
             {
@@ -440,13 +482,13 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 
 
 Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number, page_size) {
-    const async = require('async');
+    const async = require("async");
     async.map(ontologyURIsArray, function(uri, cb){
         Descriptor.all_in_ontology(uri, function(err, descriptors){
             cb(err, descriptors);
         });
     },function(err, results){
-        if(!err)
+        if(isNull(err))
         {
             let flat = _.flatten(results);
 
@@ -519,11 +561,14 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
 {
     if(isNull(excludedDescriptorTypes))
         return true;
-    else if(isNull(exceptionedDescriptorTypes))
-        return true;
     else
     {
-        const _ = require('underscore');
+        if(isNull(exceptionedDescriptorTypes))
+        {
+            exceptionedDescriptorTypes = [];
+        }
+        
+        const _ = require("underscore");
         const sortedExcluded = excludedDescriptorTypes.sort();
         const sortedExceptioned = exceptionedDescriptorTypes.sort();
 
@@ -594,7 +639,7 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
         {
             if(!isNull(map) &&  !isNull(map[prefix]))
             {
-                if(map[prefix][shortName])
+                if(map[prefix] && map[prefix][shortName])
                 {
                     return true;
                 }
@@ -629,8 +674,18 @@ Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptione
     const self = this;
     const prefix = self.getNamespacePrefix();
     const shortName = self.getShortName();
-    const isAuthorized = Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes);
-    return isAuthorized;
+
+    //TODO shortname is coming undefined here on some conditions! check
+
+    if(!isNull(prefix) && !isNull(shortName))
+    {
+        const isAuthorized = Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes);
+        return isAuthorized;
+    }
+    else
+    {
+        throw new Error("Invalid descriptor " + prefix + ":" + shortName);
+    }
 };
 
 Descriptor.prototype.getNamespacePrefix = function()
@@ -685,6 +740,23 @@ Descriptor.prototype.getPrefixedForm = function()
 
     return shortDescriptor;
 };
+
+Descriptor.prefixedFormsToFullUris = function(arrayOfPrefixedForms)
+{
+    let arrayOfFullDescriptorUris = [arrayOfPrefixedForms.length];
+
+    for(let i = 0; i < arrayOfPrefixedForms.length; i++)
+    {
+        let prefixedForm = arrayOfPrefixedForms[i];
+        let descriptor = new Descriptor({
+            prefixedForm : prefixedForm
+        });
+
+        arrayOfFullDescriptorUris[i] = descriptor.uri;
+    }
+
+    return arrayOfFullDescriptorUris;
+}
 
 Descriptor.mergeDescriptors = function(descriptorsArray, callback)
 {
@@ -744,7 +816,7 @@ Descriptor.mergeDescriptors = function(descriptorsArray, callback)
 
     const getFullDescriptor = function (descriptor, cb) {
         Descriptor.findByUri(descriptor.uri, function (err, fullDescriptor) {
-            if (!err && !isNull(fullDescriptor) && fullDescriptor instanceof Descriptor) {
+            if (isNull(err) && !isNull(fullDescriptor) && fullDescriptor instanceof Descriptor) {
                 fullDescriptor.value = descriptor.value;
                 cb(null, fullDescriptor);
             }
@@ -841,7 +913,7 @@ Descriptor.getRandomDescriptors = function(allowedOntologies, numberOfDescriptor
                 {
                     Descriptor.findByUri(randomDescriptor.uri, function(err, descriptor)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(descriptor) && isNull(descriptor.error))
                             {
@@ -935,7 +1007,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
 
@@ -955,16 +1027,16 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
                     suggestion.overall_use_count = parseInt(result.overall_use_count);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        return callback(0, suggestion);
+                        return callback(null, suggestion);
                     }
                     else {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                 };
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
@@ -1031,7 +1103,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
                     Descriptor.findByUri(result.uri, function (err, descriptor) {
@@ -1041,7 +1113,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, fullDescriptors);
                     }
@@ -1071,7 +1143,7 @@ Descriptor.validateDescriptorParametrization = function(callback)
         {
             Descriptor.all_in_ontology(ontology, function(err, descriptors)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     for(let i = 0; i < descriptors.length; i++)
                     {
@@ -1079,27 +1151,37 @@ Descriptor.validateDescriptorParametrization = function(callback)
                         try{
                             if(isNull(Elements[descriptor.prefix]))
                             {
-                                console.error("Descriptor " + JSON.stringify(descriptor) + " has an unparametrized namespace " + descriptor.prefix + " . Check your elements.js file and ontology.js file");
+                                if(Config.debug.descriptors.log_missing_unknown_descriptors)
+                                    console.error("Descriptor " + JSON.stringify(descriptor) + " has an unparametrized namespace " + descriptor.prefix + " . Check your elements.js file and ontology.js file");
+
                                 error = 1;
                             }
                             else if(isNull(Elements[descriptor.prefix][descriptor.shortName]))
                             {
-                                console.error("Descriptor " + descriptor.prefixedForm + " is not present in the elements.js file!");
+                                if(Config.debug.descriptors.log_missing_unknown_descriptors)
+                                    console.error("Descriptor " + descriptor.prefixedForm + " is not present in the elements.js file!");
+
                                 error = 1;
                             }
                             else if(isNull(Elements[descriptor.prefix][descriptor.shortName].control))
                             {
-                                console.error("Descriptor " + descriptor.prefixedForm + " is present in the elements.js file, but has no control type associated! Correct the error by setting the appropriate control type.");
+                                if(Config.debug.descriptors.log_missing_unknown_descriptors)
+                                    console.error("Descriptor " + descriptor.prefixedForm + " is present in the elements.js file, but has no control type associated! Correct the error by setting the appropriate control type.");
+
                                 error = 1;
                             }
                         }
                         catch(e)
                         {
+                            console.error(e.stack);
                             return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }
 
-                    return callback(null, null);
+                    if(error && Config.debug.descriptors.log_missing_unknown_descriptors)
+                        console.error("[WARNING] There are unparametrized descriptors in ontology " + ontology);
+
+                    return callback(null);
                 }
                 else
                 {
@@ -1120,5 +1202,44 @@ Descriptor.validateDescriptorParametrization = function(callback)
         }
     );
 };
+
+Descriptor.getUriFromPrefixedForm = function(prefixedForm)
+{
+    if (!isNull(prefixedForm)) {
+        const indexOfColon = prefixedForm.indexOf(":");
+        const indexOfHash = prefixedForm.indexOf("#");
+        let indexOfSeparator = -1;
+
+        if(indexOfColon < 0 && indexOfHash > -1)
+        {
+            indexOfSeparator = indexOfHash;
+        }
+        else if(indexOfColon > -1 && indexOfHash < 0)
+        {
+            indexOfSeparator = indexOfColon;
+        }
+
+        if (indexOfSeparator > 0) {
+            const prefix = prefixedForm.substr(0, indexOfSeparator);
+            const element = prefixedForm.substr(indexOfSeparator + 1);
+            const ontology = Ontology.allOntologies[prefix].uri;
+            const valueAsFullUri = ontology + element;
+            return valueAsFullUri;
+        }
+        else {
+            throw new Error("Value " + prefixedForm + " is not valid. It does not have either a : or a # in the prefixed form.");
+        }
+    }
+    else
+    {
+        throw new Error("Value " + prefixedForm.value + " is null!");
+    }
+}
+
+Descriptor.convertToFullUris = function(prefixedFormsArray)
+{
+    const results = _.map(prefixedFormsArray, Descriptor.getUriFromPrefixedForm);
+    return results;
+}
 
 module.exports.Descriptor = Descriptor;

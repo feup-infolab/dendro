@@ -26,7 +26,7 @@ angular.module('dendroApp.services')
                 url: uri,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(function(response) {
                     if(response.data != null && response.data instanceof Object)
                     {
@@ -56,7 +56,7 @@ angular.module('dendroApp.services')
                 url: uri,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(function(response) {
                     if(response.data != null && response.data instanceof Object)
                     {
@@ -77,13 +77,63 @@ angular.module('dendroApp.services')
                 var mkdirUrl = parentFolderUri + "?mkdir=" +newFolderName;
 
                 return $http({
-                    method: 'POST',
+                    method: "POST",
                     url: mkdirUrl,
                     data: JSON.stringify({}),
                     contentType: "application/json",
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 });
             }
+        };
+
+        this.rename = function(newName, resourceUri)
+        {
+            if (newName !=null)
+            {
+                var renameUrl = resourceUri + "?rename=" +newName;
+
+                return $http({
+                    method: "POST",
+                    url: renameUrl,
+                    data: JSON.stringify({}),
+                    contentType: "application/json",
+                    headers: {"Accept": "application/json"}
+                });
+            }
+        };
+
+        this.cut = function(resourcesToCut, targetFolderUri)
+        {
+            var resourcesToCutUris = _.map(resourcesToCut, function(file){
+                return file.uri;
+            });
+
+            return $http({
+                method: "POST",
+                url: targetFolderUri + "?cut",
+                data : JSON.stringify({
+                    files : resourcesToCutUris
+                }),
+                contentType: "application/json",
+                headers: {"Accept": "application/json"}
+            });
+        };
+
+        this.copy = function(resourcesToCopy, targetFolderUri)
+        {
+            var resourcesToCopyUris = _.map(resourcesToCopy, function(file){
+                return file.uri;
+            });
+
+            return $http({
+                method: "POST",
+                url: targetFolderUri + "?copy",
+                data : JSON.stringify({
+                    files : resourcesToCopyUris
+                }),
+                contentType: "application/json",
+                headers: {"Accept": "application/json"}
+            });
         };
 
         this.rm = function(fileOrFolder, forever)
@@ -100,18 +150,18 @@ angular.module('dendroApp.services')
                 url: uri,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
         this.undelete = function(fileOrFolder)
         {
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: fileOrFolder.uri + "?undelete",
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
-        }
+        };
     }]);

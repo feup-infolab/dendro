@@ -1,55 +1,46 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-const Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
-const FileSystemPost = require(Config.absPathInSrcFolder("/models/social/fileSystemPost.js")).FileSystemPost;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
+const FileSystemPost = require(Pathfinder.absPathInSrcFolder("/models/social/fileSystemPost.js")).FileSystemPost;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const async = require("async");
+
 const db_social = function () {
-    return GLOBAL.db.social;
+    return Config.db.social;
 }();
 
 exports.download = function(req, res){
     const self = this;
-    if(req.params.is_project_root)
-    {
-        var requestedResourceURI = req.params.requestedResource + "/data";
-    }
-    else
-    {
-        var requestedResourceURI = req.params.requestedResource;
-    }
 
-    const filePath = req.params.filepath;
+    let requestedResourceURI = req.params.requestedResourceUri;
 
     const downloadFolder = function (requestedResourceURI, res) {
         Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
-            if (!err) {
+            if (isNull(err)) {
                 const mimeType = Config.mimeType("zip");
                 const fileName = folderToDownload.nie.title + ".zip";
 
                 res.writeHead(200,
                     {
-                        'Content-disposition': 'attachment; filename="' + fileName + "\"",
-                        'Content-Type': mimeType
+                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
+                        "Content-Type": mimeType
                     }
                 );
 
                 const includeMetadata = (!isNull(req.query.backup));
                 const bagIt = (!isNull(req.query.bagit));
 
-                const async = require('async');
+                const async = require("async");
 
                 async.series([
                     function (cb) {
@@ -59,7 +50,7 @@ exports.download = function(req, res){
                             };
 
                             folderToDownload.bagit(bagitOptions, function (err, result, absolutePathOfFinishedFolder, parentFolderPath) {
-                                const path = require('path');
+                                const path = require("path");
 
                                 const finishedZipFileName = "bagit_backup.zip";
                                 const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
@@ -77,14 +68,14 @@ exports.download = function(req, res){
                     }
                 ],
                 function (err, results) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (!isNull(results) && !isNull(results[0])) {
                             var writtenFilePath = results[0];
 
-                            const fs = require('fs');
+                            const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
 
-                            res.on('end', function () {
+                            res.on("end", function () {
                                 File.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr) {
                                     if (err) {
                                         console.error("Unable to delete " + writtenFilePath);
@@ -98,15 +89,15 @@ exports.download = function(req, res){
                             fileStream.pipe(res);
                         }
                         else {
-                            var error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
+                            const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
                             console.error(error);
-                            res.write("500 Error : " + error + "\n");
+                            res.status(500).write("Error : " + error + "\n");
                             res.end();
                         }
                     }
                     else {
                         if (err === 404) {
-                            var error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                            const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                             console.error(error);
                             res.writeHead(404, error);
                             res.end();
@@ -119,155 +110,41 @@ exports.download = function(req, res){
                 });
             }
             else {
-                var error = "Non-existent folder : " + requestedResourceURI;
+                const error = "Non-existent folder. Is this a file instead of a folder? : " + requestedResourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();
             }
         });
     };
-
-    //we are fetching the root folder of a project
-    if(isNull(filePath))
-    {
-        downloadFolder(requestedResourceURI, res);
-    }
-    else
-    {
-        InformationElement.getType(requestedResourceURI,
-            function(err, type){
-                if(!err)
+    const downloadFile = function(requestedResourceURI, res) {
+        File.findByUri(requestedResourceURI, function(err, file){
+            if(isNull(err))
+            {
+                const mimeType = Config.mimeType(file.ddr.fileExtension);
+                file.writeToTempFile(function(err, writtenFilePath)
                 {
-                    const path = require('path');
-                    if(type === File)
+                    if(isNull(err))
                     {
-                        File.findByUri(requestedResourceURI, function(err, file){
-                            if(!err)
-                            {
-                                const mimeType = Config.mimeType(file.ddr.fileExtension);
-                                file.writeToTempFile(function(err, writtenFilePath)
+                        if(!isNull(writtenFilePath))
+                        {
+                            const fs = require("fs");
+                            const fileStream = fs.createReadStream(writtenFilePath);
+
+                            res.writeHead(200,
                                 {
-                                    if(!err)
+                                    "Content-disposition": "attachment; filename=\"" + file.nie.title+"\"",
+                                    "Content-type": mimeType
+                                });
+
+                            res.on("end", function () {
+                                Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
+                                    if(err)
                                     {
-                                        if(!isNull(writtenFilePath))
-                                        {
-                                            const fs = require('fs');
-                                            const fileStream = fs.createReadStream(writtenFilePath);
-
-                                            res.writeHead(200,
-                                                {
-                                                    'Content-disposition': 'attachment; filename="' + file.nie.title+"\"",
-                                                    'Content-type': mimeType
-                                                });
-
-                                            res.on('end', function () {
-                                                Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
-                                                    if(err)
-                                                    {
-                                                        console.error("Unable to delete " + writtenFilePath);
-                                                    }
-                                                    else
-                                                    {
-                                                        console.log("Deleted " + writtenFilePath);
-                                                    }
-                                                });
-                                            });
-
-                                            fileStream.pipe(res);
-                                        }
-                                        else
-                                        {
-                                            var error = "There was an error streaming the requested resource : " + requestedResourceURI;
-                                            console.error(error);
-                                            res.writeHead(500, error);
-                                            res.end();
-                                        }
+                                        console.error("Unable to delete " + writtenFilePath);
                                     }
                                     else
                                     {
-                                        if(err === 404)
-                                        {
-                                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                                            console.error(error);
-                                            res.writeHead(404, error);
-                                            res.end();
-                                        }
-                                        else
-                                        {
-                                            var error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
-                                            console.error(error);
-                                            res.writeHead(500, error);
-                                            res.end();
-                                        }
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                var error = "Non-existent file : " + requestedResourceURI;
-                                console.error(error);
-                                res.writeHead(404, error);
-                                res.end();
-                            }
-                        });
-                    }
-                    else if(type === Folder)
-                    {
-                        downloadFolder(requestedResourceURI, res);
-                    }
-                    else
-                    {
-                        var error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
-                        console.error(error);
-                        res.write("500 Error : "+ error +"\n");
-                        res.end();
-                    }
-                }
-                else
-                {
-                    var error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
-                    console.error(error);
-                    res.write("500 Error : "+ error +"\n");
-                    res.end();
-                }
-            });
-    }
-};
-/*
-Used to serve some files in html like images, text files...
- */
-exports.serve = function(req, res){
-    const self = this;
-    const requestedResourceURI = req.params.requestedResource;
-    const filePath = req.params.filepath;
-
-    const downloadFolder = function (requestedResourceURI, res) {
-        Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
-            if (!err) {
-                const mimeType = Config.mimeType("zip");
-                const fileName = folderToDownload.nie.title + ".zip";
-
-                res.writeHead(200,
-                    {
-                        'Content-disposition': 'attachment; filename="' + fileName + "\"",
-                        'Content-Type': mimeType
-                    }
-                );
-
-                const includeMetadata = (!isNull(req.query.backup));
-
-                folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath) {
-                    if (!err) {
-                        if (!isNull(writtenFilePath)) {
-                            const fs = require('fs');
-                            const fileStream = fs.createReadStream(writtenFilePath);
-
-                            res.on('end', function () {
-                                Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr) {
-                                    if (err) {
-                                        console.error("Unable to delete " + writtenFilePath);
-                                    }
-                                    else {
                                         console.log("Deleted " + writtenFilePath);
                                     }
                                 });
@@ -275,29 +152,36 @@ exports.serve = function(req, res){
 
                             fileStream.pipe(res);
                         }
-                        else {
-                            var error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
+                        else
+                        {
+                            const error = "There was an error streaming the requested resource : " + requestedResourceURI;
                             console.error(error);
-                            res.write("500 Error : " + error + "\n");
+                            res.writeHead(500, error);
                             res.end();
                         }
                     }
-                    else {
-                        if (err === 404) {
-                            var error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                    else
+                    {
+                        if(err === 404)
+                        {
+                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                             console.error(error);
                             res.writeHead(404, error);
                             res.end();
                         }
-                        else {
-                            console.error("Unable to produce temporary file to download " + self.uri + " Error returned : " + writtenFilePath);
+                        else
+                        {
+                            const error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
+                            console.error(error);
+                            res.writeHead(500, error);
+                            res.end();
                         }
-
                     }
                 });
             }
-            else {
-                var error = "Non-existent folder : " + requestedResourceURI;
+            else
+            {
+                const error = "Non-existent file : " + requestedResourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();
@@ -306,40 +190,218 @@ exports.serve = function(req, res){
     };
 
     //we are fetching the root folder of a project
-    if(isNull(filePath))
+    if(req.params.is_project_root)
+    {
+        Project.findByUri(requestedResourceURI, function(err, project){
+            if(isNull(err))
+            {
+                if(!isNull(project))
+                {
+                    project.getRootFolder(function(err, rootFolder){
+                        if(isNull(err))
+                        {
+                            if(!(isNull(rootFolder)) && rootFolder instanceof Folder)
+                            {
+                                downloadFolder(rootFolder.uri, res);
+                            }
+                            else
+                            {
+                                const error = "Unable to determine the root folder of project : " + requestedResourceURI;
+                                console.error(error);
+                                res.status(500).write("Error : "+ error +"\n");
+                                res.end();
+                            }
+                        }
+
+                    });
+                }
+                else
+                {
+                    const error = "Non-existent project : " + requestedResourceURI;
+                    console.error(error);
+                    res.status(404).write("Error : "+ error +"\n");
+                    res.end();
+                }
+            }
+            else
+            {
+                const error = "Error occurred while retrieving project : " + requestedResourceURI;
+                console.error(error);
+                res.status(500).write("Error : "+ error +"\n");
+                res.end();
+            }
+        });
+
+    }
+    else
+    {
+        InformationElement.findByUri(requestedResourceURI, function(err, ie){
+            if(isNull(err))
+            {
+                if(!isNull(ie))
+                {
+                    const path = require("path");
+                    if(ie.isA(File))
+                    {
+                        downloadFile(requestedResourceURI, res);
+                    }
+                    else if(ie.isA(Folder))
+                    {
+                        downloadFolder(requestedResourceURI, res);
+                    }
+                    else
+                    {
+                        const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
+                        console.error(error);
+                        res.status(500).write("Error : "+ error +"\n");
+                        res.end();
+                    }
+                }
+                else
+                {
+                    const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
+                    console.error(error);
+                    res.status(404).write("error");
+                    res.end();
+                }
+            }
+            else
+            {
+                const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
+                console.error(error);
+                res.status(500).write("Error : "+ error +"\n");
+                res.end();
+            }
+        });
+    }
+};
+/*
+Used to serve some files in html like images, text files...
+ */
+exports.serve = function(req, res){
+    const self = this;
+    const requestedResourceURI = req.params.requestedResourceUri;
+
+    const downloadFolder = function (requestedResourceURI, res) {
+        Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
+            if (isNull(err)) {
+                if(!isNull(folderToDownload) && folderToDownload instanceof Folder)
+                {
+                    const includeMetadata = (!isNull(req.query.backup));
+
+                    folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath) {
+                        if (isNull(err)) {
+                            if (!isNull(writtenFilePath)) {
+                                const fs = require("fs");
+                                const fileStream = fs.createReadStream(writtenFilePath);
+
+                                const mimeType = Config.mimeType("zip");
+                                const fileName = folderToDownload.nie.title + ".zip";
+
+                                res.writeHead(200,
+                                    {
+                                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
+                                        "Content-Type": mimeType
+                                    }
+                                );
+
+                                res.on("end", function () {
+                                    Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr) {
+                                        if (err) {
+                                            console.error("Unable to delete " + writtenFilePath);
+                                        }
+                                        else {
+                                            console.log("Deleted " + writtenFilePath);
+                                        }
+                                    });
+                                });
+
+                                fileStream.pipe(res);
+                            }
+                            else {
+                                const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
+                                console.error(error);
+                                res.status(500).write("Error : " + error + "\n");
+                                res.end();
+                            }
+                        }
+                        else {
+                            if (err === 404) {
+                                const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                console.error(error);
+                                res.status(404).json({
+                                    result : "error",
+                                    message : error
+                                });
+                            }
+                            else {
+                                const error = "Unable to produce temporary file to download " + self.uri + " Error returned : " + writtenFilePath;
+                                console.error(error);
+                                res.status(500).json({
+                                    result : "error",
+                                    message : error
+                                });
+                            }
+
+                        }
+                    });
+                }
+                else
+                {
+                    const error = "Non-existent folder. Is this a file instead of a folder? : " + requestedResourceURI;
+                    console.error(error);
+                    res.status(404).json({
+                        result : "error",
+                        message : error
+                    });
+                }
+            }
+            else {
+                const error = "Error fetching folder" + requestedResourceURI;
+                console.error(error);
+                res.status(500).json({
+                    result : "error",
+                    message : error
+                });
+            }
+        });
+    };
+
+    //we are fetching the root folder of a project
+    if(req.params.is_project_root)
     {
         downloadFolder(requestedResourceURI, res);
     }
     else
     {
-        InformationElement.getType(requestedResourceURI,
-            function(err, type){
-                if(!err)
+        InformationElement.findByUri(requestedResourceURI,
+            function(err, ie){
+                if(isNull(err))
                 {
-                    const path = require('path');
-                    if(type === File)
+                    const path = require("path");
+                    if(ie.isA(File))
                     {
                         File.findByUri(requestedResourceURI, function(err, file){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 const mimeType = Config.mimeType(file.ddr.fileExtension);
 
                                 file.writeToTempFile(function(err, writtenFilePath)
                                 {
-                                    if(!err)
+                                    if(isNull(err))
                                     {
                                         if(!isNull(writtenFilePath))
                                         {
-                                            const fs = require('fs');
+                                            const fs = require("fs");
                                             const fileStream = fs.createReadStream(writtenFilePath);
 
                                             res.writeHead(200,
                                                 {
-                                                    'Content-disposition': 'filename="' + file.nie.title+"\"",
-                                                    'Content-type': mimeType
+                                                    "Content-disposition": 'filename="' + file.nie.title+"\"",
+                                                    "Content-type": mimeType
                                                 });
 
-                                            res.on('end', function () {
+                                            res.on("end", function () {
                                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
                                                     if(err)
                                                     {
@@ -356,7 +418,7 @@ exports.serve = function(req, res){
                                         }
                                         else
                                         {
-                                            var error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                                            const error = "There was an error streaming the requested resource : " + requestedResourceURI;
                                             console.error(error);
                                             res.writeHead(500, error);
                                             res.end();
@@ -366,14 +428,14 @@ exports.serve = function(req, res){
                                     {
                                         if(err === 404)
                                         {
-                                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                             console.error(error);
                                             res.writeHead(404, error);
                                             res.end();
                                         }
                                         else
                                         {
-                                            var error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
+                                            const error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
                                             console.error(error);
                                             res.writeHead(500, error);
                                             res.end();
@@ -383,66 +445,67 @@ exports.serve = function(req, res){
                             }
                             else
                             {
-                                var error = "Non-existent file : " + requestedResourceURI;
+                                const error = "Non-existent file : " + requestedResourceURI;
                                 console.error(error);
                                 res.writeHead(404, error);
                                 res.end();
                             }
                         });
                     }
-                    else if(type === Folder)
+                    else if(ie.isA(Folder))
                     {
                         downloadFolder(requestedResourceURI, res);
                     }
                     else
                     {
-                        var error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
+                        const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
                         console.error(error);
-                        res.write("500 Error : "+ error +"\n");
+                        res.status(500).write("Error : "+ error +"\n");
                         res.end();
                     }
                 }
                 else
                 {
-                    var error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
+                    const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
                     console.error(error);
-                    res.write("500 Error : "+ error +"\n");
+                    res.status(500).write("Error : "+ error +"\n");
                     res.end();
                 }
             });
     }
 };
 exports.serve_base64 = function(req, res){
-    const requestedResourceURI = req.params.requestedResource;
+    const requestedResourceURI = req.params.requestedResourceUri;
 
-    InformationElement.getType(requestedResourceURI,
-        function(err, type){
-            if(!err)
+    InformationElement.findByUri(requestedResourceURI, function(err, ie){
+        if(isNull(err))
+        {
+            if(!isNull(ie))
             {
-                const path = require('path');
-                if(type === File)
+                const path = require("path");
+                if(ie.isA(File))
                 {
                     File.findByUri(requestedResourceURI, function(err, file){
-                        if(!err)
+                        if(isNull(err))
                         {
                             const mimeType = Config.mimeType(file.ddr.fileExtension);
 
                             file.writeToTempFile(function(err, writtenFilePath)
                             {
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     if(!isNull(writtenFilePath))
                                     {
-                                        const fs = require('fs');
+                                        const fs = require("fs");
                                         const fileStream = fs.createReadStream(writtenFilePath);
 
-                                        res.on('end', function(){
+                                        res.on("end", function(){
                                             console.log("close");
                                             deleteTempFile(writtenFilePath);
                                         });
                                         const base64 = require('base64-stream');
 
-                                        res.on('end', function () {
+                                        res.on("end", function () {
                                             Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
                                                 if(err)
                                                 {
@@ -459,7 +522,7 @@ exports.serve_base64 = function(req, res){
                                     }
                                     else
                                     {
-                                        var error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                                        const error = "There was an error streaming the requested resource : " + requestedResourceURI;
                                         console.error(error);
                                         res.writeHead(500, error);
                                         res.end();
@@ -469,14 +532,14 @@ exports.serve_base64 = function(req, res){
                                 {
                                     if(err === 404)
                                     {
-                                        var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                        const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                         console.error(error);
                                         res.writeHead(404, error);
                                         res.end();
                                     }
                                     else
                                     {
-                                        var error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
+                                        const error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
                                         console.error(error);
                                         res.writeHead(500, error);
                                         res.end();
@@ -486,140 +549,497 @@ exports.serve_base64 = function(req, res){
                         }
                         else
                         {
-                            var error = "Non-existent file : " + requestedResourceURI;
+                            const error = "Non-existent file : " + requestedResourceURI;
                             console.error(error);
                             res.writeHead(404, error);
                             res.end();
                         }
                     });
                 }
-                else if(type === Folder)
+                else if(ie.isA(Folder))
                 {
-                    var error = "Resource : " + requestedResourceURI + " is a folder and cannot be represented in Base64";
+                    const error = "Resource : " + requestedResourceURI + " is a folder and cannot be represented in Base64";
                     console.error(error);
-                    res.write("500 Error : "+ error +"\n");
+                    res.status(500).write("Error : "+ error +"\n");
                     res.end();
                 }
                 else
                 {
-                    var error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
+                    const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
                     console.error(error);
-                    res.write("500 Error : "+ error +"\n");
+                    res.status(500).write("Error : "+ error +"\n");
                     res.end();
                 }
             }
             else
             {
-                var error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
+                const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
                 console.error(error);
-                res.write("500 Error : "+ error +"\n");
-                res.end();
-            }
-        });
-
-};
-exports.get_thumbnail = function(req, res) {
-    const requestedResourceURI = req.params.requestedResource;
-    const size = req.query.size;
-
-    File.findByUri(requestedResourceURI, function(err, file){
-        if(!err)
-        {
-            if(!isNull(file))
-            {
-                const mimeType = Config.mimeType(file.ddr.fileExtension);
-
-                if(!isNull(Config.thumbnailableExtensions[file.ddr.fileExtension]))
-                {
-                    file.getThumbnail(size, function(err, writtenFilePath)
-                    {
-                        if(!err)
-                        {
-                            if(!isNull(writtenFilePath))
-                            {
-                                const fs = require('fs');
-                                const path = require('path');
-                                let fileStream = fs.createReadStream(writtenFilePath);
-                                let filename = path.basename(writtenFilePath);
-
-                                res.writeHead(200,
-                                    {
-                                        'Content-disposition': 'filename="' + filename+"\"",
-                                        'Content-type': mimeType
-                                    });
-
-                                fileStream.pipe(res);
-                            }
-                            else
-                            {
-                                const error = "There was an error streaming the requested resource : " + requestedResourceURI;
-                                console.error(error);
-                                res.writeHead(500, error);
-                                res.end();
-                            }
-                        }
-                        else
-                        {
-                            if(err === 404)
-                            {
-                                var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                                console.error(error);
-                                res.writeHead(404, error);
-                                res.end();
-                            }
-                            else
-                            {
-                                //try to regenerate thumbnails
-                                file.generateThumbnails(function(err, result)
-                                {
-                                    const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
-                                    console.error(error);
-                                });
-
-                                res.writeHead(404, error);
-                                res.end();
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    exports.serve_static(
-                        req,
-                        res,
-                        Config.absPathInPublicFolder("/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
-                        Config.absPathInPublicFolder("/images/icons/file.png"),
-                        Config.cache.static.etag_cache_active
-                    );
-                }
-            }
-            else
-            {
-                var error = "Non-existent file : " + requestedResourceURI;
-                console.error(error);
-                res.writeHead(404, error);
+                res.status(404).write("error");
                 res.end();
             }
         }
         else
         {
-            var error = "Error fetching thumbnail for file " + requestedResourceURI;
+            const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
             console.error(error);
-            res.writeHead(500, error);
+            res.status(500).write("Error : "+ error +"\n");
             res.end();
         }
     });
 };
 
+exports.get_thumbnail = function(req, res) {
+    const requestedResourceURI = req.params.requestedResourceUri;
+    const size = req.query.size;
+
+
+
+    InformationElement.findByUri(requestedResourceURI, function(err, ie){
+        if(isNull(err))
+        {
+            if(!isNull(ie))
+            {
+                if(ie.isA(Folder))
+                {
+                    exports.serve_static(req, res, "/images/icons/folder.png", "/images/icons/folder.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                }
+                else if(ie.isA(File))
+                {
+                    File.findByUri(requestedResourceURI, function(err, file){
+                        if(isNull(err))
+                        {
+                            if(!isNull(file))
+                            {
+                                const mimeType = Config.mimeType(file.ddr.fileExtension);
+
+                                if(!isNull(Config.thumbnailableExtensions[file.ddr.fileExtension]))
+                                {
+                                    file.getThumbnail(size, function(err, writtenFilePath)
+                                    {
+                                        if(isNull(err))
+                                        {
+                                            if(!isNull(writtenFilePath))
+                                            {
+                                                const fs = require("fs");
+                                                const path = require("path");
+                                                let fileStream = fs.createReadStream(writtenFilePath);
+                                                let filename = path.basename(writtenFilePath);
+
+                                                res.writeHead(200,
+                                                    {
+                                                        "Content-disposition": 'filename="' + filename+"\"",
+                                                        "Content-type": mimeType
+                                                    });
+
+                                                fileStream.pipe(res);
+                                            }
+                                            else
+                                            {
+                                                const error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                                                console.error(error);
+                                                res.writeHead(500, error);
+                                                res.end();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if(err === 404)
+                                            {
+                                                const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                                console.error(error);
+                                                res.writeHead(404, error);
+                                                res.end();
+                                            }
+                                            else
+                                            {
+                                                //try to regenerate thumbnails
+                                                file.generateThumbnails(function(err, result) {});
+
+                                                const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
+                                                res.writeHead(404, error);
+                                                res.end();
+                                                console.error(error);
+                                            }
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    exports.serve_static(
+                                        req,
+                                        res,
+                                        Pathfinder.absPathInPublicFolder("/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
+                                        Pathfinder.absPathInPublicFolder("/images/icons/file.png"),
+                                        Config.cache.static.etag_cache_active
+                                    );
+                                }
+                            }
+                            else
+                            {
+                                const error = "Non-existent file : " + requestedResourceURI;
+                                console.error(error);
+                                res.writeHead(404, error);
+                                res.end();
+                            }
+                        }
+                        else
+                        {
+                            const error = "Error fetching thumbnail for file " + requestedResourceURI;
+                            console.error(error);
+                            res.writeHead(500, error);
+                            res.end();
+                        }
+                    });
+                }
+                else
+                {
+                    exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 500);
+                }
+            }
+            else
+            {
+                exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 404);
+            }
+        }
+        else
+        {
+            exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 500);
+        }
+    });
+
+
+};
+
 exports.upload = function(req, res)
 {
+    const async = require("async");
+    const fs = require("fs");
+    const md5File = require("md5-file");
+    const multiparty = require("multiparty");
+    const tmp = require("tmp");
+    const path = require("path");
+
+    const requestedResourceURI = req.params.requestedResourceUri;
     const upload_id = req.query.upload_id;
     const upload = UploadManager.get_upload_by_id(upload_id);
     const username = req.query.username;
-    const file_md5 = req.query.md5_checksum;
     const filename = req.query.filename;
     const size = req.query.size;
     const restart = req.query.restart;
+    let md5_checksum = req.query.md5_checksum;
+
+    const sendResponse = function(status, responseObject){
+        if (isNull(status))
+        {
+            res.json(responseObject);
+        }
+        else
+        {
+            res.status(status).json(responseObject);
+        }
+    };
+
+    const saveFilesAfterFinishingUpload = function (files, callback) {
+        const fileNames = [];
+
+        if (files instanceof Array) {
+            async.mapSeries(files, function (file, callback) {
+                fileNames.push({
+                    name: file.name
+                });
+
+                const getNewFileParentFolder = function(callback) {
+                    async.tryEach([
+                        function(callback)
+                        {
+                            if(req.params.is_project_root)
+                            {
+                                Project.findByUri(requestedResourceURI, function(err, project){
+                                    if(isNull(err))
+                                    {
+                                        if(!isNull(project))
+                                        {
+                                            callback(true, project.ddr.rootFolder);
+                                        }
+                                        else
+                                        {
+                                            callback(false);
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        callback(false, err);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                callback(true, requestedResourceURI);
+                            }
+                        }
+                    ], function(ok, result)
+                    {
+                        if(ok)
+                            callback(null, result);
+                        else
+                            callback(1, result);
+                    });
+                };
+
+                getNewFileParentFolder(function(err, parentFolderUri){
+                    if(isNull(err))
+                    {
+                        const newFile = new File({
+                            nie: {
+                                title: file.name,
+                                isLogicalPartOf: parentFolderUri
+                            }
+                        });
+
+                        newFile.saveWithFileAndContents(file.path, req.index, function(err, newFile){
+                            if(isNull(err))
+                            {
+                                return callback(null, {
+                                    result: "success",
+                                    message: "File submitted successfully.",
+                                    uri : newFile.uri
+                                });
+                            }
+                            else
+                            {
+                                const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+                                return callback(500, {
+                                    result: "error",
+                                    message: msg,
+                                    files: files,
+                                    errors: newFile
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        const msg = "Error determining the parent folder of the new file : " + parentFolderUri;
+                        return callback(500, {
+                            result: "error",
+                            message: msg,
+                            files: files
+                        });
+                    }
+                });
+
+            }, function (err, results) {
+                return callback(err, results);
+            });
+        }
+        else
+        {
+            return callback(500, {
+                result: "error",
+                message: "Unknown error submitting files. Malformed message?",
+                files: fileNames
+            });
+        }
+    };
+
+    const processChunkedUpload = function(upload, callback) {
+        if (!isNull(upload))
+        {
+            const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
+
+            form.on('error', function (err)
+            {
+                UploadManager.destroy_upload(upload.id, function (err)
+                {
+                    if (err)
+                    {
+                        console.log("Error destroying upload " + upload.id);
+                    }
+                });
+            });
+
+            form.on('aborted', function ()
+            {
+                UploadManager.destroy_upload(upload.id, function (err)
+                {
+                    if (err)
+                    {
+                        console.log("Error destroying upload " + upload.id);
+                    }
+                });
+            });
+
+            // Parts are emitted when parsing the form
+            form.on('part', function(part) {
+
+                if (!part.filename) {
+                    part.resume();
+                }
+
+                if (part.filename) {
+                    upload.pipe(part, function(err){
+                        if(isNull(err))
+                        {
+                            if(upload.is_finished())
+                            {
+                                req.files = [{
+                                    path: upload.temp_file,
+                                    name: upload.filename
+                                }];
+
+                                md5File(upload.temp_file, function (err, hash) {
+                                    if (isNull(err)) {
+                                        if (md5_checksum !== hash) {
+                                            callback(400, {
+                                                result: "error",
+                                                message: "File was corrupted during transfer. Please repeat.",
+                                                error: "invalid_checksum",
+                                                calculated_at_server: hash,
+                                                calculated_at_client: md5_checksum
+                                            });
+                                        }
+                                        else
+                                        {
+                                            //TODO replace with final processing of files (Saving + metadata)
+                                            saveFilesAfterFinishingUpload(req.files, function(err, result){
+                                                if(isNull(err))
+                                                {
+                                                    callback(null, {
+                                                        result: "ok",
+                                                        message: "Files saved successfully",
+                                                        details: result
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    callback(500, {
+                                                        result: "error",
+                                                        message: "Unable to save files after buffering: " + result,
+                                                        error: result
+                                                    });
+                                                }
+                                            })
+                                        }
+                                    }
+                                    else {
+                                        callback(500, {
+                                            result: "error",
+                                            message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
+                                            error: hash
+                                        });
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.json(
+                                    {
+                                        size: upload.size
+                                    });
+                            }
+                        }
+                        else
+                        {
+                            callback(500, {
+                                result: "error",
+                                message: "There was an error writing a part of the upload to the server."
+                            });
+                        }
+                    });
+                }
+
+                part.on('error', function(err) {
+                    // decide what to do
+                });
+            });
+
+            // Parse req
+            form.parse(req);
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error",
+                    message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
+                });
+        }
+    };
+
+    const processNormalUpload = function(callback) {
+        const readFilesFromRequestBody = function(callback) {
+            let files = [],
+                filesCounter = 0,
+                allFinished = false,
+                fstream;
+
+            function allDone(filesCounter, finished)
+            {
+                if(finished)
+                {
+                    allFinished = true;
+                }
+
+                if(filesCounter === 0 && allFinished)
+                {
+                    callback(null, files);
+                }
+            }
+
+            req.busboy.on('file', function (fieldname, file, filename) {
+                ++filesCounter;
+
+                tmp.dir({dir : Config.tempFilesDir}, function _tempDirCreated(err, tempFolderPath) {
+                    if(isNull(err))
+                    {
+                        let newFileLocalPath = path.join(tempFolderPath, filename);
+                        fstream = fs.createWriteStream(newFileLocalPath);
+
+                        fstream.on('error', function () {
+                            return callback(1, "Error saving file from request into temporary file");
+                        });
+
+                        fstream.on('finish', function() {
+                            --filesCounter;
+
+                            files.push({
+                                path : newFileLocalPath,
+                                name : filename
+                            });
+
+                            allDone(filesCounter, false);
+                        });
+
+                        file.pipe(fstream);
+                    }
+                    else
+                    {
+                        return callback(1, "Error creating temporary folder for receiving file from request into temporary file");
+                    }
+                });
+            });
+
+            req.busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
+                req.resume();
+            });
+
+            req.busboy.on('finish', function() {
+                allDone(filesCounter, true);
+            });
+
+            req.pipe(req.busboy);
+        };
+
+        async.waterfall([
+            readFilesFromRequestBody,
+            function(files)
+            {
+                saveFilesAfterFinishingUpload(files, callback);
+            }
+        ]);
+    };
 
     if (req.originalMethod === "GET")
     {
@@ -633,13 +1053,13 @@ exports.upload = function(req, res)
             {
                 if (!isNull(upload))
                 {
-                    if (upload.username === upload.username && !isNull(req.user) && typeof req.user.ddr.username === username)
+                    if (upload.username === upload.username && !isNull(req.user) && req.user.ddr.username === username)
                     {
                         if(restart)
                         {
                             upload.restart(function (err, result)
                             {
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     res.json({
                                         size: upload.loaded
@@ -647,7 +1067,7 @@ exports.upload = function(req, res)
                                 }
                                 else
                                 {
-                                    res.status(400).json({
+                                    sendResponse(400, {
                                         result : "result",
                                         message : "Error resetting upload."
                                     });
@@ -690,22 +1110,22 @@ exports.upload = function(req, res)
                     !isNull(filename) &&
                     filename !== "" &&
 
-                    typeof file_md5 !== "undefined" &&
-                    file_md5 !== "" &&
+                    typeof md5_checksum !== "undefined" &&
+                    md5_checksum !== "" &&
 
-                    !isNull(req.params.requestedResource) &&
-                    req.params.requestedResource !== ""
+                    !isNull(req.params.requestedResourceUri) &&
+                    req.params.requestedResourceUri !== ""
                 )
                 {
                     UploadManager.add_upload(
                         username,
                         filename,
                         size,
-                        file_md5,
-                        req.params.requestedResource,
+                        md5_checksum,
+                        req.params.requestedResourceUri,
                         function (err, newUpload)
                         {
-                            if (!err)
+                            if (isNull(err))
                             {
                                 res.json({
                                     size: newUpload.loaded,
@@ -714,7 +1134,7 @@ exports.upload = function(req, res)
                             }
                             else
                             {
-                                res.status(500).json({
+                                sendResponse(500, {
                                     result: "error",
                                     message: "There was an error registering the new upload.",
                                     error: err
@@ -742,302 +1162,32 @@ exports.upload = function(req, res)
     }
     else if (req.originalMethod === "POST")
     {
-        const requestedResourceURI = req.params.requestedResource;
-        const currentUserUri = req.user.uri;
-
-        const processFiles = function (callback) {
-            const fileNames = [];
-
-            const getFilesArray = function (req) {
-                let files = [];
-
-                if (req.files instanceof Object) {
-                    if (req.files.file instanceof Object) {
-                        files[0] = req.files.file
-                    }
-                    else {
-                        files[0] = req.files;
-                    }
-
-                    return files;
-                }
-                else if (!isNull(req.files.files) && req.files.files instanceof Array) {
-                    files = req.files.files;
-                    return files;
-                }
-                else {
-                    return null;
-                }
-            };
-
-            var files = getFilesArray(req);
-
-            if (files instanceof Array) {
-                const async = require('async');
-                async.map(files, function (file, callback) {
-                    fileNames.push({
-                        name: file.name
-                    });
-
-                    const newFile = new File({
-                        nie: {
-                            title: file.name,
-                            isLogicalPartOf: requestedResourceURI
-                        }
-                    });
-
-                    const fs = require('fs');
-
-                    const md5File = require('md5-file');
-
-                    /* Async usage */
-                    md5File(file.path, function (err, hash) {
-                        if (!err) {
-                            if (typeof hash !== upload.md5_checksum) {
-                                return callback(400, {
-                                    result: "error",
-                                    message: "File was corrupted during transfer. Please repeat.",
-                                    error: "invalid_checksum",
-                                    calculated_at_server: hash,
-                                    calculated_at_client: upload.md5_checksum
-                                });
-                            }
-                            else {
-                                newFile.loadFromLocalFile(file.path, function (err, result) {
-                                    if (isNull(err)) {
-                                        newFile.save(function (err, result) {
-                                            if (isNull(err)) {
-                                                console.log("File " + newFile.uri + " is now saved in GridFS");
-                                                newFile.connectToMongo(function (err, db) {
-                                                    if (!err) {
-                                                        newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb) {
-                                                            if (!error) {
-                                                                async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
-                                                                    if(fileVersion != null)
-                                                                    {
-                                                                        FileSystemPost.buildFromUpload(currentUserUri, fileVersion.metadata.project, fileVersion, function (err, newfileSystemPost) {
-                                                                            if(!err)
-                                                                            {
-                                                                                newfileSystemPost.save(function (err, fileSystemPost)
-                                                                                {
-                                                                                    if (!err)
-                                                                                    {
-                                                                                        cb(null, fileSystemPost);
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        console.error("Error when saving a FileSystemPost from a file upload");
-                                                                                        console.error(err);
-                                                                                        cb(true, fileSystemPost);
-                                                                                    }
-                                                                                }, false, null, null, null, null, db_social.graphUri)
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                console.error("Error when building a FileSystemPost from a file upload");
-                                                                                console.error(err);
-                                                                                cb(true, newfileSystemPost);
-                                                                            }
-                                                                        });
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        cb(null, fileVersion);
-                                                                    }
-                                                                }, function (err, results) {
-                                                                    if (!err) {
-                                                                        return callback(null, {
-                                                                            result: "success",
-                                                                            message: "File submitted successfully. Message returned : " + result,
-                                                                            files: files
-                                                                        });
-                                                                    }
-                                                                    else {
-                                                                        const msg = "Error saving file version";
-                                                                        return callback(500, {
-                                                                            result: "error",
-                                                                            message: msg
-                                                                        });
-                                                                    }
-                                                                });
-                                                            }
-                                                            else {
-                                                                var msg = "Database error";
-                                                                return callback(500, {
-                                                                    result: "error",
-                                                                    message: msg
-                                                                });
-                                                            }
-                                                        });
-                                                    }
-                                                    else {
-                                                        var msg = "Error submitting file : " + result;
-                                                        return callback(500, {
-                                                            result: "error",
-                                                            message: msg,
-                                                            files: files
-                                                        });
-                                                    }
-                                                });
-
-                                                //try to generate thumbnails
-                                                newFile.generateThumbnails(function (err, result) {
-                                                    if (!isNull(err)) {
-                                                        console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
-                                                    }
-                                                });
-                                            }
-                                            else {
-                                                var msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                return callback(500, {
-                                                    result: "error",
-                                                    message: msg,
-                                                    files: fileNames
-                                                });
-                                            }
-                                        });
-                                    }
-                                    else {
-                                        console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
-                                        return callback(500, {
-                                            result: "error",
-                                            message: "Error saving the file : " + result,
-                                            files: files
-                                        });
-                                    }
-                                });
-                            }
-
-                        }
-                        else {
-                            return callback(401, {
-                                result: "error",
-                                message: "Unable to calculate the MD5 checksum of the uploaded file: " + newFile.filename,
-                                error: result
-                            });
-                        }
-                    })
-                }, function (err, results) {
-                    return callback(err, results);
-                });
+        if(!isNull(username) && !isNull(filename) && !isNull(size) && !isNull(md5_checksum))
+        {
+            if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
+            {
+                processChunkedUpload(upload, sendResponse);
             }
-            else {
-                return callback(500, {
+            else
+            {
+                return sendResponse(400, {
                     result: "error",
-                    message: "Unknown error submitting files. Malformed message?",
+                    message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
                     files: fileNames
                 });
             }
-        };
-
-        if (!isNull(upload))
-        {
-            const multiparty = require('multiparty');
-            const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
-
-            form.on('error', function (err)
-            {
-                UploadManager.destroy_upload(upload.id, function (err)
-                {
-                    if (err)
-                    {
-                        console.log("Error destroying upload " + upload.id);
-                    }
-                });
-            });
-
-            form.on('aborted', function ()
-            {
-                UploadManager.destroy_upload(upload.id, function (err)
-                {
-                    if (err)
-                    {
-                        console.log("Error destroying upload " + upload.id);
-                    }
-                });
-            });
-
-            /*form.on('progress', function (bytesReceived, bytesExpected)
-            {
-                console.log(upload.filename + " ---> " + upload.temp_file + ".  " + ((bytesReceived / bytesExpected) * 100) + "% uploaded");
-                console.log("Size of " + upload.temp_file + " : " + upload.loaded);
-            });*/
-
-
-            // Parts are emitted when parsing the form
-            form.on('part', function(part) {
-
-                if (!part.filename) {
-                    part.resume();
-                }
-
-                if (part.filename) {
-                    // filename is defined when this is a file
-                    console.log('got file named ' + part.name);
-
-                    upload.pipe(part, function(err){
-                        if(!err)
-                        {
-                            if(upload.is_finished())
-                            {
-                                req.files = {
-                                    path: upload.temp_file,
-                                    name: upload.filename
-                                };
-
-                                processFiles(function(status, responseObject){
-                                    if (isNull(status))
-                                    {
-                                        res.json(responseObject);
-                                    }
-                                    else
-                                    {
-                                        res.status(status).json(responseObject);
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                res.json(
-                                    {
-                                        size: upload.size
-                                    });
-                            }
-                        }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    result: "error",
-                                    message: "There was an error writing a part of the upload to the server."
-                                });
-                        }
-                    });
-                }
-
-                part.on('error', function(err) {
-                    // decide what to do
-                });
-            });
-
-            // Parse req
-            form.parse(req);
         }
         else
         {
-            res.status(500).json(
-                {
-                    result: "error",
-                    message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
-                });
+            processNormalUpload(sendResponse);
         }
     }
 };
 
 exports.resume = function(req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
 
     if (req.originalMethod === "GET")
@@ -1062,7 +1212,7 @@ exports.resume = function(req, res)
                     }
                     else
                     {
-                        var msg = "The upload does not belong to the user currently trying to resume.";
+                        const msg = "The upload does not belong to the user currently trying to resume.";
                         console.error(msg);
                         res.status(400).json({
                             result: "error",
@@ -1079,7 +1229,7 @@ exports.resume = function(req, res)
             }
             else
             {
-                var msg = "The user does not have a session initiated.";
+                const msg = "The user does not have a session initiated.";
                 console.error(msg);
                 res.status(400).json({
                     result: "error",
@@ -1089,7 +1239,7 @@ exports.resume = function(req, res)
         }
         else
         {
-            var msg = "Invalid Request, does not contain the 'resume' query parameter.";
+            const msg = "Invalid Request, does not contain the 'resume' query parameter.";
             console.error(msg);
             res.status(400).json({
                 result: "error",
@@ -1101,7 +1251,7 @@ exports.resume = function(req, res)
     {
         if(acceptsJSON && !acceptsHTML)
         {
-            var msg = "This is only accessible via GET method";
+            const msg = "This is only accessible via GET method";
             req.flash('error', "Invalid Request");
             console.log(msg);
             res.status(400).render('',
@@ -1133,7 +1283,7 @@ exports.restore = function(req, res){
     }
     else if (req.originalMethod === "POST")
     {
-        const requestedResourceUri = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+        const requestedResourceUri = req.params.requestedResourceUri;
 
         req.form.on('error', function(err) {
             res.status(500).json(
@@ -1164,11 +1314,9 @@ exports.restore = function(req, res){
 
                 if(file.ddr.fileExtension === "zip")
                 {
-                    //var restoringProjectRoot = (req.params.filepath == null || req.params.filepath.length == 0);
-
                     Folder.findByUri(requestedResourceUri, function(err, folder)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(isNull(folder))
                             {
@@ -1178,12 +1326,12 @@ exports.restore = function(req, res){
                             }
 
                             User.findByUri(req.user, function(err, user){
-                                if(!err && user instanceof User)
+                                if(isNull(err) && user instanceof User)
                                 {
                                     folder.restoreFromLocalBackupZipFile(tempFilePath, user, function(err, result){
-                                        if(!err)
+                                        if(isNull(err))
                                         {
-                                            var msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + result;
+                                            const msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + result;
                                             console.log(msg);
 
                                             res.status(200).json(
@@ -1195,7 +1343,7 @@ exports.restore = function(req, res){
                                         }
                                         else
                                         {
-                                            var msg = "Error restoring zip file to folder " + requestedResourceUri + " : " + result;
+                                            const msg = "Error restoring zip file to folder " + requestedResourceUri + " : " + result;
                                             console.log(msg);
 
                                             res.status(500).json(
@@ -1209,7 +1357,7 @@ exports.restore = function(req, res){
                                 }
                                 else
                                 {
-                                    var msg = "Error fetching currently logged in user during restore operation of zip file to folder " + requestedResourceUri + " : " + result;
+                                    const msg = "Error fetching currently logged in user during restore operation of zip file to folder " + requestedResourceUri + " : " + result;
                                     res.status(500).json(
                                         {
                                             "result" : "error",
@@ -1254,19 +1402,14 @@ exports.restore = function(req, res){
 };
 
 exports.rm = function(req, res){
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
-    if(!acceptsJSON && acceptsHTML){
-        res.status(400).json({
-            result: "error",
-            message : "HTML Request not valid for this route."
-        })
-    }
-    else
+    if(acceptsJSON && !acceptsHTML)
     {
-        const resourceToDelete = req.params.requestedResource;
-        let reallyDelete = false;
+        const resourceToDelete = req.params.requestedResourceUri;
+
+        let reallyDelete;
 
         try{
             reallyDelete = JSON.parse(req.query.really_delete);
@@ -1278,312 +1421,306 @@ exports.rm = function(req, res){
 
         if(!isNull(resourceToDelete))
         {
-            InformationElement.getType(resourceToDelete, function(err, type)
-            {
-                if(!err)
+            InformationElement.findByUri(resourceToDelete, function(err, result){
+                if(isNull(err))
                 {
-                    if(type === File)
+                    if(isNull(result))
                     {
-                        File.findByUri(resourceToDelete, function(err, file){
-                            if(!err)
-                            {
-                                if(!isNull(req.user))
-                                {
-                                    var userUri = req.user.uri;
-                                }
-                                else
-                                {
-                                    var userUri = null;
-                                }
-
-                                file.delete(function(err, result){
-                                    if(!err)
-                                    {
-                                        Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
-                                            if(!err)
-                                            {
-                                                FileSystemPost.buildFromDeleteFile(userUri, project.uri,file, function (error, fileSystemPost) {
-                                                    if(!error)
-                                                    {
-                                                        fileSystemPost.save(function (error, post) {
-                                                            if(!error)
-                                                            {
-                                                                res.status(200).json({
-                                                                    "result" : "success",
-                                                                    "message" : "Successfully deleted " + resourceToDelete
-                                                                });
-                                                            }
-                                                            else
-                                                            {
-                                                                res.status(500).json({
-                                                                    result: "Error",
-                                                                    message: "Unable to save Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
-                                                                });
-                                                            }
-                                                        }, false, null, null, null, null, db_social.graphUri);
-                                                    }
-                                                    else
-                                                    {
-                                                        res.status(500).json({
-                                                            result: "Error",
-                                                            message: "Unable to create Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                            else
-                                            {
-                                                let error =  "Unable to find the project where the resource " + file.uri + " is located";
-                                                console.error(error);
-                                                res.status(404).json({
-                                                    result : "Error",
-                                                    message : error
-                                                });
-                                            }
-                                        });
-                                        /*res.status(200).json({
-                                            "result" : "success",
-                                            "message" : "Successfully deleted " + resourceToDelete
-                                        });*/
-                                    }
-                                    else
-                                    {
-                                        if(err === 404)
-                                        {
-                                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceToDelete;
-                                            console.error(error);
-                                            res.writeHead(404, error);
-                                            res.end();
-                                        }
-                                        else
-                                        {
-                                            res.status(500).json(
-                                                {
-                                                    "result" : "error",
-                                                    "message" : "Error deleting " + resourceToDelete + ". Error reported : " + result
-                                                }
-                                            );
-                                        }
-                                    }
-                                }, userUri, reallyDelete);
-                            }
-                            else
-                            {
-                                res.status(500).json(
-                                    {
-                                        "result" : "error",
-                                        "message" : "Unable to retrieve resource with uri " + resourceToDelete
-                                    }
-                                );
-                            }
+                        res.status(404).json({
+                            "result" : "error",
+                            "message" : "Unable to find resource " + resourceToDelete
                         });
                     }
-                    else if(type === Folder)
+                    else
                     {
-                        Folder.findByUri(resourceToDelete, function(err, folder){
-                            if(!err)
-                            {
-                                if(!isNull(req.user))
+                        function deleteFolder(callback)
+                        {
+                            Folder.findByUri(resourceToDelete, function(err, folder){
+                                if(isNull(err))
                                 {
-                                    var userUri = req.user.uri;
-                                }
-                                else
-                                {
-                                    var userUri = null;
-                                }
-
-                                folder.delete(function(err, result){
-                                    if(!err)
+                                    if(isNull(folder))
                                     {
-                                        //social dendro aqui
-                                        Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
-                                            if(!err)
-                                            {
-                                                FileSystemPost.buildFromRmdirOperation(req.user.uri, project, result, reallyDelete, function(err, post){
-                                                    if(!err)
-                                                    {
-                                                        post.save(function (err, post) {
-                                                            if(!err)
-                                                            {
-                                                                res.status(200).json({
-                                                                    "result" : "success",
-                                                                    "message" : "Successfully deleted " + resourceToDelete
-                                                                });
-                                                            }
-                                                            else
-                                                            {
-                                                                res.status(500).json({
-                                                                    result: "Error",
-                                                                    message: "Unable to save Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + err
-                                                                });
-                                                            }
-                                                        }, false, null, null, null, null, db_social.graphUri);
-                                                    }
-                                                    else
-                                                    {
-                                                        res.status(500).json({
-                                                            result: "Error",
-                                                            message: "Unable to create Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + err
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                            else
-                                            {
-                                                let error =  "Unable to find the project where the resource " + folder.uri + " is located";
-                                                console.error(error);
-                                                res.status(404).json({
-                                                    result : "Error",
-                                                    message : error
-                                                });
-                                            }
-                                        });
-                                        /*res.status(200).json({
-                                            "result" : "success",
-                                            "message" : "Successfully deleted " + resourceToDelete
-                                        });*/
+                                        return callback(null, folder);
                                     }
                                     else
                                     {
-                                        if(err === 404)
+                                        let userUri;
+                                        if(!isNull(req.user))
                                         {
-                                            const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. Error reported : " + result;
-                                            console.error(error);
-                                            res.writeHead(404, error);
-                                            res.end();
+                                            userUri = req.user.uri;
                                         }
                                         else
                                         {
-                                            res.status(500).json(
-                                                {
-                                                    "result" : "error",
-                                                    "message" : "Error deleting " + resourceToDelete + ". Error reported : " + result
-                                                }
-                                            );
+                                            userUri = null;
                                         }
+
+                                        folder.delete(function(err, result){
+                                            if(isNull(err))
+                                            {
+                                                const msg = "Successfully deleted " + resourceToDelete;
+                                                return callback(null, msg);
+                                            }
+                                            else
+                                            {
+                                                return callback(err, result);
+                                            }
+                                        }, userUri, true, req.query.really_delete);
                                     }
-                                }, userUri, true, req.query.really_delete);
+                                }
+                                else
+                                {
+                                    const msg = "Unable to retrieve resource with uri " + resourceToDelete + ". Error reported : " + folder;
+                                    return callback(err, msg);
+                                }
+                            });
+                        }
+
+                        function deleteFile(callback)
+                        {
+                            File.findByUri(resourceToDelete, function(err, file){
+                                if(isNull(err))
+                                {
+                                    if(isNull(file))
+                                    {
+                                        return callback(null, false);
+                                    }
+                                    else
+                                    {
+                                        let userUri = null;
+                                        if(!isNull(req.user))
+                                        {
+                                            userUri = req.user.uri;
+                                        }
+
+                                        file.delete(function(err, result){
+                                            if(isNull(err))
+                                            {
+                                                return callback(null, result);
+                                            }
+                                            else
+                                            {
+                                                return callback(err, result);
+                                            }
+                                        }, userUri, reallyDelete);
+                                    }
+                                }
+                                else
+                                {
+                                    const msg = "Unable to retrieve resource with uri " + resourceToDelete;
+                                    return callback(err, msg);
+                                }
+                            });
+                        };
+
+                        const sendResponse = function(err, result)
+                        {
+                            if(isNull(err))
+                            {
+                                const msg = "Successfully deleted " + resourceToDelete;
+                                res.status(200).json({
+                                    "result" : "success",
+                                    "message" : msg
+                                });
+                            }
+                            else if(err === 404)
+                            {
+                                const msg = "There was already a prior attempt to delete this file file or folder. The file or folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceToDelete;
+                                console.error(msg);
+                                res.writeHead(404, msg);
+                                res.end();
+                                return callback(err, msg);
                             }
                             else
                             {
+                                const msg = "Error deleting " + resourceToDelete + ". Error reported : " + result;
                                 res.status(500).json(
                                     {
                                         "result" : "error",
-                                        "message" : "Unable to retrieve resource with uri " + resourceToDelete + ". Error reported : " + folder
+                                        "message" : msg
                                     }
                                 );
                             }
-                        });
+                        };
+
+                        if(result.isA(File))
+                        {
+                            deleteFile(function(err, result){
+                                sendResponse(err, result);
+                            });
+                        }
+                        else if(result.isA(Folder))
+                        {
+                            deleteFolder(function(err, result){
+                                sendResponse(err, result);
+                            });
+                        }
+                        else
+                        {
+                            res.status(500).json(
+                                {
+                                    "result" : "error",
+                                    "message" : "Error determining the type of " + resourceToDelete
+                                }
+                            );
+                        }
                     }
                 }
                 else
                 {
-                    res.status(500).json(
-                        {
-                            "result" : "error",
-                            "message" : "Unable to retrieve resource with uri " + resourceToDelete
-                        }
-                    );
+                    res.status(500).json({
+                        "result" : "error",
+                        "message" : "Error trying to determine if resource " + resourceToDelete + " exists.",
+                        "error" : result
+                    });
                 }
             });
         }
+        else
+        {
+            res.status(405).json({
+                "result" : "error",
+                "message" : "Invalid request. Unable to determine requested resource URI"
+            });
+        }
+    }
+    else
+    {
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
     }
 };
 
 exports.undelete = function(req, res){
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)
     {
-        const resourceToUnDelete = req.params.requestedResource;
+        const resourceToUnDelete = req.params.requestedResourceUri;
 
         if(!isNull(resourceToUnDelete))
         {
-            InformationElement.getType(resourceToUnDelete, function(err, type)
+            InformationElement.findByUri(resourceToUnDelete, function(err, result)
             {
-                if(!err)
+                if (isNull(err))
                 {
-                    if(type === File)
+                    if (isNull(result))
                     {
-                        File.findByUri(resourceToUnDelete, function(err, file){
-                            if(!err)
-                            {
-                                file.undelete(function(err, result){
-                                    if(!err)
-                                    {
-                                        res.status(200).json({
-                                            "result" : "success",
-                                            "message" : "Successfully undeleted " + resourceToUnDelete
-                                        });
-                                    }
-                                    else
-                                    {
-                                        res.status(500).json(
-                                            {
-                                                "result" : "error",
-                                                "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
-                                            }
-                                        );
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                res.status(500).json(
-                                    {
-                                        "result" : "error",
-                                        "message" : "Unable to retrieve resource with uri " + resourceToUnDelete
-                                    }
-                                );
-                            }
+                        res.status(404).json({
+                            "result": "error",
+                            "message": "Unable to find resource " + resourceToDelete
                         });
                     }
-                    else if(type === Folder)
+                    else
                     {
-                        Folder.findByUri(resourceToUnDelete, function(err, folder){
-                            if(!err)
+                        function undeleteFile(callback)
+                        {
+                            File.findByUri(resourceToUnDelete, function (err, file)
                             {
-                                folder.undelete(function(err, result){
-                                    if(!err)
+                                if (isNull(err))
+                                {
+                                    file.undelete(function (err, result)
                                     {
-                                        res.status(200).json({
-                                            "result" : "success",
-                                            "message" : "Successfully undeleted " + resourceToUnDelete
-                                        });
-                                    }
-                                    else
-                                    {
-                                        res.status(500).json(
-                                            {
-                                                "result" : "error",
-                                                "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
-                                            }
-                                        );
-                                    }
-                                });
-                            }
-                            else
+                                        if (isNull(err))
+                                        {
+                                            res.status(200).json({
+                                                "result": "success",
+                                                "message": "Successfully undeleted " + resourceToUnDelete
+                                            });
+                                        }
+                                        else
+                                        {
+                                            res.status(500).json(
+                                                {
+                                                    "result": "error",
+                                                    "message": "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
+                                                }
+                                            );
+                                        }
+
+                                        callback(err);
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json(
+                                        {
+                                            "result": "error",
+                                            "message": "Unable to retrieve resource with uri " + resourceToUnDelete
+                                        }
+                                    );
+
+                                    callback(err);
+                                }
+                            });
+                        }
+
+                        function unDeleteFolder(callback)
+                        {
+                            Folder.findByUri(resourceToUnDelete, function (err, folder)
                             {
-                                res.status(500).json(
+                                if (isNull(err))
+                                {
+                                    folder.undelete(function (err, result)
                                     {
-                                        "result" : "error",
-                                        "message" : "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + folder
-                                    }
-                                );
-                            }
-                        });
+                                        if (isNull(err))
+                                        {
+                                            res.status(200).json({
+                                                "result": "success",
+                                                "message": "Successfully undeleted " + resourceToUnDelete
+                                            });
+                                        }
+                                        else
+                                        {
+                                            res.status(500).json(
+                                                {
+                                                    "result": "error",
+                                                    "message": "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
+                                                }
+                                            );
+                                        }
+
+                                        callback(err);
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json(
+                                        {
+                                            "result": "error",
+                                            "message": "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + folder
+                                        }
+                                    );
+
+                                    callback(err);
+                                }
+                            });
+                        }
+
+                        const async = require("async");
+                        async.tryEach([
+                            unDeleteFolder,
+                            undeleteFile
+                        ]);
                     }
                 }
                 else
                 {
-                    res.status(500).json(
-                        {
-                            "result" : "error",
-                            "message" : "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + type
-                        }
-                    );
+                    res.status(500).json({
+                        "result": "error",
+                        "message": "Error trying to determine if resource " + resourceToUnDelete + " exists.",
+                        "error": result
+                    });
                 }
+            });
+        }
+        else
+        {
+            res.status(405).json({
+                "result" : "error",
+                "message" : "Invalid request. Unable to determine requested resource URI"
             });
         }
     }
@@ -1597,43 +1734,73 @@ exports.undelete = function(req, res){
 };
 
 exports.mkdir = function(req, res){
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)
     {
-        let parentFolderURI;
 
-        if(req.params.is_project_root)
-        {
-            parentFolderURI = req.params.requestedResource + "/data";
-        }
-        else
-        {
-            parentFolderURI = req.params.requestedResource;
-        }
+        let validateFolderName = function(callback) {
+            const newFolderTitle = req.query.mkdir;
 
-        const newFolderTitle = req.query.mkdir;
+            if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
+            {
+                res.status(400).json(
+                    {
+                        "result" : "error",
+                        "message" : "invalid file name specified"
+                    }
+                );
 
-        if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
+                callback(1);
+            }
+            else
+            {
+                callback(null);
+            }
+        };
+
+        let getProjectRootFolder = function(projectUri, callback)
         {
-            res.status(500).json(
+            Project.findByUri(projectUri, function(err, project){
+                if(isNull(err))
                 {
-                    "result" : "error",
-                    "message" : "invalid file name specified"
+                    if(!isNull(project) || !(project instanceof Project))
+                    {
+                        if(!isNull(project.ddr.rootFolder))
+                        {
+                            callback(null, project.ddr.rootFolder);
+                        }
+                        else
+                        {
+                            callback(1, "Unable to determine root folder of project " + projectUri);
+                        }
+                    }
+                    else
+                    {
+                        callback(1, "There is no project with uri " + projectUri + ".");
+                    }
                 }
-            );
-        }
-        else
+                else
+                {
+                    callback(err, project);
+                }
+            });
+        };
+
+        let processRequest = function(parentFolderURI, callback)
         {
             Folder.findByUri(parentFolderURI, function(err, parentFolder)
             {
-                if(!err && !isNull(parentFolder))
+                if(isNull(err) && !isNull(parentFolder))
                 {
                     const newChildFolder = new Folder({
                         nie: {
-                            title: newFolderTitle,
+                            title: req.query.mkdir,
                             isLogicalPartOf: parentFolderURI
+                        },
+                        ddr : {
+                            humanReadableURI : parentFolder.ddr.humanReadableURI + "/" + req.query.mkdir
                         }
                     });
 
@@ -1645,69 +1812,22 @@ exports.mkdir = function(req, res){
                         ],
                         function(err, result)
                         {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 newChildFolder.save(function(err, result)
                                 {
-                                    if(!err)
+                                    if(isNull(err))
                                     {
-                                        //SOCIAL DENDRO HERE
-                                        Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
-                                            if(!err)
-                                            {
-                                                FileSystemPost.buildFromMkdirOperation(req.user.uri, project, result, function(err, post){
-                                                    if(!err)
-                                                    {
-                                                        post.save(function(err, post)
-                                                        {
-                                                            if (!err)
-                                                            {
-                                                                res.json(
-                                                                    {
-                                                                        "status" : "1",
-                                                                        "id" : newChildFolder.uri,
-                                                                        "result" : "ok",
-                                                                        "new_folder" : Descriptor.removeUnauthorizedFromObject(result, [Config.types.private], [Config.types.api_readable])
-                                                                    }
-                                                                );
-                                                            }
-                                                            else
-                                                            {
-                                                                res.status(500).json({
-                                                                    result: "Error",
-                                                                    message: "Unable to save Social Dendro post from file system change to resource uri: " + newChildFolder.uri + ". Error reported : " + err
-                                                                });
-                                                            }
-                                                        }, false, null, null, null, null, db_social.graphUri);
-                                                    }
-                                                    else
-                                                    {
-                                                        res.status(500).json({
-                                                            result: "Error",
-                                                            message: "Unable to create Social Dendro post from file system change to resource uri: " + newChildFolder.uri + ". Error reported : " + err
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                            else
-                                            {
-                                                var error =  "Unable to find the project where the resource " + newChildFolder.uri + " is located";
-                                                console.error(error);
-                                                res.status(404).json({
-                                                    result : "Error",
-                                                    message : error
-                                                });
-                                            }
-                                        });
-                                        //AQUI
-                                        /*res.json(
+                                        res.json(
                                             {
                                                 "status" : "1",
                                                 "id" : newChildFolder.uri,
                                                 "result" : "ok",
                                                 "new_folder" : Descriptor.removeUnauthorizedFromObject(result, [Config.types.private], [Config.types.api_readable])
                                             }
-                                        );*/
+                                        );
+
+                                        callback(null);
                                     }
                                     else
                                     {
@@ -1717,6 +1837,8 @@ exports.mkdir = function(req, res){
                                                 "message" : "error 1 saving new folder :" + result
                                             }
                                         );
+
+                                        callback(1);
                                     }
                                 });
                             }
@@ -1728,6 +1850,8 @@ exports.mkdir = function(req, res){
                                         "message" : "error 2 saving new folder :" + result
                                     }
                                 );
+
+                                callback(1);
                             }
                         });
                 }
@@ -1739,9 +1863,42 @@ exports.mkdir = function(req, res){
                             "message" : "error 3 saving new folder :" + parentFolder
                         }
                     );
+
+                    callback(1);
                 }
             });
-        }
+        };
+
+        async.waterfall(
+            [
+                validateFolderName,
+                function(callback)
+                {
+                    if (req.params.is_project_root)
+                    {
+                        getProjectRootFolder(req.params.requestedResourceUri, function (err, projectUri)
+                        {
+                            if (err)
+                            {
+                                callback(err, projectUri);
+                            }
+                            else
+                            {
+                                callback(null, projectUri);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        callback(null, req.params.requestedResourceUri);
+                    }
+                },
+                function (parentFolderUri, callback)
+                {
+                    processRequest(parentFolderUri, callback);
+                }
+            ]
+        );
     }
     else
     {
@@ -1750,40 +1907,49 @@ exports.mkdir = function(req, res){
 };
 
 exports.ls = function(req, res){
-    const resourceURI = req.params.requestedResource;
-    const filepath = req.params.filepath;
+    const resourceURI = req.params.requestedResourceUri;
     let show_deleted = req.query.show_deleted;
 
-    if(isNull(filepath))
+    if(req.params.is_project_root)
     {
-        Project.findByHandle(req.params.handle, function(err, project) {
-            if(!err)
+        Project.findByUri(resourceURI, function(err, project) {
+            if(isNull(err))
             {
-                project.getFirstLevelDirectoryContents(function(err, files){
-                    if(!err)
-                    {
-                        if(!show_deleted)
+                if(!isNull(project))
+                {
+                    project.getFirstLevelDirectoryContents(function(err, files){
+                        if(isNull(err))
                         {
-                            const _ = require('underscore');
-                            files = _.reject(files, function(file) { return file.ddr.deleted; });
-                        }
+                            if(!show_deleted)
+                            {
+                                const _ = require("underscore");
+                                files = _.reject(files, function(file) { return file.ddr.deleted; });
+                            }
 
-                        res.json(files);
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result : "error",
-                            message : "Unable to fetch project foot folder contents."
-                        })
-                    }
-                });
+                            res.json(files);
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result : "error",
+                                message : "Unable to fetch project root folder contents."
+                            })
+                        }
+                    });
+                }
+                else
+                {
+                    res.status(404).json({
+                        result : "error",
+                        message : "Unable to fetch project with uri : " + req.params.requestedResourceUri + ". Project not found! "
+                    });
+                }
             }
             else
             {
                 res.status(500).json({
                     result : "error",
-                    message : "Unable to fetch project with handle : " + req.params.handle
+                    message : "Unable to fetch project with uri : " + req.params.requestedResourceUri
                 })
             }
         });
@@ -1792,16 +1958,16 @@ exports.ls = function(req, res){
     {
         Folder.findByUri(resourceURI, function(err, containingFolder)
         {
-            if(!err && !isNull(containingFolder))
+            if(isNull(err) && !isNull(containingFolder))
             {
                 containingFolder.getLogicalParts(function(err, children)
                 {
 
-                    if(!err)
+                    if(isNull(err))
                     {
                         if(!show_deleted)
                         {
-                            const _ = require('underscore');
+                            const _ = require("underscore");
                             children = _.reject(children, function(child) { return child.ddr.deleted; });
                         }
 
@@ -1811,56 +1977,89 @@ exports.ls = function(req, res){
             }
             else
             {
-                res.status(500).json({
+                res.status(404).json({
                     result : "Error",
-                    message : "Non-existent folder"
+                    error : "Non-existent folder. Is this a file instead of a folder? : " + resourceURI
                 });
             }
         });
     }
 };
 
-exports.thumbnail = function(req, res)
+exports.extension_icon = function(req, res)
 {
-    if(!isNull(req.params.filepath))
+    const extension = req.params[0];
+    if(!isNull(extension) && !isNull(Config.iconableFileExtensions[extension]))
     {
-        const path = require('path');
-        const requestedExtension = path.extname(req.params.filepath).replace(".", "");
-
-        if(isNull(requestedExtension))
-        {
-            exports.serve_static(req, res, "/images/icons/document_empty.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-        }
-        else if(!isNull(requestedExtension) && !isNull(Config.thumbnailableExtensions[requestedExtension]))
-        {
-            exports.get_thumbnail(req, res);
-        }
-        else if(requestedExtension === "" || requestedExtension === "folder")
-        {
-            exports.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-        }
-        else
-        {
-            if(Config.iconableFileExtensions[requestedExtension])
-            {
-                exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-            }
-            else
-            {
-                exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-            }
-        }
+        exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
     }
     else
     {
-        exports.serve_static(req, res, "/images/icons/package.png", "/images/icons/package.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+        exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
     }
 };
 
-exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoot, pathOfFileToServeOnError, staticFileCaching, cachePeriodInSeconds){
-    const fs = require('fs');
-    const path = require('path');
+exports.thumbnail = function(req, res)
+{
+    if(!req.params.is_project_root)
+    {
+        const path = require("path");
+
+        InformationElement.findByUri(req.params.requestedResourceUri, function(err, resource){
+            if(!err)
+            {
+                if(!isNull(resource))
+                {
+                    const requestedExtension = resource.ddr.fileExtension;
+
+                    if(isNull(requestedExtension))
+                    {
+                        exports.serve_static(req, res, "/images/icons/document_empty.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                    }
+                    else if(!isNull(requestedExtension) && !isNull(Config.thumbnailableExtensions[requestedExtension]))
+                    {
+                        exports.get_thumbnail(req, res);
+                    }
+                    else if(requestedExtension === "" || requestedExtension === "folder")
+                    {
+                        exports.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                    }
+                    else
+                    {
+                        if(!isNull(Config.iconableFileExtensions[requestedExtension]))
+                        {
+                            exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                        }
+                        else
+                        {
+                            exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                        }
+                    }
+                }
+                else
+                {
+                    exports.serve_static(req, res, "/images/icons/emotion_question.png", "/images/icons/emotion_question.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 404);
+                }
+            }
+            else
+            {
+                exports.serve_static(req, res, "/images/icons/exclamation.png", "/images/icons/exclamation.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 500);
+            }
+        });
+    }
+    else
+    {
+        exports.serve_static(req, res, "/images/icons/box_closed.png", "/images/icons/emotion_question.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+    }
+};
+
+exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoot, pathOfFileToServeOnError, staticFileCaching, cachePeriodInSeconds, statusCode){
+    const fs = require("fs");
+    const path = require("path");
         appDir = path.dirname(require.main.filename);
+
+    if(isNull(statusCode))
+        statusCode = 200;
 
     const pipeFile = function (absPathOfFileToServe, filename, res, lastModified, cachePeriodInSeconds) {
         fs.createReadStream(absPathOfFileToServe);
@@ -1871,10 +2070,10 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
             res.setHeader('Date', new Date().toString());
         }
 
-        res.writeHead(200,
+        res.writeHead(statusCode,
             {
-                'Content-disposition': 'filename="' + filename + "\"",
-                'Content-type': mimeType
+                "Content-disposition": 'filename="' + filename + "\"",
+                "Content-type": mimeType
             });
 
         const fileStream = fs.createReadStream(absPathOfFileToServe);
@@ -1886,7 +2085,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
         const fileName = path.basename(pathOfIntendedFileRelativeToProjectRoot);
         const extension = path.extname(pathOfIntendedFileRelativeToProjectRoot).replace(".", "");
         var mimeType = Config.mimeType(extension);
-        var absPathOfFileToServe = Config.absPathInPublicFolder(pathOfIntendedFileRelativeToProjectRoot);
+        var absPathOfFileToServe = Pathfinder.absPathInPublicFolder(pathOfIntendedFileRelativeToProjectRoot);
 
         fs.exists(absPathOfFileToServe, function(exists){
             if(exists)
@@ -1958,142 +2157,652 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
     }
 };
 
-exports.data = function(req, res){
-    let path = require('path');
-    const requestedExtension = path.extname(req.params.filepath).replace(".", "");
+exports.recent_changes = function(req, res) {
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
-    if(!isNull(exports.dataParsers[requestedExtension]))
+    if(!acceptsJSON && acceptsHTML)
     {
-        const resourceURI = req.params.requestedResource;
-
-        File.findByUri(resourceURI, function(err, file){
-            if(!err)
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        InformationElement.findByUri(req.params.requestedResourceUri, function(err, fileOrFolder){
+            if(isNull(err))
             {
-                const mimeType = Config.mimeType(file.ddr.fileExtension);
-
-                file.writeToTempFile(function(err, writtenFilePath)
+                if(!isNull(fileOrFolder) && fileOrFolder instanceof InformationElement)
                 {
-                    if(!err)
-                    {
-                        if(!isNull(writtenFilePath))
+                    const offset = parseInt(req.query.offset);
+                    const limit = parseInt(req.query.limit);
+
+                    fileOrFolder.getOwnerProject(function(err, project){
+                        if(isNull(err))
                         {
-                            if(!isNull(exports.dataParsers[file.ddr.fileExtension]))
+                            if(!isNull(project) && project instanceof Project)
                             {
-                                exports.dataParsers[file.ddr.fileExtension](req, res, writtenFilePath);
+                                project.getRecentProjectWideChanges(function(err, changes){
+                                    if(isNull(err))
+                                    {
+                                        res.json(changes);
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json({
+                                            result : "error",
+                                            message : "Error getting recent changes from project : " + project.ddr.humanReadableURI + " : " + changes
+                                        });
+                                    }
+                                },offset , limit);
                             }
                             else
                             {
-                                var error = "Doesn't exist data parser for this format file : " + resourceURI;
-                                console.error(error);
-                                res.writeHead(500, error);
-                                res.end();
+                                res.status(404).json({
+                                    result : "error",
+                                    message : "Unable to find owner project of : " + fileOrFolder.ddr.humanReadableURI
+                                });
                             }
-
-
                         }
                         else
                         {
-                            var error = "There was an error streaming the requested resource : " + resourceURI;
-                            console.error(error);
-                            res.writeHead(500, error);
-                            res.end();
+                            res.status(500).json({
+                                result : "error",
+                                message : "Error occurred while trying to get the owner project of resource : " + req.params.requestedResourceUri + " : " + project
+                            });
                         }
-                    }
-                    else
-                    {
-                        if(err === 404)
-                        {
-                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceURI;
-                            console.error(error);
-                            res.writeHead(404, error);
-                            res.end();
-                        }
-                        else
-                        {
-                            var error = "Unable to produce temporary file to download "+resourceURI +". Error reported :" + writtenFilePath;
-                            console.error(error);
-                            res.writeHead(500, error);
-                            res.end();
-                        }
-                    }
-                });
+                    });
+
+
+                }
+                else
+                {
+                    res.status(404).json({
+                        result : "error",
+                        message : "Unable to find file or folder with uri : " + req.params.requestedResourceUri
+                    });
+                }
             }
             else
             {
-                var error = "Non-existent file : " + resourceURI;
+                res.status(500).json({
+                    result : "error",
+                    message : "Invalid project : " + req.params.requestedResourceUri +  " : " + project
+                });
+            }
+        });
+    }
+};
+
+exports.sheets = function(req, res){
+    if(isNull(req.params.showing_project_root))
+    {
+        const resourceURI = req.params.requestedResourceUri;
+        File.findByUri(resourceURI, function (err, file)
+        {
+            if (isNull(err))
+            {
+                if (!isNull(file) && file instanceof File)
+                {
+                    file.getSheets(function(err, sheets){
+                        if(!err)
+                        {
+                            res.json(sheets);
+                        }
+                        else
+                        {
+                            const error = "Error occurred while fetching sheets for " + resourceURI;
+                            console.error(error);
+                            res.status(500).json({
+                                result : "error",
+                                message : error,
+                                error : err
+                            });
+                        }
+
+                    })
+                }
+                else
+                {
+                    const error = resourceURI + " does not exist or is not a file.";
+                    console.error(error);
+                    res.status(404).json({
+                        result : "error",
+                        message : error
+                    });
+                }
+
+            }
+        });
+    }
+    else
+    {
+        const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects.js"));
+        projects.show(req, res);
+    }
+};
+
+exports.data = function(req, res){
+    if(isNull(req.params.showing_project_root))
+    {
+        const resourceURI = req.params.requestedResourceUri;
+        let skip;
+        let pageSize;
+        let sheetIndex;
+        let format;
+
+        if(!isNull(req.query.skip))
+            skip = parseInt(req.query.skip);
+
+        if(!isNull(req.query.page_size))
+            pageSize = parseInt(req.query.page_size);
+
+        if(!isNull(req.query.sheet_index))
+            sheetIndex = parseInt(req.query.sheet_index);
+
+        if(!isNull(req.query.format))
+            format = req.query.format;
+
+        File.findByUri(resourceURI, function(err, file){
+            if(isNull(err))
+            {
+                if(!isNull(file) && file instanceof File)
+                {
+                    if(!isNull(file.ddr.hasDataProcessingError))
+                    {
+                        res.status(500).json({
+                            result : "error",
+                            error : file.ddr.hasDataProcessingError
+                        });
+                    }
+                    else if(file.ddr.hasDataContent)
+                    {
+                        if(req.query.format === "csv")
+                        {
+                            res.set("Content-Type", "text/csv");
+                        }
+                        else
+                        {
+                            res.set("Content-Type", "application/json");
+                        }
+
+                        file.pipeData(res, skip, pageSize, sheetIndex, format);
+                    }
+                    else
+                    {
+                        if(!isNull(Config.dataStoreCompatibleExtensions[file.ddr.fileExtension]))
+                        {
+                            file.rebuildData(function(err, result){
+                                if(isNull(err))
+                                {
+                                    if(req.query.format === "csv")
+                                    {
+                                        res.set("Content-Type", "text/csv");
+                                    }
+                                    else
+                                    {
+                                        res.set("Content-Type", "application/json");
+                                    }
+
+                                    file.pipeData(res, null, null, null, format);
+                                }
+                                else
+                                {
+                                    console.error(result);
+                                    res.status(500).json({
+                                        result : "error",
+                                        message : result
+                                    });
+                                }
+                            });
+                        }
+                        else
+                        {
+                            const error = resourceURI + " has no data.";
+                            console.error(error);
+                            res.status(400).json({
+                                result : "error",
+                                message : error
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    const error = "Non-existent file : " + resourceURI;
+                    console.error(error);
+                    res.writeHead(404, error);
+                    res.end();
+                }
+            }
+            else
+            {
+                const error = "Error retrieving file : " + resourceURI;
                 console.error(error);
-                res.writeHead(404, error);
+                res.writeHead(500, error);
                 res.end();
             }
         });
     }
     else
     {
-        const projects = require(Config.absPathInSrcFolder("/controllers/projects.js"));
+        const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects.js"));
         projects.show(req, res);
     }
 };
 
 
-xlsFileParser = function (req, res, filePath){
-    const excelParser = require('excel-parser');
+exports.owner_project = function(req, res){
+    const resourceURI = req.params.requestedResourceUri;
 
-    excelParser.parse({
-        inFile: filePath,
-        worksheet: 1,
-        skipEmpty: false
-    },function(err, records){
-        deleteTempFile(filePath);
-        if(err){
-        const error = "Unable to produce JSON representation of file :" + filePath + "Error reported: " + err + ".\n Cause : " + records + " \n ";
-            console.error(err);
-            res.writeHead(500, error);
-            res.end();
+    InformationElement.findByUri(resourceURI, function(err, ie){
+        if(isNull(err))
+        {
+            if(!isNull(ie))
+            {
+                ie.getOwnerProject(function(err, ownerProject){
+                    if(isNull(err))
+                    {
+                        if(!isNull(ownerProject))
+                        {
+                            res.json({
+                                result : "ok",
+                                uri : ownerProject.uri
+                            });
+                        }
+                        else
+                        {
+                            const error = "Resource : " + resourceURI  + " does not have an owner project.";
+                            console.error(error);
+                            res.status(404).json({
+                                result : "error",
+                                message : error
+                            });
+                        }
+                    }
+                    else
+                    {
+                        const error = "Error fetching owner project of resource : " + resourceURI + ":" + ownerProject;
+                        console.error(error);
+                        res.status(500).json({
+                            result : "error",
+                            message : error
+                        });
+                    }
+                });
+            }
+            else
+            {
+                const error = "Non-existent resource : " + resourceURI;
+                console.error(error);
+                res.status(404).json({
+                    result : "error",
+                    message : error
+                });
+            }
         }
-        else{
-            res.json(records);
+        else
+        {
+            const error = "Error accessing resource : " + resourceURI + ":" + ie;
+            console.error(error);
+            res.status(500).json({
+                result : "error",
+                message : error
+            });
         }
 
     });
 };
 
-csvFileParser = function (req,res,filePath){
 
+exports.rename = function(req, res){
+    const resourceURI = req.params.requestedResourceUri;
+    const newName = req.query.rename;
 
-    const fs = require('fs');
-    fs.readFile(filePath, 'utf8', function(err, data) {
-        if (err) throw err;
-        deleteTempFile(filePath);
-        const CSV = require('csv-string'),
-            arr = CSV.parse(data);
-        res.json(arr);
+    if(!isNull(newName))
+    {
+        if(newName.match(/^[^\\\/:*?"<>|]{1,}$/g))
+        {
+            InformationElement.findByUri(resourceURI, function(err, ie){
+                if(isNull(err))
+                {
+                    if(!isNull(ie))
+                    {
+                        let parsePath = require('parse-filepath');
+                        const parsed = parsePath(ie.nie.title);
+
+                        ie.nie.title = newName + parsed.ext;
+
+                        ie.save(function(err, result){
+                            if(isNull(err))
+                            {
+                                res.json({
+                                    result : "ok",
+                                    message : "File successfully renamed."
+                                });
+                            }
+                            else
+                            {
+                                const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(result);
+                                console.error(error);
+                                res.status(500).json({
+                                    result : "error",
+                                    message : error
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        const error = "Non-existent resource : " + resourceURI;
+                        console.error(error);
+                        res.status(404).json({
+                            result : "error",
+                            message : error
+                        });
+                    }
+                }
+                else
+                {
+                    const error = "Error accessing resource : " + resourceURI + ":" + ie;
+                    console.error(error);
+                    res.status(500).json({
+                        result : "error",
+                        message : error
+                    });
+                }
+
+            });
+        }
+        else
+        {
+            res.status(400).json(
+                {
+                    "result" : "error",
+                    "message" : "Invalid new name specified. "
+                }
+            );
+        }
+    }
+    else
+    {
+        res.status(400).json(
+            {
+                "result" : "error",
+                "message" : "No new name supplied! "
+            }
+        );
+    }
+};
+
+const getTargetFolder = function(req, callback)
+{
+    const resourceUri = req.params.requestedResourceUri;
+    if(req.params.is_project_root)
+    {
+        Project.findByUri(resourceUri , function(err, project){
+            if(isNull(err))
+            {
+                if(!isNull(project) && project instanceof Project)
+                {
+                    project.getRootFolder(function(err, result){
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    callback(404, "Project with uri " + resourceUri + " does not exist");
+                }
+            }
+            else
+            {
+                callback(500, "Error occurred while fetching project with uri " + resourceUri);
+            }
+        })
+    }
+    else
+    {
+        Folder.findByUri(resourceUri, function(err, folder)
+        {
+            if (isNull(err))
+            {
+                if(!isNull(folder))
+                {
+                    callback(err, folder);
+                }
+                else
+                {
+                    callback(404, "Folder " + resourceUri + " does not exist. Are you trying to copy or move files to inside a file instead of a folder?");
+                }
+            }
+            else
+            {
+                res.status(500).json("Error occurred while fetching project with uri " + resourceUri);
+            }
+        });
+    }
+};
+
+const checkIfUserHasPermissionsOverFiles = function(req, permissions, files, callback)
+{
+    const user = req.user;
+    if(req.session.isAdmin) //admin is GOD
+    {
+        callback(null);
+    }
+    else
+    {
+        const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+
+        async.mapSeries(files, function(fetchedFile, callback){
+            async.detect(permissions, function(role, callback){
+                Permissions.checkUsersRoleInParentProject(req, user, role, fetchedFile, function (err, hasRole) {
+                    return callback(err, hasRole);
+                });
+            }, function(err, role){
+                if(isNull(err) && !isNull(role))
+                {
+                    return callback(null);
+                }
+                else
+                {
+                    return callback(1, "You do not have the necessary permissions to move resource " + fetchedFile.uri + ". Details: You are not a creator or contributor of the project to which the resource belongs.");
+                }
+            });
+        }, function(err, result){
+            return callback(err, result);
+        });
+    }
+};
+
+const checkIfFilesExist = function(files, callback)
+{
+    async.mapSeries(files, function(fileUri, callback){
+        InformationElement.findByUri(fileUri, function(err, fileToMove){
+            if(isNull(err))
+            {
+                if(!isNull(fileToMove))
+                {
+                    return callback(null, fileToMove);
+                }
+                else
+                {
+                    return callback(1, "Resource " + fileUri + " does not exist.");
+                }
+            }
+            else
+            {
+                return callback(1, "Error verifying if " + fileUri + " exists.");
+            }
+        });
+    }, function(err, filesToBeMoved){
+        return callback(err, filesToBeMoved);
     });
 };
 
-textFileParser = function (req,res,filePath){
-    const fs = require('fs');
-    fs.readFile(filePath, 'utf8', function(err, data) {
-        if (err) throw err;
-        deleteTempFile(filePath);
-        res.send(data);
-    });
+const checkIfDestinationIsNotContainedByAnySource = function(filesToMove, targetFolder, callback)
+{
+    async.mapSeries(filesToMove, function(fileToMove, callback){
+        targetFolder.containedIn(fileToMove, function(err, contained){
+            if(isNull(err))
+            {
+                if(!contained)
+                {
+                    callback(null);
+                }
+                else
+                {
+                    callback(3, "Cannot move a folder or resource to inside itself!. In this case, folder " + targetFolder.uri + " is contained in " + fileToMove.uri);
+                }
+            }
+            else
+            {
+                return callback(2, "Resource " + fileUri + " does not exist.");
+            }
+        });
+    }, function(err, results){
+        callback(err, results);
+    })
 };
 
-exports.dataParsers = {
-    "xls" : xlsFileParser,
-    "xlsx" : xlsFileParser,
-    "csv" : csvFileParser,
-    "txt" : textFileParser,
-    "log" : textFileParser,
-    "xml" : textFileParser
-
+const cutResources = function (resources, targetFolder, callback)
+{
+    async.mapSeries(resources, function (resource, callback)
+    {
+        resource.moveToFolder(targetFolder, function (err, result)
+        {
+            callback(err, result);
+        });
+    }, callback);
 };
 
-deleteTempFile = function(filePath){
-    const fs = require('fs');
+exports.cut = function(req, res){
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
-    fs.unlink(filePath, function (err) {
-        if (err) throw err;
-        console.log('successfully deleted temporary file ' +filePath);
-    });
+    if(acceptsJSON && !acceptsHTML)
+    {
+        if (!isNull(req.body.files))
+        {
+            if (req.body.files instanceof Array)
+            {
+                let files = req.body.files;
+                const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+
+                const permissions = [
+                    Permissions.settings.role.in_owner_project.contributor,
+                    Permissions.settings.role.in_owner_project.creator
+                ];
+
+                getTargetFolder(req, function (err, targetFolder)
+                {
+                    if (!err)
+                    {
+                        if(!isNull(targetFolder) && targetFolder instanceof Folder)
+                        {
+                            checkIfFilesExist(files, function (err, filesToBeMoved)
+                            {
+                                if (isNull(err))
+                                {
+                                    checkIfDestinationIsNotContainedByAnySource(filesToBeMoved, targetFolder, function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            checkIfUserHasPermissionsOverFiles(req, permissions, filesToBeMoved, function (err, hasPermissions)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    cutResources(filesToBeMoved, targetFolder, function (err, result)
+                                                    {
+                                                        if (isNull(err))
+                                                        {
+                                                            return res.json({
+                                                                result: "ok",
+                                                                message: "Files moved successfully"
+                                                            })
+                                                        }
+                                                        else
+                                                        {
+                                                            return res.status(500).json({
+                                                                result: "error",
+                                                                message: "An error occurred while moving files.",
+                                                                error: result
+                                                            })
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    return res.status(500).json({
+                                                        result: "error",
+                                                        message: "An error occurred while checking permissions over the files you are trying to move.",
+                                                        error: hasPermissions
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            return res.status(400).json({
+                                                result: "error",
+                                                message: "Cannot move a resource to inside itself.",
+                                                error: result
+                                            })
+                                        }
+                                    })
+                                }
+                                else
+                                {
+                                    return res.status(404).json({
+                                        result: "error",
+                                        message: "Some of the files that were asked to be moved do not exist.",
+                                        error: filesToBeMoved
+                                    });
+                                }
+                            });
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        return res.status(err).json({
+                            result: "error",
+                            message: "An error occurred while fetching the destination folder of the move operation.\n" + JSON.stringify(targetFolder),
+                            error: targetFolder
+                        });
+                    }
+                });
+            }
+            else
+            {
+                const error = "The 'files' parameter is not a valid array of files and folders";
+                console.error(error);
+                return res.status(400).json({
+                    result: "error",
+                    message: error
+                });
+            }
+        }
+        else
+        {
+            const error = "Missing 'files' parameter; Unable to determine which files to move!";
+            console.error(error);
+            return res.status(400).json({
+                result: "error",
+                message: error
+            });
+        }
+    }
+    else
+    {
+        res.status(400).json({
+            result: "error",
+            message: "HTML Request not valid for this route."
+        });
+    }
 };
+

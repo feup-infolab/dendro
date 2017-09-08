@@ -1,68 +1,113 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const db = Config.getDBByID();
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 
 function ArchivedResource (object)
 {
-    ArchivedResource.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "archived_resource", ArchivedResource);
+    ArchivedResource.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
+
+    self.ddr.isVersionOf = object.ddr.isVersionOf;
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        self.humanReadableURI = object.ddr.humanReadableURI + "/version/" + object.ddr.newVersionNumber;
+    }
 
     if(!isNull(object.rdf.type))
     {
         if(object.rdf.type instanceof Array)
         {
-            self.rdf.type.push("ddr:ArchivedResource");
+            if(!_.contains(object.rdf.type, "ddr:ArchivedResource"))
+            {
+                self.rdf.type = object.rdf.type.concat(["ddr:ArchivedResource"]);
+            }
         }
-        else
+        else if (typeof object.rdf.type === "string")
         {
-            self.rdf.type = [self.rdf.type, "ddr:ArchivedResource"];
+            if(object.rdf.type !== "ddr:ArchivedResource")
+            {
+                self.rdf.type = [object.rdf.type, "ddr:ArchivedResource"];
+            }
         }
-    }
-    else
-    {
-        self.rdf.type = "ddr:ArchivedResource";
     }
 
     const now = new Date();
-    if(isNull(object.dcterms.created))
+    if(isNull(self.ddr.created))
     {
-        self.dcterms.created = now.toISOString();
+        self.ddr.created = now.toISOString();
     }
 
     return self;
 }
 
-ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionNumber, callback)
+ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionNumber, callback, customGraphUri)
 {
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
     try
     {
-        versionNumber = parseInt(versionNumber);
-
         if(!isNull(versionNumber) && typeof versionNumber === 'number' && versionNumber%1 === 0)
         {
-            const archivedVersionUri = resourceUri + "/version/" + versionNumber;
+            db.connection.execute(
+                "SELECT ?archived_resource\n" +
+                "FROM [0]\n"+
+                "WHERE \n" +
+                "{ \n" +
+                "   ?archived_resource ddr:isVersionOf [1]. \n" +
+                "   ?archived_resource ddr:versionNumber [2]. \n" +
+                "} \n",
 
-            ArchivedResource.findByUri(archivedVersionUri, callback);
+                [
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value : graphUri
+                    },
+                    {
+                        type : Elements.ddr.isVersionOf.type,
+                        value : resourceUri
+                    },
+                    {
+                        type : Elements.ddr.versionNumber.type,
+                        value : versionNumber
+                    }
+                ],
+                function(err, results) {
+                    if(isNull(err))
+                    {
+                        if(results instanceof Array && results.length === 1)
+                        {
+                            ArchivedResource.findByUri(results[0].archived_resource, callback);
+                        }
+                        else
+                        {
+                            return callback(1, "Unable to determine the URI of the archived resource version " + versionNumber + " of " + resourceUri);
+                        }
+                    }
+                    else
+                    {
+                        const msg = "Error finding archived version " + versionNumber + " of resource " + resourceUri + " . Error returned: " + JSON.stringify(results);
+                        console.error(msg);
+                        return callback(err, msg);
+                    }
+                });
         }
         else
         {
@@ -79,11 +124,11 @@ ArchivedResource.findByUri = function(uri, callback)
 {
     ArchivedResource.baseConstructor.findByUri(uri, function(err, archivedResource)
     {
-        if(!err && !isNull(archivedResource))
+        if(isNull(err) && !isNull(archivedResource))
         {
             Change.findByAssociatedRevision(uri, function(err, changes)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     archivedResource = new ArchivedResource(JSON.parse(JSON.stringify(archivedResource)));
                     archivedResource.changes = changes;
@@ -109,7 +154,7 @@ ArchivedResource.prototype.getChanges = function(callback)
     const self = this;
     Change.findByAssociatedRevision(self.uri, function(err, changes)
     {
-        if(!err)
+        if(isNull(err))
         {
             return callback(null, changes);
         }
@@ -132,7 +177,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
 
     const getAuthorInformation = function (callback) {
         User.findByUri(authorUri, function (err, fullVersionCreator) {
-            if (!err) {
+            if (isNull(err)) {
                 Descriptor.removeUnauthorizedFromObject(fullVersionCreator, [Config.types.private], [Config.types.api_readable]);
                 archivedResource.ddr.versionCreator = fullVersionCreator;
                 return callback(null);
@@ -145,16 +190,16 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
 
     const setHumanReadableDate = function (callback) {
         const moment = require('moment');
-        const humanReadableDate = moment(archivedResource.dcterms.created);
+        const humanReadableDate = moment(archivedResource.ddr.created);
 
-        archivedResource.dcterms.created = humanReadableDate.calendar();
+        archivedResource.ddr.created = humanReadableDate.calendar();
         return callback(null);
     };
 
     const getDescriptorInformation = function (callback) {
         const fetchFullDescriptor = function (change, cb) {
             Descriptor.findByUri(change.ddr.changedDescriptor, function (err, descriptor) {
-                if (!err) {
+                if (isNull(err)) {
                     change.ddr.changedDescriptor = descriptor;
                     cb(null, change);
                 }
@@ -166,7 +211,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
 
         if (!isNull(archivedResource.changes)) {
             async.map(archivedResource.changes, fetchFullDescriptor, function (err, fullChanges) {
-                if (!err) {
+                if (isNull(err)) {
                     archivedResource.changes = fullChanges;
                     Descriptor.removeUnauthorizedFromObject(archivedResource, [Config.types.private], [Config.types.api_readable]);
                     return callback(0);
@@ -183,7 +228,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
 
     const getVersionedResourceDetail = function (callback) {
         Resource.findByUri(self.ddr.isVersionOf, function (err, versionedResource) {
-            if (!err) {
+            if (isNull(err)) {
                 archivedResource.ddr.isVersionOf = versionedResource;
                 return callback(null);
             }
@@ -205,6 +250,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
     });
 };
 
-ArchivedResource = Class.extend(ArchivedResource, Resource);
+
+ArchivedResource = Class.extend(ArchivedResource, Resource, "ddr:ArchivedResource");
 
 module.exports.ArchivedResource = ArchivedResource;

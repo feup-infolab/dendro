@@ -1,15 +1,17 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const util = require('util');
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const db = Config.getDBByID();
+
 const es = require('elasticsearch');
 const slug = require('slug');
+
+const IndexConnection = function() {
+};
 
 IndexConnection.indexTypes =
 {
@@ -79,11 +81,6 @@ IndexConnection.indexes = {
     }
 };
 
-function IndexConnection()
-{
-    let self = this;
-}
-
 IndexConnection.prototype.open = function(host, port, index, callback)
 {	
     const self = this;
@@ -115,7 +112,6 @@ IndexConnection.prototype.open = function(host, port, index, callback)
 
         self.client.indices.getMapping()
             .then(function(mapping){
-                console.log(mapping);
                 return callback(self);
             });
     }
@@ -140,9 +136,9 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
             body : document
         }, function(err, data)
         {
-            if(!err)
+            if(isNull(err))
             {
-                return callback(0, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
+                return callback(null, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
             {
@@ -153,20 +149,15 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
     }
     else
     {
-        /*self.client.indices.getMapping()
-            .then(function(mapping){
-                console.log(mapping);
-            });*/
-
         self.client.index({
             index : self.index.short_name,
             type : type,
             body : document
         }, function(err, data)
         {
-            if(!err)
+            if(isNull(err))
             {
-                return callback(0, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
+                return callback(null, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
             {
@@ -196,7 +187,7 @@ IndexConnection.prototype.deleteDocument = function(documentID, type, callback)
             console.log("Deleting document... data received : " + data);
         })
         .on('done', function(data) {
-            return callback(0, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(data));
+            return callback(null, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(data));
         })
         .on('error', function(data) {
             return callback(1, "Unable to delete document " + JSON.stringify(document) + ".  error reported : " + data);
@@ -221,7 +212,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
                         {
                             self.delete_index(function(err)
                             {
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     return callback();
                                 }
@@ -261,7 +252,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
 			settings.index = indexName;
 
             self.client.indices.create(settings, function(err, data){
-                if(!err)
+                if(isNull(err))
                 {
                     if(isNull(data.error) && data.acknowledged === true)
                     {
@@ -276,7 +267,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
                 }
                 else
                 {
-                    var error = "Error creating index : " + data;
+                    const error = "Error creating index : " + data;
                     console.error(error);
                     endCallback(1, error);
                 }
@@ -294,7 +285,7 @@ IndexConnection.prototype.delete_index  = function (callback)
             index: self.index.short_name
         }, function(err, data)
         {
-            if(!err && !data.error)
+            if(isNull(err) && !data.error)
             {
                 return callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
             }
@@ -302,7 +293,7 @@ IndexConnection.prototype.delete_index  = function (callback)
             {
                 const error = "Error deleting index : " + data.error;
                 console.error(error);
-                return callback(error, result);
+                return callback(error, data.error);
             }
         });
 };
@@ -327,9 +318,7 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 		if (xmlHttp.readyState === 4) {
 
             if (xmlHttp.status !== 200)  {
-                console.log("[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
-                    "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
-                process.exit(1);
+                throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status)
             }
             else
             {
@@ -347,16 +336,13 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 		}
 
         if (xmlHttp.status &&
-            xmlHttp.status !== 200)  {
-            console.log("[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
-                "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
-            process.exit(1);
+            xmlHttp.status !== 200)
+        {
+            throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
         }
 	};
 
 	const fullUrl = "http://" + self.host + ":" + self.port + "/_stats";
-
-    console.log("Index Checker URL: "+ util.inspect(fullUrl));
 
 	xmlHttp.open("GET", fullUrl, true);
 	xmlHttp.send(null);
