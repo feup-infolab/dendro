@@ -1,16 +1,17 @@
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
-var ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
-var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+var Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
+var ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+var InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var uuid = require('uuid');
 
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
+const db = Config.getDBByID();
+const db_social = Config.getDBByID("social");
 
-var gfs = function() { return GLOBAL.gfs.default; }();
+var gfs = Config.getGFSByID();
 var _ = require('underscore');
 var async = require('async');
 

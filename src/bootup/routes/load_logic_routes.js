@@ -27,7 +27,7 @@ const research_domains = require(Pathfinder.absPathInSrcFolder("/controllers/res
 const repo_bookmarks = require(Pathfinder.absPathInSrcFolder("/controllers/repo_bookmarks"));
 const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"));
 const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
-const fileVersions = require(Pathfinder.absPathInSrcFolder("/controllers/file_versions"));
+const timeline = require(Pathfinder.absPathInSrcFolder("/controllers/timeline"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
 
 let recommendation;
@@ -1061,8 +1061,10 @@ const loadRoutes = function(app, callback)
     );
 
     //      social
+    app.get('/socialDendro/my', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
     app.get('/posts/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.all);
     app.post('/posts/post', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPost_controller);
+    app.post('/posts/posts', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPosts_controller);
     app.post('/posts/new', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.new);
     app.post('/posts/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.like);
     app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.checkIfPostIsLikedByUser);
@@ -1079,27 +1081,9 @@ const loadRoutes = function(app, callback)
         ],
         extractUriFromRequest,
         async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.post);
-    
-    //file versions
-    app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.all);
-    app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.numFileVersionsInDatabase);
-    app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.getFileVersion);
-    app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.like);
-    app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.comment);
-    app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.share);
-    app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.fileVersionLikesInfo);
-    app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.getFileVersionShares);
-    
-    app.get([
-            getNonHumanReadableRouteRegex("file_version"),
-            '/fileVersions/:uri'
-        ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.fileVersion);
 
-    //shares
     app.get([
-            getNonHumanReadableRouteRegex("file_version"),
+            getNonHumanReadableRouteRegex("post"),//TODO might have to replace here with share
             '/shares/:uri'
         ],
         extractUriFromRequest,
