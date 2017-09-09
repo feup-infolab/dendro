@@ -45,14 +45,16 @@
                             <hr>
                         </div>-->
                         <div>
-                            <div ng-if="postsContents[post.uri].rdf.isShare">
-                                <!--<p> IS A SHARE </p>-->
+                            <!--<div ng-if="postsContents[post.uri].rdf.isShare">-->
+                            <div ng-if="postsContents[post.uri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/Share')">
+                                <p> IS A SHARE </p>
                                 <ng-include src="'/app/views/social/showShare.html'"
                                             onload="shareUri = post.uri;"></ng-include>
                             </div>
 
-                            <!--<div style="margin-left: 20%; margin-right: 20%" ng-if="!postsContents[post.uri].rdf.isShare">-->
-                            <div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.isShare">
+                            <!--<div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.isShare">-->
+                            <div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/Share')">
+                                <p>IS A POST</p>
                                 <ng-include src="'/app/views/social/showPost.html'"
                                             onload="postUri = post.uri;"></ng-include>
                             </div>

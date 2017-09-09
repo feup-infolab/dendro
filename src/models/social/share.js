@@ -18,7 +18,7 @@ const async = require("async");
 
 function Share (object)
 {
-    const self = this;
+    /*const self = this;
     self.addURIAndRDFType(object, "share", Share);
     Share.baseConstructor.call(this, object);
 
@@ -50,11 +50,11 @@ function Share (object)
         value: objectType
     });
 
-    /*var newAdminDescriptor = new Descriptor({
+    /!*var newAdminDescriptor = new Descriptor({
      prefixedForm : "rdf:type",
      type : DbConnection.prefixedResource,
      value : "ddr:Administrator"
-     });*/
+     });*!/
     self.insertDescriptors([descriptor], function(err, result){
         //return callback(err, newShare);
         console.log('result:', result);
@@ -62,8 +62,28 @@ function Share (object)
         return self;
     }, db_social.graphUri);
 
-    //return self;
+    //return self;*/
+
+    const self = this;
+    self.addURIAndRDFType(object, "share", Share);
+    Share.baseConstructor.call(this, object);
+
+    self.copyOrInitDescriptors(object);
+
+    const newId = uuid.v4();
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        self.ddr.humanReadableURI = Config.baseUri + "/shares/" + newId;
+    }
+
+    return self;
 }
+
+Share.buildFromInfo = function (info, callback) {
+    let newShare = new this(info);
+    callback(null, newShare);
+};
 
 Share = Class.extend(Share, Post, "ddr:Share");
 
