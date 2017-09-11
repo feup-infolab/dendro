@@ -54,7 +54,6 @@
 
                             <!--<div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.isShare">-->
                             <div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/Share')">
-                                <p>IS A POST</p>
                                 <ng-include src="'/app/views/social/showPost.html'"
                                             onload="postUri = post.uri;"></ng-include>
                             </div>

@@ -1,8 +1,6 @@
 <!--<div class="panel panel-default" style="margin-left: 20%; margin-right: 20%">-->
 <div class="panel panel-default">
     <!--<p> Contents at showPost.html : </p>-->
-    <p> AT SHOWPOST</p>
-    <p> {{postsContents[postUri].rdf.type}} </p>
     <div class="panel-heading text-center">
         <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">
             <h3 class="panel-title"> <span class="label label-success">Metadata Post</span> {{postsContents[postUri].dcterms.title}}</h3>
@@ -26,7 +24,8 @@
         <ng-include src="'/app/views/social/partial/showFileSystemPost.html'" onload="postUri = postUri;"></ng-include>
     </div>
 
-    <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/ManualPost'">
+    <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/ManualPost'">-->
+    <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/ManualPost')">
         <ng-include src="'/app/views/social/partial/showManualPost.html'" onload="postUri = postUri;"></ng-include>
     </div>
 
