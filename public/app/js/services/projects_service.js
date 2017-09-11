@@ -191,4 +191,15 @@ angular.module('dendroApp.services')
                         headers: {'Accept': "application/json"}
                     });
                 };
+
+                this.getProjectInfo = function (projectUri) {
+                    var requestUri = projectUri;
+
+                    return $http({
+                        method: 'GET',
+                        url: requestUri,
+                        contentType: "application/json",
+                        headers: {'Accept': "application/json"}
+                    });
+                };
         }]);

@@ -11,7 +11,6 @@
 
         <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/ManualPost'">-->
         <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/ManualPost')">
-            <p> IS MANUAL POST</p>
             <h3 class="panel-title"> <span class="label label-success">Manual Post</span> {{postsContents[postUri].dcterms.title}}</h3>
         </div>
     </div>

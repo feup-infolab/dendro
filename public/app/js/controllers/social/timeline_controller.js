@@ -2,7 +2,7 @@ angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
      */
-    .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, projectsService, $window, $element, usSpinnerService)
+    .controller('timelineCtrl', function ($scope, $http, $filter, usersService, timelineService, projectsService, $window, $element, usSpinnerService)
     {
         $scope.myTab = $element;
         $scope.posts = [];
@@ -11,6 +11,8 @@ angular.module('dendroApp.controllers')
         $scope.postsPerPage = 5; // this should match however many results your API puts on one page
         $scope.postsContents = [];
         $scope.loggedUser = "";
+        $scope.fullProjectsInfo = [];
+        $scope.fullUsersInfo = [];
 
         $scope.pagination = {
             current: 1
@@ -262,6 +264,8 @@ angular.module('dendroApp.controllers')
         $scope.initTimeline = function(posts)
         {
             usSpinnerService.spin('social-dendro-spinner');
+            $scope.fullProjectsInfo = [];
+            $scope.fullUsersInfo = [];
             $scope.showCreatePostContent = false;
             $scope.userProjects = [{name: 'Select the Project', value: 'selectTheProject-value'}];
             $scope.projectChosen = $scope.userProjects[0];
@@ -419,6 +423,32 @@ angular.module('dendroApp.controllers')
                     Utils.show_popup("error", "Error creating a post", JSON.stringify(error));
                     $scope.doing_createNewPost = false;
                     $scope.toggleNewPostModal(false)
+                });
+        };
+
+        $scope.getProjectInfo = function (projectUri) {
+            $scope.doing_getProjectInfo = true;
+            projectsService.getProjectInfo(projectUri)
+                .then(function (response) {
+                    $scope.fullProjectsInfo[projectUri] = response.data;
+                    $scope.doing_getProjectInfo = false;
+                })
+                .catch(function (error) {
+                    Utils.show_popup("error", "Error getting a project's information", JSON.stringify(error));
+                    $scope.doing_getProjectInfo = false;
+                });
+        };
+
+        $scope.getUserInfo = function (userUri) {
+            $scope.doing_getUserInfo = true;
+            usersService.getUserInfo(userUri)
+                .then(function (response) {
+                    $scope.fullUsersInfo[userUri] = response.data;
+                    $scope.doing_getUserInfo = false;
+                })
+                .catch(function (error) {
+                    Utils.show_popup("error", "Error getting a user's information", JSON.stringify(error));
+                    $scope.doing_getUserInfo = false;
                 });
         };
     });
