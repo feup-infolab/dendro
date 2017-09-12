@@ -44,16 +44,18 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
             const projectsUris = fullProjects.join(" ");
             let query =
                 "WITH [0] \n" +
-                "SELECT DISTINCT ?uri ?postTypes\n" +
+                //"SELECT DISTINCT ?uri ?postTypes\n" +
+                "SELECT DISTINCT ?uri\n" +
                 "WHERE { \n" +
                 "VALUES ?project { \n" +
                 projectsUris +
                 "} \n" +
-                "VALUES ?postTypes { \n" +
+                /*"VALUES ?postTypes { \n" +
                 "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
-                "} \n" +
+                "} \n" +*/
                 "?uri ddr:modified ?date. \n" +
-                "?uri rdf:type ?postTypes. \n" +
+                //"?uri rdf:type ?postTypes. \n" +
+                "?uri rdf:type ddr:Post. \n" +
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n " +
                 "ORDER BY DESC(?date) \n";
@@ -162,10 +164,11 @@ const numPostsDatabaseAux = function (projectUrisArray, callback) {
                 "VALUES ?project { \n" +
                 projectsUris +
                 "} \n" +
-                "VALUES ?postTypes { \n" +
+                /*"VALUES ?postTypes { \n" +
                 "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
-                "} \n" +
-                "?uri rdf:type ?postTypes. \n" +
+                "} \n" +*/
+                //"?uri rdf:type ?postTypes. \n" +
+                "?uri rdf:type ddr:Post. \n" +
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n ";
 
