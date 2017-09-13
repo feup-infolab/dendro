@@ -138,7 +138,7 @@ const getNumLikesForAPost = function (postID, cb) {
         ]),
         function (err, results) {
             if (isNull(err)) {
-                cb(false, results);
+                cb(null, results);
             }
             else {
                 cb(true, "Error fetching children of project root folder");
@@ -523,7 +523,7 @@ const removeLike = function (likeID, userUri, cb) {
                 if (results.length > 0) {
                     likeExists = true;
                 }
-                cb(false, likeExists);
+                cb(err, likeExists);
             }
             else {
                 cb(true, "Error fetching children of project root folder");
