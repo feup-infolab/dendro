@@ -1,6 +1,7 @@
-<div class="panel panel-info show-share-panel">
+<div class="panel panel-info show-share-panel" onload="getUserInfo(postsContents[shareUri].ddr.userWhoShared);">
     <div class="panel-heading">
-        <h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img class="img-circle" width="5%" height="5%" ng-src="/user/{{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}}/avatar"> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>
+        <!--<h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img class="img-circle" width="5%" height="5%" ng-src="/user/{{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}}/avatar"> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>-->
+        <h3 class="panel-title"> {{postsContents[shareUri].ddr.modified | date : 'dd/MMM/yyyy'}} <img class="img-circle" width="5%" height="5%" ng-src='{{postsContents[shareUri].ddr.userWhoShared}}?avatar'> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{fullUsersInfo[postsContents[shareUri].ddr.userWhoShared].ddr.username}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>
     </div>
 
     <div class="panel-body">

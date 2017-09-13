@@ -49,7 +49,7 @@
                             <div ng-if="postsContents[post.uri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/Share')">
                                 <p> IS A SHARE </p>
                                 <ng-include src="'/app/views/social/showShare.html'"
-                                            onload="shareUri = post.uri;"></ng-include>
+                                            onload="shareUri = post.uri; userWhoShared = postsContents[post.uri].ddr.userWhoShared"></ng-include>
                             </div>
 
                             <!--<div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.isShare">-->
