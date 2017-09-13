@@ -309,11 +309,11 @@ const getCommentsForAPost = function (postID, cb) {
             if (isNull(err)) {
                 async.map(results, function (commentUri, callback) {
                     Comment.findByUri(commentUri.commentURI, function (err, comment) {
-                        callback(false, comment);
+                        callback(null, comment);
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, comments) {
-                    cb(false, comments);
+                    cb(null, comments);
                 });
             }
             else {
@@ -423,11 +423,11 @@ const getSharesForAPost = function (postID, cb) {
             if (isNull(err)) {
                 async.map(results, function (shareObject, callback) {
                     Share.findByUri(shareObject.shareURI, function (err, share) {
-                        callback(false, share);
+                        callback(null, share);
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, shares) {
-                    cb(false, shares);
+                    cb(null, shares);
                 });
             }
             else {

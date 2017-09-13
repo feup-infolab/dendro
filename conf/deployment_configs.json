@@ -67,13 +67,11 @@
             "id": "social"
           },
           "notifications": {
-            "options": {
               "database": "127.0.0.1:3001",
               "collection": "notifications_cache",
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
-            }
           }
         }
       },
@@ -443,13 +441,11 @@
             "id": "social"
           },
           "notifications": {
-            "options": {
-              "database": "127.0.0.1:3002",
-              "collection": "notifications_cache",
-              "host": "192.168.56.249",
-              "port": "27017",
-              "id": "notifications"
-            }
+            "database": "127.0.0.1:3002",
+            "collection": "notifications_cache",
+            "host": "192.168.56.249",
+            "port": "27017",
+            "id": "notifications"
           }
         }
       },
