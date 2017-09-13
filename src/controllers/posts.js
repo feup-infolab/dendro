@@ -1250,7 +1250,8 @@ exports.post = function (req, res) {
     const acceptsHTML = req.accepts('html');
     const acceptsJSON = req.accepts('json');
     const currentUser = req.user;
-    const postUri = "http://" + Config.host + req.url;
+    //const postUri = "http://" + Config.host + req.url;
+    const postUri = req.url;
 
     var getCommentsForAPost = function (post, cb) {
         post.getComments(function (err, commentsData) {
@@ -1381,7 +1382,8 @@ exports.getShare = function (req, res) {
     const acceptsJSON = req.accepts('json');
 
     const currentUser = req.user;
-    const shareUri = "http://" + req.headers.host + req.url;
+    //const shareUri = "http://" + req.headers.host + req.url;
+    const shareUri = req.url;
 
     Share.findByUri(shareUri, function (err, share) {
         if (isNull(err) && !isNull(share)) {

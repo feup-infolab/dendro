@@ -1083,7 +1083,7 @@ const loadRoutes = function(app, callback)
         async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.post);
 
     app.get([
-            getNonHumanReadableRouteRegex("post"),//TODO might have to replace here with share
+            getNonHumanReadableRouteRegex("share"),//TODO might have to replace here with share
             '/shares/:uri'
         ],
         extractUriFromRequest,
