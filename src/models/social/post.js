@@ -7,7 +7,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Event = require(Pathfinder.absPathInSrcFolder("/models/social/event.js")).Event;
-const Comment = require(Pathfinder.absPathInSrcFolder("/models/social/comment.js")).Event;
+const Comment = require(Pathfinder.absPathInSrcFolder("/models/social/comment.js")).Comment;
 const uuid = require("uuid");
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const db = Config.getDBByID();
@@ -45,7 +45,7 @@ Post.prototype.getComments = function (cb) {
         "WHERE { \n" +
         "?commentURI rdf:type ddr:Comment. \n" +
         "?commentURI ddr:postURI [1]. \n" +
-        "?commentURI dcterms:modified ?date. \n " +
+        "?commentURI ddr:modified ?date. \n " +
         "} \n" +
         "ORDER BY ASC(?date) \n";
 
@@ -66,11 +66,11 @@ Post.prototype.getComments = function (cb) {
                 async.map(results, function(commentInfo, callback){
                     Comment.findByUri(commentInfo.commentURI, function(err, comment)
                     {
-                        callback(false,comment);
+                        callback(err,comment);
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, comments) {
-                    cb(false, comments);
+                    cb(err, comments);
                 });
             }
             else
@@ -104,13 +104,13 @@ Post.prototype.getNumLikes = function (cb) {
             }
         ]),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
-                cb(false, results);
+                cb(err, results);
             }
             else
             {
-                cb(true, "Error fetching children of project root folder");
+                cb(err, "Error fetching children of project root folder");
             }
         });
 };
