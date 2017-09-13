@@ -1,33 +1,33 @@
 angular.module('dendroApp.controllers')
-    /**
-     *  Project administration controller
-     */
-    .controller('notificationCtrl', function ($scope, $http, $filter, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce)
-    {
+/**
+ *  Project administration controller
+ */
+    .controller('notificationCtrl', function ($scope, $http, $filter, usersService, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce) {
         $scope.numNotifications = 0;
         $scope.notifsUris = [];
         $scope.notifsData = [];
         $scope.awaitingResponse = false;
 
         $scope.actionTypeDictionary = {
-            Like : "liked",
-            Comment : "commented",
-            Share : "shared"
+            Like: "liked",
+            Comment: "commented",
+            Share: "shared"
         };
 
         $scope.resourceTypeDictionary = {
-            posts : "post",
-            shares: "share",
-            fileVersions: "file version"
+            post: "post",
+            share: "share"
         };
 
         $scope.parseResourceTarget = function (resourceTargetUri) {
-            return $scope.resourceTypeDictionary[resourceTargetUri.split('/')[3]];
+            let debug = resourceTargetUri.split('/')[2];
+            return $scope.resourceTypeDictionary[resourceTargetUri.split('/')[2]];
+            console.log("debug")
         };
 
         $scope.parseActionType = function (notification) {
             var actionType = $scope.actionTypeDictionary[notification.actionType];
-            var shareURL = actionType == "shared" ? "<" + "a href=" + "\"" +notification.shareURI + "\"" + ">" + actionType + "</a>" : actionType;
+            var shareURL = actionType == "shared" ? "<" + "a href=" + "\"" + notification.shareURI + "\"" + ">" + actionType + "</a>" : actionType;
             return shareURL;
         };
 
@@ -36,11 +36,34 @@ angular.module('dendroApp.controllers')
         });
 
         $scope.createAlert = function (notification, notificationUri) {
-            var type = "info";
-            var shareURL = notification.actionType == "Share" ? notification.shareURI : null;
+            let type = "info";
+            let shareURL = notification.actionType == "Share" ? notification.shareURI : null;
+            let userInfo;
 
-            var resourceURL = "<" + "a href=" + "\"" +notification.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.resourceTargetUri) + "</a>";
-            var userWhoActedURL = "<" + "a href=" + "\"" +notification.userWhoActed + "\"" + ">" + notification.userWhoActed.split('/').pop() + "</a>";
+            usersService.getUserInfo(notification.userWhoActed)
+                .then(function (response) {
+                    userInfo = response.data;
+                    var resourceURL = "<" + "a href=" + "\"" + notification.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.resourceTargetUri) + "</a>";
+                    var userWhoActedURL = "<" + "a href=" + "\"" + notification.userWhoActed + "\"" + ">" + userInfo.ddr.username + "</a>";
+                    //var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + resourceUrl;
+                    var notificationMsg = userWhoActedURL + " " + $scope.parseActionType(notification) + " your " + resourceURL;
+
+                    $scope.msg = $sce.trustAsHtml(notificationMsg);
+
+                    ngAlertsMngr.add({
+                        msg: $scope.msg,
+                        type: type,
+                        time: new Date(notification.modified),
+                        id: notificationUri
+                    });
+                })
+                .catch(function (error) {
+                    Utils.show_popup("error", "Error getting a user's information", JSON.stringify(error));
+                });
+
+
+            /*var resourceURL = "<" + "a href=" + "\"" + notification.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.resourceTargetUri) + "</a>";
+            var userWhoActedURL = "<" + "a href=" + "\"" + notification.userWhoActed + "\"" + ">" + notification.userWhoActed.split('/').pop() + "</a>";
             //var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + resourceUrl;
             var notificationMsg = userWhoActedURL + " " + $scope.parseActionType(notification) + " your " + resourceURL;
 
@@ -51,7 +74,7 @@ angular.module('dendroApp.controllers')
                 type: type,
                 time: new Date(notification.modified),
                 id: notificationUri
-            });
+            });*/
         };
 
         $scope.getAlerts = function () {
@@ -62,11 +85,9 @@ angular.module('dendroApp.controllers')
             ngAlertsMngr.remove(notificationUri);
         };
 
-        $scope.get_unread_notifications = function()
-        {
+        $scope.get_unread_notifications = function () {
             ngAlertsMngr.reset();
-            if(!$scope.awaitingResponse)
-            {
+            if (!$scope.awaitingResponse) {
                 $scope.awaitingResponse = true;
                 notificationService.getUserUnreadNotifications()
                     .then(function (response) {
