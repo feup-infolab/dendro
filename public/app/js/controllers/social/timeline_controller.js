@@ -95,7 +95,6 @@ angular.module('dendroApp.controllers')
 
         $scope.postIsLiked = function (postID) {
             $scope.doing_postIsLiked = true;
-
             timelineService.postIsLiked(postID)
                 .then(function(response)
                 {
@@ -127,7 +126,6 @@ angular.module('dendroApp.controllers')
         $scope.get_logged_user = function () {
 
             $scope.doing_get_logged_user = true;
-
             timelineService.get_logged_user()
                 .then(function(response)
                 {
@@ -135,6 +133,7 @@ angular.module('dendroApp.controllers')
                     $scope.loggedUser = response.data;
 
                     $scope.doing_get_logged_user = false;
+
                 })
                 .catch(function(error){
                     console.error("Error getting logged in user" + JSON.stringify(error));
@@ -317,7 +316,9 @@ angular.module('dendroApp.controllers')
                 timelineService.getPostInfo(shareContent.ddr.postURI).then(function (response) {
                     $scope.postsContents[shareContent.ddr.postURI] = response.data;
                     $scope.doing_getPost = false;
+                    $scope.postUri = $scope.postsContents[shareUri].ddr.postURI;
                     usSpinnerService.stop('social-dendro-spinner');
+                    $scope.getUserInfo($scope.postsContents[shareUri].ddr.userWhoShared);
                 });
             }).catch(function(error){
                 console.error("Error initSinglePost" + JSON.stringify(error));
@@ -428,27 +429,33 @@ angular.module('dendroApp.controllers')
 
         $scope.getProjectInfo = function (projectUri) {
             $scope.doing_getProjectInfo = true;
+            usSpinnerService.spin('social-dendro-spinner');
             projectsService.getProjectInfo(projectUri)
                 .then(function (response) {
                     $scope.fullProjectsInfo[projectUri] = response.data;
                     $scope.doing_getProjectInfo = false;
+                    usSpinnerService.stop('social-dendro-spinner');
                 })
                 .catch(function (error) {
                     Utils.show_popup("error", "Error getting a project's information", JSON.stringify(error));
                     $scope.doing_getProjectInfo = false;
+                    usSpinnerService.stop('social-dendro-spinner');
                 });
         };
 
         $scope.getUserInfo = function (userUri) {
             $scope.doing_getUserInfo = true;
+            usSpinnerService.spin('social-dendro-spinner');
             usersService.getUserInfo(userUri)
                 .then(function (response) {
                     $scope.fullUsersInfo[userUri] = response.data;
                     $scope.doing_getUserInfo = false;
+                    usSpinnerService.stop('social-dendro-spinner');
                 })
                 .catch(function (error) {
                     Utils.show_popup("error", "Error getting a user's information", JSON.stringify(error));
                     $scope.doing_getUserInfo = false;
+                    usSpinnerService.stop('social-dendro-spinner');
                 });
         };
     });

@@ -1418,7 +1418,8 @@ exports.getShare = function (req, res) {
             else {
                 res.render('social/showShare',
                     {
-                        shareUri: shareUri
+                        shareUri: shareUri,
+                        postUri: share.ddr.postURI
                     }
                 );
             }

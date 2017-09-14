@@ -1,6 +1,5 @@
 <!--<div class="panel panel-default" style="margin-left: 20%; margin-right: 20%">-->
 <div class="panel panel-default">
-    <!--<p> Contents at showPost.html : </p>-->
     <div class="panel-heading text-center">
         <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">
             <h3 class="panel-title"> <span class="label label-success">Metadata Post</span> {{postsContents[postUri].dcterms.title}}</h3>
@@ -57,10 +56,16 @@
 <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm" class="comment-reply-form">
     <div class="wall">
         <div ng-repeat="comment in postsContents[postUri].commentsContent | orderBy: 'dcterms.created' track by $index">
-            <a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{comment.ddr.userWhoCommented.split('/').pop()}} : </strong></a>
+            <!--<a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{comment.ddr.userWhoCommented.split('/').pop()}} : </strong></a>
             <p> <i> {{comment.ddr.commentMsg}} </i> </p>
             <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
-            <hr>
+            <hr>-->
+            <div ng-init="getUserInfo(comment.ddr.userWhoCommented)">
+                <a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{fullUsersInfo[comment.ddr.userWhoCommented].ddr.username}} : </strong></a>
+                <p> <i> {{comment.ddr.commentMsg}} </i> </p>
+                <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+                <hr>
+            </div>
         </div>
         <label for="new_comment_box">{{loggedUser.ddr.username}} :</label>
         <textarea class="form-control" rows="5" id="new_comment_box" ng-model="comment_content" placeholder="Write your comment here"></textarea>

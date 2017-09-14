@@ -1,4 +1,5 @@
-<div class="panel panel-info show-share-panel" onload="getUserInfo(postsContents[shareUri].ddr.userWhoShared);">
+<!--<div class="panel panel-info show-share-panel" onload="getUserInfo(postsContents[shareUri].ddr.userWhoShared);">-->
+<div class="panel panel-info show-share-panel">
     <div class="panel-heading">
         <!--<h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img class="img-circle" width="5%" height="5%" ng-src="/user/{{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}}/avatar"> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>-->
         <h3 class="panel-title"> {{postsContents[shareUri].ddr.modified | date : 'dd/MMM/yyyy'}} <img class="img-circle" width="5%" height="5%" ng-src='{{postsContents[shareUri].ddr.userWhoShared}}?avatar'> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{fullUsersInfo[postsContents[shareUri].ddr.userWhoShared].ddr.username}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>
@@ -7,7 +8,8 @@
     <div class="panel-body">
         <div class="media">
             <div class="media-left">
-                <ng-include src="'/app/views/social/showPost.html'" onload="postUri = postsContents[shareUri].ddr.postURI;"></ng-include>
+                <!--<ng-include src="'/app/views/social/showPost.html'" onload="postUri = postsContents[shareUri].ddr.postURI;"></ng-include>-->
+                <ng-include src="'/app/views/social/showPost.html'" onload="postUri = postUri"></ng-include>
             </div>
         </div>
     </div>
@@ -21,11 +23,20 @@
 
 <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm" class="comment-reply-form">
     <div class="wall">
-        <div ng-repeat="comment in postsContents[shareUri].commentsContent | orderBy: 'dcterms.created' track by $index">
+        <!--<div ng-repeat="comment in postsContents[shareUri].commentsContent | orderBy: 'dcterms.created' track by $index">
             <a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{comment.ddr.userWhoCommented.split('/').pop()}} : </strong></a>
             <p> <i> {{comment.ddr.commentMsg}} </i> </p>
             <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
             <hr>
+        </div>-->
+        <div ng-repeat="comment in postsContents[shareUri].commentsContent | orderBy: 'dcterms.created' track by $index">
+            <div ng-init="getUserInfo(comment.ddr.userWhoCommented)">
+                <!--<a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{comment.ddr.userWhoCommented.split('/').pop()}} : </strong></a>-->
+                <a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{fullUsersInfo[comment.ddr.userWhoCommented].ddr.username}} : </strong></a>
+                <p> <i> {{comment.ddr.commentMsg}} </i> </p>
+                <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+                <hr>
+            </div>
         </div>
         <label for="new_comment_box">{{loggedUser.ddr.username}} :</label>
         <textarea class="form-control" rows="5" id="new_comment_box" ng-model="comment_content" placeholder="Write your comment here"></textarea>
