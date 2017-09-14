@@ -42,6 +42,8 @@ angular.module('dendroApp.controllers')
         });
 */
         $scope.getUserProjects = function () {
+            $scope.doingARequest = true;
+            usSpinnerService.spin('social-dendro-spinner');
             projectsService.getUserProjects()
                 .then(function (response) {
                     cleanUserProjectsList();
@@ -54,10 +56,14 @@ angular.module('dendroApp.controllers')
                         $scope.userProjects.push(newProject);
                         return newProject;
                     });
+                    $scope.doingARequest = false;
+                    usSpinnerService.stop('social-dendro-spinner');
                     return projects;
                 })
                 .catch(function (error) {
                     console.error("Error getting User Projects " + JSON.stringify(error));
+                    $scope.doingARequest = false;
+                    usSpinnerService.stop('social-dendro-spinner');
                 });
         };
 
@@ -73,9 +79,9 @@ angular.module('dendroApp.controllers')
                 {
                     $scope.posts = response.data;
                     $scope.getting_posts = false;
+                    $scope.getPosts($scope.posts);
                     $scope.doingARequest = false;
                     usSpinnerService.stop('social-dendro-spinner');
-                    $scope.getPosts($scope.posts);
                 })
                 .catch(function(error){
                     console.error("Error getting posts " + JSON.stringify(error));
@@ -321,6 +327,7 @@ angular.module('dendroApp.controllers')
 
         $scope.initTimeline = function(posts)
         {
+            $scope.doingARequest = true;
             usSpinnerService.spin('social-dendro-spinner');
             $scope.fullProjectsInfo = [];
             $scope.fullUsersInfo = [];
@@ -346,6 +353,7 @@ angular.module('dendroApp.controllers')
             //$scope.pageChangeHandler($scope.pagination.current);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
             usSpinnerService.stop('social-dendro-spinner');
+            $scope.doingARequest = false;
         };
 
         $scope.initSinglePost = function (postUri) {
