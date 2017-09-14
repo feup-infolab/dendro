@@ -1,5 +1,10 @@
 <!--<div class="panel panel-default" style="margin-left: 20%; margin-right: 20%">-->
-<div class="panel panel-default">
+<div class="centered-spinner">
+            <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
+                  spinner-start-active="true"></span>
+</div>
+
+<div class="panel panel-default" ng-show="!doingARequest">
     <div class="panel-heading text-center">
         <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">
             <h3 class="panel-title"> <span class="label label-success">Metadata Post</span> {{postsContents[postUri].dcterms.title}}</h3>
