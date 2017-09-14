@@ -1,4 +1,10 @@
-<div class="panel-body">
+<div class="centered-spinner">
+            <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
+                  spinner-start-active="true"></span>
+</div>
+
+
+<div class="panel-body" ng-show="!doingARequest">
     <div class="media">
         <div class="media-left">
             <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>

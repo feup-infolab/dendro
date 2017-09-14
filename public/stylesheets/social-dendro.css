@@ -70,3 +70,10 @@
   border-color: #f5f5f5;
   border-right-style: solid;
 }
+.centered-spinner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -50px;
+  margin-left: -50px;
+}

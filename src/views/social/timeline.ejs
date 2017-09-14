@@ -1,5 +1,10 @@
 <%- include ../layout/header.ejs %>
 
+<div class="centered-spinner">
+            <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
+                  spinner-start-active="true"></span>
+</div>
+
 <div ng-controller="timelineCtrl" ng-init="initTimeline('<%= posts %>');get_logged_user();">
     <div ng-cloak>
         <div class="container">
@@ -15,10 +20,10 @@
                     <i class="fa fa-file-o fa-5x" aria-hidden="true"></i>
                 </div>
 
-                <div>
+                <!--<div>
                     <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
                           spinner-start-active="true"></span>
-                </div>
+                </div>-->
 
                 <div ng-show="posts.length > 0 && !doingARequest">
                     <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts"
