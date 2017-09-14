@@ -10,7 +10,8 @@
 
             <hr>
             <ul class="list-group">
-                <div ng-show="posts.length==0 && !getting_posts && !doing_getPost" class="text-center" ng-cloak>
+                <!--<div ng-show="posts.length==0 && !getting_posts && !doing_getPost" class="text-center" ng-cloak>-->
+                <div ng-show="posts.length==0 && !doingARequest" class="text-center" ng-cloak>
                     <h4>There are no Posts</h4>
                     <i class="fa fa-file-o fa-5x" aria-hidden="true"></i>
                 </div>
@@ -26,7 +27,8 @@
                           spinner-start-active="true"></span>
                 </div>
 
-                <div ng-show="posts.length > 0 && !getting_posts && !doing_getPost">
+                <!--<div ng-show="posts.length > 0 && !getting_posts && !doing_getPost">-->
+                <div ng-show="posts.length > 0 && !doingARequest">
                     <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts"
                          current-page="pagination.current">
                         <!--<div ng-init="getPost(post.uri, null);">
@@ -64,7 +66,8 @@
             </ul>
         </div>
 
-        <div ng-show="!getting_posts && !doing_getPost">
+        <!--<div ng-show="!getting_posts && !doing_getPost">-->
+        <div ng-show="!doingARequest">
             <div class="text-center">
                 <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)"
                                          template-url="/bower_components/angular-utils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
