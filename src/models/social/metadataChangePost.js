@@ -4,6 +4,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 var Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 var ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var uuid = require('uuid');
@@ -53,21 +54,32 @@ function MetadataChangePost (object)
 
 MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project, callback) {
     var changeAuthor = archivedVersion.ddr.versionCreator;
-    var title = changeAuthor.split("/").pop() + " worked on "  + archivedVersion.changes.length +" metadata changes";
-    var versionUri = archivedVersion.uri;
-    var newMetadataChangePost = new MetadataChangePost({
-        ddr: {
-            projectUri: project.uri
-        },
-        dcterms: {
-            creator: changeAuthor,
-            title: title
-        },
-        schema: {
-            sharedContent: versionUri
+    User.findByUri(changeAuthor, function (err, fullVersionCreator) {
+        if(isNull(err))
+        {
+            var title = fullVersionCreator.ddr.username + " worked on "  + archivedVersion.changes.length +" metadata changes";
+            var versionUri = archivedVersion.uri;
+            var newMetadataChangePost = new MetadataChangePost({
+                ddr: {
+                    projectUri: project.uri
+                },
+                dcterms: {
+                    creator: changeAuthor,
+                    title: title
+                },
+                schema: {
+                    sharedContent: versionUri
+                }
+            });
+            callback(null, newMetadataChangePost);
+        }
+        else
+        {
+            const msg = "Error building a MetadataChangePost from an ArchivedVersion: " + JSON.stringify(fullVersionCreator);
+            console.error(msg);
+            callback(err, fullVersionCreator);
         }
     });
-    callback(null, newMetadataChangePost);
 };
 
 MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb) {

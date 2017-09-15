@@ -1,5 +1,6 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 var Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
@@ -18,7 +19,7 @@ var async = require('async');
 
 function FileSystemPost (object)
 {
-    FileSystemPost.baseConstructor.call(this, object);
+    /*FileSystemPost.baseConstructor.call(this, object);
     var self = this;
 
     if(object.uri != null)
@@ -33,6 +34,21 @@ function FileSystemPost (object)
     self.copyOrInitDescriptors(object);
 
     self.rdf.type = "ddr:FileSystemPost";
+
+    return self;*/
+
+    const self = this;
+    self.addURIAndRDFType(object, "post", FileSystemPost);
+    FileSystemPost.baseConstructor.call(this, object);
+
+    self.copyOrInitDescriptors(object);
+
+    const newId = uuid.v4();
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
+    }
 
     return self;
 }
@@ -137,10 +153,8 @@ FileSystemPost.prototype.getResourceInfo = function (callback) {
     }, null, db.graphUri, false, null, null);
 };
 
-
-/*FileSystemPost.prefixedRDFType = "ddr:FileSystemPost";*/
-
-FileSystemPost = Class.extend(FileSystemPost, Post);
+/*FileSystemPost = Class.extend(FileSystemPost, Post);*/
+FileSystemPost = Class.extend(FileSystemPost, Post, "ddr:FileSystemPost");
 
 module.exports.FileSystemPost = FileSystemPost;
 
