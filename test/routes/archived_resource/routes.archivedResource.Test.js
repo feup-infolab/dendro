@@ -72,15 +72,16 @@ describe("Creation of archived versions", function () {
 
                     let buildUpdatedMetadata = function(newValue, is_delete)
                     {
-                        let metadata;
-                        metadata = JSON.parse(JSON.stringify(testFolder1.metadata));
-                        for(let i = 0; i < metadata.length; i++)
+                        let updateRequest = {};
+                        updateRequest.newDescriptors = JSON.parse(JSON.stringify(testFolder1.metadata));
+                        for(let i = 0; i < updateRequest.newDescriptors.length; i++)
                         {
-                            metadata[i].value = newValue;
-                            metadata[i].is_delete = is_delete;
+                            updateRequest.newDescriptors[i].value = newValue;
                         }
 
-                        return metadata;
+                        updateRequest.is_delete = is_delete;
+
+                        return updateRequest;
                     };
 
                     let firstVersion = buildUpdatedMetadata("Querido mudei a casa", false);
@@ -99,20 +100,21 @@ describe("Creation of archived versions", function () {
                     {
                         should.not.equal(null, folder.uri);
 
-                        const updateMetadata = function (newMetadataRecord, folderUri, callback)
+                        const updateMetadata = function (updateRequest, folderUri, callback)
                         {
-                            newMetadataRecord = _.filter(newMetadataRecord, function(record){
-                                return !record.is_delete;
-                            });
+                            let metadata = updateRequest.newDescriptors;
+                            if(updateRequest.is_delete)
+                                metadata = [];
 
-                            itemUtils.updateItemMetadataByUri(true, agent, folderUri, newMetadataRecord, function (err, res)
+                            itemUtils.updateItemMetadataByUri(true, agent, folderUri, metadata, function (err, res)
                             {
                                 res.statusCode.should.equal(200);
                                 //jsonOnly, agent, projectHandle, itemPath, cb
                                 itemUtils.getItemMetadataByUri(true, agent, folder.uri, function (error, response)
                                 {
                                     response.statusCode.should.equal(200);
-                                    descriptorUtils.containsAllMetadata(newMetadataRecord, JSON.parse(response.text).descriptors).should.equal(true);
+                                    let containsAllMetadata = descriptorUtils.containsAllMetadata(metadata, JSON.parse(response.text).descriptors);
+                                    should.equal(containsAllMetadata, true);
                                     callback(error, response);
                                 });
                             })
