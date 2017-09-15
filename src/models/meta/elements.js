@@ -994,6 +994,7 @@ Elements.ddr = {
     {
         type : DbConnection.int,
         api_readable: true,
+        locked : true,
         control : Controls.input_box
     },
 	privacyStatus :

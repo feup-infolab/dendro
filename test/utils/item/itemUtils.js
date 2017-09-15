@@ -54,6 +54,30 @@ const updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, m
     }
 };
 
+const updateItemMetadataByUri = function (jsonOnly, agent, itemUri, metadata, cb) {
+    const path = itemUri + '?update_metadata';
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send(metadata)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .send(metadata)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 const getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
     const path = '/project/' + projectHandle + '/data/' + itemPath + '?metadata';
@@ -187,6 +211,50 @@ const getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemV
         agent
             .get(path)
             .query({version: itemVersion})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+const getItemVersionByUri = function (jsonOnly, agent, archivedVersionUri, cb) {
+    const path = archivedVersionUri;
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+const getChangeLog = function (jsonOnly, agent, resourceUri, cb) {
+    const path = resourceUri + "?recent_changes";
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
             .set('Accept', 'text/html')
             .set("Content-Type", "application/json")
             .end(function (err, res) {
@@ -352,7 +420,10 @@ const viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
 };
 
 module.exports = {
+    getItemVersionByUri : getItemVersionByUri,
+    getChangeLog : getChangeLog,
     updateItemMetadata: updateItemMetadata,
+    updateItemMetadataByUri : updateItemMetadataByUri,
     getItemMetadata: getItemMetadata,
     getItemMetadataByUri: getItemMetadataByUri,
     getItemRecentChanges: getItemRecentChanges,

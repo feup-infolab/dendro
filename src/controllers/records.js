@@ -681,7 +681,7 @@ exports.update = function(req, res) {
 
 exports.show_version = function(req, res) {
     const acceptsHTML = req.accepts("html");
-    let acceptsJSON = req.accepts("json");
+    const acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -694,54 +694,94 @@ exports.show_version = function(req, res) {
     {
         const requestedResourceURI = req.params.requestedResourceUri;
 
-        let requestedVersion;
-        try{
-             requestedVersion = parseInt(req.query.version);
-             if(isNaN(requestedVersion))
-             {
-                 throw "Invalid Integer";
-             }
-        }
-        catch(e)
+        const sendResponse  = function(version)
         {
-            return res.status(405).json({
-                result: "error",
-                message: "Revision must be an integer"
-            });
-        }
-
-        ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function (err, version)
-        {
-            if (err)
+            if (!isNull(version))
             {
-                const error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI + ". Error retrieved : " + version;
+                version.getDetailedInformation(
+                    function(err, archivedVersionWithDetails)
+                    {
+                        if(!err)
+                        {
+                            res.json(archivedVersionWithDetails);
+                        }
+                        else
+                        {
+                            const error = "Error retrieving details of the Archived resource with uri : " + requestedResourceURI;
+                            console.error(error);
+                            res.status(500).json({
+                                result: "Error",
+                                message: error
+                            });
+                        }
+                    }
+                );
+            }
+            else
+            {
+                const error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI;
                 console.error(error);
-                res.status(500).json({
+                res.status(404).json({
                     result: "Error",
                     message: error
                 });
             }
-            else
+        }
+
+        if(isNull(req.query.version))
+        {
+            ArchivedResource.findByUri(requestedResourceURI, function (err, version)
             {
-                if (!isNull(version))
+                if (err)
                 {
-                    let descriptors = version.getPublicDescriptorsForAPICalls();
-                    res.json({
-                        descriptors: descriptors
+                    const error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI + ". Error retrieved : " + version;
+                    console.error(error);
+                    res.status(500).json({
+                        result: "Error",
+                        message: error
                     });
                 }
                 else
                 {
-                    const error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI;
+                    sendResponse(version);
+                }
+            });
+        }
+        else
+        {
+            let requestedVersion;
+            try{
+                requestedVersion = parseInt(req.query.version);
+                if(isNaN(requestedVersion))
+                {
+                    throw "Invalid Integer";
+                }
+            }
+            catch(e)
+            {
+                return res.status(405).json({
+                    result: "error",
+                    message: "Revision must be an integer"
+                });
+            }
+
+            ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function (err, version)
+            {
+                if (err)
+                {
+                    const error = "Unable to retrieve Archived resource with version number : " + requestedVersion + ". Error retrieved : " + version;
                     console.error(error);
                     res.status(404).json({
                         result: "Error",
                         message: error
                     });
                 }
-
-            }
-        });
+                else
+                {
+                    sendResponse(version);
+                }
+            });
+        }
     }
 };
 

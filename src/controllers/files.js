@@ -2216,30 +2216,33 @@ exports.recent_changes = function(req, res) {
                     const offset = parseInt(req.query.offset);
                     const limit = parseInt(req.query.limit);
 
-                    fileOrFolder.getOwnerProject(function(err, project){
+                    fileOrFolder.getArchivedVersions(offset, limit, function(err, versions){
                         if(isNull(err))
                         {
-                            if(!isNull(project) && project instanceof Project)
+                            if(isNull(err))
                             {
-                                project.getRecentProjectWideChanges(function(err, changes){
-                                    if(isNull(err))
+                                if(versions instanceof Array)
+                                {
+                                    for(var i = 0; i < versions.length; i++)
                                     {
-                                        res.json(changes);
+                                        versions[i] = Descriptor.removeUnauthorizedFromObject(versions[i], [Config.types.locked], [Config.types.api_readable])
                                     }
-                                    else
-                                    {
-                                        res.status(500).json({
-                                            result : "error",
-                                            message : "Error getting recent changes from project : " + project.ddr.humanReadableURI + " : " + changes
-                                        });
-                                    }
-                                },offset , limit);
+
+                                    res.json(versions);
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result : "error",
+                                        message : "Versions of : " + req.params.requestedResourceUri + " are not correctly represented in the database"
+                                    });
+                                }
                             }
                             else
                             {
-                                res.status(404).json({
+                                res.status(500).json({
                                     result : "error",
-                                    message : "Unable to find owner project of : " + fileOrFolder.ddr.humanReadableURI
+                                    message : "Error getting recent changes from project : " + fileOrFolder.uri + " : " + versions
                                 });
                             }
                         }
