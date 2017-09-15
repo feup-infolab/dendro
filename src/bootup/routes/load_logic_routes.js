@@ -421,10 +421,10 @@ const loadRoutes = function(app, callback)
                 const queryBasedRoutes = {
                     get: [
                         {
-                            queryKeys: ['thumbnail'],
-                            handler: files.get_thumbnail,
+                            queryKeys: [],
+                            handler: records.show_version,
                             permissions: defaultPermissionsInProjectBranch,
-                            authentication_error: "Permission denied : cannot download this resource because you do not have permissions to access its project."
+                            authentication_error: "Permission denied : cannot access archived version of this resource because you do not have permissions to access its project."
                         }
                     ]
                 };

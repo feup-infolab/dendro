@@ -258,12 +258,11 @@ exports.update = function(req, res) {
         res.status(400).json({
             result: "error",
             message : "HTML Request not valid for this route."
-        })
+        });
     }
     else
     {
         const requestedResourceURI = req.params.requestedResourceUri;
-        //TODO here get the project Project.getOwnerProjectBasedOnUri(requestedResourceURI, function(err, project){
         async.waterfall([
             function(callback) {
                 //Look for the InformationElement
@@ -275,14 +274,6 @@ exports.update = function(req, res) {
                     }
                     else
                     {
-                        /*const error = "Unable to retrieve resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + resource;
-                        console.error(error);
-                        callback(err, resource);*/
-                        /*res.status(500).json({
-                            result : "Error",
-                            message : error
-                        });*/
-
                         const msg = "Unable to retrieve resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + resource;
                         const newError = {
                             statusCode: 500,
@@ -291,6 +282,107 @@ exports.update = function(req, res) {
                         callback(newError, resource);
                     }
                 });
+            },
+            function (resource, callback) {
+                const descriptors = [];
+
+                if(req.body instanceof Array)
+                {
+                    for (let i = 0; i < req.body.length; i++)
+                    {
+                        const rawDescriptor = req.body[i];
+
+                        const descriptor = new Descriptor({
+                            prefix: rawDescriptor.prefix,
+                            shortName: rawDescriptor.shortName,
+                            value: rawDescriptor.value,
+                            uri: rawDescriptor.uri,
+                            prefixedForm: rawDescriptor.prefixedForm
+                        });
+
+                        if (!(descriptor instanceof Descriptor) && !isNull(descriptor.error))
+                        {
+                            const msg = "Resource : " + req.params.requestedResourceUri + "Descriptor error : " + descriptor.error;
+                            const newError = {
+                                statusCode: 400,
+                                message: msg
+                            };
+                            callback(newError, descriptor);
+                        }
+                        else
+                        {
+                            //prevent changes on non-public/non-changeable descriptors
+                            if (!descriptor.private && !descriptor.locked)
+                            {
+                                descriptors.push(descriptor);
+                            }
+                        }
+                    }
+
+                    Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
+                    {
+                        if(isNull(err))
+                        {
+                            callback(null, resource, fusedDescriptors);
+                        }
+                        else
+                        {
+                            const msg = "Error merging descriptors for resource : " + req.params.requestedResourceUri + "Descriptor error : " + fusedDescriptors;
+                            const newError = {
+                                statusCode: 500,
+                                message: msg
+                            };
+                            callback(newError, fusedDescriptors);
+                        }
+                    });
+                }
+                else
+                {
+                    const msg = "Unable to update metadata for : " + req.params.requestedResourceUri + ". JSON metadata must be sent in the body of the POST request and the Content-Type header should be set to 'application/json'";
+                    const newError = {
+                        statusCode: 400,
+                        message: msg
+                    };
+                    callback(newError, resource);
+                }
+            },
+            function(resource, fusedDescriptors, callback)
+            {
+                let changeAuthor;
+                if(!isNull(req.user))
+                {
+                    changeAuthor = req.user.uri;
+                }
+
+                resource.replaceDescriptors(fusedDescriptors, [Config.types.locked, Config.types.private], []);
+
+                resource.save(function(err, updatedResource)
+                {
+                    if(isNull(err))
+                    {
+                        updatedResource.reindex(req.index, function(err, result)
+                        {
+                            if(isNull(err))
+                            {
+                                callback(err, resource);
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result : "Error",
+                                    message : "Error updating resource : unable to reindex new values. Error reported : " + result
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "Error saving new record",
+                            message : updatedResource
+                        })
+                    }
+                }, true, changeAuthor, [Config.types.locked], [], [Config.types.audit]);
             },
             function(resource, callback) {
                 //Look for the project
@@ -301,14 +393,6 @@ exports.update = function(req, res) {
                     }
                     else
                     {
-                        /*const msg = "Unable to retrieve owner project of resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + project;
-                        console.error(msg);
-                        callback(err, project);*/
-                        /*res.status(500).json({
-                         result : "Error",
-                         message : error
-                         });*/
-
                         const msg = "Unable to retrieve owner project of resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + project;
                         const newError = {
                             statusCode: 500,
@@ -321,259 +405,112 @@ exports.update = function(req, res) {
             function (resource, project, callback) {
                 resource.getLatestArchivedVersion(function(err, latestArchivedVersion)
                 {
-                    if(isNull(err) && !isNull(latestArchivedVersion))
+                    if(isNull(err))
                     {
-                        callback(err, resource, project, latestArchivedVersion);
+                        if(!isNull(latestArchivedVersion))
+                        {
+                            callback(err, resource, project, latestArchivedVersion);
+                        }
+                        else
+                        {
+                            const msg = "No archived version detected while updating metadata for : " + req.params.requestedResourceUri;
+                            const newError = {
+                                statusCode: 500,
+                                message: msg
+                            };
+                            callback(newError, latestArchivedVersion);
+                        }
                     }
                     else
                     {
-                        const msg = "Unable to update metadata for : " + req.params.requestedResourceUri + ". Unable to find the latestArchivedVersion for the resource";
+                        const msg = "Unable to update metadata for : " + req.params.requestedResourceUri + ". Error while finding the latestArchivedVersion for the resource";
                         const newError = {
-                            statusCode: 404,
+                            statusCode: 500,
                             message: msg
                         };
                         callback(newError, latestArchivedVersion);
                     }
                 });
             },
-            function (resource, project, latestArchivedVersion, callback) {
-                //The rest of the function
-                if(!isNull(resource))
+            function (resource, project, latestArchivedVersion, callback)
+            {
+                MetadataChangePost.buildFromArchivedVersion(latestArchivedVersion, project, function (err, post)
                 {
-                    const descriptors = [];
-
-                    if(req.body instanceof Array)
+                    if (isNull(err))
                     {
-                        for(let i = 0; i < req.body.length; i++)
+                        post.save(function (err, post)
                         {
-                            const rawDescriptor = req.body[i];
-
-                            const descriptor = new Descriptor({
-                                prefix: rawDescriptor.prefix,
-                                shortName: rawDescriptor.shortName,
-                                value: rawDescriptor.value,
-                                uri: rawDescriptor.uri,
-                                prefixedForm: rawDescriptor.prefixedForm
-                            });
-
-                            if(!(descriptor instanceof Descriptor) && !isNull(descriptor.error))
+                            if (isNull(err))
                             {
-                                /*res.status(400).json({
-                                    result : "Error",
-                                    message : descriptor.error
-                                });
-
-                                return;*/
-
-                                const msg = "Resource : " + req.params.requestedResourceUri +  "Descriptor error : " + descriptor.error;
-                                const newError = {
-                                    statusCode: 400,
-                                    message: msg
-                                };
-                                callback(newError, descriptor);
+                                callback(err, resource);
                             }
                             else
                             {
-                                //prevent changes on non-public/non-changeable descriptors
-                                if(!descriptor.private && !descriptor.locked)
-                                {
-                                    descriptors.push(descriptor);
-                                }
-                            }
-                        }
-
-                        Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
-                        {
-                            if(isNull(err))
-                            {
-                                let changeAuthor;
-                                if(!isNull(req.user))
-                                {
-                                    changeAuthor = req.user.uri;
-                                }
-
-                                resource.replaceDescriptors(fusedDescriptors, [Config.types.locked, Config.types.private], []);
-
-                                resource.save(function(err, record)
-                                {
-                                    if(isNull(err))
-                                    {
-                                        record.reindex(req.index, function(err, result)
-                                        {
-                                            if(isNull(err))
-                                            {
-                                                //Refresh metadata evaluation
-                                                require(Pathfinder.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
-                                                {
-                                                    //TODO create here MetadataChangePost
-                                                    MetadataChangePost.buildFromArchivedVersion(latestArchivedVersion, project, function (err, post) {
-                                                        if(isNull(err))
-                                                        {
-                                                            post.save(function (err, post) {
-                                                                if(isNull(err))
-                                                                {
-                                                                    if (evaluation.metadata_evaluation !== resource.ddr.metadataQuality)
-                                                                    {
-
-                                                                        resource.ddr.metadataQuality = evaluation.metadata_evaluation;
-                                                                        resource.save(function (err, result)
-                                                                        {
-                                                                            if (isNull(err))
-                                                                            {
-                                                                                /*res.json({
-                                                                                 result: "OK",
-                                                                                 message: "Updated successfully.",
-                                                                                 new_metadata_quality_assessment: evaluation
-                                                                                 });*/
-                                                                                const result = {
-                                                                                    result: "OK",
-                                                                                    message: "Updated successfully.",
-                                                                                    new_metadata_quality_assessment: evaluation
-                                                                                };
-                                                                                callback(err, result);
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                /*res.status(500).json({
-                                                                                 result: "Error",
-                                                                                 message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
-                                                                                 });*/
-                                                                                const msg = "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body);
-                                                                                const newError = {
-                                                                                    statusCode: 500,
-                                                                                    message: msg
-                                                                                };
-                                                                                callback(newError, result);
-                                                                            }
-                                                                        });
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        /*res.json({
-                                                                         result: "OK",
-                                                                         message: "Updated successfully.",
-                                                                         new_metadata_quality_assessment: evaluation
-                                                                         });*/
-                                                                        const result = {
-                                                                            result: "OK",
-                                                                            message: "Updated successfully.",
-                                                                            new_metadata_quality_assessment: evaluation
-                                                                        };
-                                                                        callback(err, result);
-                                                                    }
-                                                                }
-                                                                else
-                                                                {
-                                                                    const msg = "Unable to create Social Dendro post from metadata changes to resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(err);
-                                                                    const newError = {
-                                                                        statusCode: 500,
-                                                                        message: msg
-                                                                    };
-                                                                    callback(newError, post);
-                                                                }
-                                                            }, false, null, null, null, null, db_social.graphUri);
-                                                        }
-                                                        else
-                                                        {
-                                                            /*res.status(500).json({
-                                                                result: "Error",
-                                                                message: "Unable to create Social Dendro post from metadata changes to resource uri: " + requestedResourceURI + ". Error reported : " + err
-                                                            });*/
-
-                                                            const msg = "Unable to create Social Dendro post from metadata changes to resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(err);
-                                                            const newError = {
-                                                                statusCode: 500,
-                                                                message: msg
-                                                            };
-                                                            callback(newError, post);
-                                                        }
-                                                    });
-                                                });
-                                            }
-                                            else
-                                            {
-                                                /*res.status(500).json({
-                                                    result : "Error",
-                                                    message : "Error updating resource : unable to reindex new values. Error reported : " + result
-                                                });*/
-
-                                                const msg = "Error updating resource : unable to reindex new values. Error reported : " + result;
-                                                const newError = {
-                                                    statusCode: 500,
-                                                    message: msg
-                                                };
-                                                callback(newError, result);
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-                                        /*res.status(500).json({
-                                            result: "Error saving new record",
-                                            message : record
-                                        })*/
-                                        const msg = "Error saving new record";
-                                        const newError = {
-                                            statusCode: 500,
-                                            message: msg
-                                        };
-                                        callback(newError, record);
-                                    }
-                                }, true, changeAuthor, [Config.types.locked], [], [Config.types.audit]);
-                            }
-                            else
-                            {
-                                /*res.status(500).json({
-                                    result: "Error merging descriptors",
-                                    message : fusedDescriptors
-                                })*/
-                                const msg = "Error merging descriptors";
+                                const msg = "Unable to save Social Dendro with metadata changes to resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(err);
                                 const newError = {
                                     statusCode: 500,
                                     message: msg
                                 };
-                                callback(newError, fusedDescriptors);
+                                callback(newError, post);
+                            }
+                        }, false, null, null, null, null, db_social.graphUri);
+                    }
+                    else
+                    {
+                        const msg = "Unable to create Social Dendro post from metadata changes to resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(err);
+                        const newError = {
+                            statusCode: 500,
+                            message: msg
+                        };
+                        callback(newError, post);
+                    }
+                })
+            },
+            function(resource, callback)
+            {
+                //Refresh metadata evaluation
+                require(Pathfinder.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
+                {
+                    if(isNull(err))
+                    {
+                        resource.ddr.metadataQuality = evaluation.evaluation;
+                        resource.save(function (err, result)
+                        {
+                            if(isNull(err))
+                            {
+                                callback(err, evaluation);
+                            }
+                            else
+                            {
+                                const msg = "Unable to update metadata evaluation for resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(err);
+                                const newError = {
+                                    statusCode: 500,
+                                    message: msg
+                                };
+                                callback(newError, result);
                             }
                         });
                     }
                     else
                     {
-                        /*const error = "Unable to update metadata for : " + req.params.requestedResourceUri + ". JSON metadata must be sent in the body of the POST request and the Content-Type header should be set to 'application/json'";
-                        console.error(error);
-                        res.status(400).json({
-                            result : "Error",
-                            message : error
-                        });*/
-                        const msg = "Unable to update metadata for : " + req.params.requestedResourceUri + ". JSON metadata must be sent in the body of the POST request and the Content-Type header should be set to 'application/json'";
+                        const msg = "Unable to re-calculate metadata evaluation for resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(err);
                         const newError = {
-                            statusCode: 400,
+                            statusCode: 500,
                             message: msg
                         };
-                        callback(newError, resource);
+                        callback(newError, result);
                     }
-                }
-                else
-                {
-                    const msg = "Resource with uri : " + req.params.requestedResourceUri + " is not present in the system. Error retrieved : " + JSON.stringify(resource);
-                    const newError = {
-                        statusCode: 404,
-                        message: msg
-                    };
-                    callback(newError, resource);
-                    /*res.status(404).json({
-                        result : "Error",
-                        message : error
-                    });*/
-                }
+
+                });
             }
-        ],function(err, result)
+        ],function(err, evaluation)
         {
             if(isNull(err))
             {
                 res.json({
                     result: "OK",
                     message: "Updated successfully.",
-                    new_metadata_quality_assessment: result.new_metadata_quality_assessment
+                    new_metadata_quality_assessment: evaluation
                 });
             }
             else
