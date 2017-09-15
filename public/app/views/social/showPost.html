@@ -6,10 +6,12 @@
 
 <div class="panel panel-default" ng-show="!doingARequest">
     <div class="panel-heading text-center">
-        <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">
+        <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">-->
+        <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost')">
             <h3 class="panel-title"> <span class="label label-success">Metadata Post</span> {{postsContents[postUri].dcterms.title}}</h3>
         </div>
-        <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'">
+        <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'">-->
+        <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/FileSystemPost')">
             <h3 class="panel-title"> <span class="label label-success">FileSystem Post</span> {{postsContents[postUri].dcterms.title}}</h3>
         </div>
 
@@ -18,11 +20,13 @@
         </div>
     </div>
 
-    <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">
+    <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">-->
+    <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost')">
         <ng-include src="'/app/views/social/partial/showMetadataChangePost.html'" onload="postUri = postUri;"></ng-include>
     </div>
 
-    <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'">
+    <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'">-->
+    <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/FileSystemPost')">
         <ng-include src="'/app/views/social/partial/showFileSystemPost.html'" onload="postUri = postUri;"></ng-include>
     </div>
 
