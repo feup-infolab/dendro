@@ -1308,7 +1308,7 @@ exports.post = function (req, res) {
                         },
                         function (callback) {
                             //TODO HOW TO ACCESS THE FULL TYPE
-                            if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost") {
+                            if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost")) {
                                 MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost) {
                                     if (isNull(err)) {
                                         getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo) {
@@ -1324,7 +1324,7 @@ exports.post = function (req, res) {
                                     }
                                 }, null, db_social.graphUri, false, null, null);
                             }
-                            else if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/FileSystemPost") {
+                            else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost")) {
                                 FileSystemPost.findByUri(post.uri, function (err, fileSystemPost) {
                                     if (isNull(err)) {
                                         getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo) {
@@ -1538,7 +1538,7 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
                         },
                         function (callback) {
                             //TODO HOW TO ACCESS THE FULL TYPE
-                            if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost") {
+                            if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost")) {
                                 MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost) {
                                     if (!err) {
                                         getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo) {
@@ -1554,7 +1554,7 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
                                     }
                                 }, null, db_social.graphUri, false, null, null);
                             }
-                            else if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/FileSystemPost") {
+                            else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost")) {
                                 FileSystemPost.findByUri(post.uri, function (err, fileSystemPost) {
                                     if (!err) {
                                         getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo) {
@@ -1569,7 +1569,7 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
                                     }
                                 }, null, db_social.graphUri, false, null, null);
                             }
-                            else if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/Share") {
+                            else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/Share")) {
                                 Share.findByUri(post.uri, function (err, share) {
                                     if (!err) {
                                         //Gets the info from the original post that was shared
