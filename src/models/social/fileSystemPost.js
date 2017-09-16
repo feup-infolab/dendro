@@ -4,6 +4,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 var Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 var ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 var InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 var Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
@@ -54,78 +55,122 @@ function FileSystemPost (object)
 }
 
 FileSystemPost.buildFromRmdirOperation = function (userUri, project, folder, reallyDelete, callback) {
-    let title = userUri.split("/").pop() + " deleted folder " + folder.nie.title;
-    let newPost = new FileSystemPost({
-        ddr: {
-            projectUri: project.uri,
-            changeType: "rmdir",
-            deleted: reallyDelete
-        },
-        dcterms: {
-            creator: userUri,
-            title: title
-        },
-        schema: {
-            sharedContent: folder.uri
+    User.findByUri(userUri, function (err, creator) {
+        if(isNull(err))
+        {
+            let title = creator.ddr.username + " deleted folder " + folder.nie.title;
+            let newPost = new FileSystemPost({
+                ddr: {
+                    projectUri: project.uri,
+                    changeType: "rmdir",
+                    deleted: reallyDelete
+                },
+                dcterms: {
+                    creator: userUri,
+                    title: title
+                },
+                schema: {
+                    sharedContent: folder.uri
+                }
+            });
+            callback(null, newPost);
+        }
+        else
+        {
+            const msg = "Error building a FileSystemPost from an rmdir operation: " + JSON.stringify(creator);
+            console.error(msg);
+            callback(err, creator);
         }
     });
-    callback(null, newPost);
 };
 
 FileSystemPost.buildFromMkdirOperation = function (userUri, project, folder, callback) {
-    let title = userUri.split("/").pop() + " created folder " + folder.nie.title;
-    let newPost = new FileSystemPost({
-        ddr: {
-            projectUri: project.uri,
-            changeType: "mkdir"
-        },
-        dcterms: {
-            creator: userUri,
-            title: title
-        },
-        schema: {
-            sharedContent: folder.uri
+    User.findByUri(userUri, function (err, creator) {
+        if(isNull(err))
+        {
+            let title = creator.ddr.username + " created folder " + folder.nie.title;
+            let newPost = new FileSystemPost({
+                ddr: {
+                    projectUri: project.uri,
+                    changeType: "mkdir"
+                },
+                dcterms: {
+                    creator: userUri,
+                    title: title
+                },
+                schema: {
+                    sharedContent: folder.uri
+                }
+            });
+            callback(null, newPost);
+        }
+        else
+        {
+            const msg = "Error building a FileSystemPost from an mkdir operation: " + JSON.stringify(creator);
+            console.error(msg);
+            callback(err, creator);
         }
     });
-    callback(null, newPost);
 };
 
 FileSystemPost.buildFromUpload = function (userUri, projectUri, file, callback) {
-    let title = userUri.split("/").pop() + " uploaded file " + file.filename.split("/").pop();
-    let newPost = new FileSystemPost({
-        ddr: {
-            projectUri: projectUri,
-            changeType: "upload"
-        },
-        dcterms: {
-            creator: userUri,
-            title: title
-        },
-        schema: {
-            sharedContent: file.filename
+    User.findByUri(userUri, function (err, creator) {
+        if(isNull(err))
+        {
+            let title = creator.ddr.username + " uploaded file " + file.filename.split("/").pop();
+            let newPost = new FileSystemPost({
+                ddr: {
+                    projectUri: projectUri,
+                    changeType: "upload"
+                },
+                dcterms: {
+                    creator: userUri,
+                    title: title
+                },
+                schema: {
+                    sharedContent: file.filename
+                }
+            });
+            callback(null, newPost);
+        }
+        else
+        {
+            const msg = "Error building a FileSystemPost from an upload operation: " + JSON.stringify(creator);
+            console.error(msg);
+            callback(err, creator);
         }
     });
-    callback(null, newPost);
 };
 
 
 FileSystemPost.buildFromDeleteFile = function (userUri, projectUri, file, callback) {
     //introduzir really delete
-    let title = userUri.split("/").pop() + " deleted file " + file.nie.title;
-    let newPost = new FileSystemPost({
-        ddr: {
-            projectUri: projectUri,
-            changeType: "delete"
-        },
-        dcterms: {
-            creator: userUri,
-            title: title
-        },
-        schema: {
-            sharedContent: file.uri
+    User.findByUri(userUri, function (err, creator) {
+        if(isNull(err))
+        {
+            let title = creator.ddr.username + " deleted file " + file.nie.title;
+            let newPost = new FileSystemPost({
+                ddr: {
+                    projectUri: projectUri,
+                    changeType: "delete"
+                },
+                dcterms: {
+                    creator: userUri,
+                    title: title
+                },
+                schema: {
+                    sharedContent: file.uri
+                }
+            });
+            callback(null, newPost);
+        }
+        else
+        {
+            const msg = "Error building a FileSystemPost from a delete file operation: " + JSON.stringify(creator);
+            console.error(msg);
+            callback(err, creator);
         }
     });
-    callback(null, newPost);
 };
 
 

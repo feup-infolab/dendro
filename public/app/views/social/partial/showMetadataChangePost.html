@@ -6,7 +6,8 @@
         </div>
 
         <div class="media-left text-center social-dendro-metadata-thumbnail">
-            <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">
+            <!--<img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">-->
+            <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent}}?thumbnail">
             <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>
         </div>
 
