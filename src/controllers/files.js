@@ -1655,6 +1655,7 @@ exports.rm = function(req, res){
                                 {
                                     if(!isNull(folder))
                                     {
+                                        getProjectFromResource(folder, function (err, resource, project) {
                                             if(isNull(err))
                                             {
                                                 if(!isNull(project))
