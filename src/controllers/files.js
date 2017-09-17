@@ -1530,6 +1530,50 @@ exports.rm = function(req, res){
         });
     };
 
+    let buildFileSystemPostFromDeleteFileOperation = function (userUri, project, file, callback) {
+        FileSystemPost.buildFromDeleteFile(userUri, project.uri, file, function (error, fileSystemPost) {
+            if(!error)
+            {
+                fileSystemPost.save(function (error, post) {
+                    if(isNull(error))
+                    {
+                        /*res.status(200).json({
+                            "result" : "success",
+                            "message" : "Successfully deleted " + resourceToDelete
+                        });*/
+                        callback(error, post);
+                    }
+                    else
+                    {
+                        /*res.status(500).json({
+                            result: "Error",
+                            message: "Unable to save Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
+                        });*/
+                        const msg = "Unable to save Social Dendro post from a delete operation to resource uri: " + file.uri + ". Error reported : " + JSON.stringify(post);
+                        const newError = {
+                            statusCode: 500,
+                            message: msg
+                        };
+                        callback(newError, post);
+                    }
+                }, false, null, null, null, null, db_social.graphUri);
+            }
+            else
+            {
+                /*res.status(500).json({
+                    result: "Error",
+                    message: "Unable to create Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
+                });*/
+                const msg = "Unable to create Social Dendro post from file system delete file operation to resource uri: " + file.uri + ". Error reported : " + JSON.stringify(fileSystemPost);
+                const newError = {
+                    statusCode: 500,
+                    message: msg
+                };
+                callback(newError, fileSystemPost);
+            }
+        });
+    };
+
     let buildFileSystemPostFromRmdirOperation = function (userUri, project, folder, reallyDelete, callback) {
         FileSystemPost.buildFromRmdirOperation(userUri, project, folder, reallyDelete, function(err, post){
             if(!err)
@@ -1713,8 +1757,67 @@ exports.rm = function(req, res){
 
                         if(result.isA(File))
                         {
-                            deleteFile(function(err, result){
-                                sendResponse(err, result);
+                            File.findByUri(result.uri, function (err, file) {
+                                if(isNull(err))
+                                {
+                                    if(!isNull(file))
+                                    {
+                                        getProjectFromResource(file, function (err, resource, project) {
+                                            if(isNull(err))
+                                            {
+                                                if(!isNull(project))
+                                                {
+                                                    deleteFile(function(err, result){
+                                                        buildFileSystemPostFromDeleteFileOperation(req.user.uri, project, file, function (err, postResult) {
+                                                            sendResponse(err, result);
+                                                        });
+                                                    });
+
+                                                }
+                                                else
+                                                {
+                                                    const msg = "Could not find a project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                    res.status(404).json(
+                                                        {
+                                                            "result" : "error",
+                                                            "message" : msg
+                                                        }
+                                                    );
+                                                }
+                                            }
+                                            else
+                                            {
+                                                const msg = "Error finding project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                res.status(500).json(
+                                                    {
+                                                        "result" : "error",
+                                                        "message" : msg
+                                                    }
+                                                );
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        const msg = "File : " + resourceToDelete + " does not exist";
+                                        res.status(404).json(
+                                            {
+                                                "result" : "error",
+                                                "message" : msg
+                                            }
+                                        );
+                                    }
+                                }
+                                else
+                                {
+                                    const msg = "Error finding file : " + resourceToDelete + ". Error reported : " + JSON.stringify(file);
+                                    res.status(500).json(
+                                        {
+                                            "result" : "error",
+                                            "message" : msg
+                                        }
+                                    );
+                                }
                             });
                         }
                         else if(result.isA(Folder))
