@@ -740,6 +740,58 @@ exports.upload = function(req, res)
         }
     };
 
+
+    const getProjectFromResource = function(resource, callback) {
+        resource.getOwnerProject(function (err, project) {
+            if(isNull(err))
+            {
+                callback(err, project);
+            }
+            else
+            {
+                const msg = "Unable to retrieve owner project of resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + project;
+                const newError = {
+                    statusCode: 500,
+                    message: msg
+                };
+                callback(newError, project);
+            }
+        });
+    };
+
+    const buildFileSystemPostFromUpload = function (creatorUri, project, file, callback) {
+        FileSystemPost.buildFromUpload(creatorUri, project, file, function (err, newfileSystemPost) {
+            if(isNull(err))
+            {
+                newfileSystemPost.save(function (err, fileSystemPost)
+                {
+                    if (isNull(err))
+                    {
+                        callback(err, fileSystemPost);
+                    }
+                    else
+                    {
+                        const msg = "Unable to save fileSystemPost from resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + JSON.stringify(fileSystemPost);
+                        const newError = {
+                            statusCode: 500,
+                            message: msg
+                        };
+                        callback(newError, fileSystemPost);
+                    }
+                }, false, null, null, null, null, db_social.graphUri)
+            }
+            else
+            {
+                const msg = "Unable to build fileSystemPost from resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + JSON.stringify(newfileSystemPost);
+                const newError = {
+                    statusCode: 500,
+                    message: msg
+                };
+                callback(newError, newfileSystemPost);
+            }
+        });
+    };
+
     const saveFilesAfterFinishingUpload = function (files, callback) {
         const fileNames = [];
 
@@ -832,32 +884,15 @@ exports.upload = function(req, res)
 
             }, function (err, results) {
                 //TODO create here the FileSystemPost upload events
-                /*FileSystemPost.buildFromUpload(currentUserUri, fileVersion.metadata.project, fileVersion, function (err, newfileSystemPost) {
-                    if(!err)
-                    {
-                        newfileSystemPost.save(function (err, fileSystemPost)
-                        {
-                            if (!err)
-                            {
-                                cb(null, fileSystemPost);
-                            }
-                            else
-                            {
-                                console.error("Error when saving a FileSystemPost from a file upload");
-                                console.error(err);
-                                cb(true, fileSystemPost);
-                            }
-                        }, false, null, null, null, null, db_social.graphUri)
-                    }
-                    else
-                    {
-                        console.error("Error when building a FileSystemPost from a file upload");
-                        console.error(err);
-                        cb(true, newfileSystemPost);
-                    }
+                /*getProjectFromResource(resource, function (err, project) {
+
+                });
+                buildFileSystemPostFromUpload(creatorUri, project, file, function (err, result) {
+
                 });*/
+                /*
                 //TODO caso não exista erro, results é um array cada elemento tem a uri do ficheiro que foi uploaded
-                /*if(isNull(err))
+                if(isNull(err))
                 {
                     async.map(results, function (result, callback) {
 
@@ -869,7 +904,41 @@ exports.upload = function(req, res)
                 {
 
                 }*/
-                return callback(err, results);
+
+                if(isNull(err))
+                {
+                    async.map(results, function (result, callback) {
+                        File.findByUri(result.uri, function (error, file) {
+                            if(isNull(error))
+                            {
+                                getProjectFromResource(file, function (error, project) {
+                                    if(isNull(error))
+                                    {
+                                        buildFileSystemPostFromUpload(req.user.uri, project, file, function (error, result) {
+                                            callback(error, result);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        callback(error, project);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                callback(error, file);
+                            }
+                        });
+                    }, function (error, result) {
+                        return callback(err, results);
+                    })
+                }
+                else
+                {
+                    return callback(err, results);
+                }
+
+                //return callback(err, results);
             });
         }
         else

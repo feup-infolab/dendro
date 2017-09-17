@@ -113,14 +113,14 @@ FileSystemPost.buildFromMkdirOperation = function (userUri, project, folder, cal
     });
 };
 
-FileSystemPost.buildFromUpload = function (userUri, projectUri, file, callback) {
+FileSystemPost.buildFromUpload = function (userUri, project, file, callback) {
     User.findByUri(userUri, function (err, creator) {
         if(isNull(err))
         {
-            let title = creator.ddr.username + " uploaded file " + file.filename.split("/").pop();
+            let title = creator.ddr.username + " uploaded file " + file.nie.title;
             let newPost = new FileSystemPost({
                 ddr: {
-                    projectUri: projectUri,
+                    projectUri: project.uri,
                     changeType: "upload"
                 },
                 dcterms: {
@@ -128,7 +128,7 @@ FileSystemPost.buildFromUpload = function (userUri, projectUri, file, callback) 
                     title: title
                 },
                 schema: {
-                    sharedContent: file.filename
+                    sharedContent: file.uri
                 }
             });
             callback(null, newPost);
