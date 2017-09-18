@@ -9,12 +9,15 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 exports.index = function(req, res){
 
-    Registry.getDeposits(req);
+    Registry.getDeposits(req, function(deposits){
+        //TODO query to get latest deposits
+        res.render('index', {
+                registries: deposits
+            }
+        )
+    });
 
-    //TODO query to get latest deposits
-    res.render('index',
-        {}
-    );
+
 };
 
 exports.analytics_tracking_code = function(req, res){

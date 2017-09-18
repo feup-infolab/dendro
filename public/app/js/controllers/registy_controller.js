@@ -23,12 +23,15 @@ angular.module('dendroApp.controllers')
         $scope.active_tab = null;
         $scope.registries = [];
 
+
+
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
 
 
-        $scope.init = function(){
-
+        $scope.init = function(registries){
+            this.registries = registries;
+            console.log(registries);
         };
 
         $scope.getPublicRegistry = function(){

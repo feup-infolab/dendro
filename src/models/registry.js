@@ -63,7 +63,7 @@ Registry.getDeposits = function(req, res){
     //const loggedIn = req.body.user;
 
     const query =
-        "SELECT * \n" +
+        "SELECT ?uri  \n" +
         "FROM [0] \n"  +
         "WHERE { \n" +
         "?uri rdf:type ddr:Registry . \n" +
@@ -81,10 +81,8 @@ Registry.getDeposits = function(req, res){
                 value : "public"
             }
         ], function (err, regs){
-
-            res.json(regs)
-
-
+            //check for error
+            res(regs);
         });
 };
 
