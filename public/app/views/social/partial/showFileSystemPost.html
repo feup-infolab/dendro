@@ -9,7 +9,8 @@
             <!--<img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">-->
             <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent}}?thumbnail">
             <!--<a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>-->
-            <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent}}"> {{postsContents[postUri].schema.sharedContent}}   </a>
+            <!--<a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent}}"> Link   </a>-->
+            <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent}}"> {{postsContents[postUri].resourceInfo.nie.title}}   </a>
         </div>
 
         <div class="media-body text-center filesystem-post-content">
