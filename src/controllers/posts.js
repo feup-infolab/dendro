@@ -1313,8 +1313,15 @@ exports.post = function (req, res) {
                                     if (isNull(err)) {
                                         getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo) {
                                             //[editChanges, addChanges, deleteChanges]
-                                            post.changesInfo = changesInfo;
-                                            callback(err);
+                                            if(isNull(err))
+                                            {
+                                                post.changesInfo = changesInfo;
+                                                callback(null, null)
+                                            }
+                                            else
+                                            {
+                                                callback(err, changesInfo);
+                                            }
                                         });
                                     }
                                     else {
@@ -1543,8 +1550,28 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
                                     if (!err) {
                                         getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo) {
                                             //[editChanges, addChanges, deleteChanges]
-                                            post.changesInfo = changesInfo;
-                                            callback(err);
+                                            /*post.changesInfo = changesInfo;
+                                            callback(err);*/
+                                            if(isNull(err))
+                                            {
+                                                post.changesInfo = changesInfo;
+                                                callback(null, null)
+                                            }
+                                            else
+                                            {
+                                                // typeof "foo" === "string"
+                                                /*if(typeof changesInfo === "string" && changesInfo === "Resource at getChangesFromMetadataChangePost resource does not exist")
+                                                {
+                                                    post = null;
+                                                    delete post;
+                                                    callback(null, null);
+                                                }
+                                                else
+                                                {
+                                                    callback(err, changesInfo);
+                                                }*/
+                                                callback(err, changesInfo);
+                                            }
                                         });
                                     }
                                     else {
@@ -1556,7 +1583,7 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
                             }
                             else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost")) {
                                 FileSystemPost.findByUri(post.uri, function (err, fileSystemPost) {
-                                    if (!err) {
+                                    if (isNull(err)) {
                                         getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo) {
                                             post.resourceInfo = resourceInfo;
                                             callback(err);
@@ -1602,8 +1629,19 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
                     function (err, results) {
                         if (isNull(err)) {
                             postsInfo[postQueryInfo.uri] = post;
+                            callback(err, results);
                         }
-                        callback(err, results);
+                        else {
+                            if(results.toString().includes("Resource at getChangesFromMetadataChangePost resource does not exist"))
+                            {
+                                postsInfo[postQueryInfo.uri] = post;
+                                callback(null, null);
+                            }
+                            else
+                            {
+                                callback(err, results);
+                            }
+                        }
                     });
             }
             else {

@@ -740,6 +740,58 @@ exports.upload = function(req, res)
         }
     };
 
+
+    const getProjectFromResource = function(resource, callback) {
+        resource.getOwnerProject(function (err, project) {
+            if(isNull(err))
+            {
+                callback(err, project);
+            }
+            else
+            {
+                const msg = "Unable to retrieve owner project of resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + project;
+                const newError = {
+                    statusCode: 500,
+                    message: msg
+                };
+                callback(newError, project);
+            }
+        });
+    };
+
+    const buildFileSystemPostFromUpload = function (creatorUri, project, file, callback) {
+        FileSystemPost.buildFromUpload(creatorUri, project, file, function (err, newfileSystemPost) {
+            if(isNull(err))
+            {
+                newfileSystemPost.save(function (err, fileSystemPost)
+                {
+                    if (isNull(err))
+                    {
+                        callback(err, fileSystemPost);
+                    }
+                    else
+                    {
+                        const msg = "Unable to save fileSystemPost from resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + JSON.stringify(fileSystemPost);
+                        const newError = {
+                            statusCode: 500,
+                            message: msg
+                        };
+                        callback(newError, fileSystemPost);
+                    }
+                }, false, null, null, null, null, db_social.graphUri)
+            }
+            else
+            {
+                const msg = "Unable to build fileSystemPost from resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + JSON.stringify(newfileSystemPost);
+                const newError = {
+                    statusCode: 500,
+                    message: msg
+                };
+                callback(newError, newfileSystemPost);
+            }
+        });
+    };
+
     const saveFilesAfterFinishingUpload = function (files, callback) {
         const fileNames = [];
 
@@ -832,32 +884,15 @@ exports.upload = function(req, res)
 
             }, function (err, results) {
                 //TODO create here the FileSystemPost upload events
-                /*FileSystemPost.buildFromUpload(currentUserUri, fileVersion.metadata.project, fileVersion, function (err, newfileSystemPost) {
-                    if(!err)
-                    {
-                        newfileSystemPost.save(function (err, fileSystemPost)
-                        {
-                            if (!err)
-                            {
-                                cb(null, fileSystemPost);
-                            }
-                            else
-                            {
-                                console.error("Error when saving a FileSystemPost from a file upload");
-                                console.error(err);
-                                cb(true, fileSystemPost);
-                            }
-                        }, false, null, null, null, null, db_social.graphUri)
-                    }
-                    else
-                    {
-                        console.error("Error when building a FileSystemPost from a file upload");
-                        console.error(err);
-                        cb(true, newfileSystemPost);
-                    }
+                /*getProjectFromResource(resource, function (err, project) {
+
+                });
+                buildFileSystemPostFromUpload(creatorUri, project, file, function (err, result) {
+
                 });*/
+                /*
                 //TODO caso não exista erro, results é um array cada elemento tem a uri do ficheiro que foi uploaded
-                /*if(isNull(err))
+                if(isNull(err))
                 {
                     async.map(results, function (result, callback) {
 
@@ -869,7 +904,41 @@ exports.upload = function(req, res)
                 {
 
                 }*/
-                return callback(err, results);
+
+                if(isNull(err))
+                {
+                    async.map(results, function (result, callback) {
+                        File.findByUri(result.uri, function (error, file) {
+                            if(isNull(error))
+                            {
+                                getProjectFromResource(file, function (error, project) {
+                                    if(isNull(error))
+                                    {
+                                        buildFileSystemPostFromUpload(req.user.uri, project, file, function (error, result) {
+                                            callback(error, result);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        callback(error, project);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                callback(error, file);
+                            }
+                        });
+                    }, function (error, result) {
+                        return callback(err, results);
+                    })
+                }
+                else
+                {
+                    return callback(err, results);
+                }
+
+                //return callback(err, results);
             });
         }
         else
@@ -1443,6 +1512,112 @@ exports.rm = function(req, res){
     const acceptsHTML = req.accepts("html");
     let acceptsJSON = req.accepts("json");
 
+    let getProjectFromResource = function(resource, callback) {
+        resource.getOwnerProject(function (err, project) {
+            if(isNull(err))
+            {
+                callback(err, resource, project);
+            }
+            else
+            {
+                const msg = "Unable to retrieve owner project of resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + project;
+                const newError = {
+                    statusCode: 500,
+                    message: msg
+                };
+                callback(newError, project);
+            }
+        });
+    };
+
+    let buildFileSystemPostFromDeleteFileOperation = function (userUri, project, file, callback) {
+        FileSystemPost.buildFromDeleteFile(userUri, project.uri, file, function (error, fileSystemPost) {
+            if(!error)
+            {
+                fileSystemPost.save(function (error, post) {
+                    if(isNull(error))
+                    {
+                        /*res.status(200).json({
+                            "result" : "success",
+                            "message" : "Successfully deleted " + resourceToDelete
+                        });*/
+                        callback(error, post);
+                    }
+                    else
+                    {
+                        /*res.status(500).json({
+                            result: "Error",
+                            message: "Unable to save Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
+                        });*/
+                        const msg = "Unable to save Social Dendro post from a delete operation to resource uri: " + file.uri + ". Error reported : " + JSON.stringify(post);
+                        const newError = {
+                            statusCode: 500,
+                            message: msg
+                        };
+                        callback(newError, post);
+                    }
+                }, false, null, null, null, null, db_social.graphUri);
+            }
+            else
+            {
+                /*res.status(500).json({
+                    result: "Error",
+                    message: "Unable to create Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
+                });*/
+                const msg = "Unable to create Social Dendro post from file system delete file operation to resource uri: " + file.uri + ". Error reported : " + JSON.stringify(fileSystemPost);
+                const newError = {
+                    statusCode: 500,
+                    message: msg
+                };
+                callback(newError, fileSystemPost);
+            }
+        });
+    };
+
+    let buildFileSystemPostFromRmdirOperation = function (userUri, project, folder, reallyDelete, callback) {
+        FileSystemPost.buildFromRmdirOperation(userUri, project, folder, reallyDelete, function(err, post){
+            if(!err)
+            {
+                post.save(function (err, post) {
+                    if(isNull(err))
+                    {
+                        /*res.status(200).json({
+                            "result" : "success",
+                            "message" : "Successfully deleted " + folder
+                        });*/
+                        callback(err, folder);
+                    }
+                    else
+                    {
+                        /*res.status(500).json({
+                            result: "Error",
+                            message: "Unable to save Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + err
+                        });*/
+                        const msg = "Unable to save Social Dendro post from a rmdir operation to resource uri: " + folder.uri + ". Error reported : " + JSON.stringify(post);
+                        const newError = {
+                            statusCode: 500,
+                            message: msg
+                        };
+                        callback(newError, post);
+                    }
+                }, false, null, null, null, null, db_social.graphUri);
+            }
+            else
+            {
+                /*res.status(500).json({
+                    result: "Error",
+                    message: "Unable to create Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + err
+                });*/
+                const msg = "Unable to create Social Dendro post from a rmdir operation to resource uri: " + folder.uri + ". Error reported : " + JSON.stringify(post);
+                const newError = {
+                    statusCode: 500,
+                    message: msg
+                };
+                callback(newError, post);
+            }
+        });
+    };
+
     if(acceptsJSON && !acceptsHTML)
     {
         const resourceToDelete = req.params.requestedResourceUri;
@@ -1582,14 +1757,131 @@ exports.rm = function(req, res){
 
                         if(result.isA(File))
                         {
-                            deleteFile(function(err, result){
-                                sendResponse(err, result);
+                            File.findByUri(result.uri, function (err, file) {
+                                if(isNull(err))
+                                {
+                                    if(!isNull(file))
+                                    {
+                                        getProjectFromResource(file, function (err, resource, project) {
+                                            if(isNull(err))
+                                            {
+                                                if(!isNull(project))
+                                                {
+                                                    deleteFile(function(err, result){
+                                                        buildFileSystemPostFromDeleteFileOperation(req.user.uri, project, file, function (err, postResult) {
+                                                            sendResponse(err, result);
+                                                        });
+                                                    });
+
+                                                }
+                                                else
+                                                {
+                                                    const msg = "Could not find a project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                    res.status(404).json(
+                                                        {
+                                                            "result" : "error",
+                                                            "message" : msg
+                                                        }
+                                                    );
+                                                }
+                                            }
+                                            else
+                                            {
+                                                const msg = "Error finding project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                res.status(500).json(
+                                                    {
+                                                        "result" : "error",
+                                                        "message" : msg
+                                                    }
+                                                );
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        const msg = "File : " + resourceToDelete + " does not exist";
+                                        res.status(404).json(
+                                            {
+                                                "result" : "error",
+                                                "message" : msg
+                                            }
+                                        );
+                                    }
+                                }
+                                else
+                                {
+                                    const msg = "Error finding file : " + resourceToDelete + ". Error reported : " + JSON.stringify(file);
+                                    res.status(500).json(
+                                        {
+                                            "result" : "error",
+                                            "message" : msg
+                                        }
+                                    );
+                                }
                             });
                         }
                         else if(result.isA(Folder))
                         {
-                            deleteFolder(function(err, result){
-                                sendResponse(err, result);
+                            Folder.findByUri(result.uri, function (err, folder) {
+                                if(isNull(err))
+                                {
+                                    if(!isNull(folder))
+                                    {
+                                        getProjectFromResource(folder, function (err, resource, project) {
+                                            if(isNull(err))
+                                            {
+                                                if(!isNull(project))
+                                                {
+                                                    deleteFolder(function(err, result){
+                                                        buildFileSystemPostFromRmdirOperation(req.user.uri, project, folder, reallyDelete, function (error, postResult) {
+                                                            sendResponse(err, result);
+                                                        });
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    const msg = "Could not find a project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                    res.status(404).json(
+                                                        {
+                                                            "result" : "error",
+                                                            "message" : msg
+                                                        }
+                                                    );
+                                                }
+                                            }
+                                            else
+                                            {
+                                                const msg = "Error finding project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                res.status(500).json(
+                                                    {
+                                                        "result" : "error",
+                                                        "message" : msg
+                                                    }
+                                                );
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        const msg = "Folder : " + resourceToDelete + " does not exist";
+                                        res.status(404).json(
+                                            {
+                                                "result" : "error",
+                                                "message" : msg
+                                            }
+                                        );
+                                    }
+                                }
+                                else
+                                {
+                                    const msg = "Error finding folder : " + resourceToDelete + ". Error reported : " + JSON.stringify(folder);
+                                    res.status(500).json(
+                                        {
+                                            "result" : "error",
+                                            "message" : msg
+                                        }
+                                    );
+                                }
                             });
                         }
                         else
@@ -1783,14 +2075,20 @@ exports.mkdir = function(req, res){
 
             if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
             {
-                res.status(400).json(
+                /*res.status(400).json(
                     {
                         "result" : "error",
                         "message" : "invalid file name specified"
                     }
                 );
 
-                callback(1);
+                callback(1);*/
+                const msg = "invalid file name specified";
+                const newError = {
+                    statusCode: 400,
+                    message: msg
+                };
+                callback(newError, newFolderTitle);
             }
             else
             {
@@ -1856,7 +2154,7 @@ exports.mkdir = function(req, res){
                                 {
                                     if(isNull(err))
                                     {
-                                        res.json(
+                                        /*res.json(
                                             {
                                                 "status" : "1",
                                                 "id" : newChildFolder.uri,
@@ -1865,44 +2163,124 @@ exports.mkdir = function(req, res){
                                             }
                                         );
 
-                                        callback(null);
+                                        callback(null);*/
+                                        callback(err, result);
                                     }
                                     else
                                     {
-                                        res.status(500).json(
+                                        /*res.status(500).json(
                                             {
                                                 "result" : "error",
                                                 "message" : "error 1 saving new folder :" + result
                                             }
                                         );
 
-                                        callback(1);
+                                        callback(1);*/
+                                        const msg = "error 1 saving new folder :" + result;
+                                        const newError = {
+                                            statusCode: 500,
+                                            message: msg
+                                        };
+                                        callback(newError, result);
                                     }
                                 });
                             }
                             else
                             {
-                                res.status(500).json(
+                                /*res.status(500).json(
                                     {
                                         "result" : "error",
                                         "message" : "error 2 saving new folder :" + result
                                     }
                                 );
 
-                                callback(1);
+                                callback(1);*/
+                                const msg = "error 2 saving new folder :" + result;
+                                const newError = {
+                                    statusCode: 500,
+                                    message: msg
+                                };
+                                callback(newError, result);
                             }
                         });
                 }
                 else
                 {
-                    res.status(500).json(
+                    /*res.status(500).json(
                         {
                             "result" : "error",
                             "message" : "error 3 saving new folder :" + parentFolder
                         }
                     );
 
-                    callback(1);
+                    callback(1);*/
+                    const msg = "error 3 saving new folder :" + parentFolder;
+                    const newError = {
+                        statusCode: 500,
+                        message: msg
+                    };
+                    callback(newError, parentFolder);
+                }
+            });
+        };
+
+        let getProjectFromFolder = function(folder, callback) {
+            //callback(err, folder, project);
+            folder.getOwnerProject(function (err, project) {
+                if(isNull(err))
+                {
+                    callback(err, folder, project);
+                }
+                else
+                {
+                    const msg = "Unable to retrieve owner project of resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + project;
+                    const newError = {
+                        statusCode: 500,
+                        message: msg
+                    };
+                    callback(newError, project);
+                }
+            });
+        };
+
+        let buildFileSystemPostFromMkdir = function (userUri, project, folder, callback) {
+            FileSystemPost.buildFromMkdirOperation(userUri, project, folder, function(err, post){
+                if(!err)
+                {
+                    post.save(function(err, post)
+                    {
+                        if (!err)
+                        {
+                            callback(err, folder, project);
+                        }
+                        else
+                        {
+                            /*res.status(500).json({
+                                result: "Error",
+                                message: "Unable to save Social Dendro post from file system change to resource uri: " + newChildFolder.uri + ". Error reported : " + err
+                            });*/
+
+                            const msg = "Unable to save Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + JSON.stringify(post);
+                            const newError = {
+                                statusCode: 500,
+                                message: msg
+                            };
+                            callback(newError, post);
+                        }
+                    }, false, null, null, null, null, db_social.graphUri);
+                }
+                else
+                {
+                    /*res.status(500).json({
+                        result: "Error",
+                        message: "Unable to create Social Dendro post from file system change to resource uri: " + newChildFolder.uri + ". Error reported : " + err
+                    });*/
+                    const msg = "Unable to create Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + JSON.stringify(post);
+                    const newError = {
+                        statusCode: 500,
+                        message: msg
+                    };
+                    callback(newError, post);
                 }
             });
         };
@@ -1934,6 +2312,33 @@ exports.mkdir = function(req, res){
                 function (parentFolderUri, callback)
                 {
                     processRequest(parentFolderUri, callback);
+                },
+                function (folder, callback) {
+                    getProjectFromFolder(folder, function (err, folder, project) {
+                        callback(err, folder, project);
+                    });
+                },
+                function (folder, project, callback) {
+                    buildFileSystemPostFromMkdir(req.user.uri, project, folder, function (err, result) {
+                        if(isNull(err))
+                        {
+                            res.json({
+                             "status" : "1",
+                             "id" : folder.uri,
+                             "result" : "ok",
+                             "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Config.types.private], [Config.types.api_readable])
+                            });
+
+                             callback(null);
+                        }
+                        else
+                        {
+                            res.status(err.statusCode).json({
+                             result: "Error",
+                             message: err.message
+                            });
+                        }
+                    });
                 }
             ]
         );

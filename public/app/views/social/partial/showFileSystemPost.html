@@ -5,8 +5,12 @@
         </div>
 
         <div class="media-left text-center social-dendro-filesystem-thumbnail">
-            <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">
-            <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>
+            <!--<p>{{postsContents[postUri].schema.sharedContent}}</p>-->
+            <!--<img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">-->
+            <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent}}?thumbnail">
+            <!--<a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>-->
+            <!--<a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent}}"> Link   </a>-->
+            <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent}}"> {{postsContents[postUri].resourceInfo.nie.title}}   </a>
         </div>
 
         <div class="media-body text-center filesystem-post-content">
