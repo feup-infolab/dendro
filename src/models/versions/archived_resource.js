@@ -98,7 +98,9 @@ ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionN
                         }
                         else
                         {
-                            return callback(1, "Unable to determine the URI of the archived resource version " + versionNumber + " of " + resourceUri);
+                            const msg = "Unable to determine the URI of the archived resource version " + versionNumber + " of " + resourceUri;
+                            console.error(msg);
+                            return callback(1, msg);
                         }
                     }
                     else
@@ -170,33 +172,45 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
 {
     const self = this;
 
-    const authorUri = self.ddr.versionCreator;
-
     const archivedResource = new ArchivedResource(JSON.parse(JSON.stringify(self)));
     archivedResource.changes = self.changes;
 
-    const getAuthorInformation = function (callback) {
+    const getAuthorInformation = function (cb) {
+        const authorUri = self.ddr.versionCreator;
         User.findByUri(authorUri, function (err, fullVersionCreator) {
             if (isNull(err)) {
                 Descriptor.removeUnauthorizedFromObject(fullVersionCreator, [Config.types.private], [Config.types.api_readable]);
                 archivedResource.ddr.versionCreator = fullVersionCreator;
-                return callback(null);
+                return cb(null);
             }
-            else {
-                return callback(1);
+            else
+            {
+                return cb(1);
             }
         });
     };
 
-    const setHumanReadableDate = function (callback) {
+    const setHumanReadableDate = function (cb) {
         const moment = require('moment');
         const humanReadableDate = moment(archivedResource.ddr.created);
 
         archivedResource.ddr.created = humanReadableDate.calendar();
-        return callback(null);
+        return cb(null);
     };
 
-    const getDescriptorInformation = function (callback) {
+    const getVersionedResourceDetail = function (cb) {
+        Resource.findByUri(self.ddr.isVersionOf, function (err, versionedResource) {
+            if (isNull(err)) {
+                archivedResource.ddr.isVersionOf = versionedResource;
+                return cb(null);
+            }
+            else {
+                return cb(1);
+            }
+        })
+    };
+
+    const getDescriptorInformation = function (cb) {
         const fetchFullDescriptor = function (change, cb) {
             Descriptor.findByUri(change.ddr.changedDescriptor, function (err, descriptor) {
                 if (isNull(err)) {
@@ -209,40 +223,32 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
             });
         };
 
-        if (!isNull(archivedResource.changes)) {
-            async.map(archivedResource.changes, fetchFullDescriptor, function (err, fullChanges) {
-                if (isNull(err)) {
-                    archivedResource.changes = fullChanges;
-                    Descriptor.removeUnauthorizedFromObject(archivedResource, [Config.types.private], [Config.types.api_readable]);
-                    return callback(0);
-                }
-                else {
-                    return callback(1, "Unable to fetch descriptor information. Reported Error: " + fullChanges);
-                }
-            });
+        if (!isNull(archivedResource.changes))
+        {
+            async.mapSeries(
+                archivedResource.changes,
+                fetchFullDescriptor,
+                function (err, fullChanges) {
+                    if (isNull(err)) {
+                        archivedResource.changes = fullChanges;
+                        Descriptor.removeUnauthorizedFromObject(archivedResource, [Config.types.private], [Config.types.api_readable]);
+                        return cb(null);
+                    }
+                    else {
+                        return cb(1, "Unable to fetch descriptor information. Reported Error: " + fullChanges);
+                    }
+                });
         }
         else {
-            return callback(0);
+            return cb(null);
         }
-    };
-
-    const getVersionedResourceDetail = function (callback) {
-        Resource.findByUri(self.ddr.isVersionOf, function (err, versionedResource) {
-            if (isNull(err)) {
-                archivedResource.ddr.isVersionOf = versionedResource;
-                return callback(null);
-            }
-            else {
-                return callback(1);
-            }
-        })
     };
 
     async.series([
         getAuthorInformation,
         setHumanReadableDate,
-        getDescriptorInformation,
-        getVersionedResourceDetail
+        getVersionedResourceDetail,
+        getDescriptorInformation
     ],
     function(err, result)
     {

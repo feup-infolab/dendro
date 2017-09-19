@@ -726,13 +726,19 @@ exports.show_version = function(req, res) {
                     message: error
                 });
             }
-        }
+        };
 
         if(isNull(req.query.version))
         {
+            console.log("TAS QUASE " + requestedResourceURI)
             ArchivedResource.findByUri(requestedResourceURI, function (err, version)
             {
-                if (err)
+                if (isNull(err))
+                {
+                    console.log("JA FOSTE " + requestedResourceURI)
+                    sendResponse(version);
+                }
+                else
                 {
                     const error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI + ". Error retrieved : " + version;
                     console.error(error);
@@ -740,10 +746,6 @@ exports.show_version = function(req, res) {
                         result: "Error",
                         message: error
                     });
-                }
-                else
-                {
-                    sendResponse(version);
                 }
             });
         }
@@ -756,6 +758,23 @@ exports.show_version = function(req, res) {
                 {
                     throw "Invalid Integer";
                 }
+
+                ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function (err, version)
+                {
+                    if (isNull(err))
+                    {
+                        sendResponse(version);
+                    }
+                    else
+                    {
+                        const error = "Unable to retrieve Archived resource with version number : " + requestedVersion + ". Error retrieved : " + version;
+                        console.error(error);
+                        res.status(404).json({
+                            result: "Error",
+                            message: error
+                        });
+                    }
+                });
             }
             catch(e)
             {
@@ -764,23 +783,6 @@ exports.show_version = function(req, res) {
                     message: "Revision must be an integer"
                 });
             }
-
-            ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function (err, version)
-            {
-                if (err)
-                {
-                    const error = "Unable to retrieve Archived resource with version number : " + requestedVersion + ". Error retrieved : " + version;
-                    console.error(error);
-                    res.status(404).json({
-                        result: "Error",
-                        message: error
-                    });
-                }
-                else
-                {
-                    sendResponse(version);
-                }
-            });
         }
     }
 };

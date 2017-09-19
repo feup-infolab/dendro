@@ -391,67 +391,9 @@ const loadRoutes = function(app, callback)
 
     app.get([
             getNonHumanReadableRouteRegex("archived_resource"),
-            /\/archived_resource\/([^\/]+)\/?$/
         ],
         extractUriFromRequest,
-        function(req,res, next)
-        {
-            const getResourceUri = function(requestedResource, callback)
-            {
-                getRequestedResourceUriFromHumanReadableUri(
-                    requestedResource,
-                    "Cannot fetch resource " + requestedResource,
-                    "index",
-                    req,
-                    res,
-                    next,
-                    callback);
-            };
-
-            const processRequest = function(resourceUri){
-                req.params.requestedResourceUri = resourceUri;
-                const defaultPermissionsInProjectBranch = [
-                    Permissions.settings.privacy.of_owner_project.public,
-                    Permissions.settings.role.in_owner_project.contributor,
-                    Permissions.settings.role.in_owner_project.creator,
-                ];
-
-                req.params.is_project_root = false;
-
-                const queryBasedRoutes = {
-                    get: [
-                        {
-                            queryKeys: [],
-                            handler: records.show_version,
-                            permissions: defaultPermissionsInProjectBranch,
-                            authentication_error: "Permission denied : cannot access archived version of this resource because you do not have permissions to access its project."
-                        }
-                    ]
-                };
-
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
-            };
-
-            async.waterfall([
-                function(callback)
-                {
-                    if(!isNull(req.params.requestedResourceUri))
-                    {
-                        const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
-                        ArchivedResource.findByUri(req.params.requestedResourceUri, function(err, archivedResource){
-                            req.params.requestedResourceUri = archivedResource.ddr.isVersionOf;
-                            callback(null, req.params.requestedResourceUri);
-                        });
-                    }
-                    else
-                    {
-                        const requestedArchivedVersionUrl = Config.baseUri + "/archived_version/" + req.params[0];
-                        getResourceUri(requestedArchivedVersionUrl, callback);
-                    }
-                },
-                processRequest
-            ]);
-        }
+        records.show_version
     );
 
     app.delete([

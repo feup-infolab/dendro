@@ -41,27 +41,24 @@ describe("Creation of archived versions", function () {
         });
     });
 
-    describe("[POST] [PRIVATE PROJECT] [Invalid Cases] /r/archived_resource/{uuid}", function()
-    {
-        it("Should give an error message when a project does not exist", function (done)
-        {
-            done();
-        });
-
-        it("Should give an error message when a project does not exist", function (done)
-        {
-            done();
-        });
-    });
+    // describe("[POST] [PRIVATE PROJECT] [Invalid Cases] /r/archived_resource/{uuid}", function()
+    // {
+    //     it("Should give an error message when a project does not exist", function (done)
+    //     {
+    //         done();
+    //     });
+    //
+    //     it("Should give an error message when a project does not exist", function (done)
+    //     {
+    //         done();
+    //     });
+    // });
 
     describe("[POST] [PRIVATE PROJECT] [Valid Cases] /r/archived_resource/{uuid}", function()
     {
         it("Should update a folder's metadata and create the adequate archived versions", function (done)
         {
-            before(function (done) {
-                this.timeout(60000);
-                done();
-            });
+            this.timeout(10000);
 
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -70,31 +67,29 @@ describe("Creation of archived versions", function () {
                     should.not.equal(res.body, null);
                     res.body.should.be.instanceof(Array);
 
-                    let buildUpdatedMetadata = function(newValue, is_delete)
+                    let buildUpdatedMetadata = function(newValue, change_type)
                     {
                         let updateRequest = {};
-                        updateRequest.newDescriptors = JSON.parse(JSON.stringify(testFolder1.metadata));
-                        for(let i = 0; i < updateRequest.newDescriptors.length; i++)
+                        updateRequest.changes = JSON.parse(JSON.stringify(testFolder1.metadata));
+                        for(let i = 0; i < updateRequest.changes.length; i++)
                         {
-                            updateRequest.newDescriptors[i].value = newValue;
+                            updateRequest.changes[i].value = newValue;
                         }
 
-                        updateRequest.is_delete = is_delete;
+                        updateRequest.change_type = change_type;
 
                         return updateRequest;
                     };
 
-                    let firstVersion = buildUpdatedMetadata("Querido mudei a casa", false);
-                    let secondVersion = buildUpdatedMetadata("Candeeiro IKEA", false);
-                    let thirdVersion = buildUpdatedMetadata(null, true);
+                    let firstVersion = buildUpdatedMetadata("ALKAL", "add");
+                    let secondVersion = buildUpdatedMetadata("LUX", "update");
+                    let thirdVersion = buildUpdatedMetadata("Mais um teste", "update");
+                    let fourthVersion = buildUpdatedMetadata("BESTA", "update");
+                    let fifthVersion = buildUpdatedMetadata("BILLY", "update");
+                    let sixthVersion = buildUpdatedMetadata("KALLAX", "update");
+                    let seventhVersion = buildUpdatedMetadata(null, "delete");
 
-                    const changesTypes = ["update", "update", "delete"];
-                    const allVersions = [firstVersion, secondVersion, thirdVersion];
-
-
-                    //const changesTypes = ["update"];
-                    //const allVersions = [firstVersion];
-
+                    const allVersions = [firstVersion, secondVersion, thirdVersion, fourthVersion, fifthVersion, sixthVersion, seventhVersion];
 
                     async.mapSeries(res.body, function(folder, callback)
                     {
@@ -102,8 +97,8 @@ describe("Creation of archived versions", function () {
 
                         const updateMetadata = function (updateRequest, folderUri, callback)
                         {
-                            let metadata = updateRequest.newDescriptors;
-                            if(updateRequest.is_delete)
+                            let metadata = updateRequest.changes;
+                            if(updateRequest.change_type === "delete")
                                 metadata = [];
 
                             itemUtils.updateItemMetadataByUri(true, agent, folderUri, metadata, function (err, res)
@@ -125,22 +120,26 @@ describe("Creation of archived versions", function () {
                             itemUtils.getChangeLog(true, agent, folder.uri, function (err, res)
                             {
                                 res.statusCode.should.equal(200);
-                                res.body.should.be.instanceof(Array);
+                                let versions = res.body;
+                                versions.should.be.instanceof(Array);
 
-                                const wrapped = res.body.map(function (value, index)
+                                versions = versions.sort(function(a, b){
+                                    return a.ddr.versionNumber - b.ddr.versionNumber
+                                });
+
+                                const wrapped = versions.map(function (value, index)
                                 {
                                     return {index: index, value: res.body[index]};
                                 });
 
                                 async.mapSeries(wrapped, function (version)
                                 {
-                                    let changesType = changesTypes[version.index];
                                     let expectedVersion = allVersions[version.index];
 
                                     should.not.equal(null, version.value.uri);
                                     itemUtils.getItemVersionByUri(true, agent, version.value.uri, function (err, res)
                                     {
-                                        should.equal(true, versionUtils.validateVersion(res.body, expectedVersion, changesType));
+                                        done(versionUtils.getVersionErrors(res.body, expectedVersion));
                                     });
 
                                 }, function (err, results)
