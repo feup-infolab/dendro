@@ -12,7 +12,7 @@
             <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].changesInfo.isVersionOf.uri}}"> {{postsContents[postUri].changesInfo.isVersionOf.nie.title}}   </a>
         </div>
 
-        <div class="media-body">
+        <div ng-if="postsContents[postUri].changesInfo.isVersionOf" class="media-body">
             <div class="text-center postNumChanges">
                 <div class="progress" style="height: 10px;">
                     <div data-toggle="tooltip" data-placement="top" title="{{postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded}}" class="progress-bar progress-bar-success" style="width: {{100 * (postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded / postsContents[postUri].changesInfo.numberOfChanges)}}%">
@@ -56,7 +56,22 @@
             <div class="text-right" id="seeDetails">
                 <a ng-href="{{postsContents[postUri].schema.sharedContent}}"> <span class="label label-info">See full information </span>  </a>
             </div>
-
         </div>
+
+
+        <div ng-if="!postsContents[postUri].changesInfo.isVersionOf" class="media-body">
+            <div class="postContent">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-danger" style="width: 100%">
+                        <p>The folder/file referenced in this post no longer exists. It was deleted</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-right" id="seeDetails">
+                <a ng-href="{{postsContents[postUri].schema.sharedContent}}"> <span class="label label-info">See full information </span>  </a>
+            </div>
+        </div>
+
     </div>
 </div>

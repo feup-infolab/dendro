@@ -182,9 +182,6 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb) {
                                     isVersionOf: resource
                                 };
 
-                                //TODO iterar cada um dos tipos de changes
-                                //change -> ddr.changedDescriptor -> uri do descriptor -> chamar a fncão acima e mter na change outra vez
-
                                 cb(err, changesInfo);
                             }
                             else
