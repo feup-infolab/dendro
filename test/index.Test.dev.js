@@ -15,4 +15,27 @@ global.Config = Config;
 
 global.tests = {};
 
-require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
+/*
+require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));*/
+
+/*'/socialDendro/my'
+'/posts/all'
+'/posts/post'
+'/posts/posts'
+'/posts/new'
+'/posts/like'
+'/posts/like/liked'
+'/posts/post/likesInfo'
+'/posts/comment'
+'/posts/comments'
+'/posts/share'
+'/posts/shares'
+'/posts/countNum'
+'/posts/:uri'
+'/shares/:uri'
+'/notifications/all'
+'/notifications/notification'
+'/notifications/notification'*/
+
+
+
