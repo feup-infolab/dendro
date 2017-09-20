@@ -31,7 +31,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archiv
 '/posts/shares' -> done route and file and stubs
 '/posts/countNum' -> done route and file and stubs
 '/posts/:uri' -> done route and file and stubs
-'/shares/:uri' -> done route and file
+'/shares/:uri' -> done route and file and stubs
 '/notifications/all' -> done route and file
 '/notifications/notification' -> done route and file
 '/notifications/notification' -> done route and file
