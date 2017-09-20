@@ -15,7 +15,7 @@ global.Config = Config;
 
 global.tests = {};
 
-require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));*/
 
 /*'/socialDendro/my' -> done route and file and stubs
 '/posts/all' -> done route and file and stubs
@@ -33,8 +33,8 @@ require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archiv
 '/posts/:uri' -> done route and file and stubs
 '/shares/:uri' -> done route and file and stubs
 '/notifications/all' -> done route and file and stubs
-'/notifications/notification' -> done route and file
-'/notifications/notification' -> done route and file
+'/notifications/notification' -> done route and file and stubs
+'/notifications/notification' -> done route and file and stubs
 */
 
 
