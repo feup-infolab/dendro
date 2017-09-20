@@ -20,8 +20,8 @@ require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archiv
 /*'/socialDendro/my' -> done route and file and stubs
 '/posts/all' -> done route and file and stubs
 '/posts/post' -> done route and file and stubs
-'/posts/posts' -> done route and file
-'/posts/new' -> done route and file
+'/posts/posts' -> done route and file and stubs
+'/posts/new' -> done route and file and stubs
 '/posts/like' -> done route and file
 '/posts/like/liked' -> done route and file
 '/posts/post/likesInfo' -> done route and file
