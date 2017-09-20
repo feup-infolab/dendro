@@ -59,6 +59,18 @@ describe("Get a specific post information tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error", function (done) {
             done();
         });
+
+        it("[For demouser1, as the creator of all projects] Should give a not found error if the post does not exist", function (done) {
+            done();
+        });
+
+        it("[For demouser2, a collaborator in all projects] Should give a not found error if the post does not exist", function (done) {
+            done();
+        });
+
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give a not found error if the post does not exist", function (done) {
+            done();
+        });
     });
 
     after(function (done) {

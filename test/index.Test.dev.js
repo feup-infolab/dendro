@@ -18,8 +18,8 @@ global.tests = {};
 require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
 
 /*'/socialDendro/my' -> done route and file and stubs
-'/posts/all' -> done route and file
-'/posts/post' -> done route and file
+'/posts/all' -> done route and file and stubs
+'/posts/post' -> done route and file and stubs
 '/posts/posts' -> done route and file
 '/posts/new' -> done route and file
 '/posts/like' -> done route and file
