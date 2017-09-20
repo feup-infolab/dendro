@@ -21,18 +21,18 @@ require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archiv
 '/posts/all' -> done route and file
 '/posts/post' -> done route and file
 '/posts/posts' -> done route and file
-'/posts/new' ->
-'/posts/like'
-'/posts/like/liked'
-'/posts/post/likesInfo'
-'/posts/comment'
-'/posts/comments'
-'/posts/share'
-'/posts/shares'
-'/posts/countNum'
-'/posts/:uri'
-'/shares/:uri'
-'/notifications/all'
+'/posts/new' -> done route and file
+'/posts/like' -> done route and file
+'/posts/like/liked' -> done route and file
+'/posts/post/likesInfo' -> done route and file
+'/posts/comment' -> done route and file
+'/posts/comments' -> done route and file
+'/posts/share' -> done route and file
+'/posts/shares' -> done route and file
+'/posts/countNum' -> done route and file
+'/posts/:uri' -> done route and file
+'/shares/:uri' -> done route and file
+'/notifications/all' -> done route and file
 '/notifications/notification'
 '/notifications/notification'*/
 
