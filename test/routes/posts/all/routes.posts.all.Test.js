@@ -32,7 +32,7 @@ const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/fol
 const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Get all posts with pagination tests", function () {
+describe("Get all posts URIs with pagination tests", function () {
     before(function (done) {
         this.timeout(60000);
         //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
@@ -42,23 +42,23 @@ describe("Get all posts with pagination tests", function () {
         });
     });
 
-    describe("[GET] Gets all posts(with pagination) for each user [Valid cases] /posts/all", function () {
+    describe("[GET] Gets all posts URIs(with pagination) for each user [Valid cases] /posts/all", function () {
 
         it("[For an unauthenticated user] Should give an unauthorized error", function (done) {
             done();
-        })
+        });
 
         it("[For demouser1, as the creator of all projects] Should give 'a' number of metadataChangePosts, 'b' number of fileSystemPosts, 'c' number of manualPosts and 'd' number of shares", function (done) {
             done();
-        })
+        });
 
         it("[For demouser2, a collaborator in all projects] Should give 'a' number of metadataChangePosts, 'b' number of fileSystemPosts, 'c' number of manualPosts and 'd' number of shares", function (done) {
             done();
-        })
+        });
 
         it("[For demouser3, is not a creator or collaborator in any projects] posts list should be empty", function (done) {
             done();
-        })
+        });
     });
 
     after(function (done) {
