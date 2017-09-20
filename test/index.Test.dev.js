@@ -27,8 +27,8 @@ require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archiv
 '/posts/post/likesInfo' -> done route and file and stubs
 '/posts/comment' -> done route and file and stubs
 '/posts/comments' -> done route and file and stubs
-'/posts/share' -> done route and file
-'/posts/shares' -> done route and file
+'/posts/share' -> done route and file and stubs
+'/posts/shares' -> done route and file and stubs
 '/posts/countNum' -> done route and file
 '/posts/:uri' -> done route and file
 '/shares/:uri' -> done route and file
