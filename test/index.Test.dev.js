@@ -15,7 +15,9 @@ global.Config = Config;
 
 global.tests = {};
 
-/*require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
+
+/*require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));*/
 
 /*'/socialDendro/my' -> done route and file and stubs
 '/posts/all' -> done route and file and stubs
