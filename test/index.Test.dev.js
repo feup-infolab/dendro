@@ -17,7 +17,7 @@ global.tests = {};
 
 require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
 
-/*'/socialDendro/my' -> done route and file
+/*'/socialDendro/my' -> done route and file and stubs
 '/posts/all' -> done route and file
 '/posts/post' -> done route and file
 '/posts/posts' -> done route and file
@@ -33,8 +33,9 @@ require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archiv
 '/posts/:uri' -> done route and file
 '/shares/:uri' -> done route and file
 '/notifications/all' -> done route and file
-'/notifications/notification'
-'/notifications/notification'*/
+'/notifications/notification' -> done route and file
+'/notifications/notification' -> done route and file
+*/
 
 
 
