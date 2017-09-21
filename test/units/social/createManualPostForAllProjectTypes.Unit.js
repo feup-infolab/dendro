@@ -6,6 +6,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const chai = require("chai");
 chai.use(require('chai-http'));
 const async = require("async");
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -30,14 +31,14 @@ module.exports.setup = function(finish)
     let manualPostMockData = requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMock.js"));
 
     uploadFilesAndAddMetadataUnit.setup(function (err, results) {
-        if(err)
+        if(!isNull(err))
         {
             finish(err, results);
         }
         else
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                if(err)
+                if(!isNull(err))
                 {
                     finish(err, agent);
                 }

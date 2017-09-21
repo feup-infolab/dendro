@@ -30,3 +30,51 @@ module.exports.createManualPostInProject = function (jsonOnly, agent, projectDat
     }
 };
 
+module.exports.getPostsURIsForUser = function (jsonOnly, agent, pageNumber, cb) {
+    const path = "/posts/all";
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .query({currentPage: pageNumber})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .query({currentPage: pageNumber})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.shareAPost = function (jsonOnly, agent, postUriToshare, shareMsg, cb) {
+    const path = "/posts/share";
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .send({shareMsg: shareMsg, postID: postUriToshare})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .send({shareMsg: shareMsg, postID: postUriToshare})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+

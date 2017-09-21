@@ -6,41 +6,27 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const chai = require("chai");
 chai.use(require('chai-http'));
 const async = require("async");
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
+const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-
-const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-
-const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
-const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
-const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
-
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
-const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
+const shareMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/shareMock"));
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
     return require(module)
 }
 
+let postURI;
+
 module.exports.setup = function(finish)
 {
-    //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-    //need the add metadata to folder unit
-    //need the upload files unit
-    //need the add metadata to files unit
-    //need the share post unit
-    //need the create ManualPost unit -> start by building this one
     let createManualPostForAllProjectTypesUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/social/createManualPostForAllProjectTypes.Unit.js"));
     createManualPostForAllProjectTypesUnit.setup(function (err, results) {
         if(err)
@@ -49,24 +35,28 @@ module.exports.setup = function(finish)
         }
         else
         {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 if(err)
                 {
                     finish(err, agent);
                 }
                 else
                 {
-                    async.mapSeries(projectsData, function (projectData, cb) {
-                        async.mapSeries(foldersData, function (folderData, cb) {
-                            itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, folderData.metadata, function (err, res) {
-                                cb(err, res);
-                            });
-                        }, function (err, results) {
-                            cb(err, results);
-                        });
-                    }, function (err, results) {
-                        finish(err, results);
-                    });
+                    //TODO do the get posts request obtain a uri of a post then share it
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                        if(isNull(err))
+                        {
+                            postURI = module.exports.postURI = res.body[1].uri;//para ter acesso nas outras units a seguir
+                            socialDendroUtils.shareAPost(true, agent, res.body[1].uri, shareMock.shareMsg, function (err, res) {
+                                //finish(err, res);
+                                finish(err, postURI);
+                            })
+                        }
+                        else
+                        {
+                            finish(err, res);
+                        }
+                    })
                 }
             });
         }
