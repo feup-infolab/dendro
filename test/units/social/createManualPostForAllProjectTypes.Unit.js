@@ -11,22 +11,10 @@ const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/proj
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
+const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-
-const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-
-const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
-const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
-const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
-
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
-const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
@@ -35,17 +23,11 @@ function requireUncached(module) {
 
 module.exports.setup = function(finish)
 {
-    //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-    //need the add metadata to folder unit
-    //need the upload files unit
-    //need the add metadata to files unit
-    //need the share post unit
-    //need the create ManualPost unit -> start by building this one
     let createProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
     const projectsData = createProjectsUnit.projectsData;
 
     let uploadFilesAndAddMetadataUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/social/uploadFilesAndAddMetadata.Unit.js"));
-    const foldersData = createFoldersUnit.foldersData;
+    let manualPostMockData = requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMock.js"));
 
     uploadFilesAndAddMetadataUnit.setup(function (err, results) {
         if(err)
@@ -62,12 +44,8 @@ module.exports.setup = function(finish)
                 else
                 {
                     async.mapSeries(projectsData, function (projectData, cb) {
-                        async.mapSeries(foldersData, function (folderData, cb) {
-                            itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, folderData.metadata, function (err, res) {
-                                cb(err, res);
-                            });
-                        }, function (err, results) {
-                            cb(err, results);
+                        socialDendroUtils.createManualPostInProject(true, agent, projectData, manualPostMockData, function (err, res) {
+                            cb(err, res);
                         });
                     }, function (err, results) {
                         finish(err, results);
