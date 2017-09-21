@@ -31,7 +31,8 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function(registries){
             this.registries = registries;
-            console.log(registries);
+            for (registry in registries)
+                console.log(registry);
         };
 
         $scope.getPublicRegistry = function(){

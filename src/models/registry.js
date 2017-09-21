@@ -63,12 +63,16 @@ Registry.getDeposits = function(req, res){
     //const loggedIn = req.body.user;
 
     const query =
-        "SELECT ?uri  \n" +
+        "SELECT ?uri ?label ?user ?date ?description \n" +
         "FROM [0] \n"  +
         "WHERE { \n" +
         "?uri rdf:type ddr:Registry . \n" +
         "?uri ddr:exportedFromProject ?projused . \n" +
         "?projused ddr:privacyStatus [1] . \n" +
+        "?uri dcterms:creator ?user . \n" +
+        "?uri dcterms:title ?label . \n" +
+        "?uri dcterms:date ?date . \n" +
+        "?uri dcterms:description ?description . \n" +
         "}";
 
     db.connection.execute(query,

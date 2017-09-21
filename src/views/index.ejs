@@ -55,14 +55,14 @@
                         <div class="table-container">
                             <table class="table table-responsive table-striped table-bordered">
                                 <tbody>
-                                <%for(registries in locals.registries){%>
+                                <%for(registry in locals.registries){%>
                                 <tr>
                                     <td>
                                         <div class="media">
                                             <div class="media-body">
                                                 <span class="media-meta pull-right">Febrero 13, 2016</span>
                                                 <h4 class="title">
-                                                    <a href="">Username1</a> deposited the folder <a
+                                                    <a href="">"<%=registry.user%>"</a> deposited the folder <a
                                                             href="" class="foldersLabel">boom</a> from private project <a href="">project1</a> in CKAN
                                                 </h4>
                                                 <p class="summary">Midway deposit for checkpoint</p>
