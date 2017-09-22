@@ -2322,25 +2322,36 @@ exports.mkdir = function(req, res){
                     buildFileSystemPostFromMkdir(req.user.uri, project, folder, function (err, result) {
                         if(isNull(err))
                         {
-                            res.json({
-                             "status" : "1",
-                             "id" : folder.uri,
-                             "result" : "ok",
-                             "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Config.types.private], [Config.types.api_readable])
-                            });
-
-                             callback(null);
+                             callback(null, folder);
                         }
                         else
                         {
-                            res.status(err.statusCode).json({
+                            callback({
                              result: "Error",
                              message: err.message
                             });
                         }
                     });
                 }
-            ]
+            ], function(err, folder)
+            {
+                if(isNull(err))
+                {
+                    res.json({
+                        "status" : "1",
+                        "id" : folder.uri,
+                        "result" : "ok",
+                        "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Config.types.private], [Config.types.api_readable])
+                    });
+                }
+                else
+                {
+                    res.status(err.statusCode).json({
+                        result: "Error",
+                        message: err.message
+                    });
+                }
+            }
         );
     }
     else

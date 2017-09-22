@@ -83,7 +83,7 @@ describe("Creation of archived versions", function () {
 
                     let firstVersion = buildUpdatedMetadata("ALKAL", "add");
                     let secondVersion = buildUpdatedMetadata("LUX", "update");
-                    let thirdVersion = buildUpdatedMetadata("Mais um teste", "update");
+                    let thirdVersion = buildUpdatedMetadata("MALM", "update");
                     let fourthVersion = buildUpdatedMetadata("BESTA", "update");
                     let fifthVersion = buildUpdatedMetadata("BILLY", "update");
                     let sixthVersion = buildUpdatedMetadata("KALLAX", "update");
