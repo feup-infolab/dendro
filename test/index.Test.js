@@ -15,6 +15,8 @@ global.Config = Config;
 
 global.tests = {};
 
+//require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
+
 require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
 //administer projects

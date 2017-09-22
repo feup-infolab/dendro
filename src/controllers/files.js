@@ -1879,7 +1879,15 @@ exports.mkdir = function(req, res){
                         {
                             if (err)
                             {
-                                callback(err, projectUri);
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : "Unable to get root folder of project :" + req.params.requestedResourceUri,
+                                        "error": projectUri
+                                    }
+                                );
+
+                                callback(1);
                             }
                             else
                             {
