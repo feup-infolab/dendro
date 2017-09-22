@@ -26,8 +26,8 @@ exports.recommend = function(req, res) {
 };
 
 exports.get_recommendation_ontologies = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -132,8 +132,8 @@ exports.ontologies_autocomplete = function(req, res) {
 };
 
 exports.public = function(req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -150,8 +150,8 @@ exports.all = function(req, res) {
     //TODO JROCHA 24-11-2014
     // Remove attributes that should not be seen by external systems
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {

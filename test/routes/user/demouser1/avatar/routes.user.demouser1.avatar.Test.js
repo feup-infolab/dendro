@@ -14,7 +14,7 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 var createAvatarsForUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createAvatarsForUsers.Unit.js"));
 const md5 = require("md5");
 
-describe("[GET] /user/demouser1/avatar", function (done) {
+describe("[GET] /user/demouser1?avatar", function (done) {
 
     before(function (done) {
         this.timeout(Config.testsTimeout);
@@ -28,14 +28,16 @@ describe("[GET] /user/demouser1/avatar", function (done) {
     const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
     const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-    it("[HTML] should give an unauthorized error if the current user is not authenticated", function (done) {
+    it("[HTML] should provide the avatar even if the current user is not authenticated", function (done) {
         var app = global.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.getAvatar(false, demouser1.username, agent, function (err, res) {
-            res.should.have.status(401);
-            //because the body in the utils(for test purposes in turned into a array)
-            res.body.toString().should.contain("Please log into the system.");
+            res.should.have.status(200);
+            let imageFromServerDemouser1 = res.body.toString('base64');
+            let imageFromServerDemouser1MD5 = md5(imageFromServerDemouser1);
+            let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
+            imageFromServerDemouser1MD5.should.equal(defaultAvatarForDemouser1MD5);
             done();
         });
     });

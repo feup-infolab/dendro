@@ -28,7 +28,7 @@ function Resource (object)
     }
 
     if(!isNull(object.ddr) && !isNull(object.ddr.humanReadableUri)) {
-        self.ddr.humanReadableUri = object.ddr.humanReadable;
+        self.ddr.humanReadableUri = object.ddr.humanReadableUri;
     }
 
     return self;
@@ -77,6 +77,68 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
         const now = new Date();
         self.ddr.created = now.toISOString();
     }
+};
+
+Resource.exists = function(uri, callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    let typesRestrictions = "";
+    let types;
+
+    if(self.prefixedRDFType instanceof Array)
+    {
+        types = self.prefixedRDFType;
+    }
+    else
+    {
+        types = [self.prefixedRDFType];
+    }
+
+    for (let i = 0; i < types.length; i++)
+    {
+        typesRestrictions = typesRestrictions + "[1] rdf:type " + types[i];
+
+        if(i < types.length - 1)
+        {
+            typesRestrictions =  typesRestrictions + ".\n";
+        }
+    }
+
+    db.connection.execute(
+        "WITH [0]\n"+
+        "ASK \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   {\n" +
+        "       [1] ?p ?o. \n" +
+        typesRestrictions +
+        "   }\n" +
+        "} \n",
+
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : uri
+            }
+        ],
+        function(err, result) {
+            if(isNull(err))
+            {
+                return callback(null, result);
+            }
+            else
+            {
+                const msg = "Error checking for the existence of resource with uri : " + uri;
+                console.error(msg);
+                return callback(err, msg);
+            }
+        });
 };
 
 Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
@@ -1759,7 +1821,16 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     }
 };
 
-Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+Resource.findByPropertyValue = function(
+    descriptor,
+    callback,
+    allowedGraphsArray,
+    customGraphUri,
+    skipCache,
+    descriptorTypesToRemove,
+    descriptorTypesToExemptFromRemoval,
+    ignoreArchivedResources
+)
 {
     const self = this;
 
@@ -1787,12 +1858,25 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
             ]
         };
 
-        let valueRestriction = {};
+        const getValueRestriction = function(descriptor)
+        {
+            let valueRestriction = {};
+            valueRestriction[descriptor.prefix] = {};
+            valueRestriction[descriptor.prefix][descriptor.shortName] = descriptor.value;
+            return valueRestriction;
+        };
 
-        valueRestriction[descriptor.prefix] = {};
-        valueRestriction[descriptor.prefix][descriptor.shortName] = descriptor.value;
-
-        queryObject["$and"].push(valueRestriction);
+        if(!isNull(descriptor) && descriptor instanceof Array)
+        {
+            for(let i = 0; i < descriptor.length; i++)
+            {
+                queryObject["$and"].push(getValueRestriction(descriptor[i]));
+            }
+        }
+        else
+        {
+            queryObject["$and"].push(getValueRestriction(descriptor));
+        }
 
         Cache.getByGraphUri(customGraphUri).getByQuery(
             queryObject,
@@ -1851,7 +1935,12 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
             const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
             let typesRestrictions = "";
+
+            let descriptorValueRestrictions = "";
+            let descriptorValueArguments = [];
+
             let types;
+            let argumentsOffset = 1;
 
             if(self.prefixedRDFType instanceof Array)
             {
@@ -1864,12 +1953,55 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
 
             for (let i = 0; i < types.length; i++)
             {
-                typesRestrictions = typesRestrictions + "?uri rdf:type " + types[i];
+                typesRestrictions = typesRestrictions + "       ?uri rdf:type " + types[i];
 
                 if(i < types.length - 1)
                 {
                     typesRestrictions =  typesRestrictions + ".\n";
                 }
+            }
+
+            if(!isNull(ignoreArchivedResources) && ignoreArchivedResources === true )
+            {
+                typesRestrictions = typesRestrictions + "       FILTER NOT EXISTS { ?uri rdf:type ddr:ArchivedResource }";
+            }
+
+            if(!isNull(descriptor) && descriptor instanceof Array)
+            {
+                for(let i = 0; i < descriptor.length; i++)
+                {
+                    descriptorValueRestrictions += "       ?uri  ";
+
+                    descriptorValueArguments.push({
+                        type : DbConnection.prefixedResource,
+                        value : descriptor[i].getPrefixedForm()
+                    });
+
+                    descriptorValueRestrictions += " ["+( argumentsOffset ) +"]";
+                    argumentsOffset++;
+
+                    descriptorValueArguments.push({
+                        type : descriptor[i].type,
+                        value : descriptor[i].value
+                    });
+
+                    descriptorValueRestrictions += " ["+ argumentsOffset +"] . \n";
+                    argumentsOffset++;
+                }
+            }
+            else
+            {
+                descriptorValueRestrictions = "       ?uri [1] [2]. \n";
+
+                descriptorValueArguments.push({
+                    type : DbConnection.prefixedResource,
+                    value : descriptor.getPrefixedForm()
+                });
+
+                descriptorValueArguments.push({
+                    type : descriptor.type,
+                    value : descriptor.value
+                });
             }
 
             db.connection.execute(
@@ -1878,8 +2010,8 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                 "WHERE \n" +
                 "{ \n" +
                 "   {\n" +
-                "       ?uri [1] [2]. \n" +
-                typesRestrictions +
+                        descriptorValueRestrictions +
+                        typesRestrictions +
                 "   }\n" +
                 "} \n",
 
@@ -1888,15 +2020,7 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                         type : DbConnection.resourceNoEscape,
                         value : graphUri
                     },
-                    {
-                        type : DbConnection.prefixedResource,
-                        value : descriptor.getPrefixedForm()
-                    },
-                    {
-                        type : descriptor.type,
-                        value : descriptor.value
-                    }
-                ],
+                ].concat(descriptorValueArguments),
                 function(err, result) {
                     if(isNull(err))
                     {
@@ -1905,7 +2029,22 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                             if(result.length === 1)
                                 return callback(null, result[0]);
                             else if(result.length > 1)
-                                return callback(1, "There are more than one " + JSON.stringify(self.prefixedRDFType) + " with property " + descriptor.getPrefixedForm() + " with value " + descriptor.value + ". ");
+                            {
+                                if(descriptor instanceof Array)
+                                {
+                                    let descriptorValues = "";
+                                    for(let i = 0; i < descriptor.length;i++)
+                                    {
+                                        descriptorValues += descriptor[i].getPrefixedForm() + " : " + descriptor[i].value  + " || ";
+                                    }
+
+                                    return callback(1, "There are more than one " + JSON.stringify(self.prefixedRDFType) + " with properties " + descriptorValues);
+                                }
+                                else
+                                {
+                                    return callback(1, "There are more than one " + JSON.stringify(self.prefixedRDFType) + " with property " + descriptor.getPrefixedForm() + " with value " + descriptor.value + ". ");
+                                }
+                            }
                             else if(result.length === 0)
                                 return callback(null, null);
                         }
@@ -1956,8 +2095,24 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                     return callback(null, null);
                 }
             }
-            else {
-                const msg = "Error " + result + " while trying to check existence of resource with value " + descriptor.value + " of property " + descriptor.getPrefixedForm() + " from triple store.";
+            else
+            {
+                let msg;
+                if(!(descriptor instanceof Array))
+                {
+                    msg = "Error " + result + " while trying to check existence of resource with value " + descriptor.value + " of property " + descriptor.getPrefixedForm() + " from triple store.";
+                }
+                else
+                {
+                    let descriptorValues = "";
+                    for(let i = 0; i < descriptor.length;i++)
+                    {
+                        descriptorValues += descriptor[i].getPrefixedForm() + " : " + descriptor[i].value  + " || "
+                    }
+
+                    msg = "Error " + result + " while trying to check existence of resources with values " + descriptorValues + " from triple store.";
+                }
+
                 console.error(msg);
                 return callback(1, msg);
             }
@@ -3229,69 +3384,6 @@ Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
          }); */
     });
 };
-
-Resource.exists = function(uri, callback, customGraphUri)
-{
-    const self = this;
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
-
-    let typesRestrictions = "";
-    let types;
-
-    if(self.prefixedRDFType instanceof Array)
-    {
-        types = self.prefixedRDFType;
-    }
-    else
-    {
-        types = [self.prefixedRDFType];
-    }
-
-    for (let i = 0; i < types.length; i++)
-    {
-        typesRestrictions = typesRestrictions + "[1] rdf:type " + types[i];
-
-        if(i < types.length - 1)
-        {
-            typesRestrictions =  typesRestrictions + ".\n";
-        }
-    }
-
-    db.connection.execute(
-        "WITH [0]\n"+
-        "ASK \n" +
-        "WHERE \n" +
-        "{ \n" +
-        "   {\n" +
-        "       [1] ?p ?o. \n" +
-                typesRestrictions +
-        "   }\n" +
-        "} \n",
-
-        [
-            {
-                type : DbConnection.resourceNoEscape,
-                value : graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value : uri
-            }
-        ],
-        function(err, result) {
-            if(isNull(err))
-            {
-                return callback(null, result);
-            }
-            else
-            {
-                const msg = "Error checking for the existence of resource with uri : " + uri;
-                console.error(msg);
-                return callback(err, msg);
-            }
-        });
-};
-
 
 Resource.getCount = function(callback) {
     const self = this;

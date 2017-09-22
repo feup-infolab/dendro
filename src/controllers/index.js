@@ -10,26 +10,38 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 exports.index = function(req, res){
     let registries;
     const loggedIn = req.user instanceof User;
+
+    const sendResponse = function(deposits)
+    {
+        let acceptsHTML = req.accepts("html");
+        let acceptsJSON = req.accepts("json");
+
+        if(acceptsJSON && !acceptsHTML){
+            res.json(deposits);
+        }
+        else
+        {
+            res.render('index', {
+                    deposits : deposits
+                }
+            )
+        }
+    };
+
     if(loggedIn){
         Registry.getAllowedDeposits(req, function(deposits){
-            registries = JSON.stringify(deposits);
-            //TODO query to get latest deposits
-
+            sendResponse(deposits);
         });
     } else {
         Registry.getDeposits(req, function(deposits){
-            registries = JSON.stringify(deposits);
+            sendResponse(deposits);
         });
     }
-    res.render('index', {
-            deposits : registries
-        }
-    )
 };
 
 exports.analytics_tracking_code = function(req, res){
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(typeof Config.analytics_tracking_code !== "undefined")
     {

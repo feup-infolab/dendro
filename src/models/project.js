@@ -8,6 +8,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
@@ -40,20 +41,6 @@ function Project(object)
     return self;
 }
 
-Project.prototype.delete = function(callback)
-{
-    const self = this;
-    self.ddr.deleted = true;
-    this.save(callback);
-};
-
-Project.prototype.undelete = function(callback)
-{
-    const self = this;
-    delete self.ddr.deleted;
-    this.save(callback);
-};
-
 Project.prototype.backup = function(callback)
 {
     const self = this;
@@ -73,15 +60,14 @@ Project.prototype.backup = function(callback)
                 Folder.findByUri(self.ddr.rootFolder, function(err, folder){
                     if(isNull(err) && folder instanceof Folder)
                     {
-                        //TODO Add this information
                         const bagItOptions = {
                             cryptoMethod: 'sha256',
-                            sourceOrganization: self.dcterms.publisher,
-                            organizationAddress: '123 Street',
-                            contactName: 'Contact Name',
-                            contactPhone: '555-555-5555',
-                            contactEmail: 'test@example.org',
-                            externalDescription: 'An example description'
+                            sourceOrganization: (self.dcterms.publisher)? self.dcterms.publisher : "No publisher specified",
+                            organizationAddress: (self.schema.address)? self.schema.address : "No contact physical address specified",
+                            contactName: (self.schema.provider)? self.schema.provider : "No contact name specified",
+                            contactPhone: (self.schema.telephone)? self.schema.telephone : "No contact phone specified",
+                            contactEmail: (self.schema.email)? self.schema.email : "No contact email specified",
+                            externalDescription: (self.dcterms.description)? self.dcterms.description : "No project description specified",
                         };
 
                         folder.bagit(
@@ -857,14 +843,24 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
         });
 };
 
-Project.prototype.getStorageSize = function(callback)
+Project.prototype.getStorageSize = function(callback, customBucket)
 {
     const self = this;
+
+    let collectionName;
+    if(!isNull(customBucket))
+    {
+        collectionName = customBucket;
+    }
+    else
+    {
+        collectionName = "fs.files";
+    }
 
     /**
      * YOU NEED MONGODB 10GEN to run this, or it will give errors.
      */
-    gfs.connection.db.collection("fs.files", function(err, collection) {
+    gfs.connection.db.collection(collectionName, function(err, collection) {
         if(isNull(err))
         {
             collection.aggregate([
@@ -1452,7 +1448,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                             fs.readdir(dataFolder, function (err, folderContents) {
                                 if(isNull(err))
                                 {
-                                    if(folderContents instanceof Array && folderContents.length === 1)
+                                    if(!isNull(folderContents) && folderContents instanceof Array && folderContents.length === 1)
                                     {
                                         const childOfDataFolderAbsPath = path.join(dataFolder, folderContents[0]);
 
@@ -1466,7 +1462,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                                                     {
                                                         if (isNull(err))
                                                         {
-                                                            if(folderContents.indexOf(Config.packageMetadataFileName) >= 0)
+                                                            if(!isNull(folderContents) && folderContents instanceof Array && folderContents.indexOf(Config.packageMetadataFileName) >= 0)
                                                             {
                                                                 return callback(null, true, childOfDataFolderAbsPath);
                                                             }
@@ -1526,7 +1522,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
     });
 };
 
-Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSize, callback)
+Project.unzipAndValidateBagItBackupStructure = function(absPathToZipFile, maxStorageSize, callback)
 {
     const path = require("path");
 
@@ -1545,13 +1541,11 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
                             {
                                 if(valid)
                                 {
-                                    const metadataFileAbsPath = path.join(pathToFolderToRestore, Config.packageMetadataFileName);
-                                    const metadata = require(metadataFileAbsPath);
-                                    return callback(null, true, metadata);
+                                    return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
                                 }
                                 else
                                 {
-                                    return callback(1, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
                                 }
                             }
                             else
@@ -1587,111 +1581,217 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
             return callback(err, msg);
         }
     });
-
-
 };
 
-Project.restoreFromFolder = function(absPathOfRootFolder,
-                                     entityLoadingTheMetadata,
-                                     attemptToRestoreMetadata,
-                                     replaceExistingFolder,
-                                     callback,
-                                     runningOnRoot
-                            )
+Project.prototype.restoreFromFolder = function(
+    absPathOfRootFolder,
+    entityLoadingTheMetadata,
+    attemptToRestoreMetadata,
+    replaceExistingFolder,
+    callback
+)
 {
     const self = this;
     const path = require("path");
+    let entityLoadingTheMetadataUri;
 
     if(!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
     {
-        let entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
+        entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
     }
     else
     {
-        let entityLoadingTheMetadataUri = User.anonymous.uri;
+        entityLoadingTheMetadataUri = User.anonymous.uri;
     }
 
-    self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function(err, result){
-        if(isNull(err))
+    const metadataFileAbsPath = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
+    const metadata = require(metadataFileAbsPath);
+
+    self.getRootFolder(function (err, rootFolder)
+    {
+        if (isNull(err))
         {
-            if(runningOnRoot)
+            rootFolder.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function (err, result)
             {
-                /**
-                 * Restore metadata values from metadata.json file
-                 */
-                const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-                const fs = require("fs");
+                if (isNull(err))
+                {
+                    /**
+                     * Restore metadata values from metadata.json file
+                     */
+                    const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
+                    const fs = require("fs");
 
-                fs.exists(metadataFileLocation, function (existsMetadataFile) {
-                    if(attemptToRestoreMetadata && existsMetadataFile)
+                    fs.exists(metadataFileLocation, function (existsMetadataFile)
                     {
-                        fs.readFile(metadataFileLocation, 'utf8', function (err, data) {
-                            if (err) {
-                                console.log('Error: ' + err);
-                                return;
-                            }
-
-                            const node = JSON.parse(data);
-
-                            self.loadMetadata(node, function(err, result){
-                                if(isNull(err))
+                        if (attemptToRestoreMetadata && existsMetadataFile)
+                        {
+                            fs.readFile(metadataFileLocation, 'utf8', function (err, data)
+                            {
+                                if (err)
                                 {
-                                    return callback(null, "Data and metadata restored successfully. Result : " + result);
+                                    console.log('Error: ' + err);
+                                    return;
                                 }
-                                else
+
+                                const node = JSON.parse(data);
+
+                                rootFolder.loadMetadata(node, function (err, result)
                                 {
-                                    return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
-                                }
-                            }, entityLoadingTheMetadataUri, [Config.types.locked],[Config.types.restorable])
-                        });
-                    }
-                    else
-                    {
-                        return callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
-                    }
-                });
-            }
-            else
-            {
-                return callback(null, result);
-            }
+                                    if (isNull(err))
+                                    {
+                                        return callback(null, "Data and metadata restored successfully. Result : " + result);
+                                    }
+                                    else
+                                    {
+                                        return callback(err, "Error restoring metadata for project " + self.uri + " : " + result);
+                                    }
+                                }, entityLoadingTheMetadataUri, [Config.types.locked], [Config.types.restorable])
+                            });
+                        }
+                        else
+                        {
+                            return callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
+                        }
+                    });
+                }
+                else
+                {
+                    return callback(err, result);
+                }
+            }, true, entityLoadingTheMetadata);
         }
         else
         {
-            return callback(err, result);
+            callback(err, rootFolder);
         }
-    }, runningOnRoot);
+    });
 };
 
-Project.rebaseAllUris = function(structure, newBaseUri)
+Project.prototype.clearCacheRecords = function(callback, customGraphUri)
 {
-    const modifyNode = function (node) {
-        node.resource = Utils.replaceBaseUri(node.resource, newBaseUri);
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const pageSize = Config.limits.db.maxResults;
+    let currentPage = 0;
+    let currentResults = [];
 
-        for (let i = 0; i < node.metadata.length; i++) {
-            let value = node.metadata[i].value;
+    const findMoreMembersOfProject = function(callback){
+        let findQuery =
+            "SELECT ?part \n" +
+            "FROM [0] \n"+
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart* ?part \n" +
+            "} \n";
 
-            if (value instanceof Array) {
-                for (let j = 0; j < value.length; j++) {
-                    if (Utils.valid_url(value[j])) {
-                        value[j] = Utils.replaceBaseUri(value[j], newBaseUri);
-                    }
+        findQuery = DbConnection.addLimitsClauses(findQuery, pageSize * currentPage, pageSize);
+
+        db.connection.execute(findQuery,
+            [
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value: graphUri
+                },
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value: self.uri
                 }
-            }
-            else if (typeof value === "string" && Utils.valid_url(value)) {
-                value = Utils.replaceBaseUri(value, newBaseUri);
-            }
-        }
 
-        if (!isNull(node.children) && node.children instanceof Array) {
-            for (let i = 0; i < node.children.length; i++) {
-                const child = node.children[i];
-                modifyNode(child);
+            ],
+            function(err, results)
+            {
+                callback(err, results);
             }
-        }
+        );
     };
 
-    modifyNode(structure);
+    async.doUntil(
+        function(callback)
+        {
+            findMoreMembersOfProject(function(err, members){
+                if(!isNull(err))
+                {
+                    callback(err, members);
+                }
+                else
+                {
+                    currentResults = members;
+                    Cache.getByGraphUri(graphUri).delete(members, function(err, result){
+                        callback(err, result);
+                    })
+                }
+            });
+        },
+        function()
+        {
+            currentPage++;
+            return currentResults.length === 0;
+        },
+        callback
+    );
+};
+
+Project.prototype.delete = function(callback)
+{
+    const self = this;
+
+    const deleteProjectTriples = function(callback)
+    {
+        const deleteQuery =
+            "WITH [0] \n" +
+            "DELETE \n" +
+            "{\n" +
+            "    ?resource ?p ?o \n" +
+            "} \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   SELECT ?resource ?p ?o \n" +
+            "   WHERE \n" +
+            "   { \n" +
+            "    [1] nie:hasLogicalPart* ?resource .\n" +
+            "    ?resource ?p ?o \n" +
+            "   } \n"+
+            "} \n";
+
+        db.connection.execute(deleteQuery,
+            [
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value: db.graphUri
+                },
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value: self.uri
+                }
+            ],
+            function(err, result)
+            {
+                callback(err, result);
+            }
+        );
+    };
+
+    const deleteProjectFiles = function(callback)
+    {
+        gfs.connection.deleteByQuery({ "metadata.project.uri" : self.uri}, function(err, result){
+            callback(err, result);
+        })
+    };
+
+    const clearCacheRecords = function(callback)
+    {
+        self.clearCacheRecords(function(err, result){
+            callback(err, result);
+        });
+    };
+
+    async.series([
+        clearCacheRecords,
+        deleteProjectFiles,
+        deleteProjectTriples
+    ], function(err, results){
+        callback(err, results);
+    });
 };
 
 Project = Class.extend(Project, Resource, "ddr:Project");

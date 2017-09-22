@@ -229,7 +229,7 @@ angular.module('dendroApp.controllers')
                         }
                         case 'analyse' :
                         {
-                            if ($scope.backup_contents != null)
+                            if ($scope.backup_contents !== null)
                             {
                                 setStage(targetStage);
                             }
@@ -241,7 +241,7 @@ angular.module('dendroApp.controllers')
                         }
                         case 'confirm' :
                         {
-                            if ($scope.backup_contents != null)
+                            if ($scope.backup_contents !== null)
                             {
                                 setStage(targetStage);
                             }

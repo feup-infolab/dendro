@@ -12,8 +12,37 @@ Elements.schema = {
     sharedContent :
     {
         type : DbConnection.string,
-        control : Controls.input_box
-
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    provider :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    telephone :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    address :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    license :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
     }
 };
 
@@ -1105,10 +1134,17 @@ Elements.ddr = {
         api_readable : true
     },
     exportedFromProject :
-        {
-            type : DbConnection.resourceNoEscape,
-            control : Controls.combo_box
-        }
+    {
+        type : DbConnection.resourceNoEscape,
+        control : Controls.combo_box
+    },
+    is_being_imported :
+    {
+        type : DbConnection.boolean,
+        control : Controls.input_box,
+        locked : true,
+        api_readable : true
+    }
 };
 
 /**

@@ -48,8 +48,9 @@ const initTempFilesFolder = function(app, callback)
                         }
                         catch(e)
                         {
-                            callback("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
+                            console.error(e.stack);
                             throw e;
+                            return callback("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
                         }
                     }
                     else
