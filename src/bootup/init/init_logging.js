@@ -125,6 +125,7 @@ const initLogging = function(app, callback)
             {
                 if(Config.logging.log_all_requests)
                 {
+                    const morgan = require('morgan');
                     app.use(morgan('combined'));
                 }
 

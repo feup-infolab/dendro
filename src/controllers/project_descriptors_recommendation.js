@@ -12,8 +12,8 @@ const async = require("async");
 
 exports.recommend_descriptors = function(req, res) {
 
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {

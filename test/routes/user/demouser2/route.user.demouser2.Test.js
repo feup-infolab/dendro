@@ -30,7 +30,7 @@ describe("/user/demouser2", function (done) {
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(demouser2.username, true, agent, function(err, res){
             res.should.have.status(401);
-            res.text.should.contain("You are not logged into the system.");
+            JSON.parse(res.text).message.should.equal("Permission denied : cannot get information of the user because you are not logged in.");
             done();
         })
     });
@@ -40,7 +40,7 @@ describe("/user/demouser2", function (done) {
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(demouser2.username, false, agent, function(err, res){
             res.should.have.status(401);
-            res.text.should.contain("Please log into the system");
+            res.text.should.contain("Permission denied : cannot get information of the user because you are not logged in.");
             done();
         })
     });
@@ -99,7 +99,7 @@ describe("/user/demouser2", function (done) {
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(falseUser, true, agent, function(err, res){
             res.should.have.status(401);
-            res.text.should.contain("You are not logged into the system");
+            JSON.parse(res.text).message.should.equal("Permission denied : cannot get information of the user because you are not logged in.");
             done();
         })
     });
@@ -109,7 +109,7 @@ describe("/user/demouser2", function (done) {
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(falseUser, false, agent, function(err, res){
             res.should.have.status(401);
-            res.text.should.contain("Please log into the system");
+            res.text.should.contain("Permission denied : cannot get information of the user because you are not logged in.");
             done();
         })
     });

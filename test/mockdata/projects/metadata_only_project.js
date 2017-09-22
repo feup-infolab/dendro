@@ -7,11 +7,16 @@ const projectData = {
     title: 'This is a metadata only test project with handle ' + metadataProjectHandle + " and created by demouser1",
     description: 'This is a test project description for a metadata-only project type',
     publisher: 'UP',
+    contact_address : "Universidade do Porto, Praça dos Leões 31",
+    contact_name : "João Rocha da Silva",
+    contact_phone: "+351 930000000",
+    contact_email: "teste@teste.com",
     language: 'En',
     coverage: 'Porto',
     handle: metadataProjectHandle,
     privacy: 'metadata_only',
-    uri: "http://" + Config.host + "/" + metadataProjectHandle
+    uri: "http://" + Config.host + "/" + metadataProjectHandle,
+    backup_path: Pathfinder.absPathInTestsFolder("/mockdata/projects/projectBackups/metadataonlyprojectcreatedbydemouser1.zip")
 };
 
 

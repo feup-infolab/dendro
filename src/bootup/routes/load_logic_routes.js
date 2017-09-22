@@ -307,7 +307,7 @@ const loadRoutes = function(app, callback)
             ]
         };
 
-        QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        QueryBasedRouter.applyRoutes(queryBasedRoutes,req, res, next);
     });
 
     //research domains
@@ -332,15 +332,41 @@ const loadRoutes = function(app, callback)
     app.get('/users', users.all);
     app.get('/username_exists', users.username_exists);
     app.get('/users/loggedUser', users.getLoggedUser);
-    app.get('/user/:username/avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.get_avatar);
-    app.post('/user/avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.upload_avatar);
-    app.post('/user/edit', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.edit);
 
     app.get([
-            getNonHumanReadableRouteRegex("user"),
-            '/user/:username'
-        ], async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.show);
+        getNonHumanReadableRouteRegex("user"),
+        '/user/:username'
+    ],
+    extractUriFromRequest,
+    function(req,res, next)
+    {
+        const processRequest = function(resourceUri){
+            req.params.requestedResourceUri = resourceUri;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['avatar'],
+                        handler: users.get_avatar,
+                        permissions: [],
+                        authentication_error: "Permission denied : cannot get the avatar of a user because you do not have permissions to do so."
+                    },
+                    {
+                        queryKeys: [],
+                        handler: users.show,
+                        permissions: [Permissions.settings.role.in_system.user],
+                        authentication_error: "Permission denied : cannot get information of the user because you are not logged in."
+                    },
+                ]
+            };
 
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.params.requestedResourceUri);
+    });
+
+    app.post('/user/edit', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.edit);
+    app.post('/user_avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.upload_avatar);
 
     app.all('/reset_password', users.reset_password);
     app.all('/set_new_password', users.set_new_password);
@@ -403,7 +429,7 @@ const loadRoutes = function(app, callback)
                     ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
             };
 
             async.waterfall([
@@ -526,21 +552,21 @@ const loadRoutes = function(app, callback)
                             queryKeys: ['recommendation_ontologies'],
                             handler: ontologies.get_recommendation_ontologies,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get recommendation ontologies because you do not have permissions to access it."
                         },
                         //show versions of resources
                         {
                             queryKeys: ['version'],
                             handler: records.show_version,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get versions of this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get versions of this project because you do not have permissions to access it."
                         },
                         //auto completing descriptors
                         {
                             queryKeys: ['descriptors_autocomplete'],
                             handler: descriptors.descriptors_autocomplete,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access it."
 
                         },
                         //auto completing ontologies
@@ -548,27 +574,27 @@ const loadRoutes = function(app, callback)
                             queryKeys: ['ontology_autocomplete'],
                             handler: ontologies.ontologies_autocomplete,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access it."
                         },
                         //auto completing users
                         {
                             queryKeys: ['user_autocomplete'],
                             handler: users.users_autocomplete,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access it."
                         },
                         //thumb nails
                         {
                             queryKeys: ['thumbnail'],
                             handler: files.thumbnail,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get thumbnail for this project because you do not have permissions to access it."
                         },
                         {
                             queryKeys: ['get_contributors'],
                             handler: projects.get_contributors,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get contributors for this project because you do not have permissions to access it."
                         },
                         //administration page
                         {
@@ -582,14 +608,14 @@ const loadRoutes = function(app, callback)
                             queryKeys: ['metadata'],
                             handler: projects.show,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get metadata for this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get metadata for this project because you do not have permissions to access it."
                         },
                         //metadata deep
                         {
                             queryKeys: ['metadata', 'deep'],
                             handler: projects.show,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access it."
                         },
                         //request access
                         {
@@ -610,15 +636,21 @@ const loadRoutes = function(app, callback)
                             queryKeys: ['descriptors_autocomplete'],
                             handler: descriptors.descriptors_autocomplete,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access it."
 
+                        },
+                        {
+                           queryKeys : ['bagit'],
+                           handler : projects.bagit,
+                           permissions : [Permissions.settings.privacy.of_project.public, Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator],
+                           authentication_error : "Permission denied : cannot backup this project because you do not have permissions to access it."
                         },
                         //default case
                         {
                             queryKeys: [],
                             handler: projects.show,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot show the project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
                         }
                     ],
                     post: [
@@ -653,30 +685,39 @@ const loadRoutes = function(app, callback)
                             authentication_error: "Permission denied : cannot request access to this project."
                         },
                         {
-                            queryKeys: ['delete'],
-                            handler: projects.delete,
-                            permissions: administrationPermissions,
-                            authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
+                            queryKeys: ['cut'],
+                            handler: files.cut,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot cut resources into this folder because you do not have permissions to edit resources inside this project."
                         },
                         {
-                            queryKeys: ['undelete'],
-                            handler: projects.undelete,
-                            permissions: administrationPermissions,
-                            authentication_error: "Permission denied : cannot undelete project because you do not have permissions to administer this project."
+                            queryKeys: ['copy'],
+                            handler: files.copy,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot paste resources into this folder because you do not have permissions to edit resources inside this project."
                         }
                     ],
                     all:
                     [
-                        //uploads
+                         //uploads
                          {
                              queryKeys: ['upload'],
                              handler: files.upload,
-                             permissions: modificationPermissions
+                             permissions: modificationPermissions,
+                             authentication_error: "Permission denied : cannot upload to this project because you do not have permissions to modify it."
+                         },
+                         //delete projects
+                         {
+                             queryKeys: ['delete'],
+                             handler: projects.delete,
+                             permissions: administrationPermissions,
+                             authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
                          }
-                     ]
+
+                    ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
             };
 
             async.waterfall([
@@ -959,6 +1000,18 @@ const loadRoutes = function(app, callback)
                             handler: files.rename,
                             permissions: modificationPermissionsBranch,
                             authentication_error: "Permission denied : cannot rename resource because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['cut'],
+                            handler: files.cut,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot move resources because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['copy'],
+                            handler: files.copy,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot copy resources because you do not have permissions to edit resources inside this project."
                         }
                     ],
                     delete: [
@@ -986,7 +1039,7 @@ const loadRoutes = function(app, callback)
                     ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
             };
 
             async.waterfall([
@@ -1103,6 +1156,16 @@ const loadRoutes = function(app, callback)
 
 
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
+
+    //TODO William
+    /*app.get("/deposits/all", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), registry.get_public))
+
+    app.get([
+            getNonHumanReadableRouteRegex("deposit")
+        ],
+        extractUriFromRequest,
+        async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions););
+        */
 
     //serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);

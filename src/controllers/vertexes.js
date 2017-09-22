@@ -170,8 +170,8 @@ exports.random = function(req, res) {
 
 exports.search = function(req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 	const query = req.query.q;
 
     if(query)

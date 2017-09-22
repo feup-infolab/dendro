@@ -1,6 +1,7 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -79,7 +80,7 @@ File.estimateUnzippedSize = function(pathOfZipFile, callback)
 File.unzip = function(pathOfFile, callback) {
     const fs = require("fs");
     const exec = require("child_process").exec;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
 
     tmp.dir(
         {
@@ -114,7 +115,7 @@ File.unzip = function(pathOfFile, callback) {
 };
 
 File.createBlankTempFile = function (fileName, callback) {
-    const tmp = require('tmp');
+    const tmp = require("tmp");
     const path = require("path");
 
     tmp.dir(
@@ -176,6 +177,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
 File.deleteOnLocalFileSystem = function(absPathToFile, callback)
 {
     const isWin = /^win/.test(process.platform);
+    const exec = require("child_process").exec;
     let command;
 
     if(isWin)
@@ -198,7 +200,7 @@ File.deleteOnLocalFileSystem = function(absPathToFile, callback)
     });
 };
 
-File.prototype.save = function (callback) {
+File.prototype.save = function (callback, rename) {
     const self = this;
 
     const newDescriptorsOfParent = [
@@ -208,28 +210,80 @@ File.prototype.save = function (callback) {
         })
     ];
 
-    db.connection.insertDescriptorsForSubject(
-        self.nie.isLogicalPartOf,
-        newDescriptorsOfParent,
-        db.graphUri,
-        function (err, result) {
-            if (isNull(err)) {
-                self.baseConstructor.prototype.save.call(self, function (err, result) {
+    const renameIfFileNameExists = function(callback)
+    {
+        if(rename){
+            const getParent = function(callback)
+            {
+                self.getParent(callback);
+            };
+
+            const getChildrenOfParent = function(parent, callback)
+            {
+                parent.getLogicalParts(callback);
+            };
+
+            const renameIfChildExistsWithSameName = function(children, callback)
+            {
+
+                const childrenWithTheSameName = _.find(children, function(child){
+                    return child.nie.title === self.nie.title
+                });
+
+                if(
+                    !isNull(childrenWithTheSameName) && childrenWithTheSameName.length > 0
+                )
+                {
+                    self.nie.title = self.title + " (Copy created at " + new Date().toISOString() + ")";
+                }
+
+                callback(null);
+            };
+
+            async.waterfall([
+                getParent,
+                getChildrenOfParent,
+                renameIfChildExistsWithSameName
+            ], callback);
+        }
+        else
+        {
+            callback(null);
+        }
+    };
+
+
+    renameIfFileNameExists(function(err, result){
+        if(isNull(err))
+        {
+            db.connection.insertDescriptorsForSubject(
+                self.nie.isLogicalPartOf,
+                newDescriptorsOfParent,
+                db.graphUri,
+                function (err, result) {
                     if (isNull(err)) {
-                        return callback(null, self);
+                        self.baseConstructor.prototype.save.call(self, function (err, result) {
+                            if (isNull(err)) {
+                                return callback(null, self);
+                            }
+                            else {
+                                console.error("Error adding child file descriptors : " + result);
+                                return callback(1, "Error adding child file descriptors : " + result);
+                            }
+                        });
                     }
                     else {
-                        console.error("Error adding child file descriptors : " + result);
-                        return callback(1, "Error adding child file descriptors : " + result);
+                        console.error("Error adding parent file descriptors : " + result);
+                        return callback(1, "Error adding parent file descriptors: " + result);
                     }
-                });
-            }
-            else {
-                console.error("Error adding parent file descriptors : " + result);
-                return callback(1, "Error adding parent file descriptors: " + result);
-            }
+                }
+            );
         }
-    );
+        else
+        {
+            callback(1, "There is a file with the same name " + self.nie.title + " in this folder and there was an error renaming the new duplicate.");
+        }
+    });
 };
 
 File.prototype.saveWithFileAndContents = function(localFilePath, indexConnectionToReindexContents, callback) {
@@ -272,7 +326,7 @@ File.prototype.deleteThumbnails = function () {
         for (let i = 0; i < Config.thumbnails.sizes.length; i++) {
             const dimension = Config.thumbnails.sizes[i];
             if (Config.thumbnails.size_parameters.hasOwnProperty(dimension)) {
-                gfs.connection.delete(self.uri + "?thumbnail&size=" + dimension, function (err, result) {
+                gfs.connection.deleteByFileUri(self.uri + "?thumbnail&size=" + dimension, function (err, result) {
                     if (err) {
                         console.error("Error deleting thumbnail " + self.uri + "?thumbnail&size=" + dimension);
                     }
@@ -301,7 +355,7 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
             if (isNull(err)) {
                 self.unlinkFromParent(function (err, result) {
                     if (isNull(err)) {
-                        gfs.connection.delete(self.uri, function (err, result) {
+                        gfs.connection.deleteByFileUri(self.uri, function (err, result) {
                             self.deleteThumbnails();
                             self.deleteDatastoreData();
                             return callback(err, result);
@@ -405,7 +459,7 @@ File.prototype.writeDataContentToStream = function (stream, callback) {
 
 File.prototype.writeToTempFile = function (callback) {
     let self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
 
     let fetchMetadataCallback = function (err, tempFolderPath) {
         if (isNull(err)) {
@@ -453,7 +507,7 @@ File.prototype.writeToTempFile = function (callback) {
 
 File.prototype.getThumbnail = function (size, callback) {
     let self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
     const fs = require("fs");
 
     if (isNull(size)) {
@@ -489,7 +543,7 @@ File.prototype.getThumbnail = function (size, callback) {
 
 File.prototype.loadFromLocalFile = function (localFile, callback) {
     const self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
     const fs = require("fs");
 
     self.getOwnerProject(function (err, ownerProject) {
@@ -835,7 +889,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
 File.prototype.rebuildData = function(callback)
 {
     const self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
 
     tmp.dir(
         {
@@ -991,8 +1045,8 @@ File.prototype.loadMetadata = function (node, callback, entityLoadingTheMetadata
     const self = this;
     if (!isNull(node)) {
         const metadata = node.metadata;
+        let descriptors = [];
         if (!isNull(metadata) && metadata instanceof Array) {
-            var descriptors = [];
             for (let i = 0; i < metadata.length; i++) {
                 descriptors.push(
                     new Descriptor(
@@ -1105,6 +1159,57 @@ File.prototype.generateThumbnails = function (callback) {
     {
         callback(null);
     }
+};
+
+File.prototype.moveToFolder = function(newParentFolder, callback)
+{
+    const self = this;
+
+    const oldParent = self.nie.isLogicalPartOf;
+    const newParent = newParentFolder.uri;
+
+    const query =
+        "DELETE DATA " +
+        "{ " +
+        "GRAPH [0] " +
+        "{ " +
+        "[1] nie:title ?title . " +
+        "} " +
+        "}; " +
+
+        "INSERT DATA " +
+        "{ " +
+        "GRAPH [0] " +
+        "{ " +
+        "[1] nie:title [2] " +
+        "} " +
+        "}; ";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.resource,
+                value: self.uri
+            },
+            {
+                type: DbConnection.string,
+                value: newTitle
+            }
+        ],
+        function(err, result)
+        {
+            Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+            {
+                Cache.getByGraphUri(db.graphUri).delete(newParentFolder.uri, function (err, result)
+                {
+                    return callback(err, result);
+                });
+            });
+        });
 };
 
 File = Class.extend(File, InformationElement, "nfo:FileDataObject");

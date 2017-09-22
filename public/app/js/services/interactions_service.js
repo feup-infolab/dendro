@@ -43,7 +43,7 @@ angular.module('dendroApp.services')
                             url: url,
                             data: objectOfInteractionString,
                             contentType: "application/json",
-                            headers: {'Accept': "application/json"}
+                            headers: {"Accept": "application/json"}
                         });
                     }
                     else

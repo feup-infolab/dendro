@@ -3,8 +3,8 @@ const chaiHttp = require("chai-http");
 const should = chai.should();
 const _ = require("underscore");
 const md5 = require("md5");
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
@@ -55,8 +55,7 @@ describe("Upload files into testFolder1 of Private project", function () {
             done();
         });
     });
-
-    /*
+    
     describe("[POST] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function() {
         it("Should give an error message when a project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -95,7 +94,6 @@ describe("Upload files into testFolder1 of Private project", function () {
             });
         });
     });
-    */
 
     describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function() {
         it("Should upload a ZIP file successfully", function (done) {

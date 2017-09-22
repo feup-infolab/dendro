@@ -1,8 +1,30 @@
 const chai = require("chai");
+const fs = require("fs");
+const tmp = require("tmp");
+const path = require("path");
+const async = require("async");
 const chaiHttp = require("chai-http");
 const _ = require("underscore");
+const recursive = require("recursive-readdir");
+
 chai.use(chaiHttp);
 
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const File = require(Pathfinder.absPathInSrcFolder("models/directory_structure/file.js")).File;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
+const binaryParser = function (res, cb) {
+    res.setEncoding("binary");
+    res.data = "";
+    res.on("data", function (chunk) {
+        res.data += chunk;
+    });
+    res.on("end", function () {
+        cb(null, new Buffer(res.data, "binary"));
+    });
+};
 
 const listAllMyProjects = function (jsonOnly, agent, cb) {
     const path = "/projects/my";
@@ -309,7 +331,6 @@ const getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
 };
 
 const importProjectHTMLPage = function (jsonOnly, agent, cb) {
-    // /projects/import
     const path = "/projects/import";
     if (jsonOnly) {
         agent
@@ -323,14 +344,13 @@ const importProjectHTMLPage = function (jsonOnly, agent, cb) {
     else {
         agent
             .get(path)
-            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-const importProject = function (jsonOnly, agent, projectBackupPath, cb) {
+const importProject = function (jsonOnly, agent, project, cb) {
     // /projects/import
     const path = "/projects/import";
     if (jsonOnly) {
@@ -338,7 +358,8 @@ const importProject = function (jsonOnly, agent, projectBackupPath, cb) {
             .post(path)
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .attach('file', projectBackupPath)
+            .query({ "imported_project_handle" : project.handle} )
+            .attach('file', project.backup_path)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -347,7 +368,8 @@ const importProject = function (jsonOnly, agent, projectBackupPath, cb) {
         agent
             .post(path)
             .set("Content-Type", "application/json")
-            .attach('file', projectBackupPath)
+            .query({ "imported_project_handle" : project.handle} )
+            .attach('file', project.backup_path)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -403,7 +425,7 @@ const deleteProject = function (jsonOnly, agent, projectHandle, cb) {
     const path = "/project/" + projectHandle + "?delete";
     if (jsonOnly) {
         agent
-            .post(path)
+            .delete(path)
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
             .end(function (err, res) {
@@ -412,7 +434,7 @@ const deleteProject = function (jsonOnly, agent, projectHandle, cb) {
     }
     else {
         agent
-            .post(path)
+            .delete(path)
             .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
@@ -507,46 +529,14 @@ const administer = function (agent, modify, projectData, projectHandle, cb) {
     }
 };
 
-const backup = function (agent, projectHandle, filepath, cb) {
+const bagit = function (agent, projectHandle, cb) {
     agent
-        .get('/project/' + projectHandle + filepath + '?backup')
+        .get('/project/' + projectHandle + '?bagit')
+        .buffer()
+        .parse(binaryParser)
         .end(function (err, res) {
             cb(err, res);
         });
-};
-
-const bagit = function (agent, projectHandle, filepath, cb) {
-    agent
-        .get('/project/' + projectHandle + filepath + '?bagit')
-        .end(function (err, res) {
-            cb(err, res);
-        });
-};
-
-const download = function (agent, projectHandle, filepath, cb) {
-    agent
-        .get('/project/' + projectHandle + filepath + '?download')
-        .end(function (err, res) {
-            cb(err, res);
-        });
-};
-
-const serve = function (agent, projectHandle, filepath, cb) {
-    agent
-        .get('/project/' + projectHandle + filepath + '?serve')
-        .end(function (err, res) {
-            cb(err, res);
-        });
-};
-
-
-
-const thumbnail = function (agent, filepath, projectHandle, cb) {
-    agent
-        .get('/project/' + projectHandle + filepath + '?thumbnail')
-        .end(function (err, res) {
-            cb(err, res);
-        })
 };
 
 const getProjectContributors = function (agent, projectHandle, cb) {
@@ -557,6 +547,256 @@ const getProjectContributors = function (agent, projectHandle, cb) {
         .end(function (err, res) {
             cb(err, res);
         });
+};
+
+const getContentsOfFile = function(zipPath, callback)
+{
+    File.unzip(zipPath, function(err, pathOfUnzippedContents){
+        let contentsOfZippedFile = "";
+        recursive(pathOfUnzippedContents, function (err, files)
+        {
+            if (!err)
+            {
+                files = files.sort();
+                for(let i = 0; i < files.length; i++)
+                {
+                    let file = files[i];
+                    file = files[i].replace(pathOfUnzippedContents, "");
+                    contentsOfZippedFile += file+"\n";
+                }
+
+                callback(null, contentsOfZippedFile);
+            }
+            else
+            {
+                callback(err);
+            }
+        });
+    });
+};
+
+const getMetadataFromBackup = function(zipPath, callback)
+{
+    File.unzip(zipPath, function(err, pathOfUnzippedContents){
+        const metadataFilePath = path.join(pathOfUnzippedContents, "bag-info.txt");
+        const metadataContents = fs.readFileSync(metadataFilePath, "utf8");
+        callback(err, metadataContents);
+    });
+};
+
+const metadataMatchesBackup = function (project, bodyBuffer, callback) {
+
+    const parseMetadata = function(result)
+    {
+        const split = result.split("\n");
+        const parsed = {};
+
+        function sortObject(obj) {
+            return Object.keys(obj)
+                .sort().reduce((a, v) => {
+                    a[v] = obj[v];
+                    return a; }, {});
+        }
+
+        for(let i = 0; i < split.length;i++)
+        {
+            if(split !== "")
+            {
+                let piece = split[i];
+                let indexOfColon = piece.indexOf(":");
+
+                let descriptor = piece.substr(0, indexOfColon);
+                let value = piece.substr(indexOfColon + 1);
+
+                parsed[descriptor] = value;
+            }
+        }
+
+        return sortObject(parsed);
+    };
+
+    tmp.dir(
+        {
+            mode: Config.tempFilesCreationMode,
+            dir: Config.tempFilesDir
+        },
+        function (err, tempFolderPath) {
+            if(!err)
+            {
+                const tempBackupFilePath = path.join(tempFolderPath, project.handle + ".zip");
+                const mockBackupFilePath = project.backup_path;
+                fs.writeFileSync(tempBackupFilePath, bodyBuffer);
+
+                getMetadataFromBackup(tempBackupFilePath, function(err1, result1){
+                    getMetadataFromBackup(mockBackupFilePath, function(err2, result2){
+                        if(!err1 && !err2)
+                        {
+                            callback(null, JSON.stringify(parseMetadata(result1)) === JSON.stringify(parseMetadata(result2)));
+                        }
+                        else
+                        {
+                            callback(1);
+                        }
+                    });
+                });
+            }
+            else
+            {
+                callback(err);
+            }
+        });
+};
+
+const contentsMatchBackup = function (project, bodyBuffer, callback) {
+    const fs = require("fs");
+    const tmp = require("tmp");
+    const path = require("path");
+
+    tmp.dir(
+        {
+            mode: Config.tempFilesCreationMode,
+            dir: Config.tempFilesDir
+        },
+        function (err, tempFolderPath) {
+            if(!err)
+            {
+                const tempBackupFilePath = path.join(tempFolderPath, project.handle + ".zip");
+                const mockBackupFilePath = project.backup_path;
+                fs.writeFileSync(tempBackupFilePath, bodyBuffer);
+
+                getContentsOfFile(tempBackupFilePath, function(err1, result1){
+                    getContentsOfFile(mockBackupFilePath, function(err2, result2){
+                        if(!err1 && !err2)
+                        {
+                            callback(null, result1 === result2);
+                        }
+                        else
+                        {
+                            callback(1);
+                        }
+                    });
+                });
+            }
+            else
+            {
+                callback(err);
+            }
+        });
+};
+
+const countProjectTriples = function(projectUri, callback)
+{
+    const self = this;
+
+    const query =
+        "SELECT COUNT(*) as ?resource_count \n" +
+        "FROM [0] \n" +
+        "WHERE " +
+        "{ \n" +
+        "   { \n" +
+        "       [1] ?p1 ?o1 . \n" +
+        "   } \n" +
+        "   UNION \n" +
+        "   { \n" +
+        "       ?s ?p [1] . \n" +
+        "   } \n" +
+        "} \n";
+
+    const db = Config.getDBByID();
+    db.connection.execute(query,
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : projectUri
+            }
+        ],
+        function(err, result)
+        {
+            if (isNull(err))
+            {
+                if(result instanceof Array && result.length === 1)
+                {
+                    return callback(null, parseInt(result[0].resource_count));
+                }
+                else
+                {
+                    return callback(1, "invalid result retrieved when querying for project resource count");
+                }
+            }
+            else
+            {
+                return callback(err, -1);
+            }
+        });
+};
+
+const countProjectFilesInGridFS = function(projectUri, callback, customBucket)
+{
+    const self = this;
+
+    let collectionName;
+    if(!isNull(customBucket))
+    {
+        collectionName = customBucket;
+    }
+    else
+    {
+        collectionName = "fs.files";
+    }
+
+    /**
+     * YOU NEED MONGODB 10GEN to run this, or it will give errors.
+     */
+
+    const gfs = Config.getGFSByID();
+    gfs.connection.db.collection(collectionName, function(err, collection) {
+        if(isNull(err))
+        {
+            collection.count(
+                {
+                    "metadata.project.uri" : projectUri
+                },
+                function(err, result){
+                    if(isNull(err))
+                    {
+                        if(!isNull(result) && typeof result === "number")
+                        {
+                            return callback(null, result);
+                        }
+                        else
+                        {
+                            return callback(null, 0);
+                        }
+                    }
+                    else
+                    {
+                        console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
+                        return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                    }
+                });
+        }
+        else
+        {
+            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
+            return callback(1, "Error retrieving files collection : " + collection);
+        }
+    });
+};
+
+const getProjectUriFromHandle = function(agent, projectHandle, callback)
+{
+    listAllMyProjects(true, agent, function (err, res) {
+        const myProjects = res.body.projects;
+        const project = _.find(myProjects, function(project){
+            return project.ddr.handle === projectHandle;
+        });
+
+        callback(err, (project)? project.uri : null);
+    });
 };
 
 module.exports = {
@@ -581,13 +821,14 @@ module.exports = {
     undeleteProject: undeleteProject,
     createFolderInProjectRoot: createFolderInProjectRoot,
     administer : administer,
-    backup : backup,
     bagit : bagit,
-    download : download,
-    serve : serve,
-    thumbnail : thumbnail,
     getProjectContributors: getProjectContributors,
     getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
     getProjectMetadata: getProjectMetadata,
-    getProjectMetadataDeep: getProjectMetadataDeep
+    getProjectMetadataDeep: getProjectMetadataDeep,
+    contentsMatchBackup : contentsMatchBackup,
+    metadataMatchesBackup : metadataMatchesBackup,
+    countProjectTriples : countProjectTriples,
+    countProjectFilesInGridFS : countProjectFilesInGridFS,
+    getProjectUriFromHandle : getProjectUriFromHandle
 };

@@ -74,7 +74,7 @@ exports.download = function(req, res){
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
 
-                            res.on('end', function () {
+                            res.on("end", function () {
                                 File.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr) {
                                     if (err) {
                                         console.error("Unable to delete " + writtenFilePath);
@@ -133,10 +133,10 @@ exports.download = function(req, res){
                             res.writeHead(200,
                                 {
                                     "Content-disposition": "attachment; filename=\"" + file.nie.title+"\"",
-                                    'Content-type': mimeType
+                                    "Content-type": mimeType
                                 });
 
-                            res.on('end', function () {
+                            res.on("end", function () {
                                 Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
                                     if(err)
                                     {
@@ -304,7 +304,7 @@ exports.serve = function(req, res){
                                     }
                                 );
 
-                                res.on('end', function () {
+                                res.on("end", function () {
                                     Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr) {
                                         if (err) {
                                             console.error("Unable to delete " + writtenFilePath);
@@ -397,10 +397,10 @@ exports.serve = function(req, res){
                                             res.writeHead(200,
                                                 {
                                                     "Content-disposition": 'filename="' + file.nie.title+"\"",
-                                                    'Content-type': mimeType
+                                                    "Content-type": mimeType
                                                 });
 
-                                            res.on('end', function () {
+                                            res.on("end", function () {
                                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
                                                     if(err)
                                                     {
@@ -498,13 +498,13 @@ exports.serve_base64 = function(req, res){
                                         const fs = require("fs");
                                         const fileStream = fs.createReadStream(writtenFilePath);
 
-                                        res.on('end', function(){
+                                        res.on("end", function(){
                                             console.log("close");
                                             deleteTempFile(writtenFilePath);
                                         });
                                         const base64 = require('base64-stream');
 
-                                        res.on('end', function () {
+                                        res.on("end", function () {
                                             Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
                                                 if(err)
                                                 {
@@ -628,7 +628,7 @@ exports.get_thumbnail = function(req, res) {
                                                 res.writeHead(200,
                                                     {
                                                         "Content-disposition": 'filename="' + filename+"\"",
-                                                        'Content-type': mimeType
+                                                        "Content-type": mimeType
                                                     });
 
                                                 fileStream.pipe(res);
@@ -714,10 +714,10 @@ exports.upload = function(req, res)
 {
     const async = require("async");
     const fs = require("fs");
-    const md5File = require('md5-file');
-    const multiparty = require('multiparty');
-    const tmp = require('tmp');
-    const path = require('path');
+    const md5File = require("md5-file");
+    const multiparty = require("multiparty");
+    const tmp = require("tmp");
+    const path = require("path");
 
     const requestedResourceURI = req.params.requestedResourceUri;
     const upload_id = req.query.upload_id;
@@ -743,7 +743,7 @@ exports.upload = function(req, res)
         const fileNames = [];
 
         if (files instanceof Array) {
-            async.map(files, function (file, callback) {
+            async.mapSeries(files, function (file, callback) {
                 fileNames.push({
                     name: file.name
                 });
@@ -1185,8 +1185,8 @@ exports.upload = function(req, res)
 
 exports.resume = function(req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
 
     if (req.originalMethod === "GET")
@@ -1401,8 +1401,8 @@ exports.restore = function(req, res){
 };
 
 exports.rm = function(req, res){
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)
     {
@@ -1592,8 +1592,8 @@ exports.rm = function(req, res){
 };
 
 exports.undelete = function(req, res){
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)
     {
@@ -1733,8 +1733,8 @@ exports.undelete = function(req, res){
 };
 
 exports.mkdir = function(req, res){
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)
     {
@@ -2072,7 +2072,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
         res.writeHead(statusCode,
             {
                 "Content-disposition": 'filename="' + filename + "\"",
-                'Content-type': mimeType
+                "Content-type": mimeType
             });
 
         const fileStream = fs.createReadStream(absPathOfFileToServe);
@@ -2157,8 +2157,8 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
 };
 
 exports.recent_changes = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -2348,7 +2348,7 @@ exports.data = function(req, res){
                                 }
                                 else
                                 {
-                                    console.error(error);
+                                    console.error(result);
                                     res.status(500).json({
                                         result : "error",
                                         message : result
@@ -2535,5 +2535,273 @@ exports.rename = function(req, res){
     }
 };
 
+const getTargetFolder = function(req, callback)
+{
+    const resourceUri = req.params.requestedResourceUri;
+    if(req.params.is_project_root)
+    {
+        Project.findByUri(resourceUri , function(err, project){
+            if(isNull(err))
+            {
+                if(!isNull(project) && project instanceof Project)
+                {
+                    project.getRootFolder(function(err, result){
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    callback(404, "Project with uri " + resourceUri + " does not exist");
+                }
+            }
+            else
+            {
+                callback(500, "Error occurred while fetching project with uri " + resourceUri);
+            }
+        })
+    }
+    else
+    {
+        Folder.findByUri(resourceUri, function(err, folder)
+        {
+            if (isNull(err))
+            {
+                if(!isNull(folder))
+                {
+                    callback(err, folder);
+                }
+                else
+                {
+                    callback(404, "Folder " + resourceUri + " does not exist. Are you trying to copy or move files to inside a file instead of a folder?");
+                }
+            }
+            else
+            {
+                res.status(500).json("Error occurred while fetching project with uri " + resourceUri);
+            }
+        });
+    }
+};
 
+const checkIfUserHasPermissionsOverFiles = function(req, permissions, files, callback)
+{
+    const user = req.user;
+    if(req.session.isAdmin) //admin is GOD
+    {
+        callback(null);
+    }
+    else
+    {
+        const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+
+        async.mapSeries(files, function(fetchedFile, callback){
+            async.detect(permissions, function(role, callback){
+                Permissions.checkUsersRoleInParentProject(req, user, role, fetchedFile, function (err, hasRole) {
+                    return callback(err, hasRole);
+                });
+            }, function(err, role){
+                if(isNull(err) && !isNull(role))
+                {
+                    return callback(null);
+                }
+                else
+                {
+                    return callback(1, "You do not have the necessary permissions to move resource " + fetchedFile.uri + ". Details: You are not a creator or contributor of the project to which the resource belongs.");
+                }
+            });
+        }, function(err, result){
+            return callback(err, result);
+        });
+    }
+};
+
+const checkIfFilesExist = function(files, callback)
+{
+    async.mapSeries(files, function(fileUri, callback){
+        InformationElement.findByUri(fileUri, function(err, fileToMove){
+            if(isNull(err))
+            {
+                if(!isNull(fileToMove))
+                {
+                    return callback(null, fileToMove);
+                }
+                else
+                {
+                    return callback(1, "Resource " + fileUri + " does not exist.");
+                }
+            }
+            else
+            {
+                return callback(1, "Error verifying if " + fileUri + " exists.");
+            }
+        });
+    }, function(err, filesToBeMoved){
+        return callback(err, filesToBeMoved);
+    });
+};
+
+const checkIfDestinationIsNotContainedByAnySource = function(filesToMove, targetFolder, callback)
+{
+    async.mapSeries(filesToMove, function(fileToMove, callback){
+        targetFolder.containedIn(fileToMove, function(err, contained){
+            if(isNull(err))
+            {
+                if(!contained)
+                {
+                    callback(null);
+                }
+                else
+                {
+                    callback(3, "Cannot move a folder or resource to inside itself!. In this case, folder " + targetFolder.uri + " is contained in " + fileToMove.uri);
+                }
+            }
+            else
+            {
+                return callback(2, "Resource " + fileUri + " does not exist.");
+            }
+        });
+    }, function(err, results){
+        callback(err, results);
+    })
+};
+
+const cutResources = function (resources, targetFolder, callback)
+{
+    async.mapSeries(resources, function (resource, callback)
+    {
+        resource.moveToFolder(targetFolder, function (err, result)
+        {
+            callback(err, result);
+        });
+    }, callback);
+};
+
+exports.cut = function(req, res){
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    if(acceptsJSON && !acceptsHTML)
+    {
+        if (!isNull(req.body.files))
+        {
+            if (req.body.files instanceof Array)
+            {
+                let files = req.body.files;
+                const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+
+                const permissions = [
+                    Permissions.settings.role.in_owner_project.contributor,
+                    Permissions.settings.role.in_owner_project.creator
+                ];
+
+                getTargetFolder(req, function (err, targetFolder)
+                {
+                    if (!err)
+                    {
+                        if(!isNull(targetFolder) && targetFolder instanceof Folder)
+                        {
+                            checkIfFilesExist(files, function (err, filesToBeMoved)
+                            {
+                                if (isNull(err))
+                                {
+                                    checkIfDestinationIsNotContainedByAnySource(filesToBeMoved, targetFolder, function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            checkIfUserHasPermissionsOverFiles(req, permissions, filesToBeMoved, function (err, hasPermissions)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    cutResources(filesToBeMoved, targetFolder, function (err, result)
+                                                    {
+                                                        if (isNull(err))
+                                                        {
+                                                            return res.json({
+                                                                result: "ok",
+                                                                message: "Files moved successfully"
+                                                            })
+                                                        }
+                                                        else
+                                                        {
+                                                            return res.status(500).json({
+                                                                result: "error",
+                                                                message: "An error occurred while moving files.",
+                                                                error: result
+                                                            })
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    return res.status(500).json({
+                                                        result: "error",
+                                                        message: "An error occurred while checking permissions over the files you are trying to move.",
+                                                        error: hasPermissions
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            return res.status(400).json({
+                                                result: "error",
+                                                message: "Cannot move a resource to inside itself.",
+                                                error: result
+                                            })
+                                        }
+                                    })
+                                }
+                                else
+                                {
+                                    return res.status(404).json({
+                                        result: "error",
+                                        message: "Some of the files that were asked to be moved do not exist.",
+                                        error: filesToBeMoved
+                                    });
+                                }
+                            });
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        return res.status(err).json({
+                            result: "error",
+                            message: "An error occurred while fetching the destination folder of the move operation.\n" + JSON.stringify(targetFolder),
+                            error: targetFolder
+                        });
+                    }
+                });
+            }
+            else
+            {
+                const error = "The 'files' parameter is not a valid array of files and folders";
+                console.error(error);
+                return res.status(400).json({
+                    result: "error",
+                    message: error
+                });
+            }
+        }
+        else
+        {
+            const error = "Missing 'files' parameter; Unable to determine which files to move!";
+            console.error(error);
+            return res.status(400).json({
+                result: "error",
+                message: error
+            });
+        }
+    }
+    else
+    {
+        res.status(400).json({
+            result: "error",
+            message: "HTML Request not valid for this route."
+        });
+    }
+};
 

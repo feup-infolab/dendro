@@ -103,30 +103,33 @@ Registry.getAllowedDeposits = function(req, res){
     const query =
         "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy\n" +
         "FROM [0] \n"  +
-        "WHERE { \n" +
-        "?uri rdf:type ddr:Registry . \n" +
-        "?uri ddr:exportedFromProject ?projused . \n" +
-        "?projused ddr:privacyStatus ?privacy . \n" +
+        "WHERE " +
         "{ \n" +
-            "?projused ddr:privacyStatus [1] . \n" +
-            "?projused rdf:type ddr:Project . \n" +
-            "{ \n" +
-                "?projused dcterms:creator ?creator . \n" +
-                "?creator ddr:username [2] \n" +
-            "} \n" +
-            " UNION \n" +
-            "{ \n" +
-                "?projused dcterms:contributor ?contributor . \n" +
-                "?contributor ddr:username [2] \n" +
-            "} \n" +
-        "} \n" +
-        " UNION \n" +
-        " { ?projused ddr:privacyStatus [3] }\n"+
-        "?projused dcterms:title ?title . \n" +
-        "?uri dcterms:creator ?user . \n" +
-        "?uri dcterms:title ?label . \n" +
-        "?uri dcterms:date ?date . \n" +
-        "?uri dcterms:description ?description . \n" +
+        "   ?uri rdf:type ddr:Registry . \n" +
+        "   ?uri ddr:exportedFromProject ?projused . \n" +
+        "   { \n" +
+        "       ?projused ddr:privacyStatus [1] . \n" +
+        "       ?projused rdf:type ddr:Project . \n" +
+        "       ?projused dcterms:title ?title . \n" +
+        "       ?projused ddr:privacyStatus ?privacy . \n" +
+        "       { \n" +
+        "           ?projused dcterms:creator ?creator . \n" +
+        "           ?creator ddr:username [2] \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { \n" +
+        "           ?projused dcterms:contributor ?contributor . \n" +
+        "           ?contributor ddr:username [2] \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { " +
+        "           ?projused ddr:privacyStatus [3] \n" +
+        "       }\n"+
+        "   } \n" +
+        "   ?uri dcterms:creator ?user . \n" +
+        "   ?uri dcterms:title ?label . \n" +
+        "   ?uri dcterms:date ?date . \n" +
+        "   ?uri dcterms:description ?description . \n" +
         "} \n" +
         "ORDER BY ?date ";
 

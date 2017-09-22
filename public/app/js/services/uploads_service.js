@@ -150,7 +150,7 @@ angular.module('dendroApp.services')
                                     method: 'GET',
                                     url: uploadUri.toString(),
                                     contentType: "application/json",
-                                    headers: {'Accept': "application/json"}
+                                    headers: {"Accept": "application/json"}
                                 }).then(
                                     function (response)
                                     {

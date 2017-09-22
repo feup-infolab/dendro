@@ -88,7 +88,7 @@ angular.module('dendroApp.factories')
                 url: requestUri,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(
                 function(response)
                 {
@@ -149,7 +149,7 @@ angular.module('dendroApp.factories')
                     url: url,
                     data: metadataString,
                     contentType: "application/json",
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 }).then(function (response)
                     {
                         var data = response.data;
@@ -182,7 +182,7 @@ angular.module('dendroApp.factories')
                 return $http({
                     method: 'GET',
                     url: url,
-                    headers: {'Accept': mt},
+                    headers: {"Accept": mt},
                     data : {}
                 }).then(function(response) {
                     var data = response.data;
@@ -293,7 +293,7 @@ angular.module('dendroApp.factories')
                     url: requestUri,
                     data: JSON.stringify({}),
                     contentType: "application/json",
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 }).then(function(response) {
                     return response;
                 });
@@ -312,7 +312,7 @@ angular.module('dendroApp.factories')
                         url: requestUri,
                         data: JSON.stringify({}),
                         contentType: "application/json",
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                 }).then(function(response) {
                     return response;
                 });

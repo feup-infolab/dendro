@@ -15,11 +15,11 @@ const gfs = Config.getGFSByID();
 const tmp = require("tmp");
 
 const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
+
 const getAvatarFromGfs = function (user, callback) {
-    const tmp = require('tmp');
+    const tmp = require("tmp");
     const fs = require("fs");
     let avatarUri = user.getAvatarUri();
-    // /avatar/" + user.ddr.username + "/avatar." + "png";
     if (avatarUri) {
         let ext = avatarUri.split(".").pop();
 
@@ -140,7 +140,7 @@ const saveAvatarInGfs = function (avatar, user, extension, callback) {
                         }, function (err, results) {
                             if (err) {
                                 console.error("Error deleting one of the old avatars");
-                                console.error(JSON.stringify(results));
+                                //console.error(JSON.stringify(results));
                             }
                             uploadAvatarToGrifs(user, avatarUri, base64Data, extension, function (err, data) {
                                 callback(err, data);
@@ -202,8 +202,8 @@ exports.users_autocomplete = function(req, res){
 
 exports.all = function(req, res){
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     let viewVars = {
         title: 'Researchers in the knowledge base'
@@ -312,8 +312,8 @@ exports.username_exists = function(req, res){
 exports.show = function(req, res){
     const username = req.params["username"];
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     const sendResponse = function(err, user)
     {
@@ -636,8 +636,8 @@ exports.reset_password = function (req, res) {
 
 exports.getLoggedUser = function (req, res) {
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(!isNull(req.user))
     {
@@ -667,13 +667,28 @@ exports.getLoggedUser = function (req, res) {
 
 exports.get_avatar = function (req, res) {
     let username = req.params['username'];
+    let requestedResourceUri = req.params.uri;
+    let fetcherFunction;
+    let identifier;
 
-    User.findByUsername(username, function (err, user) {
+    const getUser = function(callback)
+    {
+        if(!isNull(username))
+        {
+            User.findByUsername(username, callback);
+        }
+        else if (!isNull(req.params.requestedResourceUri))
+        {
+            User.findByUri(req.params.requestedResourceUri, callback);
+        }
+    }
+
+    getUser(function (err, user) {
         if (!err) {
             if (!user) {
                 res.status(404).json({
                     result: "Error",
-                    message: "Error trying to find user with username " + username + " User does not exist"
+                    message: "Error trying to find user with identifier " + identifier + " User does not exist"
                 });
             }
             else {
@@ -709,7 +724,7 @@ exports.get_avatar = function (req, res) {
                         else {
                             res.status(500).json({
                                 result: "Error",
-                                message: "Error trying to get from gridFs user Avatar from user " + username + " Error reported: " + JSON.stringify(avatarFilePath)
+                                message: "Error trying to get from gridFs user Avatar from user identifier " + identifier + " Error reported: " + JSON.stringify(avatarFilePath)
                             });
                         }
                     });
@@ -730,31 +745,46 @@ exports.upload_avatar = function (req, res) {
     let currentUser = req.user;
     User.findByUri(currentUser.uri, function (err, user) {
         if (!err) {
-            let avatarExt = avatar.split(';')[0].split('/')[1];
-            let avatarUri = "/avatar/" + currentUser.ddr.username + "/avatar." + avatarExt;
+            let avatarExt;
+            let avatarUri;
+
+            try
+            {
+                avatarExt = avatar.split(';')[0].split('/')[1];
+                avatarUri = "/avatar/" + currentUser.ddr.username + "/avatar." + avatarExt;
+            }
+            catch(e)
+            {
+                return res.status(400).json({
+                    result: "error",
+                    message: e.message
+                });
+            }
 
             saveAvatarInGfs(avatar, user, avatarExt, function (err, data) {
                 if (!err) {
                     user.ddr.hasAvatar = avatarUri;
                     user.save(function (err, newUser) {
                         if (!err) {
-                            res.status(200).json({
+                            return res.status(200).json({
                                 result: "Success",
                                 message: "Avatar saved successfully."
                             });
                         }
-                        else {
+                        else
+                        {
                             let msg = "Error updating hasAvatar for user " + user.uri + ". Error reported :" + newUser;
                             console.error(msg);
-                            res.status(500).json({
+                            return res.status(500).json({
                                 result: "Error",
                                 message: msg
                             });
                         }
                     });
                 }
-                else {
-                    res.status(500).json({
+                else
+                {
+                    return res.status(500).json({
                         result: "Error",
                         message: "Error user " + currentUser.uri + " avatar. Error reported: " + JSON.stringify(data)
                     });
@@ -762,7 +792,7 @@ exports.upload_avatar = function (req, res) {
             });
         }
         else {
-            res.status(500).json({
+            return res.status(500).json({
                 result: "Error",
                 message: "Error trying to find user with uri " + currentUser.uri + " Error reported: " + JSON.stringify(err)
             });

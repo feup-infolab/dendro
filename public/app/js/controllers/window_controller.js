@@ -14,7 +14,9 @@ angular.module('dendroApp.controllers')
         $timeout,
         metadataService,
         windowService,
-        storageService
+        storageService,
+        licensesService,
+        languagesService
     )
 {
     $scope.get_current_url = function()
@@ -50,9 +52,9 @@ angular.module('dendroApp.controllers')
         return url.substr(url.lastIndexOf('/') + 1);
     };
 
-    $scope.show_popup = function(type, title, message)
+    $scope.show_popup = function(type, title, message, delay)
     {
-        windowService.show_popup(type,title,message);
+        windowService.show_popup(type,title,message, delay);
     };
 
     $scope.valid_date = function(descriptor)
@@ -148,6 +150,56 @@ angular.module('dendroApp.controllers')
             return regexp.test(word);
         }
 
+    }
+
+    $scope.load_licenses = function()
+    {
+        var deferred = $q.defer();
+
+        licensesService.get_licenses()
+            .then(function(licenses){
+                $scope.licenses = [];
+                var keys = Object.keys(licenses);
+                for(var i = 0; i < keys.length; i++)
+                {
+                    $scope.licenses.push(licenses[keys[i]]);
+                }
+
+                deferred.resolve($scope.licenses);
+            });
+
+        return deferred.promise;
+    };
+
+    $scope.load_languages = function()
+    {
+        var deferred = $q.defer();
+
+        languagesService.get_languages()
+            .then(function(languages){
+                $scope.languages = [];
+                var keys = Object.keys(languages);
+                for(var i = 0; i < keys.length; i++)
+                {
+                    $scope.languages.push(languages[keys[i]]);
+                }
+
+                deferred.resolve($scope.languages);
+            });
+
+        return deferred.promise;
+    };
+
+    $scope.get_descriptor_by_prefixed_form = function(descriptorsArray, prefixedForm)
+    {
+        var descriptor = _.find(descriptorsArray, function(descriptor){
+            return descriptor.prefixedForm === prefixedForm;
+        });
+
+        if(!descriptor)
+            return null;
+        else
+            return descriptor.value;
     }
 
 });

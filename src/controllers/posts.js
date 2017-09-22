@@ -406,8 +406,8 @@ const removeLike = function (likeID, userUri, cb) {
 
 exports.all = function(req, res){
     const currentUser = req.user;
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
     const username = currentUser.uri;
 
     const pingForNewPosts = true;
@@ -710,8 +710,8 @@ exports.new = function(req, res){
 
 
 exports.getPost_controller = function (req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -850,8 +850,8 @@ exports.getPostComments = function (req, res) {
 };
 
 exports.comment = function (req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -1001,8 +1001,8 @@ exports.comment = function (req, res) {
 };
 
 exports.checkIfPostIsLikedByUser = function (req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -1045,8 +1045,8 @@ exports.checkIfPostIsLikedByUser = function (req, res) {
 };
 
 exports.like = function (req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -1183,8 +1183,8 @@ exports.getPostShares = function (req, res) {
 };
 
 exports.postLikesInfo = function (req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {

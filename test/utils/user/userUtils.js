@@ -20,9 +20,7 @@ exports.loginUser = function (username, password, cb) {
         });
 };
 
-exports.logoutUser = function (cb) {
-    const app = global.tests.app;
-    agent = chai.request.agent(app);
+exports.logoutUser = function (agent, cb) {
     agent
         .get('/logout')
         .end(function (err, res) {
@@ -207,7 +205,7 @@ exports.editUser = function (jsonOnly, agent, dataToEdit, cb) {
 };
 
 exports.uploadAvatar = function (jsonOnly, agent, avatar, cb) {
-    let path = "/user/avatar";
+    let path = "/user_avatar";
     if(jsonOnly){
         agent
             .post(path)
@@ -234,7 +232,7 @@ function binaryParser(res, callback) {
     res.on('data', function (chunk) {
         res.data += chunk;
     });
-    res.on('end', function () {
+    res.on("end", function () {
         callback(null, new Buffer(res.data, 'binary'));
     });
 }
@@ -260,7 +258,7 @@ function binaryParser(res, callback) {
 
 
 exports.getAvatar = function (jsonOnly, username, agent, cb) {
-    let path = "/user/" + username + "/avatar";
+    let path = "/user/" + username + "?avatar";
     if(jsonOnly)
     {
         agent

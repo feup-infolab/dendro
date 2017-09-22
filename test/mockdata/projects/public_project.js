@@ -7,11 +7,16 @@ const projectData = {
     title: 'This is a public test project with handle ' + publicProjectHandle + " and created by demouser1",
     description : 'This is a test project description for a public project type',
     publisher: 'UP',
+    contact_address : "Universidade do Porto, Praça dos Leões 31",
+    contact_name : "João Rocha da Silva",
+    contact_phone: "+351 930000000",
+    contact_email: "teste@teste.com",
     language: 'En',
     coverage: 'Porto',
     handle: publicProjectHandle,
     privacy: 'public',
-    uri: "http://" + Config.host + "/" + publicProjectHandle
+    uri: "http://" + Config.host + "/" + publicProjectHandle,
+    backup_path: Pathfinder.absPathInTestsFolder("/mockdata/projects/projectBackups/publicprojectcreatedbydemouser1.zip")
 };
 
 module.exports = projectData;

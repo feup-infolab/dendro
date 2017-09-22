@@ -9,8 +9,8 @@ const sendAnyResponse  = function(data, options, req, res, next)
     if(isNull(data))
         data = {};
     
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(!options.code)
     {

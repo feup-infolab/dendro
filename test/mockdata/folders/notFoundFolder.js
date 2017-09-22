@@ -14,9 +14,9 @@ let folderData = {
     download_md5 : '',
     backup_md5 : '',
     files : [
-        require(Config.absPathInTestsFolder("mockdata/files/pdfMockfile.js")),
-        require(Config.absPathInTestsFolder("mockdata/files/pngMockfile.js")),
-        require(Config.absPathInTestsFolder("mockdata/files/xlsxMockfile.js"))
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockfile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockfile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockfile.js"))
     ],
     metadata : [
         {uri:"http://purl.org/dc/terms/creator",

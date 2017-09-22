@@ -109,6 +109,18 @@ const setupGracefulClose = function(app, server, callback)
     };
 
     nodeCleanup(function (exitCode, signal) {
+
+        //if this fancy cleanup fails, we drop the hammer in 5 secs
+        const setupForceKillTimer = function()
+        {
+            setTimeout(function(){
+                Logger.log_boot_message("info", "Graceful close timed out. Forcing server closing!");
+                process.kill(process.pid);
+            }, 5000);
+        };
+
+        setupForceKillTimer();
+
         if(exitCode || signal)
         {
             app.freeResources(function(err){
