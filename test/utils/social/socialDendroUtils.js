@@ -129,3 +129,25 @@ module.exports.commentAPost = function (jsonOnly, agent, postURIToComment, comme
     }
 };
 
+module.exports.getMySocialDendroTimeline = function (jsonOnly, agent, cb) {
+    const path = "/socialDendro/my";
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
