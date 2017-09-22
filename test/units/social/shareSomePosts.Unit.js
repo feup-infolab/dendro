@@ -23,8 +23,6 @@ function requireUncached(module) {
     return require(module)
 }
 
-let postURI;
-
 module.exports.setup = function(finish)
 {
     let createManualPostForAllProjectTypesUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/social/createManualPostForAllProjectTypes.Unit.js"));
@@ -46,7 +44,7 @@ module.exports.setup = function(finish)
                     socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
                         if(isNull(err))
                         {
-                            postURI = module.exports.postURI = res.body[1].uri;//para ter acesso nas outras units a seguir
+                            let postURI = res.body[1].uri;//para ter acesso nas outras units a seguir
                             socialDendroUtils.shareAPost(true, agent, res.body[1].uri, shareMock.shareMsg, function (err, res) {
                                 //finish(err, res);
                                 finish(err, postURI);
