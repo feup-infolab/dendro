@@ -1904,7 +1904,25 @@ exports.mkdir = function(req, res){
                 {
                     processRequest(parentFolderUri, callback);
                 }
-            ]
+            ], function(err, folder)
+            {
+                if(isNull(err))
+                {
+                    res.json({
+                        "status" : "1",
+                        "id" : folder.uri,
+                        "result" : "ok",
+                        "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Config.types.private], [Config.types.api_readable])
+                    });
+                }
+                else
+                {
+                    res.status(err.statusCode).json({
+                        result: "Error",
+                        message: err.message
+                    });
+                }
+            }
         );
     }
     else
