@@ -46,7 +46,7 @@
             Got it!
         </button>
       </div>
-        <div ng-controller="registryCtrl" class="container" ng-init="init('<%=locals.registries%>')">
+        <div ng-controller="registryCtrl" class="container" ng-init="init('<%=locals.deposits%>')">
             <div class="row">
 
                 <section class="content">
@@ -55,24 +55,22 @@
                         <div class="table-container">
                             <table class="table table-responsive table-striped table-bordered">
                                 <tbody>
-                                <%for(registry in locals.registries){%>
-                                <tr>
+                                <tr ng-repeat="registry in registries track by $index">
                                     <td>
                                         <div class="media">
                                             <div class="media-body">
-                                                <span class="media-meta pull-right">Febrero 13, 2016</span>
+                                                <span class="media-meta pull-right">{{registry.date}}</span>
                                                 <h4 class="title">
-                                                    <a href="">"<%=registry.user%>"</a> deposited the folder <a
-                                                            href="" class="foldersLabel">boom</a> from private project <a href="">project1</a> in CKAN
+                                                    <a href="{{registry.creator}}">{{registry.user}}</a> deposited the folder <a
+                                                            href="" class="foldersLabel">boom</a> from {{registry.privacy}} project <a href="{{registry.projused}}">{{registry.title}}</a> in {{registry.description}}
                                                 </h4>
-                                                <p class="summary">Midway deposit for checkpoint</p>
+                                                <p class="summary">{{registry.label}}</p>
                                                 <img src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="ckan">
                                             </div>
                                         </div>
                                     </td>
 
                                 </tr>
-                                <% } %>
                                 </tbody>
                             </table>
                         </div>

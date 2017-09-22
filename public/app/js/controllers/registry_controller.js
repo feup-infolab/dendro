@@ -30,9 +30,10 @@ angular.module('dendroApp.controllers')
 
 
         $scope.init = function(registries){
-            this.registries = registries;
-            for (registry in registries)
-                console.log(registry);
+            $scope.registries = JSON.parse(registries);
+            for (let i = 0; i < $scope.registries.length; i++){
+                console.log($scope.registries[i].label);
+            }
         };
 
         $scope.getPublicRegistry = function(){

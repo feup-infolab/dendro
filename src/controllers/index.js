@@ -3,21 +3,28 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const Registry = require(Pathfinder.absPathInSrcFolder("/models/registry.js")).Registry;
-
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 
 exports.index = function(req, res){
+    let registries;
+    const loggedIn = req.user instanceof User;
+    if(loggedIn){
+        Registry.getAllowedDeposits(req, function(deposits){
+            registries = JSON.stringify(deposits);
+            //TODO query to get latest deposits
 
-    Registry.getDeposits(req, function(deposits){
-        //TODO query to get latest deposits
-        res.render('index', {
-                registries: deposits
-            }
-        )
-    });
-
-
+        });
+    } else {
+        Registry.getDeposits(req, function(deposits){
+            registries = JSON.stringify(deposits);
+        });
+    }
+    res.render('index', {
+            deposits : registries
+        }
+    )
 };
 
 exports.analytics_tracking_code = function(req, res){

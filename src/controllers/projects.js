@@ -867,13 +867,13 @@ exports.new = function(req, res) {
                             {
                                 req.flash('success', "New project " + projectData.dcterms.title +" with handle "+ projectData.ddr.handle +" created successfully");
                                 res.redirect('/projects/my');
+<
 
                                 const registryData = {
                                     dcterms: {
                                         title: "new project",
                                         description: "ckan",
-                                        creator: "demouser2",
-                                        date: "today",
+                                        creator: req.user.ddr.username,
                                     },
                                     ddr: {
                                         exportedFromProject: result.uri

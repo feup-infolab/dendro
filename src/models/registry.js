@@ -4,6 +4,7 @@
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
 const path = require("path");
+const moment = require("moment");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -36,8 +37,8 @@ function Registry(object){
 
     self.copyOrInitDescriptors(object);
 
-    const now = new Date();
-    self.dcterms.created = now.toDateString();
+    let now = moment().format();
+    self.dcterms.date = now;
     const uuid = require('uuid');
 
     self.uri = Config.baseUri + "/deposit/" + uuid.v4();
@@ -60,20 +61,22 @@ Registry.createDepositRegistry = function (object, callback) {
 };
 
 Registry.getDeposits = function(req, res){
-    //const loggedIn = req.body.user;
 
     const query =
-        "SELECT ?uri ?label ?user ?date ?description \n" +
+        "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy \n" +
         "FROM [0] \n"  +
         "WHERE { \n" +
         "?uri rdf:type ddr:Registry . \n" +
         "?uri ddr:exportedFromProject ?projused . \n" +
         "?projused ddr:privacyStatus [1] . \n" +
+        "?projused ddr:privacyStatus ?privacy . \n" +
+        "?projused dcterms:title ?title . \n" +
         "?uri dcterms:creator ?user . \n" +
         "?uri dcterms:title ?label . \n" +
         "?uri dcterms:date ?date . \n" +
         "?uri dcterms:description ?description . \n" +
-        "}";
+        "} \n" +
+        "ORDER BY ?date ";
 
     db.connection.execute(query,
         [   {
@@ -84,9 +87,74 @@ Registry.getDeposits = function(req, res){
                 type : DbConnection.string,
                 value : "public"
             }
-        ], function (err, regs){
+        ], function (err, results){
+
+            let deposits = results;
+            for(let i = 0; i < deposits.length; i++){
+                deposits[i].date = moment(deposits[i].date).fromNow();
+            }
             //check for error
-            res(regs);
+            res(deposits);
+        });
+};
+
+Registry.getAllowedDeposits = function(req, res){
+
+    const query =
+        "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy\n" +
+        "FROM [0] \n"  +
+        "WHERE { \n" +
+        "?uri rdf:type ddr:Registry . \n" +
+        "?uri ddr:exportedFromProject ?projused . \n" +
+        "?projused ddr:privacyStatus ?privacy . \n" +
+        "{ \n" +
+            "?projused ddr:privacyStatus [1] . \n" +
+            "?projused rdf:type ddr:Project . \n" +
+            "{ \n" +
+                "?projused dcterms:creator ?creator . \n" +
+                "?creator ddr:username [2] \n" +
+            "} \n" +
+            " UNION \n" +
+            "{ \n" +
+                "?projused dcterms:contributor ?contributor . \n" +
+                "?contributor ddr:username [2] \n" +
+            "} \n" +
+        "} \n" +
+        " UNION \n" +
+        " { ?projused ddr:privacyStatus [3] }\n"+
+        "?projused dcterms:title ?title . \n" +
+        "?uri dcterms:creator ?user . \n" +
+        "?uri dcterms:title ?label . \n" +
+        "?uri dcterms:date ?date . \n" +
+        "?uri dcterms:description ?description . \n" +
+        "} \n" +
+        "ORDER BY ?date ";
+
+    db.connection.execute(query,
+        [   {
+            type : DbConnection.resourceNoEscape,
+            value : db.graphUri
+        },
+            {
+                type : DbConnection.string,
+                value : "private"
+            },
+            {
+                type : DbConnection.string,
+                value : req.user.ddr.username
+            },
+            {
+                type : DbConnection.string,
+                value : "public"
+            }
+        ], function (err, results){
+
+            let deposits = results;
+            for(let i = 0; i < deposits.length; i++){
+                deposits[i].date = moment(deposits[i].date).fromNow();
+            }
+            //check for error
+            res(deposits);
         });
 };
 
