@@ -45,8 +45,18 @@ module.exports.setup = function(finish)
                 else
                 {
                     async.mapSeries(projectsData, function (projectData, cb) {
-                        socialDendroUtils.createManualPostInProject(true, agent, projectData, manualPostMockData, function (err, res) {
-                            cb(err, res);
+                        projectUtils.getProjectUriFromHandle(agent, projectData.handle, function (err, res) {
+                            if(isNull(err))
+                            {
+                                let projectUri = res;
+                                socialDendroUtils.createManualPostInProject(true, agent, projectUri, manualPostMockData, function (err, res) {
+                                    cb(err, res);
+                                });
+                            }
+                            else
+                            {
+                                cb(err, res);
+                            }
                         });
                     }, function (err, results) {
                         finish(err, results);

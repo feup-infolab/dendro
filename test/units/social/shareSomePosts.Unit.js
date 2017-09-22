@@ -41,11 +41,12 @@ module.exports.setup = function(finish)
                 else
                 {
                     //TODO do the get posts request obtain a uri of a post then share it
+                    let pageNumber = 1;
                     socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
                         if(isNull(err))
                         {
-                            let postURI = res.body[1].uri;//para ter acesso nas outras units a seguir
-                            socialDendroUtils.shareAPost(true, agent, res.body[1].uri, shareMock.shareMsg, function (err, res) {
+                            let postURI = res.body[0].uri;//para ter acesso nas outras units a seguir
+                            socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res) {
                                 //finish(err, res);
                                 finish(err, postURI);
                             })
