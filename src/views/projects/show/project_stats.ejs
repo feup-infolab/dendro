@@ -1,12 +1,18 @@
-<p> This where the chart should be </p>
-<canvas id="myChart" width="400" height="400"></canvas>
+<canvas id="myChart" width="200" height="200"></canvas>
 <script>
     $(document).ready(function () {
         var ctx = document.getElementById("myChart").getContext('2d');
         var myChart = new Chart(ctx, {
             type: 'line',
-            data: {
-            },
+                data: {
+                    labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+                    datasets: [{
+                        label: '# of Votes',
+                        data:   [ [65, 59, 80, 81, 56, 55, 40],
+                            [28, 48, 40, 19, 86, 27, 90]],
+                    }]
+                }
+            ,
             options: {
             }
         });
