@@ -29,6 +29,7 @@ const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"))
 const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
 const fileVersions = require(Pathfinder.absPathInSrcFolder("/controllers/file_versions"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
+const deposits = require(Pathfinder.absPathInSrcFolder("/controllers/deposits"));
 
 let recommendation;
 
@@ -1158,9 +1159,9 @@ const loadRoutes = function(app, callback)
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
     //TODO William
-    /*app.get("/deposits/all", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), registry.get_public))
+    app.get("/deposits/latest", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), deposits.public);
 
-    app.get([
+    /*app.get([
             getNonHumanReadableRouteRegex("deposit")
         ],
         extractUriFromRequest,

@@ -2,7 +2,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const Registry = require(Pathfinder.absPathInSrcFolder("/models/registry.js")).Registry;
+const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
@@ -29,11 +29,11 @@ exports.index = function(req, res){
     };
 
     if(loggedIn){
-        Registry.getAllowedDeposits(req, function(deposits){
+        Deposit.getAllowedDeposits(req, function(deposits){
             sendResponse(deposits);
         });
     } else {
-        Registry.getDeposits(req, function(deposits){
+        Deposit.getDeposits(req, function(deposits){
             sendResponse(deposits);
         });
     }

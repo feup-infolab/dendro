@@ -29,7 +29,7 @@ const util = require('util');
 const async = require("async");
 const _ = require("underscore");
 
-function Registry(object){
+function Deposit(object){
 
     const self = this;
     self.addURIAndRDFType(object, "registry", Registry);
@@ -46,7 +46,7 @@ function Registry(object){
     return self;
 }
 
-Registry.createDepositRegistry = function (object, callback) {
+Deposit.createDepositRegistry = function (object, callback) {
     const newRegistry = new Registry(object);
 
     console.log("creating registry from deposit\n" + util.inspect(object));
@@ -60,7 +60,7 @@ Registry.createDepositRegistry = function (object, callback) {
     });
 };
 
-Registry.getDeposits = function(req, res){
+Deposit.getDeposits = function(req, res){
 
     const query =
         "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy \n" +
@@ -98,7 +98,7 @@ Registry.getDeposits = function(req, res){
         });
 };
 
-Registry.getAllowedDeposits = function(req, res){
+Deposit.getAllowedDeposits = function(req, res){
 
     const query =
         "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy\n" +
@@ -161,7 +161,7 @@ Registry.getAllowedDeposits = function(req, res){
         });
 };
 
-Registry.getPublicRegistry = function(req, callback){
+Deposit.getPublicRegistry = function(req, callback){
     const query =
         "SELECT * \n" +
         "FROM [0] \n" +
@@ -182,7 +182,7 @@ Registry.getPublicRegistry = function(req, callback){
 
 };
 
-Registry.createAndInsertFromObject = function(object, callback){
+Deposit.createAndInsertFromObject = function(object, callback){
     const self = Object.create(this.prototype);
     self.constructor(object);
     self.save(function(err, newRegistry){
@@ -194,6 +194,6 @@ Registry.createAndInsertFromObject = function(object, callback){
     })
 };
 
-Registry = Class.extend(Registry, Resource, "ddr:Registry");
+Deposit = Class.extend(Deposit, Resource, "ddr:Registry");
 
-module.exports.Registry = Registry;
+module.exports.Deposit = Deposit;

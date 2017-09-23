@@ -22,18 +22,29 @@ angular.module('dendroApp.controllers')
     {
         $scope.active_tab = null;
         $scope.registries = [];
-
+        $scope.offset = 0;
+        $scope.page = 0;
 
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
 
 
-        $scope.init = function(registries){
-            $scope.registries = JSON.parse(registries);
-            for (let i = 0; i < $scope.registries.length; i++){
-                console.log($scope.registries[i].label);
-            }
+        $scope.init = function(){
+            //get initial registries
+            let url = $scope.get_current_url();
+            url += "deposits/latest";
+            $http({
+                method: "GET",
+                url: url,
+                contentType: "application/json",
+                headers: {"Accept": "application/json"}
+            }).then(function(response){
+                //TODO like this?????????????????
+                $scope.registries = response;
+            }).catch(function(error){
+
+            });
         };
 
         $scope.getPublicRegistry = function(){

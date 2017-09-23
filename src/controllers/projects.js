@@ -13,7 +13,7 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Registry = require(Pathfinder.absPathInSrcFolder("/models/registry.js")).Registry;
+const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Registry;
 
 const nodemailer = require("nodemailer");
 const db = Config.getDBByID();
@@ -886,7 +886,7 @@ exports.new = function(req, res) {
                                         exportedFromProject: result.uri
                                     }
                                 };
-                                Registry.createDepositRegistry(registryData, function(err, result){
+                                Deposit.createDepositRegistry(registryData, function(err, result){
                                     console.log(result);
                                 });
                             }
