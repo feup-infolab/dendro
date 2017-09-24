@@ -60,7 +60,7 @@ Deposit.createDepositRegistry = function (object, callback) {
     });
 };
 
-Deposit.getDeposits = function(req, res){
+Deposit.getDeposits = function(public, callback){
 
     const query =
         "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy \n" +
@@ -85,7 +85,7 @@ Deposit.getDeposits = function(req, res){
             },
             {
                 type : DbConnection.string,
-                value : "public"
+                value : public
             }
         ], function (err, results){
 
@@ -94,11 +94,11 @@ Deposit.getDeposits = function(req, res){
                 deposits[i].date = moment(deposits[i].date).fromNow();
             }
             //check for error
-            res(deposits);
+            callback(err, deposits);
         });
 };
 
-Deposit.getAllowedDeposits = function(req, res){
+Deposit.getAllowedDeposits = function(username, callback){
 
     const query =
         "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy\n" +
@@ -144,7 +144,7 @@ Deposit.getAllowedDeposits = function(req, res){
             },
             {
                 type : DbConnection.string,
-                value : req.user.ddr.username
+                value : username
             },
             {
                 type : DbConnection.string,
@@ -153,11 +153,13 @@ Deposit.getAllowedDeposits = function(req, res){
         ], function (err, results){
 
             let deposits = results;
+
+            //make this operation client-side
             for(let i = 0; i < deposits.length; i++){
                 deposits[i].date = moment(deposits[i].date).fromNow();
             }
             //check for error
-            res(deposits);
+            callback(err, deposits);
         });
 };
 

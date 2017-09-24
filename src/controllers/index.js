@@ -8,7 +8,6 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 
 exports.index = function(req, res){
-    let registries;
     const loggedIn = req.user instanceof User;
 
     const sendResponse = function(deposits)

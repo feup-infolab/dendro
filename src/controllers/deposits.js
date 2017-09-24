@@ -36,11 +36,26 @@ exports.public = function (req, res) {
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    Deposit.getDeposits(req, function(err, results){
+    const depositType = "public";
+
+    Deposit.getDeposits(depositType, function(err, results){
         if(isNull(err)){
             deposits = results;
             res.json(deposits);
         }
     });
+};
 
+exports.allowed = function (req, res) {
+    let deposits = {};
+
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    Deposit.getAllowedDeposits(req, function(err, results){
+        if(isNull(err)){
+            deposits = results;
+            res.json(deposits);
+        }
+    });
 };

@@ -2,7 +2,7 @@ angular.module('dendroApp.controllers')
 /**
  *  Project administration controller
  */
-    .controller('registryCtrl', function (
+    .controller('depositCtrl', function (
         $scope,
         $http,
         $filter,
