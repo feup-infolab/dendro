@@ -581,7 +581,8 @@ exports.all = function (req, res) {
 
 exports.new = function(req, res){
     let currentUserUri = req.user.uri;
-    if (req.body.newPostContent !== null && req.body.newPostTitle !== null && req.body.newPostProjectUri !== null) {
+    /*if (req.body.newPostContent !== null && req.body.newPostTitle !== null && req.body.newPostProjectUri !== null) {*/
+    if (!isNull(req.body.newPostContent) && !isNull(req.body.newPostTitle) && !isNull(req.body.newPostProjectUri)) {
         Project.findByUri(req.body.newPostProjectUri, function (err, project) {
             if (!err && project) {
                 project.isUserACreatorOrContributor(currentUserUri, function (err, results) {

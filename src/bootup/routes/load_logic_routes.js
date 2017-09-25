@@ -1054,7 +1054,31 @@ const loadRoutes = function(app, callback)
         processRequest(req.body.postsQueryInfo);
     });
 
-    app.post('/posts/new', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.new);
+    /*app.post('/posts/new', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.new);*/
+    app.post('/posts/new', function (req, res, next) {
+        /*Permissions.settings.role.in_project.contributor,
+            Permissions.settings.role.in_project.creator*/
+        const processRequest = function(postContent, postTitle, postProjectUri){
+            req.body.newPostContent = postContent;
+            req.body.newPostTitle = postTitle;
+            req.body.newPostProjectUri = postProjectUri;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.new,
+                        permissions: [Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator],
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project where you want to create the manual post"
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.body.newPostContent, req.body.newPostTitle, req.body.newPostProjectUri);
+    });
+
     app.post('/posts/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.like);
     app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.checkIfPostIsLikedByUser);
     app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.postLikesInfo);
