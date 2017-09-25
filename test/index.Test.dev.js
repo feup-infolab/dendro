@@ -15,7 +15,12 @@ global.Config = Config;
 
 global.tests = {};
 
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));*/
+
+/*require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
 return;
 
 //PUBLIC PROJECT ROOT MKDIR TESTS

@@ -176,3 +176,27 @@ module.exports.getAPostInfo = function (jsonOnly, agent, postUri, cb) {
     }
 };
 
+module.exports.getPostsArrayInfo = function(jsonOnly, agent, postURIsArray, cb) {
+    const path = "/posts/posts";
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .send({postsQueryInfo: postURIsArray})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .send({postsQueryInfo: postURIsArray})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+

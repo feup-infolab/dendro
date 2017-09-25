@@ -192,49 +192,44 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
     }
 };
 
-const checkUsersRoleInPostsProject = function (req, user, role, postUri, callback) {
-    console.log("At checkUsersRoleInPostsProject");
-    /*callback(null, null);*/
-    //TODO verificar se o user é null ou não
-    //TODO obter o project a partir do postURI
-    //TODO check usersRoleInProject
 
-    const getPostsProject = function (postUri, callback) {
-        Post.findByUri(postUri, function(err, post){
-            if(isNull(err))
+const getPostsProject = function (postUri, callback) {
+    Post.findByUri(postUri, function(err, post){
+        if(isNull(err))
+        {
+            if(!isNull(post))
             {
-                if(!isNull(post))
+                if(post instanceof Post)
                 {
-                    if(post instanceof Post)
-                    {
-                        post.getOwnerProject(function(err, project){
-                            if(!isNull(project) && project instanceof Project)
-                            {
-                                callback(null, project);
-                            }
-                            else
-                            {
-                                callback(err, project);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        callback("Resource " + postUri + " is of invalid type!", null);
-                    }
+                    post.getOwnerProject(function(err, project){
+                        if(!isNull(project) && project instanceof Project)
+                        {
+                            callback(null, project);
+                        }
+                        else
+                        {
+                            callback(err, project);
+                        }
+                    });
                 }
                 else
                 {
-                    callback(null, null);
+                    callback("Resource " + postUri + " is of invalid type!", null);
                 }
             }
             else
             {
-                callback(err, post);
+                callback(null, null);
             }
-        }, null, db_social.graphUri, false, null, null);
-    };
+        }
+        else
+        {
+            callback(err, post);
+        }
+    }, null, db_social.graphUri, false, null, null);
+};
 
+const checkUsersRoleInPostsProject = function (req, user, role, postUri, callback) {
     if(!isNull(user))
     {
         getPostsProject(postUri, function (err, project) {
@@ -253,6 +248,51 @@ const checkUsersRoleInPostsProject = function (req, user, role, postUri, callbac
             {
                 return callback(null, false);
             }
+        });
+    }
+    else
+    {
+        callback(null, false);
+    }
+};
+
+const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPostsUris, callback) {
+    if(!isNull(user))
+    {
+        async.mapSeries(arrayOfPostsUris, function (postUri, cb) {
+            getPostsProject(postUri, function (err, project) {
+                if(isNull(err))
+                {
+                    if (project instanceof Project) {
+                        checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
+                            if(isNull(err))
+                            {
+                                if(hasRole === false)
+                                {
+                                    return callback(err, hasRole);
+                                }
+                                else
+                                {
+                                    cb(err, hasRole);
+                                }
+                            }
+                            else
+                            {
+                                return callback(err, false);
+                            }
+                        });
+                    }
+                    else {
+                        return callback(null, false);
+                    }
+                }
+                else
+                {
+                    return callback(null, false);
+                }
+            });
+        }, function (err, results) {
+            return callback(err, true);
         });
     }
     else
@@ -347,6 +387,9 @@ Permissions.types = {
     role_in_post_s_project : {
         validator : checkUsersRoleInPostsProject
     },
+    role_in_array_of_posts_project : {
+        validator : checkUsersRoleInArrayOfPostsProject
+    },
     privacy_of_project : {
         validator : checkPrivacyOfProject
     },
@@ -415,6 +458,20 @@ Permissions.settings = {
                 predicate: "dcterms:contributor",
                 error_message_user: "You are not a contributor or creator of the project to which this post belongs to.",
                 error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project the post belongs to."
+            }
+        },
+        in_array_of_posts_project: {
+            creator: {
+                type: Permissions.types.role_in_array_of_posts_project,
+                predicate: "dcterms:creator",
+                error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
+            },
+            contributor: {
+                type: Permissions.types.role_in_array_of_posts_project,
+                predicate: "dcterms:contributor",
+                error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
             }
         }
     },
@@ -525,6 +582,12 @@ Permissions.check = function(permissionsRequired, req, callback) {
             else if(permission.type == Permissions.types.role_in_post_s_project)
             {
                 Permissions.types.role_in_post_s_project.validator(req, user, permission, req.body.postID, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if(permission.type == Permissions.types.role_in_array_of_posts_project)
+            {
+                Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.body.postsQueryInfo, function (err, result) {
                     cb(err, {authorized: result, role: permission});
                 });
             }
