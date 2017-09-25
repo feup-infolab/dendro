@@ -10,9 +10,12 @@ const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
 
 const async = require("async");
 const _ = require("underscore");
+
+const db_social = Config.getDBByID("social");
 
 function Permissions (){}
 
@@ -189,6 +192,75 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
     }
 };
 
+const checkUsersRoleInPostsProject = function (req, user, role, postUri, callback) {
+    console.log("At checkUsersRoleInPostsProject");
+    /*callback(null, null);*/
+    //TODO verificar se o user é null ou não
+    //TODO obter o project a partir do postURI
+    //TODO check usersRoleInProject
+
+    const getPostsProject = function (postUri, callback) {
+        Post.findByUri(postUri, function(err, post){
+            if(isNull(err))
+            {
+                if(!isNull(post))
+                {
+                    if(post instanceof Post)
+                    {
+                        post.getOwnerProject(function(err, project){
+                            if(!isNull(project) && project instanceof Project)
+                            {
+                                callback(null, project);
+                            }
+                            else
+                            {
+                                callback(err, project);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        callback("Resource " + postUri + " is of invalid type!", null);
+                    }
+                }
+                else
+                {
+                    callback(null, null);
+                }
+            }
+            else
+            {
+                callback(err, post);
+            }
+        }, null, db_social.graphUri, false, null, null);
+    };
+
+    if(!isNull(user))
+    {
+        getPostsProject(postUri, function (err, project) {
+            if(isNull(err))
+            {
+                if (project instanceof Project) {
+                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
+                        return callback(err, hasRole);
+                    });
+                }
+                else {
+                    return callback(null, false);
+                }
+            }
+            else
+            {
+                return callback(null, false);
+            }
+        });
+    }
+    else
+    {
+        callback(null, false);
+    }
+};
+
 const checkUsersRoleInParentProject = Permissions.checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
     if (!isNull(user)) {
         getOwnerProject(resource, function (err, project) {
@@ -272,6 +344,9 @@ Permissions.types = {
     role_in_owner_project : {
         validator : checkUsersRoleInParentProject
     },
+    role_in_post_s_project : {
+        validator : checkUsersRoleInPostsProject
+    },
     privacy_of_project : {
         validator : checkPrivacyOfProject
     },
@@ -326,6 +401,20 @@ Permissions.settings = {
                 predicate: "dcterms:contributor",
                 error_message_user: "You are not a contributor of this project or of the project to which this resource belongs to.",
                 error_message_api: "Unauthorized access. Must be signed on as a contributor of the project the resource belongs to."
+            }
+        },
+        in_post_s_project : {
+            creator: {
+                type: Permissions.types.role_in_post_s_project,
+                predicate: "dcterms:creator",
+                error_message_user: "You are not a contributor or creator of the project to which this post belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project the post belongs to."
+            },
+            contributor: {
+                type: Permissions.types.role_in_post_s_project,
+                predicate: "dcterms:contributor",
+                error_message_user: "You are not a contributor or creator of the project to which this post belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project the post belongs to."
             }
         }
     },
@@ -430,6 +519,12 @@ Permissions.check = function(permissionsRequired, req, callback) {
             else if (permission.type === Permissions.types.privacy_of_owner_project)
             {
                 Permissions.types.privacy_of_owner_project.validator(req, user, permission, resource, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if(permission.type == Permissions.types.role_in_post_s_project)
+            {
+                Permissions.types.role_in_post_s_project.validator(req, user, permission, req.body.postID, function (err, result) {
                     cb(err, {authorized: result, role: permission});
                 });
             }

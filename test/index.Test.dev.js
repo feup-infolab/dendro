@@ -36,24 +36,24 @@ require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDe
 require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
 
 /*'/socialDendro/my' -> done route and file and stubs
-'/posts/all' -> done route and file and stubs
-'/posts/post' -> done route and file and stubs
-'/posts/posts' -> done route and file and stubs
-'/posts/new' -> done route and file and stubs
-'/posts/like' -> done route and file and stubs
-'/posts/like/liked' -> done route and file and stubs
-'/posts/post/likesInfo' -> done route and file and stubs
-'/posts/comment' -> done route and file and stubs
-'/posts/comments' -> done route and file and stubs
-'/posts/share' -> done route and file and stubs
-'/posts/shares' -> done route and file and stubs
-'/posts/countNum' -> done route and file and stubs
-'/posts/:uri' -> done route and file and stubs
-'/shares/:uri' -> done route and file and stubs
-'/notifications/all' -> done route and file and stubs
-'/notifications/notification' -> done route and file and stubs
-'/notifications/notification' -> done route and file and stubs
-*/
+ '/posts/all' -> done route and file and stubs
+ '/posts/post' -> done route and file and stubs
+ '/posts/posts' -> done route and file and stubs
+ '/posts/new' -> done route and file and stubs
+ '/posts/like' -> done route and file and stubs
+ '/posts/like/liked' -> done route and file and stubs
+ '/posts/post/likesInfo' -> done route and file and stubs
+ '/posts/comment' -> done route and file and stubs
+ '/posts/comments' -> done route and file and stubs
+ '/posts/share' -> done route and file and stubs
+ '/posts/shares' -> done route and file and stubs
+ '/posts/countNum' -> done route and file and stubs
+ '/posts/:uri' -> done route and file and stubs
+ '/shares/:uri' -> done route and file and stubs
+ '/notifications/all' -> done route and file and stubs
+ '/notifications/notification' -> done route and file and stubs
+ '/notifications/notification' -> done route and file and stubs
+ */
 
 
 

@@ -151,3 +151,28 @@ module.exports.getMySocialDendroTimeline = function (jsonOnly, agent, cb) {
     }
 };
 
+
+module.exports.getAPostInfo = function (jsonOnly, agent, postUri, cb) {
+    const path = "/posts/post";
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .send({postID: postUri})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .send({postID: postUri})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+

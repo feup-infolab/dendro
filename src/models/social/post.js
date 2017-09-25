@@ -190,6 +190,57 @@ Post.prototype.getShares = function (cb) {
         });
 };
 
+Post.prototype.getOwnerProject = function(callback)
+{
+    const self = this;
+    const query =
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "FROM [1] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [2] ddr:projectUri ?uri. \n" +
+        "   ?uri rdf:type ddr:Project \n" +
+        "} ";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type: DbConnection.resource,
+                value: self.uri
+            }
+        ],
+        function(err, result) {
+            if(isNull(err))
+            {
+                if(result instanceof Array && result.length === 1)
+                {
+                    const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                    Project.findByUri(result[0].uri, function(err, project){
+                        callback(err,project);
+                    });
+                }
+                else
+                {
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
+                }
+            }
+            else
+            {
+                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
+            }
+        }
+    );
+};
+
 Post = Class.extend(Post, Event, "ddr:Post");
 
 module.exports.Post = Post;

@@ -1003,9 +1003,32 @@ const loadRoutes = function(app, callback)
     );
 
     //      social
+    const defaultSocialDendroPostPermissions = [
+        Permissions.settings.role.in_post_s_project.creator,
+        Permissions.settings.role.in_post_s_project.contributor
+    ];
     app.get('/socialDendro/my', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
     app.get('/posts/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.all);
-    app.post('/posts/post', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPost_controller);
+    app.post('/posts/post', function (req, res, next) {
+        const processRequest = function(postUri){
+            req.body.postID = postUri;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.getPost_controller,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which this post belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.body.postID);
+    });
+    
     app.post('/posts/posts', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPosts_controller);
     app.post('/posts/new', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.new);
     app.post('/posts/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.like);
