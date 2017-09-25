@@ -2147,13 +2147,12 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
                             }
                             else
                             {
-                                pipeFile(absPathOfFileToServe, fileName, res, null, cachePeriodInSeconds)
+                                pipeFile(absPathOfFileToServe, fileName, res, null, cachePeriodInSeconds);
                             }
                         }
                         else
                         {
-
-
+                            pipeFile(absPathOfFileToServe, fileName, res, null, cachePeriodInSeconds);
                         }
                     }
                     else
