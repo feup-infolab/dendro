@@ -1744,14 +1744,13 @@ exports.mkdir = function(req, res){
 
             if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
             {
-                res.status(400).json(
-                    {
+                return callback({
+                    statusCode : 400,
+                    error: {
                         "result" : "error",
                         "message" : "invalid file name specified"
                     }
-                );
-
-                callback(1);
+                });
             }
             else
             {
@@ -1772,17 +1771,36 @@ exports.mkdir = function(req, res){
                         }
                         else
                         {
-                            callback(1, "Unable to determine root folder of project " + projectUri);
+                            return callback({
+                                statusCode: 500,
+                                error: {
+                                    "result": "error",
+                                    "message": "Unable to determine root folder of project " + projectUri
+                                }
+                            });
                         }
                     }
                     else
                     {
-                        callback(1, "There is no project with uri " + projectUri + ".");
+                        return callback({
+                            statusCode: 404,
+                            error: {
+                                "result": "error",
+                                "message": "There is no project with uri " + projectUri + "."
+                            }
+                        });
                     }
                 }
                 else
                 {
-                    callback(err, project);
+                    return callback({
+                        statusCode : 500,
+                        error : {
+                            result : "error",
+                            error : project,
+                            message : "Unable to retrieve project " + projectUri
+                        }
+                    });
                 }
             });
         };
@@ -1817,53 +1835,41 @@ exports.mkdir = function(req, res){
                                 {
                                     if(isNull(err))
                                     {
-                                        res.json(
-                                            {
-                                                "status" : "1",
-                                                "id" : newChildFolder.uri,
-                                                "result" : "ok",
-                                                "new_folder" : Descriptor.removeUnauthorizedFromObject(result, [Config.types.private], [Config.types.api_readable])
-                                            }
-                                        );
-
-                                        callback(null);
+                                        return callback(null, newChildFolder);
                                     }
                                     else
                                     {
-                                        res.status(500).json(
-                                            {
+                                        return callback({
+                                            statusCode : 500,
+                                            error : {
                                                 "result" : "error",
                                                 "message" : "error 1 saving new folder :" + result
                                             }
-                                        );
-
-                                        callback(1);
+                                        });
                                     }
                                 });
                             }
                             else
                             {
-                                res.status(500).json(
-                                    {
+                                return callback({
+                                    statusCode : 500,
+                                    error : {
                                         "result" : "error",
                                         "message" : "error 2 saving new folder :" + result
                                     }
-                                );
-
-                                callback(1);
+                                });
                             }
                         });
                 }
                 else
                 {
-                    res.status(500).json(
-                        {
-                            "result" : "error",
-                            "message" : "error 3 saving new folder :" + parentFolder
+                    return callback({
+                        statusCode: 500,
+                        error: {
+                            "result": "error",
+                            "message": "error 3 saving new folder :" + parentFolder
                         }
-                    );
-
-                    callback(1);
+                    });
                 }
             });
         };
@@ -1879,25 +1885,24 @@ exports.mkdir = function(req, res){
                         {
                             if (err)
                             {
-                                res.status(500).json(
-                                    {
+                                return callback({
+                                    statusCode : 500,
+                                    error : {
                                         "result" : "error",
                                         "message" : "Unable to get root folder of project :" + req.params.requestedResourceUri,
                                         "error": projectUri
                                     }
-                                );
-
-                                callback(1);
+                                });
                             }
                             else
                             {
-                                callback(null, projectUri);
+                                return callback(null, projectUri);
                             }
                         });
                     }
                     else
                     {
-                        callback(null, req.params.requestedResourceUri);
+                        return callback(null, req.params.requestedResourceUri);
                     }
                 },
                 function (parentFolderUri, callback)
@@ -1908,26 +1913,23 @@ exports.mkdir = function(req, res){
             {
                 if(isNull(err))
                 {
-                    res.json({
-                        "status" : "1",
+                    return res.json({
                         "id" : folder.uri,
                         "result" : "ok",
-                        "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Config.types.private], [Config.types.api_readable])
+                        "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Config.types.private], [Config.types.api_readable]),
+                        "status" : "1"
                     });
                 }
                 else
                 {
-                    res.status(err.statusCode).json({
-                        result: "Error",
-                        message: err.message
-                    });
+                    return res.status(err.statusCode).json(err.error);
                 }
             }
         );
     }
     else
     {
-        res.status(400).send("HTML Request not valid for this route.");
+        return res.status(400).send("HTML Request not valid for this route.");
     }
 };
 
