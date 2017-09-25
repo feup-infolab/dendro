@@ -114,6 +114,10 @@ const prepareEnvironment = function(callback)
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder(self.app, callback);
         },
         function(callback) {
+            //clear files storage
+            require(Pathfinder.absPathInSrcFolder("bootup/load/clear_files_storage.js")).clearFilesStorage(self.app, callback);
+        },
+        function(callback) {
             //clear datastore
             require(Pathfinder.absPathInSrcFolder("bootup/load/clear_datastore.js")).clearDataStore(self.app, callback);
         },

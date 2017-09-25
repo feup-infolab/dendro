@@ -34,7 +34,7 @@ angular.module('dendroApp.controllers')
         $scope.invalidFiles = [];
 
         $scope.isResumeSupported = false; //Upload.isResumeSupported(); //TODO Enable this
-        $scope.chunkSize = '1MB';
+        $scope.chunkSize = '100MB';
 
         $scope.activate_watches = function()
         {
@@ -96,6 +96,9 @@ angular.module('dendroApp.controllers')
                                        {
                                            windowService.show_popup('info', 'Unable to calculate checksum of file ' + file.name);
                                        }
+                                   }, function(progress){
+                                       file.md5_progress = Math.round(progress * 100);
+                                       $scope.$apply();
                                    });
                                }
                            },

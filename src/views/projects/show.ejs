@@ -114,12 +114,10 @@
                     $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several files", html:true});
                     $('#toggle_select_all').tooltip({title : "<h4>Select all</h4>Select all files", html:true});
                 </script>
-            </div>
 
-            <div class="row ng-hide"
-                 id="file_upload_area"
-                 ng-show="upload_area_visible && still_uploading_files()">
-                <br/>
+                <div class="ng-hide"
+                     id="file_upload_area">
+                </div>
 
                 <div ng-controller="uploadsCtrl" ng-init="init(get_calling_uri, 'upload_files', 'upload_files_invalid', 'upload_files_successful', upload_callback, 1000)">
                     <div class="col-xs-12 ng-hide">

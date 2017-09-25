@@ -179,14 +179,21 @@ angular.module('dendroApp.services')
                         });
 
                     return ticketPromise.promise;
-                }
+                };
 
-                this.calculate_md5 = function (file, callback)
+                this.calculate_md5 = function (file, callback, progressCallback)
                 {
-                    browserMD5File(file, function (err, md5)
+                    setTimeout(function()
                     {
-                        callback(err, md5); // 97027eb624f85892c69c4bcec8ab0f11
-                    });
+                        browserMD5File(file, function (err, md5)
+                        {
+                            callback(err, md5); // 97027eb624f85892c69c4bcec8ab0f11
+                        },
+                        function(progress){
+                            progressCallback(progress);
+                        });
+                    }, 100);
+
                 }
             }
         ]
