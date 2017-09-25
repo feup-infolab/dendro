@@ -15,6 +15,8 @@ global.Config = Config;
 
 global.tests = {};
 
+//require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
+
 require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
@@ -335,6 +337,16 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/d
 /*
  //test descriptors
  require("./controllers/descriptors.Test.js");
+
+ //SOCIAL DENDRO
+ //test Social Dendro Posts
+ require("./controllers/social/posts.Test.js");
+
+ //test Social Dendro File Versions
+ require("./controllers/social/fileVersions.Test.js");
+
+ //test Social Dendro Notifications
+ require("./controllers/social/notifications.Test.js");
 
  //destroy graphs
  require('./models/kb/db.Test.js');
