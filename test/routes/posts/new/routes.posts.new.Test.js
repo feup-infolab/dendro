@@ -122,7 +122,7 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the title is missing", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, publicProjectMachineURI, manualPostMockDataMissingTitle, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -154,26 +154,26 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post content is missing", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, publicProjectMachineURI, manualPostMockDataMissingContent, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
         //The case when the post project is missing
-        it("[For demouser1, as the creator of all projects] Should give a bad request error if the post project is missing", function (done) {
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error error if the post project is missing", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, null, manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give a bad request error if the post project is missing", function (done) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error error if the post project is missing", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, null, manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -182,26 +182,26 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project is missing", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, null, manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
         //The case when the post project does not exist
-        it("[For demouser1, as the creator of all projects] Should give a 404 error if the post project does not exist", function (done) {
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(404);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give a 404 error if the post project does not exist", function (done) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project does not exist", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(404);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -210,7 +210,7 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project does not exist", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(404);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -291,7 +291,7 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the title is missing", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, metadataOnlyProjectMachineURI, manualPostMockDataMissingTitle, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -323,26 +323,26 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post content is missing", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, metadataOnlyProjectMachineURI, manualPostMockDataMissingContent, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
         //The case when the post project is missing
-        it("[For demouser1, as the creator of all projects] Should give a bad request error if the post project is missing", function (done) {
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project is missing", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, null, manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give a bad request error if the post project is missing", function (done) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project is missing", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, null, manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -351,26 +351,26 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project is missing", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, null, manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
         //The case when the post project does not exist
-        it("[For demouser1, as the creator of all projects] Should give a 404 error if the post project does not exist", function (done) {
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(404);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give a 404 error if the post project does not exist", function (done) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project does not exist", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(404);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -379,7 +379,7 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project does not exist", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(404);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -459,7 +459,7 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the title is missing", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, privateProjectMachineURI, manualPostMockDataMissingTitle, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -491,26 +491,26 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post content is missing", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, privateProjectMachineURI, manualPostMockDataMissingContent, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
         //The case when the post project is missing
-        it("[For demouser1, as the creator of all projects] Should give a bad request error if the post project is missing", function (done) {
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project is missing", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, null, manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give a bad request error if the post project is missing", function (done) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project is missing", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, null, manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -519,26 +519,26 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project is missing", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, null, manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
         //The case when the post project does not exist
-        it("[For demouser1, as the creator of all projects] Should give a 404 error if the post project does not exist", function (done) {
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(404);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give a 404 error if the post project does not exist", function (done) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project does not exist", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(404);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });
@@ -547,7 +547,7 @@ describe("Create a new manual post tests", function () {
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project does not exist", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res) {
-                    res.statusCode.should.equal(404);
+                    res.statusCode.should.equal(401);
                     done();
                 });
             });

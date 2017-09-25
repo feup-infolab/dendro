@@ -1062,6 +1062,7 @@ const loadRoutes = function(app, callback)
             req.body.newPostContent = postContent;
             req.body.newPostTitle = postTitle;
             req.body.newPostProjectUri = postProjectUri;
+            req.params.requestedResourceUri = postProjectUri;
             const queryBasedRoutes = {
                 post: [
                     {
