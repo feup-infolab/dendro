@@ -4,7 +4,7 @@ angular.module('dendroApp.services')
     .service('timelineService', ['$http', function ($http) {
 
         this.countNumPosts = function () {
-            var requestUri = "/posts/countNum";
+            var requestUri = "/posts/count";
 
             return $http({
                 method: 'GET',

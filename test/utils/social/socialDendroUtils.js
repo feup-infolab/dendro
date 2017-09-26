@@ -272,3 +272,24 @@ module.exports.getAPostSharesInfo = function (jsonOnly, agent, postID, cb) {
     }
 };
 
+module.exports.getTotalPostsForAUsersSocialDendroTimeline = function (jsonOnly, agent, cb) {
+    const path = "/posts/count";
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};

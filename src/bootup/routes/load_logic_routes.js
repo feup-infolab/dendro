@@ -1181,7 +1181,6 @@ const loadRoutes = function(app, callback)
         processRequest(req.body.postID, req.body.shareMsg);
     });
 
-    /*app.post('/posts/shares', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostShares);*/
     app.get('/posts/shares', function (req, res, next) {
         const processRequest = function(postURI){
             req.query.postID = postURI;
@@ -1202,7 +1201,7 @@ const loadRoutes = function(app, callback)
         processRequest(req.query.postID);
     });
 
-    app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
+    app.get('/posts/count', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
     
     app.get([
             getNonHumanReadableRouteRegex("post"),
@@ -1212,7 +1211,7 @@ const loadRoutes = function(app, callback)
         async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.post);
 
     app.get([
-            getNonHumanReadableRouteRegex("share"),//TODO might have to replace here with share
+            getNonHumanReadableRouteRegex("share"),
             '/shares/:uri'
         ],
         extractUriFromRequest,
