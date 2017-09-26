@@ -1157,7 +1157,8 @@ exports.postLikesInfo = function (req, res) {
     if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         const currentUser = req.user;
-        const postURI = req.body.postURI;
+        /*const postURI = req.body.postURI;*/
+        const postURI = req.query.postURI;
         let resultInfo;
 
         Post.findByUri(postURI, function (err, post) {
@@ -1173,7 +1174,7 @@ exports.postLikesInfo = function (req, res) {
                         }
                         else {
                             resultInfo = {
-                                postURI: postURI, numLikes: 0, usersWhoLiked: 'undefined'
+                                postURI: postURI, numLikes: 0, usersWhoLiked: []
                             };
                         }
                         res.json(resultInfo);
@@ -1427,7 +1428,7 @@ var getLikesForAPost = function (postUri, callback) {
                     }
                     else {
                         resultInfo = {
-                            postURI: post.uri, numLikes: 0, usersWhoLiked: 'undefined'
+                            postURI: post.uri, numLikes: 0, usersWhoLiked: []
                         };
                     }
                     callback(null, resultInfo);

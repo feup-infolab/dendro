@@ -1098,7 +1098,26 @@ const loadRoutes = function(app, callback)
         processRequest(req.body.postID);
     });
 
-    app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.postLikesInfo);
+    app.get('/posts/post/likes', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.query.postURI = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postURI'],
+                        handler: posts.postLikesInfo,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain likes information belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.postURI);
+    });
+
     app.post('/posts/comment', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.comment);
     app.post('/posts/comments', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostComments);
     app.post('/posts/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.share);

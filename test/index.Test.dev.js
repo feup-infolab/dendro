@@ -24,7 +24,9 @@ require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.
 
 require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));*/
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));*/
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/post/likes/routes.posts.post.likes.Test.js"));
 return;
 
 //PUBLIC PROJECT ROOT MKDIR TESTS
@@ -50,8 +52,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test
  '/posts/posts' -> done route and file and stubs
  '/posts/new' -> done route and file and stubs
  '/posts/like' -> done route and file and stubs
- '/posts/like/liked' -> done route and file and stubs
- '/posts/post/likesInfo' -> done route and file and stubs
+ '/posts/post/likes' -> done route and file and stubs
  '/posts/comment' -> done route and file and stubs
  '/posts/comments' -> done route and file and stubs
  '/posts/share' -> done route and file and stubs

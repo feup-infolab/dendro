@@ -200,3 +200,27 @@ module.exports.getPostsArrayInfo = function(jsonOnly, agent, postURIsArray, cb) 
     }
 };
 
+module.exports.getAPostLikesInfo = function (jsonOnly, agent, postURI, cb) {
+    const path = "/posts/post/likes";
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .query({postURI: postURI})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .query({postURI: postURI})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+

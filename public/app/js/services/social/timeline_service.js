@@ -130,7 +130,7 @@ angular.module('dendroApp.services')
 
         this.postLikesInfo = function(postURI)
         {
-            var requestUri = "/posts/post/likesInfo";
+            var requestUri = "/posts/post/likes";
             var params = {
                 postURI : postURI
             };
