@@ -1203,12 +1203,34 @@ const loadRoutes = function(app, callback)
 
     app.get('/posts/count', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
     
-    app.get([
+    /*app.get([
             getNonHumanReadableRouteRegex("post"),
             '/posts/:uri'
         ],
         extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.post);
+        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.post);*/
+
+    app.get([
+            getNonHumanReadableRouteRegex("post"),
+            '/posts/:uri'
+        ],
+        extractUriFromRequest, function (req, res, next) {
+            const processRequest = function(){
+                const queryBasedRoutes = {
+                    get: [
+                        {
+                            queryKeys: [],
+                            handler: posts.post,
+                            permissions: defaultSocialDendroPostPermissions,
+                            authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain information belongs to."
+                        },
+                    ]
+                };
+
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+            };
+            processRequest();
+        });
 
     app.get([
             getNonHumanReadableRouteRegex("share"),

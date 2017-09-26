@@ -293,3 +293,25 @@ module.exports.getTotalPostsForAUsersSocialDendroTimeline = function (jsonOnly, 
             });
     }
 };
+
+module.exports.getPostUriPage = function (jsonOnly, agent, postURI, cb) {
+    const path = postURI;
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
