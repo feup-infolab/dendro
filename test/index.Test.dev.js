@@ -17,13 +17,14 @@ global.tests = {};
 
 /*require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
 
-/*require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
 
-/*/posts/new*/
-require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));*/
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));
 return;
 
 //PUBLIC PROJECT ROOT MKDIR TESTS

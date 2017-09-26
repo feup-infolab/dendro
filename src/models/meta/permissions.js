@@ -581,7 +581,9 @@ Permissions.check = function(permissionsRequired, req, callback) {
             }
             else if(permission.type == Permissions.types.role_in_post_s_project)
             {
-                Permissions.types.role_in_post_s_project.validator(req, user, permission, req.body.postID, function (err, result) {
+                //req.params.requestedResourceUri
+                /*Permissions.types.role_in_post_s_project.validator(req, user, permission, req.body.postID, function (err, result) {*/
+                Permissions.types.role_in_post_s_project.validator(req, user, permission, resource, function (err, result) {
                     cb(err, {authorized: result, role: permission});
                 });
             }

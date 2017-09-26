@@ -1012,6 +1012,7 @@ const loadRoutes = function(app, callback)
     app.post('/posts/post', function (req, res, next) {
         const processRequest = function(postUri){
             req.body.postID = postUri;
+            req.params.requestedResourceUri = postUri;
             const queryBasedRoutes = {
                 post: [
                     {
@@ -1028,8 +1029,7 @@ const loadRoutes = function(app, callback)
 
         processRequest(req.body.postID);
     });
-    
-    /*app.post('/posts/posts', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPosts_controller);*/
+
     const defaultSocialDendroArrayOfPostsPermissions = [
         Permissions.settings.role.in_array_of_posts_project.creator,
         Permissions.settings.role.in_array_of_posts_project.contributor
@@ -1054,10 +1054,7 @@ const loadRoutes = function(app, callback)
         processRequest(req.body.postsQueryInfo);
     });
 
-    /*app.post('/posts/new', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.new);*/
     app.post('/posts/new', function (req, res, next) {
-        /*Permissions.settings.role.in_project.contributor,
-            Permissions.settings.role.in_project.creator*/
         const processRequest = function(postContent, postTitle, postProjectUri){
             req.body.newPostContent = postContent;
             req.body.newPostTitle = postTitle;
@@ -1080,7 +1077,28 @@ const loadRoutes = function(app, callback)
         processRequest(req.body.newPostContent, req.body.newPostTitle, req.body.newPostProjectUri);
     });
 
-    app.post('/posts/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.like);
+    /*app.post('/posts/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.like);*/
+    app.post('/posts/like', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.body.postID = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.like,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to like belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.body.postID);
+    });
+    
     app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.checkIfPostIsLikedByUser);
     app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.postLikesInfo);
     app.post('/posts/comment', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.comment);
