@@ -872,67 +872,78 @@ exports.comment = function (req, res) {
         const currentUser = req.user;
         const commentMsg = req.body.commentMsg;
 
-        Post.findByUri(req.body.postID, function (err, post) {
-            if (isNull(err) && !isNull(post)) {
-                let newComment = new Comment({
-                    ddr: {
-                        userWhoCommented: currentUser.uri,
-                        postURI: post.uri,
-                        commentMsg: commentMsg
-                    }
-                });
+        if(isNull(commentMsg))
+        {
+            const errorMsg = "Missing required body parameter 'commentMsg'";
+            res.status(400).json({
+                result: "Error",
+                message: errorMsg
+            });
+        }
+        else
+        {
+            Post.findByUri(req.body.postID, function (err, post) {
+                if (isNull(err) && !isNull(post)) {
+                    let newComment = new Comment({
+                        ddr: {
+                            userWhoCommented: currentUser.uri,
+                            postURI: post.uri,
+                            commentMsg: commentMsg
+                        }
+                    });
 
-                let newNotification = new Notification({
-                    ddr: {
-                        userWhoActed: currentUser.uri,
-                        resourceTargetUri: post.uri,
-                        actionType: "Comment",
-                        resourceAuthorUri: post.dcterms.creator
-                    },
-                    foaf: {
-                        status: "unread"
-                    }
-                });
+                    let newNotification = new Notification({
+                        ddr: {
+                            userWhoActed: currentUser.uri,
+                            resourceTargetUri: post.uri,
+                            actionType: "Comment",
+                            resourceAuthorUri: post.dcterms.creator
+                        },
+                        foaf: {
+                            status: "unread"
+                        }
+                    });
 
-                newComment.save(function (err, resultComment) {
-                    if (isNull(err)) {
-                        /*
-                         res.json({
-                         result : "OK",
-                         message : "Post commented successfully"
-                         });*/
-                        newNotification.save(function (error, resultNotification) {
-                            if (isNull(error)) {
-                                res.json({
-                                    result: "OK",
-                                    message: "Post commented successfully"
-                                });
-                            }
-                            else {
-                                res.status(500).json({
-                                    result: "Error",
-                                    message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
-                                });
-                            }
-                        }, false, null, null, null, null, db_notifications.graphUri);
-                    }
-                    else {
-                        res.status(500).json({
-                            result: "Error",
-                            message: "Error Commenting a post. " + JSON.stringify(resultComment)
-                        });
-                    }
+                    newComment.save(function (err, resultComment) {
+                        if (isNull(err)) {
+                            /*
+                             res.json({
+                             result : "OK",
+                             message : "Post commented successfully"
+                             });*/
+                            newNotification.save(function (error, resultNotification) {
+                                if (isNull(error)) {
+                                    res.json({
+                                        result: "OK",
+                                        message: "Post commented successfully"
+                                    });
+                                }
+                                else {
+                                    res.status(500).json({
+                                        result: "Error",
+                                        message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
+                                    });
+                                }
+                            }, false, null, null, null, null, db_notifications.graphUri);
+                        }
+                        else {
+                            res.status(500).json({
+                                result: "Error",
+                                message: "Error Commenting a post. " + JSON.stringify(resultComment)
+                            });
+                        }
 
-                }, false, null, null, null, null, db_social.graphUri);
-            }
-            else {
-                const errorMsg = "Invalid post uri";
-                res.status(404).json({
-                    result: "Error",
-                    message: errorMsg
-                });
-            }
-        }, null, db_social.graphUri, null);
+                    }, false, null, null, null, null, db_social.graphUri);
+                }
+                else {
+                    const errorMsg = "Invalid post uri";
+                    res.status(404).json({
+                        result: "Error",
+                        message: errorMsg
+                    });
+                }
+            }, null, db_social.graphUri, null);
+        }
     }
     else {
         const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";

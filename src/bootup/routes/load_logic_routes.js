@@ -1118,7 +1118,27 @@ const loadRoutes = function(app, callback)
         processRequest(req.query.postURI);
     });
 
-    app.post('/posts/comment', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.comment);
+    app.post('/posts/comment', function (req, res, next) {
+        const processRequest = function(postURI, commentMsg){
+            req.body.postID = postURI;
+            req.body.commentMsg = commentMsg;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.comment,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to comment belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.body.postID, req.body.commentMsg);
+    });
+    
     app.post('/posts/comments', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostComments);
     app.post('/posts/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.share);
     app.post('/posts/shares', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostShares);

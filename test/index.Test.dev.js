@@ -26,7 +26,9 @@ require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test
 
 /*require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));*/
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/likes/routes.posts.post.likes.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/posts/post/likes/routes.posts.post.likes.Test.js"));*/
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/comment/routes.posts.comment.Test.js"));
 return;
 
 //PUBLIC PROJECT ROOT MKDIR TESTS
