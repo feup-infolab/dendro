@@ -1159,7 +1159,27 @@ const loadRoutes = function(app, callback)
         processRequest(req.query.postID);
     });
 
-    app.post('/posts/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.share);
+    /*app.post('/posts/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.share);*/
+    app.post('/posts/share', function (req, res, next) {
+        const processRequest = function(postURI, shareMsg){
+            req.body.postID = postURI;
+            req.body.shareMsg = shareMsg;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.share,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to share belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.body.postID, req.body.shareMsg);
+    });
     app.post('/posts/shares', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostShares);
     app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
     

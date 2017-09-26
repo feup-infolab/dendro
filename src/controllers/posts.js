@@ -714,102 +714,115 @@ exports.share = function (req, res) {
     {
         const currentUser = req.user;
         const shareMsg = req.body.shareMsg;
-        Post.findByUri(req.body.postID, function (err, post) {
-            if (isNull(err)) {
-                if (!post) {
-                    const errorMsg = "Invalid post uri";
-                    res.status(404).json({
-                        result: "Error",
-                        message: errorMsg
-                    });
+        const postUri = req.body.postID;
+
+        if(isNull(shareMsg))
+        {
+            const errorMsg = "Missing required body parameter 'shareMsg'";
+            res.status(400).json({
+                result: "Error",
+                message: errorMsg
+            });
+        }
+        else
+        {
+            Post.findByUri(postUri, function (err, post) {
+                if (isNull(err)) {
+                    if (!post) {
+                        const errorMsg = "Invalid post uri";
+                        res.status(404).json({
+                            result: "Error",
+                            message: errorMsg
+                        });
+                    }
+                    else {
+                        /*var newShare = new Share({
+                         ddr: {
+                         userWhoShared : currentUser.uri,
+                         postURI: post.uri,
+                         shareMsg: shareMsg,
+                         projectUri: post.ddr.projectUri
+                         },
+                         dcterms: {
+                         creator: currentUser.uri
+                         },
+                         rdf: {
+                         isShare : true
+                         }
+                         });*/
+
+                        let newShareData = {
+                            ddr: {
+                                userWhoShared: currentUser.uri,
+                                postURI: post.uri,
+                                shareMsg: shareMsg,
+                                projectUri: post.ddr.projectUri
+                            },
+                            dcterms: {
+                                creator: currentUser.uri
+                            },
+                            rdf: {
+                                isShare: true
+                            }
+                        };
+
+                        Share.buildFromInfo(newShareData, function (err, newShare) {
+                            let newNotification = new Notification({
+                                ddr: {
+                                    userWhoActed: currentUser.uri,
+                                    resourceTargetUri: post.uri,
+                                    actionType: "Share",
+                                    resourceAuthorUri: post.dcterms.creator,
+                                    shareURI: newShare.uri
+                                },
+                                foaf: {
+                                    status: "unread"
+                                }
+                            });
+
+                            newShare.save(function (err, resultShare) {
+                                if (isNull(err)) {
+                                    /*
+                                     res.json({
+                                     result : "OK",
+                                     message : "Post shared successfully"
+                                     });*/
+                                    newNotification.save(function (error, resultNotification) {
+                                        if (isNull(error)) {
+                                            res.json({
+                                                result: "OK",
+                                                message: "Post shared successfully"
+                                            });
+                                        }
+                                        else {
+                                            res.status(500).json({
+                                                result: "Error",
+                                                message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
+                                            });
+                                        }
+                                    }, false, null, null, null, null, db_notifications.graphUri);
+                                }
+                                else {
+                                    console.error("Error share a post");
+                                    console.error(err);
+                                    res.status(500).json({
+                                        result: "Error",
+                                        message: "Error sharing a post. " + JSON.stringify(resultShare)
+                                    });
+                                }
+
+                            }, false, null, null, null, null, db_social.graphUri);
+                        });
+                    }
                 }
                 else {
-                    /*var newShare = new Share({
-                     ddr: {
-                     userWhoShared : currentUser.uri,
-                     postURI: post.uri,
-                     shareMsg: shareMsg,
-                     projectUri: post.ddr.projectUri
-                     },
-                     dcterms: {
-                     creator: currentUser.uri
-                     },
-                     rdf: {
-                     isShare : true
-                     }
-                     });*/
-
-                    let newShareData = {
-                        ddr: {
-                            userWhoShared: currentUser.uri,
-                            postURI: post.uri,
-                            shareMsg: shareMsg,
-                            projectUri: post.ddr.projectUri
-                        },
-                        dcterms: {
-                            creator: currentUser.uri
-                        },
-                        rdf: {
-                            isShare: true
-                        }
-                    };
-
-                    Share.buildFromInfo(newShareData, function (err, newShare) {
-                        let newNotification = new Notification({
-                            ddr: {
-                                userWhoActed: currentUser.uri,
-                                resourceTargetUri: post.uri,
-                                actionType: "Share",
-                                resourceAuthorUri: post.dcterms.creator,
-                                shareURI: newShare.uri
-                            },
-                            foaf: {
-                                status: "unread"
-                            }
-                        });
-
-                        newShare.save(function (err, resultShare) {
-                            if (isNull(err)) {
-                                /*
-                                 res.json({
-                                 result : "OK",
-                                 message : "Post shared successfully"
-                                 });*/
-                                newNotification.save(function (error, resultNotification) {
-                                    if (isNull(error)) {
-                                        res.json({
-                                            result: "OK",
-                                            message: "Post shared successfully"
-                                        });
-                                    }
-                                    else {
-                                        res.status(500).json({
-                                            result: "Error",
-                                            message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
-                                        });
-                                    }
-                                }, false, null, null, null, null, db_notifications.graphUri);
-                            }
-                            else {
-                                console.error("Error share a post");
-                                console.error(err);
-                                res.status(500).json({
-                                    result: "Error",
-                                    message: "Error sharing a post. " + JSON.stringify(resultShare)
-                                });
-                            }
-
-                        }, false, null, null, null, null, db_social.graphUri);
+                    res.status(500).json({
+                        result: "Error",
+                        message: "Error sharing a post. " + JSON.stringify(post)
                     });
                 }
-            }
-            else {
-                res.status(500).json({
-                    result: "Error",
-                    message: "Error sharing a post. " + JSON.stringify(post)
-                });
-            }
-        }, null, db_social.graphUri, null);
+            }, null, db_social.graphUri, null);
+        }
     }
     else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
