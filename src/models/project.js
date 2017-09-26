@@ -865,7 +865,7 @@ Project.prototype.getStorageSize = function(callback, customBucket)
         {
             collection.aggregate([
                 {
-                    $match: {"metadata.project" : self.uri}
+                    $match: {"metadata.project.uri" : self.uri}
                 },
                 {
                     $group:
@@ -897,7 +897,7 @@ Project.prototype.getStorageSize = function(callback, customBucket)
         }
         else
         {
-            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
+            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(collection));
             return callback(1, "Error retrieving files collection : " + collection);
         }
     });

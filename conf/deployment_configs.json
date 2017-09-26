@@ -235,7 +235,7 @@
     "startup": {
       "load_databases": true,
       "reload_administrators_on_startup": false,
-      "reload_demo_users_on_startup": false,
+      "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,

@@ -1434,15 +1434,15 @@ exports.stats = function(req, res) {
                                         solution :  "Did you install mongodb via apt-get? YOU NEED MONGODB 10GEN to run this, or it will give errors. Install the latest mongodb by .deb package instead of apt-get."
                                     });
                             }
-                        },offset , limit);
+                        });
                     },
                     function(revisionsCount, foldersCount, filesCount, membersCount, storageSize)
                     {
                         const humanize = require('humanize');
 
                         res.json({
-                            size : humanize.filesize(storageSize),
-                            max_size: humanize.filesize(Config.maxProjectSize),
+                            size : storageSize,
+                            max_size: Config.maxProjectSize,
                             percent_full : Math.round((storageSize / Config.maxProjectSize) * 100),
                             members_count : membersCount,
                             folders_count : foldersCount,

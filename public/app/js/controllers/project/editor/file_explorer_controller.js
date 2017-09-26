@@ -321,7 +321,7 @@ angular.module('dendroApp.controllers')
         }
         else
         {
-            $scope.show_popup("error", "Error", result[0].message);
+            $scope.show_popup("error", "Error", result.message);
         }
     };
 
