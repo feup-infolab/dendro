@@ -248,3 +248,27 @@ module.exports.getAPostCommentsInfo = function (jsonOnly, agent, postID, cb) {
     }
 };
 
+module.exports.getAPostSharesInfo = function (jsonOnly, agent, postID, cb) {
+    const path = "/posts/shares";
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .query({postID: postID})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .query({postID: postID})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
