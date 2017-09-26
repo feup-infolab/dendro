@@ -189,9 +189,9 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: "POST",
+                method: "GET",
                 url: requestUri,
-                data: params,
+                params: params,
                 contentType: "application/json",
                 headers: {"Accept": "application/json"}
             });

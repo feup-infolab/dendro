@@ -224,3 +224,27 @@ module.exports.getAPostLikesInfo = function (jsonOnly, agent, postURI, cb) {
     }
 };
 
+module.exports.getAPostCommentsInfo = function (jsonOnly, agent, postID, cb) {
+    const path = "/posts/comments";
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .query({postID: postID})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .query({postID: postID})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+

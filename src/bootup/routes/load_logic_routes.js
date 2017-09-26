@@ -1138,8 +1138,27 @@ const loadRoutes = function(app, callback)
         };
         processRequest(req.body.postID, req.body.commentMsg);
     });
-    
-    app.post('/posts/comments', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostComments);
+
+    app.get('/posts/comments', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.query.postID = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postID'],
+                        handler: posts.getPostComments,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.postID);
+    });
+
     app.post('/posts/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.share);
     app.post('/posts/shares', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostShares);
     app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
