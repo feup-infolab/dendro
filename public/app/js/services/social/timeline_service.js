@@ -128,23 +128,6 @@ angular.module('dendroApp.services')
             });
         };
 
-        this.postIsLiked = function(postID)
-        {
-            var requestUri = "/posts/like/liked";
-
-            var params = {
-                postID : postID
-            };
-
-            return $http({
-                method: "POST",
-                url: requestUri,
-                data: params,
-                contentType: "application/json",
-                headers: {"Accept": "application/json"}
-            });
-        };
-
         this.postLikesInfo = function(postURI)
         {
             var requestUri = "/posts/post/likesInfo";

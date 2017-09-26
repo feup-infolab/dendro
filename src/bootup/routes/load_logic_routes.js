@@ -1077,7 +1077,6 @@ const loadRoutes = function(app, callback)
         processRequest(req.body.newPostContent, req.body.newPostTitle, req.body.newPostProjectUri);
     });
 
-    /*app.post('/posts/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.like);*/
     app.post('/posts/like', function (req, res, next) {
         const processRequest = function(postURI){
             req.body.postID = postURI;
@@ -1098,8 +1097,7 @@ const loadRoutes = function(app, callback)
 
         processRequest(req.body.postID);
     });
-    
-    app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.checkIfPostIsLikedByUser);
+
     app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.postLikesInfo);
     app.post('/posts/comment', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.comment);
     app.post('/posts/comments', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostComments);

@@ -1001,46 +1001,6 @@ exports.comment = function (req, res) {
      }, null, db_social.graphUri, null);*/
 };
 
-exports.checkIfPostIsLikedByUser = function (req, res) {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
-
-    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-    {
-        const postID = req.body.postID;
-        const currentUser = req.user;
-
-        Post.findByUri(postID, function (err, post) {
-            if (isNull(err) && !isNull(post)) {
-                userLikedAPost(post.uri, currentUser.uri, function (err, isLiked) {
-                    if (isNull(err))
-                        res.json(isLiked);
-                    else
-                        res.status(500).json({
-                            result: "Error",
-                            message: "Error getting verifying if a user liked a post in a post. " + JSON.stringify(isLiked)
-                        });
-                });
-            }
-            else {
-                const errorMsg = "Invalid post uri";
-                res.status(404).json({
-                    result: "Error",
-                    message: errorMsg
-                });
-            }
-        }, null, db_social.graphUri, null);
-    }
-    else {
-        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
-        req.flash('error', "Invalid Request");
-        res.status(400).json({
-            result: "Error",
-            message: msg
-        });
-    }
-};
-
 exports.like = function (req, res) {
     let acceptsHTML = req.accepts('html');
     const acceptsJSON = req.accepts('json');

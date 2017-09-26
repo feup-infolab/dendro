@@ -106,28 +106,6 @@ angular.module('dendroApp.controllers')
                 });
         };
 
-        $scope.postIsLiked = function (postID) {
-            $scope.doing_postIsLiked = true;
-            $scope.doingARequest = true;
-            usSpinnerService.spin('social-dendro-spinner');
-            timelineService.postIsLiked(postID)
-                .then(function(response)
-                {
-                    $scope.show_popup(response.data.message);
-                    $scope.doing_postIsLiked = false;
-                    $scope.doingARequest = false;
-                    usSpinnerService.stop('social-dendro-spinner');
-                    return response.data;
-                })
-                .catch(function(error){
-                    console.error("Error checking like of a post" + JSON.stringify(error));
-                    $scope.doing_postIsLiked = false;
-                    $scope.doingARequest = false;
-                    usSpinnerService.stop('social-dendro-spinner');
-                    return false;
-                });
-        };
-
         $scope.postLikesInfo = function(postURI, showSpinner) {
 
             $scope.doing_postLikesInfo = true;
@@ -147,13 +125,12 @@ angular.module('dendroApp.controllers')
                 //return response.data;
             }).catch(function (error) {
                 console.error("Error at timeline_controller postLikesInfo" + JSON.stringify(error));
-                $scope.doing_postIsLiked = false;
+                $scope.doing_postLikesInfo = false;
                 if(showSpinner)
                 {
                     $scope.doingARequest = false;
                     usSpinnerService.stop('social-dendro-spinner');
                 }
-                //return false;
             });
         };
 
