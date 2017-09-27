@@ -338,3 +338,25 @@ module.exports.getShareUriPage = function (jsonOnly, agent, shareURI, cb) {
     }
 };
 
+module.exports.getAllUsersNotifications = function (jsonOnly, agent, cb) {
+    const path = "/notifications/all";
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+

@@ -1202,13 +1202,6 @@ const loadRoutes = function(app, callback)
     });
 
     app.get('/posts/count', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
-    
-    /*app.get([
-            getNonHumanReadableRouteRegex("post"),
-            '/posts/:uri'
-        ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.post);*/
 
     app.get([
             getNonHumanReadableRouteRegex("post"),
@@ -1231,13 +1224,6 @@ const loadRoutes = function(app, callback)
             };
             processRequest();
         });
-
-    /*app.get([
-            getNonHumanReadableRouteRegex("share"),
-            '/shares/:uri'
-        ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getShare);*/
 
     app.get([
             getNonHumanReadableRouteRegex("share"),
