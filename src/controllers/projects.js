@@ -13,7 +13,7 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Registry;
+const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
 
 const nodemailer = require("nodemailer");
 const db = Config.getDBByID();

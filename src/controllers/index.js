@@ -8,34 +8,10 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 
 exports.index = function(req, res){
-    const loggedIn = req.user instanceof User;
+    res.render('index', {
 
-    const sendResponse = function(deposits)
-    {
-        let acceptsHTML = req.accepts("html");
-        let acceptsJSON = req.accepts("json");
-
-        if(acceptsJSON && !acceptsHTML){
-            res.json(deposits);
         }
-        else
-        {
-            res.render('index', {
-                    deposits : deposits
-                }
-            )
-        }
-    };
-
-    if(loggedIn){
-        Deposit.getAllowedDeposits(req, function(deposits){
-            sendResponse(deposits);
-        });
-    } else {
-        Deposit.getDeposits(req, function(deposits){
-            sendResponse(deposits);
-        });
-    }
+    )
 };
 
 exports.analytics_tracking_code = function(req, res){

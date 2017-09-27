@@ -32,8 +32,8 @@ const _ = require("underscore");
 function Deposit(object){
 
     const self = this;
-    self.addURIAndRDFType(object, "registry", Registry);
-    Registry.baseConstructor.call(this, object);
+    self.addURIAndRDFType(object, "deposit", Deposit);
+    Deposit.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
@@ -47,7 +47,7 @@ function Deposit(object){
 }
 
 Deposit.createDepositRegistry = function (object, callback) {
-    const newRegistry = new Registry(object);
+    const newRegistry = new Deposit(object);
 
     console.log("creating registry from deposit\n" + util.inspect(object));
 
@@ -60,7 +60,7 @@ Deposit.createDepositRegistry = function (object, callback) {
     });
 };
 
-Deposit.getDeposits = function(public, callback){
+Deposit.public = function(publicPrivacy, page, offset, callback){
 
     const query =
         "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy \n" +
@@ -76,7 +76,9 @@ Deposit.getDeposits = function(public, callback){
         "?uri dcterms:date ?date . \n" +
         "?uri dcterms:description ?description . \n" +
         "} \n" +
-        "ORDER BY ?date ";
+        "ORDER BY ?date \n" +
+        "LIMIT [2] \n" +
+        "OFFSET [3]";
 
     db.connection.execute(query,
         [   {
@@ -85,10 +87,19 @@ Deposit.getDeposits = function(public, callback){
             },
             {
                 type : DbConnection.string,
-                value : public
+                value : publicPrivacy
+            },
+            {
+                type : DbConnection.string,
+                value : page
+            },
+            {
+                type : DbConnection.string,
+                value : offset
             }
         ], function (err, results){
 
+            //do this client-side
             let deposits = results;
             for(let i = 0; i < deposits.length; i++){
                 deposits[i].date = moment(deposits[i].date).fromNow();
@@ -98,7 +109,7 @@ Deposit.getDeposits = function(public, callback){
         });
 };
 
-Deposit.getAllowedDeposits = function(username, callback){
+Deposit.allowed = function(username, callback){
 
     const query =
         "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy\n" +

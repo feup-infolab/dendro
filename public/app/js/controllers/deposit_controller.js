@@ -1,4 +1,4 @@
-angular.module('dendroApp.controllers')
+angular.module('dendroApp.controllers', ['infinite-scroll'])
 /**
  *  Project administration controller
  */
@@ -21,9 +21,9 @@ angular.module('dendroApp.controllers')
     )
     {
         $scope.active_tab = null;
-        $scope.registries = [];
+        $scope.deposits = [];
         $scope.offset = 0;
-        $scope.page = 0;
+        $scope.page = 10;
 
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
@@ -31,39 +31,45 @@ angular.module('dendroApp.controllers')
 
 
         $scope.init = function(){
-            //get initial registries
-            let url = $scope.get_current_url();
-            url += "deposits/latest";
-            $http({
-                method: "GET",
-                url: url,
-                contentType: "application/json",
-                headers: {"Accept": "application/json"}
-            }).then(function(response){
-                //TODO like this?????????????????
-                $scope.registries = response;
-            }).catch(function(error){
 
-            });
+            $scope.getPublicRegistry();
         };
 
         $scope.getPublicRegistry = function(){
-            const url = "oi";
+            let url = $scope.get_current_url();
+            url += "deposits/latest";
+
+            let depositsInterval = {
+                offset: $scope.offset,
+                page: $scope.page
+            };
+
             $http({
                 method: "GET",
                 url: url,
+                params: depositsInterval,
                 contentType: "application/json",
                 headers: {"Accept": "application/json"}
             }).then(function(response){
-                //TODO like this?????????????????
-                $scope.registries = response;
+
+                //TODO check if empty and show something else if it is and disable scrolling function
+
+                //if data checks out
+                $scope.offset++;
+
+                let deposits = response.data;
+                for(let i = 0; i < deposits.length; i++){
+                    deposits[i].date = moment(deposits[i].date).fromNow();
+                }
+                $scope.deposits.push(deposits);
             }).catch(function(error){
 
             });
         };
 
         $scope.getAuthorizedRegistry = function () {
-
+            let deposits = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+            $scope.deposits.push(deposits);
         };
 
         $scope.get_project = function()

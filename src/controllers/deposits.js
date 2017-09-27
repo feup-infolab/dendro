@@ -30,6 +30,29 @@ const util = require('util');
 const async = require("async");
 const _ = require("underscore");
 
+exports.all = function (req, res) {
+
+};
+
+exports.getDeposits = function(req, res) {
+
+    const user = req.user;
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+
+    if(user instanceof User) {
+        //TODO maybe check uri if is valid/exists?
+
+        //switch later
+        exports.public(req, res);
+    } else {
+        //not logged in. return public deposits only
+        exports.public(req, res);
+
+    }
+};
+
 exports.public = function (req, res) {
     let deposits = {};
 
@@ -37,8 +60,10 @@ exports.public = function (req, res) {
     const acceptsJSON = req.accepts("json");
 
     const depositType = "public";
+    const page = req.query.page;
+    const offset = req.query.offset;
 
-    Deposit.getDeposits(depositType, function(err, results){
+    Deposit.public(depositType, page, offset, function(err, results){
         if(isNull(err)){
             deposits = results;
             res.json(deposits);
@@ -52,7 +77,7 @@ exports.allowed = function (req, res) {
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    Deposit.getAllowedDeposits(req, function(err, results){
+    Deposit.allowed(req, function(err, results){
         if(isNull(err)){
             deposits = results;
             res.json(deposits);

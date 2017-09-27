@@ -1,4 +1,5 @@
 const path = require("path");
+const moment = require("moment");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -206,10 +207,24 @@ exports.new = function(req, res) {
                 if (newBookmark instanceof ExternalRepository) {
                     newBookmark.save(function (err, result) {
                         if (isNull(err)) {
+
+                            //TODO William
+                            //create deposit registry here
+                            const date = moment().format();
+                            const depositData = {
+                                dcterms: {
+                                    title: req.user.dcerms.title,
+                                    creator: req.user.uri,
+
+                                }
+                            };
+
                             res.json({
                                 result: "ok",
                                 message: "New bookmark saved as " + newBookmark.dcterms.title
                             });
+
+
                         }
                         else {
                             res.status(500).json({
