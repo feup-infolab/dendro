@@ -1232,12 +1232,34 @@ const loadRoutes = function(app, callback)
             processRequest();
         });
 
-    app.get([
+    /*app.get([
             getNonHumanReadableRouteRegex("share"),
             '/shares/:uri'
         ],
         extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getShare);
+        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getShare);*/
+
+    app.get([
+            getNonHumanReadableRouteRegex("share"),
+            '/shares/:uri'
+        ],
+        extractUriFromRequest, function (req, res, next) {
+            const processRequest = function(){
+                const queryBasedRoutes = {
+                    get: [
+                        {
+                            queryKeys: [],
+                            handler: posts.getShare,
+                            permissions: defaultSocialDendroPostPermissions,
+                            authentication_error: "Permission denied : You are not a contributor or creator of the project to which the Share you want to obtain information belongs to."
+                        },
+                    ]
+                };
+
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+            };
+            processRequest();
+        });
 
     //notifications
     app.get('/notifications/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_unread_user_notifications);

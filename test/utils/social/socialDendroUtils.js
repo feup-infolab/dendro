@@ -315,3 +315,26 @@ module.exports.getPostUriPage = function (jsonOnly, agent, postURI, cb) {
             });
     }
 };
+
+module.exports.getShareUriPage = function (jsonOnly, agent, shareURI, cb) {
+    const path = shareURI;
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+

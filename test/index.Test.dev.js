@@ -38,7 +38,9 @@ require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test
 
 /*require(Pathfinder.absPathInTestsFolder("/routes/posts/count/routes.posts.count.Test.js"));*/
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/_uri/routes.posts._uri.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/posts/_uri/routes.posts._uri.Test.js"));*/
+
+require(Pathfinder.absPathInTestsFolder("/routes/shares/_uri/routes.shares._uri.Test.js"));
 
 return;
 
