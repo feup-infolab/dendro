@@ -9,7 +9,7 @@ const clearFilesStorage = function(app, callback)
 {
     if(Config.startup.destroy_datastore)
     {
-        GridFSConnection.deleteByQuery({}, function(err, result){
+        Config.gfs.default.connection.deleteByQuery({}, function(err, result){
             if(!err)
                 Logger.log_boot_message("info","Files storage cleared successfully.");
 
