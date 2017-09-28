@@ -40,7 +40,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
         });
     });
 
-    describe("[POST] Gets information on an array of posts (given an array of post URIs) /posts/posts", function () {
+    describe("[GET] Gets information on an array of posts (given an array of post URIs) /posts/posts", function () {
 
         it("[For an unauthenticated user] Should give an unauthorized error", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {

@@ -40,7 +40,7 @@ describe("Get a specific post information tests", function () {
         });
     });
 
-    describe("[POST] Gets a specific post information (given a post URI) /posts/post", function () {
+    describe("[GET] Gets a specific post information (given a post URI) /posts/post", function () {
 
         it("[For an unauthenticated user] Should give an unauthorized error", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {

@@ -156,8 +156,8 @@ module.exports.getAPostInfo = function (jsonOnly, agent, postUri, cb) {
     const path = "/posts/post";
     if (jsonOnly) {
         agent
-            .post(path)
-            .send({postID: postUri})
+            .get(path)
+            .query({postID: postUri})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
             .end(function (err, res) {
@@ -166,8 +166,8 @@ module.exports.getAPostInfo = function (jsonOnly, agent, postUri, cb) {
     }
     else {
         agent
-            .post(path)
-            .send({postID: postUri})
+            .get(path)
+            .query({postID: postUri})
             .set('Accept', 'text/html')
             .set("Content-Type", "application/json")
             .end(function (err, res) {
@@ -180,8 +180,8 @@ module.exports.getPostsArrayInfo = function(jsonOnly, agent, postURIsArray, cb) 
     const path = "/posts/posts";
     if (jsonOnly) {
         agent
-            .post(path)
-            .send({postsQueryInfo: postURIsArray})
+            .get(path)
+            .query({postsQueryInfo: postURIsArray})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
             .end(function (err, res) {
@@ -190,8 +190,8 @@ module.exports.getPostsArrayInfo = function(jsonOnly, agent, postURIsArray, cb) 
     }
     else {
         agent
-            .post(path)
-            .send({postsQueryInfo: postURIsArray})
+            .get(path)
+            .query({postsQueryInfo: postURIsArray})
             .set('Accept', 'text/html')
             .set("Content-Type", "application/json")
             .end(function (err, res) {

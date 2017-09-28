@@ -329,42 +329,7 @@ exports.getPosts_controller = function (req, res) {
     if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var currentUser = req.user;
-        var postsQueryInfo = req.body.postsQueryInfo;
-
-        //TODO Check if the type is a string -> convert to array
-        //TODO Here iterate over the postUris and find the post info
-        //TODO add the post to the response array with the index being the postUri
-        //TODO build an aux function to get the specific post/share info -> use it here and in the exports.post and exports.getShare endpoint functions
-
-
-        /*if(typeof postsQueryInfo != String)
-         {
-         postsQueryInfo =
-         }*/
-        /*Post.findByUri(req.body.postID, function (err, post) {
-         if (!err) {
-         if (!post) {
-         var errorMsg = "Invalid post uri";
-         res.status(404).json({
-         result: "Error",
-         message: errorMsg
-         });
-         }
-         else {
-         //app.io.emit('chat message', post);
-         var eventMsg = 'postURI:' + postURI.uri;
-         //var eventMsg = 'postURI:';
-         //app.io.emit(eventMsg, post);
-         res.json(post);
-         }
-         }
-         else {
-         res.status(500).json({
-         result: "Error",
-         message: "Error getting a post. " + JSON.stringify(post)
-         });
-         }
-         }, null, db_social.graphUri, false, null, null);*/
+        var postsQueryInfo = req.query.postsQueryInfo;
 
         getSharesOrPostsInfo(postsQueryInfo, function (err, postInfo) {
             if (isNull(err)) {
@@ -668,9 +633,9 @@ exports.getPost_controller = function (req, res) {
     if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         const currentUser = req.user;
-        const postURI = req.body.postID;
+        const postURI = req.query.postID;
 
-        Post.findByUri(req.body.postID, function (err, post) {
+        Post.findByUri(postURI, function (err, post) {
             if (isNull(err)) {
 
                 if (!post) {
@@ -681,10 +646,6 @@ exports.getPost_controller = function (req, res) {
                     });
                 }
                 else {
-                    //app.io.emit('chat message', post);
-                    const eventMsg = 'postURI:' + postURI.uri;
-                    //var eventMsg = 'postURI:';
-                    //app.io.emit(eventMsg, post);
                     res.json(post);
                 }
             }

@@ -1009,14 +1009,14 @@ const loadRoutes = function(app, callback)
     ];
     app.get('/socialDendro/my', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
     app.get('/posts/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.all);
-    app.post('/posts/post', function (req, res, next) {
+    app.get('/posts/post', function (req, res, next) {
         const processRequest = function(postUri){
-            req.body.postID = postUri;
+            req.query.postID = postUri;
             req.params.requestedResourceUri = postUri;
             const queryBasedRoutes = {
-                post: [
+                get: [
                     {
-                        queryKeys: [],
+                        queryKeys: [postID],
                         handler: posts.getPost_controller,
                         permissions: defaultSocialDendroPostPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which this post belongs to."
@@ -1027,20 +1027,20 @@ const loadRoutes = function(app, callback)
             QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
         };
 
-        processRequest(req.body.postID);
+        processRequest(req.query.postID);
     });
 
     const defaultSocialDendroArrayOfPostsPermissions = [
         Permissions.settings.role.in_array_of_posts_project.creator,
         Permissions.settings.role.in_array_of_posts_project.contributor
     ];
-    app.post('/posts/posts', function (req, res, next) {
+    app.get('/posts/posts', function (req, res, next) {
         const processRequest = function(postsQueryInfo){
-            req.body.postsQueryInfo = postsQueryInfo;
+            req.query.postsQueryInfo = postsQueryInfo;
             const queryBasedRoutes = {
-                post: [
+                get: [
                     {
-                        queryKeys: [],
+                        queryKeys: [postsQueryInfo],
                         handler: posts.getPosts_controller,
                         permissions: defaultSocialDendroArrayOfPostsPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which the posts belongs to."
@@ -1051,7 +1051,7 @@ const loadRoutes = function(app, callback)
             QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
         };
 
-        processRequest(req.body.postsQueryInfo);
+        processRequest(req.query.postsQueryInfo);
     });
 
     app.post('/posts/new', function (req, res, next) {

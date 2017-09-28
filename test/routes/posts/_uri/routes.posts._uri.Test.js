@@ -64,8 +64,8 @@ describe("Get a specific post information tests", function () {
                     agent = chai.request.agent(app);
                     socialDendroUtils.getPostUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res) {
                         res.statusCode.should.equal(401);
-                        //res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the post you want to obtain information belongs to.");
-                        res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                        res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the Share you want to obtain information belongs to.");
+                        //res.body.message.should.equal("Action not permitted. You are not logged into the system.");
                         done();
                     });
                 });
