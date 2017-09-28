@@ -11,11 +11,13 @@ const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structur
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
+const Notification = require(Pathfinder.absPathInSrcFolder("/models/notifications/notification.js")).Notification;
 
 const async = require("async");
 const _ = require("underscore");
 
 const db_social = Config.getDBByID("social");
+const db_notifications = Config.getDBByID("notifications");
 
 function Permissions (){}
 
@@ -229,6 +231,35 @@ const getPostsProject = function (postUri, callback) {
     }, null, db_social.graphUri, false, null, null);
 };
 
+const checkUsersRoleInNotification = function (req, user, role, notificationUri, callback) {
+    if(!isNull(user))
+    {
+        Notification.findByUri(notificationUri, function (err, notification) {
+            if(isNull(err))
+            {
+                if (notification instanceof Notification)
+                {
+                    notification.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
+                    {
+                        return callback(err, result);
+                    }, db_notifications.graphUri);
+                }
+                else {
+                    return callback(null, false);
+                }
+            }
+            else
+            {
+                return callback(null, false);
+            }
+        }, null, db_notifications.graphUri, false, null, null);
+    }
+    else
+    {
+        callback(null, false);
+    }
+};
+
 const checkUsersRoleInPostsProject = function (req, user, role, postUri, callback) {
     if(!isNull(user))
     {
@@ -390,6 +421,9 @@ Permissions.types = {
     role_in_array_of_posts_project : {
         validator : checkUsersRoleInArrayOfPostsProject
     },
+    role_in_notification_s_resource : {
+        validator : checkUsersRoleInNotification
+    },
     privacy_of_project : {
         validator : checkPrivacyOfProject
     },
@@ -444,6 +478,14 @@ Permissions.settings = {
                 predicate: "dcterms:contributor",
                 error_message_user: "You are not a contributor of this project or of the project to which this resource belongs to.",
                 error_message_api: "Unauthorized access. Must be signed on as a contributor of the project the resource belongs to."
+            }
+        },
+        in_notification_s_resource : {
+            author: {
+                type: Permissions.types.role_in_notification_s_resource,
+                predicate: "ddr:resourceAuthorUri",
+                error_message_user: "You are not the author of the resource that this notification points to.",
+                error_message_api: "Unauthorized access. Must be signed on as the author of the resource that this notification points to."
             }
         },
         in_post_s_project : {
@@ -581,8 +623,6 @@ Permissions.check = function(permissionsRequired, req, callback) {
             }
             else if(permission.type == Permissions.types.role_in_post_s_project)
             {
-                //req.params.requestedResourceUri
-                /*Permissions.types.role_in_post_s_project.validator(req, user, permission, req.body.postID, function (err, result) {*/
                 Permissions.types.role_in_post_s_project.validator(req, user, permission, resource, function (err, result) {
                     cb(err, {authorized: result, role: permission});
                 });
@@ -590,6 +630,12 @@ Permissions.check = function(permissionsRequired, req, callback) {
             else if(permission.type == Permissions.types.role_in_array_of_posts_project)
             {
                 Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.body.postsQueryInfo, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if(permission.type == Permissions.types.role_in_notification_s_resource)
+            {
+                Permissions.types.role_in_notification_s_resource.validator(req, user, permission, resource, function (err, result) {
                     cb(err, {authorized: result, role: permission});
                 });
             }

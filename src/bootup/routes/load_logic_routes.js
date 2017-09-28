@@ -1249,8 +1249,53 @@ const loadRoutes = function(app, callback)
 
     //notifications
     app.get('/notifications/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_unread_user_notifications);
-    app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_notification_info);
-    app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.delete);
+    
+    /*app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_notification_info);*/
+
+    const defaultNotificationsPermissions = [
+        Permissions.settings.role.in_notification_s_resource.author
+    ];
+    app.get('/notifications/notification', function (req, res, next) {
+        const processRequest = function(notificationUri){
+            req.query.notificationUri = notificationUri;
+            req.params.requestedResourceUri = notificationUri;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['notificationUri'],
+                        handler: notifications.get_notification_info,
+                        permissions: defaultNotificationsPermissions,
+                        authentication_error: "Permission denied : You are not the author of the resource that this notification points to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.notificationUri);
+    });
+    
+    /*app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.delete);*/
+
+    app.delete('/notifications/notification', function (req, res, next) {
+        const processRequest = function(notificationUri){
+            req.query.notificationUri = notificationUri;
+            req.params.requestedResourceUri = notificationUri;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['notificationUri'],
+                        handler: notifications.delete,
+                        permissions: defaultNotificationsPermissions,
+                        authentication_error: "Permission denied : You are not the author of the resource that this notification points to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.notificationUri);
+    });
 
     //interactions
     app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.accept_descriptor_from_quick_list);
