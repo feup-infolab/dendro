@@ -385,3 +385,27 @@ module.exports.getANotificationInfo = function (jsonOnly, agent, notificationURI
     }
 };
 
+module.exports.deleteANotification = function (jsonOnly, agent, notificationURI, cb) {
+    const path = "/notifications/notification";
+    if (jsonOnly) {
+        agent
+            .del(path)
+            .query({notificationUri: notificationURI})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .del(path)
+            .query({notificationUri: notificationURI})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+

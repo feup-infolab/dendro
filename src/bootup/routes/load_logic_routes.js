@@ -1159,7 +1159,6 @@ const loadRoutes = function(app, callback)
         processRequest(req.query.postID);
     });
 
-    /*app.post('/posts/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.share);*/
     app.post('/posts/share', function (req, res, next) {
         const processRequest = function(postURI, shareMsg){
             req.body.postID = postURI;
@@ -1249,8 +1248,6 @@ const loadRoutes = function(app, callback)
 
     //notifications
     app.get('/notifications/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_unread_user_notifications);
-    
-    /*app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_notification_info);*/
 
     const defaultNotificationsPermissions = [
         Permissions.settings.role.in_notification_s_resource.author
@@ -1274,15 +1271,13 @@ const loadRoutes = function(app, callback)
         };
         processRequest(req.query.notificationUri);
     });
-    
-    /*app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.delete);*/
 
     app.delete('/notifications/notification', function (req, res, next) {
         const processRequest = function(notificationUri){
             req.query.notificationUri = notificationUri;
             req.params.requestedResourceUri = notificationUri;
             const queryBasedRoutes = {
-                get: [
+                delete: [
                     {
                         queryKeys: ['notificationUri'],
                         handler: notifications.delete,
