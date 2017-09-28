@@ -1051,7 +1051,14 @@ const loadRoutes = function(app, callback)
             QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
         };
 
-        processRequest(req.query.postsQueryInfo);
+        let postQueryInfo;
+        try {
+            postQueryInfo = JSON.parse(req.query.postsQueryInfo);
+        }
+        catch(err) {
+            postQueryInfo = req.query.postsQueryInfo
+        }
+        processRequest(postQueryInfo);
     });
 
     app.post('/posts/new', function (req, res, next) {

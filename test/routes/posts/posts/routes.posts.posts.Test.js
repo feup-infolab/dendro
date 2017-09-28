@@ -54,7 +54,8 @@ describe("Get information on an array of posts(given an array of post URIs) test
                     //Force logout
                     const app = global.tests.app;
                     agent = chai.request.agent(app);
-                    socialDendroUtils.getPostsArrayInfo(true, agent, demouser1PostURIsArray, function (err, res) {
+                    //THIS route expects a stringified array
+                    socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser1PostURIsArray), function (err, res) {
                         res.statusCode.should.equal(401);
                         res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
                         done();
@@ -65,7 +66,8 @@ describe("Get information on an array of posts(given an array of post URIs) test
 
         it("[For demouser1, as the creator of all projects] Should give the posts information", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.getPostsArrayInfo(true, agent, demouser1PostURIsArray, function (err, res) {
+                //THIS route expects a stringified array
+                socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser1PostURIsArray), function (err, res) {
                     res.statusCode.should.equal(200);
                     JSON.stringify(res.body).should.contain(demouser1PostURIsArray[0].uri);
                     JSON.stringify(res.body).should.contain(demouser1PostURIsArray[1].uri);
@@ -79,7 +81,8 @@ describe("Get information on an array of posts(given an array of post URIs) test
 
         it("[For demouser2, a collaborator in all projects] Should give the posts information", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.getPostsArrayInfo(true, agent, demouser1PostURIsArray, function (err, res) {
+                //THIS route expects a stringified array
+                socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser1PostURIsArray), function (err, res) {
                     res.statusCode.should.equal(200);
                     JSON.stringify(res.body).should.contain(demouser1PostURIsArray[0].uri);
                     JSON.stringify(res.body).should.contain(demouser1PostURIsArray[1].uri);
@@ -93,7 +96,8 @@ describe("Get information on an array of posts(given an array of post URIs) test
 
         it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.getPostsArrayInfo(true, agent, demouser1PostURIsArray, function (err, res) {
+                //THIS route expects a stringified array
+                socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser1PostURIsArray), function (err, res) {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
                     done();
@@ -103,7 +107,8 @@ describe("Get information on an array of posts(given an array of post URIs) test
 
         it("[For demouser1, as the creator of all projects] Should report the not found error on posts from the list that do not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.getPostsArrayInfo(true, agent, invalidPostURIsArray, function (err, res) {
+                //THIS route expects a stringified array
+                socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(invalidPostURIsArray), function (err, res) {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
                     done();
@@ -113,7 +118,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
 
         it("[For demouser2, a collaborator in all projects] Should report the not found error on posts from the list that do not exist", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.getPostsArrayInfo(true, agent, invalidPostURIsArray, function (err, res) {
+                socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(invalidPostURIsArray), function (err, res) {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
                     done();
@@ -123,7 +128,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
 
         it("[For demouser3, is not a creator or collaborator in any projects] Should report the not found error on posts from the list that do not exist", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.getPostsArrayInfo(true, agent, invalidPostURIsArray, function (err, res) {
+                socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(invalidPostURIsArray), function (err, res) {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
                     done();

@@ -19,7 +19,8 @@ global.tests = {};
 
 require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));*/
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));*/
+
 require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
 
 /*require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));

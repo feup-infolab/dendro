@@ -79,7 +79,8 @@ angular.module('dendroApp.controllers')
                 {
                     $scope.posts = response.data;
                     $scope.getting_posts = false;
-                    $scope.getPosts($scope.posts);
+                    /*$scope.getPosts($scope.posts);*/
+                    $scope.getPosts(JSON.stringify($scope.posts));
                     $scope.doingARequest = false;
                     usSpinnerService.stop('social-dendro-spinner');
                 })
@@ -318,6 +319,7 @@ angular.module('dendroApp.controllers')
             $scope.countNumPosts();
             //$scope.get_all_posts($scope.pagination.current);
             $scope.posts = JSON.parse(posts);
+            /*$scope.posts = posts;*/
             $scope.new_post_content = "";
             $scope.commentList = [];
             $scope.shareList = [];
@@ -326,7 +328,8 @@ angular.module('dendroApp.controllers')
             //$scope.posts = [];
             $scope.likesPostInfo = [];
             $scope.postsContents = [];
-            $scope.getPosts($scope.posts);
+            /*$scope.getPosts($scope.posts);*/
+            $scope.getPosts(posts);
             //$scope.pageChangeHandler($scope.pagination.current);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
             usSpinnerService.stop('social-dendro-spinner');
