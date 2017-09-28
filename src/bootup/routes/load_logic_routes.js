@@ -1016,7 +1016,7 @@ const loadRoutes = function(app, callback)
             const queryBasedRoutes = {
                 get: [
                     {
-                        queryKeys: [postID],
+                        queryKeys: ['postID'],
                         handler: posts.getPost_controller,
                         permissions: defaultSocialDendroPostPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which this post belongs to."
@@ -1040,7 +1040,7 @@ const loadRoutes = function(app, callback)
             const queryBasedRoutes = {
                 get: [
                     {
-                        queryKeys: [postsQueryInfo],
+                        queryKeys: ['postsQueryInfo'],
                         handler: posts.getPosts_controller,
                         permissions: defaultSocialDendroArrayOfPostsPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which the posts belongs to."

@@ -15,14 +15,14 @@ global.Config = Config;
 
 global.tests = {};
 
-require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));*/
 
 require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));
 
@@ -46,7 +46,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/notifications/all/routes.notifi
 
 require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification[DELETE].Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification[DELETE].Test.js"));*/
 
 return;
 
