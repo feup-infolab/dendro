@@ -33,7 +33,7 @@ const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncache
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 const pageNumber = 1;
-let demouser1PostURIsArray;
+let demouser2PostURIsArray;
 
 let folderName = "TestFolderFor_post_uri";
 let folderPathInProject = "";
@@ -48,7 +48,7 @@ let fileMetadata = [{
     value: "This is a test file and its search tag is test file lindo. It is a fantastic test of search for specific metadata."
 }];
 let publicProjectUri;
-let shareUriOfAManualPost;
+let manualPostCreatedByDemouser2;
 
 let notificationsDemouser1;
 let notificationsDemouser2;
@@ -60,7 +60,25 @@ describe("Get all notifications URIs for a user tests", function () {
         //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
             should.equal(err, null);
-            done();
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                projectUtils.getProjectUriFromHandle(agent, publicProject.handle, function (err, res) {
+                    publicProjectUri = res;
+                    socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                            res.statusCode.should.equal(200);
+                            demouser2PostURIsArray = res.body;
+                            res.body.length.should.equal(5);
+                            socialDendroUtils.getPostUriPage(true, agent, demouser2PostURIsArray[0].uri, function (err, res) {
+                                res.statusCode.should.equal(200);//index 0 tem de ser o manual post que foi criado
+                                expect(res.body.rdf.type).to.include("http://dendro.fe.up.pt/ontology/0.1/ManualPost");
+                                manualPostCreatedByDemouser2 = demouser2PostURIsArray[0].uri;
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
         });
     });
 
@@ -87,7 +105,7 @@ describe("Get all notifications URIs for a user tests", function () {
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give y number of notifications URIs for demouser2(because demouser1 and demouser2 created different posts)", function (done) {
+        it("[For demouser2, a collaborator in all projects] Should give 0 number of notifications URIs for demouser2(because demouser1 and demouser2 created different posts)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res) {
                     res.statusCode.should.equal(200);
@@ -107,6 +125,99 @@ describe("Get all notifications URIs for a user tests", function () {
                     notificationsDemouser3.length.should.equal(0);
                     expect(_.intersection(notificationsDemouser3, notificationsDemouser1)).to.be.empty;
                     done();
+                });
+            });
+        });
+
+        it("[For demouser2, a collaborator in all projects] Should give 1 notifications (on a like made to a post created by demouser2) for demouser2", function (done) {
+            //Before creating the post demouser2 has zero notifications
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    notificationsDemouser2 = res.body;
+                    notificationsDemouser2.length.should.equal(0);
+                    //demouser1 then likes the post created by demouser2
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                        socialDendroUtils.likeAPost(true, agent, manualPostCreatedByDemouser2, function (err, res) {
+                            res.statusCode.should.equal(200);
+                            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                                socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res) {
+                                    res.statusCode.should.equal(200);
+                                    notificationsDemouser2 = res.body;
+                                    notificationsDemouser2.length.should.equal(1);
+                                    //The first notification on the notifications list should be of the like as the list is ordered by the most recent notifications
+                                    socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser2[0].uri, function (err, res) {
+                                        res.statusCode.should.equal(200);
+                                        res.body[0].actionType.should.equal("Like");
+                                        res.body[0].resourceTargetUri.should.equal(manualPostCreatedByDemouser2);
+                                        done();
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        it("[For demouser2, a collaborator in all projects] Should give 2 notifications (on a comment and like made to a post created by demouser2) for demouser2", function (done) {
+            //Before creating the post demouser2 has 1 notification
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    notificationsDemouser2 = res.body;
+                    notificationsDemouser2.length.should.equal(1);
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                        //demouser1 then comments the post created by demouser2
+                        socialDendroUtils.commentAPost(true, agent, manualPostCreatedByDemouser2, "This is another comment", function (err, res) {
+                            res.statusCode.should.equal(200);
+                            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                                socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res) {
+                                    res.statusCode.should.equal(200);
+                                    notificationsDemouser2 = res.body;
+                                    notificationsDemouser2.length.should.equal(2);
+                                    //The first notification on the notifications list should be of the comment as the list is ordered by the most recent notifications
+                                    socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser2[0].uri, function (err, res) {
+                                        res.statusCode.should.equal(200);
+                                        res.body[0].actionType.should.equal("Comment");
+                                        res.body[0].resourceTargetUri.should.equal(manualPostCreatedByDemouser2);
+                                        done();
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        it("[For demouser2, a collaborator in all projects] Should give 3 notifications (on a share, a comment and like made to a post created by demouser2) for demouser2", function (done) {
+            //Before creating the post demouser2 has 2 notification
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    notificationsDemouser2 = res.body;
+                    notificationsDemouser2.length.should.equal(2);
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                        //demouser1 then shares the post created by demouser2
+                        socialDendroUtils.shareAPost(true, agent, manualPostCreatedByDemouser2, "This is another share message", function (err, res) {
+                            res.statusCode.should.equal(200);
+                            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                                socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res) {
+                                    res.statusCode.should.equal(200);
+                                    notificationsDemouser2 = res.body;
+                                    notificationsDemouser2.length.should.equal(3);
+                                    //The first notification on the notifications list should be of the share as the list is ordered by the most recent notifications
+                                    socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser2[0].uri, function (err, res) {
+                                        res.statusCode.should.equal(200);
+                                        res.body[0].actionType.should.equal("Share");
+                                        res.body[0].resourceTargetUri.should.equal(manualPostCreatedByDemouser2);
+                                        done();
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
