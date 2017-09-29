@@ -19,9 +19,7 @@ function B2Drop(host,username,password,callback) {
 };
 
 B2Drop.prototype.open = function (callback) {
-    let self = this;
-
-
+    //let self = this;
 };
 
 //TODO
@@ -83,11 +81,7 @@ var temp = new B2Drop("https://b2drop.eudat.eu/remote.php/webdav/","up201404178@
 
 */
 
-
-var userbase64 = new Buffer("hSqBnEXJ9tEKwZr", 'base64');
-console.log(userbase64.toString('ascii'));
-
-var temp = new B2Drop("https://b2drop.eudat.eu/public.php/webdav", "hSqBnEXJ9tEKwZr","");
+var temp = new B2Drop("https://b2drop.eudat.eu/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json", "","");
 //temp.open();
 
 /*
@@ -100,7 +94,7 @@ temp.connection.getDirectoryContents("/")
     });
 */
 
-var inputstream = fs.createReadStream('file.txt');
+/*var inputstream = fs.createReadStream('file.txt');
 
 inputstream.on('open', function () {
     temp.put("file.txt",inputstream, function (err, info) {
@@ -109,7 +103,7 @@ inputstream.on('open', function () {
             console.log(info);
             inputstream.close();
         });
-})
+})/*
 
 
 
@@ -131,3 +125,108 @@ outputStream.on('open', function () {
     });
 })
 */
+
+
+
+var request = require('request');
+request = request.defaults({jar: true});
+//require('request').debug = true
+
+const cheerio = require('cheerio');
+
+var qs = require('querystring');
+
+
+
+var cookie = request.jar();
+
+var formDataPOST = {
+    password:'',
+    passwordChanged: 'false',
+    permission: '31',
+    expirteDate:'',
+    shareType: '3',
+    path : '/Documents'
+};
+
+//LOGIN
+request.get({
+        url: 'https://b2drop.eudat.eu/login',
+        auth: {
+            user: 'up201404178@fe.up.pt',
+            pass: 'xdlol24PSD'
+        },
+        headers : {
+            jar: cookie
+        }
+    },
+    function (error, response, body) {
+       // console.log('body',body);
+
+        const $ = cheerio.load(body);
+        var token = $('head').attr('data-requesttoken');
+        console.log('token',token);
+
+        var queryString = qs.stringify({
+            format : 'json',
+            password:'',
+            passwordChanged: 'false',
+            permission: '31',
+            expirteDate:'',
+            shareType: '3',
+            path : '/Documents'
+        });
+        //GET SHARE LINK
+        request.post({
+                url: 'https://b2drop.eudat.eu/ocs/v2.php/apps/files_sharing/api/v1/shares' + '?' + queryString,
+                headers: {
+                    jar: cookie,
+                    requesttoken: token
+                   // formData: formDataPOST
+                }
+            },
+            function (error, response, body) {
+                console.log('error:', error); // Print the error if one occurred
+                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+              //  console.log('body',body);
+
+                queryString = qs.stringify({
+                    format: 'json',
+                    path: '/Documents',
+                    reshares: 'true'
+                })
+
+                request.get({
+                        url: 'https://b2drop.eudat.eu/ocs/v2.php/apps/files_sharing/api/v1/shares' + '?' + queryString,
+                        headers: {
+                            jar: cookie,
+                            requesttoken: token
+                        }
+                    },
+                    function (error, response, body) {
+                        console.log('error:', error); // Print the error if one occurred
+                        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+
+                        var info =  JSON.parse(body);
+                        console.log('url', info.ocs.data[0].url);
+
+                        request.get({
+                            url:"https://b2drop.eudat.eu/logout",
+                            headers: {
+                                requesttoken: token
+                            }
+                        },
+                            function (error, response, body) {
+                                console.log('error:', error); // Print the error if one occurred
+                                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+                               // console.log('body', body);
+                            }
+                        )
+                    }// Print the HTML for the Google homepage.
+                )
+            }// Print the HTML for the Google homepage.
+        )
+    }// Print the HTML for the Google homepage.
+)
+
+
