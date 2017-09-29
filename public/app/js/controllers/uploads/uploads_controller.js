@@ -34,7 +34,7 @@ angular.module('dendroApp.controllers')
         $scope.invalidFiles = [];
 
         $scope.isResumeSupported = false; //Upload.isResumeSupported(); //TODO Enable this
-        $scope.chunkSize = '1MB';
+        $scope.chunkSize = '150MB';
 
         $scope.activate_watches = function()
         {
@@ -70,9 +70,10 @@ angular.module('dendroApp.controllers')
                            self.files,
                            function (file, callback)
                            {
-                               if (!file.uploading)
+                               if (!file.uploading && !file.has_error)
                                {
                                    file.calculating_md5 = true;
+                                   file.md5_progress = 0;
                                    uploadsService.calculate_md5(file, function (err, md5)
                                    {
                                        if (!err)
@@ -84,18 +85,23 @@ angular.module('dendroApp.controllers')
                                                {
                                                    file.uploading = false;
                                                    file.result = result;
+                                                   file.has_success = "File uploaded successfully.";
                                                    callback(null, result);
                                                })
-                                               .catch(function (error)
+                                               .catch(function (response)
                                                {
                                                    file.uploading = false;
-                                                   callback(err, error)
+                                                   console.log(response.error);
+                                                   file.has_error = response.error;
+                                                   callback(1, response.error);
                                                });
                                        }
                                        else
                                        {
                                            windowService.show_popup('info', 'Unable to calculate checksum of file ' + file.name);
                                        }
+                                   }, function(progress){
+                                       file.md5_progress = Math.round(progress * 100);
                                    });
                                }
                            },
@@ -124,7 +130,7 @@ angular.module('dendroApp.controllers')
                                }
                                else
                                {
-                                   $scope.uploads_callback(1, error.error);
+                                   $scope.uploads_callback(1, err.error);
                                }
                            }
                        );
@@ -316,7 +322,7 @@ angular.module('dendroApp.controllers')
                 return URI($scope.get_uploads_url_function()).addSearch("restart").toString()
             };
 
-            $scope.activate_watches()
+            $scope.activate_watches();
         }
     }
 ]);

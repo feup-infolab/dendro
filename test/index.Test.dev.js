@@ -15,40 +15,10 @@ global.Config = Config;
 
 global.tests = {};
 
-require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));
+return;
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/likes/routes.posts.post.likes.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comment/routes.posts.comment.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comments/routes.posts.comments.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/share/routes.posts.share.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/shares/routes.posts.shares.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/count/routes.posts.count.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/_uri/routes.posts._uri.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/shares/_uri/routes.shares._uri.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/all/routes.notifications.all.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification[DELETE].Test.js"));
-
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
 return;
 
 //PUBLIC PROJECT ROOT MKDIR TESTS
@@ -64,28 +34,26 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__recent
 require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
-/*require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));*/
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
 
 /*'/socialDendro/my' -> done route and file and stubs
- '/posts/all' -> done route and file and stubs
- '/posts/post' -> done route and file and stubs
- '/posts/posts' -> done route and file and stubs
- '/posts/new' -> done route and file and stubs
- '/posts/like' -> done route and file and stubs
- '/posts/post/likes' -> done route and file and stubs
- '/posts/comment' -> done route and file and stubs
- '/posts/comments' -> done route and file and stubs
- '/posts/share' -> done route and file and stubs
- '/posts/shares' -> done route and file and stubs
- '/posts/count' -> done route and file and stubs
- '/posts/:uri' -> done route and file and stubs
- '/shares/:uri' -> done route and file and stubs
- '/notifications/all' -> done route and file and stubs
- '/notifications/notification' -> done route and file and stubs
- '/notifications/notification' -> done route and file and stubs
- */
+'/posts/all' -> done route and file and stubs
+'/posts/post' -> done route and file and stubs
+'/posts/posts' -> done route and file and stubs
+'/posts/new' -> done route and file and stubs
+'/posts/like' -> done route and file and stubs
+'/posts/like/liked' -> done route and file and stubs
+'/posts/post/likesInfo' -> done route and file and stubs
+'/posts/comment' -> done route and file and stubs
+'/posts/comments' -> done route and file and stubs
+'/posts/share' -> done route and file and stubs
+'/posts/shares' -> done route and file and stubs
+'/posts/countNum' -> done route and file and stubs
+'/posts/:uri' -> done route and file and stubs
+'/shares/:uri' -> done route and file and stubs
+'/notifications/all' -> done route and file and stubs
+'/notifications/notification' -> done route and file and stubs
+'/notifications/notification' -> done route and file and stubs
+*/
 
 
 

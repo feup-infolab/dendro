@@ -20,7 +20,11 @@
   padding-bottom: 5px;
 }
 .thin-progress {
-  height: 20px;
+  height: 5px;
+  font-size: 10px;
+  color: #000;
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 .thin-progress .sr-only {
   position: relative;

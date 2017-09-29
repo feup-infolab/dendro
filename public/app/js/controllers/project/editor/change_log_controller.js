@@ -32,6 +32,7 @@ angular.module('dendroApp.controllers')
                     .then(function(response)
                     {
                         $scope.shared.project_stats = response.data;
+                        $scope.shared.project_stats.human_project_max_size = Humanize.fileSize($scope.shared.project_stats.max_size);
                     });
             };
 
