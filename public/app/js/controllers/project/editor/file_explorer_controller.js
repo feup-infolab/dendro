@@ -144,15 +144,15 @@ angular.module('dendroApp.controllers')
     $scope.toggle_upload_area = function()
     {
         angular.element('#upload_droparea_button').triggerHandler('click');
-        $scope.upload_area_visible = !$scope.upload_area_visible;
-        $scope.restore_area_visible = false;
+        //$scope.upload_area_visible = !$scope.upload_area_visible;
+        //$scope.restore_area_visible = false;
     };
 
     $scope.toggle_restore_area = function()
     {
         angular.element('#upload_droparea_button').triggerHandler('click');
-        $scope.upload_area_visible = false;
-        $scope.restore_area_visible = !$scope.restore_area_visible;
+        //$scope.upload_area_visible = false;
+        //$scope.restore_area_visible = !$scope.restore_area_visible;
     };
 
     $scope.mkdir = function() {
@@ -321,7 +321,7 @@ angular.module('dendroApp.controllers')
         }
         else
         {
-            $scope.show_popup("error", "Error", result[0].message);
+            $scope.show_popup("error", "Error", result.message);
         }
     };
 

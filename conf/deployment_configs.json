@@ -67,13 +67,11 @@
             "id": "social"
           },
           "notifications": {
-            "options": {
               "database": "127.0.0.1:3001",
               "collection": "notifications_cache",
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
-            }
           }
         }
       },
@@ -235,7 +233,7 @@
     "startup": {
       "load_databases": true,
       "reload_administrators_on_startup": false,
-      "reload_demo_users_on_startup": false,
+      "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,
@@ -245,6 +243,7 @@
       "log_bootup_actions" : true,
       "destroy_all_graphs": false,
       "destroy_all_indexes": false,
+      "destroy_files_store": false,
       "destroy_datastore": false
     },
     "baselines": {
@@ -443,13 +442,11 @@
             "id": "social"
           },
           "notifications": {
-            "options": {
-              "database": "127.0.0.1:3002",
-              "collection": "notifications_cache",
-              "host": "192.168.56.249",
-              "port": "27017",
-              "id": "notifications"
-            }
+            "database": "127.0.0.1:3002",
+            "collection": "notifications_cache",
+            "host": "192.168.56.249",
+            "port": "27017",
+            "id": "notifications"
           }
         }
       },
@@ -618,7 +615,8 @@
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
-      "destroy_datastore": true
+      "destroy_datastore": true,
+      "destroy_files_store": true
     },
     "baselines": {
     },
@@ -976,7 +974,8 @@
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
-      "destroy_datastore": true
+      "destroy_datastore": true,
+      "destroy_files_store": true
     },
     "baselines": {
     },

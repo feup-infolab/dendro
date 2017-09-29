@@ -584,6 +584,42 @@ Project.createAndInsertFromObject = function(object, callback) {
     });
 };
 
+Project.prototype.isUserACreatorOrContributor = function (userUri, callback) {
+    var self = this;
+    var query =
+        "SELECT ?property \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        " [1] rdf:type ddr:Project . "+
+        " [1] ?property [2] \n"+
+        "} \n";
+
+    db.connection.execute(query,
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : self.uri
+            },
+            {
+                type : DbConnection.resource,
+                value : userUri
+            }
+        ],
+        function(err, properties) {
+            if(err)
+            {
+                var errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
+                console.error(errorMsg);
+
+            }
+            callback(err, properties);
+        });
+};
+
 Project.prototype.getRootFolder = function(callback)
 {
     const self = this;
@@ -865,7 +901,7 @@ Project.prototype.getStorageSize = function(callback, customBucket)
         {
             collection.aggregate([
                 {
-                    $match: {"metadata.project" : self.uri}
+                    $match: {"metadata.project.uri" : self.uri}
                 },
                 {
                     $group:
@@ -897,7 +933,7 @@ Project.prototype.getStorageSize = function(callback, customBucket)
         }
         else
         {
-            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
+            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(collection));
             return callback(1, "Error retrieving files collection : " + collection);
         }
     });

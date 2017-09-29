@@ -1186,7 +1186,7 @@ Resource.prototype.replaceDescriptors = function(newDescriptors, cannotChangeThe
 
     // clean other editable descriptors that
     // were not included in
-    // newDescriptors (means that they need to be deleted)
+    // changes (means that they need to be deleted)
 
     for(let i = 0; i < deletedDescriptors.length; i++)
     {

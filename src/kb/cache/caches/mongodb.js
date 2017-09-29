@@ -139,6 +139,7 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
                         else
                         {
                             const msg = "There are more than one resource in cache when running query";
+                            self.deleteByQuery(query, function(){});
                             console.error(msg);
                             console.error(JSON.stringify(query, null, 4));
                             return callback(1, "Unable to execute query " + JSON.stringify(query) +" from mongodb cache.");
