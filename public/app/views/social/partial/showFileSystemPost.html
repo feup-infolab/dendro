@@ -1,0 +1,61 @@
+<div class="panel-body">
+    <div class="media">
+        <div class="media-left">
+            <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
+        </div>
+
+        <div class="media-left text-center social-dendro-filesystem-thumbnail">
+            <!--<p>{{postsContents[postUri].schema.sharedContent}}</p>-->
+            <!--<img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">-->
+            <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent}}?thumbnail">
+            <!--<a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>-->
+            <!--<a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent}}"> Link   </a>-->
+            <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent}}"> {{postsContents[postUri].resourceInfo.nie.title}}   </a>
+        </div>
+
+        <div class="media-body text-center filesystem-post-content">
+            <div ng-if="postsContents[postUri].ddr.changeType == 'mkdir'">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success" style="width: 100%">
+                        <p>Folder was created</p>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-if="postsContents[postUri].ddr.changeType == 'rmdir'">
+                <div ng-if="postsContents[postUri].ddr.deleted">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-danger" style="width: 100%">
+                            <p>Folder was deleted</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-if="!postsContents[postUri].ddr.deleted">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-warning" style="width: 100%">
+                            <p>Folder was soft deleted</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-if="postsContents[postUri].ddr.changeType == 'upload'">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success" style="width: 100%">
+                        <p>File was uploaded</p>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-if="postsContents[postUri].ddr.changeType == 'delete'">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-danger" style="width: 100%">
+                        <p>File was deleted</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

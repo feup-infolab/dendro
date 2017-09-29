@@ -122,9 +122,23 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next, validateExistenc
                 }
             });
         }
+
+        else if(!isNull(matchingRoute))
+        {
+            if(typeof matchingRoute == "function")
+            {
+                matchingRoute.handler(req, res);
+            }
+            else
+            {
+                console.error("Matching route is not a function!");
+                next();
+            }
+
+        }
         else
         {
-            matchingRoute.handler(req, res);
+            next();
         }
     }
 

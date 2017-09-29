@@ -43,8 +43,8 @@ describe("Administer data projects", function (done) {
         this.timeout(60000);
         createFoldersUnit.setup(function (err, res) {
             should.equal(err, null);
-            Project = require(Pathfinder.absPathInTestsFolder("models/project.js")).Project;
-            User = require(Pathfinder.absPathInTestsFolder("/models/user.js")).User;
+            Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
+            User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
             done();
         });
     });
@@ -55,7 +55,8 @@ describe("Administer data projects", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, false, {}, publicProject.handle, function(err, res){
-                res.should.have.status(200);
+                /*res.should.have.status(200);*/
+                res.should.have.status(401);
                 res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
                 done();
             });
@@ -64,7 +65,8 @@ describe("Administer data projects", function (done) {
         it("[HTML] should not access project without admin rights GET", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 projectUtils.administer(agent, false, {}, publicProject.handle, function(err, res){
-                    res.should.have.status(200);
+                    /*res.should.have.status(200);*/
+                    res.should.have.status(401);
                     res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
                     done();
                 });
@@ -118,7 +120,8 @@ describe("Administer data projects", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, true, {}, publicProject.handle, function(err, res){
-                res.should.have.status(200);
+                /*res.should.have.status(200);*/
+                res.should.have.status(401);
                 res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
                 done();
             });
@@ -127,7 +130,8 @@ describe("Administer data projects", function (done) {
         it("[HTML] should not modify project without admin rights POST", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 projectUtils.administer(agent, true, {}, publicProject.handle, function(err, res){
-                    res.should.have.status(200);
+                    /*res.should.have.status(200);*/
+                    res.should.have.status(401);
                     res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
                     done();
                 });
@@ -156,7 +160,8 @@ describe("Administer data projects", function (done) {
             var invalidUsername = 'nonexistinguser';
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.administer(agent, true, {contributors: [invalidUsername]}, publicProject.handle, function(err, res){
-                    res.should.have.status(200);
+                    /*res.should.have.status(200);*/
+                    res.should.have.status(400);
                     res.text.should.contain("error_messages");
                     res.text.should.contain(invalidUsername);
                     done();

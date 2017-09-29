@@ -331,7 +331,7 @@ exports.show = function(req, res){
                 {
                     res.render('users/show',
                         {
-                            title : "Viewing user " + user.foaf.firstname + " " + user.foaf.surname,
+                            title : "Viewing user " + user.foaf.firstName + " " + user.foaf.surname,
                             user : user
                         }
                     )
