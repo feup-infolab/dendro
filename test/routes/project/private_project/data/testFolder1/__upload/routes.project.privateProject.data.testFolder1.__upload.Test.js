@@ -106,9 +106,7 @@ describe("Upload files into testFolder1 of Private project", function () {
                     res.body.should.be.instanceof(Object);
                     res.body.details.should.be.instanceof(Array);
                     res.body.details.length.should.equal(1);
-
-                    const newResourceUri = res.body.details[0].uri;
-
+                    
                     fileUtils.downloadFileByUri(true, agent, res.body.details[0].uri, function (error, res)
                     {
                         res.statusCode.should.equal(200);
@@ -127,8 +125,6 @@ describe("Upload files into testFolder1 of Private project", function () {
                     res.body.should.be.instanceof(Object);
                     res.body.details.should.be.instanceof(Array);
                     res.body.details.length.should.equal(1);
-
-                    const newResourceUri = res.body.details[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, res.body.details[0].uri, function (error, res)
                     {

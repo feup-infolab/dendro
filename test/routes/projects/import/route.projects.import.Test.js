@@ -132,11 +132,11 @@ describe("Import projects tests", function (done) {
 
                         //we import a second time every project. Should be refused for every second attempt
                         projectUtils.importProject(true, agent, projectData, function (err, res) {
+                            res.statusCode.should.equal(400);
                             const result = JSON.parse(res.text);
                             result.result.should.equal("error");
                             result.message.should.be.instanceof(Array);
                             result.message[0].should.equal("A project with handle "+projectData.handle+" already exists. Please choose another one.");
-                            res.statusCode.should.equal(400);
                             callback(null);
                         });
                     });

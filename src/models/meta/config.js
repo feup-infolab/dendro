@@ -72,6 +72,7 @@ Config.datastore =  getConfigParameter("datastore");
 
 Config.virtuosoHost =  getConfigParameter("virtuosoHost");
 Config.virtuosoPort =  getConfigParameter("virtuosoPort");
+Config.virtuosoISQLPort =  getConfigParameter("virtuosoISQLPort");
 
 Config.virtuosoAuth = getConfigParameter("virtuosoAuth");
 

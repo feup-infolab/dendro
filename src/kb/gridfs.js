@@ -20,7 +20,7 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
     self.password = password;
 }
 
-GridFSConnection.prototype.open = function(callback) {
+GridFSConnection.prototype.open = function(callback, customBucket) {
     const self = this;
 
     if(!isNull(self.gfs))
@@ -51,9 +51,29 @@ GridFSConnection.prototype.open = function(callback) {
         db.open(function (err) {
             if (isNull(err))
             {
-                self.db = db;
-                self.gfs = Grid(db, mongo);
-                return callback(null, self);
+                let collectionName;
+                if(!isNull(customBucket))
+                {
+                    collectionName = customBucket;
+                }
+                else
+                {
+                    collectionName = "fs.files";
+
+                }
+                db.collection(collectionName).ensureIndex("uri", function(err, result)
+                {
+                    if(isNull(err))
+                    {
+                        self.db = db;
+                        self.gfs = Grid(db, mongo);
+                        return callback(null, self);
+                    }
+                    else
+                    {
+                        callback(err, self);
+                    }
+                });
             }
             else
             {

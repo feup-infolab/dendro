@@ -41,6 +41,6 @@ const loadOntologies = function(app, callback)
 
         });
     }
-}
+};
 
 module.exports.loadOntologies = loadOntologies;

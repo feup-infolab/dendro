@@ -2,28 +2,31 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 
 const util = require("util");
+const async = require("async");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const uuid = require("uuid");
-let queue = require("queue");
+const Queue = require('better-queue');
+const rp = require('request-promise');
 
 let profiling_logfile;
 let boot_start_timestamp = new Date().toISOString();
 const profiling_logfile_separator = "@";
 
-function DbConnection (host, port, username, password, maxSimultaneousConnections) {
+function DbConnection (handle, host, port, port_isql, username, password, maxSimultaneousConnections, dbOperationsTimeout) {
     let self = this;
 
     if (!self.host || !self.port) {
         self.host = host;
         self.port = port;
+        self.port_isql = port_isql;
         self.username = username;
         self.password = password;
 
-        if(isNull(self.maxSimultaneousConnections))
+        if(isNull(maxSimultaneousConnections))
         {
-            self.maxSimultaneousConnections = 50;
+            self.maxSimultaneousConnections = 1;
         }
         else
         {
@@ -31,6 +34,9 @@ function DbConnection (host, port, username, password, maxSimultaneousConnection
         }
     }
 
+    self.handle = handle;
+    self.dbOperationTimeout = dbOperationsTimeout;
+    self.pendingRequests = {};
     self.databaseName = "graph";
     self.created_profiling_logfile = false;
 }
@@ -60,7 +66,6 @@ const queryObjectToString = function (query, argumentsArray, callback) {
         //check for the presence of the parameter placeholder
         if (transformedQuery.indexOf(currentArgumentIndex) !== -1) {
             try {
-
                 //will allow people to use the same parameter several times in the query,
                 // for example [0]....[0]...[0] by replacing all occurrences of [0] in the query string
                 const pattern = new RegExp("\\\[" + i + "\\\]", "g"); // [] are reserved chars in regex!
@@ -354,44 +359,263 @@ DbConnection.buildFilterStringForOntologies = function(ontologyURIsArray, filter
 DbConnection.prototype.create = function(callback) {
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     const self = this;
-    const xmlHttp = new XMLHttpRequest();
 
-    // prepare callback
-    xmlHttp.onreadystatechange = function() {
-        if(xmlHttp.readyState === 4)
+    const checkDatabaseConnection = function(callback)
+    {
+        const xmlHttp = new XMLHttpRequest();
+        // prepare callback
+        xmlHttp.onreadystatechange = function()
         {
-            if(xmlHttp.status === 200)
+            if (xmlHttp.readyState === 4)
             {
-                self.q = queue();
-                self.q.timeout = Config.dbOperationTimeout;
-
-                if(Config.debug.database.log_query_timeouts) {
-                    self.q.on('timeout', function (next, job) {
-                        console.log('query timed out:', job.toString().replace(/\n/g, ''));
-                        next();
-                    });
+                if (xmlHttp.status === 200)
+                {
+                    return callback(null);
                 }
-
-                //self.q.on('success', function(result, job) {
-                //});
-
-                return callback(self);
+                else
+                {
+                    return callback(1, "Unable to contact Virtuoso Server at " + self.host + " : " + self.port);
+                }
             }
-            else
-            {
-                return callback(false);
-            }
+        };
+
+        let fullUrl = "http://" + self.host;
+
+        if (self.port) {
+            fullUrl = fullUrl + ":" + self.port;
         }
+
+        xmlHttp.open("GET", fullUrl, true);
+        xmlHttp.send(null);
     };
 
-    let fullUrl = "http://" + self.host;
+    const setupQueryQueue = function(callback)
+    {
 
-    if (self.port) {
-        fullUrl = fullUrl + ":" + self.port;
+        self.q = new Queue(
+            function(queryObject, cb){
+                if (Config.debug.active && Config.debug.database.log_all_queries)
+                {
+                    console.log("POSTING QUERY: \n" + query);
+                }
+                
+                const finishQuery = function(cb, startQueryTime, query)
+                {
+                    if(Config.debug.database.log_query_times)
+                    {
+                        const msec = new Date().getTime() - startQueryTime.getTime();
+                        const fs = require("fs");
+                        const path = require("path");
+                        const mkdirp = require("mkdirp");
+                        const logParentFolder = Pathfinder.absPathInApp("profiling");
+                        const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + boot_start_timestamp + ".csv");
+
+                        if(!self.created_profiling_logfile && !fs.existsSync(queryProfileLogFilePath))
+                        {
+                            mkdirp.sync(logParentFolder);
+                            fs.openSync(queryProfileLogFilePath, 'w'); //truncate / create blank file
+                            fs.appendFileSync(queryProfileLogFilePath, "query" + profiling_logfile_separator + "time_msecs\n");
+                            self.created_profiling_logfile = true;
+                        }
+
+                        fs.appendFileSync(queryProfileLogFilePath, query.replace(/(?:\r\n|\r|\n)/g,"") + profiling_logfile_separator + msec + "\n");
+                        cb();
+                    }
+                    else
+                    {
+                        cb();
+                    }
+                };
+                
+                const queryRequest = rp({
+                    method: "POST",
+                    uri: queryObject.fullUrl,
+                    form: {
+                        query: queryObject.query,
+                        maxrows: queryObject.maxRows,
+                        format: queryObject.resultsFormat
+                    },
+                    headers: {
+                        'content-type': 'application/x-www-form-urlencoded'
+                    },
+                    json: true,
+                    forever : true,
+                    timeout : Config.dbOperationTimeout,
+                    
+                })
+                    .then(function (parsedBody) {
+                        delete self.pendingRequests[queryObject.query_id];
+                        const transformedResults = [];
+                        // iterate through all the rows in the result list
+
+                        if (!isNull(parsedBody.boolean))
+                        {
+
+                            queryObject.callback(null, parsedBody.boolean);
+                            finishQuery(cb, queryObject.queryStartTime, queryObject.query);
+                        }
+                        else
+                        {
+                            const rows = parsedBody.results.bindings;
+                            const numberOfRows = rows.length;
+
+                            if (numberOfRows === 0)
+                            {
+                                finishQuery(cb, queryObject.queryStartTime, queryObject.query);
+                                return queryObject.callback(null, []);
+                            }
+                            else
+                            {
+                                for (let i = 0; i < numberOfRows; i++)
+                                {
+                                    let datatypes = [];
+                                    let columnHeaders = [];
+
+                                    let row = parsedBody.results.bindings[i];
+
+                                    if (!isNull(row))
+                                    {
+                                        transformedResults[i] = {};
+                                        for (let j = 0; j < parsedBody.head.vars.length; j++)
+                                        {
+                                            let cellHeader = parsedBody.head.vars[j];
+                                            const cell = row[cellHeader];
+
+                                            if (!isNull(cell))
+                                            {
+                                                let datatype;
+                                                if (!isNull(cell))
+                                                {
+                                                    datatype = cell.type;
+                                                }
+                                                else
+                                                {
+                                                    datatype = datatypes[j];
+                                                }
+
+                                                let value = cell.value;
+
+                                                switch (datatype)
+                                                {
+                                                    case ("http://www.w3.org/2001/XMLSchema#integer"):
+                                                    {
+                                                        const newInt = parseInt(value);
+                                                        transformedResults[" + i + "].header = newInt;
+                                                        break;
+                                                    }
+                                                    case ("uri"):
+                                                    {
+                                                        transformedResults[i][cellHeader] = decodeURI(value);
+                                                        break;
+                                                    }
+                                                    // default is a string value
+                                                    default:
+                                                    {
+                                                        transformedResults[i][cellHeader] = decodeURIComponent(value).replace(/\"/g, "\\\"");;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                queryObject.callback(null, transformedResults);
+                                finishQuery(cb, queryObject.queryStartTime, queryObject.query);
+                            }
+                        }
+                    })
+                    .catch(function(err){
+                        delete self.pendingRequests[queryObject.query_id];
+                        console.error("Query "+queryObject.query_id+ " Failed!\n" + queryObject.query + "\n");
+                        const error = "Virtuoso server returned error: \n " + util.inspect(err);
+                        console.error(error);
+                        console.trace(err);
+                        finishQuery(cb, queryObject.queryStartTime, queryObject.query);
+                        return queryObject.callback(1, err);
+                    });
+
+                self.pendingRequests[queryObject.query_id] = queryRequest;
+                //console.log(Object.keys(self.pendingRequests).length);
+            },
+            {
+                concurrent : self.maxSimultaneousConnections,
+                maxTimeout : self.dbOperationTimeout,
+                maxRetries : 10,
+                retryDelay : 5000
+            });
+
+        callback(null);
+    };
+
+    async.series([
+            checkDatabaseConnection,
+            setupQueryQueue
+    ], function(err){
+        if(isNull(err))
+        {
+            callback(err, self);
+        }
+        else
+        {
+            callback(err, null);
+        }
+    });
+};
+
+DbConnection.prototype.close = function(callback){
+    const self = this;
+    console.log("[INFO] Telling Virtuoso connection " + self.handle + " to close when all requests are completed.");
+
+    const closePendingConnections = function(callback)
+    {
+        async.map(Object.keys(self.pendingRequests), function(queryID, cb)
+        {
+            if(self.pendingRequests.hasOwnProperty(queryID))
+            {
+                self.pendingRequests[queryID].cancel(cb)
+            }
+        }, callback);
+    };
+
+    const destroyQueue = function(callback)
+    {
+        self.q.destroy(callback);
+    };
+
+    const closeClientConnection = function(callback)
+    {
+        fullUrl = "http://" + self.host;
+        if (self.port)
+        {
+            fullUrl = fullUrl + ":" + self.port_isql;
+        }
+
+        rp({
+            method: "POST",
+            uri: fullUrl,
+            form: {
+                query: "disconnect_user ('"+Config.virtuosoAuth.username+"')"
+            },
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            json: true,
+            forever : true
+        })
+        .then(function (err, parsedBody) {
+            callback(err, parsedBody);
+        });
     }
+    
+    async.series([
+        //closeClientConnection,
+        closePendingConnections,
+        destroyQueue
+    ], function(err, result){
+        callback(err, result);
+    })
 
-    xmlHttp.open("GET", fullUrl, true);
-    xmlHttp.send(null);
 };
 
 DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows) {
@@ -423,156 +647,17 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
 
                 fullUrl = fullUrl + "/sparql";
 
-                query = "DEFINE sql:log-enable 3\n" + query;
+                //query = "DEFINE sql:log-enable 3\n" + query;
 
-                const options = {
-                    method: "POST",
-                    uri: fullUrl,
-                    form: {
-                        query: query,
-                        maxrows: maxRows,
-                        format: resultsFormat,
-                        open_timeout: Config.dbOperationTimeout
-                    },
-                    headers: {
-                        'content-type': 'application/x-www-form-urlencoded'
-                    },
-                    json: true
-                };
-
-                const finishQuery = function(cb, startQueryTime, query)
-                {
-                    if(Config.debug.database.log_query_times)
-                    {
-                        const msec = new Date().getTime() - startQueryTime.getTime();
-                        const fs = require("fs");
-                        const path = require("path");
-                        const mkdirp = require("mkdirp");
-                        const logParentFolder = Pathfinder.absPathInApp("profiling");
-                        const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + boot_start_timestamp + ".csv");
-
-                        if(!self.created_profiling_logfile && !fs.existsSync(queryProfileLogFilePath))
-                        {
-                            mkdirp.sync(logParentFolder);
-                            fs.openSync(queryProfileLogFilePath, 'w'); //truncate / create blank file
-                            fs.appendFileSync(queryProfileLogFilePath, "query" + profiling_logfile_separator + "time_msecs\n");
-                            self.created_profiling_logfile = true;
-                        }
-
-                        fs.appendFileSync(queryProfileLogFilePath, query.replace(/(?:\r\n|\r|\n)/g,"") + profiling_logfile_separator + msec + "\n");
-                        cb();
-                    }
-                    else
-                    {
-                        cb();
-                    }
-                };
-
-                self.q.push(function(cb){
-                    let queryStartTime;
-                    if(Config.debug.database.log_query_times)
-                    {
-                        queryStartTime = new Date();
-                    }
-
-                    if (Config.debug.active && Config.debug.database.log_all_queries)
-                    {
-                        console.log("POSTING QUERY: \n" + query);
-                    }
-
-                    let rp = require('request-promise');
-                    rp(options)
-                        .then(function (parsedBody) {
-                            const transformedResults = [];
-                            // iterate through all the rows in the result list
-
-                            if (!isNull(parsedBody.boolean))
-                            {
-                                finishQuery(cb, queryStartTime, query);
-                                return callback(null, parsedBody.boolean);
-                            }
-                            else
-                            {
-                                const rows = parsedBody.results.bindings;
-                                const numberOfRows = rows.length;
-
-                                if (numberOfRows === 0)
-                                {
-                                    finishQuery(cb, queryStartTime, query);
-                                    return callback(null, []);
-                                }
-                                else
-                                {
-                                    for (let i = 0; i < numberOfRows; i++)
-                                    {
-                                        let datatypes = [];
-                                        let columnHeaders = [];
-
-                                        let row = parsedBody.results.bindings[i];
-
-                                        if (!isNull(row))
-                                        {
-                                            transformedResults[i] = {};
-                                            for (let j = 0; j < parsedBody.head.vars.length; j++)
-                                            {
-                                                let cellHeader = parsedBody.head.vars[j];
-                                                const cell = row[cellHeader];
-
-                                                if (!isNull(cell))
-                                                {
-                                                    let datatype;
-                                                    if (!isNull(cell))
-                                                    {
-                                                        datatype = cell.type;
-                                                    }
-                                                    else
-                                                    {
-                                                        datatype = datatypes[j];
-                                                    }
-
-                                                    let value = cell.value;
-
-                                                    switch (datatype)
-                                                    {
-                                                        case ("http://www.w3.org/2001/XMLSchema#integer"):
-                                                        {
-                                                            const newInt = parseInt(value);
-                                                            transformedResults[" + i + "].header = newInt;
-                                                            break;
-                                                        }
-                                                        case ("uri"):
-                                                        {
-                                                            transformedResults[i][cellHeader] = decodeURI(value);
-                                                            break;
-                                                        }
-                                                        // default is a string value
-                                                        default:
-                                                        {
-                                                            transformedResults[i][cellHeader] = decodeURIComponent(value).replace(/\"/g, "\\\"");;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    callback(null, transformedResults);
-                                    finishQuery(cb, queryStartTime, query);
-                                }
-                            }
-                        })
-                        .catch(function(err){
-                            console.error("Query Failed!\n" + query + "\n");
-                            const error = "Virtuoso server returned error: \n " + util.inspect(err);
-                            console.error(error);
-                            console.trace(err);
-                            finishQuery(cb, queryStartTime, query);
-                            return callback(1, err);
-                        });
+                self.q.push({
+                    queryStartTime : new Date(),
+                    query : query,
+                    callback, callback,
+                    query_id : uuid.v4(),
+                    fullUrl : fullUrl,
+                    resultsFormat : resultsFormat,
+                    maxRows : maxRows
                 });
-
-                self.q.start();
             }
             else
             {
@@ -668,25 +753,35 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback) {
 
             query = query + " }";
 
-            //console.log("Running insert query : " + query);
+            const runQuery = function(callback)
+            {
+                self.execute(query,
+                        function(error, results)
+                        {
+                            if(isNull(error))
+                            {
+                                return callback(null);
+                            }
+                            else
+                            {
+                                return callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " "  + triple.object +"\n").substr(0,200) +" . Server returned " + error);
+                            }
+                        }
+                );
+            }
 
-            const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-            //Invalidate cache record for the updated resources
-            Cache.getByGraphUri().delete([triple.subject, triple.object], function(err, result){});
-
-            self.execute(query,
-                function(error, results)
-                {
-                    if(isNull(error))
-                    {
-                        return callback(null);
-                    }
-                    else
-                    {
-                        return callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " "  + triple.object +"\n").substr(0,200) +" . Server returned " + error);
-                    }
-                }
-            );
+            if(Config.cache.active)
+            {
+                const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+                //Invalidate cache record for the updated resources
+                Cache.getByGraphUri(graphUri).delete([triple.subject, triple.object], function(err, result){
+                    runQuery(callback);
+                });
+            }
+            else
+            {
+                runQuery(callback);
+            }
         }
     }
 };
@@ -766,9 +861,25 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback) {
             triplesToDeleteString + " \n" +
             "}\n";
 
-        /**
-         * Invalidate cached records because of the deletion
-         */
+        const runQuery = function(callback)
+        {
+            self.execute(query, queryArguments, function(err, results)
+            {
+                /**
+                 * Invalidate cached records because of the deletion
+                 */
+
+                if(Config.cache.active)
+                {
+                    return callback(err, results);
+                }
+                else
+                {
+                    return callback(err, results);
+                }
+            });
+        };
+
         if(Config.cache.active)
         {
             let cache = Cache.getByGraphUri(graphName);
@@ -778,13 +889,14 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback) {
                 {
                     console.log("[DEBUG] Deleted cache records for triples " + JSON.stringify(triples) + ". Error Reported: " + result);
                 }
+
+                runQuery(callback);
             });
         }
-
-        self.execute(query, queryArguments, function(err, results)
+        else
         {
-            return callback(err, results);
-        });
+            runQuery(callback);
+        }
     }
     else
     {
@@ -855,16 +967,27 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
             insertString + " \n" +
             "} \n";
 
-        //Invalidate cache record for the updated resource
-        const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-        //Invalidate cache record for the updated resources
-        Cache.getByGraphUri().delete(subject, function(err, result){});
-
-        self.execute(query, queryArguments, function(err, results)
+        const runQuery = function(callback)
         {
-            return callback(err, results);
-            //console.log(results);
-        });
+            self.execute(query, queryArguments, function(err, results)
+            {
+                return callback(err, results);
+            });
+        };
+
+        if(Config.cache.active)
+        {
+            //Invalidate cache record for the updated resource
+            const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+            //Invalidate cache record for the updated resources
+            Cache.getByGraphUri(graphName).delete(subject, function(err, result){
+                runQuery(callback);
+            });
+        }
+        else
+        {
+            runQuery(callback);
+        }
     }
     else
     {
@@ -875,13 +998,39 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
 DbConnection.prototype.deleteGraph = function(graphUri, callback) {
     const self = this;
 
-    self.execute("CLEAR GRAPH <"+graphUri+">",
-        [],
-        function(err, resultsOrErrMessage)
-        {
-            return callback(err, resultsOrErrMessage);
+    const runQuery = function(callback)
+    {
+        self.execute("CLEAR GRAPH <"+graphUri+">",
+            [],
+            function(err, resultsOrErrMessage)
+            {
+                return callback(err, resultsOrErrMessage);
+            }
+        );
+    };
+
+    if(Config.cache.active)
+    {
+        //Invalidate cache record for the updated resource
+        const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+        //Invalidate whole cache for this graph
+
+        let graphCache;
+        try{
+            graphCache = Cache.getByGraphUri(graphUri);
+            graphCache.deleteByQuery({}, function(err, result){
+                runQuery(callback);
+            });
         }
-    );
+        catch(e)
+        {
+            runQuery(callback);
+        }
+    }
+    else
+    {
+        runQuery(callback);
+    }
 };
 
 DbConnection.prototype.graphExists = function(graphUri, callback) {

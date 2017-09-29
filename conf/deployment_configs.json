@@ -84,9 +84,10 @@
     },
     "virtuosoHost": "192.168.56.249",
     "virtuosoPort": "8890",
+    "virtuosoISQLPort": "1111",
     "virtuosoAuth": {
       "user": "dba",
-      "password": "root"
+      "password": "dba"
     },
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
@@ -106,8 +107,8 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 1073741824,
     "maxProjectSize": 1073741824,
-    "maxSimultaneousConnectionsToDb": 10,
-    "dbOperationTimeout": 5000,
+    "maxSimultaneousConnectionsToDb": 4,
+    "dbOperationTimeout": 30000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",
@@ -461,9 +462,10 @@
     },
     "virtuosoHost": "192.168.56.249",
     "virtuosoPort": "8890",
+    "virtuosoISQLPort": "1111",
     "virtuosoAuth": {
       "user": "dba",
-      "password": "root"
+      "password": "dba"
     },
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
@@ -483,8 +485,8 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 4,
-    "dbOperationTimeout": 5000,
+    "maxSimultaneousConnectionsToDb": 1,
+    "dbOperationTimeout": 30000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",
@@ -834,9 +836,10 @@
     },
     "virtuosoHost": "127.0.0.1",
     "virtuosoPort": "8890",
+    "virtuosoISQLPort": "1111",
     "virtuosoAuth": {
       "user": "dba",
-      "password": "root"
+      "password": "dba"
     },
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
@@ -856,8 +859,8 @@
     "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 10,
-    "dbOperationTimeout": 5000,
+    "maxSimultaneousConnectionsToDb": 1,
+    "dbOperationTimeout": 30000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",

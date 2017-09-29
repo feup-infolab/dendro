@@ -122,7 +122,7 @@ Ontology.all = function(callback)
                     Ontology.findByUri(ontologyResult.uri, callback)
                 };
 
-                async.map(results, getOntology, function(err, allOntologies){
+                async.mapSeries(results, getOntology, function(err, allOntologies){
                     return callback(err, allOntologies);
                 });
             }
@@ -152,7 +152,7 @@ Ontology.initAllFromDatabase = function(callback)
             });
         };
 
-        async.map(ontologiesArray, function (ontologyObject, callback) {
+        async.mapSeries(ontologiesArray, function (ontologyObject, callback) {
             checkForOntology(ontologyObject, function (err, ontology) {
                 if (isNull(ontology)) {
                     createOntologyRecordInDatabase(ontologyObject, function (err, result) {
@@ -197,7 +197,7 @@ Ontology.initAllFromDatabase = function(callback)
         };
         const addResearchDomainsDetails = function (ontology, callback) {
             if (ontology.domain instanceof Array) {
-                async.map(ontology.domain, getFullResearchDomain, function (err, results) {
+                async.mapSeries(ontology.domain, getFullResearchDomain, function (err, results) {
                     if (isNull(err)) {
                         ontology.domain = results;
                     }
@@ -206,7 +206,7 @@ Ontology.initAllFromDatabase = function(callback)
                 });
             }
             else if (typeof ontology.domain === "string") {
-                async.map([ontology.domain], getFullResearchDomain, function (err, results) {
+                async.mapSeries([ontology.domain], getFullResearchDomain, function (err, results) {
                     if (!isNull(results)) {
                         ontology.domain = results;
                     }
@@ -304,7 +304,7 @@ Ontology.initAllFromDatabase = function(callback)
             };
 
             if (!isNull(ontology.elements)) {
-                async.map(
+                async.mapSeries(
                     Object.keys(ontology.elements),
                     function (elementShortName, callback) {
                         const elementUri = Ontology.allOntologies[ontology.prefix].uri + elementShortName;
@@ -362,7 +362,7 @@ Ontology.initAllFromDatabase = function(callback)
                         function (callback) {
                             if(Config.startup.reload_descriptors_on_startup)
                             {
-                                async.map(ontologies, addDescriptorInformation, function (err, loadedOntologies) {
+                                async.mapSeries(ontologies, addDescriptorInformation, function (err, loadedOntologies) {
                                     if (isNull(err)) {
                                         console.log("[INFO] Finished loading configurations for descriptors from database");
                                     }
@@ -378,7 +378,7 @@ Ontology.initAllFromDatabase = function(callback)
                         function (ontologies, callback) {
                             if(Config.startup.reload_research_domains_on_startup)
                             {
-                                async.map(ontologies, addResearchDomainsDetails, function (err, loadedOntologies) {
+                                async.mapSeries(ontologies, addResearchDomainsDetails, function (err, loadedOntologies) {
                                     if (isNull(err)) {
                                         console.log("[INFO] Finished loading research domain configurations for descriptors from database");
                                     }
@@ -394,7 +394,7 @@ Ontology.initAllFromDatabase = function(callback)
                         function (ontologies, callback) {
                             if(Config.startup.reload_descriptor_validation_data)
                             {
-                                async.map(ontologies, addDescriptorValidationData, function (err, loadedOntologies) {
+                                async.mapSeries(ontologies, addDescriptorValidationData, function (err, loadedOntologies) {
                                     if (isNull(err)) {
                                         console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
                                     }

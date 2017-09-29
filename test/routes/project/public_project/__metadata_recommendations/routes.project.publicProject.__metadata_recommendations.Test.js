@@ -156,7 +156,7 @@ describe("Public project level metadata_recommendations", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+        
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

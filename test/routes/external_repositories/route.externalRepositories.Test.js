@@ -94,7 +94,7 @@ describe("List all external repository tests", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

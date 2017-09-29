@@ -103,7 +103,7 @@ describe("Social Dendro check if Post is liked by a user tests", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

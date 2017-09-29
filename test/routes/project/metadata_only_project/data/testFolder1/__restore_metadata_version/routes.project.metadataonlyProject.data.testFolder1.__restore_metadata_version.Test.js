@@ -126,7 +126,7 @@ describe("Metadata only project testFolder1 level restore_metadata_version", fun
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

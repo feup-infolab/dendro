@@ -8,16 +8,12 @@ Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
 Config.testsTimeout = 20000;
-Config.longTestsTimeout = 60000;
+Config.longTestsTimeout = 40000;
 console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
 
 global.Config = Config;
 
 global.tests = {};
-
-//require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
 //administer projects
 //require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
@@ -368,6 +364,14 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/_
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__delete/routes.project.publicProject.__delete.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__delete/routes.project.metadataOnlyProject.__delete.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js"));
+
+//Archived versions test
+//TODO
+//uncomment when merged with social dendro!
+//require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
+
+//Import projects tests
+require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
 /*
  require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));

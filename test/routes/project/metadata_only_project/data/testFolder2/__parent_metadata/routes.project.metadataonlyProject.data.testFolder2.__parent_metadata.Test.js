@@ -134,7 +134,7 @@ describe("Metadata only project testFolder2 level parent_metadata tests", functi
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

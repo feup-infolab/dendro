@@ -161,7 +161,9 @@ Cache.closeConnections = function(cb)
     async.map(Object.keys(self.caches), function(cacheKey, cb){
         if(self.caches.hasOwnProperty(cacheKey))
         {
-            self.caches[cacheKey].close(cb);
+            self.caches[cacheKey].close(function(err, result){
+                cb(err, result);
+            });
         }
         else
         {
