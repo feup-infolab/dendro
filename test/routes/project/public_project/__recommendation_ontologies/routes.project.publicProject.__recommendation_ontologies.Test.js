@@ -153,10 +153,10 @@ describe("Public project level recommendation_ontologies", function () {
 
     after(function (done) {
         //destroy graphs
-        
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

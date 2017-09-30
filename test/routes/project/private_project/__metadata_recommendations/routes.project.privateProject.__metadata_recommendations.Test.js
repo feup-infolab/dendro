@@ -158,7 +158,7 @@ describe("Private project level metadata_recommendations", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

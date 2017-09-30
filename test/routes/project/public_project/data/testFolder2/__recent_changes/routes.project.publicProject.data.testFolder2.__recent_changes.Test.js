@@ -116,9 +116,10 @@ describe("Public project testFolder2 level recent changes", function () {
 
     after(function (done) {
         //destroy graphs
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

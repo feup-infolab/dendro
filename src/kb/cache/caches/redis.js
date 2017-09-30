@@ -68,13 +68,7 @@ RedisCache.prototype.open = function(callback) {
 RedisCache.prototype.close = function(cb)
 {
     let self = this;
-    
-    if(self.client)
-    {
-        self.client.end(true);
-        delete self.client;
-    }
-
+    self.client.end(true);
     cb(null, null);
 };
 

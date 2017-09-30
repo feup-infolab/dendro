@@ -137,7 +137,7 @@ describe("Metadata only project testFolder1 level parent_metadata tests", functi
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

@@ -26,15 +26,15 @@ exports.clearAppState = function (cb) {
     else
     {
         global.tests.app.freeResources(function(err, results){
-            setTimeout(function(){
-                delete global.tests.app;
-                delete global.tests.server;
-                return cb(err, results);
-            }, 300);
+            // setTimeout(function(){
+            //     delete global.tests.app;
+            //     delete global.tests.server;
+            //     return cb(err, results);
+            // }, 1000);
 
-            //delete global.tests.app;
-            //delete global.tests.server;
-            //return cb(err, results);
+            delete global.tests.app;
+            delete global.tests.server;
+            return cb(err, results);
         });
     }
 };

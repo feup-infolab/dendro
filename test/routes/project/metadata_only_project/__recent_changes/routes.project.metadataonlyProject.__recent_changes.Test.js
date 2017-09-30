@@ -25,8 +25,8 @@ const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTe
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("metadata project recent changes", function () {
+    this.timeout(Config.longTestsTimeout);
     before(function (done) {
-        this.timeout(Config.longTestsTimeout);
         addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -110,7 +110,7 @@ describe("metadata project recent changes", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

@@ -116,7 +116,7 @@ describe("Request access to private project", function (done) {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

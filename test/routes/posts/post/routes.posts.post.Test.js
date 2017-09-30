@@ -26,8 +26,8 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 let demouser1PostURIs;
 
 describe("Social Dendro get specific post info tests", function () {
+    this.timeout(Config.longTestsTimeout);
     before(function (done) {
-        this.timeout(Config.testsTimeout);
         createPostsUnit.setup(function (err, results) {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -108,7 +108,7 @@ describe("Social Dendro get specific post info tests", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

@@ -75,7 +75,7 @@ describe("Public project ?version tests", function(){
         })
     });
 
-    after(function (done) {
+        after(function (done) {
         //destroy graphs
         
         db.deleteGraphs(function (err, data) {

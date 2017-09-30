@@ -155,7 +155,7 @@ describe("Private project testFolder2 level recommendation_ontologies tests", fu
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

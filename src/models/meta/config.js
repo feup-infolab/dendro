@@ -73,6 +73,19 @@ Config.datastore =  getConfigParameter("datastore");
 Config.virtuosoHost =  getConfigParameter("virtuosoHost");
 Config.virtuosoPort =  getConfigParameter("virtuosoPort");
 Config.virtuosoISQLPort =  getConfigParameter("virtuosoISQLPort");
+Config.virtuosoConnector =  function()
+{
+    const connectorType = getConfigParameter("virtuosoConnector");
+
+    if(connectorType === "jdbc" || connectorType === "http")
+    {
+        return connectorType;
+    }
+    else
+    {
+        throw "Invalid Virtuoso Server connector type " + connectorType;
+    }
+}();
 
 Config.virtuosoAuth = getConfigParameter("virtuosoAuth");
 

@@ -141,7 +141,7 @@ describe("Private project level metadata tests", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

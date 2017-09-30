@@ -128,7 +128,7 @@ describe("Metadata only project testFolder2 level ?version", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

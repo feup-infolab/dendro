@@ -9,7 +9,7 @@ const Like = require('../models/social/like.js').Like;
 const Notification = require('../models/notifications/notification.js').Notification;
 const Comment = require('../models/social/comment.js').Comment;
 const Share = require('../models/social/share.js').Share;
-const Ontology = require('../models/meta/ontology.js').Ontology;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Project = require('../models/project.js').Project;
 const DbConnection = require("../kb/db.js").DbConnection;
 const _ = require("underscore");
@@ -56,7 +56,7 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),
@@ -92,11 +92,11 @@ const getNumLikesForAPost = function(postID, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : postID
             }
         ]),
@@ -137,7 +137,7 @@ const numPostsDatabaseAux = function (projectUrisArray, callback) {
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),
@@ -175,15 +175,15 @@ const userLikedAPost = function(postID, userUri, cb ) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : postID
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : userUri
             }
         ]),
@@ -216,15 +216,15 @@ const removeOrAddLike = function (postID, userUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : postID
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : userUri
             }
         ]),
@@ -264,11 +264,11 @@ const getCommentsForAPost = function (postID, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : postID
             }
         ]),
@@ -305,11 +305,11 @@ const getSharesForAPost = function (postID, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: postID
             }
         ]),
@@ -382,11 +382,11 @@ const removeLike = function (likeID, userUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: likeID
             }
         ]),
@@ -1275,11 +1275,11 @@ exports.getShare = function (req, res) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: shareUri
             }
         ]),

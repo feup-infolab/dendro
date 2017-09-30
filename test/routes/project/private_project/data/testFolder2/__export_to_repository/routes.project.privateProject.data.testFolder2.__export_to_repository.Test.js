@@ -227,7 +227,7 @@ describe("Export private project testFolder2 level to repositories tests", funct
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

@@ -167,7 +167,7 @@ describe("Metadata only project testFolder1 level metadata_recommendations tests
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

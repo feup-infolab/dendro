@@ -108,10 +108,10 @@ describe("Public project testFolder2 level delete tests", function () {
 
     after(function (done) {
         //destroy graphs
-        
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

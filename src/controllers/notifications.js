@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Notification = require('../models/notifications/notification.js').Notification;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const DbConnection = require("../kb/db.js").DbConnection;
 const _ = require("underscore");
 
@@ -38,11 +39,11 @@ exports.get_unread_user_notifications = function (req ,res) {
         db.connection.execute(query,
             DbConnection.pushLimitsArguments([
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value: db_notifications.graphUri
                 },
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value: userUri
                 }
             ]),
@@ -94,15 +95,15 @@ exports.get_notification_info = function (req, res) {
         db.connection.execute(query,
             DbConnection.pushLimitsArguments([
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value: db_notifications.graphUri
                 },
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value: notificationUri
                 },
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: userUri
                 }
             ]),
@@ -151,15 +152,15 @@ exports.delete = function (req, res) {
         db.connection.execute(query,
             DbConnection.pushLimitsArguments([
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value: db_notifications.graphUri
                 },
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value: notificationUri
                 },
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: userUri
                 }
             ]),

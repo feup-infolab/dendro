@@ -42,8 +42,8 @@ const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtM
 const odsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/odsMockFile.js"));
 
 describe("Backup Metadata Only project", function () {
+    this.timeout(Config.longTestsTimeout);
     before(function (done) {
-        this.timeout(60000);
         createFilesUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -108,12 +108,12 @@ describe("Backup Metadata Only project", function () {
         });
     });
 
-    after(function (done) {
+     after(function (done) {
         //destroy graphs
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

@@ -167,7 +167,7 @@ describe("Private project testFolder2 level metadata_recommendations tests", fun
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

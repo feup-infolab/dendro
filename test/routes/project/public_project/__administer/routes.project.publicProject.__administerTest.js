@@ -204,7 +204,7 @@ describe("Administer data projects", function (done) {
         });
     });
 
-    after(function (done) {
+        after(function (done) {
         //destroy graphs
         this.timeout(60000);
         db.deleteGraphs(function (err, data) {

@@ -227,7 +227,7 @@ describe("Export metadata only project testFolder1 level to repositories tests",
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

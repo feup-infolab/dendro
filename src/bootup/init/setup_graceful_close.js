@@ -124,6 +124,14 @@ const setupGracefulClose = function(app, server, callback)
             cb(null);
         };
 
+        const callGarbageCollector = function(cb)
+        {
+            if (global.gc) {
+                global.gc();
+            } 
+            cb(null);
+        };
+
         const removePIDFile = function(cb)
         {
             Logger.log_boot_message("info", "Removing PID file...");
@@ -146,7 +154,8 @@ const setupGracefulClose = function(app, server, callback)
             closeGridFSConnections,
             closeMySQLConnectionPool,
             haltHTTPServer,
-            removePIDFile
+            callGarbageCollector,
+            removePIDFile,
         ], function(err, results){
             callback(err, results);
         });

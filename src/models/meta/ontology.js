@@ -4,10 +4,8 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const Controls = require(Pathfinder.absPathInSrcFolder("models/meta/controls.js")).Controls;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
-const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
@@ -110,7 +108,7 @@ Ontology.all = function(callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             }
         ],
@@ -229,11 +227,11 @@ Ontology.initAllFromDatabase = function(callback)
                     "} \n",
                     [
                         {
-                            type: DbConnection.resourceNoEscape,
+                            type: Elements.types.resourceNoEscape,
                             value: ontology.uri
                         },
                         {
-                            type: DbConnection.resourceNoEscape,
+                            type: Elements.types.resourceNoEscape,
                             value: elementUri
                         }
                     ],
@@ -271,11 +269,11 @@ Ontology.initAllFromDatabase = function(callback)
                     "} \n",
                     [
                         {
-                            type: DbConnection.resourceNoEscape,
+                            type: Elements.types.resourceNoEscape,
                             value: ontologyUri
                         },
                         {
-                            type: DbConnection.resourceNoEscape,
+                            type: Elements.types.resourceNoEscape,
                             value: elementUri
                         }
                     ],
@@ -773,11 +771,11 @@ Ontology.autocomplete_research_domains = function(query, callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 value : query
             }
         ],
@@ -824,11 +822,11 @@ Ontology.findByPrefix = function(prefix, callback)
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: prefix
             }
         ],

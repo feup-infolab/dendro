@@ -216,7 +216,7 @@ describe("Metadata only project root tests", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

@@ -127,7 +127,7 @@ describe("Private project testFolder2 level hard delete tests", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

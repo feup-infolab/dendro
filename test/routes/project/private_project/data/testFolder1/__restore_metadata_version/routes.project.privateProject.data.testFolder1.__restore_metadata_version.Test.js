@@ -129,7 +129,7 @@ describe("Private project testFolder1 level restore_metadata_version", function 
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

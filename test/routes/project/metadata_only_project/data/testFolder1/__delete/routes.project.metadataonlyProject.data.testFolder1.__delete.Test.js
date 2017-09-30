@@ -113,7 +113,7 @@ describe("Metadata only project testFolder1 level delete tests", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

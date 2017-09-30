@@ -142,7 +142,7 @@ describe("Metadata only project project testFolder1 level metadata&deep tests", 
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

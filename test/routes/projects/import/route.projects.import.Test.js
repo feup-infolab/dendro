@@ -31,8 +31,8 @@ const projectsData = [simpleProject, publicProject, privateProject, metadataOnly
 const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Import projects tests", function (done) {
-    this.timeout(Config.longTestsTimeout);
+describe("Import projects", function (done) {
+    this.timeout(2*Config.longTestsTimeout);
     beforeEach(function (done) {
         createUsersUnit.setup(function (err, results) {
             should.equal(err, null);
@@ -217,11 +217,11 @@ describe("Import projects tests", function (done) {
         });
     });
 
-    after(function (done) {
+        after(function (done) {
         //destroy graphs
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

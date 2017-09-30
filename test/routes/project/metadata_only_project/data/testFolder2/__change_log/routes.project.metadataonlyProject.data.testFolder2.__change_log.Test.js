@@ -110,7 +110,7 @@ describe("Metadata only project testFolder2 level ?change_log", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

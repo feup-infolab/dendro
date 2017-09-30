@@ -25,8 +25,8 @@ const createPostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Social Dendro get all user posts tests", function () {
+    this.timeout(Config.longTestsTimeout);
     before(function (done) {
-        this.timeout(Config.testsTimeout);
         createPostsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -98,7 +98,7 @@ describe("Social Dendro get all user posts tests", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

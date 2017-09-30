@@ -27,8 +27,8 @@ let agent;
 let app;
 
 describe("Private Project delete", function (done) {
+    this.timeout(2*Config.longTestsTimeout);
     before(function (done) {
-        this.timeout(Config.longTestsTimeout);
         createFilesUnit.setup(function (err, results) {
             should.equal(err, null);
             app = global.tests.app;
@@ -153,12 +153,12 @@ describe("Private Project delete", function (done) {
         });
     });
 
-    after(function (done) {
+     after(function (done) {
         //destroy graphs
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

@@ -115,7 +115,7 @@ describe("Metadata only project testFolder2 level ?mkdir", function () {
 
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });
