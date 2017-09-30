@@ -837,12 +837,12 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
             "} \n";
 
         //Invalidate cache record for the updated resources
-        Cache.getByGraphUri(graphName).delete(subject, function(err, result){});
-
-        db.connection.execute(query, queryArguments, function(err, results)
-        {
-            return callback(err, results);
-            //console.log(results);
+        Cache.getByGraphUri(graphName).delete(subject, function(err, result){
+            db.connection.execute(query, queryArguments, function(err, results)
+            {
+                return callback(err, results);
+                //console.log(results);
+            });
         });
     }
     else
@@ -3321,7 +3321,8 @@ Resource.prototype.isA = function (prototype) {
     {
         const prefix = prefixedForm.split(":")[0];
         const shortName = prefixedForm.split(":")[1];
-        return Config.allOntologies[prefix].uri + shortName;
+        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+        return Ontology.allOntologies[prefix].uri + shortName;
     };
 
     const objectRDFType = _.map(prototype.prefixedRDFType, getFullUri);

@@ -553,32 +553,45 @@ DbConnection.prototype.create = function(callback) {
 
 DbConnection.prototype.close = function(callback){
     const self = this;
-    console.log("[INFO] Telling Virtuoso connection " + self.handle + " to close when all requests are completed.");
     
     const closePendingConnections = function(callback)
     {
-        self.q.pause();
-        async.mapSeries(Object.keys(self.pendingRequests), function(queryID, cb)
+        if(Object.keys(self.pendingRequests).length > 0 )
         {
-            if(self.pendingRequests.hasOwnProperty(queryID))
+            console.log("[INFO] Telling Virtuoso connection " + self.handle + " to abort all queued requests.");
+            async.mapSeries(Object.keys(self.pendingRequests), function(queryID, cb)
             {
-                self.q.cancel(queryID);
-                self.pendingRequests[queryID].cancel(cb);
-            }
-        }, function(err, result){
-            if(!isNull(err))
-            {
-                console.error("Unable to cleanly cancel all requests in the Virtuoso database connections queue.");
-                console.error(JSON.stringify(err));
-                console.error(JSON.stringify(result));
-            }
+                if(self.pendingRequests.hasOwnProperty(queryID))
+                {
+                    self.pendingRequests[queryID].cancel(cb);
+                }
+                else
+                {
+                    cb(null);
+                }
+            }, function(err, result){
+                if(!isNull(err))
+                {
+                    console.error("Unable to cleanly cancel all requests in the Virtuoso database connections queue.");
+                    console.error(JSON.stringify(err));
+                    console.error(JSON.stringify(result));
+                }
 
-            callback(err, result);
-        });
+                callback(err, result);
+            });
+        }
+        else
+        {
+            console.log("[INFO] No queued requests in Virtuoso connection " + self.handle + ". Continuing cleanup...");
+            callback(null);
+        }
     };
 
     const destroyQueue = function(callback)
     {
+        const stats = self.q.getStats();
+        console.log("Virtuoso DB Query Queue stats " + JSON.stringify(stats));
+
         self.q.destroy(function(err, result){
             if(!isNull(err))
             {
@@ -617,16 +630,15 @@ DbConnection.prototype.close = function(callback){
     };
     
     async.series([
-        //closeClientConnection,
+        destroyQueue,
         closePendingConnections,
-        destroyQueue
     ], function(err, result){
         callback(err, result);
     })
 
 };
 
-DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows) {
+DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel) {
     const self = this;
 
     queryObjectToString(queryStringWithArguments, argumentsArray, function(err, query){
@@ -654,7 +666,14 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
 
                 fullUrl = fullUrl + "/sparql";
 
-                query = "DEFINE sql:log-enable 3\n" + query;
+                if(!isNull(loglevel))
+                {
+                    query = "DEFINE sql:log-enable "+loglevel+"\n" + query;
+                }
+                else
+                {
+                    query = "DEFINE sql:log-enable "+Config.virtuosoSQLLogLevel+"\n" + query;
+                }
 
                 self.q.push({
                     queryStartTime : new Date(),
@@ -1021,16 +1040,12 @@ DbConnection.prototype.deleteGraph = function(graphUri, callback) {
         //Invalidate whole cache for this graph
 
         let graphCache;
-        try{
-            graphCache = Cache.getByGraphUri(graphUri);
-            graphCache.deleteByQuery({}, function(err, result){
-                runQuery(callback);
-            });
-        }
-        catch(e)
-        {
+
+        graphCache = Cache.getByGraphUri(graphUri);
+
+        graphCache.deleteAll(function(err, result){
             runQuery(callback);
-        }
+        });
     }
     else
     {

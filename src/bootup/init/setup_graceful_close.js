@@ -169,7 +169,7 @@ const setupGracefulClose = function(app, server, callback)
             setTimeout(function(){
                 Logger.log_boot_message("info", "Graceful close timed out. Forcing server closing!");
                 process.kill(process.pid);
-            }, 10000);
+            }, Config.dbOperationTimeout);
         };
 
         setupForceKillTimer();

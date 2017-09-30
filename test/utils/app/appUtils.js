@@ -13,11 +13,6 @@ exports.requireUncached = function(module) {
     return require(module);
 };
 
-exports.deleteAllCaches = function (cb) {
-    const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-    Cache.deleteAllRecordsOfAllCaches(cb);
-};
-
 exports.clearAppState = function (cb) {
     if(!global.tests.server)
     {
@@ -26,15 +21,15 @@ exports.clearAppState = function (cb) {
     else
     {
         global.tests.app.freeResources(function(err, results){
-            // setTimeout(function(){
-            //     delete global.tests.app;
-            //     delete global.tests.server;
-            //     return cb(err, results);
-            // }, 1000);
+            setTimeout(function(){
+                delete global.tests.app;
+                delete global.tests.server;
+                return cb(err, results);
+            }, 1000);
 
-            delete global.tests.app;
-            delete global.tests.server;
-            return cb(err, results);
+            // delete global.tests.app;
+            // delete global.tests.server;
+            // return cb(err, results);
         });
     }
 };

@@ -8,7 +8,6 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const uuid = require("uuid");
 const Queue = require('better-queue');
-const rp = require('request-promise');
 
 let profiling_logfile;
 let boot_start_timestamp = new Date().toISOString();
@@ -359,10 +358,16 @@ DbConnection.prototype.create = function(callback) {
 
         const config = {
             // Required
-            url : "jdbc:virtuoso://192.168.56.249:1111/DATABASE=/PWD='dba';UID='dba';PWDCLEAR='cleartext';TIMEOUT=30",
+            url : "jdbc:virtuoso://192.168.56.249:1111",
             drivername: 'virtuoso.jdbc4.Driver',
             minpoolsize: 1,
             maxpoolsize: 100,
+
+            username: "dba",
+            password : "dba",
+            serverName : "192.168.56.249",
+            portNumber : 1111,
+            pwdClear : "digest",
             
             properties: {}
         };

@@ -32,22 +32,22 @@ function Ontology (object)
                 {
                     self.prefix = ontology.prefix;
 
-                    if(!isNull(Ontology.allOntologies[self.prefix]))
+                    if(!isNull(Config.enabledOntologies[self.prefix]))
                     {
-                        self.prefix = Ontology.allOntologies[self.prefix].prefix;
-                        self.uri = Ontology.allOntologies[self.prefix].uri;
-                        self.elements = Ontology.allOntologies[self.prefix].elements;
+                        self.prefix = Config.enabledOntologies[self.prefix].prefix;
+                        self.uri = Config.enabledOntologies[self.prefix].uri;
+                        self.elements = Config.enabledOntologies[self.prefix].elements;
                     }
                 }
             }
         }
         else if(!isNull(object.prefix))
         {
-            if(!isNull(Ontology.allOntologies[object.prefix]))
+            if(!isNull(Config.enabledOntologies[object.prefix]))
             {
-                self.prefix = Ontology.allOntologies[object.prefix].prefix;
-                self.uri = Ontology.allOntologies[object.prefix].uri;
-                self.elements = Ontology.allOntologies[object.prefix].elements;
+                self.prefix = Config.enabledOntologies[object.prefix].prefix;
+                self.uri = Config.enabledOntologies[object.prefix].uri;
+                self.elements = Config.enabledOntologies[object.prefix].elements;
             }
         }
 
@@ -65,6 +65,8 @@ function Ontology (object)
     return self;
 }
 
+Ontology.allOntologies = {};
+
 Ontology.findByUri = function(uri, callback)
 {
     const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
@@ -81,7 +83,7 @@ Ontology.findByUri = function(uri, callback)
                     description: ontology.dcterms.description,
                     domain: ontology.ddr.hasResearchDomain
                 });
-                
+
                 return callback(null, newOntology);
             }
             else
@@ -305,7 +307,7 @@ Ontology.initAllFromDatabase = function(callback)
                 async.mapSeries(
                     Object.keys(ontology.elements),
                     function (elementShortName, callback) {
-                        const elementUri = Ontology.allOntologies[ontology.prefix].uri + elementShortName;
+                        const elementUri = Config.enabledOntologies[ontology.prefix].uri + elementShortName;
                         const element = ontology.elements[elementShortName];
 
                         async.waterfall([
@@ -358,52 +360,31 @@ Ontology.initAllFromDatabase = function(callback)
                 async.waterfall(
                     [
                         function (callback) {
-                            if(Config.startup.reload_descriptors_on_startup)
-                            {
-                                async.mapSeries(ontologies, addDescriptorInformation, function (err, loadedOntologies) {
-                                    if (isNull(err)) {
-                                        console.log("[INFO] Finished loading configurations for descriptors from database");
-                                    }
+                            async.mapSeries(ontologies, addDescriptorInformation, function (err, loadedOntologies) {
+                                if (isNull(err)) {
+                                    console.log("[INFO] Finished loading configurations for descriptors from database");
+                                }
 
-                                    return callback(err, loadedOntologies);
-                                });
-                            }
-                            else
-                            {
-                                return callback(null, ontologies);
-                            }
+                                return callback(err, loadedOntologies);
+                            });
                         },
                         function (ontologies, callback) {
-                            if(Config.startup.reload_research_domains_on_startup)
-                            {
-                                async.mapSeries(ontologies, addResearchDomainsDetails, function (err, loadedOntologies) {
-                                    if (isNull(err)) {
-                                        console.log("[INFO] Finished loading research domain configurations for descriptors from database");
-                                    }
+                            async.mapSeries(ontologies, addResearchDomainsDetails, function (err, loadedOntologies) {
+                                if (isNull(err)) {
+                                    console.log("[INFO] Finished loading research domain configurations for descriptors from database");
+                                }
 
-                                    return callback(err, loadedOntologies);
-                                });
-                            }
-                            else
-                            {
-                                return callback(null, ontologies);
-                            }
+                                return callback(err, loadedOntologies);
+                            });
                         },
                         function (ontologies, callback) {
-                            if(Config.startup.reload_descriptor_validation_data)
-                            {
-                                async.mapSeries(ontologies, addDescriptorValidationData, function (err, loadedOntologies) {
-                                    if (isNull(err)) {
-                                        console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
-                                    }
+                            async.mapSeries(ontologies, addDescriptorValidationData, function (err, loadedOntologies) {
+                                if (isNull(err)) {
+                                    console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
+                                }
 
-                                    return callback(err, loadedOntologies);
-                                });
-                            }
-                            else
-                            {
-                                return callback(null, ontologies);
-                            }
+                                return callback(err, loadedOntologies);
+                            });
                         }
                     ],
                     function (err, loadedOntologies) {
@@ -463,11 +444,6 @@ Ontology.initAllFromDatabase = function(callback)
     });
 };
 
-Ontology.allOntologies = function()
-{
-    return Config.allOntologies;
-}();
-
 Ontology.getAllOntologyPrefixes = function()
 {
     if(isNull(Ontology.allOntologyPrefixes))
@@ -493,7 +469,7 @@ Ontology.getAllOntologiesArray = function()
     {
         if(Ontology.allOntologies.hasOwnProperty(ontologyPrefix))
         {
-            const ontology = Ontology.allOntologies[ontologyPrefix];
+            const ontology = Config.enabledOntologies[ontologyPrefix];
             Ontology.allOntologiesArray.push(ontology);
         }
     }
@@ -804,7 +780,7 @@ Ontology.findByPrefix = function(prefix, callback)
         const aPrefix = prefixes[i];
         if (aPrefix === prefix)
         {
-            const result = {"uri": Ontology.allOntologies[aPrefix].uri};
+            const result = {"uri": Config.enabledOntologies[aPrefix].uri};
             const ontology = new Ontology(result);
             return callback(null, ontology);
         }

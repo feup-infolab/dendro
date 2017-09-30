@@ -64,12 +64,12 @@ const prepareEnvironment = function(callback)
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtuoso.js")).initVirtuoso(self.app, callback);
         },
         function(callback) {
-            //destroy graphs if needed
-            require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs(self.app, callback);
-        },
-        function(callback) {
             //setup caches
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_cache.js")).initCache(self.app, callback);
+        },
+        function(callback) {
+            //destroy graphs if needed
+            require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs(self.app, callback);
         },
         function(callback) {
             //setup passport

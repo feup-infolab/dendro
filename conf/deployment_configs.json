@@ -23,9 +23,15 @@
         "log_datastore_ops" : true
       }
     },
+    "ontologies_cache" :
+    {
+      "database": "127.0.0.1:3002_ontologies",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default"
+    },
     "cache": {
       "active": true,
-      "type": "mongodb",
       "redis": {
         "active": true,
         "instances": {
@@ -55,6 +61,7 @@
           "default": {
             "database": "127.0.0.1:3001",
             "collection": "default_cache",
+            "clear_on_startup" : true,
             "host": "192.168.56.249",
             "port": "27017",
             "id": "default"
@@ -62,6 +69,7 @@
           "social": {
             "database": "127.0.0.1:3001",
             "collection": "social_cache",
+            "clear_on_startup" : true,
             "host": "192.168.56.249",
             "port": "27017",
             "id": "social"
@@ -70,6 +78,7 @@
             "options": {
               "database": "127.0.0.1:3001",
               "collection": "notifications_cache",
+              "clear_on_startup" : true,
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
@@ -90,6 +99,7 @@
       "user": "dba",
       "password": "dba"
     },
+    "virtuosoSQLLogLevel": 3,
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
@@ -239,11 +249,7 @@
       "reload_administrators_on_startup": false,
       "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": true,
-      "reload_descriptors_on_startup": true,
-      "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : true,
       "clear_session_store": false,
-      "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": false,
       "destroy_all_indexes": false,
@@ -402,9 +408,15 @@
         "log_datastore_ops" : true
       }
     },
+    "ontologies_cache" :
+    {
+      "database": "127.0.0.1:3002_ontologies",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default"
+    },
     "cache": {
       "active": true,
-      "type": "mongodb",
       "redis": {
         "active": true,
         "instances": {
@@ -434,6 +446,7 @@
           "default": {
             "database": "127.0.0.1:3002",
             "collection": "default_cache",
+            "clear_on_startup" : true,
             "host": "192.168.56.249",
             "port": "27017",
             "id": "default"
@@ -441,6 +454,7 @@
           "social": {
             "database": "127.0.0.1:3002",
             "collection": "social_cache",
+            "clear_on_startup" : true,
             "host": "192.168.56.249",
             "port": "27017",
             "id": "social"
@@ -449,10 +463,18 @@
             "options": {
               "database": "127.0.0.1:3002",
               "collection": "notifications_cache",
+              "clear_on_startup" : true,
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
             }
+          },
+          "ontologies": {
+            "database": "127.0.0.1:3002",
+            "collection": "ontologies_cache",
+            "host": "192.168.56.249",
+            "port": "27017",
+            "id": "ontologies"
           }
         }
       },
@@ -469,6 +491,7 @@
       "user": "dba",
       "password": "dba"
     },
+    "virtuosoSQLLogLevel" : 2,
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
@@ -487,7 +510,7 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 4,
+    "maxSimultaneousConnectionsToDb": 1,
     "dbOperationTimeout": 5000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -612,14 +635,10 @@
     },
     "startup": {
       "load_databases": true,
-      "reload_administrators_on_startup": true,
+      "reload_administrators_on_startup": false,
       "reload_demo_users_on_startup": false,
-      "reload_ontologies_on_startup": true,
-      "reload_descriptors_on_startup": true,
-      "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : true,
+      "reload_ontologies_on_startup": false,
       "clear_session_store": true,
-      "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
@@ -629,7 +648,7 @@
     "baselines": {
     },
     "logging": {
-      "pipe_console_to_logfile": false,
+      "pipe_console_to_logfile": false, 
       "format": "combined",
       "app_logs_folder": "logs/app",
       "log_request_times": false,
@@ -779,9 +798,15 @@
         "log_datastore_ops" : true
       }
     },
+    "ontologies_cache" :
+    {
+      "database": "127.0.0.1:3002_ontologies",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default"
+    },
     "cache": {
       "active": true,
-      "type": "mongodb",
       "redis": {
         "active": true,
         "instances": {
@@ -811,6 +836,7 @@
           "default": {
             "database": "127.0.0.1:3001",
             "collection": "default_cache_jenkins_test",
+            "clear_on_startup" : true,
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default"
@@ -818,6 +844,7 @@
           "social": {
             "database": "127.0.0.1:3001",
             "collection": "social_cache_jenkins_test",
+            "clear_on_startup" : true,
             "host": "127.0.0.1",
             "port": "27017",
             "id": "social"
@@ -825,6 +852,7 @@
           "notifications": {
             "database": "127.0.0.1:3001",
             "collection": "notifications_cache_jenkins_test",
+            "clear_on_startup" : true,
             "host": "127.0.0.1",
             "port": "27017",
             "id": "notifications"
@@ -844,6 +872,7 @@
       "user": "dba",
       "password": "dba"
     },
+    "virtuosoSQLLogLevel" : 2,
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
@@ -862,7 +891,7 @@
     "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 120,
+    "maxSimultaneousConnectionsToDb": 20,
     "dbOperationTimeout": 5000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -976,11 +1005,7 @@
       "reload_administrators_on_startup": true,
       "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
-      "reload_descriptors_on_startup": true,
-      "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : true,
       "clear_session_store": true,
-      "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,

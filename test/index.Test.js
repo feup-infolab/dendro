@@ -7,16 +7,15 @@ global.Pathfinder = Pathfinder;
 Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
-Config.testsTimeout = 20000;
-Config.longTestsTimeout = 40000;
+Config.testsTimeout = 30000;
+Config.longTestsTimeout = 60000;
 console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
 
 global.Config = Config;
 
 global.tests = {};
 
-//administer projects
-//require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
+require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 //USERS
 require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
