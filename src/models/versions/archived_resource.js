@@ -93,7 +93,7 @@ ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionN
                     {
                         if(results instanceof Array && results.length === 1)
                         {
-                            ArchivedResource.findByUri(results[0].archived_resource);
+                            ArchivedResource.findByUri(results[0].archived_resource, callback);
                         }
                         else
                         {

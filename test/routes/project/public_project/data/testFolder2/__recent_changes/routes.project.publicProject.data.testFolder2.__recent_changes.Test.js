@@ -85,7 +85,10 @@ describe("Public project testFolder2 level recent changes", function () {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 itemUtils.getItemRecentChanges(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(200);//because it is a public project
-                    res.body[0].changes.length.should.equal(3);//The abstract, title and creator descriptors
+                    res.body.uri.should.not.equal(null);
+                    res.body.changes.should.be.instanceof(Array);
+                    res.body.changes.length.should.equal(3);//The abstract, title and creator descriptors
+                    should.not.exist(res.body.ddr.versionCreator.ddr.password);
                     done();
                 });
             });

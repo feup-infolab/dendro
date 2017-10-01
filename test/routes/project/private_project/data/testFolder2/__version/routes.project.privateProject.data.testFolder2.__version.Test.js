@@ -25,7 +25,11 @@ const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTe
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Private project testFolder2 level ?version", function () {
-    this.timeout(Config.longTestsTimeout);
+    beforeEach(function (done) {
+        this.timeout(Config.longTestsTimeout);
+        done();
+    });
+
     before(function (done) {
         addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
@@ -97,7 +101,10 @@ describe("Private project testFolder2 level ?version", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, privateProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(8);
+                    res.body.uri.should.not.equal(null);
+                    res.body.changes.should.be.instanceof(Array);
+                    res.body.changes.length.should.equal(3);//The abstract, title and creator descriptors
+                    should.not.exist(res.body.ddr.versionCreator.ddr.password);
                     done();
                 });
             });
@@ -107,7 +114,10 @@ describe("Private project testFolder2 level ?version", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, privateProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(8);
+                    res.body.uri.should.not.equal(null);
+                    res.body.changes.should.be.instanceof(Array);
+                    res.body.changes.length.should.equal(3);//The abstract, title and creator descriptors
+                    should.not.exist(res.body.ddr.versionCreator.ddr.password);
                     done();
                 });
             });

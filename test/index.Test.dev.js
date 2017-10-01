@@ -8,66 +8,16 @@ Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
 Config.testsTimeout = 20000;
-Config.longTestsTimeout = 60000;
+Config.longTestsTimeout = 75000;
 console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
 
 global.Config = Config;
 
 global.tests = {};
 
-require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/likes/routes.posts.post.likes.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comment/routes.posts.comment.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comments/routes.posts.comments.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/share/routes.posts.share.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/shares/routes.posts.shares.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/count/routes.posts.count.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/_uri/routes.posts._uri.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/shares/_uri/routes.shares._uri.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/all/routes.notifications.all.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification[DELETE].Test.js"));
-
-return;
-
-require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));
-return;
-
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
-return;
-
-//PUBLIC PROJECT ROOT MKDIR TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
-//PRIVATE PROJECT ROOT MKDIR TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__mkdir/routes.project.privateProject.__mkdir.Test.js"));
-//METADATA ONLY PROJECT ROOT MKDIR TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__mkdir/routes.project.metadataonlyProject.__mkdir.Test.js"));
-return;
-
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__change_log/routes.project.publicProject.data.testFolder1.__change_log.Test.js"));
 
 
 

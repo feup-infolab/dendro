@@ -119,11 +119,11 @@ exports.get_notification_info = function (req, res) {
                         value: db_notifications.graphUri
                     },
                     {
-                        type: Elements.types..resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: notificationUri
                     },
                     {
-                        type: Elements.types..resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: userUri
                     }
                 ]),
