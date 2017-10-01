@@ -15,7 +15,7 @@ const OntologiesCache = function(options)
     self.port = options.port;
     self.host = options.host;
     self.database = options.database;
-    self.collection = "all_ontologies"
+    self.collection = options.collection;
 };
 
 OntologiesCache.prototype.open = function(callback) {
@@ -31,7 +31,7 @@ OntologiesCache.prototype.open = function(callback) {
             if(isNull(err))
             {
                 self.client = db;
-                callback(null, self);
+                callback(null, db);
             }
             else
             {
@@ -49,23 +49,34 @@ OntologiesCache.prototype.get = function(callback)
 {
     let self = this;
 
-    self.open(function(err, result)
+    self.open(function(err, db)
     {
-        const cursor = self.client.collection(self.collection)
-            .find({},{"_id": 0});
-
-        const allOntologies = {};
-
-        cursor.toArray(function (err, ontologies)
+        if(isNull(err))
         {
-            for(let i = 0; i < ontologies.length; i++)
-            {
-                let ontology = ontologies[i];
-                allOntologies[ontology.prefix] = ontology;
-            }
+            const cursor = db.collection(self.collection)
+                .find({},{"_id": 0});
 
-            callback(err, allOntologies);
-        });
+            const allOntologies = {};
+
+            cursor.toArray(function (err, ontologies)
+            {
+                for(let i = 0; i < ontologies.length; i++)
+                {
+                    let ontology = ontologies[i];
+                    allOntologies[ontology.prefix] = ontology;
+                }
+
+                db.close();
+
+                callback(err, allOntologies);
+            });
+        }
+        else
+        {
+            console.error("Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
+            console.error(JSON.stringify(err));
+            callback(err);
+        }
     });
 };
 
@@ -73,23 +84,34 @@ OntologiesCache.prototype.put = function(newOntologies, callback)
 {
     let self = this;
 
-    self.open(function(err, result){
-        const prefixes = Object.keys(newOntologies);
-        self.client.collection(self.collection,function(err, collection){
-            collection.remove({},function(err, removed){
-                async.map(prefixes, function(prefix, callback)
-                {
-                    let ontologyObj = newOntologies[prefix];
-                    self.client.collection(self.collection)
-                        .insert(
-                            ontologyObj,
-                            function (err, result)
-                            {
-                                callback(err, result);
-                            });
-                }, callback);
+    self.open(function(err, db){
+
+        if(isNull(err))
+        {
+            const prefixes = Object.keys(newOntologies);
+            db.collection(self.collection,function(err, collection){
+                collection.remove({},function(err, removed){
+                    async.map(prefixes, function(prefix, callback)
+                    {
+                        let ontologyObj = newOntologies[prefix];
+                        db.collection(self.collection)
+                            .insert(
+                                ontologyObj,
+                                function (err, result)
+                                {
+                                    db.close();
+                                    callback(err, result);
+                                });
+                    }, callback);
+                });
             });
-        });
+        }
+        else
+        {
+            console.error("Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
+            console.error(JSON.stringify(err));
+            callback(err);
+        }
     });
 };
 

@@ -28,7 +28,8 @@
       "database": "127.0.0.1:3002_ontologies",
       "host": "192.168.56.249",
       "port": "27017",
-      "id": "default"
+      "id": "default",
+      "collection" : "ontologies_cache"
     },
     "cache": {
       "active": true,
@@ -411,7 +412,8 @@
       "database": "127.0.0.1:3002_ontologies",
       "host": "192.168.56.249",
       "port": "27017",
-      "id": "default"
+      "id": "default",
+      "collection" : "ontologies_cache"
     },
     "cache": {
       "active": true,
@@ -780,7 +782,7 @@
     "datastore" :
     {
       "database": "127.0.0.1:3001_jenkins_test_datastore",
-      "host": "192.168.56.249",
+      "host": "127.0.0.1",
       "port": "27017",
       "id": "default",
       "log" : {
@@ -789,10 +791,11 @@
     },
     "ontologies_cache" :
     {
-      "database": "127.0.0.1:3002_ontologies",
-      "host": "192.168.56.249",
+      "database": "127.0.0.1:3001_ontologies",
+      "host": "127.0.0.1",
       "port": "27017",
-      "id": "default"
+      "id": "default",
+      "collection" : "ontologies_cache"
     },
     "cache": {
       "active": true,
@@ -898,25 +901,39 @@
       "active": true,
       "users": [
         {
-          "username": "demouser1",
-          "password": "demouserpassword2015",
           "firstname": "Dendro 1",
+          "mbox": "demouser1@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
           "surname": "Demo User 1",
-          "mbox": "demouser1@dendro.fe.up.pt"
+          "username": "demouser1"
         },
         {
-          "username": "demouser2",
-          "password": "demouserpassword2015",
           "firstname": "Dendro 2",
+          "mbox": "demouser2@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
           "surname": "Demo User 2",
-          "mbox": "demouser2@dendro.fe.up.pt"
+          "username": "demouser2"
         },
         {
-          "username": "demouser3",
-          "password": "demouserpassword2015",
           "firstname": "Dendro 3",
+          "mbox": "demouser3@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
           "surname": "Demo User 3",
-          "mbox": "demouser3@dendro.fe.up.pt"
+          "username": "demouser3"
+        },
+        {
+          "firstname": "Dendro 4",
+          "mbox": "demouser4@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
+          "surname": "Demo User 4",
+          "username": "demouser4"
+        },
+        {
+          "firstname": "Dendro 5",
+          "mbox": "demouser5@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
+          "surname": "Demo User 5",
+          "username": "demouser5"
         }
       ]
     },
@@ -993,7 +1010,7 @@
       "load_databases": true,
       "reload_administrators_on_startup": true,
       "reload_demo_users_on_startup": false,
-      "reload_ontologies_on_startup": true,
+      "reload_ontologies_on_startup": false,
       "clear_session_store": true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
