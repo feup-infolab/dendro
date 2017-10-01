@@ -93,4 +93,15 @@ angular.module('dendroApp.services')
                         headers: {"Accept": "application/json"}
                     });
                 };
+
+                this.getUserInfo = function (userUri) {
+                    var requestUri = userUri;
+
+                    return $http({
+                        method: "GET",
+                        url: requestUri,
+                        contentType: "application/json",
+                        headers: {"Accept": "application/json"}
+                    });
+                };
             }]);

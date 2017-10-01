@@ -1,0 +1,20 @@
+<div class="centered-spinner">
+            <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
+                  spinner-start-active="true"></span>
+</div>
+
+
+<div class="panel-body">
+    <div class="media">
+        <div class="media-left">
+            <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
+        </div>
+
+        <div class="media-body">
+            <div ng-class="overflowsOriginally ? 'showPostContent-with-scroll' : 'showPostContent-overflow-fixed'"
+                 calculate-is-overflown>
+                <span> {{postsContents[postUri].schema.sharedContent}} </span>
+            </div>
+        </div>
+    </div>
+</div>

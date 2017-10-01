@@ -75,14 +75,12 @@
             "id": "social"
           },
           "notifications": {
-            "options": {
               "database": "127.0.0.1:3001",
               "collection": "notifications_cache",
               "clear_on_startup" : true,
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
-            }
           }
         }
       },
@@ -648,7 +646,7 @@
     "baselines": {
     },
     "logging": {
-      "pipe_console_to_logfile": false, 
+      "pipe_console_to_logfile": false,
       "format": "combined",
       "app_logs_folder": "logs/app",
       "log_request_times": false,

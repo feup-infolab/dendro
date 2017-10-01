@@ -226,7 +226,6 @@ File.prototype.save = function (callback, rename) {
 
             const renameIfChildExistsWithSameName = function(children, callback)
             {
-
                 const childrenWithTheSameName = _.find(children, function(child){
                     return child.nie.title === self.nie.title
                 });

@@ -1008,6 +1008,7 @@ Elements.ddr = {
     {
         type : Elements.types.int,
         api_readable: true,
+        locked : true,
         control : Controls.input_box
     },
 	privacyStatus :

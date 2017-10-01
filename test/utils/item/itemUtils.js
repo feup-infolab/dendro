@@ -4,7 +4,7 @@ const _ = require("underscore");
 chai.use(chaiHttp);
 
 
-const createFolder = function (jsonOnly, agent, projectHandle, parentFolderName, newFolderName, cb) {
+module.exports.createFolder = function (jsonOnly, agent, projectHandle, parentFolderName, newFolderName, cb) {
     // /project/:handle/data/:foldername?mkdir
     const path = '/project/' + projectHandle + '/data/' + parentFolderName;
     if (jsonOnly) {
@@ -29,7 +29,7 @@ const createFolder = function (jsonOnly, agent, projectHandle, parentFolderName,
     }
 };
 
-const updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, metadata, cb) {
+module.exports.updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, metadata, cb) {
     ///project/:handle/data/itemPath?update_metadata
     const path = '/project/' + projectHandle + '/data/' + itemPath + '?update_metadata';
     if (jsonOnly) {
@@ -54,7 +54,31 @@ const updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, m
     }
 };
 
-const getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+module.exports.updateItemMetadataByUri = function (jsonOnly, agent, itemUri, metadata, cb) {
+    const path = itemUri + '?update_metadata';
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .send(metadata)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .send(metadata)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
     const path = '/project/' + projectHandle + '/data/' + itemPath + '?metadata';
     if (jsonOnly) {
@@ -77,7 +101,7 @@ const getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) 
     }
 };
 
-const getItemMetadataByUri = function (jsonOnly, agent, uri, cb) {
+module.exports.getItemMetadataByUri = function (jsonOnly, agent, uri, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
     const path = uri;
 
@@ -101,7 +125,7 @@ const getItemMetadataByUri = function (jsonOnly, agent, uri, cb) {
     }
 };
 
-const getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+module.exports.getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata&deep
     const path = '/project/' + projectHandle + '/data/' + itemPath + '?metadata&deep';
     if (jsonOnly) {
@@ -124,7 +148,7 @@ const getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, 
     }
 };
 
-const getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+module.exports.getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?parent_metadata
     const path = '/project/' + projectHandle + '/data/' + itemPath + '?parent_metadata';
     if (jsonOnly) {
@@ -147,7 +171,7 @@ const getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath
     }
 };
 
-const getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+module.exports.getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     // /project/:handle/data/foldername?recent_changes
     const path = '/project/' + projectHandle + '/data/' + itemPath + '?recent_changes';
     if (jsonOnly) {
@@ -170,7 +194,7 @@ const getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath,
     }
 };
 
-const getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVersion, cb) {
+module.exports.getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVersion, cb) {
     // /project/:handle/data/foldername?version
     const path = '/project/' + projectHandle + '/data/' + itemPath;
     if (jsonOnly) {
@@ -195,7 +219,51 @@ const getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemV
     }
 };
 
-const deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reallyDelete) {
+module.exports.getItemVersionByUri = function (jsonOnly, agent, archivedVersionUri, cb) {
+    const path = archivedVersionUri;
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.getChangeLog = function (jsonOnly, agent, resourceUri, cb) {
+    const path = resourceUri + "?recent_changes";
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reallyDelete) {
     ///project/:handle/data/:foldername
     const path = '/project/' + projectHandle + '/data/' + itemPath;
     var reallyDelete = reallyDelete ? reallyDelete : false;
@@ -221,7 +289,32 @@ const deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reall
     }
 };
 
-const undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+module.exports.deleteItemByUri = function (jsonOnly, agent, itemURI, cb, reallyDelete) {
+    const path = itemURI;
+    var reallyDelete = reallyDelete ? reallyDelete : false;
+    if (jsonOnly) {
+        agent
+            .del(path)
+            .query({really_delete: reallyDelete})
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .del(path)
+            .query({really_delete: reallyDelete})
+            .set('Accept', 'text/html')
+            .set("Content-Type", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     const path = '/project/' + projectHandle + '/data/' + itemPath + "?undelete";
     if (jsonOnly) {
         agent
@@ -242,7 +335,7 @@ const undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     }
 };
 
-const itemRestoreMetadataVersion = function (jsonOnly, agent, projectHandle, itemPath, version, cb) {
+module.exports.itemRestoreMetadataVersion = function (jsonOnly, agent, projectHandle, itemPath, version, cb) {
     // /project/:handle/data/foldername?restore_metadata_version
     const path = '/project/' + projectHandle + '/data/' + itemPath + "?restore_metadata_version";
     if (jsonOnly) {
@@ -267,7 +360,7 @@ const itemRestoreMetadataVersion = function (jsonOnly, agent, projectHandle, ite
     }
 };
 
-const getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+module.exports.getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     // /project/:handle/data/foldername?change_log
     const path = '/project/' + projectHandle + '/data/' + itemPath + '?change_log';
     if (jsonOnly) {
@@ -289,7 +382,7 @@ const getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb)
     }
 };
 
-const getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+module.exports.getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     const path = '/project/' + projectHandle + "/data/" + itemPath + '?metadata_recommendations';
     if (jsonOnly) {
         agent
@@ -309,7 +402,7 @@ const getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle,
     }
 };
 
-const getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+module.exports.getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //recommendation_ontologies
     const path = '/project/' + projectHandle + "/data/" + itemPath + '?recommendation_ontologies';
     if (jsonOnly) {
@@ -330,7 +423,7 @@ const getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle
     }
 };
 
-const viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+module.exports.viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     const path = '/project/' + projectHandle + "/data/" + itemPath;
     if (jsonOnly) {
         agent
@@ -351,20 +444,3 @@ const viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     }
 };
 
-module.exports = {
-    updateItemMetadata: updateItemMetadata,
-    getItemMetadata: getItemMetadata,
-    getItemMetadataByUri: getItemMetadataByUri,
-    getItemRecentChanges: getItemRecentChanges,
-    getItemVersion: getItemVersion,
-    deleteItem: deleteItem,
-    undeleteItem: undeleteItem,
-    itemRestoreMetadataVersion: itemRestoreMetadataVersion,
-    getItemChangeLog: getItemChangeLog,
-    createFolder: createFolder,
-    getItemMetadataRecommendations: getItemMetadataRecommendations,
-    getItemRecommendationOntologies: getItemRecommendationOntologies,
-    getItemMetadataDeep: getItemMetadataDeep,
-    getItemParentMetadata: getItemParentMetadata,
-    viewItem: viewItem
-};

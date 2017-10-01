@@ -1,0 +1,9 @@
+<div class="text-center author-information-partial" ng-init="getUserInfo(postsContents[postUri].dcterms.creator);getProjectInfo(postsContents[postUri].ddr.projectUri)">
+    <!--<p> debugging author information partial</p>
+    {{postsContents[postUri].dcterms.creator}}-->
+
+    <p> <i> {{postsContents[postUri].ddr.modified | date : "dd/MMM/yyyy"}} </i></p>
+    <p> In project <a ng-href="{{postsContents[postUri].ddr.projectUri}}"> {{fullProjectsInfo[postsContents[postUri].ddr.projectUri].title}} </a> </p>
+    <img class="img-circle show-author-avatar-partial" ng-src='{{postsContents[postUri].dcterms.creator}}?avatar'>
+    <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{fullUsersInfo[postsContents[postUri].dcterms.creator].ddr.username}} </a>
+</div>

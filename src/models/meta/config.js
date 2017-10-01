@@ -295,7 +295,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/notifications_dendro",
         cache : {
             id: "notifications",
-            type : "redis"
+            type : "mongodb"
         }
     }
 };
