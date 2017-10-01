@@ -53,7 +53,7 @@ describe("Backup Metadata Only project", function () {
     describe("[METADATA ONLY PROJECT] [Invalid Cases] /project/" + project.handle + "?bagit", function() {
 
         it("Should give an error message when a project does not exist", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.longTestsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 should.equal(err, null);
                 projectUtils.bagit(agent, invalidProject.handle, function (err, res) {
@@ -64,7 +64,7 @@ describe("Backup Metadata Only project", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.longTestsTimeout);
             const app = global.tests.app;
             const agent = chai.request.agent(app);
 
@@ -77,7 +77,7 @@ describe("Backup Metadata Only project", function () {
         });
 
         it("Should give an error when the user is authenticated, but not as a creator nor contributor of the project", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.longTestsTimeout);
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 should.equal(err, null);
                 projectUtils.bagit(agent, project.handle, function (err, res) {
@@ -90,7 +90,7 @@ describe("Backup Metadata Only project", function () {
 
     describe("[METADATA ONLY PROJECT] [Valid Cases] /project/" + project.handle + "?bagit", function() {
         it("Should backup the private project correctly", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.longTestsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 projectUtils.bagit(agent, project.handle, function (err, res) {

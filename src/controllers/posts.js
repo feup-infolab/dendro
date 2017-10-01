@@ -551,9 +551,9 @@ exports.new = function(req, res){
     if (!isNull(req.body.newPostContent) && !isNull(req.body.newPostTitle) && !isNull(req.body.newPostProjectUri)) {
         Project.findByUri(req.body.newPostProjectUri, function (err, project) {
             if (!err && project) {
-                project.isUserACreatorOrContributor(currentUserUri, function (err, results) {
+                project.isUserACreatorOrContributor(currentUserUri, function (err, isCreatorOrContributor) {
                     if (!err) {
-                        if (Array.isArray(results) && results.length > 0) {
+                        if (isCreatorOrContributor) {
                             //is a creator or contributor
                             let postInfo = {
                                 title: req.body.newPostTitle,
@@ -599,7 +599,7 @@ exports.new = function(req, res){
                         }
                     }
                     else {
-                        let errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(results);
+                        let errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(isCreatorOrContributor);
                         res.status(500).json({
                             result: "Error",
                             message: errorMsg

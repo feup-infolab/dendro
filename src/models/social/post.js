@@ -10,6 +10,7 @@ const Event = require(Pathfinder.absPathInSrcFolder("/models/social/event.js")).
 const Comment = require(Pathfinder.absPathInSrcFolder("/models/social/comment.js")).Comment;
 const uuid = require("uuid");
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 
@@ -52,11 +53,11 @@ Post.prototype.getComments = function (cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ]),
@@ -95,11 +96,11 @@ Post.prototype.getNumLikes = function (cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ]),
@@ -159,11 +160,11 @@ Post.prototype.getShares = function (cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ]),
@@ -206,15 +207,15 @@ Post.prototype.getOwnerProject = function(callback)
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],

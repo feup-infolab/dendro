@@ -365,7 +365,7 @@ Descriptor.prototype.setValue = function(value)
         {
             self.value = parseInt(value);
         }
-        else if(self.type === DbConnection.float)
+        else if(self.type === Elements.types.float)
         {
             self.value = parseFloat(value);
         }

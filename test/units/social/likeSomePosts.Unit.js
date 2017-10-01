@@ -24,7 +24,7 @@ function requireUncached(module) {
 module.exports.setup = function(finish)
 {
     let shareSomePostsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
-    shareSomePostsUnit.setup(function (err, postURIToLike) {
+     shareSomePostsUnit.setup(function (err, postURIToLike) {
         if(err)
         {
             finish(err, postURIToLike);

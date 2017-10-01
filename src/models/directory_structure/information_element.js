@@ -186,7 +186,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
     const self = this;
 
     /**
-    *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+    *   Note the sign (*) on the nie:isLogicalPartOf* of the query below.
     *    (Recursive querying through inference).
     *   @type {string}
     */
@@ -195,7 +195,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
-        "   [1] nie:isLogicalPartOf+ ?uri. \n" +
+        "   [1] nie:isLogicalPartOf* ?uri. \n" +
         "   ?uri rdf:type ddr:Project \n" +
         "} ";
 

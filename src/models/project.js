@@ -585,38 +585,53 @@ Project.createAndInsertFromObject = function(object, callback) {
 };
 
 Project.prototype.isUserACreatorOrContributor = function (userUri, callback) {
-    var self = this;
-    var query =
-        "SELECT ?property \n" +
+    const self = this;
+    const query =
+        "SELECT ?uri \n" +
         "FROM [0] \n" +
         "WHERE { \n" +
-        " [1] rdf:type ddr:Project . "+
-        " [1] ?property [2] \n"+
+        " { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:creator [2] \n" +
+        "   } \n" +
+        "   UNION \n" +
+        "   { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:contributor [2] \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : userUri
             }
         ],
         function(err, properties) {
-            if(err)
+            if(!isNull(err))
             {
-                var errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
+                const errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
                 console.error(errorMsg);
 
             }
-            callback(err, properties);
+
+            if(properties.length > 0 )
+            {
+                callback(err, true);
+            }
+            else
+            {
+                callback(err, false);
+            }
         });
 };
 

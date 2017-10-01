@@ -480,7 +480,7 @@
       "user": "dba",
       "password": "dba"
     },
-    "virtuosoSQLLogLevel" : 2,
+    "virtuosoSQLLogLevel" : 3,
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
@@ -500,7 +500,7 @@
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
-    "dbOperationTimeout": 5000,
+    "dbOperationTimeout": 8000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",
