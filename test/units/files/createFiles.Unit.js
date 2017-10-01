@@ -8,12 +8,13 @@ chai.use(require('chai-http'));
 const async = require("async");
 const should = chai.should();
 
+
+const appUtils = require(Pathfinder.absPathInTestsFolder("/utils/app/appUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("/utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
