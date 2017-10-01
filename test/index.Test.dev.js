@@ -15,6 +15,10 @@ global.Config = Config;
 
 global.tests = {};
 
+//PUBLIC PROJECT FOLDER LEVEL CALCULATE CKAN REPOSITORY DIFFS
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.publicProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js"));
+return;
+
 require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));

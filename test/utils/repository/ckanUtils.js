@@ -1,6 +1,8 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const CKAN = require("ckan.js");
+/*const CKAN = require("ckan.js");*/
+/*const CKAN = require("ckan");*/
+const CKAN = require("C:\\Users\\Utilizador\\Desktop\\InfoLab\\ckanModuleRepo\\ckan.js");
 const async = require("async");
 chai.use(chaiHttp);
 

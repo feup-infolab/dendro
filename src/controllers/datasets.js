@@ -18,7 +18,9 @@ const B2ShareClient = require('node-b2share-v2');
 const Zenodo = require(Pathfinder.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const CKAN = require("ckan.js");
+/*const CKAN = require("ckan.js");*/
+/*const CKAN = require("ckan");*/
+const CKAN = require("C:\\Users\\Utilizador\\Desktop\\InfoLab\\ckanModuleRepo\\ckan.js");
 
 const async = require("async");
 const nodemailer = require("nodemailer");
@@ -289,7 +291,7 @@ export_to_repository_sword = function (req, res) {
 const calculateDiffsBetweenDendroCkan = function (requestedResourceUri, targetRepository, callback) {
     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
     let exportedAtDate = null;
-    let changedResourcesInCkan = null;
+    let changedResourcesInCkan = [];
 
     Folder.findByUri(requestedResourceUri, function (err, folder) {
         if (isNull(err)) {
@@ -320,11 +322,12 @@ const calculateDiffsBetweenDendroCkan = function (requestedResourceUri, targetRe
                                     if (isNull(err)) {
                                         //package exists and was exported by Dendro before
                                         exportedAtDate = result;
-                                        client.getChangesInDataSetAfterDate(exportedAtDate, packageId, function (err, result) {
-                                            if (result.success) {
-                                                if (result.result.changedResources) {
+                                        client.getChangesInDatasetAfterDate(exportedAtDate, packageId, function (err, result) {
+                                            if(result.success) {
+                                                /*if (result.result.changedResources) {
                                                     changedResourcesInCkan = result.result.changedResources;
-                                                }
+                                                }*/
+                                                changedResourcesInCkan = result.result.changedResources;
                                                 compareDendroPackageWithCkanPackage(folder, packageId, client, function (err, diffs) {
                                                     if (isNull(err)) {
                                                         callback(err, {
