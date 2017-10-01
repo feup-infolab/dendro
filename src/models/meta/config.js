@@ -29,8 +29,6 @@ if(process.env.NODE_ENV === 'test')
         active_config_key = "test";
         console.log("[INFO] Running in test environment detected");
     }
-
-    Config.testsTimeOut = 15000;
 }
 else
 {

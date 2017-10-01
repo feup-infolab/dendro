@@ -32,7 +32,7 @@ const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/b
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Import projects", function (done) {
-    this.timeout(2*Config.longTestsTimeout);
+    this.timeout(2*Config.testsTimeOut);
     beforeEach(function (done) {
         createUsersUnit.setup(function (err, results) {
             should.equal(err, null);

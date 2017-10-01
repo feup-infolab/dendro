@@ -48,9 +48,9 @@ const jsonResultMD5WithPageAndSkip = md5(fs.readFileSync(Pathfinder.absPathInTes
 const emptyCSVMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/emptyCSVResult.csv"), "utf-8"));
 
 describe("Upload files into testFolder1 of Private project", function () {
-    this.timeout(Config.longTestsTimeout);
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(Config.longTestsTimeout);
+        this.timeout(Config.testsTimeout);
         createFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();

@@ -26,7 +26,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Private project testFolder2 level ?version", function () {
     beforeEach(function (done) {
-        this.timeout(Config.longTestsTimeout);
+        this.timeout(Config.testsTimeout);
         done();
     });
 

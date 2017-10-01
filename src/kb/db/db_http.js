@@ -437,77 +437,85 @@ DbConnection.prototype.create = function(callback) {
 
                         if (!isNull(parsedBody.boolean))
                         {
-
                             queryObject.callback(null, parsedBody.boolean);
                             finishQuery(cb, queryObject.queryStartTime, queryObject.query);
                         }
                         else
                         {
-                            const rows = parsedBody.results.bindings;
-                            const numberOfRows = rows.length;
+                            if(!isNull(parsedBody.results))
+                            {
+                                const rows = parsedBody.results.bindings;
+                                const numberOfRows = rows.length;
 
-                            if (numberOfRows === 0)
-                            {
-                                finishQuery(cb, queryObject.queryStartTime, queryObject.query);
-                                return queryObject.callback(null, []);
-                            }
-                            else
-                            {
-                                for (let i = 0; i < numberOfRows; i++)
+                                if (numberOfRows === 0)
                                 {
-                                    let datatypes = [];
-                                    let columnHeaders = [];
-
-                                    let row = parsedBody.results.bindings[i];
-
-                                    if (!isNull(row))
+                                    finishQuery(cb, queryObject.queryStartTime, queryObject.query);
+                                    return queryObject.callback(null, []);
+                                }
+                                else
+                                {
+                                    for (let i = 0; i < numberOfRows; i++)
                                     {
-                                        transformedResults[i] = {};
-                                        for (let j = 0; j < parsedBody.head.vars.length; j++)
-                                        {
-                                            let cellHeader = parsedBody.head.vars[j];
-                                            const cell = row[cellHeader];
+                                        let datatypes = [];
+                                        let columnHeaders = [];
 
-                                            if (!isNull(cell))
+                                        let row = parsedBody.results.bindings[i];
+
+                                        if (!isNull(row))
+                                        {
+                                            transformedResults[i] = {};
+                                            for (let j = 0; j < parsedBody.head.vars.length; j++)
                                             {
-                                                let datatype;
+                                                let cellHeader = parsedBody.head.vars[j];
+                                                const cell = row[cellHeader];
+
                                                 if (!isNull(cell))
                                                 {
-                                                    datatype = cell.type;
-                                                }
-                                                else
-                                                {
-                                                    datatype = datatypes[j];
-                                                }
-
-                                                let value = cell.value;
-
-                                                switch (datatype)
-                                                {
-                                                    case ("http://www.w3.org/2001/XMLSchema#integer"):
+                                                    let datatype;
+                                                    if (!isNull(cell))
                                                     {
-                                                        const newInt = parseInt(value);
-                                                        transformedResults[" + i + "].header = newInt;
-                                                        break;
+                                                        datatype = cell.type;
                                                     }
-                                                    case ("uri"):
+                                                    else
                                                     {
-                                                        transformedResults[i][cellHeader] = decodeURI(value);
-                                                        break;
+                                                        datatype = datatypes[j];
                                                     }
-                                                    // default is a string value
-                                                    default:
+
+                                                    let value = cell.value;
+
+                                                    switch (datatype)
                                                     {
-                                                        transformedResults[i][cellHeader] = decodeURIComponent(value).replace(/\"/g, "\\\"");
-                                                        break;
+                                                        case ("http://www.w3.org/2001/XMLSchema#integer"):
+                                                        {
+                                                            const newInt = parseInt(value);
+                                                            transformedResults[" + i + "].header = newInt;
+                                                            break;
+                                                        }
+                                                        case ("uri"):
+                                                        {
+                                                            transformedResults[i][cellHeader] = decodeURI(value);
+                                                            break;
+                                                        }
+                                                        // default is a string value
+                                                        default:
+                                                        {
+                                                            transformedResults[i][cellHeader] = decodeURIComponent(value).replace(/\"/g, "\\\"");
+                                                            break;
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
 
-                                queryObject.callback(null, transformedResults);
+                                    queryObject.callback(null, transformedResults);
+                                    finishQuery(cb, queryObject.queryStartTime, queryObject.query);
+                                }
+                            }
+                            else
+                            {
+                                console.error("Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(parsedBody, null, 4));
+                                queryObject.callback(1, "Invalid response from server");
                                 finishQuery(cb, queryObject.queryStartTime, queryObject.query);
                             }
                         }

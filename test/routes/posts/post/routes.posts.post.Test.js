@@ -31,9 +31,9 @@ let demouser1PostURIsArray;
 let pageNumber = 1;
 
 describe("Get a specific post information tests", function () {
-    this.timeout(Config.longTestsTimeout);
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(Config.longTestsTimeout);
+        this.timeout(Config.testsTimeout);
         //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
             should.equal(err, null);

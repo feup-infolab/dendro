@@ -33,7 +33,7 @@ const pageNumber = 1;
 let demouser1PostURIsArray;
 
 describe("Comment a specific post tests", function () {
-    this.timeout(Config.longTestsTimeout);
+    this.timeout(Config.testsTimeout);
     before(function (done) {
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
             should.equal(err, null);

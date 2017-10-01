@@ -25,7 +25,7 @@ const deleteFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFold
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Public project testFolder1 level undelete tests", function () {
-    this.timeout(Config.longTestsTimeout);
+    this.timeout(Config.testsTimeout);
     before(function (done) {
         deleteFoldersUnit.setup(function (err, results) {
             should.equal(err, null);

@@ -29,7 +29,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 let b2shareData, ckanData, zenodoData, dspaceData, eprintsData,figshareData;
 
 describe("Export metadata project to repositories tests", function () {
-    this.timeout(Config.longTestsTimeout);
+    this.timeout(Config.testsTimeout);
     before(function (done) {
         createExportToRepositoriesConfig.setup(function (err, results) {
             should.equal(err, null);

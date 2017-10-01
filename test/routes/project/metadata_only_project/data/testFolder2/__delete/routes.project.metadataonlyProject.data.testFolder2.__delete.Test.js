@@ -25,7 +25,7 @@ const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFold
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Metadata only project testFolder2 level delete tests", function () {
-    this.timeout(Config.longTestsTimeout);
+    this.timeout(Config.testsTimeout);
     before(function (done) {
         createFoldersUnit.setup(function (err, results) {
             should.equal(err, null);

@@ -40,7 +40,7 @@ const allFiles = createFilesUnit.filesData;
 
 
 describe("Private project testFolder1 ?rename", function () {
-    this.timeout(Config.longTestsTimeout);
+    this.timeout(Config.testsTimeout);
     describe("[POST] [FOLDER] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?rename", function ()
     {
         before(function (done) {
@@ -184,7 +184,7 @@ describe("Private project testFolder1 ?rename", function () {
 
     describe("[POST] [FILE] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?rename", function () {
         beforeEach(function (done) {
-            this.timeout(Config.longTestsTimeout);
+            this.timeout(Config.testsTimeout);
             createFilesUnit.setup(function (err, results) {
                 should.equal(err, null);
                 done();

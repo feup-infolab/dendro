@@ -24,7 +24,7 @@ const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTe
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Private project level metadata&deep tests", function () {
-    this.timeout(Config.longTestsTimeout);
+    this.timeout(Config.testsTimeout);
     before(function (done) {
         addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
