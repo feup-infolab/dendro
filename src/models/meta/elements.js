@@ -1027,7 +1027,7 @@ Elements.ddr = {
     },
     exportedAt :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         locked : true
     },
