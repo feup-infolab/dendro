@@ -378,6 +378,120 @@ const calculateDiffsBetweenDendroCkan = function (requestedResourceUri, targetRe
     });
 };
 
+const calculateCkanRepositoryDiffs = function (requestedResourceUri, callback) {
+    //HERE CALCULATE CKAN REPOSITORY DIFFS AUX FUNCTION
+    const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResourceUri, callback) {
+        Folder.findByUri(requestedResourceUri, function (err, folder) {
+            if (!isNull(err)) {
+                let errorInfo = {
+                    error : {
+                        message: "Error fetching " + requestedResourceUri + " from the Dendro platform. Error reported : " + folder,
+                        statusCode: 500
+                    }
+                };
+                console.error(JSON.stringify(errorInfo));
+                callback(err, errorInfo);
+            }
+            else if (isNull(folder)) {
+                let errorInfo = {
+                    error: {
+                        message: requestedResourceUri + " does not exist in Dendro or is not a folder. You cannot export an entire project to an external repository.",
+                        statusCode: 404
+                    }
+                };
+                console.error(JSON.stringify(errorInfo));
+                callback(true, errorInfo);
+            }
+            else {
+                //A folder existe, verificar os descritores
+                if (isNull(folder.dcterms.title)) {
+                    let errorInfo = {
+                        error: {
+                            message: "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.",
+                            statusCode: 400
+                        }
+                    };
+                    console.error(JSON.stringify(errorInfo));
+                    callback(true, errorInfo);
+                }
+                else if (isNull(folder.dcterms.description)) {
+                    let errorInfo = {
+                        error: {
+                            message: "Folder " + folder.uri + " has no description! Please set the Description property (from the dcterms metadata schema) and try the exporting process again.",
+                            statusCode: 400
+                        }
+                    };
+                    console.error(JSON.stringify(errorInfo));
+                    callback(true, errorInfo);
+                }
+                else {
+                    callback(null, folder, null);
+                }
+            }
+        });
+    };
+
+    try {
+        const requestedResourceUri = req.params.requestedResourceUri;
+        const targetRepository = req.body.repository;
+
+        async.waterfall([
+            function(callback) {
+                checkIfResourceHasTheRequiredMetadataForExport(requestedResourceUri, function(err, folder) {
+                    callback(err, folder);
+                });
+            },
+            function(folder, callback) {
+                calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
+                    callback(err, diffs);
+                });
+            }
+        ],function(err, diffs)
+        {
+            if (isNull(err)) {
+                /*res.json(diffs);*/
+                callback(err, diffs);
+            }
+            else {
+                let msg = "";
+                if (!isNull(diffs.error.message) && diffs.error.message === "Not found") {
+                    //There are no diffs because the package was not exported previously
+                    //res.json([]);
+                    /*res.status(200).json(
+                        {
+                            "result": "Info",
+                            "message": "Package was not previously exported"
+                        }
+                    );*/
+                    callback(null, "Package was not previously exported");
+                }
+                else {
+                    msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
+                    /*res.status(500).json(
+                        {
+                            "result": "error",
+                            "message": msg
+                        }
+                    );*/
+                    callback(true, msg);
+                }
+            }
+        });
+    }
+    catch (e) {
+        const msg = "Error when checking if ckan package has diffs with Dendro: " + e.message;
+        console.error(msg);
+        /*res.status(500).json(
+            {
+                "result": "error",
+                "message": msg
+            }
+        );*/
+        callback(true, msg);
+    }
+    //END CALCULATE CKAN REPOSITORY DIFFS AUX FUNCTION
+};
+
 exports.calculate_ckan_repository_diffs = function (req, res) {
     const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResourceUri, callback) {
         Folder.findByUri(requestedResourceUri, function (err, folder) {
@@ -645,6 +759,24 @@ export_to_repository_ckan = function (req, res) {
         const targetRepository = req.body.repository;
 
         let overwrite = false;
+        let deleteChangesOriginatedFromCkan = false;
+        let propagateDendroDeletionsIntoCkan = false;
+
+        try {
+            deleteChangesOriginatedFromCkan = JSON.parse(req.body.deleteChangesOriginatedFromCkan);
+        }
+        catch (e)
+        {
+            console.error("Invalid value supplied to deleteChangesOriginatedFromCkan parameter. Not overwriting by default.");
+        }
+
+        try {
+            propagateDendroDeletionsIntoCkan = JSON.parse(req.body.propagateDendroDeletionsIntoCkan);
+        }
+        catch (e)
+        {
+            console.error("Invalid value supplied to propagateDendroDeletionsIntoCkan parameter. Not overwriting by default.");
+        }
 
         try {
             overwrite = JSON.parse(req.body.overwrite);
@@ -769,7 +901,7 @@ export_to_repository_ckan = function (req, res) {
                                     callback(err, result);
                                 }
                                 else {
-                                    console.error("Error updateding/creating exportedAt in ckan");
+                                    console.error("Error updating/creating exportedAt in ckan");
                                     callback(err, result);
                                 }
                             }
