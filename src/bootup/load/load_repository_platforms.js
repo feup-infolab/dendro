@@ -11,7 +11,6 @@ const active_config_file_path = Pathfinder.absPathInApp("conf/active_deployment_
 
 const loadRepositoryPlatforms = function(app, callback)
 {
-    console.log("At loadRepositoryPlatforms");
     const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
     const repositoryPlatformConfigs = JSON.parse(fs.readFileSync(repository_platform_configs_file_path, 'utf8'));
 
@@ -77,7 +76,6 @@ const loadRepositoryPlatforms = function(app, callback)
                     callback(null);
                 }
             }, function (err, results) {
-                console.log("No error");
                 if(isNull(err))
                 {
                     Logger.log_boot_message("success","Repository platforms information successfully loaded from database.");

@@ -14,11 +14,10 @@ global.Config = Config;
 
 global.tests = {};
 
+require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 //PUBLIC PROJECT FOLDER LEVEL CALCULATE CKAN REPOSITORY DIFFS
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.publicProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js"));
 return;
-
-require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__change_log/routes.project.publicProject.data.testFolder1.__change_log.Test.js"));
 

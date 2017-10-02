@@ -535,7 +535,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                 function (err, result) {
                     if (result.success) {
                         folderResourcesInCkan = result.result.resources;
-                        folder.getChildren(function (err, children) {
+                        folder.getChildrenRecursive(function (err, children) {
                             if (isNull(err)) {
                                 folderResourcesInDendro = children;
                                 let namesOfResourcesInDendro = _.pluck(folderResourcesInDendro, 'name');

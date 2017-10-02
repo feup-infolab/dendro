@@ -11,6 +11,7 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const slug = require('slug');
 const fs = require("fs");
@@ -201,7 +202,7 @@ Folder.prototype.saveIntoFolder = function(
     saveIntoFolder(self, destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback);
 };
 
-Folder.prototype.getChildren = function (callback) {
+Folder.prototype.getChildrenRecursive = function (callback) {
     const self = this;
 
     /**
@@ -222,29 +223,29 @@ Folder.prototype.getChildren = function (callback) {
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],
         function(err, result) {
             if(isNull(err))
             {
-                if(result instanceof Array && result.length > 0)
+                if(result instanceof Array)
                 {
                     callback(err,result);
                 }
                 else
                 {
-                    return callback(1, "Resource: " + self.uri + " has no children");
+                    return callback(true, "Invalid response when getting recursive children of resource : " + self.uri);
                 }
             }
             else
             {
-                return callback(1, "Error reported when querying for the children of" + self.uri + " . Error was ->" + result);
+                return callback(true, "Error reported when querying for the children of" + self.uri + " . Error was ->" + result);
             }
         }
     );
