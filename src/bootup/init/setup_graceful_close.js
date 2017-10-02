@@ -161,50 +161,57 @@ const setupGracefulClose = function(app, server, callback)
         });
     };
 
-    nodeCleanup(function (exitCode, signal) {
+    if(!setupGracefulClose._handlers_are_installed)
+    {
+        nodeCleanup(function (exitCode, signal) {
 
-        //if this fancy cleanup fails, we drop the hammer in 10 secs
-        const setupForceKillTimer = function()
-        {
-            setTimeout(function(){
-                Logger.log_boot_message("info", "Graceful close timed out. Forcing server closing!");
-                process.kill(process.pid);
-            }, Config.dbOperationTimeout);
-        };
+            //if this fancy cleanup fails, we drop the hammer in 10 secs
+            const setupForceKillTimer = function()
+            {
+                setTimeout(function(){
+                    Logger.log_boot_message("info", "Graceful close timed out. Forcing server closing!");
+                    process.kill(process.pid);
+                }, Config.dbOperationTimeout);
+            };
 
-        setupForceKillTimer();
+            setupForceKillTimer();
 
-        if(exitCode || signal)
-        {
-            app.freeResources(function(err){
-                if(!err)
-                {
-                    Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server now.");
-                }
-                else
-                {
-                    Logger.log_boot_message("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
-                }
+            if(exitCode || signal)
+            {
+                app.freeResources(function(err){
+                    if(!err)
+                    {
+                        Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server now.");
+                    }
+                    else
+                    {
+                        Logger.log_boot_message("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
+                    }
 
-                Logger.log_boot_message("success", "No need to remove PID, because this Dendro is running in TEST Mode");
-                nodeCleanup.uninstall(); // don't call cleanup handler again
-                Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server with PID "+process.pid+" now. ");
-                process.kill(process.pid, signal);
-            });
+                    Logger.log_boot_message("success", "No need to remove PID, because this Dendro is running in TEST Mode");
+                    nodeCleanup.uninstall(); // don't call cleanup handler again
+                    Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server with PID "+process.pid+" now. ");
+                    process.kill(process.pid, signal);
+                });
 
-            return false;
-        }
-        else if(exitCode === 0)
-        {
-            process.exit(0);
-        }
+                return false;
+            }
+            else if(exitCode === 0)
+            {
+                process.exit(0);
+            }
 
-        return true;
+            return true;
 
-        Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code "+exitCode+"!");
-    });
+            Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code "+exitCode+"!");
+        });
+    }
+
+    setupGracefulClose._handlers_are_installed = true;
 
     callback(null);
 };
+
+setupGracefulClose._handlers_are_installed = false;
 
 module.exports.setupGracefulClose = setupGracefulClose;
