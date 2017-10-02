@@ -40,7 +40,7 @@ function requireUncached(module) {
 
 describe("Administer data projects", function (done) {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(Config.testsTimeout);
         createFoldersUnit.setup(function (err, res) {
             should.equal(err, null);
             Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
@@ -209,9 +209,9 @@ describe("Administer data projects", function (done) {
         });
     });
 
-    after(function (done) {
+        after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(Config.testsTimeout);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             GLOBAL.tests.server.close();

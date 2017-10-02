@@ -119,11 +119,11 @@ Resource.exists = function(uri, callback, customGraphUri)
 
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : uri
             }
         ],
@@ -150,7 +150,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
     const queryArguments = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: graphUri
         }
     ];
@@ -179,7 +179,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
             argumentCount++;
 
             queryArguments.push({
-                type: DbConnection.prefixedResource,
+                type: Elements.types.prefixedResource,
                 value: self.prefixedRDFType[i]
             });
 
@@ -274,11 +274,11 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
             "} \n",
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -321,19 +321,19 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     "} \n",
                 [
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value : graphUri
                     },
                     {
-                        type : DbConnection.resource,
+                        type : Elements.types.resource,
                         value : self.uri
                     },
                     {
-                        type : DbConnection.prefixedResource,
+                        type : Elements.types.prefixedResource,
                         value : descriptorInPrefixedForm
                     },
                     {
-                        type : DbConnection.prefixedResource,
+                        type : Elements.types.prefixedResource,
                         value : valueInPrefixedForm
                     }
                 ],
@@ -363,15 +363,15 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     "} \n",
                 [
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value : graphUri
                     },
                     {
-                        type : DbConnection.resource,
+                        type : Elements.types.resource,
                         value : self.uri
                     },
                     {
-                        type : DbConnection.prefixedResource,
+                        type : Elements.types.prefixedResource,
                         value : descriptorInPrefixedForm
                     }
                 ],
@@ -413,15 +413,15 @@ Resource.prototype.descriptorValue = function(descriptorWithNamespaceSeparatedBy
             "} \n",
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             },
             {
-                type : DbConnection.prefixedResource,
+                type : Elements.types.prefixedResource,
                 value : descriptorWithNamespaceSeparatedByColon
             }
         ],
@@ -483,11 +483,11 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
     // as well as the FROM string with the parameter placeholders
     let argumentsArray = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: graphUri
         },
         {
-            type: DbConnection.resource,
+            type: Elements.types.resource,
             value: self.uri
         }
     ];
@@ -589,11 +589,11 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
     // as well as the FROM string with the parameter placeholders
     let argumentsArray = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: graphUri
         },
         {
-            type: DbConnection.resource,
+            type: Elements.types.resource,
             value: self.uri
         }
     ];
@@ -759,7 +759,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
 
         const queryArguments = [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: graphName
             }
         ];
@@ -768,7 +768,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
         deleteString = deleteString + " [" + argCount++ + "]";
 
         queryArguments.push({
-            type : DbConnection.resource,
+            type : Elements.types.resource,
             value : subject
         });
 
@@ -798,14 +798,14 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
                     insertString = insertString + " [" + argCount++ + "] ";
 
                     queryArguments.push({
-                        type : DbConnection.resource,
+                        type : Elements.types.resource,
                         value : subject
                     });
 
                     insertString = insertString + " [" + argCount++ + "] ";
 
                     queryArguments.push({
-                        type : DbConnection.resource,
+                        type : Elements.types.resource,
                         value : newDescriptor.uri
                     });
 
@@ -837,12 +837,12 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
             "} \n";
 
         //Invalidate cache record for the updated resources
-        Cache.getByGraphUri(graphName).delete(subject, function(err, result){});
-
-        db.connection.execute(query, queryArguments, function(err, results)
-        {
-            return callback(err, results);
-            //console.log(results);
+        Cache.getByGraphUri(graphName).delete(subject, function(err, result){
+            db.connection.execute(query, queryArguments, function(err, results)
+            {
+                return callback(err, results);
+                //console.log(results);
+            });
         });
     }
     else
@@ -1207,11 +1207,11 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function(ontologyURIsArr
 
     let argumentsArray = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: graphUri
         },
         {
-            type: DbConnection.resource,
+            type: Elements.types.resource,
             value: self.uri
         }
     ];
@@ -1573,7 +1573,7 @@ Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, custo
             "}\n",
             [
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value : graphUri
                 },
                 {
@@ -1742,8 +1742,9 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                             return callback(null, resource);
                         }
                         else {
-                            const msg = "Error " + resource + " while trying to retrieve resource with uri " + uri + " from triple store.";
+                            const msg = "Error while trying to retrieve resource with uri " + self.uri + " from triple store.";
                             console.error(msg);
+                            console.error(JSON.stringify(resource));
                             return callback(1, msg);
                         }
                     }, customGraphUri);
@@ -1973,7 +1974,7 @@ Resource.findByPropertyValue = function(
                     descriptorValueRestrictions += "       ?uri  ";
 
                     descriptorValueArguments.push({
-                        type : DbConnection.prefixedResource,
+                        type : Elements.types.prefixedResource,
                         value : descriptor[i].getPrefixedForm()
                     });
 
@@ -1994,7 +1995,7 @@ Resource.findByPropertyValue = function(
                 descriptorValueRestrictions = "       ?uri [1] [2]. \n";
 
                 descriptorValueArguments.push({
-                    type : DbConnection.prefixedResource,
+                    type : Elements.types.prefixedResource,
                     value : descriptor.getPrefixedForm()
                 });
 
@@ -2017,7 +2018,7 @@ Resource.findByPropertyValue = function(
 
                 [
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value : graphUri
                     },
                 ].concat(descriptorValueArguments),
@@ -2080,9 +2081,10 @@ Resource.findByPropertyValue = function(
                             return callback(null, resource);
                         }
                         else {
-                            const msg = "Error " + resource + " while trying to retrieve resource with uri " + self.uri + " from triple store.";
+                            const msg = "Error while trying to retrieve resource with uri " + self.uri + " from triple store.";
                             console.error(msg);
-                            return callback(1, msg);
+                            console.error(JSON.stringify(resource));
+                            return callback(1, resource);
                         }
                     }, customGraphUri);
                 }
@@ -2241,11 +2243,11 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
         [
             {
                 value : graphUri,
-                type : DbConnection.resourceNoEscape
+                type : Elements.types.resourceNoEscape
             },
             {
                 value : self.uri,
-                type : DbConnection.resource
+                type : Elements.types.resource
             }
         ], function(err, versions)
         {
@@ -2612,15 +2614,15 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
             db.connection.execute(query,
                 [
                     {
-                        type: DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: graphUri
                     },
                     {
-                        type: DbConnection.resource,
+                        type: Elements.types.resource,
                         value: self.uri
                     },
                     {
-                        type: DbConnection.prefixedResource,
+                        type: Elements.types.prefixedResource,
                         value: descriptorToCheck.getPrefixedForm()
                     },
                     {
@@ -2751,11 +2753,11 @@ Resource.prototype.getLogicalParts = function(callback)
         db.connection.execute(argument.query,
             [
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value : db.graphUri
                 },
                 {
-                    type: DbConnection.resource,
+                    type: Elements.types.resource,
                     value : self.uri
                 }
             ],
@@ -2970,11 +2972,11 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
                     "}\n",
                 [
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value : graphUri
                     },
                     {
-                        type : DbConnection.prefixedResource,
+                        type : Elements.types.prefixedResource,
                         value : typeInPrefixedFormat
                     }
                 ],
@@ -3008,15 +3010,15 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
                 "LIMIT 1 \n",
             [
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value : graphUri
                 },
                 {
-                    type: DbConnection.int,
+                    type: Elements.types.int,
                     value: randomNumber
                 },
                 {
-                    type : DbConnection.prefixedResource,
+                    type : Elements.types.prefixedResource,
                     value : typeInPrefixedFormat
                 }
             ],
@@ -3048,7 +3050,7 @@ Resource.deleteAll = function(callback, customGraphUri)
 
     const queryArguments = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: graphUri
         }
     ];
@@ -3077,7 +3079,7 @@ Resource.deleteAll = function(callback, customGraphUri)
             argumentCount++;
 
             queryArguments.push({
-                type: DbConnection.prefixedResource,
+                type: Elements.types.prefixedResource,
                 value: self.prefixedRDFType[i]
             });
 
@@ -3141,11 +3143,11 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
             "OFFSET [4] \n",
             [
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: graphUri
                 },
                 {
-                    type: DbConnection.prefixedResource,
+                    type: Elements.types.prefixedResource,
                     value: descriptor.getPrefixedForm()
                 },
                 {
@@ -3153,11 +3155,11 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
                     value: descriptor.value
                 },
                 {
-                    type: DbConnection.int,
+                    type: Elements.types.int,
                     value: pageSize
                 },
                 {
-                    type: DbConnection.int,
+                    type: Elements.types.int,
                     value: offset
                 }
             ],
@@ -3220,11 +3222,11 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
 
                 [
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value : graphUri
                     },
                     {
-                        type : DbConnection.prefixedResource,
+                        type : Elements.types.prefixedResource,
                         value : descriptor.getPrefixedForm()
                     },
                     {
@@ -3319,7 +3321,8 @@ Resource.prototype.isA = function (prototype) {
     {
         const prefix = prefixedForm.split(":")[0];
         const shortName = prefixedForm.split(":")[1];
-        return Config.allOntologies[prefix].uri + shortName;
+        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+        return Ontology.allOntologies[prefix].uri + shortName;
     };
 
     const objectRDFType = _.map(prototype.prefixedRDFType, getFullUri);
@@ -3393,7 +3396,7 @@ Resource.getCount = function(callback) {
 
     let queryArguments = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         }
     ];
@@ -3411,7 +3414,7 @@ Resource.getCount = function(callback) {
     {
         typeRestrictions = typeRestrictions + " ?uri rdf:type ["+argumentCount+"]";
         queryArguments.push({
-            type: DbConnection.prefixedResource,
+            type: Elements.types.prefixedResource,
             value: self.prefixedRDFType[i]
         });
 

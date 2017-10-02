@@ -33,8 +33,8 @@ const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFold
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Creation of archived versions", function () {
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(60000);
         createFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();

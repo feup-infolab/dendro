@@ -8,7 +8,6 @@ const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).R
 const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
@@ -77,7 +76,7 @@ ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionN
 
                 [
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value : graphUri
                     },
                     {
@@ -94,7 +93,7 @@ ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionN
                     {
                         if(results instanceof Array && results.length === 1)
                         {
-                            ArchivedResource.findByUri(results[0].archived_resource);
+                            ArchivedResource.findByUri(results[0].archived_resource, callback);
                         }
                         else
                         {

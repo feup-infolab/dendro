@@ -7,6 +7,7 @@ chai.use(chaiHttp);
 module.exports.createFolder = function (jsonOnly, agent, projectHandle, parentFolderName, newFolderName, cb) {
     // /project/:handle/data/:foldername?mkdir
     const path = '/project/' + projectHandle + '/data/' + parentFolderName;
+    //console.log(path);
     if (jsonOnly) {
         agent
             .post(path)
@@ -14,7 +15,14 @@ module.exports.createFolder = function (jsonOnly, agent, projectHandle, parentFo
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
             .end(function (err, res) {
-                cb(err, res);
+                if(err)
+                {
+                    cb(err, res);
+                }
+                else
+                {
+                    cb(err, res);
+                }
             });
     }
     else {

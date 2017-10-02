@@ -12,7 +12,7 @@ chai.use(chaiHttp);
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const File = require(Pathfinder.absPathInSrcFolder("models/directory_structure/file.js")).File;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const binaryParser = function (res, cb) {
@@ -706,11 +706,11 @@ const countProjectTriples = function(projectUri, callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : projectUri
             }
         ],

@@ -26,7 +26,6 @@ module.exports.login = function(req, res, next){
             req.passport.authenticate(
                 'local',
                 {
-                    //successRedirect: '/projects/my',
                     failureRedirect: '/login',
                     failureFlash: true
                 },

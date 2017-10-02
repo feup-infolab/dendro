@@ -224,10 +224,10 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

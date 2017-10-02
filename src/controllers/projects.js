@@ -1977,7 +1977,7 @@ exports.delete = function(req, res) {
                 );
             }
         });
-    }
+    };
 
     if(acceptsJSON && !acceptsHTML)
     {

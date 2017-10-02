@@ -48,9 +48,9 @@ const jsonResultMD5WithPageAndSkip = md5(fs.readFileSync(Pathfinder.absPathInTes
 const emptyCSVMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/emptyCSVResult.csv"), "utf-8"));
 
 describe("Upload files into testFolder1 of Private project", function () {
-    this.timeout(60000);
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(Config.testsTimeout);
         createFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -103,13 +103,12 @@ describe("Upload files into testFolder1 of Private project", function () {
                 fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, zipMockFile, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
+                    res.body[0].result.should.equal("success");
+                    res.body[0].message.should.equal("File submitted successfully.");
 
-                    const newResourceUri = res.body.details[0].uri;
-
-                    fileUtils.downloadFileByUri(true, agent, res.body.details[0].uri, function (error, res)
+                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
                     {
                         res.statusCode.should.equal(200);
                         done();
@@ -125,12 +124,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
-
-                    fileUtils.downloadFileByUri(true, agent, res.body.details[0].uri, function (error, res)
+                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
                     {
                         res.statusCode.should.equal(200);
                         done();
@@ -146,10 +143,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
@@ -180,10 +177,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
@@ -214,10 +211,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
@@ -248,10 +245,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
@@ -286,10 +283,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
@@ -329,10 +326,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
                         xlsMockFile.md5.should.equal(md5(res.body));
@@ -364,10 +361,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
@@ -399,10 +396,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
@@ -440,10 +437,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
@@ -477,10 +474,10 @@ describe("Upload files into testFolder1 of Private project", function () {
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
-                    res.body.details.should.be.instanceof(Array);
-                    res.body.details.length.should.equal(1);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
 
-                    const newResourceUri = res.body.details[0].uri;
+                    const newResourceUri = res.body[0].uri;
 
                     fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
@@ -510,9 +507,10 @@ describe("Upload files into testFolder1 of Private project", function () {
 
     after(function (done) {
         //destroy graphs
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

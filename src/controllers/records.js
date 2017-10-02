@@ -730,12 +730,12 @@ exports.show_version = function(req, res) {
 
         if(isNull(req.query.version))
         {
-            console.log("TAS QUASE " + requestedResourceURI)
+            //console.log("TAS QUASE " + requestedResourceURI)
             ArchivedResource.findByUri(requestedResourceURI, function (err, version)
             {
                 if (isNull(err))
                 {
-                    console.log("JA FOSTE " + requestedResourceURI)
+                    //console.log("JA FOSTE " + requestedResourceURI)
                     sendResponse(version);
                 }
                 else

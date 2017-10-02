@@ -43,7 +43,7 @@ const odsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/odsM
 
 describe("Backup Public project", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(Config.testsTimeout);
         createFilesUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -53,7 +53,7 @@ describe("Backup Public project", function () {
     describe("[PUBLIC PROJECT] [Invalid Cases] /project/" + project.handle + "?bagit", function() {
 
         it("Should give an error message when a project does not exist", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 should.equal(err, null);
                 projectUtils.bagit(agent, invalidProject.handle, function (err, res) {
@@ -64,7 +64,7 @@ describe("Backup Public project", function () {
         });
 
         it("Should NOT give an error when the user is not authenticated and produce a proper backup, because the project is public", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.testsTimeout);
             projectUtils.bagit(agent, project.handle, function (err, res) {
                 should.equal(err, null);
                 res.statusCode.should.equal(200);
@@ -79,7 +79,7 @@ describe("Backup Public project", function () {
         });
 
         it("Should NOT give an error and produce a proper backup when the user is authenticated, even though not as a creator nor contributor of the project, because the project is public", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
                 projectUtils.bagit(agent, project.handle, function (err, res) {
@@ -99,7 +99,7 @@ describe("Backup Public project", function () {
 
     describe("[PUBLIC PROJECT] [Valid Cases] /project/" + project.handle + "?bagit", function() {
         it("Should backup the private project correctly", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 projectUtils.bagit(agent, project.handle, function (err, res) {
@@ -117,12 +117,12 @@ describe("Backup Public project", function () {
         });
     });
 
-    after(function (done) {
+     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

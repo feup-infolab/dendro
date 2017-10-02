@@ -9,8 +9,8 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -151,11 +151,11 @@ Project.allNonPrivate = function(currentUser, callback) {
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: "private"
             }
         ],
@@ -203,15 +203,15 @@ Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: "private"
             },
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: currentUser.uri
             }
         ],
@@ -254,11 +254,11 @@ Project.findByHandle = function(handle, callback) {
         [
 
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value :db.graphUri
             },
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 value : handle
             }
         ],
@@ -326,11 +326,11 @@ Project.prototype.getCreatorsAndContributors = function(callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -383,11 +383,11 @@ Project.findByContributor = function(contributor, callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : contributor
             }
         ],
@@ -437,11 +437,11 @@ Project.findByCreator = function(creator, callback) {
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : creator
             }
         ],
@@ -496,11 +496,11 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : creatorOrContributor
             }
         ],
@@ -585,38 +585,53 @@ Project.createAndInsertFromObject = function(object, callback) {
 };
 
 Project.prototype.isUserACreatorOrContributor = function (userUri, callback) {
-    var self = this;
-    var query =
-        "SELECT ?property \n" +
+    const self = this;
+    const query =
+        "SELECT ?uri \n" +
         "FROM [0] \n" +
         "WHERE { \n" +
-        " [1] rdf:type ddr:Project . "+
-        " [1] ?property [2] \n"+
+        " { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:creator [2] \n" +
+        "   } \n" +
+        "   UNION \n" +
+        "   { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:contributor [2] \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : userUri
             }
         ],
         function(err, properties) {
-            if(err)
+            if(!isNull(err))
             {
-                var errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
+                const errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
                 console.error(errorMsg);
 
             }
-            callback(err, properties);
+
+            if(properties.length > 0 )
+            {
+                callback(err, true);
+            }
+            else
+            {
+                callback(err, false);
+            }
         });
 };
 
@@ -694,15 +709,15 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : projectData
             }/*,
             {
-                type : DbConnection.date,
+                type : Elements.types.date,
                 value: createdAfterDate
             }*/
         ]),//, startingResultPosition, maxResults),
@@ -784,15 +799,15 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.stringNoEscape,
+                type : Elements.types.stringNoEscape,
                 value : self.uri
             },
             {
-                type : DbConnection.date,
+                type : Elements.types.date,
                 value: createdAfterDate
             }
         ], startingResultPosition, maxResults),
@@ -844,11 +859,11 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : self.uri
             }
         ],
@@ -961,11 +976,11 @@ Project.prototype.getFilesCount = function(callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -1012,11 +1027,11 @@ Project.prototype.getMembersCount = function(callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -1062,11 +1077,11 @@ Project.prototype.getFoldersCount = function(callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -1110,11 +1125,11 @@ Project.prototype.getRevisionsCount = function(callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -1145,19 +1160,19 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
 
     let argumentsArray = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         },
         {
-            type: DbConnection.stringNoEscape,
+            type: Elements.types.stringNoEscape,
             value: self.uri
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.favorite_descriptor_from_quick_list_for_project.key
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key
         }
     ];
@@ -1276,19 +1291,19 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
 
     let argumentsArray = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         },
         {
-            type: DbConnection.stringNoEscape,
+            type: Elements.types.stringNoEscape,
             value: self.uri
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.hide_descriptor_from_quick_list_for_project.key
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.unhide_descriptor_from_quick_list_for_project.key
         }
     ];
@@ -1725,11 +1740,11 @@ Project.prototype.clearCacheRecords = function(callback, customGraphUri)
         db.connection.execute(findQuery,
             [
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: graphUri
                 },
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: self.uri
                 }
 
@@ -1792,11 +1807,11 @@ Project.prototype.delete = function(callback)
         db.connection.execute(deleteQuery,
             [
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: db.graphUri
                 },
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: self.uri
                 }
             ],

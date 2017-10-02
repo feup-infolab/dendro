@@ -4,9 +4,8 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
 
@@ -39,11 +38,11 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : revisionUri
             }
         ],

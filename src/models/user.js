@@ -4,6 +4,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
@@ -169,23 +170,23 @@ User.autocomplete_search = function(value, maxResults, callback) {
     db.connection.execute(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.prefixedResource,
+                type : Elements.types.prefixedResource,
                 value : User.prefixedRDFType
             },
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 value : value
             },
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 value : "i"
             },
             {
-                type : DbConnection.int,
+                type : Elements.types.int,
                 value : maxResults
             }
         ],
@@ -360,11 +361,11 @@ User.prototype.getInteractions = function(callback)
 
     db.connection.execute(query, [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value : db.graphUri
         },
         {
-            type : DbConnection.resource,
+            type : Elements.types.resource,
             value : self.uri
         }
     ], function(err, results) {
@@ -452,19 +453,19 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         [
             {
                 value: db.graphUri,
-                type: DbConnection.resourceNoEscape
+                type: Elements.types.resourceNoEscape
             },
             {
                 value: self.uri,
-                type: DbConnection.resourceNoEscape
+                type: Elements.types.resourceNoEscape
             },
             {
                 value: Interaction.types.hide_descriptor_from_quick_list_for_user.key,
-                type: DbConnection.string
+                type: Elements.types.string
             },
             {
                 value: Interaction.types.unhide_descriptor_from_quick_list_for_user.key,
-                type: DbConnection.string
+                type: Elements.types.string
             }
         ];
 
@@ -643,19 +644,19 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         [
             {
                 value: db.graphUri,
-                type: DbConnection.resourceNoEscape
+                type: Elements.types.resourceNoEscape
             },
             {
                 value: self.uri,
-                type: DbConnection.resourceNoEscape
+                type: Elements.types.resourceNoEscape
             },
             {
                 value: Interaction.types.favorite_descriptor_from_quick_list_for_user.key,
-                type: DbConnection.string
+                type: Elements.types.string
             },
             {
                 value: Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key,
-                type: DbConnection.string
+                type: Elements.types.string
             }
     ];
 
@@ -789,15 +790,15 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
     let argumentsArray = [
         {
             value: db.graphUri,
-            type: DbConnection.resourceNoEscape
+            type: Elements.types.resourceNoEscape
         },
         {
             value: Interaction.types.accept_favorite_descriptor_in_metadata_editor.key,
-            type: DbConnection.string
+            type: Elements.types.string
         },
         {
             value: self.uri,
-            type: DbConnection.resourceNoEscape
+            type: Elements.types.resourceNoEscape
         }
     ];
 
@@ -913,15 +914,15 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
     let argumentsArray = [
         {
             value: db.graphUri,
-            type: DbConnection.resourceNoEscape
+            type: Elements.types.resourceNoEscape
         },
         {
             value: Interaction.types.accept_smart_descriptor_in_metadata_editor.key,
-            type: DbConnection.string
+            type: Elements.types.string
         },
         {
             value: self.uri,
-            type: DbConnection.resourceNoEscape
+            type: Elements.types.resourceNoEscape
         }
     ];
 
@@ -1037,7 +1038,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
     let argumentsArray = [
         {
             value: db.graphUri,
-            type: DbConnection.resourceNoEscape
+            type: Elements.types.resourceNoEscape
         }
     ];
 
@@ -1092,7 +1093,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
 
     argumentsArray = argumentsArray.concat([{
         value : self.uri,
-        type : DbConnection.resourceNoEscape
+        type : Elements.types.resourceNoEscape
     }]);
 
     db.connection.execute(

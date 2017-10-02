@@ -10,6 +10,7 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
@@ -1187,15 +1188,15 @@ File.prototype.moveToFolder = function(newParentFolder, callback)
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: newTitle
             }
         ],

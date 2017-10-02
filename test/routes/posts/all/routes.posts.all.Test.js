@@ -31,8 +31,9 @@ const pageNumber = 1;
 let postURIsToCompare;
 
 describe("Get all posts URIs with pagination tests", function () {
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(Config.testsTimeout);
         //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
             should.equal(err, null);
@@ -91,7 +92,7 @@ describe("Get all posts URIs with pagination tests", function () {
         this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 

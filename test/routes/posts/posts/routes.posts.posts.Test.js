@@ -32,7 +32,7 @@ let invalidPostURIsArray = [];
 
 describe("Get information on an array of posts(given an array of post URIs) tests", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(Config.testsTimeout);
         //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
             should.equal(err, null);

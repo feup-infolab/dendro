@@ -40,7 +40,7 @@ const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncache
 
 describe("Create a new manual post tests", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(Config.testsTimeout);
         //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
             should.equal(err, null);

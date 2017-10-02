@@ -9,7 +9,7 @@ const Like = require('../models/social/like.js').Like;
 const Notification = require('../models/notifications/notification.js').Notification;
 const Comment = require('../models/social/comment.js').Comment;
 const Share = require('../models/social/share.js').Share;
-const Ontology = require('../models/meta/ontology.js').Ontology;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Project = require('../models/project.js').Project;
 const DbConnection = require("../kb/db.js").DbConnection;
 const MetadataChangePost = require('../models/social/metadataChangePost').MetadataChangePost;
@@ -65,7 +65,7 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type: DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),
@@ -128,12 +128,12 @@ const getNumLikesForAPost = function (postID, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type: DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type: DbConnection.resource,
-                value: postID
+                type : Elements.types.resource,
+                value : postID
             }
         ]),
         function (err, results) {
@@ -175,7 +175,7 @@ const numPostsDatabaseAux = function (projectUrisArray, callback) {
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type: DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),
@@ -189,7 +189,8 @@ const numPostsDatabaseAux = function (projectUrisArray, callback) {
                 });
         });
     }
-    else {
+    else
+    {
         //User has no projects
         var results = 0;
         return callback(null, results);
@@ -211,16 +212,16 @@ const userLikedAPost = function (postID, userUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type: DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type: DbConnection.resource,
-                value: postID
+                type : Elements.types.resource,
+                value : postID
             },
             {
-                type: DbConnection.resource,
-                value: userUri
+                type : Elements.types.resource,
+                value : userUri
             }
         ]),
         function (err, results) {
@@ -251,16 +252,16 @@ const removeOrAddLike = function (postID, userUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type: DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type: DbConnection.resource,
-                value: postID
+                type : Elements.types.resource,
+                value : postID
             },
             {
-                type: DbConnection.resource,
-                value: userUri
+                type : Elements.types.resource,
+                value : userUri
             }
         ]),
         function (err, results) {
@@ -297,12 +298,12 @@ const getCommentsForAPost = function (postID, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type: DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type: DbConnection.resource,
-                value: postID
+                type : Elements.types.resource,
+                value : postID
             }
         ]),
         function (err, results) {
@@ -376,11 +377,11 @@ const getSharesForAPost = function (postID, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: postID
             }
         ]),
@@ -388,7 +389,7 @@ const getSharesForAPost = function (postID, cb) {
             if (isNull(err)) {
                 async.map(results, function (shareObject, callback) {
                     Share.findByUri(shareObject.shareURI, function (err, share) {
-                        callback(null, share);
+                        return callback(null, share);
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, shares) {
@@ -474,11 +475,11 @@ const removeLike = function (likeID, userUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: likeID
             }
         ]),
@@ -550,9 +551,9 @@ exports.new = function(req, res){
     if (!isNull(req.body.newPostContent) && !isNull(req.body.newPostTitle) && !isNull(req.body.newPostProjectUri)) {
         Project.findByUri(req.body.newPostProjectUri, function (err, project) {
             if (!err && project) {
-                project.isUserACreatorOrContributor(currentUserUri, function (err, results) {
+                project.isUserACreatorOrContributor(currentUserUri, function (err, isCreatorOrContributor) {
                     if (!err) {
-                        if (Array.isArray(results) && results.length > 0) {
+                        if (isCreatorOrContributor) {
                             //is a creator or contributor
                             let postInfo = {
                                 title: req.body.newPostTitle,
@@ -598,7 +599,7 @@ exports.new = function(req, res){
                         }
                     }
                     else {
-                        let errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(results);
+                        let errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(isCreatorOrContributor);
                         res.status(500).json({
                             result: "Error",
                             message: errorMsg

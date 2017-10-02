@@ -12,6 +12,7 @@ const initLogging = function(app, callback)
     let registeredUncaughtExceptionHandler = false;
     
     process.on('unhandledRejection', function(rejection){
+        console.error("Unknown error occurred!");
         console.error(rejection.stack);
     });
 

@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Notification = require('../models/notifications/notification.js').Notification;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const DbConnection = require("../kb/db.js").DbConnection;
 const _ = require("underscore");
 
@@ -24,7 +25,7 @@ exports.get_unread_user_notifications = function (req ,res) {
     {
         const userUri = req.user.uri;
 
-        if(!isNull(userUri))
+        if (!isNull(userUri))
         {
             let query =
                 "WITH [0] \n" +
@@ -42,16 +43,17 @@ exports.get_unread_user_notifications = function (req ,res) {
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: db_notifications.graphUri
                     },
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: userUri
                     }
                 ]),
-                function(err, notifications) {
-                    if(isNull(err))
+                function (err, notifications)
+                {
+                    if (isNull(err))
                     {
                         res.json(notifications);
                     }
@@ -94,7 +96,7 @@ exports.get_notification_info = function (req, res) {
         const userUri = req.user.uri;
         const notificationUri = req.query.notificationUri;
 
-        if(!isNull(userUri) && !isNull(notificationUri))
+        if (!isNull(userUri) && !isNull(notificationUri))
         {
             let query =
                 "WITH [0] \n" +
@@ -103,9 +105,9 @@ exports.get_notification_info = function (req, res) {
                 "[1] ddr:actionType ?actionType. \n" +
                 "[1] ddr:userWhoActed ?userWhoActed. \n" +
                 "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
-                "[1] ddr:resourceAuthorUri [2]. \n"+
-                "[1] ddr:modified ?modified. \n"+
-                "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n"+
+                "[1] ddr:resourceAuthorUri [2]. \n" +
+                "[1] ddr:modified ?modified. \n" +
+                "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n" +
                 "} \n";
 
             query = DbConnection.addLimitsClauses(query, null, null);
@@ -113,22 +115,23 @@ exports.get_notification_info = function (req, res) {
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: db_notifications.graphUri
                     },
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: notificationUri
                     },
                     {
-                        type: DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: userUri
                     }
                 ]),
-                function(err, notification) {
-                    if(isNull(err))
+                function (err, notification)
+                {
+                    if (isNull(err))
                     {
-                        if(notification.length > 0)
+                        if (notification.length > 0)
                             res.json(notification);
                         else
                         {
@@ -194,15 +197,15 @@ exports.delete = function (req, res) {
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value: db_notifications.graphUri
                     },
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type : Elements.types.resourceNoEscape,
                         value: notificationUri
                     },
                     {
-                        type: DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: userUri
                     }
                 ]),

@@ -64,12 +64,12 @@ const prepareEnvironment = function(callback)
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtuoso.js")).initVirtuoso(self.app, callback);
         },
         function(callback) {
-            //destroy graphs if needed
-            require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs(self.app, callback);
-        },
-        function(callback) {
             //setup caches
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_cache.js")).initCache(self.app, callback);
+        },
+        function(callback) {
+            //destroy graphs if needed
+            require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs(self.app, callback);
         },
         function(callback) {
             //setup passport
@@ -134,7 +134,7 @@ const prepareEnvironment = function(callback)
         if(!isNull(err))
         {
             console.error("There was an error performing preliminary setup operations during Dendro bootup!");
-            console.error(err.stack);
+            console.error(JSON.stringify(err));
         }
         return callback(err, results);
     });

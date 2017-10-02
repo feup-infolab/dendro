@@ -4,7 +4,7 @@ const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = require("../src/models/meta/pathfinder").Pathfinder;
+const Pathfinder = require("../../src/models/meta/pathfinder").Pathfinder;
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -20,28 +20,19 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
-const ontologyPrefix = "foaf";
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+let loadOntologies = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("/bootup/load/load_ontologies.js")).loadOntologies;
+let initCache = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("/bootup/init/init_cache.js")).initCache;
+let initVirtuoso = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("/bootup/init/init_virtuoso.js")).initVirtuoso;
 
-describe("Initial clean-up...", function () {
-    before(function (done) {
+describe("Loading ontologies cache only once...", function () {
+    it("Should load all ontologies into cache.", function (done) {
         this.timeout(Config.testsTimeout);
-        bootupUnit.setup(function (err, results) {
-            should.equal(err, null);
-            done();
-        });
-    });
-
-    describe("Clean everything", function () {
-        it("Should destroy all test graphs", function (done) {
-            //destroy graphs
-            this.timeout(Config.testsTimeout);
-            appUtils.clearAppState(function (err, data) {
-                should.equal(err, null);
-                done();
+        initVirtuoso(null, function(err, result){
+            initCache(null, function(err, result){
+                loadOntologies(null, done, true);
             });
         });
     });

@@ -75,9 +75,9 @@ describe("Public project ?version tests", function(){
         })
     });
 
-    after(function (done) {
+        after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+        
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             global.tests.server.close();

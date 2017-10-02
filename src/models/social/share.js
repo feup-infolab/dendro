@@ -4,15 +4,12 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
 const uuid = require("uuid");
 
-const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
-
-const gfs = Config.getGFSByID();
 
 const async = require("async");
 
@@ -45,14 +42,14 @@ function Share (object)
 
     const descriptor = new Descriptor({
         prefixedForm: "rdf:type",
-        type: DbConnection.prefixedResource,
+        type: Elements.types.prefixedResource,
         //value : "ddr:Post"
         value: objectType
     });
 
     /!*var newAdminDescriptor = new Descriptor({
      prefixedForm : "rdf:type",
-     type : DbConnection.prefixedResource,
+     type : Elements.types.prefixedResource,
      value : "ddr:Administrator"
      });*!/
     self.insertDescriptors([descriptor], function(err, result){

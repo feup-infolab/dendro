@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const chai = require("chai");
 chai.use(require('chai-http'));
@@ -58,10 +59,24 @@ module.exports.setup = function(finish)
                     async.mapSeries(projectsData, function (projectData, cb) {
                         async.mapSeries(foldersData, function (folderData, cb) {
                             itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res) {
-                                cb(err, res);
+                                if(!isNull(err))
+                                {
+                                    cb(err, results);
+                                }
+                                else
+                                {
+                                    cb(null, results);
+                                }
                             });
                         }, function (err, results) {
-                            cb(err, results);
+                            if(!isNull(err))
+                            {
+                                cb(err, results);
+                            }
+                            else
+                            {
+                                cb(null, results);
+                            }
                         });
                     }, function (err, results) {
                         finish(err, results);

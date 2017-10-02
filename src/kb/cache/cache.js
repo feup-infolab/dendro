@@ -53,7 +53,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
                                         {
                                             console.log("[OK] Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " +  mongoDBConnection.host + ":" + mongoDBConnection.port);
 
-                                            if(deleteAllCachedRecords)
+                                            if(mongoCacheConfig.clear_on_startup)
                                             {
                                                 newMongoCacheConnection.deleteAll(function(err, result){
                                                     if(isNull(err))
@@ -161,7 +161,9 @@ Cache.closeConnections = function(cb)
     async.map(Object.keys(self.caches), function(cacheKey, cb){
         if(self.caches.hasOwnProperty(cacheKey))
         {
-            self.caches[cacheKey].close(cb);
+            self.caches[cacheKey].close(function(err, result){
+                cb(err, result);
+            });
         }
         else
         {
