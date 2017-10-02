@@ -378,7 +378,7 @@ const calculateDiffsBetweenDendroCkan = function (requestedResourceUri, targetRe
     });
 };
 
-const calculateCkanRepositoryDiffs = function (requestedResourceUri, callback) {
+const calculateCkanRepositoryDiffs = function (requestedResourceUri, targetRepository, callback) {
     //HERE CALCULATE CKAN REPOSITORY DIFFS AUX FUNCTION
     const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResourceUri, callback) {
         Folder.findByUri(requestedResourceUri, function (err, folder) {
@@ -431,69 +431,88 @@ const calculateCkanRepositoryDiffs = function (requestedResourceUri, callback) {
         });
     };
 
-    try {
-        const requestedResourceUri = req.params.requestedResourceUri;
-        const targetRepository = req.body.repository;
-
-        async.waterfall([
-            function(callback) {
-                checkIfResourceHasTheRequiredMetadataForExport(requestedResourceUri, function(err, folder) {
-                    callback(err, folder);
-                });
-            },
-            function(folder, callback) {
-                calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
-                    callback(err, diffs);
-                });
-            }
-        ],function(err, diffs)
-        {
-            if (isNull(err)) {
-                /*res.json(diffs);*/
+    async.waterfall([
+        function(callback) {
+            checkIfResourceHasTheRequiredMetadataForExport(requestedResourceUri, function(err, folder) {
+                callback(err, folder);
+            });
+        },
+        function(folder, callback) {
+            calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
                 callback(err, diffs);
+            });
+        }
+    ],function(err, diffs)
+    {
+        if (isNull(err)) {
+            /*res.json(diffs);*/
+            callback(err, diffs);
+        }
+        else {
+            let msg = "";
+            if (!isNull(diffs.error.message) && diffs.error.message === "Not found") {
+                //There are no diffs because the package was not exported previously
+                //res.json([]);
+                /*res.status(200).json(
+                    {
+                        "result": "Info",
+                        "message": "Package was not previously exported"
+                    }
+                );*/
+                callback(null, "Package was not previously exported");
             }
             else {
-                let msg = "";
-                if (!isNull(diffs.error.message) && diffs.error.message === "Not found") {
-                    //There are no diffs because the package was not exported previously
-                    //res.json([]);
-                    /*res.status(200).json(
-                        {
-                            "result": "Info",
-                            "message": "Package was not previously exported"
-                        }
-                    );*/
-                    callback(null, "Package was not previously exported");
-                }
-                else {
-                    msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
-                    /*res.status(500).json(
-                        {
-                            "result": "error",
-                            "message": msg
-                        }
-                    );*/
-                    callback(true, msg);
-                }
+                msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
+                let errorInfo = {
+                    error : {
+                        message: msg,
+                        statusCode: 500
+                    }
+                };
+                console.error(JSON.stringify(errorInfo));
+                callback(true, errorInfo);
             }
-        });
-    }
-    catch (e) {
-        const msg = "Error when checking if ckan package has diffs with Dendro: " + e.message;
-        console.error(msg);
-        /*res.status(500).json(
-            {
-                "result": "error",
-                "message": msg
-            }
-        );*/
-        callback(true, msg);
-    }
+        }
+    });
     //END CALCULATE CKAN REPOSITORY DIFFS AUX FUNCTION
 };
 
 exports.calculate_ckan_repository_diffs = function (req, res) {
-    const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResourceUri, callback) {
+    /*const requestedResourceUri = req.params.requestedResourceUri;
+    const targetRepository = req.body.repository;*/
+
+    try {
+        const requestedResourceUri = req.params.requestedResourceUri;
+        const targetRepository = req.body.repository;
+
+        calculateCkanRepositoryDiffs(requestedResourceUri, targetRepository, function (err, diffs) {
+            if(isNull(err))
+            {
+                res.json(diffs);
+            }
+            else
+            {
+                res.status(diffs.error.statusCode).json(
+                    {
+                        "result": "error",
+                        "message": diffs.error.message
+                    }
+                );
+            }
+        });
+    }
+    catch (e)
+    {
+        const msg = "Error when checking if ckan package has diffs with Dendro: " + e.message;
+        console.error(msg);
+        res.status(500).json(
+            {
+                "result": "error",
+                "message": msg
+            }
+        );
+    }
+    /*const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResourceUri, callback) {
         Folder.findByUri(requestedResourceUri, function (err, folder) {
             if (!isNull(err)) {
                 let errorInfo = {
@@ -590,34 +609,6 @@ exports.calculate_ckan_repository_diffs = function (req, res) {
                 }
             }
         });
-
-        /*calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
-            if (isNull(err)) {
-                res.json(diffs);
-            }
-            else {
-                let msg = "";
-                if (!isNull(diffs.error.message) && diffs.error.message === "Not found") {
-                    //There are no diffs because the package was not exported previously
-                    //res.json([]);
-                    res.status(200).json(
-                        {
-                            "result": "Info",
-                            "message": "Package was not previously exported"
-                        }
-                    );
-                }
-                else {
-                    msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
-                    res.status(500).json(
-                        {
-                            "result": "error",
-                            "message": msg
-                        }
-                    );
-                }
-            }
-        });*/
     }
     catch (e) {
         const msg = "Error when checking if ckan package has diffs with Dendro: " + e.message;
@@ -628,7 +619,7 @@ exports.calculate_ckan_repository_diffs = function (req, res) {
                 "message": msg
             }
         );
-    }
+    }*/
 };
 
 
@@ -761,6 +752,7 @@ export_to_repository_ckan = function (req, res) {
         let overwrite = false;
         let deleteChangesOriginatedFromCkan = false;
         let propagateDendroDeletionsIntoCkan = false;
+        let checksNeeded = [];
 
         try {
             deleteChangesOriginatedFromCkan = JSON.parse(req.body.deleteChangesOriginatedFromCkan);
@@ -1087,6 +1079,53 @@ export_to_repository_ckan = function (req, res) {
 
             async.waterfall([
                 function (callback) {
+                    calculateCkanRepositoryDiffs(requestedResourceUri, targetRepository, function (err, diffs) {
+                        if(isNull(err))
+                        {
+                            /*res.json(diffs);*/
+                            if(diffs instanceof Object)
+                            {
+                                /*if(diffs.ckanDiffs.length > 0)
+                                {
+                                    checksNeeded.push("ckanDiffs");
+                                }
+
+                                if(diffs.dendroDiffs.length > 0)
+                                {
+                                    checksNeeded.push("dendroDiffs");
+                                }*/
+                                /*checksNeeded = _.each(diffs, function (diff) {
+                                    return diff.key;
+                                });*/
+
+                                _.each( diffs, function( val, key ) {
+                                    checksNeeded.push(key.toString());
+                                });
+
+                                //callback(err, checksNeeded);
+                                callback(err, checksNeeded);
+                            }
+                            else
+                            {
+                               /*callback(err, checksNeeded)*/
+                                callback(err, checksNeeded);
+                            }
+                        }
+                        else
+                        {
+                            /*res.status(diffs.error.statusCode).json(
+                                {
+                                    "result": "error",
+                                    "message": diffs.error.message
+                                }
+                            );*/
+                            callback(err, diffs);
+                        }
+                    });
+                },
+                function (toCheck, callback) {
+                    console.log(checksNeeded);
+                    console.log(toCheck);
                     Folder.findByUri(requestedResourceUri, function (err, folder) {
                         if (!isNull(err)) {
                             let errorInfo = {

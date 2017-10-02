@@ -176,7 +176,7 @@ describe("Calculate metadata only project folderExportCkan level ckan respositor
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.calculate_ckan_repository_diffs(true, folderExportCkanData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.message.should.equal("Package was not previously exported");
+                    res.body.should.equal("Package was not previously exported");
                     done();
                 });
             });

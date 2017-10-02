@@ -23,8 +23,11 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderExportCkan = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportCkan.js"));
+const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
+const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
 
-const createExportToRepositoriesConfig = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+/*const createExportToRepositoriesConfig = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));*/
+const exportFoldersToCkanRepositoryUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
@@ -39,7 +42,7 @@ let ckanData;
 describe("Export public project folderExportCkan level to ckan tests", function () {
     before(function (done) {
         this.timeout(Config.testsTimeout);
-        createExportToRepositoriesConfig.setup(function (err, results) {
+        exportFoldersToCkanRepositoryUnit.setup(function (err, results) {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res) {
                 res.statusCode.should.equal(200);
@@ -131,7 +134,8 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             });
         });
 
-        it("Should give a message that folderExportCkan was already exported", function (done) {
+        //TODO BUT THERE ARE NO DIFFS IN THIS CASE
+        /*it("Should give a message that folderExportCkan was already exported", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(500);
@@ -139,7 +143,33 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     done();
                 });
             });
+        });*/
+
+
+        //THERE ARE DENDRO DIFFS -> propagateDendroDeletionsIntoCkan === false -> export does not happen
+        it("Should give a message that folderExportedCkanDendroDiffs was already exported", function (done) {
+            let propagateDendroDeletionsIntoCkan = false;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportedCkanDendroDiffs.pathInProject + folderExportedCkanDendroDiffs.name, agent, {repository: ckanData}, function (err, res) {
+                    res.statusCode.should.equal(500);
+                    res.body.message.should.contain("This dataset was already exported to this CKAN instance");
+                    done();
+                }, propagateDendroDeletionsIntoCkan);
+            });
         });
+
+        //THERE ARE DENDRO DIFFS -> propagateDendroDeletionsIntoCkan === true -> export does happen
+        it("Should give a message that folderExportedCkanDendroDiffs was already exported", function (done) {
+            let propagateDendroDeletionsIntoCkan = true;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportedCkanDendroDiffs.pathInProject + folderExportedCkanDendroDiffs.name, agent, {repository: ckanData}, function (err, res) {
+                    res.statusCode.should.equal(500);
+                    res.body.message.should.contain("This dataset was already exported to this CKAN instance");
+                    done();
+                }, propagateDendroDeletionsIntoCkan);
+            });
+        });
+
     });
 
     /*describe("[POST] [B2SHARE] /project/:handle/data/:folderExportCkan?export_to_repository", function () {
