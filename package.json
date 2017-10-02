@@ -63,7 +63,6 @@
     "grunt-contrib-uglify": "^3.0.1",
     "hash-sum": "^1.0.2",
     "humanize": "0.0.9",
-    "jdbc": "^0.5.1",
     "jsdom": "^11.0.0",
     "jsonpath": "^0.2.7",
     "karma-coverage": "^1.1.1",
