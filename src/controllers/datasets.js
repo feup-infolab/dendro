@@ -751,7 +751,7 @@ export_to_repository_ckan = function (req, res) {
 
         let overwrite = false;
         let deleteChangesOriginatedFromCkan = false;
-        let propagateDendroDeletionsIntoCkan = false;
+        let propagateDendroChangesIntoCkan = false;
         let checksNeeded = [];
 
         try {
@@ -763,22 +763,22 @@ export_to_repository_ckan = function (req, res) {
         }
 
         try {
-            propagateDendroDeletionsIntoCkan = JSON.parse(req.body.propagateDendroDeletionsIntoCkan);
+            propagateDendroChangesIntoCkan = JSON.parse(req.body.propagateDendroChangesIntoCkan);
         }
         catch (e)
         {
-            console.error("Invalid value supplied to propagateDendroDeletionsIntoCkan parameter. Not overwriting by default.");
+            console.error("Invalid value supplied to propagateDendroChangesIntoCkan parameter. Not overwriting by default.");
         }
 
-        try {
+        /*try {
             overwrite = JSON.parse(req.body.overwrite);
         }
         catch (e) {
             console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
-        }
+        }*/
 
         const checkPermissionsDictionary = {
-            "dendroDiffs" : propagateDendroDeletionsIntoCkan,
+            "dendroDiffs" : propagateDendroChangesIntoCkan,
             "ckanDiffs" : deleteChangesOriginatedFromCkan
         };
 
@@ -1116,7 +1116,10 @@ export_to_repository_ckan = function (req, res) {
                             if(diffs instanceof Object)
                             {
                                 _.each( diffs, function( val, key ) {
-                                    checksNeeded.push(key.toString());
+                                    if(val.length > 0)
+                                    {
+                                        checksNeeded.push(key.toString());
+                                    }
                                 });
                                 callback(err, checksNeeded);
                             }

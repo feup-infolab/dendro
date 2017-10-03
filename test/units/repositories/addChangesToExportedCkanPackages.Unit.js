@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 
 const _ = require("underscore");
 const chai = require("chai");
+const slug = require('slug');
 const should = chai.should();
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -9,6 +10,8 @@ const async = require("async");
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -27,6 +30,10 @@ const projects = [publicProject, privateProject, metadataOnlyProject];
 const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanNoDiffs.js"));
 const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
 const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
+
+const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));
+const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
+
 let foldersToExport = [];
 
 const dataToCreateExportConfigs = [b2share, ckan, dspace, eprints, figshare, zenodo];
@@ -37,12 +44,11 @@ function requireUncached(module) {
     return require(module)
 }
 
-//TODO chamar a createExportToRepositoriesConfigs.Unit.js
 module.exports.setup = function(finish)
 {
-    let createExportToRepositoriesConfig = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+    const exportFoldersToCkanRepositoryUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 
-    createExportToRepositoriesConfig.setup(function (err, results) {
+    exportFoldersToCkanRepositoryUnit.setup(function (err, results) {
         if(err)
         {
             finish(err, results);
@@ -74,30 +80,30 @@ module.exports.setup = function(finish)
                                     //export folders folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs folderExportedCkanCkanDiffs
                                     projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res) {
                                         res.statusCode.should.equal(200);
-                                        let folderExportedCkanNoDiffsData = _.find(res.body, function (folderData) {
-                                            return folderData.nie.title === folderExportedCkanNoDiffs.name;
-                                        });
                                         let folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData) {
                                             return folderData.nie.title === folderExportedCkanDendroDiffs.name;
                                         });
                                         let folderExportedCkanCkanDiffsData = _.find(res.body, function (folderData) {
                                             return folderData.nie.title === folderExportedCkanCkanDiffs.name;
                                         });
-                                        should.exist(folderExportedCkanNoDiffsData);
                                         should.exist(folderExportedCkanDendroDiffsData);
                                         should.exist(folderExportedCkanCkanDiffsData);
 
-                                        foldersToExport.push(folderExportedCkanNoDiffsData);
-                                        foldersToExport.push(folderExportedCkanDendroDiffsData);
-                                        foldersToExport.push(folderExportedCkanCkanDiffsData);
-
-                                        async.mapSeries(foldersToExport, function (folder, cb) {
-                                            repositoryUtils.exportFolderByUriToRepository(true, folder.uri, agent, {repository: ckanData}, function (err, res) {
-                                                res.statusCode.should.equal(200);
-                                                cb(err, res);
+                                        //UPLOAD A FILE TO DENDRO SO THAT THERE EXISTS DENDROCHANGES
+                                        fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, pngMockFile, function (err, res) {
+                                            res.statusCode.should.equal(200);
+                                            let id = slug(folderExportedCkanCkanDiffsData.uri, "-");
+                                            let packageId = id.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+                                            let packageInfo = {
+                                                id: packageId
+                                            };
+                                            //UPLOAD A FILE TO CKAN SO THAT THERE EXISTS CKANCHANGES
+                                            ckanUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, pdfMockFile, packageInfo, function (err, res) {
+                                                repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                                                    res.statusCode.should.equal(200);
+                                                    cb(err, res);
+                                                });
                                             });
-                                        }, function (err, results) {
-                                            cb(err, results);
                                         });
                                     });
                                 }

@@ -98,6 +98,25 @@ exports.getFolderContents = function (jsonOnly, agent, projectHandle, folderName
     }
 };
 
+exports.getFolderContentsByUri = function (jsonOnly, agent, folderURI, cb) {
+    const path = folderURI + "?ls";
+    if (jsonOnly) {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .get(path)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 
 exports.backupFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
     const path = '/project/' + projectHandle + '/data/' + targetFolderInProject + folderName + "?backup";

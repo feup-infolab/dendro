@@ -13,9 +13,6 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
@@ -25,8 +22,6 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const folderExportCkan = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportCkan.js"));
 const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanNoDiffs.js"));
 const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
@@ -41,9 +36,6 @@ const exportFoldersToCkanRepositoryUnit = appUtils.requireUncached(Pathfinder.ab
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let createdUnknownRepo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/created_unknown_export_repo.js"));
-let createdB2shareConfigInvalidToken = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdB2shareWithInvalidToken.js"));
-let createdB2shareConfigInvalidUrl = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdB2shareWithInvalidUrl.js"));
-let createdZenodoConfigInvalidToken = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdZenodoWithInvalidToken.js"));
 let createdCkanConfigInvalidToken = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdCkanWithInvalidToken.js"));
 let createdCkanConfigInvalidUrl = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdCkanWithInvalidUrl.js"));
 

@@ -25,7 +25,7 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 /*require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.privateProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js"));*/
 
 //PUBLIC PROJECT FOLDER LEVEL EXPORT TO CKAN TESTS
-/*require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/folderExportCkan/__export_to_repository/routes.project.publicProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/folderExportCkan/__export_to_repository/routes.project.publicProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js"));
 
 return;
 

@@ -46,13 +46,38 @@ const calculate_ckan_repository_diffs = function (jsonOnly, resourceUri, agent, 
     }
 };
 
-const exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, agent, exportData, cb, propagateDendroDeletionsIntoCkan, deleteChangesOriginatedFromCkan) {
+const exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, agent, exportData, cb, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan) {
     //http://127.0.0.1:3001/project/publicproject/data/folder1?export_to_repository
     //http://127.0.0.1:3001/project/publicprojectcreatedbydemouser1/data/pastinhaLinda
-    exportData["propagateDendroDeletionsIntoCkan"] = propagateDendroDeletionsIntoCkan;
+    exportData["propagateDendroChangesIntoCkan"] = propagateDendroChangesIntoCkan;
     exportData["deleteChangesOriginatedFromCkan"] = deleteChangesOriginatedFromCkan;
 
     const path = "/project/" + projectHandle + "/data/" + folderPath + "?export_to_repository";
+    if (jsonOnly) {
+        agent
+            .post(path)
+            .set("Accept", "application/json")
+            .send(exportData)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else {
+        agent
+            .post(path)
+            .send(exportData)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+const exportFolderByUriToRepository = function (jsonOnly, folderUri, agent, exportData, cb, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan) {
+    //http://folderUri?export_to_repository
+    exportData["propagateDendroChangesIntoCkan"] = propagateDendroChangesIntoCkan;
+    exportData["deleteChangesOriginatedFromCkan"] = deleteChangesOriginatedFromCkan;
+
+    const path = folderUri+ "?export_to_repository";
     if (jsonOnly) {
         agent
             .post(path)
@@ -142,6 +167,7 @@ const getAllExternalRepositories = function (jsonOnly, agent, cb) {
 module.exports = {
     exportFolderToRepository: exportFolderToRepository,
     exportToRepository: exportToRepository,
+    exportFolderByUriToRepository: exportFolderByUriToRepository,
     createExportConfig: createExportConfig,
     getMyExternalRepositories : getMyExternalRepositories,
     getAllExternalRepositories : getAllExternalRepositories,
