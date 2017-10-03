@@ -8,6 +8,7 @@ Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
 
+
 if(process.env.RUNNING_IN_JENKINS) {
     Config.testsTimeout = 600000;
 }
