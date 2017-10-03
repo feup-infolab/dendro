@@ -31,8 +31,11 @@ const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder("mockd
 const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
 const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
 
-const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));
-const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
+/*const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));
+const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));*/
+
+const uploadedDeletedFileDendroMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedAndDeletedFileInDendro.js"));
+const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
 
 let foldersToExport = [];
 
@@ -90,7 +93,7 @@ module.exports.setup = function(finish)
                                         should.exist(folderExportedCkanCkanDiffsData);
 
                                         //UPLOAD A FILE TO DENDRO SO THAT THERE EXISTS DENDROCHANGES
-                                        fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, pngMockFile, function (err, res) {
+                                        fileUtils.uploadFile(true, agent, project.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedDeletedFileDendroMockFile, function (err, res) {
                                             res.statusCode.should.equal(200);
                                             let id = slug(folderExportedCkanCkanDiffsData.uri, "-");
                                             let packageId = id.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
@@ -98,7 +101,7 @@ module.exports.setup = function(finish)
                                                 id: packageId
                                             };
                                             //UPLOAD A FILE TO CKAN SO THAT THERE EXISTS CKANCHANGES
-                                            ckanUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, pdfMockFile, packageInfo, function (err, res) {
+                                            ckanUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, uploadedFileToCkan, packageInfo, function (err, res) {
                                                 repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                                                     res.statusCode.should.equal(200);
                                                     cb(err, res);

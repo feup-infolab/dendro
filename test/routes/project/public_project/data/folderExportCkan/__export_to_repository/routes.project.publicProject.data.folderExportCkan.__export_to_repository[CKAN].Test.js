@@ -15,6 +15,7 @@ const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folder
 const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -27,11 +28,12 @@ const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("m
 const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
 
 //The file that is uploaded&deleted in dendro
-const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));
+/*const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));*/
+const uploadedAndDeletedFileInDendroMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedAndDeletedFileInDendro.js"));
 //The file that is uploaded directly into the ckan repository
-const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
+const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
 
-let pngMockFileDataInDB, pdfMockFileDataInDb;
+let uploadedAndDeletedFileInDendroDataInDB, uploadedFileToCkanDataInDb;
 
 const addChangesToExportedCkanPackagesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/addChangesToExportedCkanPackages.Unit.js"));
 
@@ -183,17 +185,23 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     //TODO THEN DELETE IT
                     //TODO THEN CHECK PERMISSIONS
                     res.statusCode.should.equal(200);
-                    pngMockFileDataInDB = _.find(res.body, function (resourceData) {
-                        return resourceData.nie.title === pdfMockFile.name;
+                    uploadedAndDeletedFileInDendroDataInDB = _.find(res.body, function (resourceData) {
+                        return resourceData.nie.title === uploadedAndDeletedFileInDendroMockFile.name;
                     });
-                    should.exist(pngMockFileDataInDB);
+                    should.exist(uploadedAndDeletedFileInDendroDataInDB);
                     //pngMockFile
-                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
-                        res.statusCode.should.equal(412);
-                        res.body.message.should.contain("Missing the permission: dendroDiffs");
-                        //TODO CHECK THAT THE FILE IS STILL IN CKAN BECAUSE THE USER GAVE NO PERMISSIONS
-                        done();
-                    }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                    itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
+                            res.statusCode.should.equal(200);
+                            repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                                res.statusCode.should.equal(412);
+                                res.body.message.should.contain("Missing the permission: dendroDiffs");
+                                //TODO CHECK THAT THE FILE IS STILL IN CKAN BECAUSE THE USER GAVE NO PERMISSIONS
+                                done();
+                            }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                        }, true);
+                    }, false);
                 });
             });
         });
