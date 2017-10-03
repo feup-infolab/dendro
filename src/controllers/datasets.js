@@ -777,6 +777,11 @@ export_to_repository_ckan = function (req, res) {
             console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
         }
 
+        const checkPermissionsDictionary = {
+            "dendroDiffs" : propagateDendroDeletionsIntoCkan,
+            "ckanDiffs" : deleteChangesOriginatedFromCkan
+        };
+
         const createOrUpdateFilesInPackage = function (datasetFolderMetadata, packageId, client, callback, overwrite, extraFiles) {
             const files = [];
             const locations = [];
@@ -1074,6 +1079,32 @@ export_to_repository_ckan = function (req, res) {
             });
         };
 
+        const validateChangesPermissions = function(permissionsToCheck, callback) {
+            let validated = false;
+            async.map(permissionsToCheck, function (permission, cb) {
+                if(!checkPermissionsDictionary[permission])
+                {
+                    const msg = "Missing the permission: " + permission;
+                    cb(true, msg);
+                }
+                else
+                {
+                    validated = true;
+                    cb(false, validated);
+                }
+            }, function (err, results) {
+                if(isNull(err))
+                {
+                    validated = true;
+                    callback(err, validated);
+                }
+                else
+                {
+                    callback(err, JSON.stringify(results));
+                }
+            });
+        };
+
         if (!isNull(req.body.repository) && !isNull(req.body.repository.ddr)) {
             const organization = req.body.repository.ddr.hasOrganization;
 
@@ -1082,50 +1113,42 @@ export_to_repository_ckan = function (req, res) {
                     calculateCkanRepositoryDiffs(requestedResourceUri, targetRepository, function (err, diffs) {
                         if(isNull(err))
                         {
-                            /*res.json(diffs);*/
                             if(diffs instanceof Object)
                             {
-                                /*if(diffs.ckanDiffs.length > 0)
-                                {
-                                    checksNeeded.push("ckanDiffs");
-                                }
-
-                                if(diffs.dendroDiffs.length > 0)
-                                {
-                                    checksNeeded.push("dendroDiffs");
-                                }*/
-                                /*checksNeeded = _.each(diffs, function (diff) {
-                                    return diff.key;
-                                });*/
-
                                 _.each( diffs, function( val, key ) {
                                     checksNeeded.push(key.toString());
                                 });
-
-                                //callback(err, checksNeeded);
                                 callback(err, checksNeeded);
                             }
                             else
                             {
-                               /*callback(err, checksNeeded)*/
                                 callback(err, checksNeeded);
                             }
                         }
                         else
                         {
-                            /*res.status(diffs.error.statusCode).json(
-                                {
-                                    "result": "error",
-                                    "message": diffs.error.message
-                                }
-                            );*/
                             callback(err, diffs);
                         }
                     });
                 },
                 function (toCheck, callback) {
-                    console.log(checksNeeded);
-                    console.log(toCheck);
+                    validateChangesPermissions(toCheck, function (err, resultOfPermissions) {
+                        if(isNull(err))
+                        {
+                            callback(err, resultOfPermissions);
+                        }
+                        else
+                        {
+                            let errorInfo = {
+                                msg: resultOfPermissions,
+                                statusCode: 412
+                            };
+                            console.error(JSON.stringify(errorInfo));
+                            callback(err, null, errorInfo);
+                        }
+                    });
+                },
+                function (resultOfPermissions, callback) {
                     Folder.findByUri(requestedResourceUri, function (err, folder) {
                         if (!isNull(err)) {
                             let errorInfo = {
@@ -1340,18 +1363,12 @@ export_to_repository_ckan = function (req, res) {
                     //parentFolderPath, packageId, extraFiles, datasetFolderMetadata, client, packageContents
                     //dataset was found, do we want to update or not?
                     if (result.success) {
-                        if (!overwrite) //package was found and we are not overwriting
+                        /*if (!overwrite) //package was found and we are not overwriting
                         {
                             deleteFolderRecursive(parentFolderPath);
 
                             const datasetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
                             const msg = "This dataset was already exported to this CKAN instance and is available at: <a href=\"" + datasetLocationOnCkan + "\">" + datasetLocationOnCkan + "</a> <br/><br/> Activate the Overwrite option to force an update.";
-                            /*res.status(500).json(
-                             {
-                             "result": "error",
-                             "message": msg
-                             }
-                             );*/
 
                             let errorInfo = {
                                 msg: msg,
@@ -1361,17 +1378,10 @@ export_to_repository_ckan = function (req, res) {
                             callback(true, packageId, errorInfo);
                         }
                         else //package was found BUT we are OVERWRITING
-                        {
+                        {*/
                             Utils.copyFromObjectToObject(packageContents[0], result.result);
                             updatePackageInCkan(parentFolderPath, extraFiles, result, datasetFolderMetadata, packageId, client, function (err, result, finalMsg) {
                                 if (isNull(err)) {
-                                    /*res.json(
-                                     {
-                                     "result": "OK",
-                                     "message": finalMsg
-                                     }
-                                     );*/
-
                                     let resultInfo = {
                                         "result": "OK",
                                         "message": finalMsg
@@ -1379,14 +1389,6 @@ export_to_repository_ckan = function (req, res) {
                                     callback(null, packageId, resultInfo);
                                 }
                                 else {
-                                    /*const msg = "Error exporting package to CKAN.";
-                                     res.json(
-                                     {
-                                     "result": "error",
-                                     "message": msg
-                                     }
-                                     );*/
-
                                     const msg = "Error exporting package to CKAN: " + JSON.stringify(err);
                                     let errorInfo = {
                                         msg: msg,
@@ -1396,19 +1398,13 @@ export_to_repository_ckan = function (req, res) {
                                     callback(true, packageId, errorInfo);
                                 }
                             });
-                        }
+                        /*}*/
                     }
                     //dataset not found
                     else if (!result.success && result.error.__type === "Not Found Error") {
 
                         createPackageInCkan(parentFolderPath, extraFiles, packageContents[0], datasetFolderMetadata, packageId, client, function (err, finalMsg) {
                             if (isNull(err)) {
-                                /*res.json(
-                                 {
-                                 "result": "OK",
-                                 "message": finalMsg
-                                 }
-                                 );*/
                                 let resultInfo = {
                                     "result": "OK",
                                     "message": finalMsg
@@ -1416,12 +1412,6 @@ export_to_repository_ckan = function (req, res) {
                                 callback(null, packageId, resultInfo);
                             }
                             else {
-                                /*res.json(
-                                 {
-                                 "result": "Error",
-                                 "message": finalMsg
-                                 }
-                                 );*/
                                 const msg = "Error: " + JSON.stringify(err);
                                 let errorInfo = {
                                     msg: msg,

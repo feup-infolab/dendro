@@ -46,9 +46,12 @@ const calculate_ckan_repository_diffs = function (jsonOnly, resourceUri, agent, 
     }
 };
 
-const exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, agent, exportData, cb) {
+const exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, agent, exportData, cb, propagateDendroDeletionsIntoCkan, deleteChangesOriginatedFromCkan) {
     //http://127.0.0.1:3001/project/publicproject/data/folder1?export_to_repository
     //http://127.0.0.1:3001/project/publicprojectcreatedbydemouser1/data/pastinhaLinda
+    exportData["propagateDendroDeletionsIntoCkan"] = propagateDendroDeletionsIntoCkan;
+    exportData["deleteChangesOriginatedFromCkan"] = deleteChangesOriginatedFromCkan;
+
     const path = "/project/" + projectHandle + "/data/" + folderPath + "?export_to_repository";
     if (jsonOnly) {
         agent

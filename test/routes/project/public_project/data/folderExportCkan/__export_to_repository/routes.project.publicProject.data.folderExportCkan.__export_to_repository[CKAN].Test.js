@@ -98,24 +98,6 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             });
         });
 
-        /*it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: ckanInvalidToken}, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when there is an invalid external url for deposit although a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: ckanInvalidUrl}, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    done();
-                });
-            });
-        });*/
-
         it("Should give an error when the project does not exist although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: ckanData}, function (err, res) {
@@ -134,210 +116,32 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             });
         });
 
-        //TODO BUT THERE ARE NO DIFFS IN THIS CASE
-        /*it("Should give a message that folderExportCkan was already exported", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: ckanData}, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    res.body.message.should.contain("This dataset was already exported to this CKAN instance");
-                    done();
-                });
-            });
-        });*/
-
-
         //THERE ARE DENDRO DIFFS -> propagateDendroDeletionsIntoCkan === false -> export does not happen
         it("Should give a message that folderExportedCkanDendroDiffs was already exported", function (done) {
             let propagateDendroDeletionsIntoCkan = false;
+            let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportedCkanDendroDiffs.pathInProject + folderExportedCkanDendroDiffs.name, agent, {repository: ckanData}, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    res.body.message.should.contain("This dataset was already exported to this CKAN instance");
+                    res.statusCode.should.equal(412);
+                    res.body.message.should.contain("Missing the permission:");
                     done();
-                }, propagateDendroDeletionsIntoCkan);
+                }, propagateDendroDeletionsIntoCkan, deleteChangesOriginatedFromCkan);
             });
         });
 
         //THERE ARE DENDRO DIFFS -> propagateDendroDeletionsIntoCkan === true -> export does happen
-        it("Should give a message that folderExportedCkanDendroDiffs was already exported", function (done) {
+        it("Should give a success message and export to ckan and delete the files in ckan that were also deleted in Dendro", function (done) {
             let propagateDendroDeletionsIntoCkan = true;
+            let deleteChangesOriginatedFromCkan = true; //TODO isto está errado estas changes from ckan deviam estar a null
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportedCkanDendroDiffs.pathInProject + folderExportedCkanDendroDiffs.name, agent, {repository: ckanData}, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    res.body.message.should.contain("This dataset was already exported to this CKAN instance");
+                    res.statusCode.should.equal(200);
                     done();
-                }, propagateDendroDeletionsIntoCkan);
+                }, propagateDendroDeletionsIntoCkan, deleteChangesOriginatedFromCkan);
             });
         });
 
     });
-
-    /*describe("[POST] [B2SHARE] /project/:handle/data/:folderExportCkan?export_to_repository", function () {
-
-        it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //jsonOnly, projectHandle, folderPath, agent, exportData, cb
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, createdUnknownRepo, function (err, res) {
-                    console.log(res);
-                    res.statusCode.should.equal(500);
-                    res.body.message.should.equal("Invalid target repository");
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when the user is unauthenticated", function (done) {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-            repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: ckanData}, function (err, res) {
-                res.statusCode.should.equal(401);
-                res.body.message.should.equal("Permission denied : cannot export resource because you do not have permissions to edit this project.");
-                done();
-            });
-        });
-
-        it("Should give an error message when the user is logged in as demouser3(not a creator or collaborator of the project)", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: b2shareData}, function (err, res) {
-                    res.statusCode.should.equal(401);
-                    done();
-                });
-            });
-        });
-
-        it("Should give a success message when the user is logged in as demouser2(a collaborator of the project)", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: b2shareData}, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: createdB2shareConfigInvalidToken}, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when there is an invalid external url for deposit although a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: createdB2shareConfigInvalidUrl}, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when the project does not exist although a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: b2shareData}, function (err, res) {
-                    res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when the folder to export does not exist although a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, "randomfoldername", agent, {repository: b2shareData}, function (err, res) {
-                    res.statusCode.should.equal(404);
-                    done();
-                });
-            });
-        });
-
-        it("Should give a success message when the folder to export exists and a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: b2shareData}, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    done();
-                });
-            });
-        });
-    });
-
-    describe("[POST] [ZENODO] /project/:handle/data/:foldername?export_to_repository", function () {
-
-        it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //jsonOnly, projectHandle, folderPath, agent, exportData, cb
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, createdUnknownRepo, function (err, res) {
-                    console.log(res);
-                    res.statusCode.should.equal(500);
-                    res.body.message.should.equal("Invalid target repository");
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when the user is unauthenticated", function (done) {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-            repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: zenodoData}, function (err, res) {
-                res.statusCode.should.equal(401);
-                res.body.message.should.equal("Permission denied : cannot export resource because you do not have permissions to edit this project.");
-                done();
-            });
-        });
-
-        it("Should give an error message when the user is logged in as demouser3(not a collaborator or creator of the project)", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: zenodoData}, function (err, res) {
-                    res.statusCode.should.equal(401);
-                    done();
-                });
-            });
-        });
-
-        it("Should give a success message when the user is logged in as demouser2(a collaborator of the project)", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: zenodoData}, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: createdZenodoConfigInvalidToken}, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when the project does not exist although a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: zenodoData}, function (err, res) {
-                    res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when the folder to export does not exist although a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, "randomfoldername", agent, {repository: zenodoData}, function (err, res) {
-                    res.statusCode.should.equal(400);
-                    done();
-                });
-            });
-        });
-
-        it("Should give a success message when the folder to export exists and a creator or collaborator is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, folderExportCkan.pathInProject + folderExportCkan.name, agent, {repository: zenodoData}, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    done();
-                });
-            });
-        });
-    });*/
 
     after(function (done) {
         //destroy graphs
