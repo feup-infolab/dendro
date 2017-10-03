@@ -8,6 +8,26 @@ const index = require(Pathfinder.absPathInTestsFolder("utils/index/index.Test.js
 const chai = require("chai");
 const should = chai.should();
 
+//to try to cool down tests so that virtuoso does not clog up.
+let numberofTestsRun = 0;
+//15 sec cooldown every 150 tests
+const testsBatchSizeBeforeCooldown = 10;
+const testsCooldownTime = 20;
+
+const applyCooldownToTests = function()
+{
+    numberofTestsRun++;
+    if(numberofTestsRun % testsBatchSizeBeforeCooldown === 0)
+    {
+        console.log("Ran " + numberofTestsRun + " test files. Waiting " + testsCooldownTime + " seconds to allow databases to cooldown.");
+        const sleep = require('sleep');
+        sleep.sleep(testsCooldownTime);
+    }
+
+    console.log("Ran " + numberofTestsRun + " test files. Continuing...");
+};
+
+
 exports.requireUncached = function(module) {
     delete require.cache[require.resolve(module)];
     return require(module);
@@ -20,6 +40,7 @@ exports.clearAppState = function (cb) {
     }
     else
     {
+        applyCooldownToTests();
         global.tests.app.freeResources(function(err, results){
             setTimeout(function(){
                 delete global.tests.app;
