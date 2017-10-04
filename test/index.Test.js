@@ -193,7 +193,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/te
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__delete/routes.project.privateProject.data.testFolder2.__delete.Test.js"));
 
 //METADATA  ONLY PROJECT FOLDER LEVEL soft ?delete
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__delete/routes.project.me tadataonlyProject.data.testFolder1.__delete.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__delete/routes.project.metadataonlyProject.data.testFolder1.__delete.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__delete/routes.project.metadataonlyProject.data.testFolder2.__delete.Test.js"));
 
 //PUBLIC PROJECT FOLDER LEVEL hard ?delete
