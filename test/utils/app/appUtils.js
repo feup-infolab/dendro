@@ -10,9 +10,9 @@ const should = chai.should();
 
 //to try to cool down tests so that virtuoso does not clog up.
 let numberofTestsRun = 0;
-//15 sec cooldown every 150 tests
-const testsBatchSizeBeforeCooldown = 10;
-const testsCooldownTime = 20;
+//10 sec cooldown every 7 test files
+const testsBatchSizeBeforeCooldown = 7;
+const testsCooldownTime = 10;
 
 const applyCooldownToTests = function()
 {
