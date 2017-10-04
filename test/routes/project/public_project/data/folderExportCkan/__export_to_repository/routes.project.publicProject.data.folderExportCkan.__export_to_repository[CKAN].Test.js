@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
+const path = require('path');
 const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
@@ -48,8 +49,9 @@ let ckanData;
 
 describe("Export public project folderExportCkan level to ckan tests", function () {
     before(function (done) {
+        appUtils.registerStartTimeForTestRoute(path.basename(__filename));
         this.timeout(Config.testsTimeout);
-        addChangesToExportedCkanPackagesUnit.setup(function (err, results) {
+        addChangesToExportedCkanPackagesUnit.setup(publicProject, function (err, results) {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res) {
                 res.statusCode.should.equal(200);

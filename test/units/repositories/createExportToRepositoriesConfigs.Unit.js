@@ -22,19 +22,18 @@ function requireUncached(module) {
     return require(module)
 }
 
-module.exports.setup = function(finish)
+module.exports.setup = function(project, finish)
 {
-    //let uploadFilesToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFilesToFolders.Unit.js"));
     let clearCkanOrganizationStateUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/clearCkanOrganizationState.Unit.js"));
 
-    //uploadFilesToFoldersUnit.setup(function (err, results) {
-    clearCkanOrganizationStateUnit.setup(function (err, results) {
+    clearCkanOrganizationStateUnit.setup(project, function (err, results) {
         if(err)
         {
             finish(err, results);
         }
         else
         {
+            console.log("---------- RUNNING UNIT createExportToRepositoriesConfigs for: "  + project.handle + " ----------");
             async.mapSeries(dataToCreateExportConfigs, function (dataConfig, cb) {
                 userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
                     if(err)

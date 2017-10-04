@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 const Pathfinder = global.Pathfinder;
 const async = require("async");
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder(path.join("utils", "null.js"))).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
@@ -18,16 +18,16 @@ function requireUncached(module) {
     return require(module)
 }
 
-module.exports.setup = function (finish) {
+module.exports.setup = function (project, finish) {
     console.log("At clearCkanOrganizationStateUnit");
     let uploadFilesToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFilesToFolders.Unit.js"));
 
-    uploadFilesToFoldersUnit.setup(function (err, results) {
+    uploadFilesToFoldersUnit.setup(project, function (err, results) {
         if (err) {
             finish(err, results);
         }
         else {
-            console.log("Running clearCkanOrganizationDateUnit");
+            console.log("---------- RUNNING UNIT clearCkanOrganizationState for: "  + project.handle + " ----------");
             ckanUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
                 if(err)
                 {

@@ -233,6 +233,7 @@ Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedCh
             "{ \n" +
             "   [1] nie:hasLogicalPart+ ?uri. \n" +
             "   ?uri ddr:modified ?last_modified. \n" +
+            "   filter not exists { ?uri ddr:deleted 'true' }. \n" +
             "   ?uri nie:title ?name. \n" +
             "} ";
     }

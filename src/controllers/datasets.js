@@ -630,7 +630,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
     let dendroDiffs = [];
     let createdInLocal = [];
     let deletedInLocal = [];
-    let includeSoftDeletedChildren = true;
+    let includeSoftDeletedChildren = false;
     getExportedAtByDendroForCkanDataset(packageId, client, function (err, exportedAtDate) {
         if (isNull(err)) {
             lastExportedAtDate = exportedAtDate;

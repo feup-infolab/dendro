@@ -32,50 +32,45 @@ function requireUncached(module) {
 
 
 //chamar a addMetadataToFolders.unit
-module.exports.setup = function(finish)
-{
+module.exports.setup = function (project, finish) {
     let addMetadataToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 
     addMetadataToFoldersUnit.setup(function (err, results) {
-        if(err)
-        {
+        if (err) {
             finish(err, results);
         }
-        else
-        {
+        else {
             //procurar para todos os projetos as pastas da root e fazer upload de um ficheiro
-            async.mapSeries(projects, function (project, cb) {
-                userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
-                    if(err)
-                    {
-                        cb(err, agent);
-                    }
-                    else
-                    {
-                        projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res) {
-                            res.statusCode.should.equal(200);
-                            async.mapSeries(res.body, function (folder, cb) {
-                                fileUtils.uploadFile(true, agent, project.handle, folder.nie.title, txtMockFile, function (err, res)
-                                {
-                                    res.statusCode.should.equal(200);
-                                    res.body.should.be.instanceof(Array);
-                                    res.body.length.should.equal(1);
+            /*async.mapSeries(projects, function (project, cb) {*/
+            console.log("---------- RUNNING UNIT uploadFilesToFolders for: "  + project.handle + " ----------");
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                if (err) {
+                    cb(err, agent);
+                }
+                else {
+                    projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        async.mapSeries(res.body, function (folder, cb) {
+                            fileUtils.uploadFile(true, agent, project.handle, folder.nie.title, txtMockFile, function (err, res) {
+                                res.statusCode.should.equal(200);
+                                res.body.should.be.instanceof(Array);
+                                res.body.length.should.equal(1);
 
-                                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
-                                    {
-                                        res.statusCode.should.equal(200);
-                                        cb(error, res);
-                                    });
+                                fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res) {
+                                    res.statusCode.should.equal(200);
+                                    cb(error, res);
                                 });
-                            }, function (err, results) {
-                                cb(err, results);
                             });
+                        }, function (err, results) {
+                            /*cb(err, results);*/
+                            finish(err, results);
                         });
-                    }
-                });
-            }, function (err, results) {
-                finish(err, results);
+                    });
+                }
             });
+            /*}, function (err, results) {
+                finish(err, results);
+            });*/
         }
     });
 };
