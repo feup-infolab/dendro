@@ -103,4 +103,30 @@ const printUnitsLog = function (unitsLog) {
     }
 };
 
+const showTimeEachUnitTookToComplete = function (callback) {
+    let result = {};//TODO JSON WHERE THE RESULTS WILL BE
+    if(isNull(global.unitsLog))
+    {
+        const message = "ERROR: global.unitsLog is null";
+        callback(true, message);
+    }
+    else
+    {
+        let i = 0;
+        for (var key in global.unitsLog) {
+            if(i > 0)
+            {
+                let timeStampOfCurrentUnit = global.unitsLog[key];
+                let keyOfPreviousUnit = Object.keys(global.unitsLog)[i-1];
+                let timeStampOfPreviousUnit = global.unitsLog[keyOfPreviousUnit];
+                result[key] = timeStampOfCurrentUnit - timeStampOfPreviousUnit;
+            }
+            i++;
+        }
+
+        console.log("-------TIME TO COMPLETE EACH UNIT-------");
+        callback(null, result);
+    }
+};
+
 module.exports = exports;
