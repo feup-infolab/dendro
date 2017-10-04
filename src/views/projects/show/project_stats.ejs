@@ -1,8 +1,10 @@
-<body layout="row" ng-controller="dendroApp">
+<div class="metrics" >
 <canvas id="doughnut" class="chart chart-doughnut" data="data"
-        labels="labels">
+        labels="labels" ng-controller="metricsCtrl" >
 </canvas>
-</body>
+</div>
+
+
 <canvas id="myChart" width="400" height="400"></canvas>
 <script>
     var ctx = document.getElementById("myChart").getContext('2d');
