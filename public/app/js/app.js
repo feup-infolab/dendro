@@ -35,6 +35,7 @@ var dendroApp = angular.module('dendroApp', [
     "imageSpinner",
     "ngImgCrop",
     "ngImageCompress",
+    "chart.js"
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
         return $sce.trustAsResourceUrl(val);
