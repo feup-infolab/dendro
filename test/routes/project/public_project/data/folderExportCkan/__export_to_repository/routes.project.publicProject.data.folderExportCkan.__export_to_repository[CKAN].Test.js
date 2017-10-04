@@ -190,7 +190,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     });
                     should.exist(uploadedAndDeletedFileInDendroDataInDB);
                     //pngMockFile
-                    itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
+                    /*itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
                         res.statusCode.should.equal(200);
                         itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
                             res.statusCode.should.equal(200);
@@ -201,6 +201,16 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                                 done();
                             }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
                         }, true);
+                    }, false);*/
+
+                    itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                            res.statusCode.should.equal(412);
+                            res.body.message.should.contain("Missing the permission: dendroDiffs");
+                            //TODO CHECK THAT THE FILE IS STILL IN CKAN BECAUSE THE USER GAVE NO PERMISSIONS
+                            done();
+                        }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
                     }, false);
                 });
             });

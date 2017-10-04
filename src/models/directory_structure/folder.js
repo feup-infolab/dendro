@@ -202,15 +202,42 @@ Folder.prototype.saveIntoFolder = function(
     saveIntoFolder(self, destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback);
 };
 
-Folder.prototype.getChildrenRecursive = function (callback) {
+Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedChildren) {
     const self = this;
+    let query;
 
     /**
      *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
      *    (Recursive querying through inference).
      *   @type {string}
      */
-    const query =
+    if(includeSoftDeletedChildren === true)
+    {
+        query =
+            "SELECT ?uri, ?last_modified, ?name\n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart+ ?uri. \n" +
+            "   ?uri ddr:modified ?last_modified. \n" +
+            "   OPTIONAL {?uri ddr:deleted true}. \n" +
+            "   ?uri nie:title ?name. \n" +
+            "} ";
+    }
+    else
+    {
+        query =
+            "SELECT ?uri, ?last_modified, ?name\n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart+ ?uri. \n" +
+            "   ?uri ddr:modified ?last_modified. \n" +
+            "   ?uri nie:title ?name. \n" +
+            "} ";
+    }
+
+    /*const query =
         "SELECT ?uri, ?last_modified, ?name\n" +
         "FROM [0] \n" +
         "WHERE \n" +
@@ -218,7 +245,7 @@ Folder.prototype.getChildrenRecursive = function (callback) {
         "   [1] nie:hasLogicalPart+ ?uri. \n" +
         "   ?uri ddr:modified ?last_modified. \n" +
         "   ?uri nie:title ?name. \n" +
-        "} ";
+        "} ";*/
 
     db.connection.execute(query,
         [

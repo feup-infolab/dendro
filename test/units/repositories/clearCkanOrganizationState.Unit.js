@@ -1,8 +1,9 @@
 process.env.NODE_ENV = 'test';
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const async = require("async");
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder(path.join("utils", "null.js"))).isNull;
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
@@ -30,6 +31,7 @@ module.exports.setup = function (finish) {
             ckanUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
                 if(err)
                 {
+                    console.error("Error deleting all packages from ckan organization");
                     finish(err, data);
                 }
                 else
@@ -47,6 +49,7 @@ module.exports.setup = function (finish) {
                         }
                     })*/
 
+                    console.log("Deleted all packages from ckan organization successfully");
                     ckanUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
                         if(err)
                         {

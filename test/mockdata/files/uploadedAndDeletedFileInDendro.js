@@ -4,10 +4,10 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const md5File = require("md5-file");
 
 module.exports = {
-    md5 : md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/uploadedAndDeletedFileInDendro.png")),
-    name : "uploadedAndDeletedFileInDendro.png",
-    extension : "png",
-    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/uploadedAndDeletedFileInDendro.png")
+    md5 : md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/uploadedAndDeletedFileInDendro.txt")),
+    name : "uploadedAndDeletedFileInDendro.txt",
+    extension : "txt",
+    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/uploadedAndDeletedFileInDendro.txt")
 };
 
 
