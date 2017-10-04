@@ -77,7 +77,7 @@ const initMySQL = function(app, callback)
                                                     poolOK(pool);
                                                 }
                                                 else {
-                                                    return callback("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + result);
+                                                    return callback("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + JSON.stringify(result, null, 4));
                                                 }
                                             });
                                     }
