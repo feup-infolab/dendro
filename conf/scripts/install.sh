@@ -8,6 +8,9 @@ then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
 else
+    chown -R `$(whomami)` ~/.avn
+    chown -R `$(whomami)` ~/.nvm
+
     #install NVM, Node, Node Automatic Version switcher
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash &&
     export NVM_DIR="$HOME/.nvm" &&
