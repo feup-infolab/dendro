@@ -11,16 +11,16 @@
     "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
     "prestart" : "nodengine",
     "start": "node src/app.js",
-    "reinstall": "npm cache clean --force && rm -rf node_modules && npm install",
+    "reinstall": "nodengine && npm cache clean --force && rm -rf node_modules && npm install",
     "pretest" : "nodengine",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js -t 75000 --ui bdd --bail",
-    "watch": "npm test -w",
-    "calculate-coverage": "nyc --temp-directory=coverage --reporter=lcov npm test",
-    "report-coverage": "node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info ; node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info ; node ./node_modules/.bin/codacy-coverage < ./coverage/lcov.info",
+    "watch": "nodengine && npm test -w",
+    "calculate-coverage": "nodengine && nyc --temp-directory=coverage --reporter=lcov npm test",
+    "report-coverage": "nodengine && node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info ; node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info ; node ./node_modules/.bin/codacy-coverage < ./coverage/lcov.info",
     "delete-coverage": "rm -rf coverage",
-    "everything": "rm -rf node_modules && npm cache verify && npm install && npm run test && npm run calculate-coverage && npm run report-coverage",
+    "everything": "nodengine && rm -rf node_modules && npm cache verify && npm install && npm run test && npm run calculate-coverage && npm run report-coverage",
     "remote_debug": "node app.js --debug=5858",
-    "profile": "nodengine; cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test/index.Test.js -t 75000 --ui bdd --bail"
+    "profile": "nodengine && cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test/index.Test.js -t 75000 --ui bdd --bail"
   },
   "dependencies": {
     "JSONStream": "^1.3.1",
