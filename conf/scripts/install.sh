@@ -13,7 +13,9 @@ else
     export NVM_DIR="$HOME/.nvm" &&
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && # This loads nvm
 
+    echo "Installing Node Version $NODE_VERSION during install script!!"
     nvm install $NODE_VERSION &&
+    nvm use $NODE_VERSION &&
     npm install -g avn avn-nvm avn-n &&
     avn setup &&
 
@@ -30,6 +32,9 @@ else
     #delete node_modules folder
     rm -rf node_modules
     rm -rf package-lock.json
+
+    #install preliminary dependencies
+    npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g
 
     #install dependencies. Will also run bower install whenever needed
     npm install #this is needed when running npm install with sudo to install global modules
