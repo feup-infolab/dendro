@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "engines" : {
-    "node" : "=v8.1.2",
-    "npm" : "=5.4.2"
+    "node" : ">=v8.6.0",
+    "npm" : ">=5.4.2"
   },
   "scripts": {
     "preinstall": "npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g",
@@ -59,7 +59,7 @@
     "eyes": "0.1.8",
     "file-size": "^1.0.0",
     "file-stream-rotator": "^0.1.0",
-    "font-awesome-filetypes": "^1.0.1",
+    "font-awesome-filetypes": "1.0.1",
     "fs-extra": "^3.0.1",
     "gladstone": "git+https://github.com/little9/gladstone.git",
     "gridfs-stream": "^1.1.1",
