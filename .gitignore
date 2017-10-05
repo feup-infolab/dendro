@@ -32,7 +32,6 @@ build/Release
 node_modules/
 public/bower_components/
 bower_components/
-./conf/
 logs/
 jspm_packages
 
@@ -57,6 +56,5 @@ running.pid
 .vs/dendro/v15/.suo
 .vs/VSWorkspaceState.json
 .vs/slnx.sqlite
-package-lock\.json
 
 profiling/
