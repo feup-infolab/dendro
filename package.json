@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "engines" : {
-    "node" : ">=8.6.0",
-    "npm" : ">=5.4.2"
+    "node" : "=v8.1.2",
+    "npm" : "=5.4.2"
   },
   "scripts": {
     "preinstall": "npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g",
