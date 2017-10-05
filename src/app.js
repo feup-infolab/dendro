@@ -20,6 +20,12 @@ Pathfinder.appDir = appDir;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
+const validatenv = require('validate-node-version')();
+
+if (!validatenv.satisfies) {
+    throw new Error(validatenv.message);
+}
+
 Logger.log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
 Logger.log_boot_message("info", "Starting Dendro support services...");
 

@@ -2,11 +2,17 @@
   "name": "dendro-data-management-platform-beta",
   "version": "0.0.1",
   "private": true,
+  "engines" : {
+    "node" : ">=8.6.0",
+    "npm" : ">=5.4.2"
+  },
   "scripts": {
+    "prestart" : "nodengine",
     "start": "node src/app.js",
     "reinstall": "npm cache clean --force && rm -rf node_modules && npm install",
-    "preinstall": "npm i -g npm && npm i -g grunt && npm install gulp-cli -g",
+    "preinstall": "nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g",
     "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
+    "pretest" : "nodengine",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js -t 75000 --ui bdd --bail",
     "watch": "npm test -w",
     "calculate-coverage": "nyc --temp-directory=coverage --reporter=lcov npm test",
@@ -14,7 +20,7 @@
     "delete-coverage": "rm -rf coverage",
     "everything": "rm -rf node_modules && npm cache verify && npm install && npm run test && npm run calculate-coverage && npm run report-coverage",
     "remote_debug": "node app.js --debug=5858",
-    "profile": "cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test/index.Test.js -t 75000 --ui bdd --bail"
+    "profile": "nodengine; cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test/index.Test.js -t 75000 --ui bdd --bail"
   },
   "dependencies": {
     "JSONStream": "^1.3.1",
@@ -121,6 +127,7 @@
     "ui-router": "^1.0.0-alpha.3",
     "underscore": "1.8.3",
     "uuid": "*",
+    "validate-node-version": "^1.1.1",
     "validator": "^8.0.0",
     "webworker-threads": "^0.7.13",
     "xlsx": "^0.11.2",
