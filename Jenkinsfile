@@ -6,7 +6,6 @@ properties(
     
 pipeline {
     agent any
-    agent any
     options {
         disableConcurrentBuilds()  //each branch has 1 job running at a time
     }
