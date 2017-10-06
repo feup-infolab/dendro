@@ -37,14 +37,19 @@ const end = function()
 module.exports.setup = function(finish)
 {
     start();
-    requireUncached(Pathfinder.absPathInSrcFolder("app.js")).serverListening.then(function(appInfo) {
-        chai.request(appInfo.app)
-            .get('/')
-            .end((err, res) => {
-                global.tests.app = appInfo.app;
-                global.tests.server = appInfo.server;
-                end();
-                finish(err, res);
-            });
-    });
+    requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
+        .serverListening.then(function(appInfo) {
+            chai.request(appInfo.app)
+                .get('/')
+                .end((err, res) => {
+                    global.tests.app = appInfo.app;
+                    global.tests.server = appInfo.server;
+                    end();
+                    finish(err, res);
+                });
+        })
+        .catch(function(error) {
+            end();
+            finish(error);
+        });
 };

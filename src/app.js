@@ -258,11 +258,21 @@ async.series([
     function(cb)
     {
         startWebServer(cb);
-    },
-    function(cb)
+    }],
+    function(err, result)
     {
-        serverListeningPromise.resolve({server: self.server, app: self.app});
-    }]
+        if(isNull(err))
+        {
+            serverListeningPromise.resolve({server: self.server, app: self.app});
+        }
+        else
+        {
+            serverListeningPromise.reject({
+                err : err,
+                result : result
+            });
+        }
+    }
 );
 
 exports.serverListening = serverListeningPromise.promise;
