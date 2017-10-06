@@ -4,7 +4,6 @@ let b2DropAccount  = {
     password: 'xdlol24PSD'
 };
 
-
 module.export = b2DropAccount;
 
 
