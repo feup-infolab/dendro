@@ -382,7 +382,7 @@ DbConnection.prototype.create = function(callback) {
             function(queryObject, cb){
                 if (Config.debug.active && Config.debug.database.log_all_queries)
                 {
-                    console.log("POSTING QUERY: \n" + query);
+                    console.log("POSTING QUERY: \n" + queryObject.query);
                 }
                 
                 const finishQuery = function(cb, startQueryTime, query)

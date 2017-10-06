@@ -20,7 +20,13 @@ Pathfinder.appDir = appDir;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-Logger.log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine");
+Logger.log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
+
+const validatenv = require('validate-node-version')();
+
+if (!validatenv.satisfies) {
+    throw new Error(validatenv.message);
+}
 Logger.log_boot_message("info", "Starting Dendro support services...");
 
 /**
@@ -256,11 +262,21 @@ async.series([
     function(cb)
     {
         startWebServer(cb);
-    },
-    function(cb)
+    }],
+    function(err, result)
     {
-        serverListeningPromise.resolve({server: self.server, app: self.app});
-    }]
+        if(isNull(err))
+        {
+            serverListeningPromise.resolve({server: self.server, app: self.app});
+        }
+        else
+        {
+            serverListeningPromise.reject({
+                err : err,
+                result : result
+            });
+        }
+    }
 );
 
 exports.serverListening = serverListeningPromise.promise;

@@ -14,6 +14,28 @@ const moment = require('moment');
 const mkdirp = require('mkdirp');
 const getDirName = require('path').dirname;
 
+//to try to cool down tests so that virtuoso does not clog up.
+let numberofTestsRun = 0;
+//10 sec cooldown every 7 test files
+const testsBatchSizeBeforeCooldown = 7;
+const testsCooldownTime = 10;
+
+const applyCooldownToTests = function()
+{
+
+    numberofTestsRun++;
+    console.log("Ran " + numberofTestsRun + " test files.");
+    return;
+
+    if(numberofTestsRun % testsBatchSizeBeforeCooldown === 0)
+    {
+        console.log("Ran " + numberofTestsRun + " test files. Waiting " + testsCooldownTime + " seconds to allow databases to cooldown.");
+        const sleep = require('sleep');
+        sleep.sleep(testsCooldownTime);
+    }
+};
+
+
 exports.requireUncached = function(module) {
     delete require.cache[require.resolve(module)];
     return require(module);
@@ -27,6 +49,7 @@ exports.clearAppState = function (cb) {
     else
     {
         saveRouteLogsToFile(function (err, info) {
+            applyCooldownToTests();
             global.tests.app.freeResources(function(err, results){
                 setTimeout(function(){
                     delete global.tests.app;
@@ -39,17 +62,6 @@ exports.clearAppState = function (cb) {
                 // return cb(err, results);
             });
         });
-        /*global.tests.app.freeResources(function(err, results){
-            setTimeout(function(){
-                delete global.tests.app;
-                delete global.tests.server;
-                return cb(err, results);
-            }, 1000);
-
-            // delete global.tests.app;
-            // delete global.tests.server;
-            // return cb(err, results);
-        });*/
     }
 };
 
