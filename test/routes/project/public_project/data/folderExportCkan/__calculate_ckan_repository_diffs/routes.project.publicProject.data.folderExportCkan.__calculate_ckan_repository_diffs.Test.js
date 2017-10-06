@@ -9,6 +9,7 @@ chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const path = require('path');
 
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
@@ -46,6 +47,7 @@ let folderExportCkanData, folderExportedCkanNoDiffsData, folderExportedCkanDendr
 /*describe("Export public project testFolder1 level to repositories tests", function () {*/
 describe("Calculate public project folderExportCkan level ckan respository diffs tests", function () {
     before(function (done) {
+        appUtils.newTestRoutetLog(path.basename(__filename));
         this.timeout(Config.testsTimeout);
         //a criação da organização devia ser automática tb nos testes ?? como fazer isto????
         //TODO Delete exports in ckan before

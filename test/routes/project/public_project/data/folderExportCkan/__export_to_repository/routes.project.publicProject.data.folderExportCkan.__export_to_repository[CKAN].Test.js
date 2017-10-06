@@ -49,7 +49,8 @@ let ckanData;
 
 describe("Export public project folderExportCkan level to ckan tests", function () {
     before(function (done) {
-        appUtils.registerStartTimeForTestRoute(path.basename(__filename));
+        /*appUtils.newTestRoutetLog(path.basename(__filename));*/
+        appUtils.newTestRoutetLog(path.basename(__filename));
         this.timeout(Config.testsTimeout);
         addChangesToExportedCkanPackagesUnit.setup(publicProject, function (err, results) {
             should.equal(err, null);

@@ -29,7 +29,7 @@ function requireUncached(module) {
 //TODO chamar a createExportToRepositoriesConfigs.Unit.js
 module.exports.setup = function (project, finish) {
     let createExportToRepositoriesConfig = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-
+    appUtils.registerStartTimeForUnit(path.basename(__filename));
     createExportToRepositoriesConfig.setup(project, function (err, results) {
         if (err) {
             finish(err, results);

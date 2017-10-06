@@ -34,6 +34,7 @@ module.exports.setup = function(project, finish)
 {
     const exportFoldersToCkanRepositoryUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 
+    appUtils.registerStartTimeForUnit(path.basename(__filename));
     exportFoldersToCkanRepositoryUnit.setup(project, function (err, results) {
         if(err)
         {

@@ -3,8 +3,10 @@ process.env.NODE_ENV = 'test';
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const async = require("async");
+const path = require('path');
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -25,7 +27,7 @@ function requireUncached(module) {
 module.exports.setup = function(project, finish)
 {
     let clearCkanOrganizationStateUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/clearCkanOrganizationState.Unit.js"));
-
+    appUtils.registerStartTimeForUnit(path.basename(__filename));
     clearCkanOrganizationStateUnit.setup(project, function (err, results) {
         if(err)
         {
@@ -48,6 +50,7 @@ module.exports.setup = function(project, finish)
                     }
                 });
             }, function (err, results) {
+                appUtils.registerStopTimeForUnit(path.basename(__filename));
                 finish(err, results);
             });
         }

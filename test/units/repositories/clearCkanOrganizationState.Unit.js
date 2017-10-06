@@ -3,10 +3,12 @@ process.env.NODE_ENV = 'test';
 const Pathfinder = global.Pathfinder;
 const async = require("async");
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const path = require('path');
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -21,7 +23,7 @@ function requireUncached(module) {
 module.exports.setup = function (project, finish) {
     console.log("At clearCkanOrganizationStateUnit");
     let uploadFilesToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFilesToFolders.Unit.js"));
-
+    appUtils.registerStartTimeForUnit(path.basename(__filename));
     uploadFilesToFoldersUnit.setup(project, function (err, results) {
         if (err) {
             finish(err, results);
@@ -55,15 +57,18 @@ module.exports.setup = function (project, finish) {
                         {
                             if(data.error.name[0] === "Group name already exists in database")
                             {
+                                appUtils.registerStopTimeForUnit(path.basename(__filename));
                                 finish(null, data);
                             }
                             else
                             {
+                                appUtils.registerStopTimeForUnit(path.basename(__filename));
                                 finish(err, data);
                             }
                         }
                         else
                         {
+                            appUtils.registerStopTimeForUnit(path.basename(__filename));
                             finish(err, data);
                         }
                     })
