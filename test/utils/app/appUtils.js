@@ -11,6 +11,9 @@ const chai = require("chai");
 const should = chai.should();
 const moment = require('moment');
 
+const mkdirp = require('mkdirp');
+const getDirName = require('path').dirname;
+
 exports.requireUncached = function(module) {
     delete require.cache[require.resolve(module)];
     return require(module);
@@ -88,16 +91,31 @@ const saveRouteLogsToFile = function (callback) {
     }
     else
     {
-        /*var file = '/tmp/data.json';*/
         var filePath = Pathfinder.absPathInTestsFolder("logs/") + global.testingRoute + "_" + Date.now() + ".json";
-        /*var obj = {name: 'JP'}*/
 
-        jsonfile.writeFile(filePath, global.routesLog, function (err) {
-            /*console.error(err)*/
-            delete global.testingRoute;
-            delete global.routesLog;
-            callback(err, err);
-        })
+
+        /*function writeFile(path, contents, cb) {
+            mkdirp(getDirName(path), function (err) {
+                if (err) return cb(err);
+
+                fs.writeFile(path, contents, cb);
+            });
+        }*/
+
+        mkdirp(getDirName(filePath), function (err) {
+            if (err)
+            {
+                callback(err, err);
+            }
+            else
+            {
+                jsonfile.writeFile(filePath, global.routesLog, function (err) {
+                    delete global.testingRoute;
+                    delete global.routesLog;
+                    callback(err, err);
+                });
+            }
+        });
     }
 };
 
@@ -157,16 +175,17 @@ exports.registerStopTimeForUnit = function (unitName) {
             {
                 const timeMilliseconds  = Date.now();
                 global.routesLog[global.testingRoute].unitsData[unitName].stopTime = timeMilliseconds;
-                let delta = moment.duration(timeMilliseconds - global.routesLog[global.testingRoute].unitsData[unitName].startTime, "milliseconds").humanize();
+                // https://github.com/moment/moment/issues/1048
+                let duration = moment.duration(timeMilliseconds - global.routesLog[global.testingRoute].unitsData[unitName].startTime);
+                let delta = Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss");
+                /*let delta = moment.duration(timeMilliseconds - global.routesLog[global.testingRoute].unitsData[unitName].startTime, "milliseconds").humanize();*/
                 global.routesLog[global.testingRoute].unitsData[unitName].delta = delta;
-                printRoutesLog(global.routesLog);
+                /*printRoutesLog(global.routesLog);*/
                 return global.routesLog;
             }
         }
     }
 };
-
-//TODO const showTimeEachUnitTookToComplete = function() -> não recebe nada tem o unitLog global
 
 const printRoutesLog = function (routesLog) {
     if(isNull(routesLog))
@@ -179,31 +198,5 @@ const printRoutesLog = function (routesLog) {
         console.log(JSON.stringify(routesLog));
     }
 };
-
-/*const showTimeEachUnitTookToComplete = function (callback) {
-    let result = {};//TODO JSON WHERE THE RESULTS WILL BE
-    if(isNull(global.unitsLog))
-    {
-        const message = "ERROR: global.unitsLog is null";
-        callback(true, message);
-    }
-    else
-    {
-        let i = 0;
-        for (var key in global.unitsLog) {
-            if(i > 0)
-            {
-                let timeStampOfCurrentUnit = global.unitsLog[key];
-                let keyOfPreviousUnit = Object.keys(global.unitsLog)[i-1];
-                let timeStampOfPreviousUnit = global.unitsLog[keyOfPreviousUnit];
-                result[key] = timeStampOfCurrentUnit - timeStampOfPreviousUnit;
-            }
-            i++;
-        }
-
-        console.log("-------TIME TO COMPLETE EACH UNIT-------");
-        callback(null, result);
-    }
-};*/
 
 module.exports = exports;

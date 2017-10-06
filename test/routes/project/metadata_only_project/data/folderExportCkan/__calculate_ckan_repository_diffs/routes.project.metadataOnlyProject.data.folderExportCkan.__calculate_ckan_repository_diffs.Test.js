@@ -9,6 +9,7 @@ chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const path = require('path');
 
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
@@ -51,39 +52,40 @@ let folderExportCkanData, folderExportedCkanNoDiffsData, folderExportedCkanDendr
 
 describe("Calculate metadata only project folderExportCkan level ckan respository diffs tests", function () {
     before(function (done) {
+        appUtils.newTestRoutetLog(path.basename(__filename));
         this.timeout(Config.testsTimeout);
-        //a criação da organização devia ser automática tb nos testes ?? como fazer isto????
-        //TODO Delete exports in ckan before
-        exportFoldersToCkanRepositoryUnit.setup(function (err, results) {
+        exportFoldersToCkanRepositoryUnit.setup(metadataProject, function (err, results) {
             should.equal(err, null);
-            repositoryUtils.getMyExternalRepositories(true, agent, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.body.length.should.equal(6);
-                ckanData = _.find(res.body, function (externalRepo) {
-                    return externalRepo.dcterms.title === "ckan_local";
-                });
-                should.exist(ckanData);
-                projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, res) {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                repositoryUtils.getMyExternalRepositories(true, agent, function (err, res) {
                     res.statusCode.should.equal(200);
-                    folderExportCkanData = _.find(res.body, function (folderData) {
-                        return folderData.nie.title === folderExportCkan.name;
+                    res.body.length.should.equal(6);
+                    ckanData = _.find(res.body, function (externalRepo) {
+                        return externalRepo.dcterms.title === "ckan_local";
                     });
-                    folderExportedCkanNoDiffsData = _.find(res.body, function (folderData) {
-                        return folderData.nie.title === folderExportedCkanNoDiffs.name;
+                    should.exist(ckanData);
+                    projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        folderExportCkanData = _.find(res.body, function (folderData) {
+                            return folderData.nie.title === folderExportCkan.name;
+                        });
+                        folderExportedCkanNoDiffsData = _.find(res.body, function (folderData) {
+                            return folderData.nie.title === folderExportedCkanNoDiffs.name;
+                        });
+                        folderMissingDescriptorsData = _.find(res.body, function (folderData) {
+                            return folderData.nie.title === folderMissingDescriptors.name;
+                        });
+                        folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData) {
+                            return folderData.nie.title === folderExportedCkanDendroDiffs.name;
+                        });
+                        folderExportedCkanCkanDiffsData = _.find(res.body, function (folderData) {
+                            return folderData.nie.title === folderExportedCkanCkanDiffs.name;
+                        });
+                        should.exist(folderExportCkanData);
+                        should.exist(folderExportedCkanNoDiffsData);
+                        should.exist(folderMissingDescriptorsData);
+                        done();
                     });
-                    folderMissingDescriptorsData = _.find(res.body, function (folderData) {
-                        return folderData.nie.title === folderMissingDescriptors.name;
-                    });
-                    folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData) {
-                        return folderData.nie.title === folderExportedCkanDendroDiffs.name;
-                    });
-                    folderExportedCkanCkanDiffsData = _.find(res.body, function (folderData) {
-                        return folderData.nie.title === folderExportedCkanCkanDiffs.name;
-                    });
-                    should.exist(folderExportCkanData);
-                    should.exist(folderExportedCkanNoDiffsData);
-                    should.exist(folderMissingDescriptorsData);
-                    done();
                 });
             });
         });
@@ -222,7 +224,6 @@ describe("Calculate metadata only project folderExportCkan level ckan respositor
         //A case where a folder was exported to ckan and then files were uploaded on the dendro app
         it("Should give a success message with information that dendro diffs exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //TODO fazer aqui upload para o dendro do pngFile
                 fileUtils.uploadFile(true, agent, metadataProject.handle, folderExportedCkanDendroDiffsData.nie.title, pngMockFile, function (err, res) {
                     res.statusCode.should.equal(200);
                     repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {

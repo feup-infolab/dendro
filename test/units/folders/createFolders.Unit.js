@@ -8,6 +8,7 @@ const chai = require("chai");
 chai.use(require('chai-http'));
 const async = require("async");
 const should = chai.should();
+const path = require('path');
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -49,6 +50,7 @@ module.exports.setup = function(finish)
         }
         else
         {
+            appUtils.registerStartTimeForUnit(path.basename(__filename));
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 if(err)
                 {
@@ -79,6 +81,7 @@ module.exports.setup = function(finish)
                             }
                         });
                     }, function (err, results) {
+                        appUtils.registerStopTimeForUnit(path.basename(__filename));
                         finish(err, results);
                     });
                 }

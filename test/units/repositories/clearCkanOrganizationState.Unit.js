@@ -23,13 +23,13 @@ function requireUncached(module) {
 module.exports.setup = function (project, finish) {
     console.log("At clearCkanOrganizationStateUnit");
     let uploadFilesToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFilesToFolders.Unit.js"));
-    appUtils.registerStartTimeForUnit(path.basename(__filename));
     uploadFilesToFoldersUnit.setup(project, function (err, results) {
         if (err) {
             finish(err, results);
         }
         else {
             console.log("---------- RUNNING UNIT clearCkanOrganizationState for: "  + project.handle + " ----------");
+            appUtils.registerStartTimeForUnit(path.basename(__filename));
             ckanUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
                 if(err)
                 {
