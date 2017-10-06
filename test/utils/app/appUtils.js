@@ -16,15 +16,17 @@ const testsCooldownTime = 10;
 
 const applyCooldownToTests = function()
 {
+
     numberofTestsRun++;
+    console.log("Ran " + numberofTestsRun + " test files.");
+    return;
+
     if(numberofTestsRun % testsBatchSizeBeforeCooldown === 0)
     {
         console.log("Ran " + numberofTestsRun + " test files. Waiting " + testsCooldownTime + " seconds to allow databases to cooldown.");
         const sleep = require('sleep');
         sleep.sleep(testsCooldownTime);
     }
-
-    console.log("Ran " + numberofTestsRun + " test files. Continuing...");
 };
 
 

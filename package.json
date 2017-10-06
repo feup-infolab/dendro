@@ -2,17 +2,17 @@
   "name": "dendro-data-management-platform-beta",
   "version": "0.0.1",
   "private": true,
-  "engines" : {
-    "node" : ">=v8.6.0",
-    "npm" : ">=5.4.2"
+  "engines": {
+    "node": ">=v8.6.0",
+    "npm": ">=5.4.2"
   },
   "scripts": {
     "preinstall": "npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g",
     "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
-    "prestart" : "nodengine",
+    "prestart": "nodengine",
     "start": "node src/app.js",
     "reinstall": "nodengine && npm cache clean --force && rm -rf node_modules && npm install",
-    "pretest" : "nodengine",
+    "pretest": "nodengine",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js -t 75000 --ui bdd --bail",
     "watch": "nodengine && npm test -w",
     "calculate-coverage": "nodengine && nyc --temp-directory=coverage --reporter=lcov npm test",
