@@ -10,12 +10,13 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
 
-const util = require('util');
 const async = require("async");
 const _ = require("underscore");
 
 const db = Config.getDBByID();
+const gfs = Config.getGFSByID();
 
 function User (object)
 {
@@ -248,15 +249,15 @@ User.createAndInsertFromObject = function(object, callback) {
 };
 
 
-User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
-{
-    const self = this;
-    User.baseConstructor.all.call(self, function(err, users) {
-
-        return callback(err, users);
-
-    }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
-};
+// User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+// {
+//     const self = this;
+//     User.baseConstructor.all.call(self, function(err, users) {
+//
+//         return callback(err, users);
+//
+//     }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+// };
 
 User.allInPage = function(page, pageSize, callback) {
     let query =
@@ -1302,6 +1303,163 @@ User.prototype.getAvatarUri = function () {
         console.error(msg);
         return null;
     }
+};
+
+User.prototype.getAvatarFromGridFS = function (callback) {
+    const self = this;
+    const tmp = require("tmp");
+    const fs = require("fs");
+    let avatarUri = self.getAvatarUri();
+    if (avatarUri) {
+        let ext = avatarUri.split(".").pop();
+
+        tmp.dir(
+            {
+                mode: Config.tempFilesCreationMode,
+                dir: Config.tempFilesDir
+            },
+            function (err, tempFolderPath) {
+                if (!err) {
+                    let avatarFilePath = path.join(tempFolderPath, self.ddr.username + "avatarOutput." + ext);
+                    let writeStream = fs.createWriteStream(avatarFilePath);
+
+                    gfs.connection.get(avatarUri, writeStream, function (err, result) {
+                        if (!err) {
+                            writeStream.on('error', function (err) {
+                                //console.log("Deu error");
+                                callback(err, result);
+                            }).on('finish', function () {
+                                //console.log("Deu finish");
+                                callback(null, avatarFilePath);
+                            });
+                        }
+                        else {
+                            let msg = "Error getting the avatar file from GridFS for user " + self.uri;
+                            console.error(msg);
+                            return callback(err, msg);
+                        }
+                    });
+                }
+                else {
+                    let msg = "Error when creating a temp dir when getting the avatar from GridFS for self " + self.uri;
+                    console.error(msg);
+                    return callback(err, msg);
+                }
+            }
+        );
+    }
+    else {
+        let msg = "User has no avatar saved in gridFs";
+        console.error(msg);
+        return callback(true, msg);
+    }
+};
+User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension, callback) {
+    const self = this;
+    const tmp = require("tmp");
+    tmp.dir(
+        {
+            mode: Config.tempFilesCreationMode,
+            dir: Config.tempFilesDir
+        },
+        function (err, tempFolderPath) {
+            if (!err) {
+                let path = require("path");
+                let fs = require("fs");
+                let avatarFilePath = path.join(tempFolderPath, 'avatar.png');
+                fs.writeFile(avatarFilePath, base64Data, 'base64', function (error) {
+                    if (!error) {
+                        let readStream = fs.createReadStream(avatarFilePath);
+                        readStream.on('open', function () {
+                            //console.log("readStream is ready");
+                            gfs.connection.put(
+                                avatarUri,
+                                readStream,
+                                function (err, result) {
+                                    if (err) {
+                                        let msg = "Error saving avatar file in GridFS :" + result + " for user " + self.uri;
+                                        console.error(msg);
+                                        return callback(err, msg);
+                                    }
+                                    else {
+                                        return callback(null, result);
+                                    }
+                                },
+                                {
+                                    self: self.uri,
+                                    fileExtension: extension,
+                                    type: "nie:File"
+                                }
+                            );
+                        });
+
+                        // This catches any errors that happen while creating the readable stream (usually invalid names)
+                        readStream.on('error', function(err) {
+                            let msg = "Error creating readStream for avatar :" + err + " for self " + self.uri;
+                            console.error(msg);
+                            callback(err, msg);
+                        });
+                    }
+                    else {
+                        let msg = "Error when creating a temp file for the avatar upload";
+                        console.error(msg);
+                        return callback(error, msg);
+                    }
+                });
+            }
+            else {
+                let msg = "Error when creating a temp dir for the avatar upload";
+                console.error(msg);
+                return callback(err, msg);
+            }
+        }
+    );
+};
+User.prototype.saveAvatarInGridFS = function (avatar, extension, callback) {
+    const self = this;
+    let avatarUri = "/avatar/" + self.ddr.username + "/avatar." + extension;
+    let base64Data = avatar.replace(/^data:image\/png;base64,/, "");
+
+    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
+
+    mongoClient.connect(function (err, mongoDb) {
+        if (!err && !isNull(mongoDb)) {
+            mongoClient.findFileByFilenameOrderedByDate(mongoDb, avatarUri, function (err, files) {
+                if (!err) {
+                    if (files.length > 0) {
+                        async.map(files, function (file, callback) {
+                            gfs.connection.deleteAvatar(file._id, function (err, result) {
+                                callback(err, result);
+                            });
+                        }, function (err, results) {
+                            if (err) {
+                                console.error("Error deleting one of the old avatars");
+                                //console.error(JSON.stringify(results));
+                            }
+                            self.uploadAvatarToGridFS(avatarUri, base64Data, extension, function (err, data) {
+                                callback(err, data);
+                            });
+                        });
+                    }
+                    else {
+                        self.uploadAvatarToGridFS(avatarUri, base64Data, extension, function (err, data) {
+                            callback(err, data);
+                        });
+                    }
+                }
+                else {
+                    let msg = "Error when finding the latest file with uri : " + avatarUri + " in Mongo";
+                    console.error(msg);
+                    return callback(err, msg);
+                }
+            });
+        }
+        else {
+            let msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
+            console.error(msg);
+            return callback(err, msg);
+        }
+    });
 };
 
 User.removeAllAdmins = function(callback)

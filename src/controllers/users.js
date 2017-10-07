@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 const async = require("async");
@@ -15,158 +16,6 @@ const gfs = Config.getGFSByID();
 const tmp = require("tmp");
 
 const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
-
-const getAvatarFromGfs = function (user, callback) {
-    const tmp = require("tmp");
-    const fs = require("fs");
-    let avatarUri = user.getAvatarUri();
-    if (avatarUri) {
-        let ext = avatarUri.split(".").pop();
-
-        tmp.dir(
-            {
-                mode: Config.tempFilesCreationMode,
-                dir: Config.tempFilesDir
-            },
-            function (err, tempFolderPath) {
-                if (!err) {
-                    let avatarFilePath = path.join(tempFolderPath, user.ddr.username + "avatarOutput." + ext);
-                    let writeStream = fs.createWriteStream(avatarFilePath);
-
-                    gfs.connection.get(avatarUri, writeStream, function (err, result) {
-                        if (!err) {
-                            writeStream.on('error', function (err) {
-                                //console.log("Deu error");
-                                callback(err, result);
-                            }).on('finish', function () {
-                                //console.log("Deu finish");
-                                callback(null, avatarFilePath);
-                            });
-                        }
-                        else {
-                            let msg = "Error getting the avatar file from GridFS for user " + user.uri;
-                            console.error(msg);
-                            return callback(err, msg);
-                        }
-                    });
-                }
-                else {
-                    let msg = "Error when creating a temp dir when getting the avatar from GridFS for user " + user.uri;
-                    console.error(msg);
-                    return callback(err, msg);
-                }
-            }
-        );
-    }
-    else {
-        let msg = "User has no avatar saved in gridFs";
-        console.error(msg);
-        return callback(true, msg);
-    }
-};
-const uploadAvatarToGrifs = function (user, avatarUri, base64Data, extension, callback) {
-    tmp.dir(
-        {
-            mode: Config.tempFilesCreationMode,
-            dir: Config.tempFilesDir
-        },
-        function (err, tempFolderPath) {
-            if (!err) {
-                let path = require('path');
-                let avatarFilePath = path.join(tempFolderPath, 'avatar.png');
-                fs.writeFile(avatarFilePath, base64Data, 'base64', function (error) {
-                    if (!error) {
-                        let readStream = fs.createReadStream(avatarFilePath);
-                        readStream.on('open', function () {
-                            //console.log("readStream is ready");
-                            gfs.connection.put(
-                                avatarUri,
-                                readStream,
-                                function (err, result) {
-                                    if (err) {
-                                        let msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
-                                        console.error(msg);
-                                        return callback(err, msg);
-                                    }
-                                    else {
-                                        return callback(null, result);
-                                    }
-                                },
-                                {
-                                    user: user.uri,
-                                    fileExtension: extension,
-                                    type: "nie:File"
-                                }
-                            );
-                        });
-
-                        // This catches any errors that happen while creating the readable stream (usually invalid names)
-                        readStream.on('error', function(err) {
-                            let msg = "Error creating readStream for avatar :" + err + " for user " + user.uri;
-                            console.error(msg);
-                            callback(err, msg);
-                        });
-                    }
-                    else {
-                        let msg = "Error when creating a temp file for the avatar upload";
-                        console.error(msg);
-                        return callback(error, msg);
-                    }
-                });
-            }
-            else {
-                let msg = "Error when creating a temp dir for the avatar upload";
-                console.error(msg);
-                return callback(err, msg);
-            }
-        }
-    );
-};
-const saveAvatarInGfs = function (avatar, user, extension, callback) {
-    let avatarUri = "/avatar/" + user.ddr.username + "/avatar." + extension;
-    let base64Data = avatar.replace(/^data:image\/png;base64,/, "");
-
-    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
-
-    mongoClient.connect(function (err, mongoDb) {
-        if (!err && !isNull(mongoDb)) {
-            mongoClient.findFileByFilenameOrderedByDate(mongoDb, avatarUri, function (err, files) {
-                if (!err) {
-                    if (files.length > 0) {
-                        async.map(files, function (file, callback) {
-                            gfs.connection.deleteAvatar(file._id, function (err, result) {
-                                callback(err, result);
-                            });
-                        }, function (err, results) {
-                            if (err) {
-                                console.error("Error deleting one of the old avatars");
-                                //console.error(JSON.stringify(results));
-                            }
-                            uploadAvatarToGrifs(user, avatarUri, base64Data, extension, function (err, data) {
-                                callback(err, data);
-                            });
-                        });
-                    }
-                    else {
-                        uploadAvatarToGrifs(user, avatarUri, base64Data, extension, function (err, data) {
-                            callback(err, data);
-                        });
-                    }
-                }
-                else {
-                    let msg = "Error when finding the latest file with uri : " + avatarUri + " in Mongo";
-                    console.error(msg);
-                    return callback(err, msg);
-                }
-            });
-        }
-        else {
-            let msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
-            console.error(msg);
-            return callback(err, msg);
-        }
-    });
-};
 
 /*
  * GET users listing.
@@ -206,7 +55,7 @@ exports.all = function(req, res){
     const acceptsJSON = req.accepts("json");
 
     let viewVars = {
-        title: 'Researchers in the knowledge base'
+        title: 'User list'
     };
 
     viewVars = DbConnection.paginate(req,
@@ -323,8 +172,9 @@ exports.show = function(req, res){
             {
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
+                    const filteredUser = Descriptor.removeUnauthorizedFromObject(user, [Config.types.private, Config.types.locked], [Config.types.api_readable]);
                     res.json(
-                        user
+                        filteredUser
                     );
                 }
                 else
@@ -385,14 +235,14 @@ exports.show = function(req, res){
         User.findByUsername(req.params.username, function(err, user)
         {
             sendResponse(err, user);
-        }, true);
+        });
     }
     else if(!isNull(req.params.requestedResourceUri))
     {
         User.findByUri(req.params.requestedResourceUri, function(err, user)
         {
             sendResponse(err, user);
-        }, true);
+        });
     }
 };
 
@@ -708,7 +558,7 @@ exports.get_avatar = function (req, res) {
                 }
                 else {
                     //User has an avatar
-                    getAvatarFromGfs(user, function (err, avatarFilePath) {
+                    user.getAvatarFromGridFS(function (err, avatarFilePath) {
                         if (!err) {
                             let fileStream = fs.createReadStream(avatarFilePath);
                             let filename = path.basename(avatarFilePath);
@@ -761,7 +611,7 @@ exports.upload_avatar = function (req, res) {
                 });
             }
 
-            saveAvatarInGfs(avatar, user, avatarExt, function (err, data) {
+            user.saveAvatarInGridFS(avatar, avatarExt, function (err, data) {
                 if (!err) {
                     user.ddr.hasAvatar = avatarUri;
                     user.save(function (err, newUser) {
