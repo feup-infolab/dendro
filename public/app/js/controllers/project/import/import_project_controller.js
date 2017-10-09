@@ -27,9 +27,26 @@ angular.module('dendroApp.controllers')
                 jsonPath
             )
             {
+                $scope.upload_completed = function(result)
+                {
+                    $scope.uploading = false;
+                };
+
+                $scope.get_upload_url = function()
+                {
+                    return "/projects/import";
+                };
+
+                $scope.import_project = function(file)
+                {
+                    $scope.$broadcast('new_files_to_upload', [file]);
+                };
+
                 $scope.init = function ()
                 {
-
+                    $scope.projects_imported_with_errors = [];
+                    $scope.projects_imported_successfully = [];
+                    $scope.uploading = false;
                 }
             }
         ]);

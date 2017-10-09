@@ -76,7 +76,12 @@ angular.module('dendroApp.services')
 
                     file.upload.progress(function (evt) {
                         file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                        console.log(file.upload_id + " : " + file.progress);
+                        if(file.progress >= 100)
+                        {
+                            file.sent_to_server = true;
+                        }
+
+                        //console.log(file.upload_id + " : " + file.progress);
                     });
 
                     file.upload.xhr(function (xhr) {

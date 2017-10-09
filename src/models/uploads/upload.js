@@ -160,7 +160,7 @@ Upload.prototype.pipe = function(part, callback)
 Upload.prototype.is_finished = function()
 {
     const self = this;
-    console.log("FINISHED " + self.loaded / self.expected + " of file " + self.filename);
+    //console.log("FINISHED " + self.loaded / self.expected + " of file " + self.filename);
     return (self.loaded >= self.expected);
 };
 
