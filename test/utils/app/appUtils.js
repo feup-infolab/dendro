@@ -105,18 +105,11 @@ const saveRouteLogsToFile = function (callback) {
     {
         var filePath = Pathfinder.absPathInTestsFolder("logs/") + global.testingRoute + "_" + Date.now() + ".json";
 
-
-        /*function writeFile(path, contents, cb) {
-            mkdirp(getDirName(path), function (err) {
-                if (err) return cb(err);
-
-                fs.writeFile(path, contents, cb);
-            });
-        }*/
-
         mkdirp(getDirName(filePath), function (err) {
             if (err)
             {
+                delete global.testingRoute;
+                delete global.routesLog;
                 callback(err, err);
             }
             else

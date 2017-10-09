@@ -4,6 +4,7 @@ const chaiHttp = require("chai-http");
 /*const CKAN = require("ckan");*/
 const CKAN = require("C:\\Users\\Utilizador\\Desktop\\InfoLab\\ckanModuleRepo\\ckan.js");
 const async = require("async");
+const slug = require('slug');
 chai.use(chaiHttp);
 
 const createCkanOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb) {
@@ -86,13 +87,34 @@ const uploadFileToCkanPackage = function (jsonOnly, agent, ckanRepoData, fileDat
         , function (err, info) {
             cb(err, info);
     });
-}
+};
+
+const getCkanFolderContents = function (jsonOnly, agent, ckanRepoData, folderData, cb) {
+    const client = new CKAN.Client(ckanRepoData.repository.ddr.hasExternalUri, ckanRepoData.repository.ddr.hasAPIKey);
+    let packageId = slug(folderData.uri, "-");
+    //ckan only accepts alphanumeric characters and dashes for the dataset ids
+    packageId = packageId.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+    client.action("package_show",
+        {
+            id: packageId
+        },
+        function (err, result) {
+            if (result.success) {
+
+                cb(err, result.result.resources);
+            }
+            else {
+                cb(err, result);
+            }
+        });
+};
 
 
 module.exports = {
     createCkanOrganization: createCkanOrganization,
     deleteCkanOrganization: deleteCkanOrganization,
     deleteAllPackagesFromOrganization: deleteAllPackagesFromOrganization,
-    uploadFileToCkanPackage: uploadFileToCkanPackage
+    uploadFileToCkanPackage: uploadFileToCkanPackage,
+    getCkanFolderContents: getCkanFolderContents
 };
 

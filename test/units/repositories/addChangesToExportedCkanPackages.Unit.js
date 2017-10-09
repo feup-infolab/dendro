@@ -30,76 +30,68 @@ function requireUncached(module) {
     return require(module)
 }
 
-module.exports.setup = function(project, finish)
-{
+module.exports.setup = function (project, finish) {
     const exportFoldersToCkanRepositoryUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 
-    appUtils.registerStartTimeForUnit(path.basename(__filename));
     exportFoldersToCkanRepositoryUnit.setup(project, function (err, results) {
-        if(err)
-        {
+        if (err) {
             finish(err, results);
         }
-        else
-        {
-            console.log("---------- RUNNING UNIT addChangesToExportedCkanPackages for: "  + project.handle + " ----------");
-            userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
-                if(err)
-                {
+        else {
+            console.log("---------- RUNNING UNIT addChangesToExportedCkanPackages for: " + project.handle + " ----------");
+            appUtils.registerStartTimeForUnit(path.basename(__filename));
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                if (err) {
                     finish(err, agent);
                 }
-                else
-                {
+                else {
                     repositoryUtils.getMyExternalRepositories(true, agent, function (err, res) {
                         res.statusCode.should.equal(200);
                         res.body.length.should.equal(6);
-                        ckanData = _.find(res.body, function (externalRepo) {return externalRepo.dcterms.title === "ckan_local";});
+                        ckanData = _.find(res.body, function (externalRepo) {
+                            return externalRepo.dcterms.title === "ckan_local";
+                        });
                         should.exist(ckanData);
 
                         //fazer export de apenas algumas pastas, e de seguida adicionar alterações ckandiffs e dendro diffs a algumas delas(de acordo com os nomes)
-                            userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
-                                if(err)
-                                {
-                                    cb(err, agent);
-                                }
-                                else
-                                {
-                                    //export folders folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs folderExportedCkanCkanDiffs
-                                    projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res) {
-                                        res.statusCode.should.equal(200);
-                                        let folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData) {
-                                            return folderData.nie.title === folderExportedCkanDendroDiffs.name;
-                                        });
-                                        let folderExportedCkanCkanDiffsData = _.find(res.body, function (folderData) {
-                                            return folderData.nie.title === folderExportedCkanCkanDiffs.name;
-                                        });
-                                        should.exist(folderExportedCkanDendroDiffsData);
-                                        should.exist(folderExportedCkanCkanDiffsData);
+                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                            if (err) {
+                                cb(err, agent);
+                            }
+                            else {
+                                //export folders folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs folderExportedCkanCkanDiffs
+                                projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res) {
+                                    res.statusCode.should.equal(200);
+                                    let folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData) {
+                                        return folderData.nie.title === folderExportedCkanDendroDiffs.name;
+                                    });
+                                    let folderExportedCkanCkanDiffsData = _.find(res.body, function (folderData) {
+                                        return folderData.nie.title === folderExportedCkanCkanDiffs.name;
+                                    });
+                                    should.exist(folderExportedCkanDendroDiffsData);
+                                    should.exist(folderExportedCkanCkanDiffsData);
 
-                                        //UPLOAD A FILE TO DENDRO SO THAT THERE EXISTS DENDROCHANGES
-                                        fileUtils.uploadFile(true, agent, project.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedDeletedFileDendroMockFile, function (err, res) {
-                                            res.statusCode.should.equal(200);
-                                            let id = slug(folderExportedCkanCkanDiffsData.uri, "-");
-                                            let packageId = id.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
-                                            let packageInfo = {
-                                                id: packageId
-                                            };
-                                            //UPLOAD A FILE TO CKAN SO THAT THERE EXISTS CKANCHANGES
-                                            ckanUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, uploadedFileToCkan, packageInfo, function (err, res) {
-                                                repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
-                                                    res.statusCode.should.equal(200);
-                                                    /*cb(err, res);*/
-                                                    appUtils.registerStopTimeForUnit(path.basename(__filename));
-                                                    finish(err, res);
-                                                });
+                                    //UPLOAD A FILE TO DENDRO SO THAT THERE EXISTS DENDROCHANGES
+                                    fileUtils.uploadFile(true, agent, project.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedDeletedFileDendroMockFile, function (err, res) {
+                                        res.statusCode.should.equal(200);
+                                        let id = slug(folderExportedCkanCkanDiffsData.uri, "-");
+                                        let packageId = id.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+                                        let packageInfo = {
+                                            id: packageId
+                                        };
+                                        //UPLOAD A FILE TO CKAN SO THAT THERE EXISTS CKANCHANGES
+                                        ckanUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, uploadedFileToCkan, packageInfo, function (err, res) {
+                                            repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                                                res.statusCode.should.equal(200);
+                                                /*cb(err, res);*/
+                                                appUtils.registerStopTimeForUnit(path.basename(__filename));
+                                                finish(err, res);
                                             });
                                         });
                                     });
-                                }
-                            });
-                        /*}, function (err, results) {
-                            finish(err, results);
-                        });*/
+                                });
+                            }
+                        });
                     });
                 }
             });

@@ -31,7 +31,6 @@ const folderMissingDescriptors = require(Pathfinder.absPathInTestsFolder("mockda
 const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
 const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));
 
-//const createExportToRepositoriesConfig = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
 const exportFoldersToCkanRepositoryUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
@@ -44,7 +43,6 @@ let ckanData;
 let folderExportCkanData, folderExportedCkanNoDiffsData, folderExportedCkanDendroDiffsData,
     folderExportedCkanCkanDiffsData, folderMissingDescriptorsData;
 
-/*describe("Export public project testFolder1 level to repositories tests", function () {*/
 describe("Calculate public project folderExportCkan level ckan respository diffs tests", function () {
     before(function (done) {
         appUtils.newTestRoutetLog(path.basename(__filename));

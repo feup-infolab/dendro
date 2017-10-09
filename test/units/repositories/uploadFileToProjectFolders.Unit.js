@@ -35,15 +35,15 @@ function requireUncached(module) {
 
 //chamar a addMetadataToFolders.unit
 module.exports.setup = function (project, finish) {
-    let addMetadataToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-    addMetadataToFoldersUnit.setup(function (err, results) {
+    let addMetadataToFoldersSingleProjectUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
+    addMetadataToFoldersSingleProjectUnit.setup(project, function (err, results) {
         if (err) {
             finish(err, results);
         }
         else {
             //procurar para todos os projetos as pastas da root e fazer upload de um ficheiro
             /*async.mapSeries(projects, function (project, cb) {*/
-            console.log("---------- RUNNING UNIT uploadFilesToFolders for: "  + project.handle + " ----------");
+            console.log("---------- RUNNING UNIT uploadFileToProjectFolders.Unit for: "  + project.handle + " ----------");
             appUtils.registerStartTimeForUnit(path.basename(__filename));
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 if (err) {

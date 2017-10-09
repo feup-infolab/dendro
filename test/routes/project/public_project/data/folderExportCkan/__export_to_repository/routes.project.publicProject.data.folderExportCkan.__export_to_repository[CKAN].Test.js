@@ -17,6 +17,7 @@ const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -41,7 +42,6 @@ const addChangesToExportedCkanPackagesUnit = appUtils.requireUncached(Pathfinder
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let createdUnknownRepo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/created_unknown_export_repo.js"));
-let dataToCreateCkan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan.js"));
 
 
 let folderExportCkanData, folderExportedCkanDendroDiffsData, folderExportedCkanCkanDiffsData;
@@ -49,7 +49,6 @@ let ckanData;
 
 describe("Export public project folderExportCkan level to ckan tests", function () {
     before(function (done) {
-        /*appUtils.newTestRoutetLog(path.basename(__filename));*/
         appUtils.newTestRoutetLog(path.basename(__filename));
         this.timeout(Config.testsTimeout);
         addChangesToExportedCkanPackagesUnit.setup(publicProject, function (err, results) {
@@ -159,8 +158,14 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(412);
                     res.body.message.should.contain("Missing the permission: dendroDiffs");
-                    //TODO CHECK THAT THE UPLOADED FILE TO DENDRO IS NOT YET IS CKAN
-                    done();
+                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                        should.not.exist(err);
+                        uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
+                            return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
+                        });
+                        should.not.exist(uploadedAndDeletedFileInDendroDataInDB);
+                        done();
+                    });
                 }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
             });
         });
@@ -172,81 +177,93 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(200);
-                    //TODO CHECK THAT THE UPLOADED FILE TO DENDRO IS NOW IN CKAN
-                    done();
+                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                        should.not.exist(err);
+                        uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
+                            return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
+                        });
+                        should.exist(uploadedAndDeletedFileInDendroDataInDB);
+                        done();
+                    });
                 }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
             });
         });
 
-        //TODO DELETE HERE A FILE IN DENDRO THEN TEST with the permissions and after that check if the file was deleted or not
         it("Should give a precondition failed error when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file deleted in Dendro and the user did not allow propagateDendroChangesIntoCkan", function (done) {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 folderUtils.getFolderContentsByUri(true, agent, folderExportedCkanDendroDiffsData.uri, function (err, res) {
-                    //TODO GET HERE THE FILE THAT WAS UPLOADED IN DENDRO
-                    //TODO THEN DELETE IT
-                    //TODO THEN CHECK PERMISSIONS
                     res.statusCode.should.equal(200);
                     uploadedAndDeletedFileInDendroDataInDB = _.find(res.body, function (resourceData) {
                         return resourceData.nie.title === uploadedAndDeletedFileInDendroMockFile.name;
                     });
                     should.exist(uploadedAndDeletedFileInDendroDataInDB);
-                    //pngMockFile
-                    /*itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
-                        res.statusCode.should.equal(200);
-                        itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
-                            res.statusCode.should.equal(200);
-                            repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
-                                res.statusCode.should.equal(412);
-                                res.body.message.should.contain("Missing the permission: dendroDiffs");
-                                //TODO CHECK THAT THE FILE IS STILL IN CKAN BECAUSE THE USER GAVE NO PERMISSIONS
-                                done();
-                            }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
-                        }, true);
-                    }, false);*/
-
                     itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
                         res.statusCode.should.equal(200);
                         repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                             res.statusCode.should.equal(412);
                             res.body.message.should.contain("Missing the permission: dendroDiffs");
-                            //TODO CHECK THAT THE FILE IS STILL IN CKAN BECAUSE THE USER GAVE NO PERMISSIONS
-                            done();
+                            //CHECKS THAT THE FILE IS STILL IN CKAN BECAUSE THE USER GAVE NO PERMISSIONS in propagateDendroChangesIntoCkan
+                            ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                                should.not.exist(err);
+                                uploadedAndDeletedFileInDendroDataInDB = null;
+                                uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
+                                    return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
+                                });
+                                should.exist(uploadedAndDeletedFileInDendroDataInDB);
+                                done();
+                            });
                         }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
                     }, false);
                 });
             });
         });
 
-        //THERE ARE DENDRO DIFFS -> propagateDendroChangesIntoCkan === true -> export does happen
-        /*it("Should give a success message when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file deleted in Dendro and the user allowed propagateDendroChangesIntoCkan", function (done) {
+        it("Should give a success message when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file deleted in Dendro and the user allowed propagateDendroChangesIntoCkan", function (done) {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(200);
-                    done();
+                    //CHECKS THAT THE FILE WAS DELETED IN CKAN BECAUSE OF THE USER PERMISSIONS in propagateDendroChangesIntoCkan
+                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                        should.not.exist(err);
+                        uploadedAndDeletedFileInDendroDataInDB = null;
+                        uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
+                            return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
+                        });
+                        should.not.exist(uploadedAndDeletedFileInDendroDataInDB);
+                        done();
+                    });
                 }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
             });
-        });*/
-
+        });
 
         //When there are ckan diffs without permissions
-        it("Should give a message that folderExportedCkanDendroDiffs was already exported", function (done) {
+        it("Should give a message that folderExportedCkanCkanDiffs has ckanDiffs and the user gave no permission", function (done) {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(412);
                     res.body.message.should.contain("Missing the permission: ckanDiffs");
-                    done();
+                    //uploadedFileToCkan should still be in ckan
+                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanCkanDiffsData, function (err, res) {
+                        should.not.exist(err);
+                        uploadedFileToCkanDataInDb = null;
+                        uploadedFileToCkanDataInDb = _.find(res, function (resourceInCkan) {
+                            return resourceInCkan.name === uploadedFileToCkan.name;
+                        });
+                        should.exist(uploadedFileToCkanDataInDb);
+                        done();
+                    });
                 }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
             });
         });
 
         //When there are ckan diffs with permissions
-        it("Should give a success message and export to ckan and delete the files in ckan that were also deleted in Dendro", function (done) {
+        it("Should give a success message and export to ckan when there were ckanDiffs for folderExportedCkanCkanDiffs but the user gave permission", function (done) {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = true;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {

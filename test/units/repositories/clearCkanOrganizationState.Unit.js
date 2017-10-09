@@ -22,8 +22,8 @@ function requireUncached(module) {
 
 module.exports.setup = function (project, finish) {
     console.log("At clearCkanOrganizationStateUnit");
-    let uploadFilesToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFilesToFolders.Unit.js"));
-    uploadFilesToFoldersUnit.setup(project, function (err, results) {
+    let uploadFileToProjectFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
+    uploadFileToProjectFoldersUnit.setup(project, function (err, results) {
         if (err) {
             finish(err, results);
         }
