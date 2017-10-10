@@ -51,9 +51,18 @@ angular.module('dendroApp.controllers')
                 {
                     $scope.firstTimeExporting = false;
                 }
-                $scope.deleteInCkanDeletedDendroFiles = data.dendroDiffs;
-                $scope.deleteCkanChanges = data.ckanDiffs;
-                $scope.show_popup("info", "Ckan diffs", JSON.stringify(data));
+                $scope.needsDendroPermissions = data.dendroDiffs;
+                $scope.needsCkanPermissions = data.ckanDiffs;
+                /*$scope.show_popup("info", "Ckan diffs", JSON.stringify(data));*/
+                if($scope.needsCkanPermissions && $scope.needsCkanPermissions.length > 0)
+                {
+                    $scope.show_popup("warning", "Ckan diffs", "There were changes made to the package on the Ckan repository. To export again from dendro tick the boxes bellow. Note that changes made on the Ckan side will be lost.", 60000);
+                }
+
+                if($scope.needsDendroPermissions && $scope.needsDendroPermissions.length > 0)
+                {
+                    $scope.show_popup("warning", "Dendro diffs", "There were changes made to the package on Dendro. To export again from Dendro tick the boxes bellow. Note that if files were added or deleted in Dendro it will also be deleted or added in Ckan.", 60000);
+                }
             }).catch(function(error){
                 if(error.data != null && error.data.message != null)
                 {
@@ -261,16 +270,26 @@ angular.module('dendroApp.controllers')
          * @param uri
          */
 
-        $scope.upload_to_repository = function(target_repository, overwrite)
+        $scope.upload_to_repository = function(target_repository, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
         {
             var payload = {
                 repository : target_repository,
                 new_dataset : $scope.new_dataset
             };
 
-            if(overwrite != null)
+            /*if(overwrite != null)
             {
                 payload.overwrite = overwrite;
+            }*/
+
+            if(deleteChangesOriginatedFromCkan != null)
+            {
+                payload.deleteChangesOriginatedFromCkan = deleteChangesOriginatedFromCkan;
+            }
+
+            if(propagateDendroChangesIntoCkan != null)
+            {
+                payload.propagateDendroChangesIntoCkan = propagateDendroChangesIntoCkan;
             }
 
             var requestString = JSON.stringify(payload);

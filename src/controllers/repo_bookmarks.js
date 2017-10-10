@@ -6,12 +6,15 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
 const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const async = require("async");
 const _ = require("underscore");
 
 const validateNewBookmarkRequest = function (req, res) {
     const validator = require('validator');
+    const expression = Resource.getResourceRegex("repo_platform");
+    const regex = new RegExp(expression);
 
     if (isNull(req.body.dcterms.title)) {
         res.status(400).json({
@@ -44,7 +47,7 @@ const validateNewBookmarkRequest = function (req, res) {
 
         return false;
     }
-    else if (!validator.isURL(req.body.ddr.hasPlatform.uri)) {
+    else if (!regex.test(req.body.ddr.hasPlatform.uri)) {
         res.status(400).json({
             result: "error",
             message: "Invalid platform URI specified. "
