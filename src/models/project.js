@@ -1581,50 +1581,56 @@ Project.unzipAndValidateBagItBackupStructure = function(absPathToZipFile, maxSto
     {
         if(isNull(err))
         {
-            if(size < maxStorageSize)
+            if(!isNaN(size))
             {
-                File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
-                    if(isNull(err))
-                    {
-                        Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
+                if(size < maxStorageSize)
+                {
+                    File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
+                        if(isNull(err))
                         {
-                            if(isNull(err))
+                            Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
                             {
-                                if(valid)
+                                if(isNull(err))
                                 {
-                                    return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
+                                    if(valid)
+                                    {
+                                        return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
+                                    }
+                                    else
+                                    {
+                                        return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    }
                                 }
                                 else
                                 {
-                                    return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    return callback(err, pathToFolderToRestore);
                                 }
-                            }
-                            else
-                            {
-                                return callback(err, pathToFolderToRestore);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
-                        return callback(err, msg);
-                    }
-                });
+                            });
+                        }
+                        else
+                        {
+                            const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
+                            return callback(err, msg);
+                        }
+                    });
+                }
+                else
+                {
+                    const filesize = require('file-size');
+                    const difference = maxStorageSize - size;
+
+                    const humanSizeDifference = filesize(difference).human('jedec');
+                    const humanZipFileSize = filesize(size).human('jedec');
+                    const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
+
+                    const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
+                    return callback(err, msg);
+                }
             }
             else
             {
-                const filesize = require('file-size');
-                const difference = maxStorageSize - size;
-
-                const humanSizeDifference = filesize(difference).human('jedec');
-                const humanZipFileSize = filesize(size).human('jedec');
-                const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
-
-                const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
-                return callback(err, msg);
+                return callback(1, "Unable to determine the size of the ZIP File, because the file was corrupted during transfer!");
             }
-
         }
         else
         {

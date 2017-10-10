@@ -42,13 +42,14 @@ angular.module('dendroApp.services')
                     var url = URI(upload_url);
                     var keys = Object.keys(file);
 
-                    for(var i = 0; i < keys.length; i++)
-                    {
-                        var key = keys[i];
-                        url.addSearch(key, encodeURIComponent(file[key]));
+                    for (var key in file) {
+                        if (file.hasOwnProperty(key)) {
+                            url.addSearch(key, encodeURIComponent(file[key]));
+                        }
                     }
 
-                    url.addSearch("filename", encodeURIComponent(file.name))
+                    url.addSearch("size", encodeURIComponent(file.size))
+                        .addSearch("filename", encodeURIComponent(file.name))
                         .addSearch("md5_checksum", encodeURIComponent(file.md5));
 
                     url = url.toString();

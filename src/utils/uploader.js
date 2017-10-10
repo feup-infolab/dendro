@@ -16,7 +16,7 @@ const Uploader = function()
 
 };
 
-Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
+Uploader.prototype.handleUpload = function(req, res, callback)
 {
     const upload_id = req.query.upload_id;
     const upload = UploadManager.get_upload_by_id(upload_id);
@@ -75,7 +75,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                                 md5File(upload.temp_file, function (err, hash) {
                                     if (isNull(err)) {
                                         if (md5_checksum !== hash) {
-                                            callback(400, {
+                                            res.status(400).json({
                                                 result: "error",
                                                 message: "File was corrupted during transfer. Please repeat this upload.",
                                                 error: "invalid_checksum",
@@ -86,11 +86,11 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                                         else
                                         {
                                             //TODO replace with final processing of files (Saving + metadata)
-                                            uploadCompleteCallback(null, req.files);
+                                            callback(null, req.files);
                                         }
                                     }
                                     else {
-                                        callback(500, {
+                                        res.status(500).json({
                                             result: "error",
                                             message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
                                             error: hash
@@ -100,15 +100,14 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                             }
                             else
                             {
-                                res.json(
-                                    {
-                                        size: upload.size
-                                    });
+                                res.json({
+                                    size: upload.size
+                                });
                             }
                         }
                         else
                         {
-                            callback(500, {
+                            res.status(500).json({
                                 result: "error",
                                 message: "There was an error writing a part of the upload to the server."
                             });
@@ -126,11 +125,10 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
         }
         else
         {
-            res.status(500).json(
-                {
-                    result: "error",
-                    message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
-                });
+            res.status(500).json({
+                result: "error",
+                message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
+            });
         }
     };
 
@@ -182,7 +180,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                     }
                     else
                     {
-                        return uploadCompleteCallback(1, "Error creating temporary folder for receiving file from request into temporary file");
+                        return callback(1, "Error creating temporary folder for receiving file from request into temporary file");
                     }
                 });
             });
@@ -230,7 +228,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                                 }
                                 else
                                 {
-                                    uploadCompleteCallback(400, {
+                                    res.status(400).json({
                                         result : "result",
                                         message : "Error resetting upload."
                                     });
@@ -247,20 +245,18 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                     }
                     else
                     {
-                        res.status(400).json(
-                            {
-                                result: "error",
-                                message: "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
-                            });
+                        res.status(400).json({
+                            result: "error",
+                            message: "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
+                        });
                     }
                 }
                 else
                 {
-                    res.status(400).json(
-                        {
-                            result: "error",
-                            message: "The upload id is invalid."
-                        });
+                    res.status(400).json({
+                        result: "error",
+                        message: "The upload id is invalid."
+                    });
                 }
 
             }
@@ -287,14 +283,14 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                         {
                             if (isNull(err))
                             {
-                                return res.json({
+                                res.json({
                                     size: newUpload.loaded,
                                     upload_id: newUpload.id
                                 });
                             }
                             else
                             {
-                                return callback(500, {
+                                res.status(500).json({
                                     result: "error",
                                     message: "There was an error registering the new upload.",
                                     error: err
@@ -326,11 +322,11 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
         {
             if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
             {
-                processChunkedUpload(upload, uploadCompleteCallback);
+                processChunkedUpload(upload, callback);
             }
             else
             {
-                return uploadCompleteCallback(400, {
+                res.status(400).json({
                     result: "error",
                     message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
                     files: fileNames
@@ -339,7 +335,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
         }
         else
         {
-            processNormalUpload(uploadCompleteCallback);
+            processNormalUpload(callback);
         }
     }
 };

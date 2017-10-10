@@ -51,7 +51,7 @@ File.estimateUnzippedSize = function(pathOfZipFile, callback)
     const path = require("path");
     const exec = require("child_process").exec;
 
-    const command = 'unzip -l ' + pathOfZipFile + " | tail -n 1";
+    const command = 'unzip -l \"' + pathOfZipFile + "\" | tail -n 1";
     const parentFolderPath = path.resolve(pathOfZipFile, "..");
 
 
@@ -90,7 +90,7 @@ File.unzip = function(pathOfFile, callback) {
         },
         function(err, tmpFolderPath)
         {
-            let command = 'unzip -qq -o ' + pathOfFile;
+            let command = 'unzip -qq -o \"' + pathOfFile + "\"";
             if(isNull(err))
             {
                 const unzip = exec(command, {cwd: tmpFolderPath}, function (error, stdout, stderr) {
@@ -183,11 +183,11 @@ File.deleteOnLocalFileSystem = function(absPathToFile, callback)
 
     if(isWin)
     {
-        command = `rd /s /q "${absPathToFile}"`
+        command = `rd /s /q \""${absPathToFile}"\"`
     }
     else
     {
-        command = `rm -rf ${absPathToFile}`;
+        command = `rm -rf \"${absPathToFile}\"`;
     }
 
     InformationElement.isSafePath(absPathToFile, function(err, isSafe){

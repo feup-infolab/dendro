@@ -1837,7 +1837,13 @@ exports.import = function(req, res) {
                                         }
                                         else
                                         {
-
+                                            callback(400,
+                                                {
+                                                    "result": "error",
+                                                    "message": "Invalid project structure. Is this a BagIt-format Zip file?",
+                                                    "error": result
+                                                }
+                                            );
                                         }
                                     }
                                     else
