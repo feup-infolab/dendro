@@ -3,7 +3,7 @@ angular.module('dendroApp.controllers')
 /**
  * new project controller
  */
-    .controller('metricsCtrl',
+    .controller('metricsController',
 
         function (
 
@@ -16,7 +16,7 @@ angular.module('dendroApp.controllers')
 
             $scope.labels = ["Download Sales", "In-Store Sales", "Mail-Order Sales"];
             $scope.data = [300, 500, 100];
-            $scope.colours = [ '#803690', '#00ADF9', '#36905a'];
+            $scope.colours = [ '#803690', '#00ADF9', '#17ed6d'];
 
             $scope.new_project = {
                 "privacy" : "private"
