@@ -13,6 +13,7 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 
 const nodemailer = require("nodemailer");
 const db = Config.getDBByID();
@@ -1621,324 +1622,266 @@ exports.import = function(req, res) {
     let acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    if(req.originalMethod === "GET")
-    {
-        if(acceptsJSON && !acceptsHTML){
-            return res.status(400).json({
-                result: "error",
-                message : "API Request not valid for this route."
-            })
-        }
-        else
-        {
-            const filesize = require('file-size');
 
-            return res.render('projects/import/import',
-                {
-                    title: "Import a project",
-                    maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
-                    maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
-                }
-            );
-        }
+    if(req.originalMethod === "GET" && acceptsJSON && acceptsHTML && JSON.stringify(req.query) === JSON.stringify({}))
+    {
+        const filesize = require('file-size');
+
+        return res.render('projects/import/import',
+            {
+                title: "Import a project",
+                maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
+                maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
+            }
+        );
     }
-    else if (req.originalMethod === "POST")
+    else
     {
-
-        const multiparty = require("multiparty");
-        const tmp = require("tmp");
-        const path = require("path");
-
-        if(isNull(req.query.imported_project_handle))
-        {
-            return res.status(400).json({
-                result: "error",
-                message : "No 'imported_project_handle' parameter specified. This is the new handle of the project after it is imported into Dendro",
-            });
-        }
-        else if (!req.query.imported_project_handle.match(/^[0-9a-z]+$/))
-        {
-            return res.status(400).json({
-                result: "error",
-                message : "Project handle --- 'imported_project_handle' parameter ---  can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "
-            });
-        }
-
-        const receiveUpload = function(callback)
-        {
-            tmp.dir({dir : Config.tempFilesDir}, function _tempDirCreated(err, tempFolderPath) {
-                const form = new multiparty.Form(
-                    {
-                        maxFields: 1,
-                        autoFiles: true,
-                        maxFilesSize : Config.maxUploadSize,
-                        uploadDir : tempFolderPath
-                    });
-
-                form.on('error', function (err)
+        const uploader = new Uploader();
+        uploader.handleUpload(req, res, function (err, result) {
+            if (!isNull(result) && result instanceof Array && result.length === 1)
+            {
+                if(isNull(req.query.imported_project_handle))
                 {
-                    callback(500, {
-                        result: "error",
-                        message : "Error parsing upload form.",
-                        error : err
+                    return res.status(400).json({
+                        result : "error",
+                        message : "Missing 'imported_project_handle' parameter!"
                     });
-                });
-
-                form.on('aborted', function ()
+                }
+                else if(isNull(req.query.imported_project_title))
                 {
-                    callback(400, {
-                        result: "error",
-                        message : "Upload aborted.",
+                    return res.status(400).json({
+                        result : "error",
+                        message : "Missing 'imported_project_title' parameter!"
                     });
-                });
-
-                // Parts are emitted when parsing the form
-                form.on('file', function(name, uploadedFile) {
-                    if (!isNull(uploadedFile)) {
-                        if(!isNull(uploadedFile.path))
-                        {
-                            callback(null, uploadedFile.path);
-                        }
-                        else
-                        {
-                            callback(400, {
-                                "result" : "error",
-                                "message" : "Unable to determine the temporary path of the uploaded file on the server"
-                            });
-                        }
-                    }
-                    else
-                    {
-                        callback(400, {
-                            "result" : "error",
-                            "message" : "Unable to parse upload request"
-                        });
-                    }
-                });
-
-                // Parse req
-                form.parse(req);
-            });
-        };
-
-        const projectHandleCannotExist = function(callback)
-        {
-            Project.findByHandle(req.query.imported_project_handle, function(err, project){
-                if(isNull(err))
-                {
-                    if(isNull(project))
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        callback(400, {
-                            result : "error",
-                            message : ["A project with handle " + req.query.imported_project_handle+ " already exists. Please choose another one."]
-                        })
-                    }
                 }
                 else
                 {
-                    callback(500, {
-                        result : "error",
-                        message : ["Error checking if project with handle " + req.query.imported_project_handle+ " already exists. "],
-                        error : project
-                    })
-                }
-            });
-        };
-
-        const processImport = function(uploadedBackupAbsPath, callback)
-        {
-            const getMetadata = function(absPathOfBagItBackupRootFolder, callback)
-            {
-                const bagItMetadataFileAbsPath = path.join(absPathOfBagItBackupRootFolder, "bag-info.txt");
-                const projectDescriptors = [];
-
-                const lineReader = require('readline').createInterface({
-                    input: require('fs').createReadStream(bagItMetadataFileAbsPath)
-                });
-
-                const getDescriptor = function(line)
-                {
-                    const fieldMatcher = {
-                        "Source-Organization" : "dcterms:publisher",
-                        "Organization-Address" : "schema:address",
-                        "Contact-Name" : "schema:provider",
-                        "Contact-Phone" : "schema:telephone",
-                        "External-Description" : "dcterms:description",
-                        "Contact-Email" : "schema:email"
-                    };
-
-                    const separator = line.indexOf(":");
-
-                    if(separator)
-                    {
-                        const bagitField = line.substring(0, separator);
-                        const bagitValue = line.substring(separator + 2); //2 extra char after index of : must be rejected, which is the space.
-                        const descriptor = fieldMatcher[bagitField];
-
-                        if(descriptor)
-                        {
-                            return new Descriptor({
-                                prefixedForm : descriptor,
-                                value : bagitValue
-                            })
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                };
-
-
-                lineReader.on('line', function (line) {
-                    if(!isNull(line))
-                    {
-                        const descriptor = getDescriptor(line);
-                        if(descriptor)
-                        {
-                            projectDescriptors.push(descriptor);
-                        }
-                    }
-                });
-
-                lineReader.on('close', function (line) {
-                    callback(projectDescriptors);
-                })
-            };
-
-            if(path.extname(uploadedBackupAbsPath) === ".zip")
-            {
-                Project.unzipAndValidateBagItBackupStructure(
-                    uploadedBackupAbsPath,
-                    Config.maxProjectSize,
-                    function(err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt){
-                        File.deleteOnLocalFileSystem(uploadedBackupAbsPath, function(err, result){
-                            if(!isNull(err))
+                    const uploadedBackupAbsPath = result[0].path;
+                    const projectHandleCannotExist = function (callback) {
+                        Project.findByHandle(req.query.imported_project_handle, function (err, project) {
+                            if (isNull(err))
                             {
-                                console.error("Error occurred while deleting backup zip file at " + uploadedBackupAbsPath + " : " + JSON.stringify(result));
+                                if (isNull(project))
+                                {
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    callback(400, {
+                                        result: "error",
+                                        message: ["A project with handle " + req.query.imported_project_handle + " already exists. Please choose another one."]
+                                    })
+                                }
+                            }
+                            else
+                            {
+                                callback(500, {
+                                    result: "error",
+                                    message: ["Error checking if project with handle " + req.query.imported_project_handle + " already exists. "],
+                                    error: project
+                                })
                             }
                         });
+                    };
 
-                        if(isNull(err))
+                    const processImport = function (callback) {
+                        const getMetadata = function (absPathOfBagItBackupRootFolder, callback) {
+                            const bagItMetadataFileAbsPath = path.join(absPathOfBagItBackupRootFolder, "bag-info.txt");
+                            const projectDescriptors = [];
+
+                            const lineReader = require('readline').createInterface({
+                                input: require('fs').createReadStream(bagItMetadataFileAbsPath)
+                            });
+
+                            const getDescriptor = function (line) {
+                                const fieldMatcher = {
+                                    "Source-Organization": "dcterms:publisher",
+                                    "Organization-Address": "schema:address",
+                                    "Contact-Name": "schema:provider",
+                                    "Contact-Phone": "schema:telephone",
+                                    "External-Description": "dcterms:description",
+                                    "Contact-Email": "schema:email"
+                                };
+
+                                const separator = line.indexOf(":");
+
+                                if (separator)
+                                {
+                                    const bagitField = line.substring(0, separator);
+                                    const bagitValue = line.substring(separator + 2); //2 extra char after index of : must be rejected, which is the space.
+                                    const descriptor = fieldMatcher[bagitField];
+
+                                    if (descriptor)
+                                    {
+                                        return new Descriptor({
+                                            prefixedForm: descriptor,
+                                            value: bagitValue
+                                        })
+                                    }
+                                    else
+                                    {
+                                        return null;
+                                    }
+                                }
+                                else
+                                {
+                                    return null;
+                                }
+                            };
+
+
+                            lineReader.on('line', function (line) {
+                                if (!isNull(line))
+                                {
+                                    const descriptor = getDescriptor(line);
+                                    if (descriptor)
+                                    {
+                                        projectDescriptors.push(descriptor);
+                                    }
+                                }
+                            });
+
+                            lineReader.on('close', function (line) {
+                                callback(projectDescriptors);
+                            })
+                        };
+
+                        if (path.extname(uploadedBackupAbsPath) === ".zip")
                         {
-                            if(valid)
-                            {
-                                getMetadata(absPathOfUnzippedBagIt, function(descriptors){
-
-                                    const newProject = new Project({
-                                        ddr: {
-                                            is_being_imported : true,
-                                            handle : req.query.imported_project_handle
-                                        },
-                                        dcterms : {
-                                            creator : req.user.uri
+                            Project.unzipAndValidateBagItBackupStructure(
+                                uploadedBackupAbsPath,
+                                Config.maxProjectSize,
+                                function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt) {
+                                    File.deleteOnLocalFileSystem(uploadedBackupAbsPath, function (err, result) {
+                                        if (!isNull(err))
+                                        {
+                                            console.error("Error occurred while deleting backup zip file at " + uploadedBackupAbsPath + " : " + JSON.stringify(result));
                                         }
                                     });
 
-                                    newProject.updateDescriptors(descriptors);
-
-                                    Project.createAndInsertFromObject(newProject, function(err, newProject){
-                                        if(isNull(err))
+                                    if (isNull(err))
+                                    {
+                                        if (valid)
                                         {
-                                            newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
-                                            {
-                                                if(isNull(err))
-                                                {
-                                                    delete newProject.ddr.is_being_imported;
-                                                    newProject.save(function(err, result){
-                                                        if (isNull(err))
-                                                        {
-                                                            callback(null,
-                                                                {
-                                                                    "result": "ok",
-                                                                    "message" : "Project imported successfully.",
-                                                                    "new_project" : newProject.uri
-                                                                }
-                                                            );
-                                                        }
-                                                        else
-                                                        {
-                                                            callback(500,
-                                                                {
-                                                                    "result": "error",
-                                                                    "message": "Error marking project restore as complete.",
-                                                                    "error": result
-                                                                }
-                                                            );
-                                                        }
-                                                    });
-                                                }
-                                                else
-                                                {
-                                                    callback(500,
-                                                        {
-                                                            "result": "error",
-                                                            "message": "Error restoring project contents from unzipped backup folder",
-                                                            "error": result
-                                                        }
-                                                    );
-                                                }
+                                            getMetadata(absPathOfUnzippedBagIt, function (descriptors) {
+
+                                                const newProject = new Project({
+                                                    ddr: {
+                                                        is_being_imported: true,
+                                                        handle: req.query.imported_project_handle,
+                                                        privacyStatus : "private" // by default it is private on import
+                                                    },
+                                                    dcterms: {
+                                                        creator: req.user.uri,
+                                                        title : req.query.imported_project_title
+                                                    }
+                                                });
+
+                                                newProject.updateDescriptors(descriptors);
+
+                                                Project.createAndInsertFromObject(newProject, function (err, newProject) {
+                                                    if (isNull(err))
+                                                    {
+                                                        newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result) {
+                                                            if (isNull(err))
+                                                            {
+                                                                delete newProject.ddr.is_being_imported;
+                                                                newProject.save(function (err, result) {
+                                                                    if (isNull(err))
+                                                                    {
+                                                                        callback(null,
+                                                                            {
+                                                                                "result": "ok",
+                                                                                "message": "Project imported successfully.",
+                                                                                "new_project": newProject.uri
+                                                                            }
+                                                                        );
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        callback(500,
+                                                                            {
+                                                                                "result": "error",
+                                                                                "message": "Error marking project restore as complete.",
+                                                                                "error": result
+                                                                            }
+                                                                        );
+                                                                    }
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                callback(500,
+                                                                    {
+                                                                        "result": "error",
+                                                                        "message": "Error restoring project contents from unzipped backup folder",
+                                                                        "error": result
+                                                                    }
+                                                                );
+                                                            }
+                                                        });
+                                                    }
+                                                    else
+                                                    {
+                                                        callback(500,
+                                                            {
+                                                                "result": "error",
+                                                                "message": "Error creating new project record before import operation could start",
+                                                                "error": result
+                                                            }
+                                                        );
+                                                    }
+                                                });
                                             });
                                         }
                                         else
                                         {
-                                            callback(500,
-                                                {
-                                                    "result": "error",
-                                                    "message": "Error creating new project record before import operation could start",
-                                                    "error": result
-                                                }
-                                            );
-                                        }
-                                    });
-                                });
-                            }
-                            else
-                            {
 
-                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        const msg = "Error restoring zip file to folder : " + valid;
+                                        console.error(msg);
+
+                                        callback(500, {
+                                            "result": "error",
+                                            "message": msg
+                                        });
+                                    }
+                                });
                         }
                         else
                         {
-                            const msg = "Error restoring zip file to folder : " + valid;
-                            console.error(msg);
-
-                            callback(500, {
-                                "result" : "error",
-                                "message" : msg
+                            callback(400, {
+                                "result": "error",
+                                "message": "Backup file is not a .zip file"
                             });
                         }
-                    });
-            }
-            else
-            {
-                callback(400, {
-                    "result" : "error",
-                    "message" : "Backup file is not a .zip file"
-                });
-            }
-        };
+                    };
 
-        async.waterfall([
-            projectHandleCannotExist,
-            receiveUpload,
-            processImport
-        ], function(err, results){
-            if(isNull(err))
-            {
-                res.json(results);
+                    async.waterfall([
+                        projectHandleCannotExist,
+                        processImport
+                    ], function (err, results) {
+                        if (isNull(err))
+                        {
+                            res.json(results);
+                        }
+                        else
+                        {
+                            res.status(err).json(results);
+                        }
+                    });
+                }
             }
             else
             {
-                res.status(err).json(results);
+                res.status(400).json({
+                    result: "error",
+                    message: "Error processing upload"
+                });
             }
         });
     }

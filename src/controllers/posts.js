@@ -87,7 +87,7 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
 };
 
 exports.getUserPostsUris = function (userUri, currentPage, callback) {
-    var index = currentPage == 1 ? 0 : (currentPage * 5) - 5;
+    var index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     var maxResults = 5;
     Project.findByCreatorOrContributor(userUri, function (err, projects) {
         if (!err) {
@@ -334,7 +334,7 @@ exports.getPosts_controller = function (req, res) {
 
         getSharesOrPostsInfo(postsQueryInfo, function (err, postInfo) {
             if (isNull(err)) {
-                if (isNull(postInfo) || postInfo.length == 0) {
+                if (isNull(postInfo) || postInfo.length === 0) {
                     var errorMsg = "Post uris not found";
                     res.status(404).json({
                         result: "Error",
@@ -502,7 +502,7 @@ exports.all = function (req, res) {
     const acceptsHTML = req.accepts('html');
     const acceptsJSON = req.accepts('json');
     const currentPage = req.query.currentPage;
-    const index = currentPage == 1 ? 0 : (currentPage * 5) - 5;
+    const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
 
     //TODO receber filters aqui para os posts da timeline de acordo com (order by numLikes, project, all my projects, etc)

@@ -200,7 +200,7 @@ exports.search = function(req, res)
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function(err, similarResources)
                     {
                         resource.recommendations = similarResources;
-                        return callback(err, resource); //null as 1st argument == no error
+                        return callback(err, resource); //null as 1st argument === no error
                     });
                 };
 

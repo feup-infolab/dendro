@@ -27,7 +27,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
     let md5_checksum = req.query.md5_checksum;
 
     const processChunkedUpload = function(upload, callback) {
-        if (!isNull(upload))
+        if (!isNull(upload) && upload !== "")
         {
             const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
 
@@ -274,10 +274,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                     filename !== "" &&
 
                     typeof md5_checksum !== "undefined" &&
-                    md5_checksum !== "" &&
-
-                    !isNull(req.params.requestedResourceUri) &&
-                    req.params.requestedResourceUri !== ""
+                    md5_checksum !== ""
                 )
                 {
                     UploadManager.add_upload(
@@ -290,14 +287,14 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                         {
                             if (isNull(err))
                             {
-                                res.json({
+                                return res.json({
                                     size: newUpload.loaded,
                                     upload_id: newUpload.id
                                 });
                             }
                             else
                             {
-                                uploadCompleteCallback(500, {
+                                return callback(500, {
                                     result: "error",
                                     message: "There was an error registering the new upload.",
                                     error: err
@@ -318,7 +315,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
             {
                 res.status(400).json({
                     result: "error",
-                    message: "User must be authenticated in the system to upload files."
+                    message: "You must supply the username of the user who is trying to perform the upload. Parameter 'username' is missing."
                 });
             }
         }
@@ -345,7 +342,92 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
             processNormalUpload(uploadCompleteCallback);
         }
     }
-}
+};
+
+exports.resume = function(req, res)
+{
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    if (req.originalMethod === "GET")
+    {
+        const resume = req.query.resume;
+        const upload_id = req.query.upload_id;
+        const username = req.query.username;
+
+        if(!isNull(resume))
+        {
+            if(typeof req.session.upload_manager !== "undefined")
+            {
+                if (typeof upload_id !== "undefined")
+                {
+                    const upload = UploadManager.get_upload_by_id(upload_id);
+
+                    if (upload.username === username)
+                    {
+                        res.json({
+                            size: upload.loaded
+                        });
+                    }
+                    else
+                    {
+                        const msg = "The upload does not belong to the user currently trying to resume.";
+                        console.error(msg);
+                        res.status(400).json({
+                            result: "error",
+                            msg: msg
+                        });
+                    }
+                }
+                else
+                {
+                    res.json({
+                        size: 0
+                    });
+                }
+            }
+            else
+            {
+                const msg = "The user does not have a session initiated.";
+                console.error(msg);
+                res.status(400).json({
+                    result: "error",
+                    msg: msg
+                });
+            }
+        }
+        else
+        {
+            const msg = "Invalid Request, does not contain the 'resume' query parameter.";
+            console.error(msg);
+            res.status(400).json({
+                result: "error",
+                msg: msg
+            });
+        }
+    }
+    else
+    {
+        if(acceptsJSON && !acceptsHTML)
+        {
+            const msg = "This is only accessible via GET method";
+            req.flash('error', "Invalid Request");
+            console.log(msg);
+            res.status(400).render('',
+                {
+                }
+            );
+        }
+        else
+        {
+            res.status(400).json({
+                result : "error",
+                msg : "This API functionality is only accessible via GET method."
+            });
+        }
+
+    }
+};
 
 module.exports.Uploader = Uploader;
 

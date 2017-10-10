@@ -239,8 +239,11 @@ angular.module('dendroApp.controllers')
 
         $scope.update_project_metadata = function()
         {
-            $scope.project.schema.license = $scope.project.schema.license.title;
-            $scope.project.dcterms.language = $scope.project.dcterms.language.alpha2;
+            if($scope.project.schema.license && $scope.project.dcterms.language)
+            {
+                $scope.project.schema.license = $scope.project.schema.license.title;
+                $scope.project.dcterms.language = $scope.project.dcterms.language.alpha2;
+            }
 
             projectsService.update_metadata($scope.project)
                 .then(function(response){

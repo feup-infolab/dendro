@@ -58,7 +58,7 @@ angular.module('dendroApp.controllers')
 
                     $scope.errorMsg = null;
 
-                    async.each(
+                    async.map(
                         self.files,
                         function (file, callback)
                         {
@@ -97,7 +97,7 @@ angular.module('dendroApp.controllers')
                                             {
                                                 file.uploading = false;
                                                 console.log(response.error);
-                                                file.has_error = response;
+                                                file.has_error = response.error;
                                                 callback(response);
                                             });
                                     }
@@ -141,9 +141,7 @@ angular.module('dendroApp.controllers')
                 $scope.uploadFiles(files);
             });
 
-            $scope.$on('new_files_to_upload', function(event, files){
-                console.log("New files to upload!");
-
+            $scope.$on('new_files_to_upload', function(event, files, extra_query_parameters){
                 $scope.uploadFiles(files);
             });
         };
@@ -161,14 +159,21 @@ angular.module('dendroApp.controllers')
                         .then(function(data){
                             file.result  = data;
                             file.uploading = false;
-                            doUpload.resolve(file);
+                            doUpload.resolve({
+                                file : file,
+                                data : data
+                            });
                         })
                         .catch(function(error){
                             file.error = error;
                             file.uploading = false;
-                            doUpload.reject(file);
+                            doUpload.reject({
+                                file : file,
+                                error : error
+                            });
                         });
-                } else if ($scope.howToSend == 2)
+                }
+                else if ($scope.howToSend === 2)
                 {
                     uploadsService.uploadUsing$http(file, $scope.get_upload_url())
                         .then(function(data){
@@ -188,7 +193,7 @@ angular.module('dendroApp.controllers')
                 .then(function (upload_id)
                 {
                     file.upload_id = upload_id;
-                    if(file.username == null)
+                    if(file.username === null || typeof file.username === "undefined")
                     {
                         usersService.get_logged_user()
                             .then(function(user){
@@ -218,16 +223,21 @@ angular.module('dendroApp.controllers')
         {
             var files = $scope[$scope.files_array_name];
 
-            for(var i = 0; i < files.length; i++)
+            if(files && files instanceof Array)
             {
-                var file = files[i];
-                if(file.uploading)
+                for(var i = 0; i < files.length; i++)
                 {
-                    return true;
+                    var file = files[i];
+                    if(file.uploading)
+                    {
+                        return true;
+                    }
                 }
             }
-
-            return false;
+            else
+            {
+                return false;
+            }
         }
 
         $scope.restart = function (file) {
@@ -272,14 +282,14 @@ angular.module('dendroApp.controllers')
             $scope.acceptSelect = localStorage.getItem('acceptSelect') || '*'; //'image/*,audio/*,video/*';
             $scope.modelOptions = localStorage.getItem('modelOptions') || '{debounce:100}';
             $scope.dragOverClass = localStorage.getItem('dragOverClass') || '{accept:\'dragover\', reject:\'dragover-err\'}'; //'{accept:\'dragover\', reject:\'dragover-err\', pattern:\'image/*,audio/*,video/*,text/*\'}';
-            $scope.disabled = localStorage.getItem('disabled') == 'true' || false;
-            $scope.multiple = localStorage.getItem('multiple') == 'true' || true;
-            $scope.allowDir = localStorage.getItem('allowDir') == 'true' || false;
+            $scope.disabled = localStorage.getItem('disabled') === 'true' || false;
+            $scope.multiple = localStorage.getItem('multiple') === 'true' || true;
+            $scope.allowDir = localStorage.getItem('allowDir') === 'true' || false;
             //$scope.validate = localStorage.getItem('validate') || '{size: {max: \'2000MB\', min: \'10B\'}, height: {max: 12000}, width: {max: 12000}, duration: {max: \'50000m\'}}';
-            $scope.keep = localStorage.getItem('keep') == 'true' || false;
-            $scope.keepDistinct = localStorage.getItem('keepDistinct') == 'true' || true;
-            $scope.orientation = localStorage.getItem('orientation') == 'true' || false;
-            $scope.runAllValidations = localStorage.getItem('runAllValidations') == 'true' || true;
+            $scope.keep = localStorage.getItem('keep') === 'true' || false;
+            $scope.keepDistinct = localStorage.getItem('keepDistinct') === 'true' || true;
+            $scope.orientation = localStorage.getItem('orientation') === 'true' || false;
+            $scope.runAllValidations = localStorage.getItem('runAllValidations') === 'true' || true;
             //$scope.resize = localStorage.getItem('resize') || "{width: 1000, height: 1000, centerCrop: true}";
             //$scope.resizeIf = localStorage.getItem('resizeIf') || "$width > 5000 || $height > 5000";
             //$scope.dimensions = localStorage.getItem('dimensions') || "$width < 12000 || $height < 12000";

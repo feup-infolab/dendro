@@ -267,7 +267,7 @@
       "requests_in_apache_format_log_folder": "logs/requests_apache_format",
       "suppress_all_logs": false,
       "suppress_all_errors": false,
-      "log_all_requests": false,
+      "log_all_requests": true,
       "log_emailing": false
     },
     "version": {

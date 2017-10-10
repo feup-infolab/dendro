@@ -10,11 +10,11 @@ function Upload (object)
     const self = this;
     Upload.baseConstructor.call(this, object);
 
+    self.parentFolder = object.parent_folder;
+
     if( !isNull(object.username)
         &&
         !isNull(object.filename)
-        &&
-        typeof object.parent_folder !== "undefined"
         &&
         !isNull(object.expected)
         &&
@@ -23,7 +23,6 @@ function Upload (object)
     {
         self.username = object.username;
         self.filename = object.filename;
-        self.parentFolder = object.parent_folder;
         self.expected = object.expected;
         self.md5_checksum = object.md5_checksum;
 

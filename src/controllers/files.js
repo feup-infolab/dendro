@@ -1001,115 +1001,38 @@ exports.upload = function(req, res)
         }
     };
 
-    const uploader = new Uploader();
-    uploader.handleUpload(req, res, function(err, result)
+    if(!isNull(req.params.requestedResourceUri))
     {
-        if(!isNull(err))
+        const uploader = new Uploader();
+        uploader.handleUpload(req, res, function(err, result)
         {
-            sendResponse(err, result);
-        }
-        else
-        {
-            saveFilesAfterFinishingUpload(result, function(err, result){
-                if(isNull(err))
-                {
-                    sendResponse(null, result);
-                }
-                else
-                {
-                    sendResponse(err, result);
-                }
-            });
-        }
-    });
-};
-
-exports.resume = function(req, res)
-{
-    let acceptsHTML = req.accepts("html");
-    const acceptsJSON = req.accepts("json");
-
-
-    if (req.originalMethod === "GET")
-    {
-        const resume = req.query.resume;
-        const upload_id = req.query.upload_id;
-        const username = req.query.username;
-
-        if(!isNull(resume))
-        {
-            if(typeof req.session.upload_manager !== "undefined")
+            if(!isNull(err))
             {
-                if (typeof upload_id !== "undefined")
-                {
-                    const upload = UploadManager.get_upload_by_id(upload_id);
-
-                    if (upload.username === username)
-                    {
-                        res.json({
-                            size: upload.loaded
-                        });
-                    }
-                    else
-                    {
-                        const msg = "The upload does not belong to the user currently trying to resume.";
-                        console.error(msg);
-                        res.status(400).json({
-                            result: "error",
-                            msg: msg
-                        });
-                    }
-                }
-                else
-                {
-                    res.json({
-                        size: 0
-                    });
-                }
+                sendResponse(err, result);
             }
             else
             {
-                const msg = "The user does not have a session initiated.";
-                console.error(msg);
-                res.status(400).json({
-                    result: "error",
-                    msg: msg
+                saveFilesAfterFinishingUpload(result, function(err, result){
+                    if(isNull(err))
+                    {
+                        sendResponse(null, result);
+                    }
+                    else
+                    {
+                        sendResponse(err, result);
+                    }
                 });
             }
-        }
-        else
-        {
-            const msg = "Invalid Request, does not contain the 'resume' query parameter.";
-            console.error(msg);
-            res.status(400).json({
-                result: "error",
-                msg: msg
-            });
-        }
+        });
     }
     else
     {
-        if(acceptsJSON && !acceptsHTML)
-        {
-            const msg = "This is only accessible via GET method";
-            req.flash('error', "Invalid Request");
-            console.log(msg);
-            res.status(400).render('',
-                {
-                }
-            );
-        }
-        else
-        {
-            res.status(400).json({
-                result : "error",
-                msg : "This API functionality is only accessible via GET method."
-            });
-        }
-
+        sendResponse(400, {
+            "result" : "error",
+            "message" : "Unable to determine parent folder of new uploaded file"
+        });
     }
 };
-
 
 exports.restore = function(req, res){
 
