@@ -41,8 +41,6 @@ angular.module('dendroApp.controllers')
                 console.log("data is:");
                 console.log(data);
                 $scope.is_sending_data = false;
-                //$scope.show_popup("info", "Deleted in dendro", JSON.stringify(data.dendroDiffs[0]));
-                //$scope.show_popup("info", "Created in dendro", JSON.stringify(data.dendroDiffs[1]));
                 if(data.message === "Package was not previously exported")
                 {
                     $scope.firstTimeExporting = true;
@@ -53,7 +51,6 @@ angular.module('dendroApp.controllers')
                 }
                 $scope.needsDendroPermissions = data.dendroDiffs;
                 $scope.needsCkanPermissions = data.ckanDiffs;
-                /*$scope.show_popup("info", "Ckan diffs", JSON.stringify(data));*/
                 if($scope.needsCkanPermissions && $scope.needsCkanPermissions.length > 0)
                 {
                     $scope.show_popup("warning", "Ckan diffs", "There were changes made to the package on the Ckan repository. To export again from dendro tick the boxes bellow. Note that changes made on the Ckan side will be lost.", 60000);
