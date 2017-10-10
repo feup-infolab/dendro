@@ -52,16 +52,16 @@
                 <section class="content">
                     <h3>Latest deposits</h3>
                     <div class="col-sm-12">
-                        <div class="table-container">
+                        <div class="table-container deposits-table">
                             <table class="table table-responsive table-striped table-bordered">
-                                <tbody infinite-scroll="getAuthorizedRegistry()" infinite-scroll-distance="0.000000000001">
-                                <tr ng-repeat="deposit in deposits track by $index">
+                                <tbody ui-scroll-viewport="">
+                                <tr ui-scroll="deposit in deposits" buffer-size="20" >
                                     <td>
                                         <div class="media">
                                             <div class="media-body">
                                                 <span class="media-meta pull-right">{{deposit.date}}</span>
                                                 <h4 class="title">
-                                                    <a href="{{deposit.creator}}">{{deposit.user}}</a> deposited the folder <a
+                                                    <a href="{{deposit.creator}}">                                            {{deposit}}{{deposit.user}}</a> deposited the folder <a
                                                             href="" class="foldersLabel">boom</a> from {{deposit.privacy}} project <a href="{{deposit.projused}}">{{deposit.title}}</a> in {{deposit.description}}
                                                 </h4>
                                                 <p class="summary">{{deposit.label}}</p>

@@ -1,0 +1,106 @@
+const chai = require("chai");
+const fs = require("fs");
+const tmp = require("tmp");
+const path = require("path");
+const async = require("async");
+const chaiHttp = require("chai-http");
+const _ = require("underscore");
+const recursive = require("recursive-readdir");
+
+chai.use(chaiHttp);
+
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const File = require(Pathfinder.absPathInSrcFolder("models/directory_structure/file.js")).File;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
+const personalDeposits = function(jsonOnly, person, agent, callback){
+    const path = "/deposits/my";
+    if(jsonOnly){
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .end(function(err, res){
+                callback(err, res);
+            });
+    } else {
+        agent
+            .get(path)
+            .end(function(err, res){
+                callback(err, res);
+            });
+    }
+};
+
+const systemDeposits = function(jsonOnly, system, agent, callback){
+    const path = "deposits/system";
+    if(jsonOnly){
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .send({description:system})
+            .end(function(err, res){
+                callback(err, res);
+            });
+    } else {
+        agent
+            .get(path)
+            .send({description:system})
+            .end(function(err, res){
+                callback(err, res);
+            });
+    }
+};
+
+const projectDeposits = function(jsonOnly, projectHandle, agent, callback){
+    const path = "deposits/project";
+    if(jsonOnly){
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .send({projUsed:projectHandle})
+            .end(function(err, res){
+                callback(err, res);
+            });
+    } else {
+        agent
+            .get(path)
+            .send({description:system})
+            .end(function(err, res){
+                callback(err, res);
+            });
+    }
+};
+
+const privacyDeposits = function(jsonOnly, privacy, agent, callback){
+    let path;
+    if(privacy){
+        path = "deposits/private";
+    }else {
+        path = "deposits/public";
+    }
+
+    if(jsonOnly){
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .end(function(err, res){
+                callback(err, res);
+            });
+    } else {
+        agent
+            .get(path)
+            .end(function(err, res){
+                callback(err, res);
+            });
+    }
+};
+
+
+module.exports = {
+    personalDeposits : personalDeposits,
+    systemDeposits : systemDeposits,
+    projectDeposits : projectDeposits,
+    privacyDeposits : privacyDeposits
+};

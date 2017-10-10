@@ -1,4 +1,4 @@
-angular.module('dendroApp.controllers', ['infinite-scroll'])
+angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
 /**
  *  Project administration controller
  */
@@ -21,7 +21,6 @@ angular.module('dendroApp.controllers', ['infinite-scroll'])
     )
     {
         $scope.active_tab = null;
-        $scope.deposits = [];
         $scope.offset = 0;
         $scope.page = 10;
 
@@ -61,16 +60,25 @@ angular.module('dendroApp.controllers', ['infinite-scroll'])
                 for(let i = 0; i < deposits.length; i++){
                     deposits[i].date = moment(deposits[i].date).fromNow();
                 }
-                $scope.deposits.push(deposits);
+                //$scope.deposits.push(deposits);
             }).catch(function(error){
 
             });
         };
 
-        $scope.getAuthorizedRegistry = function () {
-            let deposits = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-            $scope.deposits.push(deposits);
+        $scope.authorizedRegistry = {};
+
+        $scope.counter = 0;
+
+        $scope.authorizedRegistry.get = function (index, count, success) {
+            let deposits = [0,1,2,3,4,5,6,7,8,9];
+            //$scope.deposits.length = [];
+            success(deposits);
+
         };
+
+        $scope.deposits = $scope.authorizedRegistry;
+
 
         $scope.get_project = function()
         {
