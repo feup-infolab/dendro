@@ -2,6 +2,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const Like = require('../models/social/like.js').Like;
 const Comment = require('../models/social/comment.js').Comment;
@@ -41,11 +42,11 @@ const getNumLikesForAFileVersion = function(fileVersionUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : fileVersionUri
             }
         ]),
@@ -76,15 +77,15 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) 
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : fileVersionUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : currentUserUri
             }
         ]),
@@ -105,11 +106,11 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) 
                         db.connection.execute(query,
                             DbConnection.pushLimitsArguments([
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: db_social.graphUri
                                 },
                                 {
-                                    type: DbConnection.resource,
+                                    type: Elements.types.resource,
                                     value: likeUri
                                 }
                             ]),
@@ -155,11 +156,11 @@ const getSharesForAFileVersion = function (fileVersionUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : fileVersionUri
             }
         ]),
@@ -204,7 +205,7 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type: DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),
@@ -287,7 +288,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type: DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),

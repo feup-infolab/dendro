@@ -27,7 +27,7 @@ const research_domains = require(Pathfinder.absPathInSrcFolder("/controllers/res
 const repo_bookmarks = require(Pathfinder.absPathInSrcFolder("/controllers/repo_bookmarks"));
 const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"));
 const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
-const fileVersions = require(Pathfinder.absPathInSrcFolder("/controllers/file_versions"));
+const timeline = require(Pathfinder.absPathInSrcFolder("/controllers/timeline"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
 const deposits = require(Pathfinder.absPathInSrcFolder("/controllers/deposits"));
 
@@ -79,7 +79,6 @@ const getNonHumanReadableRouteRegex = function(resourceType)
 const extractUriFromRequest = function (req, res, next) {
     const matches = req.path.match(/^\/r\/([^\/]+)\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
     if(matches && matches.length === 2) {
-        console.log(req.params);
         req.params.requestedResourceUri = matches[0];
     }
 
@@ -392,67 +391,9 @@ const loadRoutes = function(app, callback)
 
     app.get([
             getNonHumanReadableRouteRegex("archived_resource"),
-            /\/archived_resource\/([^\/]+)\/?$/
         ],
         extractUriFromRequest,
-        function(req,res, next)
-        {
-            const getResourceUri = function(requestedResource, callback)
-            {
-                getRequestedResourceUriFromHumanReadableUri(
-                    requestedResource,
-                    "Cannot fetch resource " + requestedResource,
-                    "index",
-                    req,
-                    res,
-                    next,
-                    callback);
-            };
-
-            const processRequest = function(resourceUri){
-                req.params.requestedResourceUri = resourceUri;
-                const defaultPermissionsInProjectBranch = [
-                    Permissions.settings.privacy.of_owner_project.public,
-                    Permissions.settings.role.in_owner_project.contributor,
-                    Permissions.settings.role.in_owner_project.creator,
-                ];
-
-                req.params.is_project_root = false;
-
-                const queryBasedRoutes = {
-                    get: [
-                        {
-                            queryKeys: ['thumbnail'],
-                            handler: files.get_thumbnail,
-                            permissions: defaultPermissionsInProjectBranch,
-                            authentication_error: "Permission denied : cannot download this resource because you do not have permissions to access its project."
-                        }
-                    ]
-                };
-
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
-            };
-
-            async.waterfall([
-                function(callback)
-                {
-                    if(!isNull(req.params.requestedResourceUri))
-                    {
-                        const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
-                        ArchivedResource.findByUri(req.params.requestedResourceUri, function(err, archivedResource){
-                            req.params.requestedResourceUri = archivedResource.ddr.isVersionOf;
-                            callback(null, req.params.requestedResourceUri);
-                        });
-                    }
-                    else
-                    {
-                        const requestedArchivedVersionUrl = Config.baseUri + "/archived_version/" + req.params[0];
-                        getResourceUri(requestedArchivedVersionUrl, callback);
-                    }
-                },
-                processRequest
-            ]);
-        }
+        records.show_version
     );
 
     app.delete([
@@ -1062,54 +1003,301 @@ const loadRoutes = function(app, callback)
     );
 
     //      social
+    const defaultSocialDendroPostPermissions = [
+        Permissions.settings.role.in_post_s_project.creator,
+        Permissions.settings.role.in_post_s_project.contributor
+    ];
+    app.get('/socialDendro/my', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
     app.get('/posts/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.all);
-    app.post('/posts/post', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPost_controller);
-    app.post('/posts/new', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.new);
-    app.post('/posts/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.like);
-    app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.checkIfPostIsLikedByUser);
-    app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.postLikesInfo);
-    app.post('/posts/comment', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.comment);
-    app.post('/posts/comments', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostComments);
-    app.post('/posts/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.share);
-    app.post('/posts/shares', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostShares);
-    app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
-    
+    app.get('/posts/post', function (req, res, next) {
+        const processRequest = function(postUri){
+            req.query.postID = postUri;
+            req.params.requestedResourceUri = postUri;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postID'],
+                        handler: posts.getPost_controller,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which this post belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.query.postID);
+    });
+
+    const defaultSocialDendroArrayOfPostsPermissions = [
+        Permissions.settings.role.in_array_of_posts_project.creator,
+        Permissions.settings.role.in_array_of_posts_project.contributor
+    ];
+    app.get('/posts/posts', function (req, res, next) {
+        const processRequest = function(postsQueryInfo){
+            req.query.postsQueryInfo = postsQueryInfo;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postsQueryInfo'],
+                        handler: posts.getPosts_controller,
+                        permissions: defaultSocialDendroArrayOfPostsPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the posts belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        let postQueryInfo;
+        try {
+            postQueryInfo = JSON.parse(req.query.postsQueryInfo);
+        }
+        catch(err) {
+            postQueryInfo = req.query.postsQueryInfo
+        }
+        processRequest(postQueryInfo);
+    });
+
+    app.post('/posts/new', function (req, res, next) {
+        const processRequest = function(postContent, postTitle, postProjectUri){
+            req.body.newPostContent = postContent;
+            req.body.newPostTitle = postTitle;
+            req.body.newPostProjectUri = postProjectUri;
+            req.params.requestedResourceUri = postProjectUri;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.new,
+                        permissions: [Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator],
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project where you want to create the manual post"
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.body.newPostContent, req.body.newPostTitle, req.body.newPostProjectUri);
+    });
+
+    app.post('/posts/like', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.body.postID = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.like,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to like belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.body.postID);
+    });
+
+    app.get('/posts/post/likes', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.query.postURI = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postURI'],
+                        handler: posts.postLikesInfo,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain likes information belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.postURI);
+    });
+
+    app.post('/posts/comment', function (req, res, next) {
+        const processRequest = function(postURI, commentMsg){
+            req.body.postID = postURI;
+            req.body.commentMsg = commentMsg;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.comment,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to comment belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.body.postID, req.body.commentMsg);
+    });
+
+    app.get('/posts/comments', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.query.postID = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postID'],
+                        handler: posts.getPostComments,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.postID);
+    });
+
+    app.post('/posts/share', function (req, res, next) {
+        const processRequest = function(postURI, shareMsg){
+            req.body.postID = postURI;
+            req.body.shareMsg = shareMsg;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.share,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to share belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.body.postID, req.body.shareMsg);
+    });
+
+    app.get('/posts/shares', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.query.postID = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postID'],
+                        handler: posts.getPostShares,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain shares information belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.postID);
+    });
+
+    app.get('/posts/count', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
+
     app.get([
             getNonHumanReadableRouteRegex("post"),
             '/posts/:uri'
         ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.post);
-    
-    //file versions
-    app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.all);
-    app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.numFileVersionsInDatabase);
-    app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.getFileVersion);
-    app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.like);
-    app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.comment);
-    app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.share);
-    app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.fileVersionLikesInfo);
-    app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.getFileVersionShares);
-    
-    app.get([
-            getNonHumanReadableRouteRegex("file_version"),
-            '/fileVersions/:uri'
-        ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.fileVersion);
+        extractUriFromRequest, function (req, res, next) {
+            const processRequest = function(){
+                const queryBasedRoutes = {
+                    get: [
+                        {
+                            queryKeys: [],
+                            handler: posts.post,
+                            permissions: defaultSocialDendroPostPermissions,
+                            authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain information belongs to."
+                        },
+                    ]
+                };
 
-    //shares
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+            };
+            processRequest();
+        });
+
     app.get([
-            getNonHumanReadableRouteRegex("file_version"),
+            getNonHumanReadableRouteRegex("share"),
             '/shares/:uri'
         ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getShare);
+        extractUriFromRequest, function (req, res, next) {
+            const processRequest = function(){
+                const queryBasedRoutes = {
+                    get: [
+                        {
+                            queryKeys: [],
+                            handler: posts.getShare,
+                            permissions: defaultSocialDendroPostPermissions,
+                            authentication_error: "Permission denied : You are not a contributor or creator of the project to which the Share you want to obtain information belongs to."
+                        },
+                    ]
+                };
+
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+            };
+            processRequest();
+        });
 
     //notifications
     app.get('/notifications/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_unread_user_notifications);
-    app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_notification_info);
-    app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.delete);
+
+    const defaultNotificationsPermissions = [
+        Permissions.settings.role.in_notification_s_resource.author
+    ];
+    app.get('/notifications/notification', function (req, res, next) {
+        const processRequest = function(notificationUri){
+            req.query.notificationUri = notificationUri;
+            req.params.requestedResourceUri = notificationUri;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['notificationUri'],
+                        handler: notifications.get_notification_info,
+                        permissions: defaultNotificationsPermissions,
+                        authentication_error: "Permission denied : You are not the author of the resource that this notification points to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.notificationUri);
+    });
+
+    app.delete('/notifications/notification', function (req, res, next) {
+        const processRequest = function(notificationUri){
+            req.query.notificationUri = notificationUri;
+            req.params.requestedResourceUri = notificationUri;
+            const queryBasedRoutes = {
+                delete: [
+                    {
+                        queryKeys: ['notificationUri'],
+                        handler: notifications.delete,
+                        permissions: defaultNotificationsPermissions,
+                        authentication_error: "Permission denied : You are not the author of the resource that this notification points to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.notificationUri);
+    });
 
     //interactions
     app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.accept_descriptor_from_quick_list);

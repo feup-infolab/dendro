@@ -99,6 +99,7 @@ describe("Private Project mkdir", function (done) {
         });
 
         it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, "thisIsAn*InvalidFolderName", function (err, res) {
                     res.statusCode.should.equal(400);
@@ -109,12 +110,12 @@ describe("Private Project mkdir", function (done) {
         });
     });
 
-    after(function (done) {
+     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

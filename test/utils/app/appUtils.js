@@ -8,14 +8,31 @@ const index = require(Pathfinder.absPathInTestsFolder("utils/index/index.Test.js
 const chai = require("chai");
 const should = chai.should();
 
+//to try to cool down tests so that virtuoso does not clog up.
+let numberofTestsRun = 0;
+//10 sec cooldown every 7 test files
+const testsBatchSizeBeforeCooldown = 7;
+const testsCooldownTime = 10;
+
+const applyCooldownToTests = function()
+{
+
+    numberofTestsRun++;
+    console.log("Ran " + numberofTestsRun + " test files.");
+    return;
+
+    if(numberofTestsRun % testsBatchSizeBeforeCooldown === 0)
+    {
+        console.log("Ran " + numberofTestsRun + " test files. Waiting " + testsCooldownTime + " seconds to allow databases to cooldown.");
+        const sleep = require('sleep');
+        sleep.sleep(testsCooldownTime);
+    }
+};
+
+
 exports.requireUncached = function(module) {
     delete require.cache[require.resolve(module)];
     return require(module);
-};
-
-exports.deleteAllCaches = function (cb) {
-    const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-    Cache.deleteAllRecordsOfAllCaches(cb);
 };
 
 exports.clearAppState = function (cb) {
@@ -25,16 +42,17 @@ exports.clearAppState = function (cb) {
     }
     else
     {
+        applyCooldownToTests();
         global.tests.app.freeResources(function(err, results){
-            // setTimeout(function(){
-            //     delete global.tests.app;
-            //     delete global.tests.server;
-            //     cb(err, results);
-            // }, 300);
+            setTimeout(function(){
+                delete global.tests.app;
+                delete global.tests.server;
+                return cb(err, results);
+            }, 1000);
 
-            delete global.tests.app;
-            delete global.tests.server;
-            return cb(err, results);
+            // delete global.tests.app;
+            // delete global.tests.server;
+            // return cb(err, results);
         });
     }
 };

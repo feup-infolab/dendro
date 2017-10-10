@@ -4,7 +4,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
@@ -37,27 +37,27 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
     const argumentsArray =
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.sourceRepository.uri
             },
             {
-                type: DbConnection.date,
+                type: Elements.types.date,
                 value: self.timestamp
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: self.md5Checksum
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: self.md5Checksum
             }
         ];
@@ -75,14 +75,14 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
             {
                 predicate = {
                     value : metadataDescriptor.namespace + ":" + metadataDescriptor.element,
-                    type : DbConnection.prefixedResource
+                    type : Elements.types.prefixedResource
                 }
             }
             else
             {
                 predicate = {
                     value : metadataDescriptor.namespace + ":" + metadataDescriptor.qualifier,
-                    type : DbConnection.prefixedResource
+                    type : Elements.types.prefixedResource
                 }
             }
 
@@ -90,7 +90,7 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
 
             const object = {
                 value: metadataDescriptor.value,
-                type: DbConnection.string
+                type: Elements.types.string
             };
 
             argumentsArray.push(predicate);

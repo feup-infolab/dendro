@@ -152,10 +152,10 @@ describe("Metadata only project testFolder1 level recommendation_ontologies test
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

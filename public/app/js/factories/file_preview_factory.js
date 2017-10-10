@@ -5,7 +5,7 @@ angular.module('dendroApp.factories')
     .factory('preview', function($http) {
         return {
             available : function(fileExtension){
-                if(fileExtension == null )
+                if(!fileExtension)
                 {
                     return false;
                 }

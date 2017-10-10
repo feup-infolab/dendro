@@ -3,7 +3,7 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
@@ -91,7 +91,7 @@ Interaction.all = function(callback, streaming, customGraphUri) {
         db.connection.execute(query,
             [
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: graphUri
                 }
             ],
@@ -130,7 +130,7 @@ Interaction.all = function(callback, streaming, customGraphUri) {
         db.connection.execute(query,
             [
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: graphUri
                 }
             ],
@@ -186,15 +186,15 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                         db.connection.execute(query,
                             [
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: graphUri
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: pageOffset
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: Config.streaming.db.page_size
                                 }
                             ],

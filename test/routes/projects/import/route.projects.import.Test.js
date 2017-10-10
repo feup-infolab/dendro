@@ -31,8 +31,8 @@ const projectsData = [simpleProject, publicProject, privateProject, metadataOnly
 const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Import projects tests", function (done) {
-    this.timeout(Config.testsTimeout);
+describe("Import projects", function (done) {
+    this.timeout(2*Config.testsTimeOut);
     beforeEach(function (done) {
         createUsersUnit.setup(function (err, results) {
             should.equal(err, null);
@@ -132,11 +132,11 @@ describe("Import projects tests", function (done) {
 
                         //we import a second time every project. Should be refused for every second attempt
                         projectUtils.importProject(true, agent, projectData, function (err, res) {
+                            res.statusCode.should.equal(400);
                             const result = JSON.parse(res.text);
                             result.result.should.equal("error");
                             result.message.should.be.instanceof(Array);
                             result.message[0].should.equal("A project with handle "+projectData.handle+" already exists. Please choose another one.");
-                            res.statusCode.should.equal(400);
                             callback(null);
                         });
                     });
@@ -221,7 +221,7 @@ describe("Import projects tests", function (done) {
         //destroy graphs
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

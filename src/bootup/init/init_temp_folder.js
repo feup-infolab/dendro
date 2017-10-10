@@ -41,17 +41,10 @@ const initTempFilesFolder = function(app, callback)
                 fsextra.exists(Config.tempFilesDir, function(exists){
                     if(!exists)
                     {
-                        try{
-                            mkdirp.sync(Config.tempFilesDir);
-                            Logger.log_boot_message("success","Temporary files directory successfully created at " + Config.tempFilesDir);
-                            cb();
-                        }
-                        catch(e)
-                        {
-                            console.error(e.stack);
-                            throw e;
-                            return callback("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
-                        }
+
+                        mkdirp.sync(Config.tempFilesDir);
+                        Logger.log_boot_message("success","Temporary files directory successfully created at " + Config.tempFilesDir);
+                        cb();
                     }
                     else
                     {

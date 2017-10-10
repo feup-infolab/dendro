@@ -10,6 +10,7 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
@@ -225,7 +226,6 @@ File.prototype.save = function (callback, rename) {
 
             const renameIfChildExistsWithSameName = function(children, callback)
             {
-
                 const childrenWithTheSameName = _.find(children, function(child){
                     return child.nie.title === self.nie.title
                 });
@@ -326,7 +326,7 @@ File.prototype.deleteThumbnails = function () {
         for (let i = 0; i < Config.thumbnails.sizes.length; i++) {
             const dimension = Config.thumbnails.sizes[i];
             if (Config.thumbnails.size_parameters.hasOwnProperty(dimension)) {
-                gfs.connection.deleteByFileUri(self.uri + "?thumbnail&size=" + dimension, function (err, result) {
+                gfs.connection.delete(self.uri + "?thumbnail&size=" + dimension, function (err, result) {
                     if (err) {
                         console.error("Error deleting thumbnail " + self.uri + "?thumbnail&size=" + dimension);
                     }
@@ -355,7 +355,7 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
             if (isNull(err)) {
                 self.unlinkFromParent(function (err, result) {
                     if (isNull(err)) {
-                        gfs.connection.deleteByFileUri(self.uri, function (err, result) {
+                        gfs.connection.delete(self.uri, function (err, result) {
                             self.deleteThumbnails();
                             self.deleteDatastoreData();
                             return callback(err, result);
@@ -1188,15 +1188,15 @@ File.prototype.moveToFolder = function(newParentFolder, callback)
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: newTitle
             }
         ],

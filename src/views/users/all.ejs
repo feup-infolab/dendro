@@ -13,6 +13,9 @@
                 <table class="table">
                     <tr>
                         <th>
+                            Avatar
+                        </th>
+                        <th>
                             Username
                         </th>
                         <th>
@@ -30,8 +33,11 @@
                 %>
                 <tr>
                     <td>
+                        <img class="img-circle show-avatar-in-header" src="<%= user.uri%>?avatar" alt="<%= user.ddr.username %>">
+                    </td>
+                    <td>
                         <b>
-                            <a href="/user/<%=user.ddr.username%>"><%= user.ddr.username %></a>
+                            <a href="<%=user.uri%>"><%= user.ddr.username %></a>
                         </b>
                     </td>
                     <td>

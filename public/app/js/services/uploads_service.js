@@ -30,6 +30,7 @@ angular.module('dendroApp.services')
                         });
 
                     file.upload.progress(function (evt) {
+                        console.log(evt.loaded);
                         file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
                     });
 
@@ -75,7 +76,12 @@ angular.module('dendroApp.services')
 
                     file.upload.progress(function (evt) {
                         file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                        console.log(file.upload_id + " : " + file.progress);
+                        if(file.progress >= 100)
+                        {
+                            file.sent_to_server = true;
+                        }
+
+                        //console.log(file.upload_id + " : " + file.progress);
                     });
 
                     file.upload.xhr(function (xhr) {
@@ -179,13 +185,16 @@ angular.module('dendroApp.services')
                         });
 
                     return ticketPromise.promise;
-                }
+                };
 
-                this.calculate_md5 = function (file, callback)
+                this.calculate_md5 = function (file, callback, progressCallback)
                 {
                     browserMD5File(file, function (err, md5)
                     {
                         callback(err, md5); // 97027eb624f85892c69c4bcec8ab0f11
+                    },
+                    function(progress){
+                        progressCallback(progress);
                     });
                 }
             }

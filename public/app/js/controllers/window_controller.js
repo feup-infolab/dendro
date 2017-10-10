@@ -42,6 +42,21 @@ angular.module('dendroApp.controllers')
         return $scope.get_extension_icon(extension);
     };
 
+    $scope.get_short_filename = function(filename, maxLength)
+    {
+        var length = filename.length;
+
+        if(length > maxLength)
+        {
+            var trimmedFileName = filename.substring(0,maxLength);
+            return trimmedFileName + "..."
+        }
+        else
+        {
+            return filename;
+        }
+    };
+
     $scope.get_extension_icon = function(extension)
     {
         return "/images/icons/extensions/file_extension_"+extension+".png";
