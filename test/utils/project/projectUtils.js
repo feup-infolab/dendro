@@ -359,6 +359,7 @@ const importProject = function (jsonOnly, agent, project, cb) {
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
             .query({ "imported_project_handle" : project.handle} )
+            .query({ "imported_project_title" : project.title} )
             .attach('file', project.backup_path)
             .end(function (err, res) {
                 cb(err, res);

@@ -1623,17 +1623,27 @@ exports.import = function(req, res) {
     const acceptsJSON = req.accepts("json");
 
 
-    if(req.originalMethod === "GET" && acceptsJSON && acceptsHTML && JSON.stringify(req.query) === JSON.stringify({}))
+    if(req.originalMethod === "GET" && JSON.stringify(req.query) === JSON.stringify({}))
     {
-        const filesize = require('file-size');
+        if(acceptsJSON && acceptsHTML)
+        {
+            const filesize = require('file-size');
 
-        return res.render('projects/import/import',
-            {
-                title: "Import a project",
-                maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
-                maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
-            }
-        );
+            return res.render('projects/import/import',
+                {
+                    title: "Import a project",
+                    maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
+                    maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
+                }
+            );
+        }
+        else if(acceptsJSON && !acceptsHTML)
+        {
+            return res.status(400).json({
+                result : "error",
+                message : "API Request not valid for this route."
+            });
+        }
     }
     else
     {
@@ -1646,6 +1656,13 @@ exports.import = function(req, res) {
                     return res.status(400).json({
                         result : "error",
                         message : "Missing 'imported_project_handle' parameter!"
+                    });
+                }
+                else if(!req.query.imported_project_handle.match(/^[0-9a-z]+$/))
+                {
+                    return res.status(400).json({
+                        result : "error",
+                        message : "Invalid 'imported_project_handle' parameter! Should match regex ^[0-9a-z]+$ (only alphanumeric characters, lowercase letters)."
                     });
                 }
                 else if(isNull(req.query.imported_project_title))
