@@ -10,11 +10,6 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const initLogging = function(app, callback)
 {
     let registeredUncaughtExceptionHandler = false;
-    
-    process.on('unhandledRejection', function(rejection){
-        console.error("Unknown error occurred!");
-        console.error(rejection.stack);
-    });
 
     //Setup logging
     if(!isNull(Config.logging))

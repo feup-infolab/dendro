@@ -621,19 +621,19 @@ Permissions.check = function(permissionsRequired, req, callback) {
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if(permission.type == Permissions.types.role_in_post_s_project)
+            else if(permission.type === Permissions.types.role_in_post_s_project)
             {
                 Permissions.types.role_in_post_s_project.validator(req, user, permission, resource, function (err, result) {
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if(permission.type == Permissions.types.role_in_array_of_posts_project)
+            else if(permission.type === Permissions.types.role_in_array_of_posts_project)
             {
                 Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result) {
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if(permission.type == Permissions.types.role_in_notification_s_resource)
+            else if(permission.type === Permissions.types.role_in_notification_s_resource)
             {
                 Permissions.types.role_in_notification_s_resource.validator(req, user, permission, resource, function (err, result) {
                     cb(err, {authorized: result, role: permission});

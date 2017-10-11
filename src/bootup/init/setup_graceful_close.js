@@ -207,6 +207,15 @@ const setupGracefulClose = function(app, server, callback)
         });
     }
 
+    process.on('unhandledRejection', function(rejection){
+        console.error("Unknown error occurred!");
+        console.error(rejection.stack);
+
+        //we send SIGINT (like Ctrl+c) so that the graceful
+        // cleanup process function can be called (see setup_graceful_close.js)
+        process.kill(process.pid, "SIGINT");
+    });
+
     setupGracefulClose._handlers_are_installed = true;
 
     callback(null);

@@ -726,7 +726,8 @@ Elements.ddr = {
     {
         type : Elements.types.string,
         control : Controls.input_box,
-        api_readable : true
+        api_readable : true,
+        locked: true
     },
     hasAvatar :
     {

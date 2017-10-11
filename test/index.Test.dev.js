@@ -35,6 +35,11 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/fol
 
 return;
 
+//Import projects tests
+require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
+return;
+
+
 //PUBLIC PROJECT FOLDER LEVEL ?metadata&deep
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__metadata&deep/routes.project.publicProject.data.testFolder1.__metadata&deep.Test"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__metadata&deep/routes.project.publicProject.data.testFolder2.__metadata&deep.Test"));
