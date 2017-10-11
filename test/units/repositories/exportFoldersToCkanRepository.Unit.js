@@ -13,6 +13,7 @@ const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/proj
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
 
 const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanNoDiffs.js"));
 const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
@@ -45,7 +46,7 @@ module.exports.setup = function (project, finish) {
                         res.statusCode.should.equal(200);
                         res.body.length.should.equal(6);
                         ckanData = _.find(res.body, function (externalRepo) {
-                            return externalRepo.dcterms.title === "ckan_local";
+                            return externalRepo.dcterms.title === "ckan2";
                         });
                         should.exist(ckanData);
 

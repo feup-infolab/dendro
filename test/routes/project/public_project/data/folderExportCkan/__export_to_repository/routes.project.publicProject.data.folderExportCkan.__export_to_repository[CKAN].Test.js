@@ -18,6 +18,7 @@ const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repositor
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -35,7 +36,9 @@ const uploadedAndDeletedFileInDendroMockFile = require(Pathfinder.absPathInTests
 //The file that is uploaded directly into the ckan repository
 const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
 
-let uploadedAndDeletedFileInDendroDataInDB, uploadedFileToCkanDataInDb;
+const emptyFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/emptyFileMock.js"));
+
+let uploadedAndDeletedFileInDendroDataInDB, uploadedFileToCkanDataInDb, emptyFileDataInDb;
 
 const addChangesToExportedCkanPackagesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/addChangesToExportedCkanPackages.Unit.js"));
 
@@ -57,7 +60,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                 res.statusCode.should.equal(200);
                 res.body.length.should.equal(6);
                 ckanData = _.find(res.body, function (externalRepo) {
-                    return externalRepo.dcterms.title === "ckan_local";
+                    return externalRepo.dcterms.title === "ckan2";
                 });
                 should.exist(ckanData);
                 projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res) {
@@ -271,6 +274,21 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     res.statusCode.should.equal(200);
                     done();
                 }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+            });
+        });
+
+        //The case when there is a file in the dendro package that has a size of zero
+        it("Should give a success message and export to ckan even when there is a file with a size of zero (this use case was causing a bug before)", function (done) {
+            let propagateDendroChangesIntoCkan = true;
+            let deleteChangesOriginatedFromCkan = false;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanCkanDiffsData.nie.title, emptyFileMock, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        done();
+                    }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                });
             });
         });
 

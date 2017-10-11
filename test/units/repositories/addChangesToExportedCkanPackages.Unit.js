@@ -49,7 +49,7 @@ module.exports.setup = function (project, finish) {
                         res.statusCode.should.equal(200);
                         res.body.length.should.equal(6);
                         ckanData = _.find(res.body, function (externalRepo) {
-                            return externalRepo.dcterms.title === "ckan_local";
+                            return externalRepo.dcterms.title === "ckan2";
                         });
                         should.exist(ckanData);
 

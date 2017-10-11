@@ -2206,7 +2206,18 @@ exports.export_to_repository = function (req, res) {
         async.waterfall([
             function (callback) {
                 if (typeof targetRepository.ddr.hasPlatform === "string") {
-                    RepositoryPlatform.getUriFromHumanReadableUri(targetRepository.ddr.hasPlatform, function (err, resourceUri) {
+                    RepositoryPlatform.findByUri(targetRepository.ddr.hasPlatform, function (err, repositoryPlatform) {
+                        if (isNull(err)) {
+                            nick = repositoryPlatform.foaf.nick;
+                            callback(null, nick);
+                        }
+                        else {
+                            const msg = "Invalid repository platform: " + JSON.stringify(repositoryPlatform);
+                            console.error(msg);
+                            callback(true, msg);
+                        }
+                    });
+                    /*RepositoryPlatform.getUriFromHumanReadableUri(targetRepository.ddr.hasPlatform, function (err, resourceUri) {
                         if (isNull(err)) {
                             RepositoryPlatform.findByUri(resourceUri, function (err, repositoryPlatform) {
                                 if (isNull(err)) {
@@ -2225,7 +2236,7 @@ exports.export_to_repository = function (req, res) {
                             console.error(msg);
                             callback(true, msg);
                         }
-                    });
+                    });*/
                 }
                 else {
                     nick = targetRepository.ddr.hasPlatform.foaf.nick;

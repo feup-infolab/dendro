@@ -56,7 +56,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
                 res.statusCode.should.equal(200);
                 res.body.length.should.equal(6);
                 ckanData = _.find(res.body, function (externalRepo) {
-                    return externalRepo.dcterms.title === "ckan_local";
+                    return externalRepo.dcterms.title === "ckan2";
                 });
                 should.exist(ckanData);
                 projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, res) {

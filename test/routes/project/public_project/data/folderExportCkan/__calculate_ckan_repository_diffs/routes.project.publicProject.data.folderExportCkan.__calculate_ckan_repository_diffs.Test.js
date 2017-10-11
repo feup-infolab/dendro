@@ -54,7 +54,7 @@ describe("Calculate public project folderExportCkan level ckan respository diffs
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(6);
                     ckanData = _.find(res.body, function (externalRepo) {
-                        return externalRepo.dcterms.title === "ckan_local";
+                        return externalRepo.dcterms.title === "ckan2";
                     });
                     should.exist(ckanData);
                     projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res) {
