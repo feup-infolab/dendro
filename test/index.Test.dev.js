@@ -20,7 +20,6 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 return;
 
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__upload/routes.project.privateProject.data.testFolder1.__upload.Test.js"));
 
 //PUBLIC PROJECT FOLDER LEVEL ?metadata&deep
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__metadata&deep/routes.project.publicProject.data.testFolder1.__metadata&deep.Test"));

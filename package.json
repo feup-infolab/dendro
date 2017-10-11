@@ -135,7 +135,8 @@
     "xml-writer": "^1.4.1",
     "xml2js": "^0.4.17",
     "xmlhttprequest": "^1.8.0",
-    "yamljs": "latest"
+    "yamljs": "latest",
+    "yargs": "^9.0.1"
   },
   "devDependencies": {
     "chai": "^4.0.0",

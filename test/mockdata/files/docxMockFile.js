@@ -12,5 +12,15 @@ module.exports = {
         prefix:"nie",
         shortName:"plainTextContent",
         value: "This is a test of an upload for the Dendro platform in Word Document XML (DOCX ) Format. "
+    },
+    {
+        prefix:"dcterms",
+        shortName:"abstract",
+        value:"This is a docx file."
+    },
+    {
+        prefix:"dcterms",
+        shortName:"title",
+        value:"docx file."
     }]
 };

@@ -32,7 +32,13 @@ if(process.env.NODE_ENV === 'test')
 }
 else
 {
-    active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
+    const argv = require('yargs').argv;
+
+    if (argv.config ) {
+        active_config_key = argv.config;
+    } else {
+        active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
+    }
 }
 
 const active_config = configs[active_config_key];
