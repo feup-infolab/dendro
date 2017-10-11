@@ -65,8 +65,6 @@ function Ontology (object)
     return self;
 }
 
-Ontology.allOntologies = {};
-
 Ontology.findByUri = function(uri, callback)
 {
     const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
