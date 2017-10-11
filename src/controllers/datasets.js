@@ -771,13 +771,6 @@ export_to_repository_ckan = function (req, res) {
             console.error("Invalid value supplied to propagateDendroChangesIntoCkan parameter. Not overwriting by default.");
         }
 
-        /*try {
-            overwrite = JSON.parse(req.body.overwrite);
-        }
-        catch (e) {
-            console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
-        }*/
-
         const checkPermissionsDictionary = {
             "dendroDiffs" : propagateDendroChangesIntoCkan,
             "ckanDiffs" : deleteChangesOriginatedFromCkan
