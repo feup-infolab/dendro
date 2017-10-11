@@ -628,7 +628,7 @@
       "load_databases": true,
       "reload_administrators_on_startup": false,
       "reload_demo_users_on_startup": false,
-      "reload_ontologies_on_startup": false,
+      "reload_ontologies_on_startup": true,
       "clear_session_store": true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
