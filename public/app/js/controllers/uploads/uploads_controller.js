@@ -77,18 +77,12 @@ angular.module('dendroApp.controllers')
                                             {
                                                 file.uploading = false;
                                                 file.result = result;
-                                                file.has_success = "File uploaded successfully.";
+                                                const successMessage  = "File uploaded successfully.";
+                                                file.has_success = successMessage;
 
                                                 if ($scope.move_to_success_timeout != null && $scope.move_to_success_timeout > 0)
                                                 {
-                                                    $timeout(function ()
-                                                    {
-                                                        $scope[$scope.files_array_name] = _.reject(self.files, function (d)
-                                                        {
-                                                            return d.result != null
-                                                        });
-
-                                                    }, $scope.move_to_success_timeout);
+                                                    cleanUploadFilesListByPropertyAndValue("has_success", successMessage, $scope.move_to_success_timeout);
                                                 }
 
                                                 callback(null, result);
@@ -211,12 +205,30 @@ angular.module('dendroApp.controllers')
                     }
                 })
                 .catch(function(error){
+                    if(error.data.message)
+                    {
+                        windowService.show_popup('error', "Upload error",  error.data.message, 10000);
+                    }
                     file.uploading = false;
+                    file.error = true;
                     //windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
                     //console.error(error);
                 });
 
             return doUpload.promise;
+        };
+
+        const cleanUploadFilesListByPropertyAndValue = function (property, value, timeout) {
+            if(!timeout)
+                timeout = 3000;
+            $timeout(function ()
+            {
+                $scope[$scope.files_array_name] = _.reject($scope[$scope.files_array_name], function (d)
+                {
+                    return d[property] === value;
+                });
+
+            }, timeout);
         };
 
         $scope.still_uploading_files = function()
