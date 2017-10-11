@@ -38,27 +38,41 @@ angular.module('dendroApp.controllers')
                 headers: {'Accept': "application/json"}
             }).then(function(response) {
                 var data = response.data;
-                console.log("data is:");
-                console.log(data);
                 $scope.is_sending_data = false;
-                if(data.message === "Package was not previously exported")
+                if(typeof data === "string")
                 {
-                    $scope.firstTimeExporting = true;
+                    if(data === "Package was not previously exported")
+                    {
+                        $scope.show_popup("info", data, "You can now export the resource", 20000);
+                    }
+                    else
+                    {
+                        $scope.show_popup("error", data, "Invalid data message", 20000);
+                    }
+                }
+                else if(data instanceof Object)
+                {
+                    $scope.needsDendroPermissions = data.dendroDiffs;
+                    $scope.needsCkanPermissions = data.ckanDiffs;
+                    if(!$scope.needsCkanPermissions &&  !$scope.needsDendroPermissions || $scope.needsCkanPermissions.length === 0 &&  $scope.needsDendroPermissions.length === 0)
+                    {
+                        $scope.show_popup("info", "No differences detected", "You can now export the resource", 20000);
+                    }
+                    else
+                    {
+                        if($scope.needsCkanPermissions && $scope.needsCkanPermissions.length > 0)
+                        {
+                            $scope.show_popup("warning", "Ckan diffs", "There were changes made to the package on the Ckan repository. To export again from dendro tick the boxes bellow. Note that changes made on the Ckan side will be lost.", 60000);
+                        }
+                        if($scope.needsDendroPermissions && $scope.needsDendroPermissions.length > 0)
+                        {
+                            $scope.show_popup("warning", "Dendro diffs", "There were changes made to the package on Dendro. To export again from Dendro tick the boxes bellow. Note that if files were added or deleted in Dendro it will also be deleted or added in Ckan.", 60000);
+                        }
+                    }
                 }
                 else
                 {
-                    $scope.firstTimeExporting = false;
-                }
-                $scope.needsDendroPermissions = data.dendroDiffs;
-                $scope.needsCkanPermissions = data.ckanDiffs;
-                if($scope.needsCkanPermissions && $scope.needsCkanPermissions.length > 0)
-                {
-                    $scope.show_popup("warning", "Ckan diffs", "There were changes made to the package on the Ckan repository. To export again from dendro tick the boxes bellow. Note that changes made on the Ckan side will be lost.", 60000);
-                }
-
-                if($scope.needsDendroPermissions && $scope.needsDendroPermissions.length > 0)
-                {
-                    $scope.show_popup("warning", "Dendro diffs", "There were changes made to the package on Dendro. To export again from Dendro tick the boxes bellow. Note that if files were added or deleted in Dendro it will also be deleted or added in Ckan.", 60000);
+                    $scope.show_popup("error", data, "Invalid data type", 20000);
                 }
             }).catch(function(error){
                 if(error.data != null && error.data.message != null)
