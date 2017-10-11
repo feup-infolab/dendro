@@ -1004,14 +1004,24 @@ exports.upload = function(req, res)
     if(!isNull(req.params.requestedResourceUri))
     {
         //req.query.size ??? zero -> error message "Cannot upload empty files!"
-        if(req.query.size && !isNaN(req.query.size) && req.query.size > 0)
-        {
+        /*if(req.query.size && !isNaN(req.query.size) && req.query.size > 0)
+        {*/
             const uploader = new Uploader();
             uploader.handleUpload(req, res, function(err, result)
             {
                 if(!isNull(err))
                 {
-                    sendResponse(err, result);
+                    if(result === "Invalid file size! You cannot upload empty files!")
+                    {
+                        res.status(412).json({
+                            result: "error",
+                            message: result
+                        });
+                    }
+                    else
+                    {
+                        sendResponse(err, result);
+                    }
                 }
                 else
                 {
@@ -1027,14 +1037,14 @@ exports.upload = function(req, res)
                     });
                 }
             });
-        }
+        /*}
         else
         {
             sendResponse(412, {
                 "result" : "error",
                 "message" : "Invalid file size! You cannot upload empty files!"
             });
-        }
+        }*/
     }
     else
     {

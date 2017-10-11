@@ -278,16 +278,14 @@ describe("Export public project folderExportCkan level to ckan tests", function 
         });
 
         //The case when there is a file in the dendro package that has a size of zero
-        it("Should give a success message and export to ckan even when there is a file with a size of zero (this use case was causing a bug before)", function (done) {
+        it("Should give a 412 error when uploading a file with a size of zero to Dendro (this use case was causing a bug when exporting to ckan when there is a file with a size of zero)", function (done) {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanCkanDiffsData.nie.title, emptyFileMock, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
-                        res.statusCode.should.equal(200);
-                        done();
-                    }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                    res.statusCode.should.equal(412);
+                    res.body.message.should.equal("Invalid file size! You cannot upload empty files!");
+                    done();
                 });
             });
         });

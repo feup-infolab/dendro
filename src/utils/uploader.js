@@ -154,6 +154,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
 
             req.busboy.on('file', function (fieldname, file, filename) {
                 ++filesCounter;
+                let fileSize = 0;
 
                 tmp.dir({dir : Config.tempFilesDir}, function _tempDirCreated(err, tempFolderPath) {
                     if(isNull(err))
@@ -165,15 +166,33 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                             return callback(1, "Error saving file from request into temporary file");
                         });
 
+                        file.on('data', function (data) {
+                            fileSize += data.length;
+                        });
+
                         fstream.on('finish', function() {
                             --filesCounter;
 
-                            files.push({
+                            if(fileSize == 0)
+                            {
+                                return callback(true, "Invalid file size! You cannot upload empty files!");
+                            }
+                            else
+                            {
+                                files.push({
+                                    path : newFileLocalPath,
+                                    name : filename
+                                });
+
+                                allDone(filesCounter, false);
+                            }
+
+                            /*files.push({
                                 path : newFileLocalPath,
                                 name : filename
                             });
 
-                            allDone(filesCounter, false);
+                            allDone(filesCounter, false);*/
                         });
 
                         file.pipe(fstream);
@@ -322,7 +341,17 @@ Uploader.prototype.handleUpload = function(req, res, callback)
         {
             if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
             {
-                processChunkedUpload(upload, callback);
+                if(req.query.size && !isNaN(req.query.size) && req.query.size > 0)
+                {
+                    processChunkedUpload(upload, callback);
+                }
+                else
+                {
+                    res.status(412).json({
+                        result: "error",
+                        message: "Invalid file size! You cannot upload empty files!"
+                    });
+                }
             }
             else
             {
@@ -336,6 +365,25 @@ Uploader.prototype.handleUpload = function(req, res, callback)
         else
         {
             processNormalUpload(callback);
+            /*processNormalUpload(function (err, files) {
+                if(!isNull(err))
+                {
+                    if(files === "Invalid file size! You cannot upload empty files!")
+                    {
+                        res.status(412).json({
+                            result: "error",
+                            message: "Invalid file size! You cannot upload empty files!"
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "error",
+                            message: files
+                        });
+                    }
+                }
+            });*/
         }
     }
 };

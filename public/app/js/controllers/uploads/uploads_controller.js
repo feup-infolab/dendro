@@ -89,9 +89,18 @@ angular.module('dendroApp.controllers')
                                             })
                                             .catch(function (response)
                                             {
-                                                file.uploading = false;
+                                                /*file.uploading = false;
                                                 console.log(response.error);
                                                 file.has_error = response.error;
+                                                callback(response);*/
+
+                                                if(response.error.message)
+                                                {
+                                                    windowService.show_popup('error', "Upload error",  response.error.message, 10000);
+                                                }
+                                                file.uploading = false;
+                                                file.has_error = response.error;
+                                                cleanUploadFilesListByPropertyAndValue("has_error", file.has_error, 3000);
                                                 callback(response);
                                             });
                                     }
@@ -211,6 +220,7 @@ angular.module('dendroApp.controllers')
                     }
                     file.uploading = false;
                     file.error = true;
+                    cleanUploadFilesListByPropertyAndValue("error", true, 3000);
                     //windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
                     //console.error(error);
                 });
