@@ -411,6 +411,8 @@ DbConnection.prototype.create = function(callback) {
                         }
 
                         fs.appendFileSync(queryProfileLogFilePath, query.replace(/(?:\r\n|\r|\n)/g,"") + profiling_logfile_separator + msec + "\n");
+
+                        fs.closeSync(queryProfileLogFilePath);
                         cb();
                     }
                     else

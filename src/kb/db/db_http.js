@@ -395,16 +395,23 @@ DbConnection.prototype.create = function(callback) {
                         const mkdirp = require("mkdirp");
                         const logParentFolder = Pathfinder.absPathInApp("profiling");
                         const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + boot_start_timestamp + ".csv");
+                        let fd;
 
                         if(!self.created_profiling_logfile && !fs.existsSync(queryProfileLogFilePath))
                         {
                             mkdirp.sync(logParentFolder);
-                            fs.openSync(queryProfileLogFilePath, 'w'); //truncate / create blank file
+                            fd = fs.openSync(queryProfileLogFilePath, 'w'); //truncate / create blank file
                             fs.appendFileSync(queryProfileLogFilePath, "query" + profiling_logfile_separator + "time_msecs\n");
+                            fs.closeSync(fd);
                             self.created_profiling_logfile = true;
                         }
+                        else
+                        {
+                            fd = fs.openSync(queryProfileLogFilePath, 'w'); //truncate / create blank file
+                            fs.appendFileSync(queryProfileLogFilePath, query.replace(/(?:\r\n|\r|\n)/g,"") + profiling_logfile_separator + msec + "\n");
+                            fs.closeSync(fd);
+                        }
 
-                        fs.appendFileSync(queryProfileLogFilePath, query.replace(/(?:\r\n|\r|\n)/g,"") + profiling_logfile_separator + msec + "\n");
                         cb();
                     }
                     else

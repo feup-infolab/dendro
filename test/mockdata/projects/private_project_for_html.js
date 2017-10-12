@@ -11,7 +11,8 @@ const projectData = {
     language: 'En',
     coverage: 'Porto',
     handle: privateProjectHandle,
-    privacy: 'private'
+    privacy: 'private',
+    backup_path: Pathfinder.absPathInTestsFolder("/mockdata/projects/projectBackups/privateprojecthtmlcreatedbydemouser1.zip")
 };
 
 module.exports = projectData;

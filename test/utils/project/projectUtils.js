@@ -576,18 +576,99 @@ const getContentsOfFile = function(zipPath, callback)
     });
 };
 
-const getMetadataFromBackup = function(zipPath, callback)
+const getProjectBagitMetadataFromBackup = function(pathOfUnzippedContents)
 {
-    File.unzip(zipPath, function(err, pathOfUnzippedContents){
-        const metadataFilePath = path.join(pathOfUnzippedContents, "bag-info.txt");
-        const metadataContents = fs.readFileSync(metadataFilePath, "utf8");
-        callback(err, metadataContents);
-    });
+    const metadataFilePath = path.join(pathOfUnzippedContents, "bag-info.txt");
+    return fs.readFileSync(metadataFilePath, "utf8");
+};
+
+const getFileTreeMetadataFromBackup = function(pathOfUnzippedContents, projectHandle)
+{
+    const metadataFilePath = path.join(pathOfUnzippedContents, "data", projectHandle, "metadata.json");
+    metadataContents = fs.readFileSync(metadataFilePath, "utf8");
+
+    const regex = RegExp("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", "g");
+
+    metadataContents = JSON.parse(metadataContents);
+
+    function getTitle(obj)
+    {
+        if(obj.metadata !== null)
+        {
+            for(let i = 0; i < obj.metadata.length; i++)
+            {
+                if(obj.metadata[i].prefixedForm === "nie:title")
+                {
+                    return obj.metadata[i].value;
+                }
+            }
+
+            return null;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    function replaceAllUrisWithTitles(obj)
+    {
+        const objTitle = getTitle(obj);
+        obj["resource"] = objTitle;
+
+        if (obj.children instanceof Array)
+        {
+            for (let i = 0; i < obj.children.length; i++)
+            {
+                replaceAllUrisWithTitles(obj.children[i]);
+            }
+        }
+
+        return obj;
+    };
+
+    function replaceAllUrisWithDummyValue(obj)
+    {
+        for (let property in obj) {
+            if(typeof obj[property] === "string" && obj[property].match(regex))
+                obj[property] = "an_uri";
+            else
+            {
+                if (typeof obj[property] === "object")
+                    replaceAllUrisWithDummyValue(obj[property]);
+            }
+        }
+
+        return obj;
+    };
+
+    function sortChildrenByTitle(obj)
+    {
+        if (obj.children instanceof Array)
+        {
+            obj.children = obj.children.sort(function(a, b){
+                return a.resource < b.resource;
+            });
+
+            for (let i = 0; i < obj.children.length; i++)
+            {
+                sortChildrenByTitle(obj.children[i]);
+            }
+        }
+
+        return obj;
+    };
+
+    metadataContents = replaceAllUrisWithTitles(metadataContents);
+    metadataContents = replaceAllUrisWithDummyValue(metadataContents);
+    metadataContents = sortChildrenByTitle(metadataContents);
+
+    return metadataContents;
 };
 
 const metadataMatchesBackup = function (project, bodyBuffer, callback) {
 
-    const parseMetadata = function(result)
+    const parseBagItMetadata = function(result)
     {
         const split = result.split("\n");
         const parsed = {};
@@ -628,18 +709,46 @@ const metadataMatchesBackup = function (project, bodyBuffer, callback) {
                 const mockBackupFilePath = project.backup_path;
                 fs.writeFileSync(tempBackupFilePath, bodyBuffer);
 
-                getMetadataFromBackup(tempBackupFilePath, function(err1, result1){
-                    getMetadataFromBackup(mockBackupFilePath, function(err2, result2){
-                        if(!err1 && !err2)
+                async.mapSeries(
+                    [tempBackupFilePath, mockBackupFilePath],
+                    function(zipFilePath, callback)
+                    {
+                        File.unzip(zipFilePath, function(err, pathOfUnzippedContents){
+                            projectBagItMetadata = getProjectBagitMetadataFromBackup(pathOfUnzippedContents);
+                            projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, project.handle);
+                            callback(null, {
+                                bagitMetadata : projectBagItMetadata,
+                                projectTreeMetadata : projectTreeMetadata
+                            });
+                        });
+                    },
+                    function(err, results){
+                        if(!err)
                         {
-                            callback(null, JSON.stringify(parseMetadata(result1)) === JSON.stringify(parseMetadata(result2)));
+                            const returnedBagitMetadata = parseBagItMetadata(results[0].bagitMetadata);
+                            const mockupBagitMetadata = parseBagItMetadata(results[1].bagitMetadata);
+                            const bagitMetadataIsValid = (JSON.stringify(mockupBagitMetadata) === JSON.stringify(returnedBagitMetadata));
+
+                            const returnedProjectTreeMetadata = results[0].projectTreeMetadata;
+                            const mockupProjectTreeMetadata = results[1].projectTreeMetadata;
+
+                            const deepEqual = require("deep-equal");
+                            const fileTreeMetadataIsValid = deepEqual(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
+
+                            const diff = require("deep-diff").diff;
+                            const fileTreeMetadataDiffs = diff(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
+
+                            if(!fileTreeMetadataIsValid)
+                                console.error(JSON.stringify(fileTreeMetadataDiffs, null, 4));
+
+                            callback(null, bagitMetadataIsValid && fileTreeMetadataIsValid);
                         }
                         else
                         {
-                            callback(1);
+                            callback(err, results);
                         }
-                    });
-                });
+                    }
+                )
             }
             else
             {
@@ -825,7 +934,7 @@ module.exports = {
     bagit : bagit,
     getProjectContributors: getProjectContributors,
     getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
-    getProjectMetadata: getProjectMetadata,
+    getProjectMetadata: getProjectBagitMetadataFromBackup,
     getProjectMetadataDeep: getProjectMetadataDeep,
     contentsMatchBackup : contentsMatchBackup,
     metadataMatchesBackup : metadataMatchesBackup,
