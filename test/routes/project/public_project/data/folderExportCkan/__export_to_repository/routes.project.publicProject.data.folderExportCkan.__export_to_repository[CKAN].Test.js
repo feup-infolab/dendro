@@ -37,6 +37,7 @@ const uploadedAndDeletedFileInDendroMockFile = require(Pathfinder.absPathInTests
 const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
 
 const emptyFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/emptyFileMock.js"));
+const largeTxtFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/largeTxtFileMock"));
 
 let uploadedAndDeletedFileInDendroDataInDB, uploadedFileToCkanDataInDb, emptyFileDataInDb;
 
@@ -286,6 +287,28 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     res.statusCode.should.equal(412);
                     res.body.message.should.equal("Invalid file size! You cannot upload empty files!");
                     done();
+                });
+            });
+        });
+
+        it("Should append the current date if a file with the same name was already uploaded before", function (done) {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
+                    res.statusCode.should.equal(200);//TODO HOW CHECK THAT THE NAME HAS THE DATE CONCATENATED
+                });
+            });
+        });
+
+        it("Should export a large txt file(this is currently causing a bug)", function (done) {
+            let propagateDendroChangesIntoCkan = true;
+            let deleteChangesOriginatedFromCkan = false;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, largeTxtFileMock, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        done();
+                    }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
                 });
             });
         });
