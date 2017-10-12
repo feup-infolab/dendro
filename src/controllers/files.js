@@ -1013,7 +1013,7 @@ exports.upload = function(req, res)
                 {
                     if(result === "Invalid file size! You cannot upload empty files!")
                     {
-                        res.status(412).json({
+                        return res.status(412).json({
                             result: "error",
                             message: result
                         });

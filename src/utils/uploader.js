@@ -347,7 +347,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                 }
                 else
                 {
-                    res.status(412).json({
+                    return res.status(412).json({
                         result: "error",
                         message: "Invalid file size! You cannot upload empty files!"
                     });

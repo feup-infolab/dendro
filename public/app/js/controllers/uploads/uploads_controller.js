@@ -89,19 +89,17 @@ angular.module('dendroApp.controllers')
                                             })
                                             .catch(function (response)
                                             {
-                                                /*file.uploading = false;
-                                                console.log(response.error);
+                                                file.uploading = false;
                                                 file.has_error = response.error;
-                                                callback(response);*/
-
                                                 if(response.error.message)
                                                 {
                                                     windowService.show_popup('error', "Upload error",  response.error.message, 10000);
+                                                    cleanUploadFilesListByPropertyAndValue("has_error", file.has_error, 3000);
                                                 }
-                                                file.uploading = false;
-                                                file.has_error = response.error;
-                                                cleanUploadFilesListByPropertyAndValue("has_error", file.has_error, 3000);
-                                                callback(response);
+                                                else
+                                                {
+                                                    callback(response);
+                                                }
                                             });
                                     }
                                     else
