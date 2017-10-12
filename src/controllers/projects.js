@@ -1101,11 +1101,10 @@ exports.administer = function(req, res) {
                         {
                             async.map(req.body.contributors, function (contributor, callback) {
                                 //from http://www.dzone.com/snippets/validate-url-regexp
-                                const regexpUser =
+                                const regexpUser = Resource.getResourceRegex("user");
                                 
-                                if (regexpUsername.test(contributor))
+                                if (regexpUser.test(contributor))
                                 {
-
                                     User.findByUri(contributor, function (err, user) {
 
                                         if (isNull(err) && !isNull(user) ) {

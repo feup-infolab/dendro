@@ -3,6 +3,7 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
@@ -10,6 +11,7 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const slug = require('slug');
 const fs = require("fs");
@@ -198,6 +200,83 @@ Folder.prototype.saveIntoFolder = function(
     };
 
     saveIntoFolder(self, destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback);
+};
+
+Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedChildren) {
+    const self = this;
+    let query;
+
+    /**
+     *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+     *    (Recursive querying through inference).
+     *   @type {string}
+     */
+    if(includeSoftDeletedChildren === true)
+    {
+        query =
+            "SELECT ?uri, ?last_modified, ?name\n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart+ ?uri. \n" +
+            "   ?uri ddr:modified ?last_modified. \n" +
+            "   OPTIONAL {?uri ddr:deleted true}. \n" +
+            "   ?uri nie:title ?name. \n" +
+            "} ";
+    }
+    else
+    {
+        query =
+            "SELECT ?uri, ?last_modified, ?name\n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart+ ?uri. \n" +
+            "   ?uri ddr:modified ?last_modified. \n" +
+            "   filter not exists { ?uri ddr:deleted 'true' }. \n" +
+            "   ?uri nie:title ?name. \n" +
+            "} ";
+    }
+
+    /*const query =
+        "SELECT ?uri, ?last_modified, ?name\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:hasLogicalPart+ ?uri. \n" +
+        "   ?uri ddr:modified ?last_modified. \n" +
+        "   ?uri nie:title ?name. \n" +
+        "} ";*/
+
+    db.connection.execute(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.resource,
+                value: self.uri
+            }
+        ],
+        function(err, result) {
+            if(isNull(err))
+            {
+                if(result instanceof Array)
+                {
+                    callback(err,result);
+                }
+                else
+                {
+                    return callback(true, "Invalid response when getting recursive children of resource : " + self.uri);
+                }
+            }
+            else
+            {
+                return callback(true, "Error reported when querying for the children of" + self.uri + " . Error was ->" + result);
+            }
+        }
+    );
 };
 
 Folder.prototype.createTempFolderWithContents = function(

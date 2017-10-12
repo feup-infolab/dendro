@@ -1040,6 +1040,12 @@ Elements.ddr = {
         api_readable: true,
         control : Controls.input_box
     },
+    exportedAt :
+    {
+        type : Elements.types.string,
+        control : Controls.input_box,
+        locked : true
+    },
     numLikes :
     {
         type : Elements.types.int,
