@@ -300,7 +300,11 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
                     res.statusCode.should.equal(200);//TODO HOW CHECK THAT THE NAME HAS THE DATE CONCATENATED, res returns the file uri -> get file info by uri anc check that the name has the date concatenated
-                    done();
+                    itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
+                        //TODO check here that the name is the original name but concatenated with a timestamp
+                        res.statusCode.should.equal(200);
+                        done();
+                    });
                 });
             });
         });
