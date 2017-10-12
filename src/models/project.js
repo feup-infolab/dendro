@@ -38,6 +38,16 @@ function Project(object)
         self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
     }
 
+    if(isNull(object.ddr.hasStorageLimit))
+    {
+        self.ddr.hasStorageLimit = Config.maxProjectSize;
+    }
+
+    if(isNull(object.ddr.requiresVerifiedUploads))
+    {
+        self.ddr.requiresVerifiedUploads = false;
+    }
+
     return self;
 }
 

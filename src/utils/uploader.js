@@ -322,7 +322,21 @@ Uploader.prototype.handleUpload = function(req, res, callback)
         {
             if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
             {
-                processChunkedUpload(upload, callback);
+                processChunkedUpload(upload, function(err, result){
+                    if(isNull(err))
+                    {
+                        callback(err, result);
+                    }
+                    else
+                    {
+                        res.status(err).json({
+                            result: "error",
+                            message: "There were errors processing your upload",
+                            error : result,
+                            files: fileNames
+                        });
+                    }
+                });
             }
             else
             {

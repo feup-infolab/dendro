@@ -256,7 +256,7 @@ describe("Import projects", function (done) {
                     });
                 }, function(err, results){
                     done(err);
-                });
+                })
             });
         });
 

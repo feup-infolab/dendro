@@ -20,18 +20,18 @@ const md5File = require('md5-file');
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
-var demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-var demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-var demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
-var demouser4 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser4"));
-var demouser5 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser5"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
+const demouser4 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser4"));
+const demouser5 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser5"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-var db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-var createFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
-let Project;
-let User;
+const Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
@@ -41,14 +41,12 @@ function requireUncached(module) {
 describe("Administer data projects", function (done) {
     before(function (done) {
         this.timeout(Config.testsTimeout);
-        createFoldersUnit.setup(function (err, res) {
+        createProjectsUnit.setup(function (err, res) {
             should.equal(err, null);
-            Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
-            User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
             done();
         });
     });
-    describe('project/' + publicProject.handle + '?downloads', function () {
+    describe('project/' + publicProject.handle + '?administer', function () {
 
         it("[HTML] should not access project without logging in GET", function (done) {
 

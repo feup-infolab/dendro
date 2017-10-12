@@ -1043,22 +1043,77 @@ exports.administer = function(req, res) {
                         });
                     };
 
+                    let updateProjectSettings = function(project, callback)
+                    {
+                        const updateStorageLimit = function(callback)
+                        {
+                            if(!isNull(req.body.storage_limit))
+                            {
+                                try{
+                                    req.body.storage_limit = parseInt(req.body.storage_limit)
+                                }
+                                catch(e)
+                                {
+                                    return callback(true, "Invalid storage limit value "+req.body.storage_limit+" specified. It must be an integer number. ");
+                                }
+
+                                User.findByUri(req.user.uri, function(err, user){
+                                    if(isNull(err))
+                                    {
+                                        Permissions.checkRoleInSystem(req, user, Permissions.settings.role.in_system.admin, function (err, isAdmin) {
+                                            //Admins can set sizes larger than the default maximum,
+                                            // otherwise the user is limited to the maximum project size in the development_configs.json file
+                                            if(isAdmin)
+                                            {
+                                                project.ddr.hasStorageLimit = req.body.storage_limit;
+                                            }
+                                            else
+                                            {
+                                                project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize);
+                                            }
+
+                                            callback(null, project);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        console.error(JSON.stringify(err));
+                                        console.error(JSON.stringify(user));
+                                        return callback(true, "Unable to validate permissions of the currently logged user when updating the storage limit.");
+                                    }
+                                });
+                            }
+                        };
+
+                        if(!isNull(req.body.verified_uploads) && (req.body.verified_uploads === true || req.body.verified_uploads === false))
+                        {
+                            project.ddr.requiresVerifiedUploads = req.body.verified_uploads;
+                        }
+
+                        updateStorageLimit(function(err, result){
+                            callback(err, result);
+                        })
+                    };
+
                     let updateProjectContributors = function(project, callback)
                     {
                         if (!isNull(req.body.contributors) && req.body.contributors instanceof Array)
                         {
                             async.map(req.body.contributors, function (contributor, callback) {
                                 //from http://www.dzone.com/snippets/validate-url-regexp
-                                const regexpUsername = /(\w+)?/;
+                                const regexpUser =
                                 
                                 if (regexpUsername.test(contributor))
                                 {
 
-                                    User.findByUsername(contributor, function (err, user) {
+                                    User.findByUri(contributor, function (err, user) {
 
-                                        if (isNull(err) && !isNull(user) && user.foaf.mbox) {
+                                        if (isNull(err) && !isNull(user) ) {
                                             //TODO Check if user already is a contributor so as to not send a notification
-                                            notifyContributor(user);
+                                            if(user.foaf.mbox)
+                                            {
+                                                notifyContributor(user);
+                                            }
                                             return callback(null, user.uri);
                                         } else {
                                             return callback(true, contributor);
@@ -1097,6 +1152,7 @@ exports.administer = function(req, res) {
                     async.waterfall([
                         updateProjectMetadata,
                         updateProjectContributors,
+                        updateProjectSettings,
                         saveProject
                     ], function(err, project){
                         if (isNull(err))

@@ -11,18 +11,22 @@
 
         <li ng-class="{active : active_tab == 'information'}">
 
-            <a href="#information" role="tab" data-toggle="tab" ng-click="clicked_information_tab()">Information</a>
+            <a href="#information" role="tab" data-toggle="tab" ng-click="clicked_information_tab()">Metadata</a>
         </li>
 
         <li ng-class="{active : active_tab == 'people'}">
             <a href="#people" role="tab" data-toggle="tab" ng-click="clicked_people_tab()">People</a>
         </li>
+        <li ng-class="{active : active_tab == 'settings'}">
+            <a href="#settings" role="tab" data-toggle="tab" ng-click="clicked_settings_tab()">Settings</a>
+        </li>
         <!--<li>
             <a href="#actions" role="tab" data-toggle="tab">Actions</a>
         </li>-->
-        <li ng-class="{active : active_tab == 'metadataquality'}">
+        <!--<li ng-class="{active : active_tab == 'metadataquality'}">
             <a href="#metadata_quality" role="tab" data-toggle="tab" ng-click="clicked_metadataquality_tab()">Metadata Quality</a>
         </li>
+        -->
     </ul>
 
     <!-- Tab panes -->
@@ -31,7 +35,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h4>
-                        Project information
+                        Project metadata
                     </h4>
                 </div>
             </div>
@@ -187,6 +191,51 @@
                 </div>
             </div>
         </div>
+        <div class="tab-pane" id="settings" ng-class="{active : active_tab == 'settings'}">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>
+                        Project settings
+                    </h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="control-group has-feedback"
+                         ng-class="{'has-success' : valid_int(project.ddr.hasStorageLimit), 'has-warning' : new_project.handle && !valid_int(project.ddr.hasStorageLimit)}">
+                        <label for="storage_limit" class="control-label">Storage Limit (Max <%= Config.maxProjectSize %> bytes)</label>
+                        <input type="text"
+                               class="form-control"
+                               ng-model="project.ddr.hasStorageLimit"
+                               id="storage_limit"
+                               placeholder="Storage limit"
+                               name="storage_limit"
+                       required>
+
+                        <p class="help-block">The maximum storage size of the project in bytes. It cannot exceed <%= Config.maxProjectSize %> bytes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="control-group has-feedback">
+                        <label for="verified_uploads" class="control-label">Verified Uploads</label>
+                        <input type="checkbox"
+                               ng-model="project.ddr.requiresVerifiedUploads"
+                               id="verified_uploads"
+                               placeholder="Verified"
+                               name="verified_uploads"
+                               required>
+
+                        <p class="help-block">This will enable or disable verified uploads for this project. Enable this for automatic checksum verification of uploaded files (safer), or disable for faster uploads.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" type="button" ng-click="update_project_settings()"><i class="fa fa-save" aria-hidden="true"></i>
+                Save changes
+            </button>
+        </div>
         <div class="tab-pane" id="people" ng-class="{active : active_tab == 'people'}">
             <div class="row">
                 <div class="col-lg-12">
@@ -238,6 +287,7 @@
                 </div>
             </div>
         </div>
+        <!--
         <div class="tab-pane" id="metadata_quality" ng-class="{active : active_tab == 'metadataquality'}">
             <div class="row">
                 <div class="col-lg-12">
@@ -246,7 +296,6 @@
                     </h4>
 
                     <div id="directory_tree" ng-if="project" ng-controller="projectTreeViewerCtrl">
-                        <!-- Nested node template -->
                         <script type="text/ng-template" id="nodes_renderer.html">
                             <div class="alert alert-info tree-node tree-node-content" >
                                 <table >
@@ -301,6 +350,6 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
     </div>
 </div>

@@ -164,8 +164,26 @@ angular.module('dendroApp.controllers')
             var regexp = /^[0-9a-z]+$/;
             return regexp.test(word);
         }
+    };
 
-    }
+    $scope.valid_int = function(int) {
+
+        if(!int || int === "")
+        {
+            return false;
+        }
+
+        try{
+            parseInt(int);
+        }
+        catch(e)
+        {
+            return false;
+        }
+
+        return true;
+    };
+
 
     $scope.load_licenses = function()
     {

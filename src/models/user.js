@@ -176,7 +176,7 @@ User.autocomplete_search = function(value, maxResults, callback) {
             },
             {
                 type : Elements.types.prefixedResource,
-                value : User.prefixedRDFType
+                value : User.leafClass
             },
             {
                 type : Elements.types.string,

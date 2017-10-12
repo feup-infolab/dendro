@@ -674,6 +674,20 @@ Elements.foaf =
  */
 
 Elements.ddr = {
+    hasStorageLimit :
+    {
+        type : Elements.types.int,
+        control : Controls.input_box,
+        api_readable : true,
+        locked : true
+    },
+    requiresVerifiedUploads :
+    {
+        type : Elements.types.boolean,
+        control : Controls.input_box,
+        api_readable : true,
+        locked : true
+    },
     created :
     {
         type : Elements.types.date,
