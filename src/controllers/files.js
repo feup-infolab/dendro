@@ -888,60 +888,79 @@ exports.upload = function(req, res)
                                                             });
 
 
-                                                            const newFile = new File({
-                                                                nie: {
-                                                                    title: file.name,
-                                                                    isLogicalPartOf: parentFolder.uri
-                                                                }
-                                                            });
-
-                                                            newFile.saveWithFileAndContents(file.path, req.index, function (err, newFile)
+                                                            if(isNull(file.error))
                                                             {
-                                                                if (isNull(err))
-                                                                {
-                                                                    return callback(null, {
-                                                                        result: "success",
-                                                                        message: "File submitted successfully.",
-                                                                        uri: newFile.uri
-                                                                    });
-                                                                }
-                                                                else
-                                                                {
-                                                                    const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-                                                                    return callback(500, {
-                                                                        result: "error",
-                                                                        message: "Unable to save files after buffering: " + (result.message)? result.message : JSON.stringify(result),
-                                                                        files: files,
-                                                                        errors: newFile
-                                                                    });
-                                                                }
-                                                            });
+                                                                const newFile = new File({
+                                                                    nie: {
+                                                                        title: file.name,
+                                                                        isLogicalPartOf: parentFolder.uri
+                                                                    }
+                                                                });
 
+                                                                newFile.saveWithFileAndContents(file.path, req.index, function (err, newFile)
+                                                                {
+                                                                    if (isNull(err))
+                                                                    {
+                                                                        return callback(null, {
+                                                                            result: "success",
+                                                                            message: "File submitted successfully.",
+                                                                            uri: newFile.uri
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+                                                                        return callback(500, {
+                                                                            result: "error",
+                                                                            message: "Unable to save files after buffering: " + (result.message)? result.message : JSON.stringify(result),
+                                                                            files: files,
+                                                                            errors: newFile
+                                                                        });
+                                                                    }
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                //The error flag in the callback is null here although there is an error
+                                                                // because various files can be sent at the same time
+                                                                //and if one fails -> it should be notified as such but all the other successful uploads should not be blocked
+                                                                return callback(null, {
+                                                                    result: "error",
+                                                                    message: file.error
+                                                                });
+                                                            }
                                                         }, function(err, results){
                                                             if(isNull(err))
                                                             {
                                                                 async.map(results, function (result, callback) {
-                                                                    File.findByUri(result.uri, function (error, file) {
-                                                                        if(isNull(error))
-                                                                        {
-                                                                            getProjectFromResource(file, function (error, project) {
-                                                                                if(isNull(error))
-                                                                                {
-                                                                                    buildFileSystemPostFromUpload(req.user.uri, project, file, function (error, result) {
-                                                                                        callback(error, result);
-                                                                                    });
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    callback(error, project);
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            callback(error, file);
-                                                                        }
-                                                                    });
+                                                                    if(result.result === "success")
+                                                                    {
+                                                                        File.findByUri(result.uri, function (error, file) {
+                                                                            if(isNull(error))
+                                                                            {
+                                                                                getProjectFromResource(file, function (error, project) {
+                                                                                    if(isNull(error))
+                                                                                    {
+                                                                                        buildFileSystemPostFromUpload(req.user.uri, project, file, function (error, result) {
+                                                                                            callback(error, result);
+                                                                                        });
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        callback(error, project);
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                callback(error, file);
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        callback(null, result);
+                                                                    }
                                                                 }, function (error, result) {
                                                                     return callback(err, results);
                                                                 })
@@ -1008,17 +1027,7 @@ exports.upload = function(req, res)
         {
             if(!isNull(err))
             {
-                if(result === "Invalid file size! You cannot upload empty files!")
-                {
-                    res.status(412).json({
-                        result: "error",
-                        message: result
-                    });
-                }
-                else
-                {
-                    sendResponse(err, result);
-                }
+                sendResponse(err, result);
             }
             else
             {

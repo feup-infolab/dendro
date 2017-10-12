@@ -136,11 +136,10 @@ Uploader.prototype.handleUpload = function(req, res, callback)
         const readFilesFromRequestBody = function(callback) {
             let files = [],
                 filesCounter = 0,
-                aFileIsEmpty = false,
                 allFinished = false,
                 fstream;
 
-            function allDone(filesCounter, finished, aFileIsEmpty)
+            function allDone(filesCounter, finished)
             {
 
                 if(finished)
@@ -150,14 +149,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
 
                 if(filesCounter === 0 && allFinished)
                 {
-                    if(aFileIsEmpty === true)
-                    {
-                        callback(true, "Invalid file size! You cannot upload empty files!");
-                    }
-                    else
-                    {
-                        callback(null, files);
-                    }
+                    callback(null, files);
                 }
             }
 
@@ -182,10 +174,14 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                         fstream.on('finish', function() {
                             --filesCounter;
 
-                            if(fileSize == 0)
+                            if(fileSize === 0)
                             {
-                                //if the file is empty do not push it into the array of files so it is not saved
-                                aFileIsEmpty = true;
+                                //if the file is empty push it to the array but with an error message of
+                                files.push({
+                                    path : newFileLocalPath,
+                                    name : filename,
+                                    error: "Invalid file size! You cannot upload empty files!"
+                                });
                             }
                             else
                             {
@@ -194,7 +190,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                                     name : filename
                                 });
                             }
-                            allDone(filesCounter, false, aFileIsEmpty);
+                            allDone(filesCounter, false);
                         });
 
                         file.pipe(fstream);
@@ -211,7 +207,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
             });
 
             req.busboy.on('finish', function() {
-                allDone(filesCounter, true, aFileIsEmpty);
+                allDone(filesCounter, true);
             });
 
             req.pipe(req.busboy);
