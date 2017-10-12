@@ -148,15 +148,6 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                     allFinished = true;
                 }
 
-                /*if(aFileIsEmpty === true)
-                {
-                    callback(true, "Invalid file size! You cannot upload empty files!");
-                }
-                else if(filesCounter === 0 && allFinished)
-                {
-                    callback(null, files);
-                }*/
-
                 if(filesCounter === 0 && allFinished)
                 {
                     if(aFileIsEmpty === true)
@@ -193,7 +184,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
 
                             if(fileSize == 0)
                             {
-                                //if the file is empty do not push it into the array of files so this it is not saved
+                                //if the file is empty do not push it into the array of files so it is not saved
                                 aFileIsEmpty = true;
                             }
                             else
@@ -204,13 +195,6 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                                 });
                             }
                             allDone(filesCounter, false, aFileIsEmpty);
-
-                            /*files.push({
-                                path : newFileLocalPath,
-                                name : filename
-                            });
-
-                            allDone(filesCounter, false);*/
                         });
 
                         file.pipe(fstream);
