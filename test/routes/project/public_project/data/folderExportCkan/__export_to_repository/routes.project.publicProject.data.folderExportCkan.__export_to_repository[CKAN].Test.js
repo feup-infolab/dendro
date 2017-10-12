@@ -303,6 +303,8 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
                         //TODO check here that the name is the original name but concatenated with a timestamp
                         res.statusCode.should.equal(200);
+                        res.body.title.should.contain(uploadedAndDeletedFileInDendroMockFile.name);
+                        res.body.title.should.not.equal(uploadedAndDeletedFileInDendroMockFile.name);
                         done();
                     });
                 });
