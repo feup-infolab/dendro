@@ -71,7 +71,7 @@ Folder.prototype.saveIntoFolder = function(
                 includeOriginalNodes,
                 function (err, absPathOfFinishedFile) {
                 if (isNull(err)) {
-                    const descriptors = node.getDescriptors([Config.types.locked], [Config.types.backuppable]);
+                    const descriptors = node.getDescriptors([Elements.access_types.locked], [Elements.access_types.backuppable]);
                     const fileNode = {
                         resource: node.uri,
                         metadata: descriptors
@@ -129,7 +129,7 @@ Folder.prototype.saveIntoFolder = function(
                                         console.log(message);
 
                                         if (includeMetadata) {
-                                            const descriptors = node.getDescriptors([Config.types.locked], [Config.types.backuppable]);
+                                            const descriptors = node.getDescriptors([Elements.access_types.locked], [Elements.access_types.backuppable]);
 
                                             const folderNode = {
                                                 resource: node.uri,
@@ -165,7 +165,7 @@ Folder.prototype.saveIntoFolder = function(
 
                                 const selfMetadata = {
                                     resource: node.uri,
-                                    metadata: node.getDescriptors([Config.types.locked], [Config.types.backuppable]),
+                                    metadata: node.getDescriptors([Elements.access_types.locked], [Elements.access_types.backuppable]),
                                     children: []
                                 };
 
@@ -1173,7 +1173,7 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                                 {
                                     return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
                                 }
-                            }, entityLoadingTheMetadataUri, [Config.types.locked],[Config.types.restorable])
+                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked],[Elements.access_types.restorable])
                         });
                     }
                     else

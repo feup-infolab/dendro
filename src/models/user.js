@@ -59,7 +59,7 @@ User.findByORCID = function(orcid, callback, removePrivateDescriptors)
         {
             if(removePrivateDescriptors)
             {
-                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
+                user.clearDescriptors([Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.public, Elements.access_types.api_readable]);
                 return callback(err, user);
             }
             else
@@ -87,7 +87,7 @@ User.findByUsername = function(username, callback, removeSensitiveDescriptors)
             {
                 if(removeSensitiveDescriptors)
                 {
-                    user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
+                    user.clearDescriptors([Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.public, Elements.access_types.api_readable]);
                     return callback(err, user);
                 }
                 else
@@ -429,7 +429,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
             suggestion.last_hidden = result.last_hidden;
             suggestion.last_unhidden = Date.parse(result.last_unhidden);
 
-            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
                 return callback(null, suggestion);
             }
             else {
@@ -620,7 +620,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
             suggestion.last_favorited = result.last_favorited;
             suggestion.last_unfavorited = Date.parse(result.last_unfavorited);
 
-            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
                 return callback(null, suggestion);
             }
             else {
@@ -877,7 +877,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
 
                     suggestion.times_favorite_accepted_in_md_editor = parseInt(result.times_favorite_accepted_in_md_editor);
 
-                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
                         return callback(null, suggestion);
                     }
                     else {
@@ -1001,7 +1001,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
 
                     suggestion.times_smart_accepted_in_md_editor = parseInt(result.times_smart_accepted_in_md_editor);
 
-                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
                         return callback(null, suggestion);
                     }
                     else {
@@ -1127,7 +1127,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
                     suggestion.recent_use_count = parseInt(result.recent_use_count);
                     suggestion.last_use = Date.parse(result.last_use);
 
-                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
                         return callback(null, suggestion);
                     }
                     else {

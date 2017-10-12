@@ -71,7 +71,7 @@ exports.all = function(req, res){
     const getAllUsers = function (cb) {
         User.all(function (err, users) {
             cb(err, users);
-        }, req, null, [Config.types.private, Config.types.locked], [Config.types.api_readable]);
+        }, req, null, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
     };
 
     async.parallel(
@@ -172,7 +172,7 @@ exports.show = function(req, res){
             {
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
-                    const filteredUser = Descriptor.removeUnauthorizedFromObject(user, [Config.types.private, Config.types.locked], [Config.types.api_readable]);
+                    const filteredUser = Descriptor.removeUnauthorizedFromObject(user, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
                     res.json(
                         filteredUser
                     );

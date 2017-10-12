@@ -473,7 +473,7 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
             {
                 const metadataResult = {
                     title: resource.nie.title,
-                    descriptors: resource.getDescriptors([Config.types.private], [Config.types.api_readable], typeConfigsToRetain),
+                    descriptors: resource.getDescriptors([Elements.access_types.private], [Elements.access_types.api_readable], typeConfigsToRetain),
                     file_extension: resource.ddr.fileExtension,
                     hasLogicalParts: []
                 };
@@ -549,7 +549,7 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
 
             return callback(true, msg);
         }
-    }, null, null, null, [Config.types.private], [Config.types.api_accessible]);
+    }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_accessible]);
 };
 
 InformationElement.prototype.containedIn = function(parentResource, callback, customGraphUri)

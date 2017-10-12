@@ -196,7 +196,7 @@ exports.show_parent = function(req, res) {
                         {
                             if(!isNull(parent) && parent instanceof Object)
                             {
-                                const descriptors = parent.getDescriptors([Config.types.private, Config.types.locked], [Config.types.api_readable]);
+                                const descriptors = parent.getDescriptors([Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
 
                                 if(!isNull(descriptors) && descriptors instanceof Array)
                                 {
@@ -354,7 +354,7 @@ exports.update = function(req, res) {
                     changeAuthor = req.user.uri;
                 }
 
-                resource.replaceDescriptors(fusedDescriptors, [Config.types.locked, Config.types.private], []);
+                resource.replaceDescriptors(fusedDescriptors, [Elements.access_types.locked, Elements.access_types.private], []);
 
                 resource.save(function(err, updatedResource)
                 {
@@ -382,7 +382,7 @@ exports.update = function(req, res) {
                             message : updatedResource
                         })
                     }
-                }, true, changeAuthor, [Config.types.locked], [], [Config.types.audit]);
+                }, true, changeAuthor, [Elements.access_types.locked], [], [Elements.access_types.audit]);
             },
             function(resource, callback) {
                 //Look for the project
@@ -573,7 +573,7 @@ exports.update = function(req, res) {
                                      changeAuthor = req.user.uri;
                                 }
 
-                                resource.replaceDescriptors(fusedDescriptors, [Config.types.locked, Config.types.private], []);
+                                resource.replaceDescriptors(fusedDescriptors, [Elements.access_types.locked, Elements.access_types.private], []);
 
                                 resource.save(function(err, record)
                                 {
@@ -636,7 +636,7 @@ exports.update = function(req, res) {
                                             message : record
                                         })
                                     }
-                                }, true, changeAuthor, [Config.types.locked], [], [Config.types.audit]);
+                                }, true, changeAuthor, [Elements.access_types.locked], [], [Elements.access_types.audit]);
                             }
                             else
                             {

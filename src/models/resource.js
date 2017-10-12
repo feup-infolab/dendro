@@ -930,10 +930,10 @@ Resource.prototype.save = function
 
                     let excludeAuditDescriptorsArray;
                     if (descriptorsToExcludeFromChangeLog instanceof Array) {
-                        excludeAuditDescriptorsArray = descriptorsToExcludeFromChangeLog.concat([Config.types.audit]);
+                        excludeAuditDescriptorsArray = descriptorsToExcludeFromChangeLog.concat([Elements.access_types.audit]);
                     }
                     else {
-                        excludeAuditDescriptorsArray = [Config.types.audit];
+                        excludeAuditDescriptorsArray = [Elements.access_types.audit];
                     }
 
                     if (changedDescriptor.isAuthorized(excludeAuditDescriptorsArray, descriptorsToExceptionFromChangeLog)) {
@@ -1434,7 +1434,7 @@ Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxR
 
 Resource.getResourceRegex = function (resourceType) {
     const regex = "^/r/"+resourceType+"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
-    return regex;
+    return new RegExp(regex);
 };
 
 Resource.findResourcesByTextQuery = function (
@@ -2379,7 +2379,7 @@ Resource.prototype.getURIsOfCurrentDescriptors = function(descriptorTypesNotToGe
 Resource.prototype.getPublicDescriptorsForAPICalls = function()
 {
     const self = this;
-    return self.getDescriptors([Config.types.locked, Config.types.private], [Config.types.api_readable]);
+    return self.getDescriptors([Elements.access_types.locked, Elements.access_types.private], [Elements.access_types.api_readable]);
 };
 
 Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet, typeConfigsToRetain)
@@ -2668,11 +2668,26 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                    let descriptorValue = cachedResource[namespace][element];
                    if(descriptorValue instanceof Array)
                    {
-                       return callback(null,_.contains(cachedResource[namespace][element], Descriptor.getUriFromPrefixedForm(value)));
+                       if(descriptorToCheck.type === Elements.types.prefixedResource)
+                       {
+                           return callback(null,_.contains(cachedResource[namespace][element], Descriptor.getUriFromPrefixedForm(value)));
+                       }
+                       else
+                       {
+                           return callback(null,_.contains(cachedResource[namespace][element], value));
+                       }
                    }
                    else if(typeof descriptorValue === "string")
                    {
-                       return callback(null, (descriptorValue === value));
+                       if(descriptorToCheck.type === Elements.types.prefixedResource)
+                       {
+                           return callback(null, (Descriptor.getUriFromPrefixedForm(value) === value));
+                       }
+                       else
+                       {
+                           return callback(null, (descriptorValue === value));
+                       }
+
                    }
                    else
                    {
@@ -2702,9 +2717,9 @@ Resource.prototype.restoreFromArchivedVersion = function(version, callback, uriO
     const self = this;
 
     const typesToExclude = [
-        Config.types.locked,
-        Config.types.audit,
-        Config.types.private
+        Elements.access_types.locked,
+        Elements.access_types.audit,
+        Elements.access_types.private
     ];
 
     const oldDescriptors = version.getDescriptors(typesToExclude);
@@ -2716,7 +2731,7 @@ Resource.prototype.restoreFromArchivedVersion = function(version, callback, uriO
         true,
         uriOfUserPerformingRestore,
         [
-            Config.types.locked
+            Elements.access_types.locked
         ]);
 };
 
@@ -2811,7 +2826,7 @@ Resource.prototype.findMetadataRecursive = function(callback, typeConfigsToRetai
     const self = this;
     const async = require("async");
     const myDescriptors = self.getDescriptors(
-        [Config.types.private, Config.types.locked], [Config.types.api_readable], typeConfigsToRetain
+        [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], typeConfigsToRetain
     );
 
     if(!isNull(myDescriptors) && myDescriptors instanceof Array)

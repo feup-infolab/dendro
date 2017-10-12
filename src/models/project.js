@@ -1712,7 +1712,7 @@ Project.prototype.restoreFromFolder = function(
                                     {
                                         return callback(err, "Error restoring metadata for project " + self.uri + " : " + result);
                                     }
-                                }, entityLoadingTheMetadataUri, [Config.types.locked], [Config.types.restorable])
+                                }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable])
                             });
                         }
                         else

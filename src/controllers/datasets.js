@@ -1227,7 +1227,7 @@ export_to_repository_ckan = function (req, res) {
                             }
                             else {
                                 //construir o extrasJSONArray
-                                const jsonDescriptors = folder.getDescriptors([Config.types.private, Config.types.locked]);
+                                const jsonDescriptors = folder.getDescriptors([Elements.access_types.private, Elements.access_types.locked]);
 
                                 const extrasJSONArray = [];
 

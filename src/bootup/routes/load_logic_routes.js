@@ -73,9 +73,7 @@ const getNonHumanReadableRouteRegex = function(resourceType)
 {
     /*const regex = "^/r/"+resourceType+"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
     return new RegExp(regex);*/
-    const regex = Resource.getResourceRegex(resourceType);
-    return new RegExp(regex);
-
+    return Resource.getResourceRegex(resourceType);
 };
 
 const extractUriFromRequest = function (req, res, next) {

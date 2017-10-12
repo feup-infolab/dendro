@@ -14,6 +14,7 @@ const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissi
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const nodemailer = require("nodemailer");
 const db = Config.getDBByID();
@@ -238,7 +239,7 @@ exports.show = function(req, res) {
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    }, [Config.types.locked, Config.types.locked_for_projects, Config.types.private]);
+                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
                 }
                 else {
                     requestedResource.findMetadata(function (err, result) {
@@ -252,7 +253,7 @@ exports.show = function(req, res) {
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    }, [Config.types.locked, Config.types.locked_for_projects, Config.types.private]);
+                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
                 }
 
                 return false;
@@ -457,7 +458,7 @@ exports.show = function(req, res) {
                 else
                 {
                     const projectDescriptors = project.getDescriptors(
-                        [Config.types.private, Config.types.locked], [Config.types.api_readable], [Config.types.locked_for_projects, Config.types.locked]
+                        [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
                     );
 
                     if(!isNull(projectDescriptors) && projectDescriptors instanceof Array)
@@ -1072,7 +1073,7 @@ exports.administer = function(req, res) {
                                                 project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize);
                                             }
 
-                                            callback(null, project);
+                                            return callback(null, project);
                                         });
                                     }
                                     else
@@ -1082,6 +1083,10 @@ exports.administer = function(req, res) {
                                         return callback(true, "Unable to validate permissions of the currently logged user when updating the storage limit.");
                                     }
                                 });
+                            }
+                            else
+                            {
+                                callback(null, project);
                             }
                         };
 
@@ -1100,7 +1105,7 @@ exports.administer = function(req, res) {
                         if (!isNull(req.body.contributors) && req.body.contributors instanceof Array)
                         {
                             async.map(req.body.contributors, function (contributor, callback) {
-                                //from http://www.dzone.com/snippets/validate-url-regexp
+                                const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
                                 const regexpUser = Resource.getResourceRegex("user");
                                 
                                 if (regexpUser.test(contributor))
@@ -1224,8 +1229,6 @@ exports.get_contributors = function(req, res){
     Project.findByUri(req.params.requestedResourceUri, function(err, project) {
         if (isNull(err)) {
             if (!isNull(project)) {
-                //from http://www.dzone.com/snippets/validate-url-regexp
-                const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
                 let contributorsUri = [];
                 if (!isNull(project.dcterms.contributor)){
 
@@ -1237,19 +1240,14 @@ exports.get_contributors = function(req, res){
 
                     const contributors = [];
                     async.each(contributorsUri, function (contributor, callback) {
-
-                        if (regexp.test(contributor)) {
-                            User.findByUri(contributor, function (err, user) {
-                                if (isNull(err) && user) {
-                                    contributors.push(user);
-                                    return callback(null);
-                                } else {
-                                    return callback(true, contributor);
-                                }
-                            }, true);
-                        } else {
-                            return callback(true, contributor)
-                        }
+                        User.findByUri(contributor, function (err, user) {
+                            if (isNull(err) && user) {
+                                contributors.push(user);
+                                return callback(null);
+                            } else {
+                                return callback(true, contributor);
+                            }
+                        }, true);
 
                     }, function (err, contributor) {
                         if (isNull(err)) {

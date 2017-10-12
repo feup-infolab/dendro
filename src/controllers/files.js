@@ -2006,7 +2006,7 @@ exports.mkdir = function(req, res){
                         "status" : "1",
                         "id" : folder.uri,
                         "result" : "ok",
-                        "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Config.types.private], [Config.types.api_readable])
+                        "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Elements.access_types.private], [Elements.access_types.api_readable])
                     });
                 }
                 else
@@ -2302,7 +2302,7 @@ exports.recent_changes = function(req, res) {
                                 {
                                     for(var i = 0; i < versions.length; i++)
                                     {
-                                        versions[i] = Descriptor.removeUnauthorizedFromObject(versions[i], [Config.types.locked], [Config.types.api_readable])
+                                        versions[i] = Descriptor.removeUnauthorizedFromObject(versions[i], [Elements.access_types.locked], [Elements.access_types.api_readable])
                                     }
 
                                     res.json(versions);
