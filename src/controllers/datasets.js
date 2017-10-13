@@ -623,6 +623,14 @@ exports.calculate_ckan_repository_diffs = function (req, res) {
 };
 
 
+const createCkanFileIdBasedOnDendroFileUri = function (fileUri, callback) {
+
+};
+
+const verifyIfCkanFileWasCreatedInDendro = function (ckanFile, callback) {
+
+}
+
 const compareDendroPackageWithCkanPackage = function (folder, packageId, client, callback) {
     let lastExportedAtDate = null;
     let folderResourcesInDendro = null;

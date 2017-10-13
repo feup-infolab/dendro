@@ -298,20 +298,43 @@ describe("Export public project folderExportCkan level to ckan tests", function 
         //test when uploading/copying/moving/renaming folders/files
         it("Should append the current date if a file with the same name was already uploaded before", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                //the first time when uploading the file -> does not append the current date to the name
                 fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
-                    res.statusCode.should.equal(200);//TODO HOW CHECK THAT THE NAME HAS THE DATE CONCATENATED, res returns the file uri -> get file info by uri anc check that the name has the date concatenated
+                    res.statusCode.should.equal(200);
                     itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
-                        //TODO check here that the name is the original name but concatenated with a timestamp
-                        res.statusCode.should.equal(200);
-                        res.body.title.should.contain(uploadedAndDeletedFileInDendroMockFile.name);
-                        res.body.title.should.not.equal(uploadedAndDeletedFileInDendroMockFile.name);
-                        done();
+                        res.body.title.should.equal(uploadedAndDeletedFileInDendroMockFile.name);
+                        res.body.title.should.not.contain("_Copy_created_");
+                        fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
+                            //the second time uploading the file -> should append the date to the name
+                            res.statusCode.should.equal(200);
+                            itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
+                                //checks here that the name is the original name but concatenated with a timestamp
+                                res.statusCode.should.equal(200);
+                                res.body.title.should.not.equal(uploadedAndDeletedFileInDendroMockFile.name);
+                                res.body.title.should.contain("_Copy_created_");
+                                done();
+                            });
+                        });
                     });
                 });
             });
         });
 
         /*it("Should export a large txt file(this is currently causing a bug)", function (done) {
+            let propagateDendroChangesIntoCkan = true;
+            let deleteChangesOriginatedFromCkan = false;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, largeTxtFileMock, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        done();
+                    }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                });
+            });
+        });*/
+
+        /*it("Should give an error saying that a folder has no content to export", function (done) {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
