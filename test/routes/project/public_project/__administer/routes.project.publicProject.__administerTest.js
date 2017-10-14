@@ -38,7 +38,7 @@ function requireUncached(module) {
     return require(module)
 }
 
-describe("Administer data projects", function (done) {
+describe("Administer projects", function (done) {
     before(function (done) {
         this.timeout(Config.testsTimeout);
         createProjectsUnit.setup(function (err, res) {
