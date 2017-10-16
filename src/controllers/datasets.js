@@ -623,13 +623,24 @@ exports.calculate_ckan_repository_diffs = function (req, res) {
 };
 
 
-const createCkanFileIdBasedOnDendroFileUri = function (fileUri, callback) {
-
+const createCkanFileIdBasedOnDendroFileName = function (fileName) {
+    const slug = require('slug');
+    let newCkanFileID = slug(fileName) + "_exported_by_dendro_" + fileName;
+    return newCkanFileID;
 };
 
-const verifyIfCkanFileWasCreatedInDendro = function (ckanFile, callback) {
+const verifyIfCkanFileWasCreatedInDendro = function (ckanFile) {
+    let ckanFileID = ckanFile.id;
+    let ckanFileIDParts = ckanFileID.split("_exported_by_dendro_");
+    const slug = require('slug');
 
-}
+    if(ckanFileIDParts.length !== 2 || ckanFileIDParts[1] !== ckanFile.name || ckanFileIDParts[0] !== slug(ckanFile.name))
+        return false;
+    else
+    {
+        return true;
+    }
+};
 
 const compareDendroPackageWithCkanPackage = function (folder, packageId, client, callback) {
     let lastExportedAtDate = null;
@@ -655,7 +666,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                 let namesOfResourcesInDendro = _.pluck(folderResourcesInDendro, 'name');
                                 let dendroMetadataFiles = [folder.nie.title + ".zip", folder.nie.title + ".rdf", folder.nie.title + ".txt", folder.nie.title + ".json"];
                                 namesOfResourcesInDendro = namesOfResourcesInDendro.concat(dendroMetadataFiles);
-                                let namesOfResourcesInCkan = _.pluck(folderResourcesInCkan, 'id');
+                                let namesOfResourcesInCkan = _.pluck(folderResourcesInCkan, 'name');
                                 let dendroIsMissing = _.difference(namesOfResourcesInCkan, namesOfResourcesInDendro);
                                 let ckanIsMissing = _.difference(namesOfResourcesInDendro, namesOfResourcesInCkan);
 
@@ -664,10 +675,10 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                             if (dendroIsMissing.length > 0) {
                                                 async.map(dendroIsMissing, function (missingFile, callback) {
                                                     let ckanFile = _.find(folderResourcesInCkan, function (folderResourcesInCkan) {
-                                                        return folderResourcesInCkan.id === missingFile;
+                                                        return folderResourcesInCkan.name === missingFile;
                                                     });
 
-                                                    if (ckanFile.last_modified < exportedAtDate) {
+                                                    if(verifyIfCkanFileWasCreatedInDendro(ckanFile)) {
                                                         //it was deleted in dendro
                                                         //delete in ckan
                                                         let ckanfileEvent = {
@@ -681,6 +692,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                                     else {
                                                         callback(err, null);
                                                     }
+
                                                 }, function (err, results) {
                                                     callback(err, results);
                                                 });
@@ -822,7 +834,8 @@ export_to_repository_ckan = function (req, res) {
                         mimetype: Config.mimeType(fileExtension),
                         extension: fileExtension,
                         format: fileExtension.toUpperCase(),
-                        overwrite_if_exists: overwrite
+                        overwrite_if_exists: overwrite,
+                        id : createCkanFileIdBasedOnDendroFileName(fileName)
                     };
 
                 resources.push(record);
@@ -844,7 +857,8 @@ export_to_repository_ckan = function (req, res) {
                         extension: fileExtension,
                         format: fileExtension.toUpperCase(),
 
-                        _if_exists: overwrite
+                        _if_exists: overwrite,
+                        id : createCkanFileIdBasedOnDendroFileName(fileName)
                     };
 
                 if (typeof Config.exporting.generated_files_metadata[fileExtension] !== "undefined") {
