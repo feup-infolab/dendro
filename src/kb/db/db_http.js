@@ -578,7 +578,10 @@ DbConnection.prototype.close = function(callback){
             {
                 if(self.pendingRequests.hasOwnProperty(queryID))
                 {
-                    self.pendingRequests[queryID].cancel(cb);
+                    if(!isNull(self.pendingRequests[queryID]))
+                    {
+                        self.pendingRequests[queryID].cancel(cb);
+                    }
                 }
                 else
                 {

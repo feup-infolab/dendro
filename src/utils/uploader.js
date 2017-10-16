@@ -22,9 +22,70 @@ Uploader.prototype.handleUpload = function(req, res, callback)
     const upload = UploadManager.get_upload_by_id(upload_id);
     const username = req.query.username;
     const filename = req.query.filename;
-    const size = req.query.size;
+    let size = req.query.size;
     const restart = req.query.restart;
     let md5_checksum = req.query.md5_checksum;
+
+    if(isNull(username))
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "Request is missing the 'username' field, which should be the currently logged in user."
+        });
+    }
+
+    if(isNull(filename))
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "Request is missing the 'filename' field, which should be the name of the file being uploaded."
+        });
+    }
+
+    if(isNull(size))
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "Request is missing the 'size' field, which should be length of the uploaded file in bytes."
+        });
+    }
+    else
+    {
+        try{
+            size = parseInt(size);
+        }
+        catch(e)
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "The 'size' field, which should be length of the uploaded file in bytes, is not a valid integer."
+            });
+        }
+    }
+
+
+    if(!isNull(upload)
+        && (
+                upload.username !== username ||
+                upload.filename !== filename ||
+                upload.expected !== size ||
+                upload.id !== upload_id
+            )
+    )
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "Invalid request for appending data to upload : " + upload_id,
+            error: {
+                invalid_username : !(upload.username === username),
+                invalid_filename : !(upload.filename === filename),
+                invalid_size : !(upload.expected === size),
+                id : !(upload.id === upload_id),
+            }
+        });
+    }
+
+    //console.log("Recebi um chunk do ficheiro " + filename + " para o upload id " + upload_id);
 
     const processChunkedUpload = function(upload, callback) {
         if (!isNull(upload) && upload !== "")
@@ -101,7 +162,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                             else
                             {
                                 res.json({
-                                    size: upload.size
+                                    size: upload.expected
                                 });
                             }
                         }
@@ -343,6 +404,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                     processChunkedUpload(upload, function(err, result){
                         if(isNull(err))
                         {
+                            console.log("Completed upload of file " + filename + " !! " + new Date().toISOString());
                             callback(err, result);
                         }
                         else

@@ -326,7 +326,7 @@ const loadRoutes = function(app, callback)
     //  registration and login
     app.get('/register', auth.register);
     app.post('/register', auth.register);
-    app.get('/logout', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), auth.logout);
+    app.get('/logout', auth.logout);
 
     //people listing
     app.get('/users', users.all);

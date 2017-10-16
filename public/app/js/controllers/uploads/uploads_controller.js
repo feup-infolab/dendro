@@ -65,7 +65,7 @@ angular.module('dendroApp.controllers')
                             if (!file.uploading && !file.has_error)
                             {
                                 file.calculating_md5 = true;
-                                file.md5_progress = 0;
+                                file. md5_progress = 0;
                                 uploadsService.calculate_md5(file, function (err, md5)
                                 {
                                     if (!err)
@@ -265,7 +265,8 @@ angular.module('dendroApp.controllers')
                 var resumeUrl = URI($scope.get_restart_url())
                     .addSearch("upload_id", file.upload_id)
                     .addSearch("username", file.username)
-                    .addSearch("filename", file.name).toString();
+                    .addSearch("filename", file.name).toString()
+                    .addSearch("size", file.length).toString();
 
                 $http.get(resumeUrl).then(function () {
                     $scope.upload(file, true);
