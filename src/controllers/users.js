@@ -534,6 +534,22 @@ exports.get_avatar = function (req, res) {
         }
     }
 
+    const serveDefaultAvatar = function()
+    {
+        //User does not have an avatar
+        let absPathOfFileToServe = Pathfinder.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
+        let fileStream = fs.createReadStream(absPathOfFileToServe);
+
+        let filename = path.basename(absPathOfFileToServe);
+
+        res.writeHead(200, {
+            "Content-Type": "application/octet-stream",
+            "Content-Disposition": "attachment; filename=" + filename
+        });
+
+        fileStream.pipe(res);
+    };
+
     getUser(function (err, user) {
         if (!err) {
             if (!user) {
@@ -544,20 +560,10 @@ exports.get_avatar = function (req, res) {
             }
             else {
                 if (!user.ddr.hasAvatar) {
-                    //User does not have an avatar
-                    let absPathOfFileToServe = Pathfinder.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
-                    let fileStream = fs.createReadStream(absPathOfFileToServe);
-
-                    let filename = path.basename(absPathOfFileToServe);
-
-                    res.writeHead(200, {
-                        "Content-Type": "application/octet-stream",
-                        "Content-Disposition": "attachment; filename=" + filename
-                    });
-
-                    fileStream.pipe(res);
+                    serveDefaultAvatar();
                 }
-                else {
+                else
+                {
                     //User has an avatar
                     user.getAvatarFromGridFS(function (err, avatarFilePath) {
                         if (!err) {
@@ -573,10 +579,17 @@ exports.get_avatar = function (req, res) {
                             fileStream.pipe(res);
                         }
                         else {
-                            res.status(500).json({
-                                result: "Error",
-                                message: "Error trying to get from gridFs user Avatar from user identifier " + identifier + " Error reported: " + JSON.stringify(avatarFilePath)
-                            });
+                            if(err === 404)
+                            {
+                                serveDefaultAvatar();
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result: "Error",
+                                    message: "Error trying to get from gridFs user Avatar from user identifier " + identifier + " Error reported: " + JSON.stringify(avatarFilePath)
+                                });
+                            }
                         }
                     });
                 }
