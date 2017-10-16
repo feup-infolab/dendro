@@ -348,7 +348,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             });
         });
 
-        /*it("Should export a large txt file(this is currently causing a bug)", function (done) {
+        /*it("Should give an error saying that a folder has no content to export", function (done) {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -362,7 +362,21 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             });
         });*/
 
-        /*it("Should give an error saying that a folder has no content to export", function (done) {
+        /*it("Should give an error saying that a folder to export has children folders(ckan does not support this)", function (done) {
+            let propagateDendroChangesIntoCkan = true;
+            let deleteChangesOriginatedFromCkan = false;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, largeTxtFileMock, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        done();
+                    }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                });
+            });
+        });*/
+
+        /*it("Should export a large txt file(this is currently causing a bug)", function (done) {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
