@@ -260,22 +260,16 @@ module.exports.initLargeTxtFile = function (largeTxtMock, callback) {
         fileSizeInBytes +=  fs.writeSync(fd, buf, 0, buf.length, index);
         index = fileSizeInBytes;
     }
+    fs.closeSync(fd);
     callback(null, largeTxtMock.location  + " was initialized");
 };
 
-module.exports.resetLargeTxtFile = function (largeTxtMock, callback) {
-
+module.exports.deleteLargeTxtFile = function (largeTxtMock, callback) {
     var fs = require('fs');
-    fs.writeFile(largeTxtMock.location, "This is a test of a TXT Format file.", function(err){
-        if(isNull(err))
-        {
-            callback(err, largeTxtMock.name + " was reset");
-        }
-        else
-        {
-            callback(err, "There was an error resetting " + largeTxtMock.name + " Error: " + JSON.stringify(err));
-        }
-    });
+    fs.unlinkSync(largeTxtMock.location);
+    let msg = "successfully deleted: " + largeTxtMock.location;
+    console.log(msg);
+    callback(null, msg)
 };
 
 

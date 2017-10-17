@@ -422,14 +422,12 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     let stats = fs.statSync(hugeTxtFileMock.location);
                     let fileSizeInBytes = stats.size;
                     fileSizeInBytes.should.be.above(100000000);
-                    done();
-                    /*fileUtils.resetLargeTxtFile(hugeTxtFileMock, function (err, info) {
+                    fs.existsSync(hugeTxtFileMock.location).should.equal(true);
+                    fileUtils.deleteLargeTxtFile(hugeTxtFileMock, function (err, info) {
                         should.not.exist(err);
-                        let stats = fs.statSync(hugeTxtFileMock.location);
-                        let fileSizeInBytes = stats.size;
-                        fileSizeInBytes.should.equal(36);
+                        fs.existsSync(hugeTxtFileMock.location).should.equal(false);
                         done();
-                    });*/
+                    });
                 });
 
                 /*fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
