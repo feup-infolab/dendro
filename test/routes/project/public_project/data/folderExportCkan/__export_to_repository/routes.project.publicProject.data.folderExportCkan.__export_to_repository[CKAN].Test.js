@@ -409,26 +409,27 @@ describe("Export public project folderExportCkan level to ckan tests", function 
 
                 const fs = require('fs');
                 const md5File = require("md5-file");
-                let largeTxtFileMock = {
-                    /*md5 : md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/largeTxtFile.txt")),*/
-                    name : "largeTxtFile.txt",
+                let hugeTxtFileMock = {
+                    /*md5 : md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/hugeTxtFile.txt")),*/
+                    name : "hugeTxtFile.txt",
                     extension : "txt",
-                    /*location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/largeTxtFile.txt")*/
-                    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "largeTxtFile.txt"
+                    /*location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/hugeTxtFile.txt")*/
+                    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt"
                 };
 
-                fileUtils.initLargeTxtFile(largeTxtFileMock, function (err, info) {
+                fileUtils.initLargeTxtFile(hugeTxtFileMock, function (err, info) {
                     should.not.exist(err);
-                    let stats = fs.statSync(largeTxtFileMock.location);
+                    let stats = fs.statSync(hugeTxtFileMock.location);
                     let fileSizeInBytes = stats.size;
                     fileSizeInBytes.should.be.above(100000000);
-                    fileUtils.resetLargeTxtFile(largeTxtFileMock, function (err, info) {
+                    done();
+                    /*fileUtils.resetLargeTxtFile(hugeTxtFileMock, function (err, info) {
                         should.not.exist(err);
-                        let stats = fs.statSync(largeTxtFileMock.location);
+                        let stats = fs.statSync(hugeTxtFileMock.location);
                         let fileSizeInBytes = stats.size;
                         fileSizeInBytes.should.equal(36);
                         done();
-                    });
+                    });*/
                 });
 
                 /*fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
