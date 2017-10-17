@@ -348,44 +348,72 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             });
         });
 
-        /*it("Should give an error saying that a folder has no content to export", function (done) {
-            let propagateDendroChangesIntoCkan = true;
+        it("Should give an error when the user tries to export a file to ckan, as it is only possible to export folders", function (done) {
+            let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, largeTxtFileMock, function (err, res) {
+                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
                     res.statusCode.should.equal(200);
-                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
-                        res.statusCode.should.equal(200);
+                    repositoryUtils.exportFolderByUriToRepository(true, res.body[0].uri, agent, {repository: ckanData}, function (err, res) {
+                        res.statusCode.should.equal(404);
+                        res.body.message.should.equal("The folder to export does not exist in Dendro. Are you sure you selected a folder?");
                         done();
                     }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
                 });
             });
-        });*/
+        });
 
-        /*it("Should give an error saying that a folder to export has children folders(ckan does not support this)", function (done) {
-            let propagateDendroChangesIntoCkan = true;
+        it("Should give an error saying that a folder has no content to export", function (done) {
+            let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, largeTxtFileMock, function (err, res) {
+                projectUtils.createFolderInProjectRoot(true, agent, publicProject.handle, "anEmptyFolder", function (err, res) {
                     res.statusCode.should.equal(200);
-                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
-                        res.statusCode.should.equal(200);
+                    repositoryUtils.exportFolderByUriToRepository(true, res.body.id, agent, {repository: ckanData}, function (err, res) {
+                        res.statusCode.should.equal(412);
+                        res.body.message.should.equal("Error, you cannot export an empty folder to Ckan");
                         done();
                     }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
                 });
             });
-        });*/
+        });
 
+        it("Should give an error saying that a folder to export has children folders(ckan does not support this)", function (done) {
+            let propagateDendroChangesIntoCkan = false;
+            let deleteChangesOriginatedFromCkan = false;
+            let aFolderWithFoldersUri;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                projectUtils.createFolderInProjectRoot(true, agent, publicProject.handle, "aFolderWithFolders", function (err, res) {
+                    res.statusCode.should.equal(200);
+                    aFolderWithFoldersUri = res.body.id;
+                    itemUtils.createFolder(true, agent, publicProject.handle, "aFolderWithFolders", "folderInsideAFolder", function (err, res) {
+                        res.statusCode.should.equal(200);
+                        repositoryUtils.exportFolderByUriToRepository(true, aFolderWithFoldersUri, agent, {repository: ckanData}, function (err, res) {
+                            res.statusCode.should.equal(412);
+                            res.body.message.should.equal("Error, you can only export folders that have files and not folders.");
+                            done();
+                        }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                    });
+                });
+            });
+        });
+
+        //TODO  plainTextContent -> limite 12 mb para este campo ->  chamado pelo save to resource -> ao gravar no gridfs não gravar o campo plainTextContent
         /*it("Should export a large txt file(this is currently causing a bug)", function (done) {
-            let propagateDendroChangesIntoCkan = true;
+            let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
+            let aFolderWithFoldersUri;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, largeTxtFileMock, function (err, res) {
+                //TODO generate large txt file -> then upload large txt file to dendro
+                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
                     res.statusCode.should.equal(200);
-                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                    itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
                         res.statusCode.should.equal(200);
-                        done();
-                    }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                        repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                            res.statusCode.should.equal(200);
+                            done();
+                        }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                    });
                 });
             });
         });*/
