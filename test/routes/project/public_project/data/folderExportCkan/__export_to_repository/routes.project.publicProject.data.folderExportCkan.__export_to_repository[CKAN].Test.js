@@ -85,7 +85,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
     });
 
     describe("[POST] [CKAN] /project/:handle/data/:foldername?export_to_repository", function () {
-        /*it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done) {
+        it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, projectHandle, folderPath, agent, exportData, cb
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportCkanData.uri, agent, createdUnknownRepo, function (err, res) {
@@ -396,7 +396,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     });
                 });
             });
-        });*/
+        });
 
         //TODO  plainTextContent -> limite 12 mb para este campo ->  chamado pelo save to resource -> ao gravar no gridfs não gravar o campo plainTextContent
         it("Should export a large txt file(this is currently causing a bug)", function (done) {
