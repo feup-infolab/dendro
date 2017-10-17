@@ -400,7 +400,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
 
         //TODO  plainTextContent -> limite 12 mb para este campo ->  chamado pelo save to resource -> ao gravar no gridfs não gravar o campo plainTextContent
         it("Should export a large txt file(this is currently causing a bug)", function (done) {
-            let propagateDendroChangesIntoCkan = false;
+            let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             let aFolderWithFoldersUri;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -423,10 +423,21 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     let fileSizeInBytes = stats.size;
                     fileSizeInBytes.should.be.above(100000000);
                     fs.existsSync(hugeTxtFileMock.location).should.equal(true);
-                    fileUtils.deleteLargeTxtFile(hugeTxtFileMock, function (err, info) {
+                    /*fileUtils.deleteLargeTxtFile(hugeTxtFileMock, function (err, info) {
                         should.not.exist(err);
                         fs.existsSync(hugeTxtFileMock.location).should.equal(false);
                         done();
+                    });*/
+
+                    fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, hugeTxtFileMock, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
+                            res.statusCode.should.equal(200);
+                            repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                                res.statusCode.should.equal(200);
+                                done();
+                            }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                        });
                     });
                 });
 
