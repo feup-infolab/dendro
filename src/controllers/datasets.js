@@ -1121,11 +1121,110 @@ export_to_repository_ckan = function (req, res) {
             });
         };
 
+        const checkResourceTypeAndChildren = function (resourceUri, callback) {
+            Folder.findByUri(resourceUri, function (err, folder) {
+                if(isNull(err))
+                {
+                    if(isNull(folder))
+                    {
+                        let errorInfo = {
+                            message : "The folder to export does not exist in Dendro. Are you sure you selected a folder?",
+                            statusCode: 404
+                        };
+                        callback(true, errorInfo);
+                    }
+                    else
+                    {
+                        let includeSoftDeletedChildren = false;
+                        folder.getChildrenRecursive(function (err, children) {
+                            if(isNull(err))
+                            {
+                                if(isNull(children) || children.length <= 0)
+                                {
+                                    let errorInfo = {
+                                        message : "Error, you cannot export an empty folder to Ckan",
+                                        statusCode: 412
+                                    };
+                                    callback(true, errorInfo);
+                                }
+                                else
+                                {
+                                    //TODO check if all of the children is of type file
+                                    /*callback(err, children);*/
+                                    async.mapSeries(children, function(child, cb) {
+                                        Folder.findByUri(child.uri, function (err, folder) {
+                                            if(isNull(err))
+                                            {
+                                                if(isNull(folder))
+                                                {
+                                                    cb(err, folder);
+                                                }
+                                                else
+                                                {
+                                                    let errorInfo = {
+                                                        message : "Error, you can only export folders that have files and not folders.",
+                                                        statusCode: 412
+                                                    };
+                                                    return callback(true, errorInfo);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                let errorInfo = {
+                                                    message : "Error when looking for information about a folder child. Child: " + child.uri + " error: " + JSON.stringify(folder),
+                                                    statusCode: 500
+                                                };
+                                                return callback(true, errorInfo);
+                                            }
+                                        });
+                                    }, function (err, results) {
+                                        callback(err, children);
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                let errorInfo = {
+                                    message : "Error when searching for folder " + resourceUri  + " children: " +  JSON.stringify(children),
+                                    statusCode: 500
+                                };
+                                callback(err, errorInfo);
+                            }
+                        }, includeSoftDeletedChildren);
+                    }
+                }
+                else
+                {
+                    let errorInfo = {
+                        message : "Error when searching for the folder to export in Dendro: " + JSON.stringify(folder),
+                        statusCode: 500
+                    };
+                    callback(err, errorInfo);
+                }
+            });
+        };
+
         if (!isNull(req.body.repository) && !isNull(req.body.repository.ddr)) {
             const organization = req.body.repository.ddr.hasOrganization;
 
             async.waterfall([
                 function (callback) {
+                    checkResourceTypeAndChildren(requestedResourceUri, function (err, info) {
+                        if(isNull(err))
+                        {
+                            callback(err, info);
+                        }
+                        else
+                        {
+                            let errorInfo = {
+                                msg: info.message,
+                                statusCode: info.statusCode
+                            };
+                            callback(err, null, errorInfo);
+                        }
+                    });
+                },
+                function (childrenInfo, callback) {
                     calculateCkanRepositoryDiffs(requestedResourceUri, targetRepository, function (err, diffs) {
                         if(isNull(err))
                         {
@@ -1146,7 +1245,11 @@ export_to_repository_ckan = function (req, res) {
                         }
                         else
                         {
-                            callback(err, diffs);
+                            let errorInfo = {
+                                msg: diffs.error.message,
+                                statusCode: diffs.error.statusCode
+                            };
+                            callback(err, null, errorInfo);
                         }
                     });
                 },
