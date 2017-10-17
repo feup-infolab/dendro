@@ -37,7 +37,7 @@ const uploadedAndDeletedFileInDendroMockFile = require(Pathfinder.absPathInTests
 const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
 
 const emptyFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/emptyFileMock.js"));
-const largeTxtFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/largeTxtFileMock"));
+/*const largeTxtFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/largeTxtFileMock"));*/
 
 let uploadedAndDeletedFileInDendroDataInDB, uploadedFileToCkanDataInDb, emptyFileDataInDb;
 
@@ -85,7 +85,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
     });
 
     describe("[POST] [CKAN] /project/:handle/data/:foldername?export_to_repository", function () {
-        it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done) {
+        /*it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, projectHandle, folderPath, agent, exportData, cb
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportCkanData.uri, agent, createdUnknownRepo, function (err, res) {
@@ -396,16 +396,42 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     });
                 });
             });
-        });
+        });*/
 
         //TODO  plainTextContent -> limite 12 mb para este campo ->  chamado pelo save to resource -> ao gravar no gridfs não gravar o campo plainTextContent
-        /*it("Should export a large txt file(this is currently causing a bug)", function (done) {
+        it("Should export a large txt file(this is currently causing a bug)", function (done) {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
             let aFolderWithFoldersUri;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //TODO generate large txt file -> then upload large txt file to dendro
-                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
+                //TODO need file md5 and location
+
+                const fs = require('fs');
+                const md5File = require("md5-file");
+                let largeTxtFileMock = {
+                    /*md5 : md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/largeTxtFile.txt")),*/
+                    name : "largeTxtFile.txt",
+                    extension : "txt",
+                    /*location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/largeTxtFile.txt")*/
+                    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "largeTxtFile.txt"
+                };
+
+                fileUtils.initLargeTxtFile(largeTxtFileMock, function (err, info) {
+                    should.not.exist(err);
+                    let stats = fs.statSync(largeTxtFileMock.location);
+                    let fileSizeInBytes = stats.size;
+                    fileSizeInBytes.should.be.above(100000000);
+                    fileUtils.resetLargeTxtFile(largeTxtFileMock, function (err, info) {
+                        should.not.exist(err);
+                        let stats = fs.statSync(largeTxtFileMock.location);
+                        let fileSizeInBytes = stats.size;
+                        fileSizeInBytes.should.equal(36);
+                        done();
+                    });
+                });
+
+                /*fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
                     res.statusCode.should.equal(200);
                     itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
                         res.statusCode.should.equal(200);
@@ -414,9 +440,9 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                             done();
                         }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
                     });
-                });
+                });*/
             });
-        });*/
+        });
 
     });
 

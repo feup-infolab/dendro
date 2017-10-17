@@ -1,5 +1,6 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 let supertest = require('supertest');
 let _ = require('underscore');
 
@@ -241,5 +242,42 @@ module.exports.renameFileByUri = function(acceptsJSON, agent, fileUri, newName, 
             });
     }
 };
+
+
+module.exports.initLargeTxtFile = function (largeTxtMock, callback) {
+
+    const fs = require('fs');
+    let fileSizeInBytes = 0;
+    let largeFileSizeToObtain =  100000000; // 100mb
+    let stats;
+
+    let buf = Buffer.from("DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA \n");
+    let index = 0;
+
+    let fd = fs.openSync(largeTxtMock.location, "w");
+    while(fileSizeInBytes < largeFileSizeToObtain)
+    {
+        fileSizeInBytes +=  fs.writeSync(fd, buf, 0, buf.length, index);
+        index = fileSizeInBytes;
+    }
+    callback(null, largeTxtMock.location  + " was initialized");
+};
+
+module.exports.resetLargeTxtFile = function (largeTxtMock, callback) {
+
+    var fs = require('fs');
+    fs.writeFile(largeTxtMock.location, "This is a test of a TXT Format file.", function(err){
+        if(isNull(err))
+        {
+            callback(err, largeTxtMock.name + " was reset");
+        }
+        else
+        {
+            callback(err, "There was an error resetting " + largeTxtMock.name + " Error: " + JSON.stringify(err));
+        }
+    });
+};
+
+
 
 
