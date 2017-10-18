@@ -32,6 +32,18 @@ const loadMiscMiddlewares = function (app, callback)
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
 
+    app.use(function (error, req, res, next) {
+        if (error instanceof SyntaxError) {
+            res.status(400).json({
+                result : "error",
+                message : "Error parsing request!",
+                error : error
+            });
+        } else {
+            next();
+        }
+    });
+
     app.use(methodOverride());
 
     app.use(flash());

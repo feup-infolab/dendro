@@ -1,8 +1,37 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+
 function Elements (){}
+
+/** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
+Elements.access_types = {
+    public : "public",                                  //can be shared, read and written
+    private : "private",                                //cannot be shared to the outside world under any circumstance
+    locked : "locked",                                  //can not be seen or edited from the main interface or via apis
+    restorable : "restorable",                          //can be restorable from a metadata.json file in a zip backup file
+    backuppable : "backuppable",                        //will be included in a metadata.json file produced in a zip file (backup zips)
+    audit : "audit",                                    //cannot be changed via API calls, changed internally only
+    api_readable : "api_readable",                      //accessible to the outside world via API calls
+    api_writeable : "api_writeable",                    //modifiable from the outside world via API calls
+    immutable : "immutable",                            //cannot be changed under ANY circumstance
+    unrevertable : "unrevertable",                      //cannot be fallen back in the a "restore previous version" operation
+    locked_for_projects : "locked_for_projects"         //project metadata which cannot be modified using the metadata editor, has to go through the project administrator
+};
+
+Elements.types = {};
+Elements.types.resourceNoEscape = 0;
+Elements.types.resource = 1;
+Elements.types.property = 2;
+
+Elements.types.string = 3;
+Elements.types.int = 4;
+Elements.types.double = 5;
+Elements.types.boolean = 6;
+Elements.types.prefixedResource = 7; //for "dcterms:creator", "nie:isLogicalPartOf" and other prefixed resources
+Elements.types.date = 8;
+Elements.types.long_string = 9;
+Elements.types.stringNoEscape = 10;
 
 /**
  * Elements of the schema.org Ontology
@@ -11,9 +40,38 @@ function Elements (){}
 Elements.schema = {
     sharedContent :
     {
-        type : DbConnection.string,
-        control : Controls.input_box
-
+        type : Elements.types.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    provider :
+    {
+        type : Elements.types.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    telephone :
+    {
+        type : Elements.types.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    address :
+    {
+        type : Elements.types.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
+    },
+    license :
+    {
+        type : Elements.types.string,
+        control : Controls.input_box,
+        locked : true,
+        api_accessible : true
     }
 };
 
@@ -25,284 +83,284 @@ Elements.dcterms =
 {
     abstract :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     accessRights :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
 
     },
     accrualMethod :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     accrualPeriodicity :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     accrualPolicy :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     alternative :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     audience :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     available :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     bibliographicCitation :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     conformsTo :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     contributor :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         locked_for_projects : true
     },
     coverage :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.map
     },
     created :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     creator :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         locked_for_projects : true
     },
     date :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     dateAccepted :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     dateCopyrighted :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     dateSubmitted :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     description :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     educationLevel :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     extent :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     format :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     identifier :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.url_box
     },
     instructionalMethod :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     issued :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     language :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     license :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     mediator :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     medium :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     modified :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker,
     },
     provenance :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     publisher :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     references :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     relation :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     replaces :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     requires :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     rights :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     rightsHolder :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     source :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     spatial :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     subject :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     tableOfContents :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     temporal :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.input_box
     },
     type :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     title :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     socialUpdatedAt:
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.input_box
     },
     hasVersion :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     hasPart :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isPartOf :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     hasFormat : {
-        type: DbConnection.string,
+        type: Elements.types.string,
         control: Controls.input_box
     },
     isFormatOf :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isReferencedBy :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isReplacedBy :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isRequiredBy :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isVersionOf :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.url_box
     },
     valid :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -314,314 +372,314 @@ Elements.dcterms =
 Elements.foaf =
 {
     mbox : {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     firstName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     surname :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     account :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     accountName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     accountServiceHomepage :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.input_box
     },
     age :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     aimChatID :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     based_near :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.map
     },
     birthday :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     currentProject :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     depiction :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     depicts :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     dnaChecksum :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     familyName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     focus :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     fundedBy :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     geekcode :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     gender :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     givenName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     holdsAccount :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     homepage :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     icqChatID :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     img :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     interest :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     jabberID :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     knows :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     lastName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     logo :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     made :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     maker :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     mbox_sha1sum :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     member :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.url_box
     },
     membershipClass :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     msnChatID :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     name :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     nick :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     openid :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     page :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     pastProject :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     phone :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     plan :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     primaryTopic :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     publications :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.url_box
     },
     schoolHomepage :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     sha1 :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     skypeID :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     status :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     theme :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     tipjar :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     title :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         backuppable : true,
         restorable : true
     },
     topic :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     topic_interest :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     weblog :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     workInfoHomepage :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     workplaceHomepage :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     yahooChatID :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     family_name :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     givenname :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isPrimaryTopicOf :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     myersBriggs :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     thumbnail :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -631,9 +689,23 @@ Elements.foaf =
  */
 
 Elements.ddr = {
+    hasStorageLimit :
+    {
+        type : Elements.types.int,
+        control : Controls.input_box,
+        api_readable : true,
+        locked : true
+    },
+    requiresVerifiedUploads :
+    {
+        type : Elements.types.boolean,
+        control : Controls.input_box,
+        api_readable : true,
+        locked : true
+    },
     created :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker,
         api_readable : true,
         locked : true,
@@ -641,7 +713,7 @@ Elements.ddr = {
     },
     modified :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         private : true,
         locked : true,
@@ -649,107 +721,108 @@ Elements.ddr = {
         audit : true
     },
     humanReadableURI :  {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         private : true,
         locked : true,
         api_readable : true
     },
     handle :  {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         locked_for_projects : true
     },
     password :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         private : true,
         locked : true
     },
     password_reset_token :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         private : true,
         locked : true
     },
     text_content :
     {
-        type : DbConnection.long_string,
+        type : Elements.types.long_string,
         control : Controls.markdown_box
     },
     username :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
-        api_readable : true
+        api_readable : true,
+        locked: true
     },
     hasAvatar :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         api_readable : true
     },
     contentType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     chunkSize :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     projectUri :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     authorUri :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     resourceAuthorUri :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     userWhoActed :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     resourceTargetUri :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     actionType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     itemType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     creatorUri :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     fileExtension :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         backuppable : true,
         restorable : true,
@@ -757,219 +830,220 @@ Elements.ddr = {
     },
     lastHarvested :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     md5Checksum :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     sourceRepository :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.url_box
     },
     rootFolder :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         locked : true
     },
     checksum :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         backuppable : true,
         control : Controls.input_box
     },
     isVersionOf :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable : true,
         audit : true,
         control : Controls.url_box
     },
     versionCreator :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable : true,
         audit : true,
         control : Controls.url_box
     },
     versionNumber :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         api_readable : true,
         audit : true,
         control : Controls.input_box
     },
     changedDescriptor :
     {
-        type : DbConnection.property,
+        type : Elements.types.property,
         control : Controls.url_box
     },
     oldValue :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     newValue :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     changeType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     pertainsTo :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     changeIndex :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     deleted :
     {
-        type : DbConnection.boolean,
+        type : Elements.types.boolean,
         backuppable : true,
         api_readable : true,
         control : Controls.input_box
     },
     performedBy :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     interactionType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     executedOver :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     originallyRecommendedFor :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     hasUsername :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.url_box
     },
     hasPlatform :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     hasExternalUri :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     hasAPIKey :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     hasOrganization :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         api_readable: true,
         control : Controls.url_box
     },
     hasSwordCollectionUri :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.url_box
     },
     hasSwordCollectionLabel :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     hasConsumerKey :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     hasConsumerSecret :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     hasAccessToken :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     hasAccessTokenSecret :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     //uncategorized descriptor (for when researcheers dont know which descriptor to select)
     generic :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         api_readable: true
     },
     rankingPosition :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         api_readable: true,
         control : Controls.input_box
     },
     lastDescriptorRecommendationsList :
     {
-        type : DbConnection.long_string,
+        type : Elements.types.long_string,
         control : Controls.markdown_box
     },
     hasPrefix :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     hasResearchDomain :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
 
     },
     metadataQuality :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         api_readable: true,
+        locked : true,
         control : Controls.input_box
     },
 	privacyStatus :
     {
-        type: DbConnection.string,
+        type: Elements.types.string,
         api_readable: true,
         control: Controls.input_box,
         locked_for_project : true,
@@ -977,129 +1051,142 @@ Elements.ddr = {
     },
     hasContent :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
+    exportedAt :
+    {
+        type : Elements.types.string,
+        control : Controls.input_box,
+        locked : true
+    },
     numLikes :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         api_readable : true,
         control : Controls.input_box
     },
     userWhoLiked :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         locked_for_projects : true
     },
     postURI :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         locked_for_projects : true
     },
     fileVersionUri :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         locked_for_projects : true
     },
     userWhoCommented :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         locked_for_projects : true
     },
     commentMsg :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     shareMsg :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         api_readable: true,
         control : Controls.input_box
     },
     shareURI :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         locked_for_projects : true
     },
     userWhoShared :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         locked_for_projects : true
     },
     usersWhoLiked :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.url_box,
         locked_for_projects : true
     },
     beingBackedUp :
     {
-        type : DbConnection.boolean,
+        type : Elements.types.boolean,
         api_readable: true,
         locked : true,
         control : Controls.input_box
     },
     salt :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         locked : true,
         private :true,
         control : Controls.input_box
     },
     hasFontAwesomeClass :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         locked : true,
         control : Controls.input_box
     },
     pageNumber :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     recommendationCallId :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     recommendationCallTimeStamp :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     orcid :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         private : true,
         locked : true,
     },
     hasDataContent :
     {
-        type : DbConnection.boolean,
+        type : Elements.types.boolean,
         control : Controls.input_box,
         locked : true,
         api_readable : true
     },
     processingData :
     {
-        type : DbConnection.boolean,
+        type : Elements.types.boolean,
         control : Controls.input_box,
         locked : true,
         api_readable : true
     },
     hasDataProcessingError :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
+        control : Controls.input_box,
+        locked : true,
+        api_readable : true
+    },
+    is_being_imported :
+    {
+        type : Elements.types.boolean,
         control : Controls.input_box,
         locked : true,
         api_readable : true
@@ -1113,44 +1200,44 @@ Elements.ddr = {
 Elements.rdf = {
     first :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.input_box
     },
     object :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     predicate :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     rest :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     subject :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     type :
     {
-        type : DbConnection.prefixedResource,
+        type : Elements.types.prefixedResource,
         locked : true,
         api_readable : true,
         control : Controls.input_box
     },
     value :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isShare :
     {
-        type : DbConnection.boolean,
+        type : Elements.types.boolean,
         control : Controls.input_box
     }
 };
@@ -1162,184 +1249,184 @@ Elements.rdf = {
 Elements.nie = {
     byteSize :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     characterSet :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     comment :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     contentCreated :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     contentLastModified:
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     contentSize :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     copyright :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     created :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     dataSource :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     depends :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     description :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     disclaimer :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     generator :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     generatorOption :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     hasLogicalPart :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box,
         backuppable : true,
         locked : true
     },
     hasPart :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     identifier :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     informationElementDate :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     interpretedAs :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isLogicalPartOf :
     {
         control : Controls.url_box,
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         backuppable : true,
         locked : true
     },
     isPartOf :
     {
         control : Controls.url_box,
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         backuppable : true,
         locked : true
     },
     isStoredAs :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     keyword :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     language :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     lastRefreshed :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     legal :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     license :
     {
         control : Controls.markdown_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     licenseType :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     links :
     {
         control : Controls.url_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     mimeType :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     plainTextContent :
     {
         control : Controls.markdown_box,
-        type : DbConnection.long_string,
+        type : Elements.types.long_string,
         locked : true
     },
     relatedTo :
     {
         control : Controls.url_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     rootElementOf :
     {
         control : Controls.url_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     subject :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     title :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         backuppable : true,
         restorable : true,
@@ -1350,42 +1437,42 @@ Elements.nie = {
     version :
     {
         control : Controls.input_box,
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         locked : true
     },
     lastModified :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     url :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     contentModified :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     coreGraph :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     htmlContent :
     {
-        type : DbConnection.long_string,
+        type : Elements.types.long_string,
         control : Controls.markdown_box
     },
     modified :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     sourceMode :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -1399,386 +1486,386 @@ Elements.nfo = {
     aspectRatio :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     averageBitrate :
     {
         control : Controls.input_box,
-        type : DbConnection.int
+        type : Elements.types.int
     },
     belongsToContainer :
     {
         control : Controls.url_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     bitDepth :
     {
         control : Controls.input_box,
-        type : DbConnection.int
+        type : Elements.types.int
     },
     bitsPerSample :
     {
         control : Controls.input_box,
-        type : DbConnection.int
+        type : Elements.types.int
     },
     bookmarks :
     {
         control : Controls.url_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     channels :
     {
         control : Controls.input_box,
-        type : DbConnection.int
+        type : Elements.types.int
     },
     characterCount :
     {
         control : Controls.input_box,
-        type : DbConnection.int
+        type : Elements.types.int
     },
     codec :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     commentCharacterCount :
     {
         control : Controls.input_box,
-        type : DbConnection.int
+        type : Elements.types.int
     },
     compressionType :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     conflicts :
     {
         control : Controls.url_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     containsBookmark :
     {
         control : Controls.url_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     containsBookmarkFolder :
     {
         control : Controls.url_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     count :
     {
         control : Controls.input_box,
-        type : DbConnection.int
+        type : Elements.types.int
     },
     definesClass :
     {
         control : Controls.input_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     definesFunction :
     {
         control : Controls.input_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     definesGlobalVariable :
     {
         control : Controls.input_box,
-        type : DbConnection.resource
+        type : Elements.types.resource
     },
     deletionDate :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     duration :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     encoding :
     {
         control : Controls.input_box,
-        type : DbConnection.string
+        type : Elements.types.string
     },
     fileCreated :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     fileLastAccessed :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     fileLastModified :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     fileName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     fileOwner :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     fileSize :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     fileUrl :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     fontFamily :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     foundry :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     frameCount :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     frameRate :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     frontChannels :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     hasHash :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     hasMediaFileListEntry :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     hasMediaStream :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.input_box
     },
     hashAlgorithm :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     hashValue :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     height :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     horizontalResolution :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     interlaceMode :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isPassswordProtected :
     {
-        type : DbConnection.boolean,
+        type : Elements.types.boolean,
         control : Controls.input_box
     },
     lfeChannels :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     lineCount :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     losslessCompressionType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     lossyCompressionType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     originalLocation :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     pageCount :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     permissions :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     programmingLanguage :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     rate :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     rearChannels :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     sampleCount :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     sampleRate :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     sideChannels :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     supercedes :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     uncompressedSize :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     verticalResolution :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     width :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     wordCount :
     {
-        type : DbConnection.int,
+        type : Elements.types.int,
         control : Controls.input_box
     },
     bitrateType:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     characterPosition:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     colorCount:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     colorDepth:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     containsPlacemark:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.map
     },
     depiction:
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.input_box
     },
     depicts:
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     encryptionStatus:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     filesystemType:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     freeSpace:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     isPasswordProtected:
     {
-        type : DbConnection.boolean,
+        type : Elements.types.boolean,
         control : Controls.input_box
     },
     occupiedSpace:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     pageNumber:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     paletteSize:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     streamPosition:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     totalSpace:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     uuid:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -1786,48 +1873,48 @@ Elements.nfo = {
 Elements.research = {
     /*sampleCollectionDate :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.input_box
     },
     sample_count:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },*/
     instrumentation:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     measurement:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     method:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     sample:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     software:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     hasRegex :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         private : true
     },
     hasAlternative :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box,
         private: true
     }
@@ -1836,62 +1923,62 @@ Elements.research = {
 Elements.dcb = {
     specimen :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     specimenProperties :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     specimenProperty :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     initialCrackLenght :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     specimenHeight :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     specimenLength :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     specimenWidth :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     instrumentName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     method :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     moisture :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     temperature :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     testVelocity :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -1899,12 +1986,12 @@ Elements.dcb = {
 Elements.achem = {
     compound :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     sampleCount:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -1912,272 +1999,272 @@ Elements.achem = {
 Elements.bdv = {
     identifierCode :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     conformityDate :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     conformityDateType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     conformityDegree :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     conformitySpecification :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     conformitySpecificationTitle :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     coupledResource :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.url_box
     },
     dateOfCreation :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     dateOfLastRevision :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     dateOfPublication :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     diagnosticAndUsability :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     distributionFormatName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     equivalentScale :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     geographicBoundBox :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     geographicExtentCode :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     identifierNamespace :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     keywordINSPIRE :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     keywordValue :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     lineage :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     linkage :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     metadataDate :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.date_picker
     },
     metadataLanguage :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     metadataPointOfContact :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     metadataPointOfContactEmail :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     organizationEmail :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     organizationName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     originatingControlledVocabulary :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     originatingControlledVocabularyDateType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     originatingControlledVocabularyReferenceDate :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     originatingControlledVocabularyTitle :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     projectName :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     referenceSystemAuthority :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     referenceSystemIdentifier :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     referenceSystemIdentifierCode :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     referenceSystemIdentifierCodeSpace :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     referenceSystemCode :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     resolutionDistance :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     resourceAbstract :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     resourceLanguage :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     resourceTitle :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     responsibleParty :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     responsiblePartyRole :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     spatialRepresentation :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     spatialResolution :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     spatialResolutionUnitMeasure :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     spatialServiceDataType :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     temporalExtentEndingDate :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     temporalExtentStartingDate :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     uniqueResourceIdentifier :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     version :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     topicCategory :
     {
-        type : DbConnection.resource,
+        type : Elements.types.resource,
         control : Controls.input_box
     },
     identifierNameSpace:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     referencesSystemCode:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     resourceLocator:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -2185,62 +2272,62 @@ Elements.bdv = {
 Elements.tsim = {
     aerodynamicDragCoefficient :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     airDensity:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     controllerEfficiency:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     drivingCycle:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     gearRatio:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     gravitationalAcceleration:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     roadSurfaceCoefficient:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     tireRadius:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     vehicle:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     vehicleMass:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     vehicleModel:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     vehicleFrontalArea:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -2249,87 +2336,87 @@ Elements.tsim = {
 Elements.biocn = {
     beginDate :
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     commonName:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     endDate:
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     geographicDescription:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     lifeStage:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     individualCount:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     individualsPerSpecies:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     observedWeight:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     speciesCount:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     sampleDestination:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     sampleIdentification:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     samplingDescription:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     samplingEffort:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     samplingPeriodicity:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     scientificName:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     sex:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     singleDateTime:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -2337,57 +2424,57 @@ Elements.biocn = {
 Elements.grav = {
     altitudeDatumName :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     altitudeDistanceUnits:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     altitudeSystemDefinition:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     beginningTime:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     endingTime:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     geographicBoundingBox:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     altitudeResolution:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     resolutionDistance:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     temporalExtentEndingDate:
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     temporalExtentStartingDate:
     {
-        type : DbConnection.date,
+        type : Elements.types.date,
         control : Controls.date_picker
     },
     altitudeEncodingMethods:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     }
 };
@@ -2395,47 +2482,47 @@ Elements.grav = {
 Elements.hdg = {
     additive:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     catalyst:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     gravimetricCapacity:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     hydrationFactor:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     hydrogenGenerationRate:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     hydrolysis:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     numberOfReutilization :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     reactorType:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     reagent :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -2443,62 +2530,62 @@ Elements.hdg = {
 Elements.cep = {
     applicationDomain :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     boardType:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     convexNonConvex:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     coordinateOrigin:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     gridType:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     hardwareConfiguration:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     heuristics:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     inputProperty:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     resultProperty :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     solver :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     solverConfiguration :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     typologyWascher :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -2506,52 +2593,52 @@ Elements.cep = {
 Elements.social = {
     dataCollectionDate :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.date_picker
     },
     dataCollectionMethodology:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     dataCollectionSoftware:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     dataSource:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     externalAid:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     kindOfData:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     methodology:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     sampleSize:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     samplingProcedure :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     universe :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     }
 };
@@ -2559,67 +2646,67 @@ Elements.social = {
 Elements.cfd = {
     analyticalSolution :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     boundaryCondition:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     computationalDomain:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     convergenceCriteria:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     flowCase:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     initialCondition:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     mathematicalModel:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     numericalGrid:
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     numericalMethod :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.markdown_box
     },
     surfaceRoughness :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     temporalDiscretization :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     totalSimulatedTime :
     {
-        type : DbConnection.string,
+        type : Elements.types.string,
         control : Controls.input_box
     },
     underrelaxation :
         {
-            type : DbConnection.string,
+            type : Elements.types.string,
             control : Controls.input_box
         }
 };
@@ -2631,177 +2718,177 @@ Elements.tvu =
 {
         comment :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.markdown_box
             },
         dateLastUpdated :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         endDateTime :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         startDateTime :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         episodeNumber :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         publicationDate :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         quotation :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         aspectRatio :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.markdown_box
             },
         averageBitRate :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         codecName :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         duration :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         eventEndDate :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         eventStartDate :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         fileName :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         fileSize :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         frameRate :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         height :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         homepageOffice :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         locationDescription :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         officeMailAddress :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         playbackSpeed :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         relatedResources :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         sampleRate :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         samplingFormat :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         telephoneOffice :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         width :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         attachments :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.markdown_box
             },
         chapters :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         curator :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         numberOfFavourites :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         numberOfVisualizations :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         typeOfUpdate :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         videoMakers :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
         dataRate :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.markdown_box
             },
         soundField :
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 control : Controls.input_box
             },
     };
@@ -2813,28 +2900,28 @@ Elements.po =
 {
         actor :
         {
-            type : DbConnection.string,
+            type : Elements.types.string,
             control : Controls.markdown_box
         },
         channel :
         {
-            type : DbConnection.string,
+            type : Elements.types.string,
             control : Controls.input_box
 
         },
         commentator :
         {
-            type : DbConnection.string,
+            type : Elements.types.string,
             control : Controls.input_box
         },
         genre :
         {
-            type : DbConnection.string,
+            type : Elements.types.string,
             control : Controls.input_box
         },
         location :
         {
-            type : DbConnection.string,
+            type : Elements.types.string,
             control : Controls.input_box
         },
     };

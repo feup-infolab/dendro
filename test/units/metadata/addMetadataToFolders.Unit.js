@@ -6,11 +6,13 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const chai = require("chai");
 chai.use(require('chai-http'));
 const async = require("async");
+const path = require('path');
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
@@ -35,9 +37,11 @@ function requireUncached(module) {
 
 module.exports.setup = function(finish)
 {
-    const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
-    const foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
+    let createProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+    const projectsData = createProjectsUnit.projectsData;
+
     let createFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+    const foldersData = createFoldersUnit.foldersData;
 
     createFoldersUnit.setup(function (err, results) {
         if(err)
@@ -46,6 +50,7 @@ module.exports.setup = function(finish)
         }
         else
         {
+            appUtils.registerStartTimeForUnit(path.basename(__filename));
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 if(err)
                 {
@@ -62,6 +67,7 @@ module.exports.setup = function(finish)
                             cb(err, results);
                         });
                     }, function (err, results) {
+                        appUtils.registerStopTimeForUnit(path.basename(__filename));
                         finish(err, results);
                     });
                 }

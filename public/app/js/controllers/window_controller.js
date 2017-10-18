@@ -14,7 +14,9 @@ angular.module('dendroApp.controllers')
         $timeout,
         metadataService,
         windowService,
-        storageService
+        storageService,
+        licensesService,
+        languagesService
     )
 {
     $scope.get_current_url = function()
@@ -40,6 +42,21 @@ angular.module('dendroApp.controllers')
         return $scope.get_extension_icon(extension);
     };
 
+    $scope.get_short_filename = function(filename, maxLength)
+    {
+        var length = filename.length;
+
+        if(length > maxLength)
+        {
+            var trimmedFileName = filename.substring(0,maxLength);
+            return trimmedFileName + "..."
+        }
+        else
+        {
+            return filename;
+        }
+    };
+
     $scope.get_extension_icon = function(extension)
     {
         return "/images/icons/extensions/file_extension_"+extension+".png";
@@ -50,9 +67,9 @@ angular.module('dendroApp.controllers')
         return url.substr(url.lastIndexOf('/') + 1);
     };
 
-    $scope.show_popup = function(type, title, message)
+    $scope.show_popup = function(type, title, message, delay)
     {
-        windowService.show_popup(type,title,message);
+        windowService.show_popup(type,title,message, delay);
     };
 
     $scope.valid_date = function(descriptor)
@@ -147,7 +164,75 @@ angular.module('dendroApp.controllers')
             var regexp = /^[0-9a-z]+$/;
             return regexp.test(word);
         }
+    };
 
+    $scope.valid_int = function(int) {
+
+        if(!int || int === "")
+        {
+            return false;
+        }
+
+        try{
+            parseInt(int);
+        }
+        catch(e)
+        {
+            return false;
+        }
+
+        return true;
+    };
+
+
+    $scope.load_licenses = function()
+    {
+        var deferred = $q.defer();
+
+        licensesService.get_licenses()
+            .then(function(licenses){
+                $scope.licenses = [];
+                var keys = Object.keys(licenses);
+                for(var i = 0; i < keys.length; i++)
+                {
+                    $scope.licenses.push(licenses[keys[i]]);
+                }
+
+                deferred.resolve($scope.licenses);
+            });
+
+        return deferred.promise;
+    };
+
+    $scope.load_languages = function()
+    {
+        var deferred = $q.defer();
+
+        languagesService.get_languages()
+            .then(function(languages){
+                $scope.languages = [];
+                var keys = Object.keys(languages);
+                for(var i = 0; i < keys.length; i++)
+                {
+                    $scope.languages.push(languages[keys[i]]);
+                }
+
+                deferred.resolve($scope.languages);
+            });
+
+        return deferred.promise;
+    };
+
+    $scope.get_descriptor_by_prefixed_form = function(descriptorsArray, prefixedForm)
+    {
+        var descriptor = _.find(descriptorsArray, function(descriptor){
+            return descriptor.prefixedForm === prefixedForm;
+        });
+
+        if(!descriptor)
+            return null;
+        else
+            return descriptor.value;
     }
 
 });

@@ -139,9 +139,42 @@ module.exports.downloadFile = function(acceptsJSON, agent, projectHandle, folder
     }
 };
 
-module.exports.renameFile = function(acceptsJSON, agent, projectHandle, folderName, fileName, newName, cb)
+module.exports.renameProject = function(acceptsJSON, agent, projectHandle, newName, cb)
 {
-    const parentUrl = "/project/" + projectHandle + "/data/" + folderName;
+    //this function should always fail because projects cannot be renamed
+    let targetUrl = "/project/" + projectHandle;
+
+    if(acceptsJSON)
+    {
+        agent
+            .post(targetUrl)
+            .query(
+                {
+                    rename : newName
+                })
+            .set("Accept", "application/json")
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(targetUrl)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.renameFile = function( agent, projectHandle, folderName, fileName, newName, cb)
+{
+    let parentUrl = "/project/" + projectHandle;
+
+    if(folderName)
+    {
+        parentUrl += "/data/" + folderName;
+    }
 
     agent
         .get(parentUrl)
@@ -151,18 +184,22 @@ module.exports.renameFile = function(acceptsJSON, agent, projectHandle, folderNa
             })
         .set("Accept", "application/json")
         .end(function(err, res) {
-            const contents = JSON.parse(res.text);
-            const file = _.find(contents, function(file){
-                return file.nie.title === fileName;
-            });
-
-            if(!file)
+            if(res.statusCode != 200)
             {
-                cb("File with name " + fileName + " not found in " + folderName, res);
+                cb(err, res);
             }
             else
             {
-                if(acceptsJSON)
+                const contents = JSON.parse(res.text);
+                const file = _.find(contents, function(file){
+                    return file.nie.title === fileName;
+                });
+
+                if(!file)
+                {
+                    cb("File with name " + fileName + " not found in " + folderName, res);
+                }
+                else
                 {
                     const targetUrl = file.uri;
                     agent
@@ -176,15 +213,49 @@ module.exports.renameFile = function(acceptsJSON, agent, projectHandle, folderNa
                             cb(err, res);
                         });
                 }
-                else
-                {
-                    agent
-                        .post(targetUrl)
-                        .end(function(err, res) {
-                            cb(err, res);
-                        });
-                }
             }
         });
 };
+
+module.exports.renameFileByUri = function(acceptsJSON, agent, fileUri, newName, cb)
+{
+    if(acceptsJSON)
+    {
+        agent
+            .post(fileUri)
+            .query(
+                {
+                    rename : newName
+                })
+            .set("Accept", "application/json")
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(fileUri)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.getFilePath = function(path)
+{
+    const fs = require("fs");
+    const filePath = Pathfinder.absPathInTestsFolder(path);
+
+    if(fs.existsSync(filePath))
+    {
+        return filePath;
+    }
+    else
+    {
+        throw "File " + filePath + " does not exist!!!";
+    }
+
+}
+
 

@@ -25,8 +25,9 @@ const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTe
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Public project testFolder2 level ?version", function () {
+    this.timeout(Config.testsTimeout);
+
     before(function (done) {
-        this.timeout(Config.testsTimeout);
         addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -50,7 +51,10 @@ describe("Public project testFolder2 level ?version", function () {
 
             itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                 res.statusCode.should.equal(200);//because it is a public project
-                res.body.descriptors.length.should.equal(8);
+                res.body.uri.should.not.equal(null);
+                res.body.changes.should.be.instanceof(Array);
+                res.body.changes.length.should.equal(3);
+                should.not.exist(res.body.ddr.versionCreator.ddr.password);
                 done();
             });
         });
@@ -89,7 +93,10 @@ describe("Public project testFolder2 level ?version", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(8);
+                    res.body.uri.should.not.equal(null);
+                    res.body.changes.should.be.instanceof(Array);
+                    res.body.changes.length.should.equal(3);//The abstract, title and creator descriptors
+                    should.not.exist(res.body.ddr.versionCreator.ddr.password);
                     done();
                 });
             });
@@ -99,7 +106,10 @@ describe("Public project testFolder2 level ?version", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(8);
+                    res.body.uri.should.not.equal(null);
+                    res.body.changes.should.be.instanceof(Array);
+                    res.body.changes.length.should.equal(3);//The abstract, title and creator descriptors
+                    should.not.exist(res.body.ddr.versionCreator.ddr.password);
                     done();
                 });
             });
@@ -108,8 +118,11 @@ describe("Public project testFolder2 level ?version", function () {
         it("Should give the folder versions if the folder exists and if the user is logged in as demouser3(not a creator or  collaborator on the project)", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
-                    res.statusCode.should.equal(200);//because this is a public project
-                    res.body.descriptors.length.should.equal(8);
+                    res.statusCode.should.equal(200);
+                    res.body.uri.should.not.equal(null);
+                    res.body.changes.should.be.instanceof(Array);
+                    res.body.changes.length.should.equal(3);//The abstract, title and creator descriptors
+                    should.not.exist(res.body.ddr.versionCreator.ddr.password);
                     done();
                 });
             });
@@ -127,10 +140,10 @@ describe("Public project testFolder2 level ?version", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

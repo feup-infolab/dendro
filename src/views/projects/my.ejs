@@ -4,9 +4,7 @@
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#list" aria-controls="home" role="tab" data-toggle="tab">Projects list</a></li>
-        <li role="presentation"><a href="#timeline" ng-click="tab_changed('timeline')" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li>
-        <!--<li role="presentation"><a href="#fileVersions" aria-controls="home" role="tab" data-toggle="tab">File versions timeline</a></li>-->
-        <li role="presentation"><a href="#fileVersions" ng-click="tab_changed('fileVersions')" aria-controls="home" role="tab" data-toggle="tab">File versions timeline</a></li>
+        <!--<li role="presentation"><a href="#timeline" ng-click="tab_changed('timeline')" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li>-->
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="list">
@@ -25,10 +23,11 @@
 
                                 <thead>
                                     <tr>
-                                        <th>Title</th>
+                                        <th width="20%">Title</th>
                                         <th>Description</th>
                                         <th>Creator</th>
                                         <th>Privacy</th>
+                                        <!--<th width="5%"></th>-->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -43,25 +42,63 @@
                                                 <%}%>
                                                 >
 
-
                                                 <td>
+                                                    <% if(project.ddr.deleted)
+                                                    {
+                                                    %>
+                                                    <s>
+                                                        <%
+                                                        }
+                                                        %>
+                                                        <form>
+                                                            <div class="btn-group">
+                                                                <button type="submit" class="btn btn-default" onclick="location.href='<%=project.uri%>'">
+                                                                    <img class="icon16" id="upload_button" src="/images/icons/folder_vertical_open.png"> <%= (project.dcterms.title)? project.dcterms.title : project.ddr.handle %>
+                                                                </button>
+                                                            <%
+                                                            if(locals.user != null && locals.user.uri == project.dcterms.creator)
+                                                            {
+                                                            %>
+                                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    <span class="caret"></span>
+                                                                    <span class="sr-only">Toggle Dropdown</span>
+                                                                </button>
+                                                                <ul class="dropdown-menu">
+                                                                    <%
+                                                                    if(locals.user != null && locals.user.uri == project.dcterms.creator)
+                                                                    {
+                                                                    %>
+                                                                    <li>
+                                                                        <a href="<%=project.uri%>?administer"><i class="fa fa-cog"></i>&nbsp;&nbsp;Administer</a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a href="<%=project.uri%>?bagit"><i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Backup</a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a href="<%=project.uri%>?delete"><i class="fa fa-bomb"></i>&nbsp;&nbsp;Delete</a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a href="<%=project.uri%>?delete"><i class="fa fa-refresh"></i>&nbsp;&nbsp;Restore</a>
+                                                                    </li>
+                                                                    <% } %>
+
+                                                                </ul>
+                                                            <%
+                                                            }
+                                                            %>
+                                                            </div>
+                                                        </form>
+                                                        <% if(!project.ddr.deleted)
+                                                        {
+                                                        %>
+                                                    </s>
+                                                    <%
+                                                    }
+                                                    %>
+
                                                     <b>
-                                                        <a href="<%=project.uri%>">
-                                                            <% if(project.ddr.deleted)
-                                                            {
-                                                            %>
-                                                                <s>
-                                                            <%
-                                                            }
-                                                            %>
-                                                                <%= project.dcterms.title %>
-                                                            <% if(!project.ddr.deleted)
-                                                            {
-                                                            %>
-                                                                </s>
-                                                            <%
-                                                            }
-                                                            %>
+
+
                                                         </a>
                                                     </b>
                                                 </td>
@@ -74,7 +111,7 @@
                                                     <%
                                                     }
                                                     %>
-                                                            <b><%= project.ddr.handle %></b>
+                                                            <b><%= project.dcterms.description %></b>
                                                     <% if(!project.ddr.deleted)
                                                     {
                                                     %>
@@ -87,10 +124,11 @@
                                                     <b>
                                                         <%if(locals.user != null && locals.user.uri == project.dcterms.creator) {%>
                                                             <a href="<%=locals.user.uri%>">
-                                                                You
+                                                                <img class="img-circle show-avatar-in-project-list" src="<%=project.dcterms.creator%>?avatar"/>You
                                                             </a>
                                                         <%} else {%>
                                                             <a href="<%=project.dcterms.creator%>">
+                                                                <img class="img-circle show-avatar-in-project-list"  src="<%=project.dcterms.creator%>?avatar"/>
                                                                 <%=project.dcterms.creator%>
                                                             </a>
                                                         <%} %>
@@ -104,43 +142,29 @@
                                                         <div class="parent">
                                                             <img class="image1_stacked breadcrumb_icon" src="/images/icons/box_closed.png">
                                                             <%if(project.ddr.privacyStatus === "private") {%>
-                                                            <img class="image2_stacked" src="/images/icons/bullet_key.png">
-                                                            <span class="tooltiptext">This project is fully invisible to the outside world</span>
+                                                            <img class="image2_stacked" src="/images/icons/bullet_key.png">&nbsp;&nbsp;Private
+                                                            <span class="tooltiptext">This project is fully invisible to the outside world, and only its creator and contributors can access metadata or data.</span>
                                                             <%
                                                             } else if(project.ddr.privacyStatus === "public") {
                                                             %>
-                                                            <img class="image2_stacked" src="/images/icons/bullet_world.png">
-                                                            <span class="tooltiptext">Both data and metadata are fully visible to the outside world</span>
+                                                            <img class="image2_stacked" src="/images/icons/bullet_world.png">&nbsp;&nbsp;Public
+                                                            <span class="tooltiptext">Both data and metadata are fully visible to everyone, regardless of whether they are creator or a contributor of the project or not.</span>
                                                             <%
                                                             } else if(project.ddr.privacyStatus === "metadata_only") {
                                                             %>
-                                                            <img class="image2_stacked" src="/images/icons/bullet_document.png">
-                                                            <span class="tooltiptext">Only metadata is visible to the outside world</span>
+                                                            <img class="image2_stacked" src="/images/icons/bullet_document.png">&nbsp;&nbsp;Metadata only
+                                                            <span class="tooltiptext">Only metadata is visible to the outside world. Metadata is fully visible to everyone, but data are visible or accessible only for its creator and contributors.</span>
                                                             <%
                                                             }
                                                             %>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <%
-                                                if(locals.user != null && locals.user.uri == project.dcterms.creator)
-                                                {
-                                                %>
-                                                    <td class="col-md-2 col-xs-4">
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Operations
-                                                                <span class="caret"></span></button>
-                                                            <ul class="dropdown-menu">
-                                                                <li>
-                                                                    <a href="<%=project.uri%>?administer"><i class="fa fa-cog"></i>Administer</a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="<%=project.uri%>?bagit"><i class="fa fa-file-zip-o"></i>Backup</a>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </td>
-                                                <% } %>
+                                                <!--<td>
+                                                    <button type="submit" class="btn btn-default btn-small" onclick="location.href='<%=project.uri%>?recycle_bin'">
+                                                        <img class="icon16" src="/images/icons/recycle.png">&nbsp;&nbsp;Recycle Bin
+                                                    </button>
+                                                </td> -->
                                             </tr>
                                             <% }  %>
                                         <% } %>
@@ -160,12 +184,6 @@
                             </div>
                         <% }  %>
                 <% } %>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="timeline" ng-controller="timelineCtrl" ng-init="init();get_logged_user();">
-           <% include ../social/timeline.ejs %>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="fileVersions" ng-controller="fileVersionsCtrl" ng-init="init();get_logged_user();">
-            <%- include ../social/timelineFileVersions.ejs %>
         </div>
 
 </div>

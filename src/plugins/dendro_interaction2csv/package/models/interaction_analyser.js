@@ -55,7 +55,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: graphUri
             }
         ],
@@ -101,15 +101,15 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                         db.connection.execute(query,
                             [
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: graphUri
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: pageOffset
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: Config.streaming.db.page_size
                                 }
                             ],
@@ -167,23 +167,23 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                                         db.connection.execute(query,
                                             [
                                                 {
-                                                    type: DbConnection.resourceNoEscape,
+                                                    type: Elements.types.resourceNoEscape,
                                                     value: graphUri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: "http://purl.org/dc/terms/"
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.date_created
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.uri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.interaction_type
                                                 },
                                             ],
@@ -260,7 +260,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: graphUri
             }
         ],
@@ -306,15 +306,15 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                         db.connection.execute(query,
                             [
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: graphUri
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: pageOffset
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: Config.streaming.db.page_size
                                 }
                             ],
@@ -372,23 +372,23 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                                         db.connection.execute(query,
                                             [
                                                 {
-                                                    type: DbConnection.resourceNoEscape,
+                                                    type: Elements.types.resourceNoEscape,
                                                     value: graphUri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: "http://purl.org/dc/terms/"
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.date_created
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.uri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.interaction_type
                                                 }
                                             ],
@@ -449,7 +449,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: graphUri
             }
         ],
@@ -495,15 +495,15 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                         db.connection.execute(query,
                             [
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: graphUri
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: pageOffset
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: Config.streaming.db.page_size
                                 }
                             ],
@@ -561,23 +561,23 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                                         db.connection.execute(query,
                                             [
                                                 {
-                                                    type: DbConnection.resourceNoEscape,
+                                                    type: Elements.types.resourceNoEscape,
                                                     value: graphUri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: "http://purl.org/dc/terms/"
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.date_created
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.uri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.interaction_type
                                                 }
                                             ],
@@ -638,7 +638,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: graphUri
             }
         ],
@@ -684,15 +684,15 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                         db.connection.execute(query,
                             [
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: graphUri
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: pageOffset
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: Config.streaming.db.page_size
                                 }
                             ],
@@ -750,23 +750,23 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                                         db.connection.execute(query,
                                             [
                                                 {
-                                                    type: DbConnection.resourceNoEscape,
+                                                    type: Elements.types.resourceNoEscape,
                                                     value: graphUri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: "http://purl.org/dc/terms/"
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.date_created
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.uri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.interaction_type
                                                 }
                                             ],

@@ -62,7 +62,7 @@ module.exports.reload = function(req, res)
 
     for(let graph in graphNames)
     {
-        /*if(graphNames[i] == "dbpedia")
+        /*if(graphNames[i] === "dbpedia")
         {
             if(graphsToDelete[i])
             {

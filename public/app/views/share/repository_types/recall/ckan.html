@@ -1,74 +1,83 @@
-<h1 class="page-header">Share current folder to a CKAN repository</h1>
-<div class="form-group">
-    <label for="recalled_ckan_repository_label">Label</label>
-    <input type="text" ng-model="recalled_repository.dcterms.title" class="form-control" id="recalled_ckan_repository_label" placeholder="Label" disabled>
-</div>
-<div class="form-group">
-    <label for="recalled_ckan_repository_url">Repository URL</label>
-    <a ng-href="{{recalled_repository.ddr.hasExternalUri}}" class="form-control" id="recalled_ckan_repository_url" placeholder="CKAN repository URL">{{recalled_repository.ddr.hasExternalUri}}</a>
-</div>
-<div class="form-group">
-    <label for="recalled_ckan_repository_username">Username</label>
-    <input type="text" ng-model="recalled_repository.ddr.hasUsername" class="form-control" id="recalled_ckan_repository_username" placeholder="Repository username" disabled>
-</div>
-
-<div class="form-group">
-    <label for="recalled_ckan_organization">Organization</label>
-    <input type="text" ng-model="recalled_repository.ddr.hasOrganization" class="form-control" id="recalled_ckan_organization" placeholder="CKAN Organization" disabled>
-    <p class="help-block">Your Organization in the CKAN repository (example: For the repository http://dendro-prd.fe.up.pt:5000/organization/infolab-devs, it is <b>infolab-devs</b>) .</p>
-</div>
-
-<div class="form-group">
-    <label for="recalled_ckan_repository_api_key">CKAN API Key
-    <input type="text" ng-model="recalled_repository.ddr.hasAPIKey" class="form-control" id="recalled_ckan_repository_api_key" placeholder="CKAN API Key (see tutorial below on how to get this)" disabled>
-    <p class="help-block">Your CKAN API Key.</p>
-</div>
-
-<div class="row">
-    <div class="col-lg-7">
-        <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large"><span class="glyphicon glyphicon-remove"></span>Delete this bookmark</button>
+<div ng-init="calculateCkanRepositoryDiffs(recalled_repository)">
+    <h1 class="page-header">Share current folder to a CKAN repository</h1>
+    <div class="form-group">
+        <label for="recalled_ckan_repository_label">Label</label>
+        <input type="text" ng-model="recalled_repository.dcterms.title" class="form-control" id="recalled_ckan_repository_label" placeholder="Label" disabled>
+    </div>
+    <div class="form-group">
+        <label for="recalled_ckan_repository_url">Repository URL</label>
+        <a ng-href="{{recalled_repository.ddr.hasExternalUri}}" class="form-control" id="recalled_ckan_repository_url" placeholder="CKAN repository URL">{{recalled_repository.ddr.hasExternalUri}}</a>
+    </div>
+    <div class="form-group">
+        <label for="recalled_ckan_repository_username">Username</label>
+        <input type="text" ng-model="recalled_repository.ddr.hasUsername" class="form-control" id="recalled_ckan_repository_username" placeholder="Repository username" disabled>
     </div>
 
-    <div ng-if="!is_sending_data" class="col-lg-3">
-        <button type="cancel" ng-click="upload_to_repository(recalled_repository, overwrite)" class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
-    </div>
-    <div ng-if="is_sending_data" class="col-lg-3">
-        <button type="cancel" class="btn btn-success pull-right" disabled="disabled"> <img src="/images/loading.gif">Sending</button>
+    <div class="form-group">
+        <label for="recalled_ckan_organization">Organization</label>
+        <input type="text" ng-model="recalled_repository.ddr.hasOrganization" class="form-control" id="recalled_ckan_organization" placeholder="CKAN Organization" disabled>
+        <p class="help-block">Your Organization in the CKAN repository (example: For the repository http://dendro-prd.fe.up.pt:5000/organization/infolab-devs, it is <b>infolab-devs</b>) .</p>
     </div>
 
-    <div class="col-lg-2">
-        <div class="checkbox">
-            <label><input type="checkbox" ng-model="overwrite"><span class="label label-warning"><span class="glyphicon glyphicon-warning-sign"></span>Overwrite if exists</span></label>
+    <div class="form-group">
+        <label for="recalled_ckan_repository_api_key">CKAN API Key
+            <input type="text" ng-model="recalled_repository.ddr.hasAPIKey" class="form-control" id="recalled_ckan_repository_api_key" placeholder="CKAN API Key (see tutorial below on how to get this)" disabled>
+            <p class="help-block">Your CKAN API Key.</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large"><span class="glyphicon glyphicon-remove"></span>Delete this bookmark</button>
         </div>
-    </div>
-</div>
 
-<br>
-<br>
-<br>
-
-<div>
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <h3 class="panel-title"><h1>Tutorial</h1>How to get your CKAN API Key?</h3>
+        <div class="col-lg-3" ng-show="needsCkanPermissions.length > 0">
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="deleteChangesOriginatedFromCkan"><span class="label label-warning"><span class="glyphicon glyphicon-warning-sign"></span> Discard changes made in Ckan </span></label>
+            </div>
         </div>
-        <div class="panel-body">
-            <h3 id="ckan_api_key_tutorial">1. Login to your CKAN instance (<a href="{{recalled_repository.ddr.hasExternalUri}}">{{recalled_repository.ddr.hasExternalUri}}</a>) and access your Settings (small cogwheel icon at the right top of the page)</h3>
+
+        <div class="col-lg-3" ng-show="needsDendroPermissions.length > 0">
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="propagateDendroChangesIntoCkan"><span class="label label-warning"><span class="glyphicon glyphicon-warning-sign"></span> Propagate changes from Dendro to Ckan </span></label>
+            </div>
+        </div>
+
+        <div ng-if="!is_sending_data" class="col-lg-2">
+            <button type="cancel" ng-click="upload_to_repository(recalled_repository, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)" class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
+        </div>
+        <div ng-if="is_sending_data" class="col-lg-2">
+            <button type="cancel" class="btn btn-success pull-right" disabled="disabled"> <img src="/images/loading.gif">Sending</button>
+        </div>
+
+    </div>
+
+    <br>
+    <br>
+    <br>
+
+    <div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title"><h1>Tutorial</h1>How to get your CKAN API Key?</h3>
+            </div>
+            <div class="panel-body">
+                <h3 id="ckan_api_key_tutorial">1. Login to your CKAN instance (<a href="{{recalled_repository.ddr.hasExternalUri}}">{{recalled_repository.ddr.hasExternalUri}}</a>) and access your Settings (small cogwheel icon at the right top of the page)</h3>
                 <img src="/images/ckan_get_api_key_tutorial/ckan1.png">
-            <h3>2. Press the "Regenerate API Key" Button at the bottom of the page</h3>
+                <h3>2. Press the "Regenerate API Key" Button at the bottom of the page</h3>
                 <small>
                     <span class="badge badge-warning">Warning</span>Note that if you use this CKAN instance in other services you may have to update the API Key there as well after regenerating it.
                 </small>
                 <img src="/images/ckan_get_api_key_tutorial/ckan2.png">
-            <h3>3. Confirm the operation</h3>
+                <h3>3. Confirm the operation</h3>
                 <img src="/images/ckan_get_api_key_tutorial/ckan3.png">
-            <h3>4. You should see a success message at the top of the page</h3>
+                <h3>4. You should see a success message at the top of the page</h3>
                 <img src="/images/ckan_get_api_key_tutorial/ckan4.png">
-            <h3>5. Access your profile at the top of the page</h3>
+                <h3>5. Access your profile at the top of the page</h3>
                 <img src="/images/ckan_get_api_key_tutorial/ckan5.png">
-            <h3>6. Your new API key is at the bottom left. Copy it and paste it in the <a href="#recalled_ckan_repository_api_key">box above</a>.</h3>
+                <h3>6. Your new API key is at the bottom left. Copy it and paste it in the <a href="#recalled_ckan_repository_api_key">box above</a>.</h3>
                 <img src="/images/ckan_get_api_key_tutorial/ckan6.png">
+            </div>
         </div>
+        <a href="#recalled_ckan_repository_api_key">Go back up</a>
     </div>
-    <a href="#recalled_ckan_repository_api_key">Go back up</a>
 </div>

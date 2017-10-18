@@ -10,9 +10,14 @@ const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
+const Notification = require(Pathfinder.absPathInSrcFolder("/models/notifications/notification.js")).Notification;
 
 const async = require("async");
 const _ = require("underscore");
+
+const db_social = Config.getDBByID("social");
+const db_notifications = Config.getDBByID("notifications");
 
 function Permissions (){}
 
@@ -25,8 +30,8 @@ Permissions.messages = {
 
 Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllowingOrDenying, errorMessage)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(allow_access)
     {
@@ -142,7 +147,7 @@ const getOwnerProject = function (requestedResource, callback) {
 
 /** Role-based validation **/
 
-const checkRoleInSystem = function (req, user, role, callback) {
+const checkRoleInSystem = Permissions.checkRoleInSystem = function (req, user, role, callback) {
     if (!isNull(user)) {
         user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result) {
             return callback(err, result);
@@ -189,7 +194,145 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
     }
 };
 
-const checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
+
+const getPostsProject = function (postUri, callback) {
+    Post.findByUri(postUri, function(err, post){
+        if(isNull(err))
+        {
+            if(!isNull(post))
+            {
+                if(post instanceof Post)
+                {
+                    post.getOwnerProject(function(err, project){
+                        if(!isNull(project) && project instanceof Project)
+                        {
+                            callback(null, project);
+                        }
+                        else
+                        {
+                            callback(err, project);
+                        }
+                    });
+                }
+                else
+                {
+                    callback("Resource " + postUri + " is of invalid type!", null);
+                }
+            }
+            else
+            {
+                callback(null, null);
+            }
+        }
+        else
+        {
+            callback(err, post);
+        }
+    }, null, db_social.graphUri, false, null, null);
+};
+
+const checkUsersRoleInNotification = function (req, user, role, notificationUri, callback) {
+    if(!isNull(user))
+    {
+        Notification.findByUri(notificationUri, function (err, notification) {
+            if(isNull(err))
+            {
+                if (notification instanceof Notification)
+                {
+                    notification.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
+                    {
+                        return callback(err, result);
+                    }, db_notifications.graphUri);
+                }
+                else {
+                    return callback(null, false);
+                }
+            }
+            else
+            {
+                return callback(null, false);
+            }
+        }, null, db_notifications.graphUri, false, null, null);
+    }
+    else
+    {
+        callback(null, false);
+    }
+};
+
+const checkUsersRoleInPostsProject = function (req, user, role, postUri, callback) {
+    if(!isNull(user))
+    {
+        getPostsProject(postUri, function (err, project) {
+            if(isNull(err))
+            {
+                if (project instanceof Project) {
+                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
+                        return callback(err, hasRole);
+                    });
+                }
+                else {
+                    return callback(null, false);
+                }
+            }
+            else
+            {
+                return callback(null, false);
+            }
+        });
+    }
+    else
+    {
+        callback(null, false);
+    }
+};
+
+const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPostsUris, callback) {
+    if(!isNull(user))
+    {
+        async.mapSeries(arrayOfPostsUris, function (postUri, cb) {
+            getPostsProject(postUri, function (err, project) {
+                if(isNull(err))
+                {
+                    if (project instanceof Project) {
+                        checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
+                            if(isNull(err))
+                            {
+                                if(hasRole === false)
+                                {
+                                    return callback(err, hasRole);
+                                }
+                                else
+                                {
+                                    cb(err, hasRole);
+                                }
+                            }
+                            else
+                            {
+                                return callback(err, false);
+                            }
+                        });
+                    }
+                    else {
+                        return callback(null, false);
+                    }
+                }
+                else
+                {
+                    return callback(null, false);
+                }
+            });
+        }, function (err, results) {
+            return callback(err, true);
+        });
+    }
+    else
+    {
+        callback(null, false);
+    }
+};
+
+const checkUsersRoleInParentProject = Permissions.checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
     if (!isNull(user)) {
         getOwnerProject(resource, function (err, project) {
             if (isNull(err)) {
@@ -272,6 +415,15 @@ Permissions.types = {
     role_in_owner_project : {
         validator : checkUsersRoleInParentProject
     },
+    role_in_post_s_project : {
+        validator : checkUsersRoleInPostsProject
+    },
+    role_in_array_of_posts_project : {
+        validator : checkUsersRoleInArrayOfPostsProject
+    },
+    role_in_notification_s_resource : {
+        validator : checkUsersRoleInNotification
+    },
     privacy_of_project : {
         validator : checkPrivacyOfProject
     },
@@ -326,6 +478,42 @@ Permissions.settings = {
                 predicate: "dcterms:contributor",
                 error_message_user: "You are not a contributor of this project or of the project to which this resource belongs to.",
                 error_message_api: "Unauthorized access. Must be signed on as a contributor of the project the resource belongs to."
+            }
+        },
+        in_notification_s_resource : {
+            author: {
+                type: Permissions.types.role_in_notification_s_resource,
+                predicate: "ddr:resourceAuthorUri",
+                error_message_user: "You are not the author of the resource that this notification points to.",
+                error_message_api: "Unauthorized access. Must be signed on as the author of the resource that this notification points to."
+            }
+        },
+        in_post_s_project : {
+            creator: {
+                type: Permissions.types.role_in_post_s_project,
+                predicate: "dcterms:creator",
+                error_message_user: "You are not a contributor or creator of the project to which this post belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project the post belongs to."
+            },
+            contributor: {
+                type: Permissions.types.role_in_post_s_project,
+                predicate: "dcterms:contributor",
+                error_message_user: "You are not a contributor or creator of the project to which this post belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project the post belongs to."
+            }
+        },
+        in_array_of_posts_project: {
+            creator: {
+                type: Permissions.types.role_in_array_of_posts_project,
+                predicate: "dcterms:creator",
+                error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
+            },
+            contributor: {
+                type: Permissions.types.role_in_array_of_posts_project,
+                predicate: "dcterms:contributor",
+                error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
             }
         }
     },
@@ -433,6 +621,24 @@ Permissions.check = function(permissionsRequired, req, callback) {
                     cb(err, {authorized: result, role: permission});
                 });
             }
+            else if(permission.type === Permissions.types.role_in_post_s_project)
+            {
+                Permissions.types.role_in_post_s_project.validator(req, user, permission, resource, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if(permission.type === Permissions.types.role_in_array_of_posts_project)
+            {
+                Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if(permission.type === Permissions.types.role_in_notification_s_resource)
+            {
+                Permissions.types.role_in_notification_s_resource.validator(req, user, permission, resource, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
             else
             {
                 cb(null,
@@ -444,35 +650,49 @@ Permissions.check = function(permissionsRequired, req, callback) {
             }
         };
 
-        async.map(permissionsRequired,
-            async.apply(checkPermission, req, user, resource),
-            function(err, results)
-            {
-                const reasonsForDenying = _.filter(results, function (result) {
-                    if (!isNull(result)) {
-                        return !result.authorized
-                    }
-                    else {
-                        return false;
-                    }
-                });
+        if(permissionsRequired instanceof Array && permissionsRequired.length > 0)
+        {
+            async.map(permissionsRequired,
+                async.apply(checkPermission, req, user, resource),
+                function(err, results)
+                {
+                    const reasonsForDenying = _.filter(results, function (result) {
+                        if (!isNull(result)) {
+                            return !result.authorized
+                        }
+                        else {
+                            return false;
+                        }
+                    });
 
-                const reasonsForAuthorizing = _.filter(results, function (result) {
-                    if (!isNull(result)) {
-                        return result.authorized
-                    }
-                    else {
-                        return false;
-                    }
-                });
+                    const reasonsForAuthorizing = _.filter(results, function (result) {
+                        if (!isNull(result)) {
+                            return result.authorized
+                        }
+                        else {
+                            return false;
+                        }
+                    });
 
-                req = Permissions.addToReasons(req, reasonsForDenying, false);
+                    req = Permissions.addToReasons(req, reasonsForDenying, false);
 
-                req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
+                    req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
 
-                return callback(err, req, results);
-            }
-        );
+                    return callback(err, req, results);
+                }
+            );
+        }
+        else
+        {
+            const reasonsForAllowing = [{
+                authorized: true,
+                role: "Anyone"
+            }];
+
+            req = Permissions.addToReasons(req, reasonsForAllowing, true);
+
+            return callback(null, req , reasonsForAllowing);
+        }
     }
     else
     {
@@ -490,7 +710,7 @@ Permissions.check = function(permissionsRequired, req, callback) {
 Permissions.require = function(permissionsRequired, req, res, next) {
     if(Config.debug.permissions.enable_permissions_system)
     {
-        if(Config.debug.permissions.log_requests_and_permissions)
+        if(Config.debug.active && Config.debug.permissions.log_requests_and_permissions)
         {
             console.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
             console.log(JSON.stringify(permissionsRequired, null, 2));
@@ -504,7 +724,7 @@ Permissions.require = function(permissionsRequired, req, res, next) {
             Permissions.check(permissionsRequired, req, function(err, req){
                 if(req.permissions_management.reasons_for_authorizing.length > 0)
                 {
-                    if(Config.debug.permissions.log_authorizations)
+                    if(Config.debug.active && Config.debug.permissions.log_authorizations)
                     {
                         console.log("[AUTHORIZED] : Checking for permissions on request " + req.originalUrl);
                         console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
@@ -514,7 +734,7 @@ Permissions.require = function(permissionsRequired, req, res, next) {
                 }
                 else if(req.permissions_management.reasons_for_denying.length > 0)
                 {
-                    if (Config.debug.permissions.log_denials)
+                    if (Config.debug.active && Config.debug.permissions.log_denials)
                     {
                         console.log("[DENIED] : Checking for permissions on request " + req.originalUrl);
                         console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));

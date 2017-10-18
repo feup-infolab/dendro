@@ -66,26 +66,32 @@
     </div>
 
     <div class="row">
-        <div class="col-md-3 col-xs-12 col-sm-3" ng-controller="fileBrowserCtrl" ng-init="init()">
+        <div class="col-md-3 col-xs-12 col-sm-3" ng-controller="fileExplorerCtrl" ng-init="init()">
             <div class="row">
                 <div class="col-xs-12">
+                    <br/>
                     <!-- Split button -->
                     <div class="btn-group">
-                        <button type="button" class="btn btn-default" ng-click="toggle_upload_area()">
-                            <img class="icon16" id="upload_button" data-loading-text="Uploading..." src="/images/icons/page_white_get.png"> Upload files
+                        <button type="button" class="btn btn-default" ng-hide="files_exist_in_clipboard()" ng-click="toggle_upload_area()">
+                            <img class="icon16" id="upload_button" data-loading-text="Uploading..." src="/images/icons/page_white_get.png"> Upload
+                        </button>
+                        <button type="button" class="btn btn-success" ng-show="files_exist_in_clipboard()" ng-click="paste()">
+                            <img class="icon16" id="paste_button" src="/images/icons/page_paste.png">&nbsp; Paste &nbsp; <span ng-show="files_exist_in_clipboard()" class="badge badge-info">{{get_clipboard_file_count()}}</span>
+                        </button>
+                        <button type="button" class="btn btn-default" ng-show="files_exist_in_clipboard()" ng-click="clear_clipboard()">
+                            <img class="icon16" id="paste_button" src="/images/icons/cancel.png">&nbsp; Abort</span>
                         </button>
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li ng-click="mkdir()"><a href="#" ng-hide="showing_a_file()"><img class="icon16" id="new_folder_button" data-loading-text="Creating folder..." src="/images/icons/folder_add.png">Add folder</a></li>
+                            <li ng-click="mkdir()" ng-hide="showing_a_file()"><a href="#"><img class="icon16" id="new_folder_button" data-loading-text="Creating folder..." src="/images/icons/folder_add.png">Add folder</a></li>
                             <li role="separator" class="divider"></li>
-                            <li ng-click="copy()" ><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li>
-                            <li ng-click="cut()"><a href="#"><img class="icon16" id="cut_button"  src="/images/icons/cut.png">Cut</a></li>
-                            <li ng-click="paste()"><a href="#"><img class="icon16" id="paste_button" src="/images/icons/page_paste.png">Paste</a></li>
+                            <li ng-click="copy()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li>
+                            <li ng-click="cut()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="cut_button"  src="/images/icons/cut.png">Cut</a></li>
                             <li ng-click="rename()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="rename_button" src="/images/icons/textfield_rename.png">Rename</a></li>
-                            <li role="separator" class="divider"></li>
+                            <li role="separator" class="divider" ng-hide="showing_project_root()"></li>
                             <li ng-click="download_folder()"><a href="#"><img class="icon16" id="download_folder_button" data-loading-text="Preparing Package..." src="/images/icons/arrow_down.png">Download</a></li>
                             <li ng-click="backup_folder()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="backup_button" data-loading-text="Preparing Package..." src="/images/icons/folder_vertical_zipper.png">Backup</a></li>
                             <li role="separator" class="divider" ng-hide="showing_project_root() || showing_a_file()"></li>
@@ -97,33 +103,36 @@
                     <a href="#" ng-hide="showing_a_file()"><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
                     <a href="#" ng-hide="showing_a_file()"><img id="toggle_select_all" ng-click="toggle_select_all_files()"  src="/images/icons/check_boxes_series.png"></a>
 
+                    <div class="ng-hide"
+                         id="file_upload_area">
+                    </div>
                 </div>
 
-                <script type="text/javascript">
-                    $('#new_folder_button').tooltip({title : "<h4>Add folder</h4>Create a new folder here", html: true});
-                    $('#upload_button').tooltip({title : "<h4>Upload</h4>Upload files to the current folder", html: true});
-                    $('#download_folder_button').tooltip({title : "<h4>Download</h4>Download the current folder or file" , html: true});
-                    $('#backup_button').tooltip({title : "<h4>Backup</h4>Download the current folder, including information", html:true});
-                    $('#restore_button').tooltip({title : "<h4>Restore</h4>Replace the contents of the current folder with the contents of a backup package", html:true});
-                    $('#show_deleted_files_button').tooltip({title : "<h4>Show Deleted</h4>Show Deleted Files", html:true});
-                    $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several files", html:true});
-                    $('#toggle_select_all').tooltip({title : "<h4>Select all</h4>Select all files", html:true});
-                </script>
-            </div>
-
-            <div class="row ng-hide"
-                 id="file_upload_area"
-                 ng-show="upload_area_visible">
-                <br/>
-
-                <div ng-controller="uploadsCtrl" ng-init="init(get_calling_uri, 'upload_files', 'upload_files_invalid', 'upload_files_successful', upload_callback, 1000)">                   <div class="col-xs-12">
+                <div ng-controller="uploadsCtrl" ng-init="init(get_calling_uri, 'upload_files', 'upload_files_invalid', 'upload_files_successful', upload_callback, 5000)">
+                    <div class="col-xs-12 ng-hide">
                         <%- include ../uploads/upload_box.ejs %>
                     </div>
                     <div class="col-xs-12">
-                        <%- include ../uploads/progress_bars.ejs %>
+                        <br/>
+                        <div class="row" ng-repeat="file in upload_files">
+                            <%- include ../uploads/file_upload_progress_bar.ejs %>
+                        </div>
                     </div>
                 </div>
+                <br/>
+                <br/>
             </div>
+
+            <script type="text/javascript">
+                $('#new_folder_button').tooltip({title : "<h4>Add folder</h4>Create a new folder here", html: true});
+                $('#upload_button').tooltip({title : "<h4>Upload</h4>Upload files to the current folder", html: true});
+                $('#download_folder_button').tooltip({title : "<h4>Download</h4>Download the current folder or file" , html: true});
+                $('#backup_button').tooltip({title : "<h4>Backup</h4>Download the current folder, including information", html:true});
+                $('#restore_button').tooltip({title : "<h4>Restore</h4>Replace the contents of the current folder with the contents of a backup package", html:true});
+                $('#show_deleted_files_button').tooltip({title : "<h4>Show Deleted</h4>Show Deleted Files", html:true});
+                $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several files", html:true});
+                $('#toggle_select_all').tooltip({title : "<h4>Select all</h4>Select all files", html:true});
+            </script>
 
             <div>
                 <h4>Selection</h4>
@@ -176,12 +185,15 @@
                 </script>
             </div>
 
-            <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible" ng-controller="uploadsCtrl" ng-init="init(get_calling_uri)">
-                <div class="col-xs-12">
+            <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible && still_uploading_files()" ng-controller="uploadsCtrl" ng-init="init(get_calling_uri)">
+                <div class="col-xs-12 ng-hide">
                     <%- include ../uploads/upload_box.ejs %>
                 </div>
                 <div class="col-xs-12">
-                    <%- include ../uploads/progress_bars.ejs %>
+                    <br/>
+                    <div class="row" ng-repeat="file in upload_files">
+                        <%- include ../uploads/file_upload_progress_bar.ejs %>
+                    </div>
                 </div>
             </div>
 

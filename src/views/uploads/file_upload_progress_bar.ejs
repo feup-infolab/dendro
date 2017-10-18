@@ -1,0 +1,62 @@
+<div class="panel" ng-class="{'panel-success' : file.has_success, 'panel-danger' : file.has_error}">
+    <div class="panel-heading">
+        <b><img ng-src="{{get_filename_icon(file.name)}}">{{get_short_filename(file.name, 30)}}</b>
+    </div>
+    <div class="panel-body">
+        <div class="col-xs-12 col-md-12" ng-show="file.calculating_md5 && !file.has_error">
+            <span><i class="fa fa-cog faa-spin animated"></i>Calculating MD5 for verified upload... {{file.md5_progress}} %</span>
+
+            <div class="progress thin-progress"
+                 uib-tooltip="{{file.md5_progress}} % -{{file.name}} - size: {{file.size}}B - type: {{file.type}} - MD5 Checksum: {{file.md5}}"
+                 tooltip-placement="top"
+                 tooltip-trigger="mouseenter">
+                <div class="progress-bar thin-progress progress-bar-striped"
+                     ng-class="{'active' : file.md5_progress < 100, 'progress-bar-success' : file.md5_progress == 100, 'progress-bar-info' : file.md5_progress > 0 && file.md5_progress < 100}"
+                     role="progressbar" aria-valuenow="{{file.md5_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{file.md5_progress}}%">
+                    <span class="sr-only" ng-hide="file.error">{{file.md5_progress}}% Complete</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-12" ng-show="file.uploading">
+            <div class="progress thin-progress"
+                 uib-tooltip="{{file.progress}} % - {{file.name}} - size: {{file.size}}B - type: {{file.type}} - MD5 Checksum: {{file.md5}}"
+                 tooltip-placement="top"
+                 tooltip-trigger="mouseenter">
+                <div class="progress-bar thin-progress progress-bar-striped"
+                     ng-class="{'active' : file.progress < 100, 'progress-bar-success' : file.progress === 100 && file.error == null, 'progress-bar-info' : file.progress > 0 && file.progress < 100, 'progress-bar-danger' : file.error != null}"
+                     role="progressbar" aria-valuenow="{{file.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{file.progress}}%">
+                    <span class="sr-only" ng-hide="file.error">{{file.progress}}% Complete</span>
+                    <span class="sr-only" ng-show="file.error"><i class="fa fa-exclamation-triangle warning"></i>{{file.has_error.message}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-12" ng-show="file.md5_progress === 100">
+            <small><span><i class="fa fa-check-circle-o success"></i>&nbsp;Checksum calculated</span></small>
+        </div>
+
+        <div class="col-xs-12 col-md-12" ng-show="!file.sent_to_server && file.uploading">
+            <small><span><i class="fa fa-cog faa-spin animated"></i>&nbsp;Uploading file...{{file.progress}} %</span></small>
+        </div>
+
+        <div class="col-xs-12 col-md-12" ng-show="file.sent_to_server">
+            <small><span><i class="fa fa-check-circle-o success"></i>&nbsp;We have received the file.</span></small>
+        </div>
+
+        <div class="col-xs-10 col-md-12" ng-show="file.sent_to_server && (file.has_error || file.has_success)">
+            <small><span ng-show="file.sent_to_server"><i class="fa fa-check-circle-o success"></i>&nbsp;File processed on server</span></small>
+        </div>
+
+        <div class="col-xs-10 col-md-12" ng-show="file.sent_to_server && !file.has_error && !file.has_success">
+            <small><span ng-show="file.sent_to_server"><i class="fa fa-cog faa-spin animated"></i>&nbsp;Processing file. Please wait...</span></small>
+        </div>
+
+        <div class="col-xs-10 col-md-12" ng-show="file.has_error">
+            <small><span><i class="fa fa-exclamation-triangle warning"></i>&nbsp;{{file.has_error.error}}</span></small>
+        </div>
+        <div class="col-xs-10 col-md-12" ng-show="file.has_success">
+            <small><span><i class="fa fa-check-circle-o success"></i>&nbsp;{{file.has_success}}</span></small>
+        </div>
+    </div>
+</div>

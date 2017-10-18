@@ -1,4 +1,5 @@
 const path = require("path");
+const async = require("async");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -19,7 +20,7 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
     self.password = password;
 }
 
-GridFSConnection.prototype.open = function(callback) {
+GridFSConnection.prototype.open = function(callback, customBucket) {
     const self = this;
 
     if(!isNull(self.gfs))
@@ -50,9 +51,29 @@ GridFSConnection.prototype.open = function(callback) {
         db.open(function (err) {
             if (isNull(err))
             {
-                self.db = db;
-                self.gfs = Grid(db, mongo);
-                return callback(null, self);
+                let collectionName;
+                if(!isNull(customBucket))
+                {
+                    collectionName = customBucket;
+                }
+                else
+                {
+                    collectionName = "fs.files";
+
+                }
+                db.collection(collectionName).ensureIndex("uri", function(err, result)
+                {
+                    if(isNull(err))
+                    {
+                        self.db = db;
+                        self.gfs = Grid(db, mongo);
+                        return callback(null, self);
+                    }
+                    else
+                    {
+                        callback(err, self);
+                    }
+                });
             }
             else
             {
@@ -80,7 +101,10 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
         let uploadStream = bucket.openUploadStream(
             fileUri,
             {
-                metadata : metadata
+                metadata : metadata,
+                w : 1,
+                j : true,
+                wtimeout : 0
             }
         );
 
@@ -193,28 +217,35 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
             if (isNull(err))
             {
                 let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
-                bucket.delete(obj._id, function (err)
+                if(!isNull(obj))
                 {
-                    if (isNull(err))
+                    bucket.delete(obj._id, function (err)
                     {
-                        // Verify that the file no longer exists
-                        collection.findOne({"filename": fileUri } , function (err, exists)
+                        if (isNull(err))
                         {
-                            if (isNull(err) && !exists)
+                            // Verify that the file no longer exists
+                            collection.findOne({"filename": fileUri } , function (err, exists)
                             {
-                                return callback(null, "File " + fileUri + "successfully deleted");
-                            }
-                            else
-                            {
-                                return callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        return callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
-                    }
-                });
+                                if (isNull(err) && !exists)
+                                {
+                                    return callback(null, "File " + fileUri + "successfully deleted");
+                                }
+                                else
+                                {
+                                    return callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            return callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
+                        }
+                    });
+                }
+                else
+                {
+                    return callback(1, "File with uri " + fileUri + " not found.");
+                }
             }
             else
             {
@@ -226,9 +257,96 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
     {
         return callback(1, "Must open connection to database first!");
     }
-
 };
 
+
+GridFSConnection.prototype.deleteByQuery = function(query, callback, customBucket) {
+    let self = this;
+
+    let collectionName;
+    if(!isNull(customBucket))
+    {
+        collectionName = customBucket;
+    }
+    else
+    {
+        collectionName = "fs.files";
+    }
+
+    const collection = self.db.collection(collectionName);
+    let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
+
+    if(!isNull(self.gfs) && !isNull(self.db))
+    {
+        collection.find(query).count(function(err, count){
+            if(!err)
+            {
+                if(count > 0)
+                {
+                    const cursor = collection.find(query);
+
+                    // create a queue object with concurrency 1
+                    const q = async.queue(function(fileRecord, callback) {
+                        if(fileRecord != null)
+                        {
+                            bucket.delete(fileRecord._id, function (err, result)
+                            {
+                                callback(err, result);
+                            });
+                        }
+                        else
+                        {
+                            callback(null);
+                        }
+                    }, 1);
+
+                    // assign a callback
+                    q.drain = function() {
+                        //console.log("All files deleted in query " + JSON.stringify(query));
+                        if (cursor.isClosed()) {
+                            collection.find(query).count(function (err, count)
+                            {
+                                if (isNull(err) && count === 0)
+                                {
+                                    return callback(null, "Files successfully deleted after query " + JSON.stringify(query));
+                                }
+                                else
+                                {
+                                    return callback(err, "Error verifying deletion of files after query " + JSON.stringify(query) + ". Error reported " + count);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            callback(1, "There was a problem deleting files after query " + JSON.stringify(query));
+                        }
+                    };
+
+                    cursor.each(function(err, fileRecord){
+                        q.push(fileRecord);
+                    }, function(err) {
+                        if(!isNull(err))
+                        {
+                            return callback(err, "Error deleting files after query " + JSON.stringify(query) + ". Error reported " + err);
+                        }
+                    });
+                }
+                else
+                {
+                    return callback(null, "There are no files corresponding to query " + JSON.stringify(query));
+                }
+            }
+            else
+            {
+                return callback(1, "Unable to determine the number of files that match query " + JSON.stringify(query));
+            }
+        });
+    }
+    else
+    {
+        return callback(1, "Must open connection to database first!");
+    }
+};
 
 GridFSConnection.prototype.deleteAvatar = function(fileUri, callback, customBucket) {
     let self = this;
@@ -252,7 +370,6 @@ GridFSConnection.prototype.deleteAvatar = function(fileUri, callback, customBuck
     {
         return callback(1, "Must open connection to database first!");
     }
-
 };
 
 GridFSConnection.default = {};

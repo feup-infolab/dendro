@@ -4,7 +4,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
@@ -52,7 +52,7 @@ exports.show = function(req, res) {
 	db.connection.execute("SELECT ?p ?o WHERE {[0] ?p ?o .}",
             [
                 {
-                    type : DbConnection.resource,
+                    type : Elements.types.resource,
                     value : req.query.vertex_uri
                 }
             ],
@@ -105,7 +105,7 @@ exports.random = function(req, res) {
 						"SELECT ?s WHERE { ?s ?p ?o } ORDER BY ?s OFFSET [0] LIMIT 1",
                         [
                             {
-                                type: DbConnection.int,
+                                type: Elements.types.int,
                                 value: randomNumber
                             }
                         ],
@@ -170,8 +170,8 @@ exports.random = function(req, res) {
 
 exports.search = function(req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 	const query = req.query.q;
 
     if(query)
@@ -200,7 +200,7 @@ exports.search = function(req, res)
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function(err, similarResources)
                     {
                         resource.recommendations = similarResources;
-                        return callback(err, resource); //null as 1st argument == no error
+                        return callback(err, resource); //null as 1st argument === no error
                     });
                 };
 
@@ -253,7 +253,7 @@ getOutNeighbours = function(req, vertexUri, callback)
 			"SELECT ?p ?o WHERE { [0] ?p ?o } LIMIT 100",
             [
                 {
-                    type : DbConnection.resource,
+                    type : Elements.types.resource,
                     value : vertexUri
                 }
             ],

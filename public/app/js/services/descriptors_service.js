@@ -13,7 +13,7 @@ angular.module('dendroApp.services')
                     },
                     url: current_resource_uri,
                     responseType: 'json',
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 })
                 .then(function (response)
                 {
@@ -40,7 +40,7 @@ angular.module('dendroApp.services')
                     },
                     url: "/descriptors",
                     responseType: 'json',
-                    headers: {'Accept': "application/json"}
+                    headers: {"Accept": "application/json"}
                 }).then(function(response) {
                         return response.data.descriptors;
                     }
@@ -63,7 +63,7 @@ angular.module('dendroApp.services')
                         },
                         url: resourceUri,
                         responseType: 'json',
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                     }).then(function(response) {
                             return response.data.descriptors;
                         }
@@ -80,7 +80,7 @@ angular.module('dendroApp.services')
                         },
                         url: "/descriptors",
                         responseType: 'json',
-                        headers: {'Accept': "application/json"}
+                        headers: {"Accept": "application/json"}
                     }).then(function(response) {
                             return response.data.descriptors;
                         }

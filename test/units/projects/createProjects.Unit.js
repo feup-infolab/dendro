@@ -8,10 +8,12 @@ chai.use(require('chai-http'));
 const should = chai.should();
 const async = require("async");
 const colors = require("colors");
+const path = require('path');
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
@@ -19,10 +21,13 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const privateProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const projectCreatedByDemoUser3 = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_created_by_demouser3.js"));
 
 const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
 const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
 const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
+
+const projectsData = module.exports.projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData, projectCreatedByDemoUser3];
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)];
@@ -52,8 +57,6 @@ const end = function()
 module.exports.setup = function(finish)
 {
     start();
-    const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
-    //let bootupUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
     let createUsersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
     createUsersUnit.setup(function (err, results) {
@@ -65,6 +68,7 @@ module.exports.setup = function(finish)
         }
         else
         {
+            appUtils.registerStartTimeForUnit(path.basename(__filename));
             async.mapSeries(projectsData, function (projectData, cb) {
                 userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
                     if(err)
@@ -82,6 +86,7 @@ module.exports.setup = function(finish)
                 });
             }, function (err, results) {
                 //should.equal(err, null);
+                appUtils.registerStopTimeForUnit(path.basename(__filename));
                 finish(err, results);
             });
         }

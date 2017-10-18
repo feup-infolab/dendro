@@ -323,7 +323,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                                     }
                                 }
 
-                                return callback(err, resource); //null as 1st argument == no error
+                                return callback(err, resource); //null as 1st argument === no error
                             });
                         };
 

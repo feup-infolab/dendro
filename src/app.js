@@ -20,7 +20,13 @@ Pathfinder.appDir = appDir;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-Logger.log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine");
+Logger.log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
+
+const validatenv = require('validate-node-version')();
+
+if (!validatenv.satisfies) {
+    throw new Error(validatenv.message);
+}
 Logger.log_boot_message("info", "Starting Dendro support services...");
 
 /**
@@ -64,12 +70,12 @@ const prepareEnvironment = function(callback)
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtuoso.js")).initVirtuoso(self.app, callback);
         },
         function(callback) {
-            //destroy graphs if needed
-            require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs(self.app, callback);
-        },
-        function(callback) {
             //setup caches
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_cache.js")).initCache(self.app, callback);
+        },
+        function(callback) {
+            //destroy graphs if needed
+            require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs(self.app, callback);
         },
         function(callback) {
             //setup passport
@@ -78,6 +84,10 @@ const prepareEnvironment = function(callback)
         function(callback) {
             //load ontologies from database
             require(Pathfinder.absPathInSrcFolder("bootup/load/load_ontologies.js")).loadOntologies(self.app, callback);
+        },
+        function(callback) {
+            //load or save repository platforms on the database
+            require(Pathfinder.absPathInSrcFolder("bootup/load/load_repository_platforms.js")).loadRepositoryPlatforms(self.app, callback);
         },
         function(callback) {
             //load Descriptor Information
@@ -114,6 +124,10 @@ const prepareEnvironment = function(callback)
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder(self.app, callback);
         },
         function(callback) {
+            //clear files storage
+            require(Pathfinder.absPathInSrcFolder("bootup/load/clear_files_storage.js")).clearFilesStorage(self.app, callback);
+        },
+        function(callback) {
             //clear datastore
             require(Pathfinder.absPathInSrcFolder("bootup/load/clear_datastore.js")).clearDataStore(self.app, callback);
         },
@@ -126,7 +140,7 @@ const prepareEnvironment = function(callback)
         if(!isNull(err))
         {
             console.error("There was an error performing preliminary setup operations during Dendro bootup!");
-            console.error(err.stack);
+            console.error(JSON.stringify(err));
         }
         return callback(err, results);
     });
@@ -248,11 +262,21 @@ async.series([
     function(cb)
     {
         startWebServer(cb);
-    },
-    function(cb)
+    }],
+    function(err, result)
     {
-        serverListeningPromise.resolve({server: self.server, app: self.app});
-    }]
+        if(isNull(err))
+        {
+            serverListeningPromise.resolve({server: self.server, app: self.app});
+        }
+        else
+        {
+            serverListeningPromise.reject({
+                err : err,
+                result : result
+            });
+        }
+    }
 );
 
 exports.serverListening = serverListeningPromise.promise;

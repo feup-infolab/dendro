@@ -19,7 +19,7 @@ const configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
 let active_config_key;
 if(process.env.NODE_ENV === 'test')
 {
-    if(process.env.RUNNING_IN_JENKINS === "1")
+    if(process.env.RUNNING_IN_JENKINS)
     {
         active_config_key = "jenkins_buildserver_test";
         console.log("[INFO] Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
@@ -29,12 +29,16 @@ if(process.env.NODE_ENV === 'test')
         active_config_key = "test";
         console.log("[INFO] Running in test environment detected");
     }
-
-    Config.testsTimeOut = 15000;
 }
 else
 {
-    active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
+    const argv = require('yargs').argv;
+
+    if (argv.config ) {
+        active_config_key = argv.config;
+    } else {
+        active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
+    }
 }
 
 const active_config = configs[active_config_key];
@@ -69,9 +73,26 @@ Config.elasticSearchPort =  getConfigParameter("elasticSearchPort");
 
 Config.cache =  getConfigParameter("cache");
 Config.datastore =  getConfigParameter("datastore");
+Config.ontologies_cache =  getConfigParameter("ontologies_cache");
 
 Config.virtuosoHost =  getConfigParameter("virtuosoHost");
 Config.virtuosoPort =  getConfigParameter("virtuosoPort");
+Config.virtuosoISQLPort =  getConfigParameter("virtuosoISQLPort");
+Config.virtuosoSQLLogLevel =  getConfigParameter("virtuosoSQLLogLevel");
+
+Config.virtuosoConnector =  function()
+{
+    const connectorType = getConfigParameter("virtuosoConnector");
+
+    if(connectorType === "jdbc" || connectorType === "http")
+    {
+        return connectorType;
+    }
+    else
+    {
+        throw "Invalid Virtuoso Server connector type " + connectorType;
+    }
+}();
 
 Config.virtuosoAuth = getConfigParameter("virtuosoAuth");
 
@@ -259,8 +280,8 @@ Config.db = {
         graphHandle: "dendro_graph",
         graphUri: "http://" + Config.host + "/dendro_graph",
         cache : {
-            id: 'default',
-            type : 'mongodb'
+            id: "default",
+            type : "mongodb"
         }
     },
     social: {
@@ -268,8 +289,8 @@ Config.db = {
         graphHandle: "social_dendro",
         graphUri: "http://" + Config.host + "/social_dendro",
         cache : {
-            id: 'social',
-            type : 'mongodb'
+            id: "social",
+            type : "mongodb"
         }
     },
     notifications: {
@@ -277,8 +298,8 @@ Config.db = {
         graphHandle: "notifications_dendro",
         graphUri: "http://" + Config.host + "/notifications_dendro",
         cache : {
-            id: 'notifications',
-            type : 'redis'
+            id: "notifications",
+            type : "mongodb"
         }
     }
 };
@@ -291,7 +312,7 @@ Config.mysql = {
     default: {}
 };
 
-Config.allOntologies = {
+Config.enabledOntologies = {
     dcterms: {
         prefix: "dcterms",
         uri: "http://purl.org/dc/terms/",
@@ -549,21 +570,6 @@ Config.acl = {
     },
     allow : 1,
     deny : 0
-};
-
-/** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
-Config.types = {
-    public : "public",                                  //can be shared, read and written
-    private : "private",                                //cannot be shared to the outside world under any circumstance
-    locked : "locked",                                  //can not be seen or edited from the main interface or via apis
-    restorable : "restorable",                          //can be restorable from a metadata.json file in a zip backup file
-    backuppable : "backuppable",                        //will be included in a metadata.json file produced in a zip file (backup zips)
-    audit : "audit",                                    //cannot be changed via API calls, changed internally only
-    api_readable : "api_readable",                      //accessible to the outside world via API calls
-    api_writeable : "api_writeable",                    //modifiable from the outside world via API calls
-    immutable : "immutable",                            //cannot be changed under ANY circumstance
-    unrevertable : "unrevertable",                      //cannot be fallen back in the a "restore previous version" operation
-    locked_for_projects : "locked_for_projects"         //project metadata which cannot be modified using the metadata editor, has to go through the project administrator
 };
 
 /*

@@ -237,6 +237,10 @@ Animations (uncomment to have animations)
   width: 50%;
   height: 50%;
 }
+.show-avatar-in-project-list {
+  width: 28px;
+  height: 28px;
+}
 .breadcrumb_icon {
   width: 16px;
   height: 16px;
@@ -262,4 +266,8 @@ Animations (uncomment to have animations)
 .breadcrumb>li+li:before {
   color: #ccc;
   content: "\276D\00a0";
+}
+.disabled {
+  pointer-events: none;
+  opacity: 0.6;
 }

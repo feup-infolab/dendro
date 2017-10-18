@@ -6,12 +6,14 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
 const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const async = require("async");
 const _ = require("underscore");
 
 const validateNewBookmarkRequest = function (req, res) {
     const validator = require('validator');
+    const regex = Resource.getResourceRegex("repo_platform");
 
     if (isNull(req.body.dcterms.title)) {
         res.status(400).json({
@@ -44,7 +46,7 @@ const validateNewBookmarkRequest = function (req, res) {
 
         return false;
     }
-    else if (!validator.isURL(req.body.ddr.hasPlatform.uri)) {
+    else if (!regex.test(req.body.ddr.hasPlatform.uri)) {
         res.status(400).json({
             result: "error",
             message: "Invalid platform URI specified. "
@@ -183,48 +185,75 @@ exports.new = function(req, res) {
 
 
             if(validateNewBookmarkRequest(req, res)) {
-                const newBookmark = new ExternalRepository({
-                    dcterms: {
-                        title: req.body.dcterms.title,
-                        creator: req.user.uri
-                    },
-                    ddr: {
-                        hasUsername: req.body.ddr.hasUsername,
-                        hasPlatform: req.body.ddr.hasPlatform.uri,
-                        hasExternalUri: req.body.ddr.hasExternalUrl,
-                        hasSwordCollectionLabel: req.body.ddr.hasSwordCollectionLabel,
-                        hasSwordCollectionUri: req.body.ddr.hasSwordCollectionUri,
-                        hasConsumerKey: req.body.ddr.hasConsumerKey,
-                        hasConsumerSecret: req.body.ddr.hasConsumerSecret,
-                        hasAccessToken: req.body.ddr.hasAccessToken,
-                        hasAccessTokenSecret: req.body.ddr.hasAccessTokenSecret,
-                        hasOrganization: req.body.ddr.hasOrganization,
-                        hasAPIKey: req.body.ddr.hasAPIKey
-                    }
-                });
-
-                if (newBookmark instanceof ExternalRepository) {
-                    newBookmark.save(function (err, result) {
-                        if (isNull(err)) {
-                            res.json({
-                                result: "ok",
-                                message: "New bookmark saved as " + newBookmark.dcterms.title
+                let hasPlatformUri;
+                RepositoryPlatform.findByPropertyValue(new Descriptor(
+                    {
+                        value : req.body.ddr.hasPlatform.ddr.handle,
+                        prefixedForm : "ddr:handle"
+                    }), function(err, repo_platform){
+                    if(isNull(err))
+                    {
+                        if(repo_platform instanceof RepositoryPlatform)
+                        {
+                            const newBookmark = new ExternalRepository({
+                                dcterms: {
+                                    title: req.body.dcterms.title,
+                                    creator: req.user.uri
+                                },
+                                ddr: {
+                                    hasUsername: req.body.ddr.hasUsername,
+                                    hasPlatform: repo_platform.uri,
+                                    hasExternalUri: req.body.ddr.hasExternalUrl,
+                                    hasSwordCollectionLabel: req.body.ddr.hasSwordCollectionLabel,
+                                    hasSwordCollectionUri: req.body.ddr.hasSwordCollectionUri,
+                                    hasConsumerKey: req.body.ddr.hasConsumerKey,
+                                    hasConsumerSecret: req.body.ddr.hasConsumerSecret,
+                                    hasAccessToken: req.body.ddr.hasAccessToken,
+                                    hasAccessTokenSecret: req.body.ddr.hasAccessTokenSecret,
+                                    hasOrganization: req.body.ddr.hasOrganization,
+                                    hasAPIKey: req.body.ddr.hasAPIKey
+                                }
                             });
+
+                            if (newBookmark instanceof ExternalRepository) {
+                                newBookmark.save(function (err, result) {
+                                    if (isNull(err)) {
+                                        res.json({
+                                            result: "ok",
+                                            message: "New bookmark saved as " + newBookmark.dcterms.title
+                                        });
+                                    }
+                                    else {
+                                        res.status(500).json({
+                                            result: "error",
+                                            message: "Error saving new bookmark . " + result
+                                        });
+                                    }
+                                });
+                            }
+                            else {
+                                res.status(500).json({
+                                    result: "error",
+                                    message: "Error saving the new bookmark. Error reported: " + newBookmark.error
+                                });
+                            }
                         }
-                        else {
+                        else
+                        {
                             res.status(500).json({
                                 result: "error",
-                                message: "Error saving new bookmark . " + result
+                                message: "Error fetching repo_platform handle for the new bookmark. Error reported: " + JSON.stringify(repo_platform)
                             });
                         }
-                    });
-                }
-                else {
-                    res.status(500).json({
-                        result: "error",
-                        message: "Error saving the new bookmark. Error reported: " + newBookmark.error
-                    });
-                }
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "error",
+                            message: "Error fetching repo_platform handle for the new bookmark. Error reported: " + JSON.stringify(repo_platform)
+                        });
+                    }
+                });
             }
         }
         catch(e)
@@ -316,8 +345,8 @@ exports.my = function(req, res) {
 };
 
 exports.all = function(req, res) {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -334,7 +363,7 @@ exports.all = function(req, res) {
             {
                 for(let i = 0; i < externalRepositories.length; i++)
                 {
-                    Descriptor.removeUnauthorizedFromObject(externalRepositories[i],[Config.types.private, Config.types.audit], [Config.types.api_readable]);
+                    Descriptor.removeUnauthorizedFromObject(externalRepositories[i],[Elements.access_types.private, Elements.access_types.audit], [Elements.access_types.api_readable]);
                 }
 
                 res.json(externalRepositories);

@@ -131,9 +131,9 @@ function Descriptor(object, typeConfigsToRetain)
                     self.hasRegex = Elements[self.prefix][self.shortName].hasRegex;
                 }
 
-                for(let descriptorType in Config.types)
+                for(let descriptorType in Elements.access_types)
                 {
-                    if(Config.types.hasOwnProperty(descriptorType))
+                    if(Elements.access_types.hasOwnProperty(descriptorType))
                     {
                         if (Elements[self.prefix][self.shortName][descriptorType])
                         {
@@ -144,7 +144,7 @@ function Descriptor(object, typeConfigsToRetain)
             }
             else
             {
-                self.type = DbConnection.string;
+                self.type = Elements.types.string;
                 if(Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
                 {
                     console.error("Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
@@ -154,9 +154,9 @@ function Descriptor(object, typeConfigsToRetain)
             self.setValue(object.value);
 
             //try to get parametrization from ontology level
-            for(let descriptorType in Config.types)
+            for(let descriptorType in Elements.access_types)
             {
-                if(Config.types.hasOwnProperty(descriptorType))
+                if(Elements.access_types.hasOwnProperty(descriptorType))
                 {
                     if(isNull(self[descriptorType]) &&
                         !isNull(Ontology.allOntologies[self.prefix]) &&
@@ -172,13 +172,13 @@ function Descriptor(object, typeConfigsToRetain)
                 for(let i = 0; i < typeConfigsToRetain.length; i++)
                 {
                     let type = typeConfigsToRetain[i];
-                    if (Config.types.hasOwnProperty(type))
+                    if (Elements.access_types.hasOwnProperty(type))
                     {
                         if(!isNull(object[type]))
                         {
                             self[type] = object[type];
                         }
-                        else if(!isNull(Elements[self.prefix][self.shortName][type]))
+                        else if(!isNull(Elements[self.prefix][self.shortName]) && isNull(Elements[self.prefix][self.shortName][type]))
                         {
                             self[type] = Elements[self.prefix][self.shortName][type];
                         }
@@ -311,16 +311,16 @@ Descriptor.findByUri = function(uri, callback)
         db.connection.execute(query,
             [
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value : dummy.ontology
                 },
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value : uri
                 }
                 //,
                 /*{
-                    type : DbConnection.string,
+                    type : Elements.types.string,
                     value : "en"
                 }*/
             ],
@@ -361,15 +361,15 @@ Descriptor.prototype.setValue = function(value)
     const self = this;
     if(typeof value === "string")
     {
-        if(self.type === DbConnection.int)
+        if(self.type === Elements.types.int)
         {
             self.value = parseInt(value);
         }
-        else if(self.type === DbConnection.float)
+        else if(self.type === Elements.types.float)
         {
             self.value = parseFloat(value);
         }
-        else if(self.type === DbConnection.boolean)
+        else if(self.type === Elements.types.boolean)
         {
             self.value = JSON.parse(value);
         }
@@ -428,11 +428,11 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 
     let args = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: ontologyURI
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: "en"
         }
     ];
@@ -447,11 +447,11 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 
         args = args.concat([
             {
-                type : DbConnection.int,
+                type : Elements.types.int,
                 value :  page_number * pagesize
             },
             {
-                type : DbConnection.int,
+                type : Elements.types.int,
                 value : page_number * (pagesize + 1)
             }
         ]);
@@ -953,7 +953,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
     let argumentsArray = [
         {
             value: db.graphUri,
-            type: DbConnection.resourceNoEscape
+            type: Elements.types.resourceNoEscape
         }
     ];
 
@@ -1026,7 +1026,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
                     suggestion.recommendation_types[Descriptor.recommendation_types.frequently_used_overall.key] = true;
                     suggestion.overall_use_count = parseInt(result.overall_use_count);
 
-                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
                         return callback(null, suggestion);
                     }
                     else {
@@ -1062,7 +1062,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
     let argumentsArray = [
         {
             value: db.graphUri,
-            type: DbConnection.resourceNoEscape
+            type: Elements.types.resourceNoEscape
         }
     ];
 

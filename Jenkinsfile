@@ -6,6 +6,9 @@ properties(
     
 pipeline {
     agent any
+    options {
+        disableConcurrentBuilds()  //each branch has 1 job running at a time
+    }
     stages {
         stage('Build') {
             steps {

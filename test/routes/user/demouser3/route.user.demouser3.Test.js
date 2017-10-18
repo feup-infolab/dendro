@@ -13,12 +13,11 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const createUserUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
 describe("/user/demouser3", function (done) {
-
+    this.timeout(Config.testsTimeout);
     const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
     const falseUser = "demouser404";
-
+    
     before(function (done) {
-        this.timeout(Config.testsTimeout);
         createUserUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -30,7 +29,7 @@ describe("/user/demouser3", function (done) {
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(demouser3.username, true, agent, function(err, res){
             res.should.have.status(401);
-            res.text.should.contain("You are not logged into the system.");
+            JSON.parse(res.text).message.should.equal("Permission denied : cannot get information of the user because you are not logged in.");
             done();
         })
     });
@@ -40,7 +39,7 @@ describe("/user/demouser3", function (done) {
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(demouser3.username, false, agent, function(err, res){
             res.should.have.status(401);
-            res.text.should.contain("Please log into the system");
+            res.text.should.contain("Permission denied : cannot get information of the user because you are not logged in.");
             done();
         })
     });
@@ -99,7 +98,7 @@ describe("/user/demouser3", function (done) {
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(falseUser, true, agent, function(err, res){
             res.should.have.status(401);
-            res.text.should.contain("You are not logged into the system");
+            JSON.parse(res.text).message.should.equal("Permission denied : cannot get information of the user because you are not logged in.");
             done();
         })
     });
@@ -109,7 +108,7 @@ describe("/user/demouser3", function (done) {
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(falseUser, false, agent, function(err, res){
             res.should.have.status(401);
-            res.text.should.contain("Please log into the system");
+            res.text.should.contain("Permission denied : cannot get information of the user because you are not logged in.");
             done();
         })
     });

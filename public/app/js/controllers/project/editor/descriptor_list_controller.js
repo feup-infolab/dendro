@@ -212,7 +212,7 @@ angular.module('dendroApp.controllers')
 
         $scope.multiple_accept_descriptor_from_quick_list = function(descriptor, index) {
             bootbox.prompt("Please enter the number of descriptors of type " + descriptor.label + " that you would like to add (a number from 1 to 15)", function(number_of_times) {
-                if(number_of_times === null)
+                if(number_of_times === null || typeof number_of_times === "undefined")
                 {
                     return;
                 }
@@ -350,7 +350,7 @@ angular.module('dendroApp.controllers')
                     }
                     else
                     {
-                        bootbox.alert("Invalid value supplied. You must input an integer between 0 and 15", function() {});
+                        bootbox.alert("Invalid value supplied. You must input an integer between 1 and 15", function() {});
                     }
                 }
             });

@@ -9,9 +9,9 @@ let folderData = {
     backup_md5 : '',
     search_terms : 'testFolder2',
     files : [
-        require(Config.absPathInTestsFolder("mockdata/files/pdfMockfile.js")),
-        require(Config.absPathInTestsFolder("mockdata/files/pngMockfile.js")),
-        require(Config.absPathInTestsFolder("mockdata/files/xlsxMockfile.js"))
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"))
     ],
     metadata :[
         {

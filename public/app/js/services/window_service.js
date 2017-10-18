@@ -5,8 +5,11 @@ angular.module('dendroApp.services')
         ['$http',
         function ($http) {
 
-        this.show_popup = function(type, title, message)
+        this.show_popup = function(type, title, message, delay)
         {
+            if(!delay)
+                delay = 2000;
+
             if(type == "success")
             {
                 new PNotify({
@@ -14,7 +17,7 @@ angular.module('dendroApp.services')
                     text: message,
                     type: 'success',
                     opacity: 1.0,
-                    delay: 2000,
+                    delay: delay,
                     addclass: "stack-bar-top",
                     cornerclass: "",
                     stack: stack_topright
@@ -27,7 +30,7 @@ angular.module('dendroApp.services')
                     text: message,
                     type: 'warning',
                     opacity: 1.0,
-                    delay: 2000,
+                    delay: delay,
                     addclass: "stack-bar-top",
                     cornerclass: "",
                     stack: stack_topright
@@ -53,7 +56,7 @@ angular.module('dendroApp.services')
                     text: message,
                     type: 'info',
                     opacity: 1.0,
-                    delay: 8000,
+                    delay: delay,
                     addclass: "stack-bar-top",
                     cornerclass: "",
                     stack: stack_topright
@@ -100,7 +103,7 @@ angular.module('dendroApp.services')
             var hiddenIFrameID = 'hiddenDownloader_' + guid();
             var iframe = document.getElementById(hiddenIFrameID);
 
-            if (iframe === null) {
+            if (iframe === null ||  typeof iframe === "undefined") {
                 iframe = document.createElement('iframe');
                 iframe.id = hiddenIFrameID;
                 iframe.style.display = 'none';

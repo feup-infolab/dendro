@@ -14,12 +14,13 @@ let folderData = {
     download_md5 : '',
     backup_md5 : '',
     files : [
-        require(Config.absPathInTestsFolder("mockdata/files/pdfMockfile.js")),
-        require(Config.absPathInTestsFolder("mockdata/files/pngMockfile.js")),
-        require(Config.absPathInTestsFolder("mockdata/files/xlsxMockfile.js"))
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"))
     ],
     metadata : [
-        {uri:"http://purl.org/dc/terms/creator",
+        {
+            uri:"http://purl.org/dc/terms/creator",
             prefix:"dcterms",
             ontology:"http://purl.org/dc/terms/",
             shortName:"creator",
@@ -40,7 +41,8 @@ let folderData = {
             recommendedFor:"http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
             value:"demouser1"
         },
-        {uri:"http://purl.org/dc/terms/title",
+        {
+            uri:"http://purl.org/dc/terms/title",
             prefix:"dcterms",
             ontology:"http://purl.org/dc/terms/",
             shortName:"title",

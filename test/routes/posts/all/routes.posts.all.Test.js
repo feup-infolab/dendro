@@ -1,92 +1,86 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const should = chai.should();
+const expect = chai.expect;
 const _ = require("underscore");
+const md5 = require("md5");
+const fs = require("fs");
+const path = require("path");
+const async = require("async");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const postUtils = require(Pathfinder.absPathInTestsFolder("utils/social/post.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const versionUtils = require(Pathfinder.absPathInTestsFolder("utils/versions/versionUtils.js"));
+const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
+const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
-
-const createPostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createPosts.Unit.js"));
+const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const pageNumber = 1;
+let postURIsToCompare;
 
-describe("Social Dendro get all user posts tests", function () {
+describe("Get all posts URIs with pagination tests", function () {
+    this.timeout(Config.testsTimeout);
     before(function (done) {
         this.timeout(Config.testsTimeout);
-        createPostsUnit.setup(function (err, results) {
+        //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
+        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
         });
     });
 
-    describe("[GET] [GET ALL USER POSTS] /posts/all", function () {
-        //TODO API ONLY
-        let postsURISDemouser1;
+    describe("[GET] Gets all posts URIs(with pagination) for each user [Valid cases] /posts/all", function () {
 
-        it("Should return an error if the user is not authenticated", function (done) {
+        it("[For an unauthenticated user] Should give an unauthorized error", function (done) {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
-            postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
+            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
                 res.statusCode.should.equal(401);
-                res.body.should.not.be.instanceof(Array);
+                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
                 done();
             });
         });
 
-        it("Should return an error if the request is of type HTML", function (done) {
+        it("[For demouser1, as the creator of all projects] Should give an array of five post URIs", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                postUtils.getAllPostsFromUserProjects(false, agent, function (err, res) {
-                    res.statusCode.should.equal(400);
-                    res.body.should.not.be.instanceof(Array);
-                    done();
-                });
-            });
-        });
-
-        it("Should get posts URIs generated from projects where demouser1 is a creator or contributor", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
                     res.body.length.should.equal(5);
-                    postsURISDemouser1 = res.body;
+                    postURIsToCompare = res.body;
                     done();
                 });
             });
         });
 
-        it("Should give no post URIs when logged in as demouser3 because demouser3 has no projects created or were he/she is a contributor", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(0);
-                    done();
-                });
-            });
-        });
-        
-        it("Should give the same postURIs for demouser2 as demouser1 because demouser2 is a contributor for the projects created by demouser1", function (done) {
+        it("[For demouser2, a collaborator in all projects] Should give an array of five post URIs that equals to the array of five post URIs that demouser1 also received(because they work on the same projects)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
                     res.body.length.should.equal(5);
-                    res.body.should.be.eql(postsURISDemouser1);
+                    expect(postURIsToCompare).to.eql(res.body);
+                    done();
+                });
+            });
+        });
+
+        it("[For demouser3, is not a creator or collaborator in any projects] the post URIs array should be empty and different from the post URIs array of demouser1 and demouser2", function (done) {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    res.body.length.should.equal(0);
+                    expect(postURIsToCompare).to.not.eql(res.body);
                     done();
                 });
             });
@@ -98,7 +92,8 @@ describe("Social Dendro get all user posts tests", function () {
         this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
+
 });

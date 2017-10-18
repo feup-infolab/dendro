@@ -4,12 +4,33 @@ angular.module('dendroApp.services')
     .service('timelineService', ['$http', function ($http) {
 
         this.countNumPosts = function () {
-            var requestUri = "/posts/countNum";
+            var requestUri = "/posts/count";
 
             return $http({
                 method: 'GET',
                 url: requestUri,
                 contentType: "application/json",
+                headers: {"Accept": "application/json"}
+            });
+        };
+
+
+        this.getPostInfo = function (postUri) {
+            return $http({
+                method: 'GET',
+                url: postUri,
+                contentType: "application/json",
+                accept: "text/html",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
+        this.getShareInfo = function (shareUri) {
+            return $http({
+                method: 'GET',
+                url: shareUri,
+                contentType: "application/json",
+                accept: "text/html",
                 headers: {'Accept': "application/json"}
             });
         };
@@ -22,7 +43,7 @@ angular.module('dendroApp.services')
                 method: 'GET',
                 url: requestUri,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"},
+                headers: {"Accept": "application/json"},
                 params: {currentPage: currentPage}
             });
         };
@@ -35,16 +56,18 @@ angular.module('dendroApp.services')
                 method: 'GET',
                 url: requestUri,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
-        this.new_post = function(new_post_content)
+        this.newPost = function(newPostTitle, newPostContent, newPostProjectUri)
         {
             var requestUri = "/posts/new";
 
             var params = {
-                new_post_content : new_post_content
+                newPostContent : newPostContent,
+                newPostTitle: newPostTitle,
+                newPostProjectUri: newPostProjectUri
             };
 
             return $http({
@@ -52,7 +75,7 @@ angular.module('dendroApp.services')
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -64,9 +87,25 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: "POST",
+                method: "GET",
                 url: requestUri,
-                data: params,
+                params: params,
+                contentType: "application/json",
+                headers: {"Accept": "application/json"}
+            });
+        };
+
+        this.getPosts_Service = function (postsQueryInfo) {
+            var requestUri = "/posts/posts";
+
+            var params = {
+                postsQueryInfo : postsQueryInfo
+            };
+
+            return $http({
+                method: 'GET',
+                url: requestUri,
+                params: params,
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             });
@@ -85,40 +124,23 @@ angular.module('dendroApp.services')
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
-            });
-        };
-
-        this.postIsLiked = function(postID)
-        {
-            var requestUri = "/posts/like/liked";
-
-            var params = {
-                postID : postID
-            };
-
-            return $http({
-                method: "POST",
-                url: requestUri,
-                data: params,
-                contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
         this.postLikesInfo = function(postURI)
         {
-            var requestUri = "/posts/post/likesInfo";
+            var requestUri = "/posts/post/likes";
             var params = {
                 postURI : postURI
             };
 
             return $http({
-                method: "POST",
+                method: "GET",
                 url: requestUri,
-                data: params,
+                params: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -136,7 +158,7 @@ angular.module('dendroApp.services')
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -154,7 +176,7 @@ angular.module('dendroApp.services')
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -167,11 +189,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: "POST",
+                method: "GET",
                 url: requestUri,
-                data: params,
+                params: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         };
 
@@ -184,11 +206,11 @@ angular.module('dendroApp.services')
             };
 
             return $http({
-                method: "POST",
+                method: "GET",
                 url: requestUri,
-                data: params,
+                params: params,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             });
         }
 

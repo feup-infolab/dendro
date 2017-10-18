@@ -22,7 +22,7 @@ angular.module('dendroApp.services')
                 url: '/ontologies/public',
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             })
             .then(function( response ) {
                 storageService.save_to_local_storage("public_ontologies", response.data);
@@ -37,7 +37,7 @@ angular.module('dendroApp.services')
                 url: '/ontologies/all',
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             })
                 .then(function( response ) {
                     storageService.save_to_local_storage("all_ontologies", response.data);

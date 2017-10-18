@@ -251,10 +251,10 @@ describe("Metadata only project testFolder2 level (default case) tests", functio
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

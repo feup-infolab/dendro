@@ -10,22 +10,52 @@ function Upload (object)
     const self = this;
     Upload.baseConstructor.call(this, object);
 
+    self.parentFolder = object.parent_folder;
+
     if( !isNull(object.username)
         &&
         !isNull(object.filename)
-        &&
-        typeof object.parent_folder !== "undefined"
         &&
         !isNull(object.expected)
         &&
         typeof object.md5_checksum !== "undefined"
     )
     {
-        self.username = object.username;
-        self.filename = object.filename;
-        self.parentFolder = object.parent_folder;
-        self.expected = object.expected;
-        self.md5_checksum = object.md5_checksum;
+        if(typeof object.username === "string")
+        {
+            self.username = object.username;
+        }
+        else
+        {
+            throw "Invalid username parameter when setting up a new Upload.";
+        }
+
+        if(typeof object.filename === "string")
+        {
+            self.filename = object.filename;
+        }
+        else
+        {
+            throw "Invalid filename parameter when setting up a new Upload.";
+        }
+
+        if(typeof object.expected === "number")
+        {
+            self.expected = object.expected;
+        }
+        else
+        {
+            throw "Invalid 'expected' parameter when setting up a new Upload. It must be an integer";
+        }
+
+        if(typeof object.md5_checksum === "string")
+        {
+            self.md5_checksum = object.md5_checksum;
+        }
+        else
+        {
+            throw "Invalid 'md5_checksum' parameter when setting up a new Upload. It must be a string";
+        }
 
         if (isNull(self.loaded))
         {
@@ -33,7 +63,14 @@ function Upload (object)
         }
         else
         {
-            self.loaded = object.loaded;
+            if(typeof object.loaded === "number")
+            {
+                self.loaded = object.loaded;
+            }
+            else
+            {
+                throw "Invalid 'loaded' parameter when setting up a new Upload. It must be an integer";
+            }
         }
 
         const uuid = require("uuid");
@@ -53,7 +90,7 @@ Upload.create = function(object, callback)
 
     if(typeof object.tmp_file_dir === "undefined")
     {
-        const tmp = require('tmp');
+        const tmp = require("tmp");
         const path = require("path");
 
         tmp.dir(
@@ -160,7 +197,7 @@ Upload.prototype.pipe = function(part, callback)
 Upload.prototype.is_finished = function()
 {
     const self = this;
-    console.log("FINISHED " + self.loaded / self.expected + " of file " + self.filename);
+    //console.log("FINISHED " + self.loaded / self.expected + " of file " + self.filename);
     return (self.loaded >= self.expected);
 };
 

@@ -23,9 +23,16 @@
         "log_datastore_ops" : true
       }
     },
+    "ontologies_cache" :
+    {
+      "database": "127.0.0.1:3002_ontologies",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default",
+      "collection" : "ontologies_cache"
+    },
     "cache": {
       "active": true,
-      "type": "mongodb",
       "redis": {
         "active": true,
         "instances": {
@@ -55,6 +62,7 @@
           "default": {
             "database": "127.0.0.1:3001",
             "collection": "default_cache",
+            "clear_on_startup" : true,
             "host": "192.168.56.249",
             "port": "27017",
             "id": "default"
@@ -62,18 +70,18 @@
           "social": {
             "database": "127.0.0.1:3001",
             "collection": "social_cache",
+            "clear_on_startup" : true,
             "host": "192.168.56.249",
             "port": "27017",
             "id": "social"
           },
           "notifications": {
-            "options": {
               "database": "127.0.0.1:3001",
               "collection": "notifications_cache",
+              "clear_on_startup" : true,
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
-            }
           }
         }
       },
@@ -84,10 +92,13 @@
     },
     "virtuosoHost": "192.168.56.249",
     "virtuosoPort": "8890",
+    "virtuosoISQLPort": "1111",
+    "virtuosoConnector" : "http",
     "virtuosoAuth": {
       "user": "dba",
-      "password": "root"
+      "password": "dba"
     },
+    "virtuosoSQLLogLevel": 3,
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
@@ -107,7 +118,7 @@
     "maxUploadSize": 1073741824,
     "maxProjectSize": 1073741824,
     "maxSimultaneousConnectionsToDb": 10,
-    "dbOperationTimeout": 5000,
+    "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",
@@ -175,7 +186,8 @@
       "database": {
         "log_all_queries": false,
         "log_all_cache_queries" : false,
-        "log_query_timeouts": false
+        "log_query_timeouts": false,
+        "log_query_times": false
       },
       "session": {
         "auto_login": false,
@@ -234,16 +246,13 @@
     "startup": {
       "load_databases": true,
       "reload_administrators_on_startup": false,
-      "reload_demo_users_on_startup": false,
+      "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": true,
-      "reload_descriptors_on_startup": true,
-      "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : true,
       "clear_session_store": false,
-      "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": false,
       "destroy_all_indexes": false,
+      "destroy_files_store": false,
       "destroy_datastore": false
     },
     "baselines": {
@@ -398,9 +407,16 @@
         "log_datastore_ops" : true
       }
     },
+    "ontologies_cache" :
+    {
+      "database": "127.0.0.1:3002_ontologies",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default",
+      "collection" : "ontologies_cache"
+    },
     "cache": {
       "active": true,
-      "type": "mongodb",
       "redis": {
         "active": true,
         "instances": {
@@ -430,6 +446,7 @@
           "default": {
             "database": "127.0.0.1:3002",
             "collection": "default_cache",
+            "clear_on_startup" : true,
             "host": "192.168.56.249",
             "port": "27017",
             "id": "default"
@@ -437,18 +454,18 @@
           "social": {
             "database": "127.0.0.1:3002",
             "collection": "social_cache",
+            "clear_on_startup" : true,
             "host": "192.168.56.249",
             "port": "27017",
             "id": "social"
           },
           "notifications": {
-            "options": {
-              "database": "127.0.0.1:3002",
-              "collection": "notifications_cache",
-              "host": "192.168.56.249",
-              "port": "27017",
-              "id": "notifications"
-            }
+            "database": "127.0.0.1:3002",
+            "collection": "notifications_cache",
+            "clear_on_startup" : true,
+            "host": "192.168.56.249",
+            "port": "27017",
+            "id": "notifications"
           }
         }
       },
@@ -459,10 +476,13 @@
     },
     "virtuosoHost": "192.168.56.249",
     "virtuosoPort": "8890",
+    "virtuosoISQLPort": "1111",
+    "virtuosoConnector" : "http",
     "virtuosoAuth": {
       "user": "dba",
-      "password": "root"
+      "password": "dba"
     },
+    "virtuosoSQLLogLevel" : 3,
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
@@ -481,8 +501,8 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 10,
-    "dbOperationTimeout": 5000,
+    "maxSimultaneousConnectionsToDb": 1,
+    "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",
@@ -548,8 +568,9 @@
     "debug": {
       "active": true,
       "database": {
-        "log_all_queries": true,
-        "log_all_cache_queries": false
+        "log_all_queries": false,
+        "log_all_cache_queries": false,
+        "log_query_times": true
       },
       "session": {
         "auto_login": false,
@@ -605,18 +626,15 @@
     },
     "startup": {
       "load_databases": true,
-      "reload_administrators_on_startup": true,
+      "reload_administrators_on_startup": false,
       "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
-      "reload_descriptors_on_startup": true,
-      "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : true,
       "clear_session_store": true,
-      "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
-      "destroy_datastore": true
+      "destroy_datastore": true,
+      "destroy_files_store": true
     },
     "baselines": {
     },
@@ -764,16 +782,23 @@
     "datastore" :
     {
       "database": "127.0.0.1:3001_jenkins_test_datastore",
-      "host": "192.168.56.249",
+      "host": "127.0.0.1",
       "port": "27017",
       "id": "default",
       "log" : {
         "log_datastore_ops" : true
       }
     },
+    "ontologies_cache" :
+    {
+      "database": "127.0.0.1:3001_ontologies",
+      "host": "127.0.0.1",
+      "port": "27017",
+      "id": "default",
+      "collection" : "ontologies_cache"
+    },
     "cache": {
       "active": true,
-      "type": "mongodb",
       "redis": {
         "active": true,
         "instances": {
@@ -803,6 +828,7 @@
           "default": {
             "database": "127.0.0.1:3001",
             "collection": "default_cache_jenkins_test",
+            "clear_on_startup" : true,
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default"
@@ -810,6 +836,7 @@
           "social": {
             "database": "127.0.0.1:3001",
             "collection": "social_cache_jenkins_test",
+            "clear_on_startup" : true,
             "host": "127.0.0.1",
             "port": "27017",
             "id": "social"
@@ -817,6 +844,7 @@
           "notifications": {
             "database": "127.0.0.1:3001",
             "collection": "notifications_cache_jenkins_test",
+            "clear_on_startup" : true,
             "host": "127.0.0.1",
             "port": "27017",
             "id": "notifications"
@@ -830,10 +858,13 @@
     },
     "virtuosoHost": "127.0.0.1",
     "virtuosoPort": "8890",
+    "virtuosoISQLPort": "1111",
+    "virtuosoConnector" : "http",
     "virtuosoAuth": {
       "user": "dba",
-      "password": "root"
+      "password": "dba"
     },
+    "virtuosoSQLLogLevel" : 3,
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
@@ -852,8 +883,8 @@
     "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 10,
-    "dbOperationTimeout": 5000,
+    "maxSimultaneousConnectionsToDb": 1,
+    "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",
@@ -870,25 +901,39 @@
       "active": true,
       "users": [
         {
-          "username": "demouser1",
-          "password": "demouserpassword2015",
           "firstname": "Dendro 1",
+          "mbox": "demouser1@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
           "surname": "Demo User 1",
-          "mbox": "demouser1@dendro.fe.up.pt"
+          "username": "demouser1"
         },
         {
-          "username": "demouser2",
-          "password": "demouserpassword2015",
           "firstname": "Dendro 2",
+          "mbox": "demouser2@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
           "surname": "Demo User 2",
-          "mbox": "demouser2@dendro.fe.up.pt"
+          "username": "demouser2"
         },
         {
-          "username": "demouser3",
-          "password": "demouserpassword2015",
           "firstname": "Dendro 3",
+          "mbox": "demouser3@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
           "surname": "Demo User 3",
-          "mbox": "demouser3@dendro.fe.up.pt"
+          "username": "demouser3"
+        },
+        {
+          "firstname": "Dendro 4",
+          "mbox": "demouser4@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
+          "surname": "Demo User 4",
+          "username": "demouser4"
+        },
+        {
+          "firstname": "Dendro 5",
+          "mbox": "demouser5@dendro.fe.up.pt",
+          "password": "demouserpassword2015",
+          "surname": "Demo User 5",
+          "username": "demouser5"
         }
       ]
     },
@@ -906,7 +951,8 @@
       "active": true,
       "database": {
         "log_all_queries": false,
-        "log_all_cache_queries" : false
+        "log_all_cache_queries" : false,
+        "log_query_times": false
       },
       "session": {
         "auto_login": false,
@@ -965,15 +1011,12 @@
       "reload_administrators_on_startup": true,
       "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
-      "reload_descriptors_on_startup": true,
-      "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : true,
       "clear_session_store": true,
-      "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
-      "destroy_datastore": true
+      "destroy_datastore": true,
+      "destroy_files_store": true
     },
     "baselines": {
     },

@@ -31,7 +31,9 @@ const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xls
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const allFiles = [csvMockFile, docxMockFile, xlsxMockFile, zipMockFile, txtMockFile];
+const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+
+const allFiles = createFilesUnit.filesData;
 
 describe("Private project testFolder1 ?rename", function () {
     before(function (done) {
@@ -123,7 +125,7 @@ describe("Private project testFolder1 ?rename", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 async.map(allFiles, function(file, callback){
                     const newName = "RenamedFile";
-                    fileUtils.renameFile(true, agent, privateProject.handle, testFolder1.name, file.name, newName,  function (err, res) {
+                    fileUtils.renameFile(agent, privateProject.handle, testFolder1.name, file.name, newName,  function (err, res) {
                         res.statusCode.should.equal(200);
                         callback(err, res);
                     });
@@ -145,10 +147,10 @@ describe("Private project testFolder1 ?rename", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

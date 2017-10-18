@@ -40,8 +40,8 @@ exports.descriptors_autocomplete = function(req, res) {
 
 exports.from_ontology = function(req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -181,8 +181,8 @@ exports.from_ontology = function(req, res)
 exports.from_ontology_in_project = function(req, res)
 {
     const validator = require('validator');
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {

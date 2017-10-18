@@ -1,87 +1,96 @@
-<h4 class="modal-title">Stats</h4>
+<h2 class="modal-title">Project Statistics</h2>
 
-<div class="row col-lg-offset-1">
-    <div class="service-item">
-        <div class="row info">
-            <h4>
-                <div class="col-lg-2">
-                    <i class="service-icon fa fa-bar-chart-o"></i>
-                </div>
-                <div class="col-lg-6">
-                    <!-- Large modal -->
-                    <span class="label label-primary">{{shared.project_stats.revisions_count}}</span> Revisions
-                </div>
-            </h4>
-        </div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        Information about the project
     </div>
-</div>
-<br/>
-<div class="row col-lg-offset-1">
-    <div class="service-item">
-        <div class="row">
-            <h4>
-                <div class="col-lg-2">
-                    <i class="service-icon fa fa-folder"></i>
-                </div>
-                <div class="col-lg-10">
-                    <span class="label label-primary">{{shared.project_stats.folders_count}}</span> Folders
-                </div>
-            </h4>
-        </div>
-    </div>
-</div>
-<br/>
-<div class="row col-lg-offset-1">
-    <div class="service-item">
-        <div class="row">
-            <h4>
-                <div class="col-lg-2">
-                    <i class="service-icon fa fa-file"></i>
-                </div>
-                <div class="col-lg-10">
-                    <span class="label label-primary">{{shared.project_stats.files_count}}</span> Files
-                </div>
-            </h4>
-        </div>
-    </div>
-</div>
-<br/>
-<div class="row col-lg-offset-1">
-    <div class="service-item">
-        <div class="row">
-            <h4>
-                <div class="col-lg-2">
-                    <i class="service-icon fa fa-user"></i>
-                </div>
-                <div class="col-lg-10">
-                    <span class="label label-primary">{{shared.project_stats.members_count}}</span> Members
-                </div>
-            </h4>
-        </div>
-    </div>
-</div>
-<br/>
-<div class="row col-lg-offset-1">
-    <div class="service-item">
-        <div class="row">
-            <h4>
-                <div class="col-lg-2">
-                    <i class="service-icon fa fa-tachometer"></i>
-                </div>
-                <div class="col-lg-6">
-                    Storage size used
-                </div>
-                <div class="col-lg-4">
-                    <div class="progress progress-striped">
-                        <div class="progress-bar"  role="progressbar" aria-valuenow="{{shared.project_stats.size}} / {{shared.project_stats.max_size}}" aria-valuemin="0" aria-valuemax="100">
-                            <span class="sr-only">{{shared.project_stats.percent_full}}%</span>
-                        </div>
-                        {{shared.project_stats.percent_full}}
+    <div class="panel-body">
+        <div class="container">
+            <div class="row">
+                <div class="service-item">
+                    <div class="row info">
+                        <h4>
+                            <div class="col-lg-2">
+                                <i class="service-icon fa fa-bar-chart-o"></i>Revisions
+                            </div>
+                            <div class="col-lg-6">
+                                <!-- Large modal -->
+                                <span class="label label-primary">{{shared.project_stats.revisions_count}}</span>
+                            </div>
+                        </h4>
                     </div>
-                    {{shared.project_stats.size}} / {{shared.project_stats.max_size}}
                 </div>
-            </h4>
+            </div>
+            <div class="row">
+                <div class="service-item">
+                    <div class="row">
+                        <h4>
+                            <div class="col-lg-2">
+                                <i class="service-icon fa fa-folder"></i>Folders
+                            </div>
+                            <div class="col-lg-10">
+                                <span class="label label-primary">{{shared.project_stats.folders_count}}</span>
+                            </div>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="service-item">
+                    <div class="row">
+                        <h4>
+                            <div class="col-lg-2">
+                                <i class="service-icon fa fa-file"></i>Files
+                            </div>
+                            <div class="col-lg-10">
+                                <span class="label label-primary">{{shared.project_stats.files_count}}</span>
+                            </div>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="service-item">
+                    <div class="row">
+                        <h4>
+                            <div class="col-lg-2">
+                                <i class="service-icon fa fa-user"></i>Members
+                            </div>
+                            <div class="col-lg-10">
+                                <span class="label label-primary">{{shared.project_stats.members_count}}</span>
+                            </div>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="service-item">
+                    <div class="row">
+                        <h4>
+                            <div class="col-lg-2">
+                                <i class="service-icon fa fa-tachometer"></i>Storage
+                            </div>
+                            <div class="col-lg-10">
+                                {{shared.project_stats.percent_full}} % of {{shared.project_stats.human_project_max_size}}
+                                <div class="progress-bar progress-bar-striped"
+                                     ng-class="{ 'progress-bar-danger' : shared.project_stats.percent_full >= 100}"
+                                     role="progressbar" aria-valuenow="{{shared.project_stats.percent_full}}" aria-valuemin="0" aria-valuemax="100" style="width: {{shared.project_stats.percent_full % 100}}%">
+                                </div>
+                            </div>
+                        </h4>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+    <div class="panel-footer">
+        <button type="button"
+                class="btn"
+                ng-click="get_project_stats()"
+                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');">
+            <i class="fa fa-refresh"></i>
+            Refresh
+        </button>
     </div>
 </div>
 

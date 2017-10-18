@@ -60,10 +60,11 @@
     "ng-jsonpath": "^0.1.3",
     "angular-tree-widget": "git://github.com/feup-infolab/angular-tree-widget.git",
     "ng-alerts": "git://github.com/feup-infolab/ng-alerts.git#99ab122c9e4c262711bbc06e23518a613ca29e01",
+    "okfn-licenses": "git://https://github.com/feup-infolab/licenses.git#b1b3969b759a95e01d439436b4aece9ad91c988b",
     "angular-utils-pagination": "0.11.1",
     "fileapi": "^2.0.20",
     "urijs": "uri.js#^1.18.4",
-    "browser-md5-file": "^1.0.0",
+    "browser-md5-file": "git://github.com/feup-infolab/browser-md5-file.git#1.0.0",
     "reclinejs": "git://github.com/okfn/recline.git#0.6",
     "slickgrid": "git://github.com/6pac/SlickGrid.git#2.3.2",
     "angular-animate": "1.6.2",
@@ -78,7 +79,10 @@
     "angular-image-compress": "^0.1.5",
     "elasticsearch-okfn-reclinejs-backend": "git://github.com/okfn/elasticsearch.js#7fd7b9783e27faf20b34e4a72532c686f8138194",
     "chart.js": "^2.6.0",
-    "angular-chart.js": "^1.1.1"
+    "angular-chart.js": "^1.1.1",
+    "angular-ui-select": "^0.19.8",
+    "humanize-plus": "^1.8.2",
+    "angular-spinner": "^1.0.1"
   },
   "resolutions": {
     "bootstrap": "~3",

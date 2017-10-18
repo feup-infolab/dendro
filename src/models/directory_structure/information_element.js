@@ -1,13 +1,16 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
+const async = require("async");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
 
@@ -61,11 +64,11 @@ InformationElement.prototype.getParent = function(callback)
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],
@@ -144,11 +147,11 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],
@@ -183,7 +186,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
     const self = this;
 
     /**
-    *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+    *   Note the sign (*) on the nie:isLogicalPartOf* of the query below.
     *    (Recursive querying through inference).
     *   @type {string}
     */
@@ -199,11 +202,11 @@ InformationElement.prototype.getOwnerProject = function(callback)
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],
@@ -258,15 +261,15 @@ InformationElement.prototype.rename = function(newTitle, callback)
     db.connection.execute(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: newTitle
             }
         ],
@@ -276,6 +279,77 @@ InformationElement.prototype.rename = function(newTitle, callback)
             });
         }
     );
+};
+
+InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
+{
+    const self = this;
+
+    const oldParent = self.nie.isLogicalPartOf;
+    const newParent = newParentFolder.uri;
+
+    const query =
+        "DELETE DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       [1] nie:hasLogicalPart [2]. \n" +
+        "       [2] nie:isLogicalPartOf [1]. \n" +
+        "   } \n" +
+        "}; \n" +
+
+        "INSERT DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       [3] nie:hasLogicalPart [2]. \n" +
+        "       [2] nie:isLogicalPartOf [3]. \n" +
+        "   } " +
+        "}; \n";
+
+    db.connection.execute(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.resource,
+                value: oldParent
+            },
+            {
+                type: Elements.types.resource,
+                value: self.uri
+            },
+            {
+                type: Elements.types.resource,
+                value: newParent
+            }
+        ],
+        function(err, result)
+        {
+            if(isNull(err))
+            {
+                //invalidate caches on parent, old parent and child...
+                async.series([
+                    function(callback){
+                        Cache.getByGraphUri(db.graphUri).delete(self.uri, callback);
+                    },
+                    function(callback){
+                        Cache.getByGraphUri(db.graphUri).delete(newParent, callback);
+                    },
+                    function(callback){
+                        Cache.getByGraphUri(db.graphUri).delete(oldParent, callback);
+                    }
+                ], function(err){
+                    return callback(err, result);
+                });
+            }
+            else
+            {
+                return callback(err, result);
+            }
+        });
 };
 
 InformationElement.prototype.unlinkFromParent = function(callback)
@@ -364,21 +438,6 @@ InformationElement.removeInvalidFileNames = function(fileNamesArray)
     return validFiles;
 };
 
-
-InformationElement.findByParentAndName = function(parentURI, name, callback)
-{
-    const self = this;
-
-    const ie = Object.create(self.prototype).constructor({
-        nie: {
-            isLogicalPartOf: parentURI,
-            title: name
-        }
-    });
-
-    self.findByUri(ie.uri, callback);
-};
-
 InformationElement.isSafePath = function(absPath, callback)
 {
     let fs = require('fs');
@@ -388,7 +447,7 @@ InformationElement.isSafePath = function(absPath, callback)
             return (b.indexOf(a) === 0);
         }
 
-        const validDirs = [Config.tempFilesCreationMode, Config.tempUploadsDir];
+        const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];
 
         for(let i = 0; i < validDirs.length; i++)
         {
@@ -414,7 +473,7 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
             {
                 const metadataResult = {
                     title: resource.nie.title,
-                    descriptors: resource.getDescriptors([Config.types.private], [Config.types.api_readable], typeConfigsToRetain),
+                    descriptors: resource.getDescriptors([Elements.access_types.private], [Elements.access_types.api_readable], typeConfigsToRetain),
                     file_extension: resource.ddr.fileExtension,
                     hasLogicalParts: []
                 };
@@ -490,7 +549,59 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
 
             return callback(true, msg);
         }
-    }, null, null, null, [Config.types.private], [Config.types.api_accessible]);
+    }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_accessible]);
+};
+
+InformationElement.prototype.containedIn = function(parentResource, callback, customGraphUri)
+{
+    const self = this;
+
+    if(parentResource.uri === self.uri)
+    {
+        callback(null, true);
+    }
+    else
+    {
+        const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+        db.connection.execute(
+            "WITH [0]\n"+
+            "ASK \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   {\n" +
+            "       [2] nie:isLogicalPartOf+ [1]. \n" +
+            "       [1] nie:hasLogicalPart+ [2]. \n" +
+            "   }\n" +
+            "} \n",
+
+            [
+                {
+                    type : Elements.types.resourceNoEscape,
+                    value : graphUri
+                },
+                {
+                    type : Elements.types.resourceNoEscape,
+                    value : parentResource.uri
+                },
+                {
+                    type : Elements.types.resourceNoEscape,
+                    value : self.uri
+                }
+            ],
+            function(err, result) {
+                if(isNull(err))
+                {
+                    return callback(null, result);
+                }
+                else
+                {
+                    const msg = "Error checking if resource " + self.uri + " is contained in " + anotherResourceUri;
+                    console.error(msg);
+                    return callback(err, msg);
+                }
+            });
+    }
 };
 
 InformationElement = Class.extend(InformationElement, Resource, "nie:InformationElement");

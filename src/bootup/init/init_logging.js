@@ -10,10 +10,6 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const initLogging = function(app, callback)
 {
     let registeredUncaughtExceptionHandler = false;
-    
-    process.on('unhandledRejection', function(rejection){
-        console.error(rejection.stack);
-    });
 
     //Setup logging
     if(!isNull(Config.logging))
@@ -125,6 +121,7 @@ const initLogging = function(app, callback)
             {
                 if(Config.logging.log_all_requests)
                 {
+                    const morgan = require('morgan');
                     app.use(morgan('combined'));
                 }
 

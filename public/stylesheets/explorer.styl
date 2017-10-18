@@ -262,6 +262,12 @@ Animations (uncomment to have animations)
   width: 50%;
   height: 50%;
 }
+
+.show-avatar-in-project-list {
+  width:  28px;
+  height: 28px;
+}
+
 .breadcrumb_icon {
   width: 16px;
   height: 16px;
@@ -273,5 +279,10 @@ Animations (uncomment to have animations)
 .breadcrumb a:hover {color: rgba(42, 100, 150, 1);}
 .breadcrumb>.active {color: rgba(153, 153, 153, 1);}
 .breadcrumb>li+li:before {color: rgba(204, 204, 204, 1); content: "\276D\00a0";}
+
+.disabled {
+  pointer-events:none; //This makes it not clickable
+  opacity:0.6;         //This grays it out to look disabled
+}
 
 

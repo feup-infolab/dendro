@@ -27,7 +27,7 @@ const research_domains = require(Pathfinder.absPathInSrcFolder("/controllers/res
 const repo_bookmarks = require(Pathfinder.absPathInSrcFolder("/controllers/repo_bookmarks"));
 const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"));
 const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
-const fileVersions = require(Pathfinder.absPathInSrcFolder("/controllers/file_versions"));
+const timeline = require(Pathfinder.absPathInSrcFolder("/controllers/timeline"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
 
 let recommendation;
@@ -71,14 +71,14 @@ let mkdirp = require('mkdirp');
 
 const getNonHumanReadableRouteRegex = function(resourceType)
 {
-    const regex = "^/r/"+resourceType+"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
-    return new RegExp(regex);
+    /*const regex = "^/r/"+resourceType+"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+    return new RegExp(regex);*/
+    return Resource.getResourceRegex(resourceType);
 };
 
 const extractUriFromRequest = function (req, res, next) {
     const matches = req.path.match(/^\/r\/([^\/]+)\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
     if(matches && matches.length === 2) {
-        console.log(req.params);
         req.params.requestedResourceUri = matches[0];
     }
 
@@ -307,7 +307,7 @@ const loadRoutes = function(app, callback)
             ]
         };
 
-        QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        QueryBasedRouter.applyRoutes(queryBasedRoutes,req, res, next);
     });
 
     //research domains
@@ -326,21 +326,47 @@ const loadRoutes = function(app, callback)
     //  registration and login
     app.get('/register', auth.register);
     app.post('/register', auth.register);
-    app.get('/logout', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), auth.logout);
+    app.get('/logout', auth.logout);
 
     //people listing
     app.get('/users', users.all);
     app.get('/username_exists', users.username_exists);
     app.get('/users/loggedUser', users.getLoggedUser);
-    app.get('/user/:username/avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.get_avatar);
-    app.post('/user/avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.upload_avatar);
-    app.post('/user/edit', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.edit);
 
     app.get([
-            getNonHumanReadableRouteRegex("user"),
-            '/user/:username'
-        ], async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.show);
+        getNonHumanReadableRouteRegex("user"),
+        '/user/:username'
+    ],
+    extractUriFromRequest,
+    function(req,res, next)
+    {
+        const processRequest = function(resourceUri){
+            req.params.requestedResourceUri = resourceUri;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['avatar'],
+                        handler: users.get_avatar,
+                        permissions: [],
+                        authentication_error: "Permission denied : cannot get the avatar of a user because you do not have permissions to do so."
+                    },
+                    {
+                        queryKeys: [],
+                        handler: users.show,
+                        permissions: [Permissions.settings.role.in_system.user],
+                        authentication_error: "Permission denied : cannot get information of the user because you are not logged in."
+                    },
+                ]
+            };
 
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.params.requestedResourceUri);
+    });
+
+    app.post('/user/edit', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.edit);
+    app.post('/user_avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.upload_avatar);
 
     app.all('/reset_password', users.reset_password);
     app.all('/set_new_password', users.set_new_password);
@@ -365,67 +391,9 @@ const loadRoutes = function(app, callback)
 
     app.get([
             getNonHumanReadableRouteRegex("archived_resource"),
-            /\/archived_resource\/([^\/]+)\/?$/
         ],
         extractUriFromRequest,
-        function(req,res, next)
-        {
-            const getResourceUri = function(requestedResource, callback)
-            {
-                getRequestedResourceUriFromHumanReadableUri(
-                    requestedResource,
-                    "Cannot fetch resource " + requestedResource,
-                    "index",
-                    req,
-                    res,
-                    next,
-                    callback);
-            };
-
-            const processRequest = function(resourceUri){
-                req.params.requestedResourceUri = resourceUri;
-                const defaultPermissionsInProjectBranch = [
-                    Permissions.settings.privacy.of_owner_project.public,
-                    Permissions.settings.role.in_owner_project.contributor,
-                    Permissions.settings.role.in_owner_project.creator,
-                ];
-
-                req.params.is_project_root = false;
-
-                const queryBasedRoutes = {
-                    get: [
-                        {
-                            queryKeys: ['thumbnail'],
-                            handler: files.get_thumbnail,
-                            permissions: defaultPermissionsInProjectBranch,
-                            authentication_error: "Permission denied : cannot download this resource because you do not have permissions to access its project."
-                        }
-                    ]
-                };
-
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
-            };
-
-            async.waterfall([
-                function(callback)
-                {
-                    if(!isNull(req.params.requestedResourceUri))
-                    {
-                        const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
-                        ArchivedResource.findByUri(req.params.requestedResourceUri, function(err, archivedResource){
-                            req.params.requestedResourceUri = archivedResource.ddr.isVersionOf;
-                            callback(null, req.params.requestedResourceUri);
-                        });
-                    }
-                    else
-                    {
-                        const requestedArchivedVersionUrl = Config.baseUri + "/archived_version/" + req.params[0];
-                        getResourceUri(requestedArchivedVersionUrl, callback);
-                    }
-                },
-                processRequest
-            ]);
-        }
+        records.show_version
     );
 
     app.delete([
@@ -526,21 +494,21 @@ const loadRoutes = function(app, callback)
                             queryKeys: ['recommendation_ontologies'],
                             handler: ontologies.get_recommendation_ontologies,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get recommendation ontologies because you do not have permissions to access it."
                         },
                         //show versions of resources
                         {
                             queryKeys: ['version'],
                             handler: records.show_version,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get versions of this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get versions of this project because you do not have permissions to access it."
                         },
                         //auto completing descriptors
                         {
                             queryKeys: ['descriptors_autocomplete'],
                             handler: descriptors.descriptors_autocomplete,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access it."
 
                         },
                         //auto completing ontologies
@@ -548,27 +516,27 @@ const loadRoutes = function(app, callback)
                             queryKeys: ['ontology_autocomplete'],
                             handler: ontologies.ontologies_autocomplete,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access it."
                         },
                         //auto completing users
                         {
                             queryKeys: ['user_autocomplete'],
                             handler: users.users_autocomplete,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access it."
                         },
                         //thumb nails
                         {
                             queryKeys: ['thumbnail'],
                             handler: files.thumbnail,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get thumbnail for this project because you do not have permissions to access it."
                         },
                         {
                             queryKeys: ['get_contributors'],
                             handler: projects.get_contributors,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get contributors for this project because you do not have permissions to access it."
                         },
                         //administration page
                         {
@@ -582,14 +550,14 @@ const loadRoutes = function(app, callback)
                             queryKeys: ['metadata'],
                             handler: projects.show,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get metadata for this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get metadata for this project because you do not have permissions to access it."
                         },
                         //metadata deep
                         {
                             queryKeys: ['metadata', 'deep'],
                             handler: projects.show,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access it."
                         },
                         //request access
                         {
@@ -610,15 +578,21 @@ const loadRoutes = function(app, callback)
                             queryKeys: ['descriptors_autocomplete'],
                             handler: descriptors.descriptors_autocomplete,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access it."
 
+                        },
+                        {
+                           queryKeys : ['bagit'],
+                           handler : projects.bagit,
+                           permissions : [Permissions.settings.privacy.of_project.public, Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator],
+                           authentication_error : "Permission denied : cannot backup this project because you do not have permissions to access it."
                         },
                         //default case
                         {
                             queryKeys: [],
                             handler: projects.show,
                             permissions: defaultPermissionsInProjectRoot,
-                            authentication_error: "Permission denied : cannot show the project because you do not have permissions to access this project."
+                            authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
                         }
                     ],
                     post: [
@@ -647,36 +621,51 @@ const loadRoutes = function(app, callback)
                             authentication_error: "Permission denied : cannot export project because you do not have permissions to edit this project."
                         },
                         {
+                            queryKeys: ['calculate_ckan_repository_diffs'],
+                            handler: datasets.calculate_ckan_repository_diffs,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot calculate ckan repository diffs because you do not have permissions to edit this project."
+                        },
+                        {
                             queryKeys: ['request_access'],
                             handler: projects.requestAccess,
                             permissions: [Permissions.settings.role.in_system.user],
                             authentication_error: "Permission denied : cannot request access to this project."
                         },
                         {
-                            queryKeys: ['delete'],
-                            handler: projects.delete,
-                            permissions: administrationPermissions,
-                            authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
+                            queryKeys: ['cut'],
+                            handler: files.cut,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot cut resources into this folder because you do not have permissions to edit resources inside this project."
                         },
                         {
-                            queryKeys: ['undelete'],
-                            handler: projects.undelete,
-                            permissions: administrationPermissions,
-                            authentication_error: "Permission denied : cannot undelete project because you do not have permissions to administer this project."
+                            queryKeys: ['copy'],
+                            handler: files.copy,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot paste resources into this folder because you do not have permissions to edit resources inside this project."
                         }
                     ],
                     all:
                     [
-                        //uploads
+                         //uploads
                          {
                              queryKeys: ['upload'],
                              handler: files.upload,
-                             permissions: modificationPermissions
+                             permissions: modificationPermissions,
+                             authentication_error: "Permission denied : cannot upload to this project because you do not have permissions to modify it."
+                         },
+                         //delete projects
+                         {
+                             queryKeys: ['delete'],
+                             handler: projects.delete,
+                             permissions: administrationPermissions,
+                             authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
                          }
-                     ]
+
+                    ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
             };
 
             async.waterfall([
@@ -959,6 +948,24 @@ const loadRoutes = function(app, callback)
                             handler: files.rename,
                             permissions: modificationPermissionsBranch,
                             authentication_error: "Permission denied : cannot rename resource because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['cut'],
+                            handler: files.cut,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot move resources because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['copy'],
+                            handler: files.copy,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot copy resources because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['calculate_ckan_repository_diffs'],
+                            handler: datasets.calculate_ckan_repository_diffs,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot calculate ckan repository diffs because you do not have permissions to edit this project."
                         }
                     ],
                     delete: [
@@ -986,7 +993,7 @@ const loadRoutes = function(app, callback)
                     ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
             };
 
             async.waterfall([
@@ -1008,54 +1015,301 @@ const loadRoutes = function(app, callback)
     );
 
     //      social
+    const defaultSocialDendroPostPermissions = [
+        Permissions.settings.role.in_post_s_project.creator,
+        Permissions.settings.role.in_post_s_project.contributor
+    ];
+    app.get('/socialDendro/my', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
     app.get('/posts/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.all);
-    app.post('/posts/post', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPost_controller);
-    app.post('/posts/new', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.new);
-    app.post('/posts/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.like);
-    app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.checkIfPostIsLikedByUser);
-    app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.postLikesInfo);
-    app.post('/posts/comment', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.comment);
-    app.post('/posts/comments', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostComments);
-    app.post('/posts/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.share);
-    app.post('/posts/shares', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getPostShares);
-    app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
-    
+    app.get('/posts/post', function (req, res, next) {
+        const processRequest = function(postUri){
+            req.query.postID = postUri;
+            req.params.requestedResourceUri = postUri;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postID'],
+                        handler: posts.getPost_controller,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which this post belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.query.postID);
+    });
+
+    const defaultSocialDendroArrayOfPostsPermissions = [
+        Permissions.settings.role.in_array_of_posts_project.creator,
+        Permissions.settings.role.in_array_of_posts_project.contributor
+    ];
+    app.get('/posts/posts', function (req, res, next) {
+        const processRequest = function(postsQueryInfo){
+            req.query.postsQueryInfo = postsQueryInfo;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postsQueryInfo'],
+                        handler: posts.getPosts_controller,
+                        permissions: defaultSocialDendroArrayOfPostsPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the posts belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        let postQueryInfo;
+        try {
+            postQueryInfo = JSON.parse(req.query.postsQueryInfo);
+        }
+        catch(err) {
+            postQueryInfo = req.query.postsQueryInfo
+        }
+        processRequest(postQueryInfo);
+    });
+
+    app.post('/posts/new', function (req, res, next) {
+        const processRequest = function(postContent, postTitle, postProjectUri){
+            req.body.newPostContent = postContent;
+            req.body.newPostTitle = postTitle;
+            req.body.newPostProjectUri = postProjectUri;
+            req.params.requestedResourceUri = postProjectUri;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.new,
+                        permissions: [Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator],
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project where you want to create the manual post"
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.body.newPostContent, req.body.newPostTitle, req.body.newPostProjectUri);
+    });
+
+    app.post('/posts/like', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.body.postID = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.like,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to like belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+
+        processRequest(req.body.postID);
+    });
+
+    app.get('/posts/post/likes', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.query.postURI = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postURI'],
+                        handler: posts.postLikesInfo,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain likes information belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.postURI);
+    });
+
+    app.post('/posts/comment', function (req, res, next) {
+        const processRequest = function(postURI, commentMsg){
+            req.body.postID = postURI;
+            req.body.commentMsg = commentMsg;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.comment,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to comment belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.body.postID, req.body.commentMsg);
+    });
+
+    app.get('/posts/comments', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.query.postID = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postID'],
+                        handler: posts.getPostComments,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.postID);
+    });
+
+    app.post('/posts/share', function (req, res, next) {
+        const processRequest = function(postURI, shareMsg){
+            req.body.postID = postURI;
+            req.body.shareMsg = shareMsg;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                post: [
+                    {
+                        queryKeys: [],
+                        handler: posts.share,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to share belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.body.postID, req.body.shareMsg);
+    });
+
+    app.get('/posts/shares', function (req, res, next) {
+        const processRequest = function(postURI){
+            req.query.postID = postURI;
+            req.params.requestedResourceUri = postURI;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['postID'],
+                        handler: posts.getPostShares,
+                        permissions: defaultSocialDendroPostPermissions,
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain shares information belongs to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.postID);
+    });
+
+    app.get('/posts/count', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.numPostsDatabase);
+
     app.get([
             getNonHumanReadableRouteRegex("post"),
             '/posts/:uri'
         ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.post);
-    
-    //file versions
-    app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.all);
-    app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.numFileVersionsInDatabase);
-    app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.getFileVersion);
-    app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.like);
-    app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.comment);
-    app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.share);
-    app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.fileVersionLikesInfo);
-    app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.getFileVersionShares);
-    
-    app.get([
-            getNonHumanReadableRouteRegex("file_version"),
-            '/fileVersions/:uri'
-        ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), fileVersions.fileVersion);
+        extractUriFromRequest, function (req, res, next) {
+            const processRequest = function(){
+                const queryBasedRoutes = {
+                    get: [
+                        {
+                            queryKeys: [],
+                            handler: posts.post,
+                            permissions: defaultSocialDendroPostPermissions,
+                            authentication_error: "Permission denied : You are not a contributor or creator of the project to which the post you want to obtain information belongs to."
+                        },
+                    ]
+                };
 
-    //shares
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+            };
+            processRequest();
+        });
+
     app.get([
-            getNonHumanReadableRouteRegex("file_version"),
+            getNonHumanReadableRouteRegex("share"),
             '/shares/:uri'
         ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.getShare);
+        extractUriFromRequest, function (req, res, next) {
+            const processRequest = function(){
+                const queryBasedRoutes = {
+                    get: [
+                        {
+                            queryKeys: [],
+                            handler: posts.getShare,
+                            permissions: defaultSocialDendroPostPermissions,
+                            authentication_error: "Permission denied : You are not a contributor or creator of the project to which the Share you want to obtain information belongs to."
+                        },
+                    ]
+                };
+
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+            };
+            processRequest();
+        });
 
     //notifications
     app.get('/notifications/all', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_unread_user_notifications);
-    app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.get_notification_info);
-    app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), notifications.delete);
+
+    const defaultNotificationsPermissions = [
+        Permissions.settings.role.in_notification_s_resource.author
+    ];
+    app.get('/notifications/notification', function (req, res, next) {
+        const processRequest = function(notificationUri){
+            req.query.notificationUri = notificationUri;
+            req.params.requestedResourceUri = notificationUri;
+            const queryBasedRoutes = {
+                get: [
+                    {
+                        queryKeys: ['notificationUri'],
+                        handler: notifications.get_notification_info,
+                        permissions: defaultNotificationsPermissions,
+                        authentication_error: "Permission denied : You are not the author of the resource that this notification points to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.notificationUri);
+    });
+
+    app.delete('/notifications/notification', function (req, res, next) {
+        const processRequest = function(notificationUri){
+            req.query.notificationUri = notificationUri;
+            req.params.requestedResourceUri = notificationUri;
+            const queryBasedRoutes = {
+                delete: [
+                    {
+                        queryKeys: ['notificationUri'],
+                        handler: notifications.delete,
+                        permissions: defaultNotificationsPermissions,
+                        authentication_error: "Permission denied : You are not the author of the resource that this notification points to."
+                    },
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        };
+        processRequest(req.query.notificationUri);
+    });
 
     //interactions
     app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.accept_descriptor_from_quick_list);

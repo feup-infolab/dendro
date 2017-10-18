@@ -17,6 +17,76 @@ angular.module('dendroApp.controllers')
             return newURL;
         };
 
+        $scope.calculateCkanRepositoryDiffs = function (target_repository) {
+            var payload = {
+                repository : target_repository,
+                new_dataset : $scope.new_dataset
+            };
+
+            var requestString = JSON.stringify(payload);
+
+            var url = $scope.get_calling_uri() + "?calculate_ckan_repository_diffs";
+
+            $scope.show_popup("info", "Notice", "Calculating diffs with target repository");
+            $scope.is_sending_data = true;
+
+            $http({
+                method: "POST",
+                url: url,
+                data: requestString,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            }).then(function(response) {
+                var data = response.data;
+                $scope.is_sending_data = false;
+                if(typeof data === "string")
+                {
+                    if(data === "Package was not previously exported")
+                    {
+                        $scope.show_popup("info", data, "You can now export the resource", 20000);
+                    }
+                    else
+                    {
+                        $scope.show_popup("error", data, "Invalid data message", 20000);
+                    }
+                }
+                else if(data instanceof Object)
+                {
+                    $scope.needsDendroPermissions = data.dendroDiffs;
+                    $scope.needsCkanPermissions = data.ckanDiffs;
+                    if(!$scope.needsCkanPermissions &&  !$scope.needsDendroPermissions || $scope.needsCkanPermissions.length === 0 &&  $scope.needsDendroPermissions.length === 0)
+                    {
+                        $scope.show_popup("info", "No differences detected", "You can now export the resource", 20000);
+                    }
+                    else
+                    {
+                        if($scope.needsCkanPermissions && $scope.needsCkanPermissions.length > 0)
+                        {
+                            $scope.show_popup("warning", "Ckan diffs", "There were changes made to the package on the Ckan repository. To export again from dendro tick the boxes bellow. Note that changes made on the Ckan side will be lost.", 60000);
+                        }
+                        if($scope.needsDendroPermissions && $scope.needsDendroPermissions.length > 0)
+                        {
+                            $scope.show_popup("warning", "Dendro diffs", "There were changes made to the package on Dendro. To export again from Dendro tick the boxes bellow. Note that if files were added or deleted in Dendro it will also be deleted or added in Ckan.", 60000);
+                        }
+                    }
+                }
+                else
+                {
+                    $scope.show_popup("error", data, "Invalid data type", 20000);
+                }
+            }).catch(function(error){
+                if(error.data != null && error.data.message != null)
+                {
+                    $scope.show_popup("error", error.data.title, error.data.message);
+                }
+                else
+                {
+                    $scope.show_popup("error", "Error occurred", JSON.stringify(error));
+                }
+                $scope.is_sending_data = false;
+            });
+        };
+
         $scope.datepickerOptions = {
             "close-on-date-selection" : true
         };
@@ -211,16 +281,26 @@ angular.module('dendroApp.controllers')
          * @param uri
          */
 
-        $scope.upload_to_repository = function(target_repository, overwrite)
+        $scope.upload_to_repository = function(target_repository, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
         {
             var payload = {
                 repository : target_repository,
                 new_dataset : $scope.new_dataset
             };
 
-            if(overwrite != null)
+            /*if(overwrite != null)
             {
                 payload.overwrite = overwrite;
+            }*/
+
+            if(deleteChangesOriginatedFromCkan != null)
+            {
+                payload.deleteChangesOriginatedFromCkan = deleteChangesOriginatedFromCkan;
+            }
+
+            if(propagateDendroChangesIntoCkan != null)
+            {
+                payload.propagateDendroChangesIntoCkan = propagateDendroChangesIntoCkan;
             }
 
             var requestString = JSON.stringify(payload);
@@ -235,7 +315,7 @@ angular.module('dendroApp.controllers')
                 url: url,
                 data: requestString,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {"Accept": "application/json"}
             }).then(function(response) {
                 var data = response.data;
 
