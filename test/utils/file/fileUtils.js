@@ -242,4 +242,20 @@ module.exports.renameFileByUri = function(acceptsJSON, agent, fileUri, newName, 
     }
 };
 
+module.exports.getFilePath = function(path)
+{
+    const fs = require("fs");
+    const filePath = Pathfinder.absPathInTestsFolder(path);
+
+    if(fs.existsSync(filePath))
+    {
+        return filePath;
+    }
+    else
+    {
+        throw "File " + filePath + " does not exist!!!";
+    }
+
+}
+
 

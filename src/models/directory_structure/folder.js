@@ -815,7 +815,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
 
             if(files.length > 0)
             {
-                console.error("Starting to load children of folder " + absolutePathOfLocalFolder + " into a folder with title " + self.nie.title + " ("+ self.uri +")");
+                //console.error("Starting to load children of folder " + absolutePathOfLocalFolder + " into a folder with title " + self.nie.title + " ("+ self.uri +")");
 
                 async.mapSeries(files, function(fileName, cb){
                     const absPath = path.join(absolutePathOfLocalFolder, fileName);
@@ -823,14 +823,14 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
                         if(stats.isFile())
                         {
                             loadChildFile(fileName, function(err, savedChildFile){
-                                console.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
+                                //console.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
                                 return cb(err, savedChildFile);
                             });
                         }
                         else if(stats.isDirectory())
                         {
                             loadChildFolder(fileName, function(err, savedChildFolder){
-                                console.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
+                                //console.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
                                 return cb(err, savedChildFolder);
                             });
                         }
@@ -838,9 +838,9 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
                 }, function(err, results){
                     if(isNull(err))
                     {
-                        console.log("Adding pointers to children of " + path.basename(absolutePathOfLocalFolder) + " loaded into " + self.nie.title);
+                        //console.log("Adding pointers to children of " + path.basename(absolutePathOfLocalFolder) + " loaded into " + self.nie.title);
                         addChildrenTriples(results, function(err, result){
-                            console.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
+                            //console.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
                             return callback(null, self);
                         });
                     }
@@ -869,7 +869,7 @@ Folder.prototype.loadMetadata = function(
 )
 {
     const self = this;
-    console.log("Restoring metadata of " + node.resource + " into "+ self.uri);
+    //console.log("Restoring metadata of " + node.resource + " into "+ self.uri);
 
     const getDescriptor = function(prefixedForm, node)
     {

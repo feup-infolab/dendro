@@ -24,10 +24,7 @@ const uploadFilesAndAddMetadataUnit = appUtils.requireUncached(Pathfinder.absPat
 const createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 const createAllFoldersAndAllFilesInsideThemWithMetadataUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createAllFoldersAndAllFilesInsideThemWithMetadata.Unit.js"));
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const simpleProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/simple_project.js"));
 
 const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const projectsData = createProjectsUnit.projectsData;
@@ -35,11 +32,30 @@ const projectsData = createProjectsUnit.projectsData;
 describe("Import projects", function (done) {
     this.timeout(5*Config.testsTimeOut);
 
+    before(function (done) {
+        createUsersUnit.setup(function (err, results) {
+            should.equal(err, null);
+            done();
+        });
+    });
+
+    after(function (done) {
+        //destroy graphs
+        appUtils.clearAppState(function (err, data) {
+            should.equal(err, null);
+            done(err);
+        });
+    });
+
     // describe("[GET] /projects/import", function () {
-    //     beforeEach(function (done) {
-    //         createUsersUnit.setup(function (err, results) {
+    //     it("Should get the html import a project page when logged in as any user", function (done) {
+    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
     //             should.equal(err, null);
-    //             done();
+    //             projectUtils.importProjectHTMLPage(false, agent, function (err, res) {
+    //                 res.statusCode.should.equal(200);
+    //                 res.text.should.contain("<h1 class=\"page-header\">\n    Import a project\n</h1>");
+    //                 done();
+    //             });
     //         });
     //     });
     //
@@ -53,17 +69,6 @@ describe("Import projects", function (done) {
     //         });
     //     });
     //
-    //     it("Should get the html import a project page when logged in as any user", function (done) {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-    //             should.equal(err, null);
-    //             projectUtils.importProjectHTMLPage(false, agent, function (err, res) {
-    //                 res.statusCode.should.equal(200);
-    //                 res.text.should.contain("<h1 class=\"page-header\">\n    Import a project\n</h1>");
-    //                 done();
-    //             });
-    //         });
-    //     });
-    //
     //     it("[JSON] Should give an error if the request for this route is of type JSON", function (done) {
     //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
     //             should.equal(err, null);
@@ -74,17 +79,10 @@ describe("Import projects", function (done) {
     //             });
     //         });
     //     });
-    //
-    //     afterEach(function (done) {
-    //         //destroy graphs
-    //         appUtils.clearAppState(function (err, data) {
-    //             should.equal(err, null);
-    //             done(err);
-    //         });
-    //     });
     // });
     //
     // describe("[POST] [Invalid Cases] /projects/import", function () {
+    //
     //     beforeEach(function (done) {
     //         createUsersUnit.setup(function (err, results) {
     //             should.equal(err, null);
@@ -107,7 +105,7 @@ describe("Import projects", function (done) {
     //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
     //             should.equal(err, null);
     //
-    //             const projectData = JSON.parse(JSON.stringify(simpleProject));
+    //             const projectData = JSON.parse(JSON.stringify(privateProject));
     //             delete projectData.handle;
     //
     //             projectUtils.importProject(true, agent, projectData, function (err, res) {
@@ -124,7 +122,7 @@ describe("Import projects", function (done) {
     //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
     //             should.equal(err, null);
     //
-    //             const projectData = JSON.parse(JSON.stringify(simpleProject));
+    //             const projectData = JSON.parse(JSON.stringify(privateProject));
     //             projectData.handle = "@€@‰@¶@£@€@@€@€@asdasdsadsadsadasd";
     //
     //             projectUtils.importProject(true, agent, projectData, function (err, res) {
@@ -168,14 +166,13 @@ describe("Import projects", function (done) {
     //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
     //             should.equal(err, null);
     //
-    //             const projectData = JSON.parse(JSON.stringify(simpleProject));
+    //             const projectData = JSON.parse(JSON.stringify(privateProject));
     //             projectData.backup_path = Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/zipTest.zip");
     //
     //             projectUtils.importProject(true, agent, projectData, function (err, res) {
     //                 should.not.equal(err, null);
     //                 const result = JSON.parse(res.text);
     //                 result.result.should.equal("error");
-    //                 should.equal(typeof result.message, "string");
     //                 result.message.should.contain("Invalid Bagit structure. Are you sure this is a Dendro project backup?");
     //                 res.statusCode.should.equal(500);
     //                 done();
@@ -199,26 +196,9 @@ describe("Import projects", function (done) {
     //     it("Should give an error with a status code of 400 when the zip file used to import the project contains a wrong nie:title in the metadata section (title does not match the title of the file that it refers to", function (done) {
     //         done(1);
     //     });*/
-    //
-    //     afterEach(function (done) {
-    //         //destroy graphs
-    //         appUtils.clearAppState(function (err, data) {
-    //             should.equal(err, null);
-    //             done(err);
-    //         });
-    //     });
     // });
 
     describe("[POST] [Valid Cases] /projects/import", function () {
-
-        beforeEach(function (done) {
-            //createAllFoldersAndAllFilesInsideThemWithMetadataUnit.setup(function (err, results) {
-            createUsersUnit.setup(function (err, results) {
-                should.equal(err, null);
-                done();
-            });
-        });
-
         it("Should import all projects correctly when the user is logged in and the zip file used to import the project is not corrupted", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 should.equal(err, null);
@@ -257,14 +237,6 @@ describe("Import projects", function (done) {
                 }, function(err, results){
                     done(err);
                 })
-            });
-        });
-
-        afterEach(function (done) {
-            //destroy graphs
-            appUtils.clearAppState(function (err, data) {
-                should.equal(err, null);
-                done(err);
             });
         });
     });

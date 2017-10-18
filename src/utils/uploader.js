@@ -18,38 +18,14 @@ const Uploader = function()
 
 Uploader.prototype.handleUpload = function(req, res, callback)
 {
+    const restart = req.query.restart;
     const upload_id = req.query.upload_id;
     const upload = UploadManager.get_upload_by_id(upload_id);
     const username = req.query.username;
     const filename = req.query.filename;
     let size = req.query.size;
-    const restart = req.query.restart;
-    let md5_checksum = req.query.md5_checksum;
 
-    if(isNull(username))
-    {
-        return res.status(400).json({
-            result: "error",
-            message: "Request is missing the 'username' field, which should be the currently logged in user."
-        });
-    }
-
-    if(isNull(filename))
-    {
-        return res.status(400).json({
-            result: "error",
-            message: "Request is missing the 'filename' field, which should be the name of the file being uploaded."
-        });
-    }
-
-    if(isNull(size))
-    {
-        return res.status(400).json({
-            result: "error",
-            message: "Request is missing the 'size' field, which should be length of the uploaded file in bytes."
-        });
-    }
-    else
+    if(!isNull(size))
     {
         try{
             size = parseInt(size);
@@ -63,31 +39,58 @@ Uploader.prototype.handleUpload = function(req, res, callback)
         }
     }
 
+    let md5_checksum = req.query.md5_checksum;
 
-    if(!isNull(upload)
-        && (
+    const processChunkedUpload = function(upload, callback) {
+
+        //console.log("Recebi um chunk do ficheiro " + filename + " para o upload id " + upload_id);
+
+        if(isNull(username))
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Request is missing the 'username' field, which should be the currently logged in user."
+            });
+        }
+
+        if(isNull(filename))
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Request is missing the 'filename' field, which should be the name of the file being uploaded."
+            });
+        }
+
+        if(isNull(size))
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Request is missing the 'size' field, which should be length of the uploaded file in bytes."
+            });
+        }
+
+        if(!isNull(upload)
+            && (
                 upload.username !== username ||
                 upload.filename !== filename ||
                 upload.expected !== size ||
                 upload.id !== upload_id
             )
-    )
-    {
-        return res.status(400).json({
-            result: "error",
-            message: "Invalid request for appending data to upload : " + upload_id,
-            error: {
-                invalid_username : !(upload.username === username),
-                invalid_filename : !(upload.filename === filename),
-                invalid_size : !(upload.expected === size),
-                id : !(upload.id === upload_id),
-            }
-        });
-    }
+        )
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Invalid request for appending data to upload : " + upload_id,
+                error: {
+                    invalid_username : !(upload.username === username),
+                    invalid_filename : !(upload.filename === filename),
+                    invalid_size : !(upload.expected === size),
+                    id : !(upload.id === upload_id),
+                }
+            });
+        }
 
-    //console.log("Recebi um chunk do ficheiro " + filename + " para o upload id " + upload_id);
 
-    const processChunkedUpload = function(upload, callback) {
         if (!isNull(upload) && upload !== "")
         {
             const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});

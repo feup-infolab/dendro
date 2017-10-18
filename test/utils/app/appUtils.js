@@ -99,7 +99,7 @@ const saveRouteLogsToFile = function (callback) {
         const msg = "Error at saveRouteLogsToFile: global.testingRoute and global.routesLog were not properly initialized";
         delete global.testingRoute;
         delete global.routesLog;
-        return msg;
+        callback(null, msg);
     }
     else
     {

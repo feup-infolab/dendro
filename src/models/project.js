@@ -89,6 +89,7 @@ Project.prototype.backup = function(callback)
 
                                     const finishedZipFileName = "bagit_backup.zip";
                                     const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
+
                                     Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function(err, zipFileFullPath){
                                         return callback(err, zipFileFullPath, parentFolderPath);
                                     }, finishedZipFileName, true);

@@ -729,6 +729,11 @@ const metadataMatchesBackup = function (project, bodyBuffer, callback) {
                             const mockupBagitMetadata = parseBagItMetadata(results[1].bagitMetadata);
                             const bagitMetadataIsValid = (JSON.stringify(mockupBagitMetadata) === JSON.stringify(returnedBagitMetadata));
 
+                            if(!bagitMetadataIsValid)
+                            {
+                                console.error(JSON.stringify(returnedBagitMetadata, null, 4));
+                            }
+
                             const returnedProjectTreeMetadata = results[0].projectTreeMetadata;
                             const mockupProjectTreeMetadata = results[1].projectTreeMetadata;
 
@@ -739,7 +744,9 @@ const metadataMatchesBackup = function (project, bodyBuffer, callback) {
                             const fileTreeMetadataDiffs = diff(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
 
                             if(!fileTreeMetadataIsValid)
+                            {
                                 console.error(JSON.stringify(fileTreeMetadataDiffs, null, 4));
+                            }
 
                             callback(null, bagitMetadataIsValid && fileTreeMetadataIsValid);
                         }
@@ -778,6 +785,12 @@ const contentsMatchBackup = function (project, bodyBuffer, callback) {
                     getContentsOfFile(mockBackupFilePath, function(err2, result2){
                         if(!err1 && !err2)
                         {
+                            if(result1 !== result2)
+                            {
+                                console.error(result1);
+                                console.error(result2);
+                            }
+
                             callback(null, result1 === result2);
                         }
                         else

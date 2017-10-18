@@ -207,8 +207,8 @@ describe("Administer projects", function (done) {
         });
     });
 
-        after(function (done) {
-        //destroy graphs
+    after(function (done) {
+    //destroy graphs
         this.timeout(Config.testsTimeout);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
