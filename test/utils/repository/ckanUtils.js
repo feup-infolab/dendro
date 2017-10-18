@@ -56,7 +56,8 @@ const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoDat
                 if(result.result.packages.length > 0)
                 {
                     async.mapSeries(result.result.packages, function (package, cb) {
-                        client.action("package_delete",
+                        /*client.action("package_delete",*/
+                        client.action("dataset_purge",
                             {
                                 id: package.id
                             },
@@ -73,6 +74,35 @@ const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoDat
                 }
             }
         });
+
+    /*client.action("package_list",
+        {},
+        function (err, result) {
+            if (err) {
+                cb(err, result);
+            }
+            else {
+                if(result.result.length > 0)
+                {
+                    async.mapSeries(result.result, function (packageName, cb) {
+                        /!*client.action("package_delete",*!/
+                        client.action("dataset_purge",
+                            {
+                                id: packageName
+                            },
+                            function (err, result) {
+                                cb(err, result);
+                            });
+                    }, function (err, results) {
+                        cb(err, results);
+                    });
+                }
+                else
+                {
+                    cb(err, result);
+                }
+            }
+        });*/
 }
 
 const uploadFileToCkanPackage = function (jsonOnly, agent, ckanRepoData, fileData, packageInfo, cb) {

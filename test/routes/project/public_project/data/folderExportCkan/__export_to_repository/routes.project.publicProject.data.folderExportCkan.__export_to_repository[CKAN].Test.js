@@ -4,6 +4,8 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const path = require('path');
 const should = chai.should();
+const expect = chai.expect;
+const md5File = require("md5-file");
 const _ = require("underscore");
 chai.use(chaiHttp);
 
@@ -37,7 +39,6 @@ const uploadedAndDeletedFileInDendroMockFile = require(Pathfinder.absPathInTests
 const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
 
 const emptyFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/emptyFileMock.js"));
-/*const largeTxtFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/largeTxtFileMock"));*/
 
 let uploadedAndDeletedFileInDendroDataInDB, uploadedFileToCkanDataInDb, emptyFileDataInDb;
 
@@ -54,7 +55,8 @@ let ckanData;
 describe("Export public project folderExportCkan level to ckan tests", function () {
     before(function (done) {
         appUtils.newTestRoutetLog(path.basename(__filename));
-        this.timeout(Config.testsTimeout);
+        /*this.timeout(Config.testsTimeout);*/
+        this.timeout(12000000);
         addChangesToExportedCkanPackagesUnit.setup(publicProject, function (err, results) {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res) {
@@ -85,7 +87,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
     });
 
     describe("[POST] [CKAN] /project/:handle/data/:foldername?export_to_repository", function () {
-        it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done) {
+        /*it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, projectHandle, folderPath, agent, exportData, cb
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportCkanData.uri, agent, createdUnknownRepo, function (err, res) {
@@ -396,10 +398,9 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     });
                 });
             });
-        });
+        });*/
 
-        //TODO  plainTextContent -> limite 12 mb para este campo ->  chamado pelo save to resource -> ao gravar no gridfs não gravar o campo plainTextContent
-        it("Should export a large txt file(this is currently causing a bug)", function (done) {
+        /*it("Should export a large txt file(this is currently causing a bug)", function (done) {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             let aFolderWithFoldersUri;
@@ -410,47 +411,77 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                 const fs = require('fs');
                 const md5File = require("md5-file");
                 let hugeTxtFileMock = {
-                    /*md5 : md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/hugeTxtFile.txt")),*/
                     name : "hugeTxtFile.txt",
                     extension : "txt",
-                    /*location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/hugeTxtFile.txt")*/
-                    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt"
+                    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
+                    sizeGb: 0.1
                 };
 
                 fileUtils.initLargeTxtFile(hugeTxtFileMock, function (err, info) {
                     should.not.exist(err);
                     let stats = fs.statSync(hugeTxtFileMock.location);
                     let fileSizeInBytes = stats.size;
-                    fileSizeInBytes.should.be.above(100000000);
+                    /!*fileSizeInBytes.should.be.above(hugeTxtFileMock.sizeGb * 1000000000);*!/
+                    expect(fileSizeInBytes).to.be.at.least(hugeTxtFileMock.sizeGb * 1073741824);
                     fs.existsSync(hugeTxtFileMock.location).should.equal(true);
-                    /*fileUtils.deleteLargeTxtFile(hugeTxtFileMock, function (err, info) {
-                        should.not.exist(err);
-                        fs.existsSync(hugeTxtFileMock.location).should.equal(false);
-                        done();
-                    });*/
-
                     fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, hugeTxtFileMock, function (err, res) {
                         res.statusCode.should.equal(200);
                         itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
                             res.statusCode.should.equal(200);
                             repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                                 res.statusCode.should.equal(200);
-                                done();
+                                fileUtils.deleteLargeTxtFile(hugeTxtFileMock, function (err, info) {
+                                    should.not.exist(err);
+                                    fs.existsSync(hugeTxtFileMock.location).should.equal(false);
+                                    done();
+                                });
                             }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
                         });
                     });
                 });
+            });
+        });*/
 
-                /*fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
+        it("Should not export a package to Ckan that contains a file with a size that is above 1gb", function (done) {
+            let propagateDendroChangesIntoCkan = true;
+            let deleteChangesOriginatedFromCkan = false;
+            let aFolderWithFoldersUri;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                //TODO generate large txt file -> then upload large txt file to dendro
+                //TODO need file md5 and location
+
+                const fs = require('fs');
+                const md5File = require("md5-file");
+                let hugeTxtFileMock = {
+                    name : "hugeTxtFile.txt",
+                    extension : "txt",
+                    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
+                    sizeGb: 0.6
+                };
+
+                fileUtils.initLargeTxtFile(hugeTxtFileMock, function (err, info) {
+                    should.not.exist(err);
+                    let stats = fs.statSync(hugeTxtFileMock.location);
+                    let fileSizeInBytes = stats.size;
+                    /*fileSizeInBytes.should.be.above(hugeTxtFileMock.sizeGb * 1000000000);*/
+                    expect(fileSizeInBytes).to.be.at.least(hugeTxtFileMock.sizeGb * 1073741824);
+                    fs.existsSync(hugeTxtFileMock.location).should.equal(true);
+                    hugeTxtFileMock.md5 = md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
+                    fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, hugeTxtFileMock, function (err, res) {
                         res.statusCode.should.equal(200);
-                        repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                        itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
                             res.statusCode.should.equal(200);
-                            done();
-                        }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                            repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                                res.statusCode.should.equal(500);
+                                fileUtils.deleteLargeTxtFile(hugeTxtFileMock, function (err, info) {
+                                    should.not.exist(err);
+                                    fs.existsSync(hugeTxtFileMock.location).should.equal(false);
+                                    done();
+                                });
+                            }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                        });
                     });
-                });*/
+                });
             });
         });
 

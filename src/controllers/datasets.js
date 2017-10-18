@@ -690,6 +690,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                                         callback(err, ckanfileEvent);
                                                     }
                                                     else {
+                                                        //TODO Here are the files created in the ckan side-> shall we delete these files
                                                         callback(err, null);
                                                     }
 

@@ -31,7 +31,7 @@ module.exports.uploadFile = function(acceptsJSON, agent, projectHandle, folderNa
 {
     const targetUrl = "/project/" + projectHandle + "/data/" + folderName + "?upload";
 
-    if(acceptsJSON)
+    /*if(acceptsJSON)
     {
         agent
             .post(targetUrl)
@@ -47,6 +47,28 @@ module.exports.uploadFile = function(acceptsJSON, agent, projectHandle, folderNa
         agent
             .post(targetUrl)
             .send({ md5_checksum: file.md5})
+            .attach('file', file.location)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }*/
+
+    if(acceptsJSON)
+    {
+        agent
+            .post(targetUrl)
+            .field("md5_checksum", file.md5)
+            .set("Accept", "application/json")
+            .attach('file', file.location)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(targetUrl)
+            .field("md5_checksum", file.md5)
             .attach('file', file.location)
             .end(function(err, res) {
                 cb(err, res);
@@ -248,10 +270,10 @@ module.exports.initLargeTxtFile = function (largeTxtMock, callback) {
 
     const fs = require('fs');
     let fileSizeInBytes = 0;
-    let largeFileSizeToObtain =  100000000; // 100mb
+    let largeFileSizeToObtain =  largeTxtMock.sizeGb * 1073741824;//bytes in one gb
     let stats;
 
-    let buf = Buffer.from("DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA \n");
+    let buf = Buffer.from("DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATADATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA  DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATADATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA \n");
     let index = 0;
 
     let fd = fs.openSync(largeTxtMock.location, "w");
