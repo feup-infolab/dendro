@@ -9,13 +9,21 @@ angular.module('dendroApp.controllers')
 
             $scope,
             $http,
+            $filter,
             $q,
-            $location,
-            projectsService
+            $log,
+            $sce,
+            focus,
+            preview,
+            $localStorage,
+            $timeout,
+            metadataService,
+            windowService,
+            filesService
         ) {
-
-            $scope.labels = ["Download Sales", "In-Store Sales", "Mail-Order Sales"];
-            $scope.data = [300, 500, 100];
+            $scope.testvar = 2;
+            $scope.labels = ["Download Sales", "In-Store Sales", "Numero de pastas"];
+            $scope.data = [1, 4, 3, $scope.testvar];
             $scope.colours = [ '#803690', '#00ADF9', '#17ed6d'];
 
 
