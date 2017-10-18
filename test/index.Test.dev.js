@@ -15,7 +15,7 @@ global.Config = Config;
 
 global.tests = {};
 
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/storage/B2Drop/b2drop.Test.js"));
 return;
 
 //PUBLIC PROJECT ROOT MKDIR TESTS
