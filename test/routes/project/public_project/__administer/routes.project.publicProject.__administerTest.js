@@ -39,8 +39,8 @@ function requireUncached(module) {
 }
 
 describe("Administer projects", function (done) {
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(Config.testsTimeout);
         createProjectsUnit.setup(function (err, res) {
             should.equal(err, null);
             done();
@@ -170,36 +170,61 @@ describe("Administer projects", function (done) {
 
         it("[HTML] add contributors", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                User.findByUsername(demouser4.username, function(err, user){
-                    var user4data = user;
+                User.findByUsername(demouser3.username, function(err, demouser3object){
                     Project.findByHandle(publicProject.handle, function(err, project){
-                        var contributor = project.dcterms.contributor;
-                        projectUtils.administer(agent, true, {contributors: [contributor, demouser5.username, user4data.uri ]}, publicProject.handle, function(err, res){
+                        should.not.exist(project.dcterms.contributor);
+                        projectUtils.administer(agent, true, {contributors: [demouser3object.uri, demouser4.username, demouser5.username ]}, publicProject.handle, function(err, res){
+                            should.equal(err, null);
+                            res.should.have.status(200);
                             Project.findByHandle(publicProject.handle, function(err, project){
                                 var contributors = project.dcterms.contributor;
                                 contributors.length.should.equal(3);
-                                if(contributors[2].includes(demouser5.username))
-                                    contributors[2].should.contain(demouser5.username);
-                                else contributors[1].should.contain(demouser5.username);
-                                contributors.should.include(user4data.uri);
-                                done();
+
+                                async.map([demouser3.username, demouser4.username, demouser5.username], function(username, callback){
+                                    User.findByUsername(username, callback);
+                                },function(err, users){
+                                    should.not.exist(err);
+
+                                    const demouser3uri = users[0].uri;
+                                    const demouser4uri = users[1].uri;
+                                    const demouser5uri = users[2].uri;
+
+                                    contributors.should.contain(demouser3uri);
+                                    contributors.should.contain(demouser4uri);
+                                    contributors.should.contain(demouser5uri);
+                                    done();
+                                });
                             });
                         });
                     });
                 });
-
             });
         });
 
 
         it("[HTML] remove contributors", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                Project.findByHandle(publicProject.handle, function(err, project){
-                    project.dcterms.contributor.length.should.equal(3);
-                    projectUtils.administer(agent, true, {contributors: [demouser2.username]}, publicProject.handle, function(err, res) {
-                        Project.findByHandle(publicProject.handle, function(err, project) {
-                            project.dcterms.contributor.should.contain(demouser2.username);
-                            done();
+            User.findByUsername(demouser2.username, function(err, user){
+                should.not.exist(err);
+
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                    Project.findByHandle(publicProject.handle, function(err, project){
+                        project.dcterms.contributor.should.be.instanceof(Array);
+                        project.dcterms.contributor.length.should.equal(3);
+                        projectUtils.administer(agent, true, {contributors: [demouser2.username, demouser3.username]}, publicProject.handle, function(err, res) {
+                            Project.findByHandle(publicProject.handle, function(err, project) {
+                                should.not.exist(err);
+                                project.dcterms.contributor.should.be.instanceof(Array);
+                                project.dcterms.contributor.length.should.equal(2);
+
+                                projectUtils.administer(agent, true, {contributors: [demouser2.username]}, publicProject.handle, function(err, res) {
+                                    should.not.exist(err);
+                                    Project.findByHandle(publicProject.handle, function(err, project) {
+                                        should.not.exist(err);
+                                        project.dcterms.contributor.should.equal(user.uri);
+                                        done();
+                                    });
+                                });
+                            });
                         });
                     });
                 });

@@ -1,4 +1,5 @@
 const path = require("path");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -1106,33 +1107,75 @@ exports.administer = function(req, res) {
                         {
                             async.map(req.body.contributors, function (contributor, callback) {
                                 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-                                const regexpUser = Resource.getResourceRegex("user");
+                                const userUriRegexp = Resource.getResourceRegex("user");
+                                const userUsernameRegexp = new RegExp(/^[a-zA-Z0-9_]+$/);
                                 
-                                if (regexpUser.test(contributor))
-                                {
-                                    User.findByUri(contributor, function (err, user) {
+                                let contributorFetcher;
 
-                                        if (isNull(err) && !isNull(user) ) {
-                                            //TODO Check if user already is a contributor so as to not send a notification
-                                            if(user.foaf.mbox)
-                                            {
-                                                notifyContributor(user);
-                                            }
-                                            return callback(null, user.uri);
-                                        } else {
-                                            return callback(true, contributor);
+                                const getUser = function(identifier, callback)
+                                {
+                                    if (!isNull(identifier) && userUriRegexp.test(identifier))
+                                    {
+                                        User.findByUri(identifier, callback);
+                                    }
+                                    else if(!isNull(identifier) && userUsernameRegexp.test(identifier))
+                                    {
+                                        User.findByUsername(identifier, callback);
+                                    }
+                                    else if(!isNull(identifier))
+                                    {
+                                        return callback(true, identifier)
+                                    }
+                                    else
+                                    {
+                                        return callback(null, null);
+                                    }
+                                };
+
+                                const notifyUser = function(user, callback)
+                                {
+                                    if (isNull(err) && !isNull(user) && user instanceof User ) {
+                                        //Check if user already is a contributor so as to not send a notification
+                                        if(user.foaf.mbox && !_.contains(project.dcterms.contributor, user.uri))
+                                        {
+                                            notifyContributor(user);
                                         }
-                                    });
-                                }
-                                else
-                                {
-                                    return callback(true, contributor)
-                                }
+                                        return callback(null, user.uri);
+                                    } else {
+                                        return callback(true, contributor);
+                                    }
+                                };
 
+                                getUser(contributor, function(err, user){
+                                    if(isNull(err))
+                                    {
+                                        if(!isNull(user) && user instanceof User)
+                                        {
+                                            notifyUser(user, callback);
+                                        }
+                                        else
+                                        {
+                                            callback(true, "User " + contributor + " not found.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        callback(err, user);
+                                    }
+                                });
                             }, function(err, contributors){
                                if(isNull(err)){
-                                    project.dcterms.contributor = contributors;
-                                    return callback(null, project);
+                                   //all users were invalid
+                                   if(_.without(contributors, null).length === 0)
+                                   {
+                                       return callback(true, project);
+                                   }
+                                   else //some were invalid but others are ok, lets ignore the wrong ones and save the valid ones.
+                                   {
+                                       project.dcterms.contributor = _.without(contributors, null);
+                                       return callback(null, project);
+                                   }
+
                                 }
                                 else
                                 {
@@ -1174,7 +1217,14 @@ exports.administer = function(req, res) {
                         }
                         else
                         {
-                            viewVars.error_messages = [project];
+                            if(project instanceof Array)
+                            {
+                                viewVars.error_messages = project;
+                            }
+                            else
+                            {
+                                viewVars.error_messages = [project];
+                            }
 
                             sendResponse(
                                 "projects/administration/administer",
