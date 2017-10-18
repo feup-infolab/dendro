@@ -18,23 +18,39 @@ angular.module('dendroApp.controllers')
             $scope.data = [300, 500, 100];
             $scope.colours = [ '#803690', '#00ADF9', '#17ed6d'];
 
-            $scope.new_project = {
-                "privacy" : "private"
-            };
-
-            $scope.create_project = function (new_project) {
-                projectsService.create_new_project(new_project)
-                    .then(function (result) {
-
-                        var newURL = $scope.get_host() + "/projects/my";
-                        window.location.href= newURL;
-                        $scope.show_popup("success", "Success", "Project created");
 
 
-                    })
-                    .catch(function (error) {
-                        $scope.show_popup("error", "Error", error.message);
-                    });
+            $scope.get_project_stats = function()
+            {
+                function getStats(uri)
+                {
+                    filesService.get_stats(uri)
+                        .then(function(response)
+                        {
+                            $scope.shared.project_stats = response.data;
+                        });
+                };
+
+                if($scope.showing_project_root())
+                {
+                    getStats($scope.get_calling_uri());
+                }
+                else
+                {
+                    $scope.get_owner_project()
+                        .then(function(ownerProject)
+                        {
+                            if(ownerProject != null)
+                            {
+                                getStats(ownerProject.uri);
+                            }
+                        })
+                        .catch(function(e){
+                            console.error("Unable to fetch parent project of the currently selected file.");
+                            console.error(JSON.stringify(e));
+                            windowService.show_popup("error", "Error", e.statusText);
+                        });
+                }
             };
 
         });
