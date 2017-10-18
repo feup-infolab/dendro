@@ -1083,9 +1083,9 @@ export_to_repository_ckan = function (req, res) {
                             });
                         }
                         else {
-                            let msg = "Error uploading files in the dataset to CKAN.";
+                            let msg = "Error uploading files in the dataset to CKAN: " + JSON.stringify(response);
                             console.error(msg);
-                            callback(err, response, null);
+                            callback(err, response, msg);
                             deleteFolderRecursive(parentFolderPath);
                         }
                     }, overwrite, extraFiles);
@@ -1512,7 +1512,7 @@ export_to_repository_ckan = function (req, res) {
                                     callback(null, packageId, resultInfo);
                                 }
                                 else {
-                                    const msg = "Error exporting package to CKAN: " + JSON.stringify(err);
+                                    const msg = "Error exporting package to CKAN: " + JSON.stringify(finalMsg);
                                     let errorInfo = {
                                         msg: msg,
                                         statusCode: 500
