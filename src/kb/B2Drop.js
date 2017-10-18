@@ -1,232 +1,308 @@
+let request = require('request');
+request = request.defaults({jar: true});
+const cheerio = require('cheerio');
+const qs = require('querystring');
+
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const createClient = require("webdav");
+
+//DEBUG OPTION
+//require('request').debug = true
 
 //TO CHECK HTTP ERROR  error.status
 
+const Uri = {
+    loginUri: 'https://b2drop.eudat.eu/login',
+    logoutUri: 'https://b2drop.eudat.eu/logout',
+    shareLinkRequest: 'https://b2drop.eudat.eu/ocs/v2.php/apps/files_sharing/api/v1/shares',
+    webdavUri: 'https://b2drop.eudat.eu/public.php/webdav'
+}
 
+function B2Drop(username, password) {
 
-function B2Drop(host,username,password,callback) {
     let self = this;
 
-    self.host = host;
     self.username = username;
     self.password = password;
+    self.cookie = request.jar();
 
-    self.connection =  createClient(
-        self.host,
-        self.username,
-        self.password
-    );
 };
 
-B2Drop.prototype.open = function (callback) {
-    //let self = this;
-};
+B2Drop.prototype.login = function(callback) {
 
-//TODO
-B2Drop.prototype.close = function (callback) {
-    self.connection = null;
-};
+    let self = this;
 
-
-B2Drop.prototype.put = function (fileUri, inputStream, callback) {
-    const self = this;
-
-    self.connection.putFileContents(fileUri, inputStream)
-        .then( function () {
-	    console.log("path sucs");
-            return callback(null);
-        })
-        .catch(function(err) {
-	    console.log("path error");
-            return callback(1,err);
-        })
-
-}
-
-B2Drop.prototype.get = function (fileUri, outputStream,callback) {
-    const self = this;
-
-    self.connection
-        .getFileContents(fileUri)
-        .then( function(data) {
-            outputStream = data;
-            return callback(null);
-        })
-        .catch(function(err) {
-           return callback(1,err);
-        })
-}
-
-B2Drop.prototype.delete = function (fileUri, callback) {
-    const self = this;
-    self.connection.delete(fileUri)
-        .then(function () {
-            return callback(null);
-        })
-        .catch(function (err) {
-            return callback(1,err);
-        })
-}
-
-
-module.exports = B2Drop;
-
-
-/**TESTES*/
-
-var fs = require("fs");
-
-/*
-var temp = new B2Drop("https://b2drop.eudat.eu/remote.php/webdav/","up201404178@fe.up.pt","xdlol24PSD");
-
-*/
-
-var temp = new B2Drop("https://b2drop.eudat.eu/ocs/v2.php/apps/files_sharing/api/v1/shares?format=json", "","");
-//temp.open();
-
-/*
-temp.connection.getDirectoryContents("/")
-    .then(function(contents) {
-        console.log(JSON.stringify(contents, undefined, 4));
-    })
-    .catch(function (error) {
-        console.log(error);
-    });
-*/
-
-/*var inputstream = fs.createReadStream('file.txt');
-
-inputstream.on('open', function () {
-    temp.put("file.txt",inputstream, function (err, info) {
-            console.log("UP complete");
-            console.log(err , info);
-            console.log(info);
-            inputstream.close();
-        });
-})/*
-
-
-
-var outputStream = fs.createWriteStream('file.txt');
-
-//401 test ,, switch password
-/*
-outputStream.on('open', function () {
-    temp.get("file.txt",outputStream,function (data) {
-            console.log("DOWN complete");
-        });
-})
-*/
-//404
-/*
-outputStream.on('open', function () {
-    temp.get("freild.txt",outputStream,function (data) {
-        console.log("DOWN complete");
-    });
-})
-*/
-
-
-
-var request = require('request');
-request = request.defaults({jar: true});
-//require('request').debug = true
-
-const cheerio = require('cheerio');
-
-var qs = require('querystring');
-
-
-
-var cookie = request.jar();
-
-var formDataPOST = {
-    password:'',
-    passwordChanged: 'false',
-    permission: '31',
-    expirteDate:'',
-    shareType: '3',
-    path : '/Documents'
-};
-
-//LOGIN
-request.get({
-        url: 'https://b2drop.eudat.eu/login',
-        auth: {
-            user: 'up201404178@fe.up.pt',
-            pass: 'xdlol24PSD'
-        },
-        headers : {
-            jar: cookie
-        }
-    },
-    function (error, response, body) {
-       // console.log('body',body);
-
-        const $ = cheerio.load(body);
-        var token = $('head').attr('data-requesttoken');
-        console.log('token',token);
-
-        var queryString = qs.stringify({
-            format : 'json',
-            password:'',
-            passwordChanged: 'false',
-            permission: '31',
-            expirteDate:'',
-            shareType: '3',
-            path : '/Documents'
-        });
-        //GET SHARE LINK
-        request.post({
-                url: 'https://b2drop.eudat.eu/ocs/v2.php/apps/files_sharing/api/v1/shares' + '?' + queryString,
-                headers: {
-                    jar: cookie,
-                    requesttoken: token
-                   // formData: formDataPOST
-                }
+    request.get({
+            url: Uri.loginUri,
+            auth: {
+                user: self.username,
+                pass: self.password
             },
-            function (error, response, body) {
-                console.log('error:', error); // Print the error if one occurred
-                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-              //  console.log('body',body);
+            headers : {
+                jar: self.cookie,
+            }
+        },
+        function (error, response,body) {
+                if(isNull(error) && response && response.statusCode === 200) {
+                    const $ = cheerio.load(body);
+                    self.requesttoken = $('head').attr('data-requesttoken');
+                }
+                return callback(error,response);
+    });
+};
 
-                queryString = qs.stringify({
-                    format: 'json',
-                    path: '/Documents',
-                    reshares: 'true'
-                })
+B2Drop.prototype.logout = function(callback) {
 
-                request.get({
-                        url: 'https://b2drop.eudat.eu/ocs/v2.php/apps/files_sharing/api/v1/shares' + '?' + queryString,
-                        headers: {
-                            jar: cookie,
-                            requesttoken: token
+    let self = this;
+
+    request.get({
+            url: Uri.logoutUri,
+            headers : {
+                requesttoken: self.requesttoken
+            }
+        },
+        function (error, response) {
+            if(isNull(error) && response && response.statusCode === 200 )
+                self.cookie = null;
+            return callback(error,response);
+        }
+    )
+}
+
+B2Drop.prototype.changeFolderSetting = function (folderUri, folderID, setting, callback) {
+
+    let self = this;
+
+    var queryString;
+
+    request.put({
+            url: Uri.shareLinkRequest + '/' + folderID + '?format=json' ,
+            headers: {
+                jar: self.cookie,
+                requesttoken: self.requesttoken
+            },
+            form: setting
+        },
+        function (error, response) {
+            //TODO check error
+            queryString = qs.stringify( {
+                format: 'json',
+                path: folderUri,
+                reshares: 'true'
+            })
+
+            request.get({
+                    url: Uri.shareLinkRequest + '?' + queryString,
+                    headers: {
+                        jar: self.cookie,
+                        requesttoken: self.requesttoken
+                    }
+                },
+                function (error, response) {
+                    return callback(null, response);
+                });
+        });
+}
+
+B2Drop.prototype.getShareLink = function (folderUri, password, callback) {
+    let self = this;
+
+    var queryString = qs.stringify( {
+        format: 'json',
+        password: '',
+        passwordChanged: 'false',
+        permission: '31',
+        expireDate: '',
+        shareType: '3',
+        path: folderUri
+    });
+
+
+    request.post({
+            url: Uri.shareLinkRequest + '?' + queryString,
+            headers: {
+                jar: self.cookie,
+                requesttoken: self.requesttoken
+            }
+        },
+        function (error, response) {
+
+            if (!isNull(error)) {
+                return callback(error, response);
+            }
+
+            queryString = qs.stringify({
+                format: 'json',
+                path: folderUri,
+                reshares: 'true'
+            })
+
+            request.get({
+                    url: Uri.shareLinkRequest + '?' + queryString,
+                    headers: {
+                        jar: self.cookie,
+                        requesttoken: self.requesttoken
+                    }
+                },
+                function (error, response, body) {
+                    if (!isNull(error) || (response && response.statusCode != 200)) {
+                        return callback(error, response, null)
+                    }
+                    else {
+                        var info = JSON.parse(body);
+                        const url = info.ocs.data[0].url;
+                        const folderID = info.ocs.data[0].id;
+
+                        self.changeFolderSetting(folderUri, folderID, {permissions: '15'}, function (err, response) {
+                            if (!isNull(error) || (response && response.statusCode != 200)) {
+                                return callback(error, response, url)
+                            }
+                            self.changeFolderSetting(folderUri, folderID, {password: password}, function (err, response) {
+                                return callback(err, response,url);
+                            });
+                        });
+
+                    }
+            });
+        });
+};
+
+B2Drop.prototype.initiateWebDavShareLink = function(sharelink,password,callback) {
+    //TODO url check
+    let self = this;
+    self.authentication = Buffer.from(sharelink.split("/s/")[1] + ':null','latin1').toString('base64');
+
+
+    self.connection = createClient(
+        Uri.webdavUri,
+        sharelink.split("/s/")[1] ,
+        password
+    );
+
+    request.get({
+            url: sharelink + '/authenticate',
+            headers : {
+                jar: self.cookie,
+            }
+        },
+        function (error, response,body) {
+            if(isNull(error) && response && response.statusCode === 200) {
+                const $ = cheerio.load(body);
+                self.requesttokenShareLink = $('head').attr('data-requesttoken');
+
+                request.post({
+                        url: sharelink + '/authenticate',
+                        headers : {
+                            jar: self.cookie,
+                        },
+                        formData: {
+                            requesttoken: self.requesttokenShareLink,
+                            password: password
                         }
                     },
-                    function (error, response, body) {
-                        console.log('error:', error); // Print the error if one occurred
-                        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+                    function (err, resp) {
+                    return callback(err,resp);
+                })
+            }
+            else {
+                return callback(error,response);
+            }
+        });
+};
 
-                        var info =  JSON.parse(body);
-                        console.log('url', info.ocs.data[0].url);
-
-                        request.get({
-                            url:"https://b2drop.eudat.eu/logout",
-                            headers: {
-                                requesttoken: token
-                            }
-                        },
-                            function (error, response, body) {
-                                console.log('error:', error); // Print the error if one occurred
-                                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                               // console.log('body', body);
-                            }
-                        )
-                    }// Print the HTML for the Google homepage.
-                )
-            }// Print the HTML for the Google homepage.
-        )
-    }// Print the HTML for the Google homepage.
-)
+B2Drop.prototype.getDirectoryContents = function    (folderPath, callback) {
 
 
+    let self = this;
+
+
+    self.connection.getDirectoryContents(folderPath, {
+        headers: {
+            requesttoken: self.requesttokenShareLink,
+            auth : "Basic" + self.authentication,
+
+        }
+    })
+        .then(function(contents) {
+            console.log(JSON.stringify(contents, undefined, 2));
+            return callback(null,contents);
+        },
+              function(error) {
+
+            console.log(error);
+            return callback(error,null);
+
+            }
+        );
+
+}
+
+B2Drop.prototype.put = function (fileUri, inputStream, callback) {
+        let self = this;
+
+       self.connection.putFileContents(fileUri,inputStream,
+           {
+            headers: {
+                jar: self.cookie,
+                requesttoken: self.requesttokenShareLink,
+                auth : "Basic" + self.authentication,
+                overwrite: "true",
+            }
+           })
+            .then(function(value) {
+            // sucesso
+                console.log("succ");
+                return callback(null, value);
+                }, function(motive) {
+            // rejeitada
+                console.log(motive);
+                return callback(1,motive);
+            });
+}
+
+B2Drop.prototype.get = function (fileUri, outputStream, callback) {
+        const self = this;
+
+        self.connection
+            .getFileContents(fileUri,
+                {
+                    headers: {
+                        jar: self.cookie,
+                        requesttoken: self.requesttokenShareLink,
+                        auth: "Basic" + self.authentication,
+                        overwrite: "true"
+                    }
+                }
+            )
+            .then(function (data) {
+                outputStream = data;
+                return callback(null);
+            }, function(error) {
+                return callback(error);
+            })
+
+    }
+
+B2Drop.prototype.delete = function (fileUri, callback) {
+        const self = this;
+        self.connection.delete(fileUri,  {
+            headers: {
+                jar: self.cookie,
+                requesttoken: self.requesttokenShareLink,
+                auth: "Basic" + self.authentication,
+                overwrite: "true"
+            }
+        })
+            .then(function(value) {
+                // sucesso
+                console.log("succ");
+                return callback(null, value);
+            }, function(motive) {
+                // rejeitada
+                console.log(motive);
+                return callback(1,motive);
+            });
+}
+
+
+module.exports.B2Drop = B2Drop;
