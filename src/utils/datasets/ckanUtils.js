@@ -341,6 +341,32 @@ const calculateCkanRepositoryDiffs = function (requestedResourceUri, targetRepos
 
 //------CKAN UTILS FOR EXPORT_TO_CKAN-----------
 
+const validateChangesPermissions = function(checkPermissionsDictionary, permissionsToCheck, callback) {
+    let validated = false;
+    async.map(permissionsToCheck, function (permission, cb) {
+        if(!checkPermissionsDictionary[permission])
+        {
+            const msg = "Missing the permission: " + permission;
+            cb(true, msg);
+        }
+        else
+        {
+            validated = true;
+            cb(false, validated);
+        }
+    }, function (err, results) {
+        if(isNull(err))
+        {
+            validated = true;
+            callback(err, validated);
+        }
+        else
+        {
+            callback(err, JSON.stringify(results));
+        }
+    });
+};
+
 const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, client, callback) {
     client.action("package_show",
         {
@@ -491,6 +517,7 @@ const checkResourceTypeAndChildren = function (resourceUri, callback) {
 };
 
 module.exports = {
+    validateChangesPermissions: validateChangesPermissions,
     checkResourceTypeAndChildren: checkResourceTypeAndChildren,
     deleteResourceInCkan: deleteResourceInCkan,
     updateOrInsertExportedAtByDendroForCkanDataset: updateOrInsertExportedAtByDendroForCkanDataset,

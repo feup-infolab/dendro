@@ -584,32 +584,6 @@ export_to_repository_ckan = function (req, res) {
             });
         };
 
-        const validateChangesPermissions = function(permissionsToCheck, callback) {
-            let validated = false;
-            async.map(permissionsToCheck, function (permission, cb) {
-                if(!checkPermissionsDictionary[permission])
-                {
-                    const msg = "Missing the permission: " + permission;
-                    cb(true, msg);
-                }
-                else
-                {
-                    validated = true;
-                    cb(false, validated);
-                }
-            }, function (err, results) {
-                if(isNull(err))
-                {
-                    validated = true;
-                    callback(err, validated);
-                }
-                else
-                {
-                    callback(err, JSON.stringify(results));
-                }
-            });
-        };
-
         if (!isNull(req.body.repository) && !isNull(req.body.repository.ddr)) {
             const organization = req.body.repository.ddr.hasOrganization;
 
@@ -660,7 +634,7 @@ export_to_repository_ckan = function (req, res) {
                     });
                 },
                 function (toCheck, callback) {
-                    validateChangesPermissions(toCheck, function (err, resultOfPermissions) {
+                   CkanUtils.validateChangesPermissions(checkPermissionsDictionary, toCheck, function (err, resultOfPermissions) {
                         if(isNull(err))
                         {
                             callback(err, resultOfPermissions);
