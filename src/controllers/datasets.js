@@ -937,14 +937,7 @@ export_to_repository_ckan = function (req, res) {
                         },
                         function (err, info) {
                             if (isNull(err)) {
-                                const slug = require('slug');
-                                //var slugifiedTitle = slug(folder.dcterms.title, "-");
-                                let packageId = slug(folder.uri, "-");
-
-                                //ckan only accepts alphanumeric characters and dashes for the dataset ids
-                                //slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
-                                packageId = packageId.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
-
+                                let packageId = CkanUtils.createPackageID(folder.uri);
                                 folder.createTempFolderWithContents(true, true, true, function (err, parentFolderPath, absolutePathOfFinishedFolder, datasetFolderMetadata) {
                                     if (isNull(err)) {
                                         createPackage(parentFolderPath, folder, function (err, files, extraFiles) {

@@ -152,6 +152,8 @@ const getExportedAtByDendroForCkanDataset = function (packageID, client, callbac
 };
 
 const createPackageID = function (resourceUri) {
+    //ckan only accepts alphanumeric characters and dashes for the dataset ids
+    //slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
     if (isNull(resourceUri)) {
         return null;
     }
