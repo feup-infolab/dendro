@@ -433,74 +433,6 @@ export_to_repository_ckan = function (req, res) {
             });
         };
 
-        const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, client, callback) {
-            client.action("package_show",
-                {
-                    id: packageID
-                },
-                function (err, result) {
-                    if (result.success) {
-                        //call package_update with the new date to update the exportedAt
-                        //returns the index where the property is located, if the property does not exist returns -1
-                        let resultIndex = _.findIndex(result.result.extras, function (extra) {
-                            return extra.key === Elements.ddr.exportedAt.uri + "exportedAt"
-                        });
-                        console.log("The index is: " + resultIndex);
-
-                        let dendroExportedAt = {
-                            "key": Elements.ddr.exportedAt.uri + "exportedAt",
-                            "value": new Date().toISOString()
-                        };
-
-                        if (resultIndex === -1) {
-                            //this is the first time that dendro is exporting this dataset to ckan
-                            result.result.extras.push(dendroExportedAt);
-                        }
-                        else {
-                            //this is not the first time that dendro is exporting this dataset to ckan
-                            //lets update the exportDate
-                            result.result.extras[resultIndex] = dendroExportedAt;
-                        }
-
-                        client.action(
-                            "package_update",
-                            result.result,
-                            function (err, result) {
-                                if (result.success) {
-                                    console.log("exportedAt was updated/created in ckan");
-                                    callback(err, result);
-                                }
-                                else {
-                                    console.error("Error updating/creating exportedAt in ckan");
-                                    callback(err, result);
-                                }
-                            }
-                        );
-                    }
-                    else {
-                        callback(err, result);
-                    }
-                });
-        };
-
-
-        const deleteResourceInCkan = function (resourceID, packageID, client, callback) {
-            client.action("resource_delete",
-                {
-                    id: resourceID
-                },
-                function (err, result) {
-                    if (result.success) {
-                        console.log("The resource with id: " + resourceID + " was deleted");
-                        callback(err, result);
-                    }
-                    else {
-                        callback(err, result);
-                    }
-                });
-        };
-
-
         const createPackageInCkan = function (parentFolderPath, extraFiles, packageData, datasetFolderMetadata, packageId, client, callback) {
             client.action(
                 "package_create",
@@ -512,7 +444,7 @@ export_to_repository_ckan = function (req, res) {
                                 const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
                                 const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/>";
 
-                                updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
+                               CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
                                     console.log(err);
                                     if (isNull(err)) {
                                         /*res.json(
@@ -603,11 +535,11 @@ export_to_repository_ckan = function (req, res) {
                             const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
                             const finalMsg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten.";
 
-                            updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
+                           CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
                                 if (isNull(err)) {
                                     async.map(diffs.dendroDiffs, function (dendroDiff, cb) {
                                         if (dendroDiff.event === "deleted_in_local") {
-                                            deleteResourceInCkan(dendroDiff.id, packageId, client, function (err, result) {
+                                           CkanUtils.deleteResourceInCkan(dendroDiff.id, packageId, client, function (err, result) {
                                                 cb(err, result);
                                             });
                                         }
@@ -678,95 +610,12 @@ export_to_repository_ckan = function (req, res) {
             });
         };
 
-        const checkResourceTypeAndChildren = function (resourceUri, callback) {
-            Folder.findByUri(resourceUri, function (err, folder) {
-                if(isNull(err))
-                {
-                    if(isNull(folder))
-                    {
-                        let errorInfo = {
-                            message : "The folder to export does not exist in Dendro. Are you sure you selected a folder?",
-                            statusCode: 404
-                        };
-                        callback(true, errorInfo);
-                    }
-                    else
-                    {
-                        let includeSoftDeletedChildren = false;
-                        folder.getChildrenRecursive(function (err, children) {
-                            if(isNull(err))
-                            {
-                                if(isNull(children) || children.length <= 0)
-                                {
-                                    let errorInfo = {
-                                        message : "Error, you cannot export an empty folder to Ckan",
-                                        statusCode: 412
-                                    };
-                                    callback(true, errorInfo);
-                                }
-                                else
-                                {
-                                    //TODO check if all of the children is of type file
-                                    /*callback(err, children);*/
-                                    async.mapSeries(children, function(child, cb) {
-                                        Folder.findByUri(child.uri, function (err, folder) {
-                                            if(isNull(err))
-                                            {
-                                                if(isNull(folder))
-                                                {
-                                                    cb(err, folder);
-                                                }
-                                                else
-                                                {
-                                                    let errorInfo = {
-                                                        message : "Error, you can only export folders that have files and not folders.",
-                                                        statusCode: 412
-                                                    };
-                                                    return callback(true, errorInfo);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                let errorInfo = {
-                                                    message : "Error when looking for information about a folder child. Child: " + child.uri + " error: " + JSON.stringify(folder),
-                                                    statusCode: 500
-                                                };
-                                                return callback(true, errorInfo);
-                                            }
-                                        });
-                                    }, function (err, results) {
-                                        callback(err, children);
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                let errorInfo = {
-                                    message : "Error when searching for folder " + resourceUri  + " children: " +  JSON.stringify(children),
-                                    statusCode: 500
-                                };
-                                callback(err, errorInfo);
-                            }
-                        }, includeSoftDeletedChildren);
-                    }
-                }
-                else
-                {
-                    let errorInfo = {
-                        message : "Error when searching for the folder to export in Dendro: " + JSON.stringify(folder),
-                        statusCode: 500
-                    };
-                    callback(err, errorInfo);
-                }
-            });
-        };
-
         if (!isNull(req.body.repository) && !isNull(req.body.repository.ddr)) {
             const organization = req.body.repository.ddr.hasOrganization;
 
             async.waterfall([
                 function (callback) {
-                    checkResourceTypeAndChildren(requestedResourceUri, function (err, info) {
+                   CkanUtils.checkResourceTypeAndChildren(requestedResourceUri, function (err, info) {
                         if(isNull(err))
                         {
                             callback(err, info);
