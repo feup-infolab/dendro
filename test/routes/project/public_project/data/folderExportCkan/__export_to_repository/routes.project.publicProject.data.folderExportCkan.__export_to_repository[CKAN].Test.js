@@ -19,7 +19,7 @@ const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
+const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
@@ -163,7 +163,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(412);
                     res.body.message.should.contain("Missing the permission: dendroDiffs");
-                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                    ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
                         should.not.exist(err);
                         uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
                             return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
@@ -182,7 +182,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(200);
-                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                    ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
                         should.not.exist(err);
                         uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
                             return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
@@ -210,7 +210,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                             res.statusCode.should.equal(412);
                             res.body.message.should.contain("Missing the permission: dendroDiffs");
                             //CHECKS THAT THE FILE IS STILL IN CKAN BECAUSE THE USER GAVE NO PERMISSIONS in propagateDendroChangesIntoCkan
-                            ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                            ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
                                 should.not.exist(err);
                                 uploadedAndDeletedFileInDendroDataInDB = null;
                                 uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
@@ -232,7 +232,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(200);
                     //CHECKS THAT THE FILE WAS DELETED IN CKAN BECAUSE OF THE USER PERMISSIONS in propagateDendroChangesIntoCkan
-                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                    ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
                         should.not.exist(err);
                         uploadedAndDeletedFileInDendroDataInDB = null;
                         uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
@@ -254,7 +254,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     res.statusCode.should.equal(412);
                     res.body.message.should.contain("Missing the permission: ckanDiffs");
                     //uploadedFileToCkan should still be in ckan
-                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanCkanDiffsData, function (err, res) {
+                    ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanCkanDiffsData, function (err, res) {
                         should.not.exist(err);
                         uploadedFileToCkanDataInDb = null;
                         uploadedFileToCkanDataInDb = _.find(res, function (resourceInCkan) {

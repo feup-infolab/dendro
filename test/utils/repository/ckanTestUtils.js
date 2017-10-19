@@ -1,8 +1,10 @@
+const Pathfinder = global.Pathfinder;
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 /*const CKAN = require("ckan.js");*/
 /*const CKAN = require("ckan");*/
 const CKAN = require("C:\\Users\\Utilizador\\Desktop\\InfoLab\\ckanModuleRepo\\ckan.js");
+const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const async = require("async");
 const slug = require('slug');
 chai.use(chaiHttp);
@@ -121,9 +123,7 @@ const uploadFileToCkanPackage = function (jsonOnly, agent, ckanRepoData, fileDat
 
 const getCkanFolderContents = function (jsonOnly, agent, ckanRepoData, folderData, cb) {
     const client = new CKAN.Client(ckanRepoData.repository.ddr.hasExternalUri, ckanRepoData.repository.ddr.hasAPIKey);
-    let packageId = slug(folderData.uri, "-");
-    //ckan only accepts alphanumeric characters and dashes for the dataset ids
-    packageId = packageId.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+    let packageId = CkanUtils.createPackageID(folderData.uri);
     client.action("package_show",
         {
             id: packageId

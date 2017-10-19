@@ -19,7 +19,8 @@ const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.
 const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
+const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
+const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -203,12 +204,11 @@ describe("Calculate private project folderExportCkan level ckan respository diff
         //A case where a folder was exported to ckan and then files were uploaded on the ckan app
         it("Should give a success message with information that ckan diffs exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                let id = slug(folderExportedCkanCkanDiffsData.uri, "-");
-                let packageId = id.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+                let packageId = CkanUtils.createPackageID(folderExportedCkanCkanDiffsData.uri);
                 let packageInfo = {
                     id: packageId
                 };
-                ckanUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, pdfMockFile, packageInfo, function (err, res) {
+                ckanTestUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, pdfMockFile, packageInfo, function (err, res) {
                     repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                         res.statusCode.should.equal(200);
                         res.body.ckanDiffs.length.should.equal(1);
