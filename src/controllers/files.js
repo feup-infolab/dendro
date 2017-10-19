@@ -12,6 +12,7 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 const FileSystemPost = require(Pathfinder.absPathInSrcFolder("/models/social/fileSystemPost.js")).FileSystemPost;
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const async = require("async");
 

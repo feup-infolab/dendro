@@ -51,7 +51,7 @@ describe("metadata project recent changes", function () {
 
             projectUtils.getProjectRecentChanges(true, agent, metadataProject.handle, function (err, res) {
                 res.should.have.status(200);//because the project is metadata only
-                res.body.length.should.equal(4);
+                res.body.length.should.equal(9);
                 done();
             });
         });
@@ -76,7 +76,7 @@ describe("metadata project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, metadataProject.handle, function (err, res) {
                     res.should.have.status(200);//because the project is metadata only
-                    res.body.length.should.equal(4);
+                    res.body.length.should.equal(9);
                     done();
                 });
             });
@@ -87,7 +87,7 @@ describe("metadata project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, metadataProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(4);
+                    res.body.length.should.equal(9);
                     done();
                 });
             });
@@ -98,7 +98,7 @@ describe("metadata project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, metadataProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(4);
+                    res.body.length.should.equal(9);
                     done();
                 });
             });

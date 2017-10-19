@@ -105,7 +105,7 @@ Ontology.all = function(callback)
         "   ?uri rdf:type ddr:Ontology . \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -133,32 +133,31 @@ Ontology.initAllFromDatabase = function(callback)
 
     const recreateOntologiesInDatabase = function (ontologiesArray, callback) {
         const checkForOntology = function (ontologyObject, callback) {
-            Ontology.findByUri(ontologyObject.uri, function (err, ontology) {
-                if (err) {
-                    console.log("Error occurred when searching for ontology with URI : " + ontologyObject.uri + ". Error description : " + JSON.stringify(ontology));
-                }
 
-                return callback(err, ontology);
-            });
         };
 
         const createOntologyRecordInDatabase = function (ontologyObject, callback) {
-            const newOntology = new Ontology(ontologyObject);
 
-            newOntology.save(function (err, result) {
-                return callback(err, result);
-            });
         };
 
         async.mapSeries(ontologiesArray, function (ontologyObject, callback) {
-            checkForOntology(ontologyObject, function (err, ontology) {
-                if (isNull(ontology)) {
-                    createOntologyRecordInDatabase(ontologyObject, function (err, result) {
-                        return callback(err, result);
+            Ontology.exists(ontologyObject.uri, function (err, ontologyExists) {
+                if (err) {
+                    console.log("Error occurred when searching for ontology with URI : " + ontologyObject.uri + ". Error description : " + JSON.stringify(ontologyExists));
+                }
+
+                if(ontologyExists)
+                {
+                    Ontology.findByUri(ontologyObject.uri, function(err, ontologyInDatabase){
+                        return callback(err, ontologyInDatabase);
                     });
                 }
-                else {
-                    return callback(null, null);
+                else
+                {
+                    const newOntology = new Ontology(ontologyObject);
+                    newOntology.save(function (err, result) {
+                        return callback(err, result);
+                    });
                 }
             });
         }, function (err, results) {
@@ -218,7 +217,7 @@ Ontology.initAllFromDatabase = function(callback)
         };
         const addDescriptorValidationData = function (ontology, callback) {
             const getAlternativesForDescriptor = function (elementUri, callback) {
-                db.connection.execute(
+                db.connection.executeQuery(
                     "WITH [0] \n" +
                     "SELECT ?alternative \n" +
                     "WHERE \n" +
@@ -260,7 +259,7 @@ Ontology.initAllFromDatabase = function(callback)
             };
 
             const getRegexForDescriptor = function (elementUri, ontologyUri, callback) {
-                db.connection.execute(
+                db.connection.executeQuery(
                     "WITH [0] \n" +
                     "SELECT ?regex \n" +
                     "WHERE \n" +
@@ -742,7 +741,7 @@ Ontology.autocomplete_research_domains = function(query, callback)
         "   FILTER regex(?domain, [1] , \"i\"). \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -793,7 +792,7 @@ Ontology.findByPrefix = function(prefix, callback)
         "   ?uri ddr:hasPrefix [1] \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type: Elements.types.resourceNoEscape,

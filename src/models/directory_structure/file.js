@@ -1185,7 +1185,7 @@ File.prototype.moveToFolder = function(newParentFolder, callback)
         "} " +
         "}; ";
 
-    db.connection.execute(query,
+    db.connection.executeStatement(query,
         [
             {
                 type: Elements.types.resourceNoEscape,

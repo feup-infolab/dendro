@@ -308,7 +308,7 @@ Descriptor.findByUri = function(uri, callback)
             " } \n" +
             " LIMIT 1\n";
 
-        db.connection.execute(query,
+        db.connection.executeQuery(query,
             [
                 {
                     type : Elements.types.resourceNoEscape,
@@ -458,7 +458,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
     }
 
 
-    db.connection.execute(query, args,
+    db.connection.executeQuery(query, args,
         function(err, descriptors) {
             if(isNull(err))
             {
@@ -1002,7 +1002,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
         "ORDER BY DESC(?overall_use_count) \n" +
         "LIMIT " + maxResults;
 
-    db.connection.execute(
+    db.connection.executeQuery(
         query,
         argumentsArray,
 
@@ -1098,7 +1098,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
         " } \n" +
         " LIMIT  " + maxResults;
 
-    db.connection.execute(
+    db.connection.executeQuery(
         query,
         argumentsArray,
 

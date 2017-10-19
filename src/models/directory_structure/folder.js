@@ -248,7 +248,7 @@ Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedCh
         "   ?uri nie:title ?name. \n" +
         "} ";*/
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type: Elements.types.resourceNoEscape,

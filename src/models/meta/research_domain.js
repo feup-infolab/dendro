@@ -85,7 +85,7 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         })
     }
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         queryArguments,
         function(err, results)
         {

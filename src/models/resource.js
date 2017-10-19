@@ -106,7 +106,7 @@ Resource.exists = function(uri, callback, customGraphUri)
         }
     }
 
-    db.connection.execute(
+    db.connection.executeQuery(
         "WITH [0]\n"+
         "ASK \n" +
         "WHERE \n" +
@@ -130,12 +130,21 @@ Resource.exists = function(uri, callback, customGraphUri)
         function(err, result) {
             if(isNull(err))
             {
-                return callback(null, result);
+                if(result instanceof Array)
+                {
+                    return callback(null, result.length > 0);
+                }
+                else
+                {
+                    return callback(null, result);
+                }
             }
             else
             {
                 const msg = "Error checking for the existence of resource with uri : " + uri;
                 console.error(msg);
+                console.error(JSON.stringify(err));
+                console.error(JSON.stringify(result));
                 return callback(err, msg);
             }
         });
@@ -214,7 +223,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
         );
     }
 
-    db.connection.execute(
+    db.connection.executeQuery(
         query,
         queryArguments,
         function(err, results) {
@@ -265,7 +274,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
 
     });
 
-    Config.getDBByGraphUri(customGraphUri).connection.execute(
+    Config.getDBByGraphUri(customGraphUri).connection.executeStatement(
             "WITH [0] \n" +
             "DELETE \n" +
             "WHERE " +
@@ -311,8 +320,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
     {
         if(!isNull(valueInPrefixedForm))
         {
-            //TODO CACHE DONE
-            db.connection.execute(
+            db.connection.executeStatement(
                     "WITH [0] \n" +
                     "DELETE \n" +
                     "WHERE " +
@@ -353,8 +361,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
         }
         else
         {
-            //TODO CACHE DONE
-            db.connection.execute(
+            db.connection.executeStatement(
                     "WITH [0] \n" +
                     "DELETE \n" +
                     "WHERE " +
@@ -404,7 +411,7 @@ Resource.prototype.descriptorValue = function(descriptorWithNamespaceSeparatedBy
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-    db.connection.execute(
+    db.connection.executeQuery(
             "WITH [0] \n" +
             "SELECT ?p ?o \n" +
             "WHERE " +
@@ -525,7 +532,7 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
         filterString +
         " } \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         argumentsArray,
         function(err, descriptors) {
             if(isNull(err))
@@ -631,7 +638,7 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
         filterString +
         " } \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         argumentsArray,
         function(err, descriptors) {
             if(isNull(err))
@@ -788,10 +795,6 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
                 {
                     objects = [objects];
                 }
-                else
-                {
-                    objects = objects;
-                }
 
                 for(let j = 0; j < objects.length ; j++)
                 {
@@ -822,26 +825,28 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
         }
 
         const query =
-            "WITH GRAPH [0] \n" +
-            "DELETE \n" +
-            "{ \n" +
-            deleteString + " \n" +
-            "} \n" +
-            "WHERE \n" +
-            "{ \n" +
-            deleteString + " \n" +
-            "}; \n" +
-            "INSERT DATA\n" +
-            "{ \n" +
-            insertString + " \n" +
-            "} \n";
+            [
+                "WITH GRAPH [0] \n" +
+                "DELETE \n" +
+                "{ \n" +
+                deleteString + " \n" +
+                "} \n" +
+                "WHERE \n" +
+                "{ \n" +
+                deleteString + " \n" +
+                "}",
+                "WITH GRAPH [0] \n" +
+                "INSERT DATA\n" +
+                "{ \n" +
+                insertString + " \n" +
+                "} \n"
+            ];
 
         //Invalidate cache record for the updated resources
         Cache.getByGraphUri(graphName).delete(subject, function(err, result){
-            db.connection.execute(query, queryArguments, function(err, results)
+            db.connection.executeStatement(query, queryArguments, function(err, results)
             {
                 return callback(err, results);
-                //console.log(results);
             });
         });
     }
@@ -1228,7 +1233,7 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function(ontologyURIsArr
         fromString = fromString + fromElements.fromString;
     }
 
-    db.connection.execute(
+    db.connection.executeQuery(
             "SELECT ?property ?object\n" +
             " FROM [0] \n"+
             fromString + "\n" +
@@ -1569,7 +1574,7 @@ Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, custo
 
     const getFromTripleStore = function(callback)
     {
-        db.connection.execute(
+        db.connection.executeQuery(
             "SELECT ?uri \n" +
             "FROM [0] \n" +
             "WHERE \n" +
@@ -1658,7 +1663,6 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
         {
             typesArray = [self.prefixedRDFType];
         }
-
 
         Cache.getByGraphUri(customGraphUri).getByQuery(
             {
@@ -1801,10 +1805,14 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                         {
                             if(!isNull(object))
                             {
-                                saveToCache(uri, object);
+                                saveToCache(uri, object, function(err, result){
+                                    cb(err, object);
+                                });
                             }
-
-                            cb(err, object);
+                            else
+                            {
+                                cb(err, object);
+                            }
                         }
                         else
                         {
@@ -2010,7 +2018,7 @@ Resource.findByPropertyValue = function(
                 });
             }
 
-            db.connection.execute(
+            db.connection.executeQuery(
                 "SELECT ?uri \n" +
                 "FROM [0]\n"+
                 "WHERE \n" +
@@ -2244,7 +2252,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
         query = query + " OFFSET " + limit + "\n";
     }
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 value : graphUri,
@@ -2616,7 +2624,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 "[1] [2] [3] ." +
                 "} \n";
 
-            db.connection.execute(query,
+            db.connection.executeQuery(query,
                 [
                     {
                         type: Elements.types.resourceNoEscape,
@@ -2770,7 +2778,7 @@ Resource.prototype.getLogicalParts = function(callback)
             childClass : File
         }
     ], function(argument, callback){
-        db.connection.execute(argument.query,
+        db.connection.executeQuery(argument.query,
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -2978,7 +2986,7 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
 
     async.waterfall([
         function(callback) {
-            db.connection.execute(
+            db.connection.executeQuery(
                     "SELECT (count(?s) as ?c) \n" +
                     "FROM [0] \n" +
                     "WHERE \n" +
@@ -3013,7 +3021,7 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
                 });
         },
         function(randomNumber,callback) {
-            db.connection.execute(
+            db.connection.executeQuery(
                 "SELECT ?s \n"+
                 "FROM [0] \n"+
                 "WHERE \n" +
@@ -3122,7 +3130,7 @@ Resource.deleteAll = function(callback, customGraphUri)
     {
         if (isNull(err))
         {
-            db.connection.execute(
+            db.connection.executeStatement(
                 query,
                 queryArguments,
                 function (err, result)
@@ -3152,7 +3160,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
     const pagedFetchResourcesWithDescriptor = function (descriptor, page, pageSize, callback) {
         const offset = pageSize * page;
 
-        db.connection.execute(
+        db.connection.executeQuery(
             "WITH [0] \n" +
             "SELECT ?uri \n" +
             "WHERE \n" +
@@ -3231,7 +3239,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
     deleteAllCachedResourcesWithDescriptorValue(descriptor, 0, Config.limits.db.pageSize, function(err){
         if(isNull(err))
         {
-            db.connection.execute(
+            db.connection.executeStatement(
                 "WITH [0]\n"+
                 "DELETE \n" +
                 "WHERE \n" +
@@ -3459,7 +3467,7 @@ Resource.getCount = function(callback) {
             typeRestrictions +
         "}\n";
 
-    db.connection.execute(
+    db.connection.executeQuery(
         countQuery,
         queryArguments,
         function(err, count) {

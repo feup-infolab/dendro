@@ -93,7 +93,7 @@
     "virtuosoHost": "192.168.56.249",
     "virtuosoPort": "8890",
     "virtuosoISQLPort": "1111",
-    "virtuosoConnector" : "http",
+    "virtuosoConnector" : "jdbc",
     "virtuosoAuth": {
       "user": "dba",
       "password": "dba"
@@ -117,7 +117,7 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 1073741824,
     "maxProjectSize": 1073741824,
-    "maxSimultaneousConnectionsToDb": 10,
+    "maxSimultaneousConnectionsToDb": 100,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -477,7 +477,7 @@
     "virtuosoHost": "192.168.56.249",
     "virtuosoPort": "8890",
     "virtuosoISQLPort": "1111",
-    "virtuosoConnector" : "http",
+    "virtuosoConnector" : "jdbc",
     "virtuosoAuth": {
       "user": "dba",
       "password": "dba"
@@ -501,7 +501,7 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 1,
+    "maxSimultaneousConnectionsToDb": 100,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -568,7 +568,7 @@
     "debug": {
       "active": true,
       "database": {
-        "log_all_queries": false,
+        "log_all_queries": true,
         "log_all_cache_queries": false,
         "log_query_times": true
       },
@@ -859,7 +859,7 @@
     "virtuosoHost": "127.0.0.1",
     "virtuosoPort": "8890",
     "virtuosoISQLPort": "1111",
-    "virtuosoConnector" : "http",
+    "virtuosoConnector" : "jdbc",
     "virtuosoAuth": {
       "user": "dba",
       "password": "dba"
@@ -883,7 +883,7 @@
     "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 1,
+    "maxSimultaneousConnectionsToDb": 100,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",

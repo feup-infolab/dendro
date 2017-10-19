@@ -44,7 +44,21 @@ function DbConnection (handle, host, port, port_isql, username, password, maxSim
 }
 
 const queryObjectToString = function (query, argumentsArray, callback) {
-    let transformedQuery = query;
+
+    let transformedQuery = "";
+
+    if(query instanceof Array)
+    {
+        for(let i = 0; i < query.length; i++)
+        {
+            transformedQuery += query[i] + "\n";
+            transformedQuery += ";\n"
+        }
+    }
+    else if(typeof query === "string")
+    {
+        transformedQuery = query;
+    }
 
     for (let i = 0; i < argumentsArray.length; i++) {
         const currentArgumentIndex = "[" + i + "]";
@@ -382,7 +396,7 @@ DbConnection.prototype.create = function(callback) {
             function(queryObject, cb){
                 if (Config.debug.active && Config.debug.database.log_all_queries)
                 {
-                    console.log("POSTING QUERY: \n" + queryObject.query);
+                    console.log("--POSTING QUERY: \n" + queryObject.query);
                 }
                 
                 const finishQuery = function(cb, startQueryTime, query)
@@ -656,7 +670,7 @@ DbConnection.prototype.close = function(callback){
 
 };
 
-DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel) {
+DbConnection.prototype.executeQuery = DbConnection.prototype.executeStatement =  function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel) {
     const self = this;
 
     queryObjectToString(queryStringWithArguments, argumentsArray, function(err, query){
@@ -799,7 +813,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback) {
 
             const runQuery = function(callback)
             {
-                self.execute(query,
+                self.executeStatement(query,
                         function(error, results)
                         {
                             if(isNull(error))
@@ -905,7 +919,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback) {
 
         const runQuery = function(callback)
         {
-            self.execute(query, queryArguments, function(err, results)
+            self.executeQuery(query, queryArguments, function(err, results)
             {
                 /**
                  * Invalidate cached records because of the deletion
@@ -1011,7 +1025,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
 
         const runQuery = function(callback)
         {
-            self.execute(query, queryArguments, function(err, results)
+            self.executeStatement(query, queryArguments, function(err, results)
             {
                 return callback(err, results);
             });
@@ -1042,7 +1056,7 @@ DbConnection.prototype.deleteGraph = function(graphUri, callback) {
 
     const runQuery = function(callback)
     {
-        self.execute("CLEAR GRAPH <"+graphUri+">",
+        self.executeStatement("CLEAR GRAPH <"+graphUri+">",
             [],
             function(err, resultsOrErrMessage)
             {
@@ -1074,7 +1088,7 @@ DbConnection.prototype.deleteGraph = function(graphUri, callback) {
 DbConnection.prototype.graphExists = function(graphUri, callback) {
     const self = this;
 
-    self.execute("ASK { GRAPH [0] { ?s ?p ?o . } }",
+    self.executeQuery("ASK { GRAPH [0] { ?s ?p ?o . } }",
         [
             {
                 type : Elements.types.resourceNoEscape,

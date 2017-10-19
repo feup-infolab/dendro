@@ -39,7 +39,7 @@ const getNumLikesForAFileVersion = function(fileVersionUri, cb) {
         "?likeURI ddr:userWhoLiked ?userURI . \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -74,7 +74,7 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) 
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -103,7 +103,7 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) 
                             "[1] ?p ?v \n" +
                             "} \n";
 
-                        db.connection.execute(query,
+                        db.connection.executeStatement(query,
                             DbConnection.pushLimitsArguments([
                                 {
                                     type: Elements.types.resourceNoEscape,
@@ -153,7 +153,7 @@ const getSharesForAFileVersion = function (fileVersionUri, cb) {
         "?shareURI ddr:fileVersionUri [1]. \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -202,7 +202,7 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n ";
 
-            db.connection.execute(query,
+            db.connection.executeQuery(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -285,7 +285,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-            db.connection.execute(query,
+            db.connection.executeQuery(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,

@@ -159,7 +159,7 @@ Project.allNonPrivate = function(currentUser, callback) {
         "} ";
 
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -211,7 +211,7 @@ Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
         "    }\n" +
         "}\n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -261,7 +261,7 @@ Project.findByHandle = function(handle, callback) {
         " ?uri ddr:handle [1] " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
 
             {
@@ -334,7 +334,7 @@ Project.prototype.getCreatorsAndContributors = function(callback)
         "} \n";
 
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -391,7 +391,7 @@ Project.findByContributor = function(contributor, callback)
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -445,7 +445,7 @@ Project.findByCreator = function(creator, callback) {
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -504,7 +504,7 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -612,7 +612,7 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback) {
         "   } \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -717,7 +717,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 
     //query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -807,7 +807,7 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -867,7 +867,7 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -984,7 +984,7 @@ Project.prototype.getFilesCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -1035,7 +1035,7 @@ Project.prototype.getMembersCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -1085,7 +1085,7 @@ Project.prototype.getFoldersCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -1133,7 +1133,7 @@ Project.prototype.getRevisionsCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeQuery(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -1255,7 +1255,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "		   	) \n" +
     "		} \n";
 
-    db.connection.execute(
+    db.connection.executeQuery(
         query,
         argumentsArray,
         function(err, descriptors)
@@ -1389,7 +1389,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "		   	) \n" +
         "		} \n";
 
-    db.connection.execute(
+    db.connection.executeQuery(
         query,
         argumentsArray,
         function(err, descriptors)
@@ -1754,7 +1754,7 @@ Project.prototype.clearCacheRecords = function(callback, customGraphUri)
 
         findQuery = DbConnection.addLimitsClauses(findQuery, pageSize * currentPage, pageSize);
 
-        db.connection.execute(findQuery,
+        db.connection.executeQuery(findQuery,
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -1821,7 +1821,7 @@ Project.prototype.delete = function(callback)
             "   } \n"+
             "} \n";
 
-        db.connection.execute(deleteQuery,
+        db.connection.executeStatement(deleteQuery,
             [
                 {
                     type: Elements.types.resourceNoEscape,

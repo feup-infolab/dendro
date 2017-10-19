@@ -1,4 +1,7 @@
 const path = require("path");
+const _ = require("underscore");
+const async = require("async");
+
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -7,9 +10,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Notification = require('../models/notifications/notification.js').Notification;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const DbConnection = require("../kb/db.js").DbConnection;
-const _ = require("underscore");
 
-const async = require("async");
 const db = Config.getDBByID();
 
 const db_notifications = Config.getDBByID("notifications");
@@ -40,7 +41,7 @@ exports.get_unread_user_notifications = function (req ,res) {
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.execute(query,
+            db.connection.executeQuery(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -112,7 +113,7 @@ exports.get_notification_info = function (req, res) {
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.execute(query,
+            db.connection.executeQuery(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -194,7 +195,7 @@ exports.delete = function (req, res) {
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.execute(query,
+            db.connection.executeStatement(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type : Elements.types.resourceNoEscape,
