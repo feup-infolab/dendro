@@ -55,8 +55,7 @@ let ckanData;
 describe("Export public project folderExportCkan level to ckan tests", function () {
     before(function (done) {
         appUtils.newTestRoutetLog(path.basename(__filename));
-        /*this.timeout(Config.testsTimeout);*/
-        this.timeout(12000000000000000000);
+        this.timeout(Config.testsTimeout);
         addChangesToExportedCkanPackagesUnit.setup(publicProject, function (err, results) {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res) {
@@ -87,8 +86,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
     });
 
     describe("[POST] [CKAN] /project/:handle/data/:foldername?export_to_repository", function () {
-        this.timeout(12000000000000000000);
-        /*it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done) {
+        it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, projectHandle, folderPath, agent, exportData, cb
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportCkanData.uri, agent, createdUnknownRepo, function (err, res) {
@@ -399,9 +397,9 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     });
                 });
             });
-        });*/
+        });
 
-        it("Should export a large txt file(this is currently causing a bug)", function (done) {
+        it("Should export a large txt file of 100 MB(this was previously causing a bug)", function (done) {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             let aFolderWithFoldersUri;
@@ -444,14 +442,13 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             });
         });
 
-        it("Should not export a package to Ckan that contains a file with a size that is above 1gb", function (done) {
+        //TODO this test only passes when it is running individually. Otherwise the test results in a socket hangup error
+        /*it("Should not export a package to Ckan that contains a file with a size that is above 500MB", function (done) {
             this.timeout(12000000000000000000);
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             let aFolderWithFoldersUri;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //TODO generate large txt file -> then upload large txt file to dendro
-                //TODO need file md5 and location
 
                 const fs = require('fs');
                 const md5File = require("md5-file");
@@ -466,7 +463,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     should.not.exist(err);
                     let stats = fs.statSync(hugeTxtFileMock.location);
                     let fileSizeInBytes = stats.size;
-                    /*fileSizeInBytes.should.be.above(hugeTxtFileMock.sizeGb * 1000000000);*/
+                    /!*fileSizeInBytes.should.be.above(hugeTxtFileMock.sizeGb * 1000000000);*!/
                     expect(fileSizeInBytes).to.be.at.least(hugeTxtFileMock.sizeGb * 1073741824);
                     fs.existsSync(hugeTxtFileMock.location).should.equal(true);
                     hugeTxtFileMock.md5 = md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
@@ -487,7 +484,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     });
                 });
             });
-        });
+        });*/
 
     });
 
