@@ -506,7 +506,7 @@ export_to_repository_ckan = function (req, res) {
                                                         name: packageId,
                                                         package_id: packageId,
                                                         title: folder.dcterms.title,
-                                                        description: folder.dcterms.description,
+                                                        notes: folder.dcterms.description,
                                                         extras: extrasJSONArray,
                                                         owner_org: organization
                                                     }
