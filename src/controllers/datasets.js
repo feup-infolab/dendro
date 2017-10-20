@@ -22,6 +22,7 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 /*const CKAN = require("ckan");*/
 const CKAN = require("C:\\Users\\Utilizador\\Desktop\\InfoLab\\ckanModuleRepo\\ckan.js");
 const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
+const generalDatasetUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/generalDatasetUtils.js"));
 
 const async = require("async");
 const nodemailer = require("nodemailer");
@@ -215,7 +216,7 @@ export_to_repository_sword = function (req, res) {
 
                                         swordConnection.sendFiles(options, function (err, message) {
                                             if (isNull(err)) {
-                                                deleteFolderRecursive(parentFolderPath);
+                                                generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                 const msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. " + message;
                                                 console.log(msg);
                                                 res.json(
@@ -226,7 +227,7 @@ export_to_repository_sword = function (req, res) {
                                                 );
                                             }
                                             else {
-                                                deleteFolderRecursive(parentFolderPath);
+                                                generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                 const msg = "Error exporting folder '" + folder.nie.title + "' from the Dendro platform. " + message;
                                                 console.error(msg);
                                                 res.status(500).json(
@@ -351,237 +352,6 @@ export_to_repository_ckan = function (req, res) {
         const checkPermissionsDictionary = {
             "dendroDiffs" : propagateDendroChangesIntoCkan,
             "ckanDiffs" : deleteChangesOriginatedFromCkan
-        };
-
-        const createOrUpdateFilesInPackage = function (datasetFolderMetadata, packageId, client, callback, overwrite, extraFiles) {
-            const files = [];
-            const locations = [];
-
-
-            for (var i = 0; i < datasetFolderMetadata.original_node.nie.hasLogicalPart.length; i++) {
-                const child = datasetFolderMetadata.children[i];
-                if (!isNull(child)) {
-                    if (child.original_node instanceof File) {
-                        files.push(child.original_node);
-                        locations.push(datasetFolderMetadata.children[i].temp_location);
-                    }
-                    else {
-                        return callback(1, "There was an error preparing a file in the server: " + JSON.stringify(child));
-                    }
-                }
-            }
-
-            const resources = [];
-            const path = require("path");
-
-            for (var i = 0; i < files.length; i++) {
-                const file = files[i];
-                var location = locations[i];
-
-                var fileExtension = path.extname(location).substr(1);
-                var fileName = path.basename(location);
-
-                var record =
-                    {
-                        absolute_file_path: location,
-                        url: targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
-                        package_id: packageId,
-                        description: file.dcterms.description || '< no description available >',
-                        filename: fileName,
-                        mimetype: Config.mimeType(fileExtension),
-                        extension: fileExtension,
-                        format: fileExtension.toUpperCase(),
-                        overwrite_if_exists: overwrite,
-                        id : CkanUtils.createCkanFileIdBasedOnDendroFileName(fileName)
-                    };
-
-                resources.push(record);
-            }
-
-            for (var i = 0; i < extraFiles.length; i++) {
-                var location = extraFiles[i];
-
-                var fileExtension = path.extname(location).substr(1);
-                var fileName = path.basename(location);
-
-                var record =
-                    {
-                        absolute_file_path: location,
-                        url: targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
-                        package_id: packageId,
-                        filename: fileName,
-                        mimetype: Config.mimeType(fileExtension),
-                        extension: fileExtension,
-                        format: fileExtension.toUpperCase(),
-
-                        _if_exists: overwrite,
-                        id : CkanUtils.createCkanFileIdBasedOnDendroFileName(fileName)
-                    };
-
-                if (typeof Config.exporting.generated_files_metadata[fileExtension] !== "undefined") {
-                    record.description = Config.exporting.generated_files_metadata[fileExtension].dcterms.description;
-                }
-                else {
-                    record.description = '< no description available >';
-                }
-
-                resources.push(record);
-            }
-
-            client.upload_files_into_package(resources, packageId, function (err, result) {
-                return callback(err, result);
-            });
-        };
-
-        const createPackageInCkan = function (parentFolderPath, extraFiles, packageData, datasetFolderMetadata, packageId, client, callback) {
-            client.action(
-                "package_create",
-                packageData,
-                function (response, result) {
-                    if (result.success) {
-                        createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function (err, response) {
-                            if (isNull(err)) {
-                                const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
-                                const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/>";
-
-                               CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
-                                    console.log(err);
-                                    if (isNull(err)) {
-                                        /*res.json(
-                                         {
-                                         "result": "OK",
-                                         "message": msg
-                                         }
-                                         );*/
-                                        callback(err, msg);
-                                    }
-                                    else {
-                                        let msg = "Error updating exportedAt property in the dataset to CKAN.";
-                                        if (!isNull(response)) {
-                                            msg += " Error returned : " + response;
-                                        }
-
-                                        /*res.json(
-                                         {
-                                         "result": "Error",
-                                         "message": msg
-                                         }
-                                         );*/
-                                        callback(err, msg);
-                                    }
-                                });
-                            }
-                            else {
-                                let msg = "Error uploading files in the dataset to CKAN.";
-                                if (!isNull(response)) {
-                                    msg += " Error returned : " + response;
-                                }
-
-                                /*res.json(
-                                 {
-                                 "result": "Error",
-                                 "message": msg,
-                                 "error": response
-                                 }
-                                 );*/
-                                callback(err, msg);
-                            }
-
-                            deleteFolderRecursive(parentFolderPath);
-                        }, overwrite, extraFiles);
-                    }
-                    else {
-                        let msg = "Error exporting dataset to CKAN.";
-                        if (!isNull(response)) {
-                            msg += " Error returned : " + response;
-                        }
-
-                        /*res.json(
-                         {
-                         "result": "Error",
-                         "message": msg
-                         }
-                         );*/
-
-                        callback(true, msg);
-
-                        deleteFolderRecursive(parentFolderPath);
-                    }
-
-                }
-            );
-        };
-
-        const updatePackageInCkan = function (parentFolderPath, extraFiles, packageData, datasetFolderMetadata, packageId, client, callback) {
-            async.waterfall([
-                function (callback) {
-                    CkanUtils.calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
-                        callback(err, diffs);
-                    });
-                },
-                function (diffs, callback) {
-
-                    client.action(
-                        "package_update",
-                        packageData.result,
-                        function (err, result) {
-                            callback(err, diffs)
-                        }
-                    );
-                },
-                function (diffs, callback) {
-                    createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function (err, response) {
-                        if (isNull(err)) {
-                            const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
-                            const finalMsg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten.";
-
-                           CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
-                                if (isNull(err)) {
-                                    async.map(diffs.dendroDiffs, function (dendroDiff, cb) {
-                                        if (dendroDiff.event === "deleted_in_local") {
-                                           CkanUtils.deleteResourceInCkan(dendroDiff.id, packageId, client, function (err, result) {
-                                                cb(err, result);
-                                            });
-                                        }
-                                        else {
-                                            cb(err, result);
-                                        }
-                                    }, function (err, results) {
-                                        if (isNull(err)) {
-                                            callback(err, results, finalMsg);
-                                            deleteFolderRecursive(parentFolderPath);
-                                        }
-                                        else {
-                                            let msg = "Error uploading files in the dataset to CKAN.";
-                                            console.error(msg);
-                                            callback(err, results, finalMsg);
-                                            deleteFolderRecursive(parentFolderPath);
-                                        }
-                                    });
-                                }
-                                else {
-                                    let msg = "Error updating exportedAt property in the dataset to CKAN.";
-                                    if (!isNull(response)) {
-                                        msg += " Error returned : " + response;
-                                        console.error(msg);
-                                    }
-                                    callback(err, result, finalMsg);
-                                    deleteFolderRecursive(parentFolderPath);
-                                }
-                            });
-                        }
-                        else {
-                            let msg = "Error uploading files in the dataset to CKAN: " + JSON.stringify(response);
-                            console.error(msg);
-                            callback(err, response, msg);
-                            deleteFolderRecursive(parentFolderPath);
-                        }
-                    }, overwrite, extraFiles);
-                }
-            ], function (err, result, finalMsg) {
-                // result now equals 'done'
-                callback(err, result, finalMsg);
-            });
         };
 
         if (!isNull(req.body.repository) && !isNull(req.body.repository.ddr)) {
@@ -799,7 +569,7 @@ export_to_repository_ckan = function (req, res) {
                     //dataset was found, do we want to update or not?
                     if (result.success) {
                             Utils.copyFromObjectToObject(packageContents[0], result.result);
-                            updatePackageInCkan(parentFolderPath, extraFiles, result, datasetFolderMetadata, packageId, client, function (err, result, finalMsg) {
+                            CkanUtils.updatePackageInCkan(requestedResourceUri, targetRepository, parentFolderPath, extraFiles, result, datasetFolderMetadata, packageId, client, function (err, result, finalMsg) {
                                 if (isNull(err)) {
                                     let resultInfo = {
                                         "result": "OK",
@@ -816,12 +586,12 @@ export_to_repository_ckan = function (req, res) {
                                     console.error(JSON.stringify(errorInfo));
                                     callback(true, packageId, errorInfo);
                                 }
-                            });
+                            }, overwrite);
                     }
                     //dataset not found
                     else if (!result.success && result.error.__type === "Not Found Error") {
 
-                        createPackageInCkan(parentFolderPath, extraFiles, packageContents[0], datasetFolderMetadata, packageId, client, function (err, finalMsg) {
+                        CkanUtils.createPackageInCkan(targetRepository, parentFolderPath, extraFiles, packageContents[0], datasetFolderMetadata, packageId, client, function (err, finalMsg) {
                             if (isNull(err)) {
                                 let resultInfo = {
                                     "result": "OK",
@@ -838,11 +608,11 @@ export_to_repository_ckan = function (req, res) {
                                 console.error(JSON.stringify(errorInfo));
                                 callback(true, packageId, errorInfo);
                             }
-                        });
+                        }, overwrite);
                     }
                     //dataset not found and error occurred
                     else if (!result.success && result.error.__type !== "Not Found Error") {
-                        deleteFolderRecursive(parentFolderPath);
+                        generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                         const msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " + result;
                         console.error(msg);
                         let errorInfo = {
@@ -968,7 +738,7 @@ export_to_repository_figshare = function (req, res) {
                                             const figshare = new Figshare(accessCodes);
                                             figshare.createArticle(article_data, function (err, article) {
                                                 if (err) {
-                                                    deleteFolderRecursive(parentFolderPath);
+                                                    generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                     const msg = "Error creating article on figshare";
                                                     console.error(msg);
                                                     res.status(500).json(
@@ -981,7 +751,7 @@ export_to_repository_figshare = function (req, res) {
                                                 else {
                                                     figshare.addMultipleFilesToArticle(article.article_id, files, function (err) {
                                                         if (err) {
-                                                            deleteFolderRecursive(parentFolderPath);
+                                                            generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                             const msg = "Error adding files to article on figshare";
                                                             console.error(msg);
                                                             res.status(500).json(
@@ -992,7 +762,7 @@ export_to_repository_figshare = function (req, res) {
                                                             );
                                                         }
                                                         else {
-                                                            deleteFolderRecursive(parentFolderPath);
+                                                            generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                             const msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
                                                             console.log(msg);
                                                             res.json(
@@ -1010,7 +780,7 @@ export_to_repository_figshare = function (req, res) {
 
                                         }
                                         catch (err) {
-                                            deleteFolderRecursive(parentFolderPath);
+                                            generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                             console.error(err);
                                             res.status(500).json(
                                                 {
@@ -1134,7 +904,7 @@ export_to_repository_zenodo = function (req, res) {
                                             const zenodo = new Zenodo(accessTocken);
                                             zenodo.createDeposition(data, function (err, deposition) {
                                                 if (err) {
-                                                    deleteFolderRecursive(parentFolderPath);
+                                                    generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                     const msg = "Error creating new deposition resource in Zenodo";
                                                     console.error(msg);
                                                     res.status(500).json(
@@ -1149,7 +919,7 @@ export_to_repository_zenodo = function (req, res) {
 
                                                     zenodo.uploadMultipleFilesToDeposition(depositionID, files, function (err) {
                                                         if (err) {
-                                                            deleteFolderRecursive(parentFolderPath);
+                                                            generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                             const msg = "Error uploading multiple files to deposition in Zenodo";
                                                             console.error(msg);
                                                             res.status(500).json(
@@ -1172,7 +942,7 @@ export_to_repository_zenodo = function (req, res) {
                                                                     );
                                                                 }
                                                                 else {
-                                                                    deleteFolderRecursive(parentFolderPath);
+                                                                    generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                                     const msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
                                                                     console.log(msg);
                                                                     res.json(
@@ -1192,7 +962,7 @@ export_to_repository_zenodo = function (req, res) {
 
                                         }
                                         catch (err) {
-                                            deleteFolderRecursive(parentFolderPath);
+                                            generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                             console.error(err);
                                             res.status(500).json(
                                                 {
@@ -1358,7 +1128,7 @@ export_to_repository_b2share = function (req, res) {
                                                 const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
                                                 b2shareClient.createADraftRecord(draftData, function (err, body) {
                                                     if (err) {
-                                                        deleteFolderRecursive(parentFolderPath);
+                                                        generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                         const msg = "Error creating new draft resource in B2Share";
                                                         console.error(msg);
                                                         res.status(500).json(
@@ -1376,7 +1146,7 @@ export_to_repository_b2share = function (req, res) {
 
                                                         prepareFilesForUploadToB2share(files, fileBucketID, b2shareClient, function (error, result) {
                                                             if (error) {
-                                                                deleteFolderRecursive(parentFolderPath);
+                                                                generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                                 const msg = "Error uploading a file into a draft in B2Share";
                                                                 res.status(500).json(
                                                                     {
@@ -1399,7 +1169,7 @@ export_to_repository_b2share = function (req, res) {
                                                                         );
                                                                     }
                                                                     else {
-                                                                        deleteFolderRecursive(parentFolderPath);
+                                                                        generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                                         let msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
 
                                                                         if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined") {
@@ -1465,7 +1235,7 @@ export_to_repository_b2share = function (req, res) {
 
                                                  b2share.createDeposition(function(error, deposition){
                                                  if (error) {
-                                                 deleteFolderRecursive(parentFolderPath);
+                                                 generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                  const msg = "Error creating new deposition resource in B2Share";
                                                  console.error(msg);
                                                  res.status(500).json(
@@ -1480,7 +1250,7 @@ export_to_repository_b2share = function (req, res) {
 
                                                  b2share.uploadMultipleFilesToDeposition(depositionID, files, function(error){
                                                  if (error) {
-                                                 deleteFolderRecursive(parentFolderPath);
+                                                 generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                  const msg = "Error uploading multiple files to deposition in Zenodo";
                                                  console.error(msg);
                                                  res.status(500).json(
@@ -1503,7 +1273,7 @@ export_to_repository_b2share = function (req, res) {
                                                  );
                                                  }
                                                  else{
-                                                 deleteFolderRecursive(parentFolderPath);
+                                                 generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
 
                                                  const msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
                                                  var recordURL = B2Share.recordPath + "/" + data.body.record_id;
@@ -1551,7 +1321,7 @@ export_to_repository_b2share = function (req, res) {
                                                  });*/
                                             }
                                             catch (err) {
-                                                deleteFolderRecursive(parentFolderPath);
+                                                generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                 console.error(err);
                                                 res.status(500).json(
                                                     {
@@ -1739,22 +1509,6 @@ exports.sword_collections = function (req, res) {
             );
         }
     });
-};
-
-deleteFolderRecursive = function (path) {
-    let files = [];
-    if (fs.existsSync(path)) {
-        files = fs.readdirSync(path);
-        files.forEach(function (file, index) {
-            const curPath = path + "/" + file;
-            if (fs.lstatSync(curPath).isDirectory()) { // recurse
-                deleteFolderRecursive(curPath);
-            } else { // delete file
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(path);
-    }
 };
 
 prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, cb) {
