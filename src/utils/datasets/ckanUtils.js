@@ -566,7 +566,7 @@ const createOrUpdateFilesInPackage = function (targetRepository, datasetFolderMe
                 url: targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
                 package_id: packageId,
                 description: file.dcterms.description || '< no description available >',
-                filename: fileName,
+                filename: file.dcterms.title || fileName,
                 mimetype: Config.mimeType(fileExtension),
                 extension: fileExtension,
                 format: fileExtension.toUpperCase(),
