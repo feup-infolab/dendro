@@ -667,25 +667,10 @@ export_to_repository_ckan = function (req, res) {
                             };
                             console.error(JSON.stringify(errorInfo));
                             callback(true, folder, errorInfo);
-                            /*res.status(400).json(
-                             {
-                             "result": "error",
-                             "message": msg
-                             }
-                             );*/
                         }
                         else {
                             //A folder existe, verificar os descritores
                             if (isNull(folder.dcterms.title)) {
-                                /*const msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
-                                 console.error(msg);
-                                 res.status(400).json(
-                                 {
-                                 "result": "error",
-                                 "message": msg
-                                 }
-                                 );*/
-
                                 let errorInfo = {
                                     msg: "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.",
                                     statusCode: 400
@@ -695,15 +680,6 @@ export_to_repository_ckan = function (req, res) {
                                 callback(true, folder, errorInfo);
                             }
                             else if (isNull(folder.dcterms.description)) {
-                                /*const msg = "Folder " + folder.uri + " has no description! Please set the Description property (from the dcterms metadata schema) and try the exporting process again.";
-                                 console.error(msg);
-                                 res.status(400).json(
-                                 {
-                                 "result": "error",
-                                 "message": msg
-                                 }
-                                 );*/
-
                                 let errorInfo = {
                                     msg: "Folder " + folder.uri + " has no description! Please set the Description property (from the dcterms metadata schema) and try the exporting process again.",
                                     statusCode: 400
@@ -713,15 +689,6 @@ export_to_repository_ckan = function (req, res) {
                                 callback(true, folder, errorInfo);
                             }
                             else if (isNull(targetRepository.ddr.hasExternalUri)) {
-                                /*const msg = "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute";
-                                 console.error(msg);
-                                 res.status(500).json(
-                                 {
-                                 "result": "error",
-                                 "message": msg
-                                 }
-                                 );*/
-
                                 let errorInfo = {
                                     msg: "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute",
                                     statusCode: 500
@@ -751,7 +718,6 @@ export_to_repository_ckan = function (req, res) {
                 function (folder, extrasJSONArray, callback) {
                     //construir o client e fazer o resto das funções
                     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
-                    //organization show e depois package show
 
                     /**Check if organization exists**/
                     client.action("organization_show",
@@ -790,15 +756,6 @@ export_to_repository_ckan = function (req, res) {
                                                 );
                                             }
                                             else {
-                                                /*const msg = "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.";
-                                                 console.error(msg);
-                                                 res.status(500).json(
-                                                 {
-                                                 "result": "error",
-                                                 "message": msg
-                                                 }
-                                                 );*/
-
                                                 let errorInfo = {
                                                     msg: "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.",
                                                     statusCode: 500
@@ -810,15 +767,6 @@ export_to_repository_ckan = function (req, res) {
                                         }, datasetFolderMetadata);
                                     }
                                     else {
-                                        /*const msg = "Error creating temporary folder for export folder " + folder.nie.title + " from the Dendro platform.";
-                                         console.error(msg);
-                                         res.status(500).json(
-                                         {
-                                         "result": "error",
-                                         "message": msg
-                                         }
-                                         );*/
-
                                         let errorInfo = {
                                             msg: "Error creating temporary folder for export folder " + folder.nie.title + " from the Dendro platform.",
                                             statusCode: 500
@@ -836,14 +784,6 @@ export_to_repository_ckan = function (req, res) {
                                     msg += " Error returned : " + info.error.message;
                                 }
 
-                                /*console.error(msg);
-                                 res.status(401).json(
-                                 {
-                                 "result": "error",
-                                 "message": msg
-                                 }
-                                 );*/
-
                                 let errorInfo = {
                                     msg: msg,
                                     statusCode: 401
@@ -858,22 +798,6 @@ export_to_repository_ckan = function (req, res) {
                     //parentFolderPath, packageId, extraFiles, datasetFolderMetadata, client, packageContents
                     //dataset was found, do we want to update or not?
                     if (result.success) {
-                        /*if (!overwrite) //package was found and we are not overwriting
-                        {
-                            deleteFolderRecursive(parentFolderPath);
-
-                            const datasetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
-                            const msg = "This dataset was already exported to this CKAN instance and is available at: <a href=\"" + datasetLocationOnCkan + "\">" + datasetLocationOnCkan + "</a> <br/><br/> Activate the Overwrite option to force an update.";
-
-                            let errorInfo = {
-                                msg: msg,
-                                statusCode: 500
-                            };
-                            console.error(JSON.stringify(errorInfo));
-                            callback(true, packageId, errorInfo);
-                        }
-                        else //package was found BUT we are OVERWRITING
-                        {*/
                             Utils.copyFromObjectToObject(packageContents[0], result.result);
                             updatePackageInCkan(parentFolderPath, extraFiles, result, datasetFolderMetadata, packageId, client, function (err, result, finalMsg) {
                                 if (isNull(err)) {
@@ -893,7 +817,6 @@ export_to_repository_ckan = function (req, res) {
                                     callback(true, packageId, errorInfo);
                                 }
                             });
-                        /*}*/
                     }
                     //dataset not found
                     else if (!result.success && result.error.__type === "Not Found Error") {
@@ -922,13 +845,6 @@ export_to_repository_ckan = function (req, res) {
                         deleteFolderRecursive(parentFolderPath);
                         const msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " + result;
                         console.error(msg);
-
-                        /*res.status(500).json(
-                         {
-                         "result": "error",
-                         "message": msg
-                         }
-                         );*/
                         let errorInfo = {
                             msg: msg,
                             statusCode: 500
@@ -944,13 +860,6 @@ export_to_repository_ckan = function (req, res) {
                         };
                         console.error(JSON.stringify(errorInfo));
                         callback(true, folder, errorInfo);
-
-                        /*res.status(401).json(
-                         {
-                         "result": "error",
-                         "message": "Unable to parse response from CKAN repository."
-                         }
-                         );*/
                     }
                 }
             ], function (err, result, resultInfo) {
