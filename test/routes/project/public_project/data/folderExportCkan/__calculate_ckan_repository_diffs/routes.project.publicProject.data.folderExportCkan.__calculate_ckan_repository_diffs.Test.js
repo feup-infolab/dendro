@@ -91,7 +91,7 @@ describe("Calculate public project folderExportCkan level ckan respository diffs
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.calculate_ckan_repository_diffs(true, folderExportCkanData.uri, agent, createdUnknownRepo, function (err, res) {
                     console.log(res);
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(400);
                     res.body.message.should.contain("invalid ckan uri or api key");
                     done();
                 });
@@ -140,7 +140,8 @@ describe("Calculate public project folderExportCkan level ckan respository diffs
         it("Should give an error when there is an invalid external url for deposit although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 repositoryUtils.calculate_ckan_repository_diffs(true, folderExportCkanData.uri, agent, {repository: createdCkanConfigInvalidUrl}, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(400);
+                    res.body.message.should.contain("invalid ckan uri or api key");
                     done();
                 });
             });
@@ -160,7 +161,7 @@ describe("Calculate public project folderExportCkan level ckan respository diffs
         it("Should give an error when the folder to export does not have the required descriptors(dcterms.title, dcterms.description, dcterms.creator) although all the other required steps check out", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.calculate_ckan_repository_diffs(true, folderMissingDescriptorsData.uri, agent, {repository: ckanData}, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(400);
                     res.body.message.should.contain("has no title! Please set the Title property");
                     done();
                 });

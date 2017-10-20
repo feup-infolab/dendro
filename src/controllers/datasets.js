@@ -569,16 +569,53 @@ export_to_repository_ckan = function (req, res) {
                     //dataset was found, do we want to update or not?
                     if (result.success) {
                             Utils.copyFromObjectToObject(packageContents[0], result.result);
-                            CkanUtils.updatePackageInCkan(requestedResourceUri, targetRepository, parentFolderPath, extraFiles, result, datasetFolderMetadata, packageId, client, function (err, result, finalMsg) {
-                                if (isNull(err)) {
-                                    let resultInfo = {
-                                        "result": "OK",
-                                        "message": finalMsg
-                                    };
-                                    callback(null, packageId, resultInfo);
+                            //get exportedAt and save it here
+                            let lastExportedAt;
+                            CkanUtils.getExportedAtByDendroForCkanDataset(packageId, client, function (err, exportedAt) {
+                                if(isNull(err))
+                                {
+                                    lastExportedAt = exportedAt;
+                                    CkanUtils.updatePackageInCkan(requestedResourceUri, targetRepository, parentFolderPath, extraFiles, result, datasetFolderMetadata, packageId, client, function (err, result, finalMsg) {
+                                        if (isNull(err)) {
+                                            let resultInfo = {
+                                                "result": "OK",
+                                                "message": finalMsg
+                                            };
+                                            callback(null, packageId, resultInfo);
+                                        }
+                                        else {
+                                            //if an error occured updating the package in Ckan
+                                            //set exportedAt again to the old exportedAt date
+                                            CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, data) {
+                                                if(typeof finalMsg !== 'string')
+                                                {
+                                                    finalMsg = JSON.stringify(finalMsg);
+                                                    if(finalMsg.indexOf("upload too large") !== -1)
+                                                    {
+                                                        finalMsg = "Upload size per file exceeded for your Ckan instance! Contact you system administrator"
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if(finalMsg.indexOf("upload too large") !== -1)
+                                                    {
+                                                        finalMsg = "Upload size per file exceeded for your Ckan instance! Contact you system administrator"
+                                                    }
+                                                }
+                                                const msg = "Error exporting package to CKAN: " + finalMsg;
+                                                let errorInfo = {
+                                                    msg: msg,
+                                                    statusCode: 500
+                                                };
+                                                console.error(JSON.stringify(errorInfo));
+                                                callback(true, packageId, errorInfo);
+                                            }, exportedAt);
+                                        }
+                                    }, overwrite);
                                 }
-                                else {
-                                    const msg = "Error exporting package to CKAN: " + JSON.stringify(finalMsg);
+                                else
+                                {
+                                    const msg = "Error exporting package to CKAN: this package does not have the exportedAt property even though it was previously exported by Dendro";
                                     let errorInfo = {
                                         msg: msg,
                                         statusCode: 500
@@ -586,7 +623,7 @@ export_to_repository_ckan = function (req, res) {
                                     console.error(JSON.stringify(errorInfo));
                                     callback(true, packageId, errorInfo);
                                 }
-                            }, overwrite);
+                            });
                     }
                     //dataset not found
                     else if (!result.success && result.error.__type === "Not Found Error") {
@@ -600,13 +637,33 @@ export_to_repository_ckan = function (req, res) {
                                 callback(null, packageId, resultInfo);
                             }
                             else {
-                                const msg = "Error: " + JSON.stringify(err);
-                                let errorInfo = {
-                                    msg: msg,
-                                    statusCode: 500
-                                };
-                                console.error(JSON.stringify(errorInfo));
-                                callback(true, packageId, errorInfo);
+                                //there was an error trying to create the package
+                                //delete what was created of the corrupted package in ckan
+                                CkanUtils.purgeCkanDataset(client, packageId, function (err, info) {
+                                    if(typeof finalMsg !== 'string')
+                                    {
+                                        finalMsg = JSON.stringify(finalMsg);
+                                        if(finalMsg.indexOf("upload too large") !== -1)
+                                        {
+                                            finalMsg = "Upload size per file exceeded for your Ckan instance! Contact you system administrator"
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if(finalMsg.indexOf("upload too large") !== -1)
+                                        {
+                                            finalMsg = "Upload size per file exceeded for your Ckan instance! Contact you system administrator"
+                                        }
+                                    }
+
+                                    const msg = "Error: " + finalMsg;
+                                    let errorInfo = {
+                                        msg: msg,
+                                        statusCode: 500
+                                    };
+                                    console.error(JSON.stringify(errorInfo));
+                                    callback(true, packageId, errorInfo);
+                                });
                             }
                         }, overwrite);
                     }

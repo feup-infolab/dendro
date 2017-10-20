@@ -327,11 +327,21 @@ const calculateCkanRepositoryDiffs = function (requestedResourceUri, targetRepos
                 callback(null, "Package was not previously exported");
             }
             else {
-                msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
+                let msg, statusCode;
+                if(!isNull(diffs.error) && !isNull(diffs.error.message))
+                    msg = "Error when calculating diffs between Dendro and Ckan: " + diffs.error.message;
+                else
+                    msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
+
+                if(!isNull(diffs.error) && !isNull(diffs.error.statusCode))
+                    statusCode = diffs.error.statusCode;
+                else
+                    statusCode = 500;
+
                 let errorInfo = {
                     error: {
                         message: msg,
-                        statusCode: 500
+                        statusCode: statusCode
                     }
                 };
                 console.error(JSON.stringify(errorInfo));
@@ -370,7 +380,10 @@ const validateChangesPermissions = function(checkPermissionsDictionary, permissi
     });
 };
 
-const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, client, callback) {
+const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, client, callback, date) {
+    if(isNull(date))
+        date = new Date().toISOString();
+
     client.action("package_show",
         {
             id: packageID
@@ -386,7 +399,7 @@ const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, clie
 
                 let dendroExportedAt = {
                     "key": Elements.ddr.exportedAt.uri + "exportedAt",
-                    "value": new Date().toISOString()
+                    "value": date
                 };
 
                 if (resultIndex === -1) {
@@ -727,6 +740,18 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
     });
 };
 
+//this function is only to be called if createPackageInCkan fails (as the package is being created for the first time) if the package fails to be properly created -> it is purged and the user can export again via dendro
+//DO NOT USE THIS if updatePackageInCkan fails -> it will destroy all the work done by the researcher
+const purgeCkanDataset = function (client, datasetID, callback) {
+    client.action("dataset_purge",
+        {
+            id: datasetID
+        },
+        function (err, result) {
+            callback(err, result);
+        });
+};
+
 module.exports = {
     validateChangesPermissions: validateChangesPermissions,
     checkResourceTypeAndChildren: checkResourceTypeAndChildren,
@@ -742,5 +767,6 @@ module.exports = {
     calculateCkanRepositoryDiffs: calculateCkanRepositoryDiffs,
     createOrUpdateFilesInPackage: createOrUpdateFilesInPackage,
     createPackageInCkan: createPackageInCkan,
-    updatePackageInCkan: updatePackageInCkan
+    updatePackageInCkan: updatePackageInCkan,
+    purgeCkanDataset: purgeCkanDataset
 };
