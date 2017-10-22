@@ -1151,7 +1151,7 @@ Elements.ddr = {
     },
     exportedFromProject :
     {
-        type : DbConnection.resourceNoEscape,
+        type : Elements.types.resourceNoEscape,
         control : Controls.combo_box
     },
     is_being_imported :

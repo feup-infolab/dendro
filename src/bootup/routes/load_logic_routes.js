@@ -1347,7 +1347,7 @@ const loadRoutes = function(app, callback)
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
     //TODO William
-    app.get("/deposits/latest", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), deposits.getDeposits);
+    app.get("/deposits/latest", deposits.getDeposits);
 
     /*app.get([
             getNonHumanReadableRouteRegex("deposit")

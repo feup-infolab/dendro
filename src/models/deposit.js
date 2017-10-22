@@ -66,15 +66,15 @@ Deposit.public = function(publicPrivacy, page, offset, callback){
         "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy \n" +
         "FROM [0] \n"  +
         "WHERE { \n" +
-        "?uri rdf:type ddr:Registry . \n" +
-        "?uri ddr:exportedFromProject ?projused . \n" +
-        "?projused ddr:privacyStatus [1] . \n" +
-        "?projused ddr:privacyStatus ?privacy . \n" +
-        "?projused dcterms:title ?title . \n" +
-        "?uri dcterms:creator ?user . \n" +
-        "?uri dcterms:title ?label . \n" +
-        "?uri dcterms:date ?date . \n" +
-        "?uri dcterms:description ?description . \n" +
+            "?uri rdf:type ddr:Registry . \n" +
+            "?uri ddr:exportedFromProject ?projused . \n" +
+            "?projused ddr:privacyStatus [1] . \n" +
+            "?projused ddr:privacyStatus ?privacy . \n" +
+            "?projused dcterms:title ?title . \n" +
+            "?uri dcterms:creator ?user . \n" +
+            "?uri dcterms:title ?label . \n" +
+            "?uri dcterms:date ?date . \n" +
+            "?uri dcterms:description ?description . \n" +
         "} \n" +
         "ORDER BY ?date \n" +
         "LIMIT [2] \n" +
@@ -109,10 +109,10 @@ Deposit.public = function(publicPrivacy, page, offset, callback){
         });
 };
 
-Deposit.allowed = function(username, callback){
+Deposit.allowed = function(username, parameters, callback){
 
     const query =
-        "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy\n" +
+        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy\n" +
         "FROM [0] \n"  +
         "WHERE " +
         "{ \n" +
@@ -121,7 +121,7 @@ Deposit.allowed = function(username, callback){
         "   { \n" +
         "       ?projused ddr:privacyStatus [1] . \n" +
         "       ?projused rdf:type ddr:Project . \n" +
-        "       ?projused dcterms:title ?title . \n" +
+        "       ?projused dcterms:title ?projectTitle . \n" +
         "       ?projused ddr:privacyStatus ?privacy . \n" +
         "       { \n" +
         "           ?projused dcterms:creator ?creator . \n" +
@@ -174,25 +174,110 @@ Deposit.allowed = function(username, callback){
         });
 };
 
-Deposit.getPublicRegistry = function(req, callback){
-    const query =
-        "SELECT * \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?uri ?e ddr:Registry. " +
-        "?uri ?p ?o. \n" +
-        "}";
+Deposit.createQuery = function(params, callback){
+    let query =
+        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy\n" +
+        "FROM [0] \n"  +
+        "WHERE " +
+        "{ \n" +
+        "   ?uri rdf:type ddr:Registry . \n" +
+        "   ?uri ddr:exportedFromProject ?projused . \n" +
+        "   { \n" +
+        "       ?uri ddr:privacyStatus [1] . \n" +
+        "       ?projused rdf:type ddr:Project . \n" +
+        "       ?projused dcterms:title ?projectTitle . \n" +
+        "       ?projused ddr:privacyStatus ?privacy . \n" +
+        "       { \n" +
+        "           ?projused dcterms:creator ?creator . \n" +
+        "           ?creator ddr:username [2] \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { \n" +
+        "           ?projused dcterms:contributor ?contributor . \n" +
+        "           ?contributor ddr:username [2] \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { " +
+        "           ?projused ddr:privacyStatus [3] \n" +
+        "       }\n"+
+        "   } \n" +
+        "   ?uri dcterms:creator ?user . \n" +
+        "   ?uri dcterms:title ?label . \n" +
+        "   ?uri dcterms:date ?date . \n" +
+        "   ?uri dcterms:description ?description . \n";
 
-    db.connection.execute(query,
-        [{
+
+    let ending =
+        "} \n" +
+        "ORDER BY ?date \n" +
+        "OFFSET [4] \n" +
+        "LIMIT [5]";
+
+    let variables = [
+        {
             type: DbConnection.resourceNoEscape,
             value: db.graphUri
+        },
+        {
+            type : DbConnection.string,
+            value : params.username
+        },
+        {
+            type : DbConnection.string,
+            value : "private"
+        }];
 
-        }], function (err, regs){
+    if(params.offset){
+        variables.push({
+            type: DbConnection.string,
+            value: params.offset
+        });
+    } else{
+        variables.push({
+            type: DbConnection.string,
+            value: "0"
+        });
+    }
+
+    if(params.limit){
+        variables.push({
+            type: DbConnection.string,
+            value: params.limit
+        });
+    } else{
+        variables.push({
+            type: DbConnection.string,
+            value: "10"
+        });
+    }
+
+    let i = 6;
+    if(params.projId){
+        query += "  ?uri ddr:exportedFromProject [" + i++ + "] \n";
+        variables.push({
+            type: DbConnection.resourceNoEscape,
+            value: params.projId
+        });
+    }
+    if(params.creator){
+        query += "  ?uri dcterms:creator [" + i++ + "] \n";
+        variables.push({
+            type: DbConnection.resourceNoEscape,
+            value: params.creator
+        });
+    }
+    if(params.description){
+        query += "  ?uri dcterms:description [" + i++ + "] \n";
+        variables.push({
+            type: DbConnection.resourceNoEscape,
+            value: params.description
+        });
+    }
+
+    query += ending;
+    db.connection.execute(query,variables, function (err, regs){
             callback(err, regs);
         });
-
-
 };
 
 Deposit.createAndInsertFromObject = function(object, callback){

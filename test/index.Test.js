@@ -24,13 +24,18 @@ global.Config = Config;
 
 global.tests = {};
 
+require(Pathfinder.absPathInTestsFolder("/routes/deposits/__project/route.deposits.__project.Test.js"));
+
+return;
+
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
+
 //require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__rename/routes.project.privateProject.data.testFolder1.a_filename.__rename.Test.js"));
+//require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__rename/routes.project.privateProject.data.testFolder1.a_filename.__rename.Test.js"));
 
 return;
 
