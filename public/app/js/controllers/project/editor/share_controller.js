@@ -29,7 +29,7 @@ angular.module('dendroApp.controllers')
 
             $scope.show_popup("info", "Notice", "Calculating diffs with target repository");
             $scope.is_sending_data = true;
-
+            $scope.firstExportToCkan = false;
             $http({
                 method: "POST",
                 url: url,
@@ -43,6 +43,7 @@ angular.module('dendroApp.controllers')
                 {
                     if(data === "Package was not previously exported")
                     {
+                        $scope.firstExportToCkan = true;
                         $scope.show_popup("info", data, "You can now export the resource", 20000);
                     }
                     else
@@ -56,17 +57,17 @@ angular.module('dendroApp.controllers')
                     $scope.needsCkanPermissions = data.ckanDiffs;
                     if(!$scope.needsCkanPermissions &&  !$scope.needsDendroPermissions || $scope.needsCkanPermissions.length === 0 &&  $scope.needsDendroPermissions.length === 0)
                     {
-                        $scope.show_popup("info", "No differences detected", "You can now export the resource", 20000);
+                        $scope.show_popup("info", "No files added/deleted on Dendro or Ckan", "HOWEVER!! if the content of a file was updated in Dendro tick the OVERWRITE option.", 20000);
                     }
                     else
                     {
                         if($scope.needsCkanPermissions && $scope.needsCkanPermissions.length > 0)
                         {
-                            $scope.show_popup("warning", "Ckan diffs", "There were changes made to the package on the Ckan repository. To export again from dendro tick the boxes bellow. Note that changes made on the Ckan side will be lost.", 60000);
+                            $scope.show_popup("warning", "Ckan diffs", "There were changes made to the package on the Ckan repository. To export again from dendro tick the boxes bellow. Note that changes made on the Ckan side could be lost if the same resources were worked on Dendro.", 60000);
                         }
                         if($scope.needsDendroPermissions && $scope.needsDendroPermissions.length > 0)
                         {
-                            $scope.show_popup("warning", "Dendro diffs", "There were changes made to the package on Dendro. To export again from Dendro tick the boxes bellow. Note that if files were added or deleted in Dendro it will also be deleted or added in Ckan.", 60000);
+                            $scope.show_popup("warning", "Dendro diffs", "There were files added or deleted in the package via Dendro. To export again from Dendro tick the boxes bellow. Note that if files were added or deleted in Dendro it will also be deleted or added in Ckan.", 60000);
                         }
                     }
                 }
@@ -218,6 +219,10 @@ angular.module('dendroApp.controllers')
         $scope.recall_repository = function(my_repository)
         {
             $scope.recalled_repository = my_repository;
+            if($scope.recalled_repository.ddr.hasPlatform.foaf.nick === "ckan")
+            {
+                $scope.calculateCkanRepositoryDiffs($scope.recalled_repository);
+            }
             delete $scope.new_repository_type;
             $scope.clear_sword_data();
         };
@@ -281,17 +286,17 @@ angular.module('dendroApp.controllers')
          * @param uri
          */
 
-        $scope.upload_to_repository = function(target_repository, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+        $scope.upload_to_repository = function(target_repository, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
         {
             var payload = {
                 repository : target_repository,
                 new_dataset : $scope.new_dataset
             };
 
-            /*if(overwrite != null)
+            if(overwrite != null)
             {
                 payload.overwrite = overwrite;
-            }*/
+            }
 
             if(deleteChangesOriginatedFromCkan != null)
             {
@@ -355,7 +360,18 @@ angular.module('dendroApp.controllers')
             }).catch(function(error){
                 if(error.data != null && error.data.message != null)
                 {
-                    $scope.show_popup("error", error.data.title, error.data.message);
+                    if(error.data.message.indexOf("ckanDiffs") !== -1)
+                    {
+                        $scope.show_popup("error", "Ckan export error", "If you want to export to Ckan again you have to tick the boxes bellow. Note that the changes made on the Ckan side may be lost if they overlap with the ones made on Dendro", 5000);
+                    }
+                    else if(error.data.message.indexOf("dendroDiffs") !== -1)
+                    {
+                        $scope.show_popup("error", "Ckan export error", "If you want to export to Ckan again you have to tick the boxes bellow. Note that if files were added or deleted on Dendro the same will happen in Ckan", 5000);
+                    }
+                    else
+                    {
+                        $scope.show_popup("error", error.data.title, error.data.message);
+                    }
                 }
                 else
                 {

@@ -334,6 +334,14 @@ export_to_repository_ckan = function (req, res) {
         let checksNeeded = [];
 
         try {
+            overwrite = JSON.parse(req.body.overwrite);
+        }
+        catch (e)
+        {
+            console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
+        }
+
+        try {
             deleteChangesOriginatedFromCkan = JSON.parse(req.body.deleteChangesOriginatedFromCkan);
         }
         catch (e)

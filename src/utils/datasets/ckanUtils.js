@@ -23,12 +23,31 @@ const verifyIfCkanFileWasCreatedInDendro = function (ckanFile) {
     let ckanFileIDParts = ckanFileID.split("_exported_by_dendro_");
     const slug = require('slug');
 
-    if(ckanFileIDParts.length !== 2 || ckanFileIDParts[1] !== ckanFile.name || ckanFileIDParts[0] !== slug(ckanFile.name))
+    /*if(ckanFileIDParts.length !== 2 || ckanFileIDParts[1] !== ckanFile.name || ckanFileIDParts[0] !== slug(ckanFile.name))
+        return false;
+    else
+    {
+        return true;
+    }*/
+
+    //backup6txt_exported_by_dendro_backup6.txt
+    if(ckanFileIDParts.length !== 2 || slug(ckanFileIDParts[1]) !== ckanFileIDParts[0])
         return false;
     else
     {
         return true;
     }
+};
+
+const buildCkanFileIDsFromDendroFileNames = function (namesOfResourcesInDendro) {
+    let ckanIdOfResourcesInDendro = [];
+
+    for(let i = 0; i < namesOfResourcesInDendro.length; i++)
+    {
+        ckanIdOfResourcesInDendro.push(createCkanFileIdBasedOnDendroFileName(namesOfResourcesInDendro[i]));
+    }
+
+    return ckanIdOfResourcesInDendro;
 };
 
 const compareDendroPackageWithCkanPackage = function (folder, packageId, client, callback) {
@@ -38,7 +57,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
     let dendroDiffs = [];
     let createdInLocal = [];
     let deletedInLocal = [];
-    let includeSoftDeletedChildren = false;
+    let includeSoftDeletedChildren = true;
     getExportedAtByDendroForCkanDataset(packageId, client, function (err, exportedAtDate) {
         if (isNull(err)) {
             lastExportedAtDate = exportedAtDate;
@@ -51,20 +70,29 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                         folderResourcesInCkan = result.result.resources;
                         folder.getChildrenRecursive(function (err, children) {
                             if (isNull(err)) {
-                                folderResourcesInDendro = children;
+                                /*folderResourcesInDendro = children;
                                 let namesOfResourcesInDendro = _.pluck(folderResourcesInDendro, 'name');
                                 let dendroMetadataFiles = [folder.nie.title + ".zip", folder.nie.title + ".rdf", folder.nie.title + ".txt", folder.nie.title + ".json"];
                                 namesOfResourcesInDendro = namesOfResourcesInDendro.concat(dendroMetadataFiles);
                                 let namesOfResourcesInCkan = _.pluck(folderResourcesInCkan, 'name');
                                 let dendroIsMissing = _.difference(namesOfResourcesInCkan, namesOfResourcesInDendro);
-                                let ckanIsMissing = _.difference(namesOfResourcesInDendro, namesOfResourcesInCkan);
+                                let ckanIsMissing = _.difference(namesOfResourcesInDendro, namesOfResourcesInCkan);*/
+
+                                folderResourcesInDendro = children;
+                                let namesOfResourcesInDendro = _.pluck(folderResourcesInDendro, 'name');
+                                let dendroMetadataFiles = [folder.nie.title + ".zip", folder.nie.title + ".rdf", folder.nie.title + ".txt", folder.nie.title + ".json"];
+                                namesOfResourcesInDendro = namesOfResourcesInDendro.concat(dendroMetadataFiles);
+                                let ckanIdOfResourcesInDendro = buildCkanFileIDsFromDendroFileNames(namesOfResourcesInDendro);
+                                let ckanIdOfResourcesInCkan = _.pluck(folderResourcesInCkan, 'id');
+                                let dendroIsMissing = _.difference(ckanIdOfResourcesInCkan, ckanIdOfResourcesInDendro);
+                                let ckanIsMissing = _.difference(ckanIdOfResourcesInDendro, ckanIdOfResourcesInCkan);
 
                                 async.parallel([
                                         function (callback) {
                                             if (dendroIsMissing.length > 0) {
                                                 async.map(dendroIsMissing, function (missingFile, callback) {
                                                     let ckanFile = _.find(folderResourcesInCkan, function (folderResourcesInCkan) {
-                                                        return folderResourcesInCkan.name === missingFile;
+                                                        return folderResourcesInCkan.id === missingFile;
                                                     });
 
                                                     if(verifyIfCkanFileWasCreatedInDendro(ckanFile)) {
@@ -79,7 +107,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                                         callback(err, ckanfileEvent);
                                                     }
                                                     else {
-                                                        //TODO Here are the files created in the ckan side-> shall we delete these files
+                                                        //TODO Here are the files created in the ckan side-> shall we delete these files???
                                                         callback(err, null);
                                                     }
 
@@ -463,7 +491,7 @@ const checkResourceTypeAndChildren = function (resourceUri, callback) {
             }
             else
             {
-                let includeSoftDeletedChildren = false;
+                let includeSoftDeletedChildren = true;
                 folder.getChildrenRecursive(function (err, children) {
                     if(isNull(err))
                     {
@@ -593,7 +621,7 @@ const createOrUpdateFilesInPackage = function (targetRepository, datasetFolderMe
                 extension: fileExtension,
                 format: fileExtension.toUpperCase(),
 
-                _if_exists: overwrite,
+                overwrite_if_exists: true,
                 id : createCkanFileIdBasedOnDendroFileName(fileName)
             };
 
