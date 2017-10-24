@@ -422,30 +422,35 @@ DbConnection.prototype.create = function(callback) {
     {
         const recordQueryConclusionInLog = function(queryObject)
         {
+            const fs = require("fs");
+            const path = require("path");
+            const mkdirp = require("mkdirp");
+            const logParentFolder = Pathfinder.absPathInApp("profiling");
+            const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + boot_start_timestamp + ".csv");
+
             if(Config.debug.database.log_query_times)
             {
                 const msec = new Date().getTime() - queryObject.queryStartTime.getTime();
-                const fs = require("fs");
-                const path = require("path");
-                const mkdirp = require("mkdirp");
-                const logParentFolder = Pathfinder.absPathInApp("profiling");
-                const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + boot_start_timestamp + ".csv");
                 let fd;
 
-                if(!self.created_profiling_logfile && !fs.existsSync(queryProfileLogFilePath))
+                if(!fs.existsSync(logParentFolder))
                 {
                     mkdirp.sync(logParentFolder);
-                    fd = fs.openSync(queryProfileLogFilePath, 'w'); //truncate / create blank file
+                    fd = fs.openSync(queryProfileLogFilePath, 'a'); //truncate / create blank file
                     fs.appendFileSync(queryProfileLogFilePath, "query" + profiling_logfile_separator + "time_msecs\n");
                     fs.closeSync(fd);
-                    self.created_profiling_logfile = true;
                 }
-                else
-                {
-                    fd = fs.openSync(queryProfileLogFilePath, 'w'); //truncate / create blank file
-                    fs.appendFileSync(queryProfileLogFilePath, queryObject.query.replace(/(?:\r\n|\r|\n)/g,"") + profiling_logfile_separator + msec + "\n");
-                    fs.closeSync(fd);
-                }
+
+                fd = fs.openSync(queryProfileLogFilePath, 'a'); //truncate / create blank file
+                const cleanedQuery = queryObject.query
+                    .replace(/(?:\r\n|\r|\n)/g,"")
+                    .replace(/\/r\/([a-z]|_|\-|[0-9])+\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g, "an_uri");
+
+                fs.appendFileSync(
+                    queryProfileLogFilePath,
+                    cleanedQuery + profiling_logfile_separator + msec + "\n");
+
+                fs.closeSync(fd);
             }
         };
 
@@ -579,7 +584,7 @@ DbConnection.prototype.create = function(callback) {
                 concurrent : self.maxSimultaneousConnections,
                 maxTimeout : self.dbOperationTimeout,
                 maxRetries : 10,
-                retryDelay : 500,
+                //retryDelay : 100,
                 id : "query_id"
             });
 
@@ -717,7 +722,7 @@ DbConnection.prototype.create = function(callback) {
                 concurrent : self.maxSimultaneousConnections,
                 maxTimeout : self.dbOperationTimeout,
                 maxRetries : 10,
-                retryDelay : 500,
+                //retryDelay : 500,
                 id : "query_id"
             });
 
