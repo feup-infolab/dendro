@@ -1,4 +1,4 @@
-<div ng-init="calculateCkanRepositoryDiffs(recalled_repository)">
+<div>
     <h1 class="page-header">Share current folder to a CKAN repository</h1>
     <div class="form-group">
         <label for="recalled_ckan_repository_label">Label</label>
@@ -26,8 +26,14 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large"><span class="glyphicon glyphicon-remove"></span>Delete this bookmark</button>
+        </div>
+
+        <div class="col-lg-2" ng-show="!firstExportToCkan">
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="overwrite"><span class="label label-warning"><span class="glyphicon glyphicon-warning-sign"></span> Overwrite </span></label>
+            </div>
         </div>
 
         <div class="col-lg-3" ng-show="needsCkanPermissions.length > 0">
@@ -42,13 +48,15 @@
             </div>
         </div>
 
-        <div ng-if="!is_sending_data" class="col-lg-2">
-            <button type="cancel" ng-click="upload_to_repository(recalled_repository, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)" class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
+    </div>
+
+    <div class="row">
+        <div ng-if="!is_sending_data" class="col-lg-12">
+            <button type="cancel" ng-click="upload_to_repository(recalled_repository, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)" class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
         </div>
-        <div ng-if="is_sending_data" class="col-lg-2">
+        <div ng-if="is_sending_data" class="col-lg-12">
             <button type="cancel" class="btn btn-success pull-right" disabled="disabled"> <img src="/images/loading.gif">Sending</button>
         </div>
-
     </div>
 
     <br>

@@ -12,7 +12,8 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
+const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
+const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
@@ -74,13 +75,12 @@ module.exports.setup = function (project, finish) {
                                     //UPLOAD A FILE TO DENDRO SO THAT THERE EXISTS DENDROCHANGES
                                     fileUtils.uploadFile(true, agent, project.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedDeletedFileDendroMockFile, function (err, res) {
                                         res.statusCode.should.equal(200);
-                                        let id = slug(folderExportedCkanCkanDiffsData.uri, "-");
-                                        let packageId = id.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+                                        let packageId = CkanUtils.createPackageID(folderExportedCkanCkanDiffsData.uri);
                                         let packageInfo = {
                                             id: packageId
                                         };
                                         //UPLOAD A FILE TO CKAN SO THAT THERE EXISTS CKANCHANGES
-                                        ckanUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, uploadedFileToCkan, packageInfo, function (err, res) {
+                                        ckanTestUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, uploadedFileToCkan, packageInfo, function (err, res) {
                                             repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                                                 res.statusCode.should.equal(200);
                                                 /*cb(err, res);*/

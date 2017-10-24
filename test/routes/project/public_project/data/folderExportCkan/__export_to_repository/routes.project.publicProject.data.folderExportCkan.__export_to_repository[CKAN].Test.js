@@ -4,6 +4,8 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const path = require('path');
 const should = chai.should();
+const expect = chai.expect;
+const md5File = require("md5-file");
 const _ = require("underscore");
 chai.use(chaiHttp);
 
@@ -17,7 +19,7 @@ const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
+const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
@@ -37,7 +39,6 @@ const uploadedAndDeletedFileInDendroMockFile = require(Pathfinder.absPathInTests
 const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
 
 const emptyFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/emptyFileMock.js"));
-const largeTxtFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/largeTxtFileMock"));
 
 let uploadedAndDeletedFileInDendroDataInDB, uploadedFileToCkanDataInDb, emptyFileDataInDb;
 
@@ -162,7 +163,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(412);
                     res.body.message.should.contain("Missing the permission: dendroDiffs");
-                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                    ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
                         should.not.exist(err);
                         uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
                             return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
@@ -181,7 +182,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(200);
-                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                    ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
                         should.not.exist(err);
                         uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
                             return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
@@ -203,23 +204,27 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                         return resourceData.nie.title === uploadedAndDeletedFileInDendroMockFile.name;
                     });
                     should.exist(uploadedAndDeletedFileInDendroDataInDB);
+                    //IT is necessary to delete the file twice even if passing really_delete to really delete a file
                     itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
                         res.statusCode.should.equal(200);
-                        repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
-                            res.statusCode.should.equal(412);
-                            res.body.message.should.contain("Missing the permission: dendroDiffs");
-                            //CHECKS THAT THE FILE IS STILL IN CKAN BECAUSE THE USER GAVE NO PERMISSIONS in propagateDendroChangesIntoCkan
-                            ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
-                                should.not.exist(err);
-                                uploadedAndDeletedFileInDendroDataInDB = null;
-                                uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
-                                    return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
+                        itemUtils.deleteItemByUri(true, agent, uploadedAndDeletedFileInDendroDataInDB.uri, function (err, res) {
+                            res.statusCode.should.equal(200);
+                            repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                                res.statusCode.should.equal(412);
+                                res.body.message.should.contain("Missing the permission: dendroDiffs");
+                                //CHECKS THAT THE FILE IS STILL IN CKAN BECAUSE THE USER GAVE NO PERMISSIONS in propagateDendroChangesIntoCkan
+                                ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                                    should.not.exist(err);
+                                    uploadedAndDeletedFileInDendroDataInDB = null;
+                                    uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
+                                        return resourceInCkan.name === uploadedAndDeletedFileInDendroMockFile.name;
+                                    });
+                                    should.exist(uploadedAndDeletedFileInDendroDataInDB);
+                                    done();
                                 });
-                                should.exist(uploadedAndDeletedFileInDendroDataInDB);
-                                done();
-                            });
-                        }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
-                    }, false);
+                            }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                        },true);
+                    }, true);
                 });
             });
         });
@@ -231,7 +236,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                 repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
                     res.statusCode.should.equal(200);
                     //CHECKS THAT THE FILE WAS DELETED IN CKAN BECAUSE OF THE USER PERMISSIONS in propagateDendroChangesIntoCkan
-                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
+                    ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanDendroDiffsData, function (err, res) {
                         should.not.exist(err);
                         uploadedAndDeletedFileInDendroDataInDB = null;
                         uploadedAndDeletedFileInDendroDataInDB = _.find(res, function (resourceInCkan) {
@@ -253,7 +258,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     res.statusCode.should.equal(412);
                     res.body.message.should.contain("Missing the permission: ckanDiffs");
                     //uploadedFileToCkan should still be in ckan
-                    ckanUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanCkanDiffsData, function (err, res) {
+                    ckanTestUtils.getCkanFolderContents(true, agent, {repository: ckanData}, folderExportedCkanCkanDiffsData, function (err, res) {
                         should.not.exist(err);
                         uploadedFileToCkanDataInDb = null;
                         uploadedFileToCkanDataInDb = _.find(res, function (resourceInCkan) {
@@ -296,31 +301,191 @@ describe("Export public project folderExportCkan level to ckan tests", function 
         });
 
         //test when uploading/copying/moving/renaming folders/files
-        it("Should append the current date if a file with the same name was already uploaded before", function (done) {
+        it("Should append the current date if a file with the same name was already uploaded before, however, should not export because the user did not allow dendroPermissions", function (done) {
+            let propagateDendroChangesIntoCkan = false;
+            let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                //the first time when uploading the file -> does not append the current date to the name
                 fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
-                    res.statusCode.should.equal(200);//TODO HOW CHECK THAT THE NAME HAS THE DATE CONCATENATED, res returns the file uri -> get file info by uri anc check that the name has the date concatenated
+                    res.statusCode.should.equal(200);
                     itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
-                        //TODO check here that the name is the original name but concatenated with a timestamp
-                        res.statusCode.should.equal(200);
-                        res.body.title.should.contain(uploadedAndDeletedFileInDendroMockFile.name);
-                        res.body.title.should.not.equal(uploadedAndDeletedFileInDendroMockFile.name);
-                        done();
+                        res.body.title.should.equal(uploadedAndDeletedFileInDendroMockFile.name);
+                        res.body.title.should.not.contain("_Copy_created_");
+                        fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
+                            //the second time uploading the file -> should append the date to the name
+                            res.statusCode.should.equal(200);
+                            itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
+                                //checks here that the name is the original name but concatenated with a timestamp
+                                res.statusCode.should.equal(200);
+                                res.body.title.should.not.equal(uploadedAndDeletedFileInDendroMockFile.name);
+                                res.body.title.should.contain("_Copy_created_");
+                                repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                                    res.statusCode.should.equal(412);
+                                    res.body.message.should.contain("Missing the permission: dendroDiffs");
+                                    done();
+                                }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                            });
+                        });
                     });
                 });
             });
         });
 
-        /*it("Should export a large txt file(this is currently causing a bug)", function (done) {
+        //test when uploading/copying/moving/renaming folders/files
+        it("Should append the current date if a file with the same name was already uploaded before, and should export because the user did allow dendroPermissions", function (done) {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, largeTxtFileMock, function (err, res) {
+                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
+                    //the second time uploading the file -> should append the date to the name
                     res.statusCode.should.equal(200);
-                    repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                    itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
+                        //checks here that the name is the original name but concatenated with a timestamp
                         res.statusCode.should.equal(200);
+                        res.body.title.should.not.equal(uploadedAndDeletedFileInDendroMockFile.name);
+                        res.body.title.should.contain("_Copy_created_");
+                        repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                            res.statusCode.should.equal(200);
+                            done();
+                        }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                    });
+                });
+            });
+        });
+
+        it("Should give an error when the user tries to export a file to ckan, as it is only possible to export folders", function (done) {
+            let propagateDendroChangesIntoCkan = false;
+            let deleteChangesOriginatedFromCkan = false;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedAndDeletedFileInDendroMockFile, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    repositoryUtils.exportFolderByUriToRepository(true, res.body[0].uri, agent, {repository: ckanData}, function (err, res) {
+                        res.statusCode.should.equal(404);
+                        res.body.message.should.equal("The folder to export does not exist in Dendro. Are you sure you selected a folder?");
                         done();
                     }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                });
+            });
+        });
+
+        it("Should give an error saying that a folder has no content to export", function (done) {
+            let propagateDendroChangesIntoCkan = false;
+            let deleteChangesOriginatedFromCkan = false;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                projectUtils.createFolderInProjectRoot(true, agent, publicProject.handle, "anEmptyFolder", function (err, res) {
+                    res.statusCode.should.equal(200);
+                    repositoryUtils.exportFolderByUriToRepository(true, res.body.id, agent, {repository: ckanData}, function (err, res) {
+                        res.statusCode.should.equal(412);
+                        res.body.message.should.equal("Error, you cannot export an empty folder to Ckan");
+                        done();
+                    }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                });
+            });
+        });
+
+        it("Should give an error saying that a folder to export has children folders(ckan does not support this)", function (done) {
+            let propagateDendroChangesIntoCkan = false;
+            let deleteChangesOriginatedFromCkan = false;
+            let aFolderWithFoldersUri;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                projectUtils.createFolderInProjectRoot(true, agent, publicProject.handle, "aFolderWithFolders", function (err, res) {
+                    res.statusCode.should.equal(200);
+                    aFolderWithFoldersUri = res.body.id;
+                    itemUtils.createFolder(true, agent, publicProject.handle, "aFolderWithFolders", "folderInsideAFolder", function (err, res) {
+                        res.statusCode.should.equal(200);
+                        repositoryUtils.exportFolderByUriToRepository(true, aFolderWithFoldersUri, agent, {repository: ckanData}, function (err, res) {
+                            res.statusCode.should.equal(412);
+                            res.body.message.should.equal("Error, you can only export folders that have files and not folders.");
+                            done();
+                        }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                    });
+                });
+            });
+        });
+
+        it("Should export a large txt file of 100 MB(this was previously causing a bug)", function (done) {
+            let propagateDendroChangesIntoCkan = true;
+            let deleteChangesOriginatedFromCkan = false;
+            let aFolderWithFoldersUri;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                //TODO generate large txt file -> then upload large txt file to dendro
+                //TODO need file md5 and location
+
+                const fs = require('fs');
+                const md5File = require("md5-file");
+                let hugeTxtFileMock = {
+                    name : "hugeTxtFile.txt",
+                    extension : "txt",
+                    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
+                    sizeGb: 0.1
+                };
+
+                fileUtils.initLargeTxtFile(hugeTxtFileMock, function (err, info) {
+                    should.not.exist(err);
+                    let stats = fs.statSync(hugeTxtFileMock.location);
+                    let fileSizeInBytes = stats.size;
+                    /*fileSizeInBytes.should.be.above(hugeTxtFileMock.sizeGb * 1000000000);*/
+                    expect(fileSizeInBytes).to.be.at.least(hugeTxtFileMock.sizeGb * 1073741824);
+                    fs.existsSync(hugeTxtFileMock.location).should.equal(true);
+                    hugeTxtFileMock.md5 = md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
+                    fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, hugeTxtFileMock, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
+                            res.statusCode.should.equal(200);
+                            repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                                res.statusCode.should.equal(200);
+                                fileUtils.deleteLargeTxtFile(hugeTxtFileMock, function (err, info) {
+                                    should.not.exist(err);
+                                    fs.existsSync(hugeTxtFileMock.location).should.equal(false);
+                                    done();
+                                });
+                            }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                        });
+                    });
+                });
+            });
+        });
+
+        //TODO this test only passes when it is running individually. Otherwise the test results in a socket hangup error
+        /*it("Should not export a package to Ckan that contains a file with a size that is above 500MB", function (done) {
+            this.timeout(12000000000000000000);
+            let propagateDendroChangesIntoCkan = true;
+            let deleteChangesOriginatedFromCkan = false;
+            let aFolderWithFoldersUri;
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+
+                const fs = require('fs');
+                const md5File = require("md5-file");
+                let hugeTxtFileMock = {
+                    name : "hugeTxtFile.txt",
+                    extension : "txt",
+                    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
+                    sizeGb: 0.6
+                };
+
+                fileUtils.initLargeTxtFile(hugeTxtFileMock, function (err, info) {
+                    should.not.exist(err);
+                    let stats = fs.statSync(hugeTxtFileMock.location);
+                    let fileSizeInBytes = stats.size;
+                    /!*fileSizeInBytes.should.be.above(hugeTxtFileMock.sizeGb * 1000000000);*!/
+                    expect(fileSizeInBytes).to.be.at.least(hugeTxtFileMock.sizeGb * 1073741824);
+                    fs.existsSync(hugeTxtFileMock.location).should.equal(true);
+                    hugeTxtFileMock.md5 = md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
+                    fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, hugeTxtFileMock, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {
+                            res.statusCode.should.equal(200);
+                            repositoryUtils.exportFolderByUriToRepository(true, folderExportedCkanDendroDiffsData.uri, agent, {repository: ckanData}, function (err, res) {
+                                res.statusCode.should.equal(500);
+                                res.body.message.should.contain("upload too large");
+                                fileUtils.deleteLargeTxtFile(hugeTxtFileMock, function (err, info) {
+                                    should.not.exist(err);
+                                    fs.existsSync(hugeTxtFileMock.location).should.equal(false);
+                                    done();
+                                });
+                            }, propagateDendroChangesIntoCkan, deleteChangesOriginatedFromCkan);
+                        });
+                    });
                 });
             });
         });*/

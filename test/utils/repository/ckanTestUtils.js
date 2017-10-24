@@ -1,8 +1,8 @@
+const Pathfinder = global.Pathfinder;
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-/*const CKAN = require("ckan.js");*/
-/*const CKAN = require("ckan");*/
-const CKAN = require("C:\\Users\\Utilizador\\Desktop\\InfoLab\\ckanModuleRepo\\ckan.js");
+const CKAN = require("ckan");
+const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const async = require("async");
 const slug = require('slug');
 chai.use(chaiHttp);
@@ -56,7 +56,8 @@ const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoDat
                 if(result.result.packages.length > 0)
                 {
                     async.mapSeries(result.result.packages, function (package, cb) {
-                        client.action("package_delete",
+                        /*client.action("package_delete",*/
+                        client.action("dataset_purge",
                             {
                                 id: package.id
                             },
@@ -73,6 +74,35 @@ const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoDat
                 }
             }
         });
+
+    /*client.action("package_list",
+        {},
+        function (err, result) {
+            if (err) {
+                cb(err, result);
+            }
+            else {
+                if(result.result.length > 0)
+                {
+                    async.mapSeries(result.result, function (packageName, cb) {
+                        /!*client.action("package_delete",*!/
+                        client.action("dataset_purge",
+                            {
+                                id: packageName
+                            },
+                            function (err, result) {
+                                cb(err, result);
+                            });
+                    }, function (err, results) {
+                        cb(err, results);
+                    });
+                }
+                else
+                {
+                    cb(err, result);
+                }
+            }
+        });*/
 }
 
 const uploadFileToCkanPackage = function (jsonOnly, agent, ckanRepoData, fileData, packageInfo, cb) {
@@ -91,9 +121,7 @@ const uploadFileToCkanPackage = function (jsonOnly, agent, ckanRepoData, fileDat
 
 const getCkanFolderContents = function (jsonOnly, agent, ckanRepoData, folderData, cb) {
     const client = new CKAN.Client(ckanRepoData.repository.ddr.hasExternalUri, ckanRepoData.repository.ddr.hasAPIKey);
-    let packageId = slug(folderData.uri, "-");
-    //ckan only accepts alphanumeric characters and dashes for the dataset ids
-    packageId = packageId.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+    let packageId = CkanUtils.createPackageID(folderData.uri);
     client.action("package_show",
         {
             id: packageId

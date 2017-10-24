@@ -7,7 +7,7 @@ const path = require('path');
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const ckanUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanUtils.js"));
+const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
@@ -30,7 +30,7 @@ module.exports.setup = function (project, finish) {
         else {
             console.log("---------- RUNNING UNIT clearCkanOrganizationState for: "  + project.handle + " ----------");
             appUtils.registerStartTimeForUnit(path.basename(__filename));
-            ckanUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
+            ckanTestUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
                 if(err)
                 {
                     console.error("Error deleting all packages from ckan organization");
@@ -38,21 +38,21 @@ module.exports.setup = function (project, finish) {
                 }
                 else
                 {
-                    /*ckanUtils.deleteCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
+                    /*ckanTestUtils.deleteCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
                         if(err)
                         {
                             finish(err, data);
                         }
                         else
                         {
-                            ckanUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
+                            ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
                                 finish(err, data);
                             })
                         }
                     })*/
 
                     console.log("Deleted all packages from ckan organization successfully");
-                    ckanUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
+                    ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
                         if(err)
                         {
                             if(data.error.name[0] === "Group name already exists in database")

@@ -1,5 +1,6 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 let supertest = require('supertest');
 let _ = require('underscore');
 
@@ -30,7 +31,7 @@ module.exports.uploadFile = function(acceptsJSON, agent, projectHandle, folderNa
 {
     const targetUrl = "/project/" + projectHandle + "/data/" + folderName + "?upload";
 
-    if(acceptsJSON)
+    /*if(acceptsJSON)
     {
         agent
             .post(targetUrl)
@@ -46,6 +47,28 @@ module.exports.uploadFile = function(acceptsJSON, agent, projectHandle, folderNa
         agent
             .post(targetUrl)
             .send({ md5_checksum: file.md5})
+            .attach('file', file.location)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }*/
+
+    if(acceptsJSON)
+    {
+        agent
+            .post(targetUrl)
+            .field("md5_checksum", file.md5)
+            .set("Accept", "application/json")
+            .attach('file', file.location)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(targetUrl)
+            .field("md5_checksum", file.md5)
             .attach('file', file.location)
             .end(function(err, res) {
                 cb(err, res);
@@ -257,5 +280,36 @@ module.exports.getFilePath = function(path)
     }
 
 }
+
+
+module.exports.initLargeTxtFile = function (largeTxtMock, callback) {
+
+    const fs = require('fs');
+    let fileSizeInBytes = 0;
+    let largeFileSizeToObtain =  largeTxtMock.sizeGb * 1073741824;//bytes in one gb
+    let stats;
+
+    let buf = Buffer.from("DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATADATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA  DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATADATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA DATA \n");
+    let index = 0;
+
+    let fd = fs.openSync(largeTxtMock.location, "w");
+    while(fileSizeInBytes < largeFileSizeToObtain)
+    {
+        fileSizeInBytes +=  fs.writeSync(fd, buf, 0, buf.length, index);
+        index = fileSizeInBytes;
+    }
+    fs.closeSync(fd);
+    callback(null, largeTxtMock.location  + " was initialized");
+};
+
+module.exports.deleteLargeTxtFile = function (largeTxtMock, callback) {
+    var fs = require('fs');
+    fs.unlinkSync(largeTxtMock.location);
+    let msg = "successfully deleted: " + largeTxtMock.location;
+    console.log(msg);
+    callback(null, msg)
+};
+
+
 
 

@@ -913,7 +913,7 @@ exports.upload = function(req, res)
                                                                         const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
                                                                         return callback(500, {
                                                                             result: "error",
-                                                                            message: "Unable to save files after buffering: " + (result.message)? result.message : JSON.stringify(result),
+                                                                            message: "Unable to save files after buffering: " + JSON.stringify(newFile),
                                                                             files: files,
                                                                             errors: newFile
                                                                         });
