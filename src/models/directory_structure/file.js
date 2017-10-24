@@ -216,8 +216,6 @@ File.prototype.save = function (callback, rename) {
         if(rename){
             const getParent = function(callback)
             {
-                //This fun
-                /*self.getParent(callback);*/
                 let parentUri = self.nie.isLogicalPartOf;
                 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
@@ -265,21 +263,9 @@ File.prototype.save = function (callback, rename) {
 
             const renameIfChildExistsWithSameName = function(children, callback)
             {
-                /*const childrenWithTheSameName = _.find(children, function(child){
-                    return child.nie.title === self.nie.title
-                });*/
-
                 const childrenWithTheSameName = _.find(children, function(child){
                     return child.nie.title === self.nie.title && child.uri !== self.uri && child.ddr.deleted !==true;
                 });
-
-                /*if(
-                    !isNull(childrenWithTheSameName) && childrenWithTheSameName.length > 0
-                )
-                {
-                    let fileNameData = self.nie.title.split(".");
-                    self.nie.title = fileNameData[0] + " (Copy created at " + new Date().toISOString() + ")" + fileNameData[1];
-                }*/
 
                 if(
                     !isNull(childrenWithTheSameName) && Array.isArray(childrenWithTheSameName) && childrenWithTheSameName.length > 0 ||
