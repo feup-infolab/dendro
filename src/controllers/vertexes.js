@@ -49,7 +49,7 @@ exports.all = function(req, res)
 
 exports.show = function(req, res) {
 	
-	db.connection.executeQuery("SELECT ?p ?o WHERE {[0] ?p ?o .}",
+	db.connection.executeViaJDBC("SELECT ?p ?o WHERE {[0] ?p ?o .}",
             [
                 {
                     type : Elements.types.resource,
@@ -82,7 +82,7 @@ exports.random = function(req, res) {
 
 	req.async.waterfall([
 			function(callback) {
-				db.connection.executeQuery("SELECT (count(?s) as ?c) WHERE {?s ?p ?o .}",
+				db.connection.executeViaJDBC("SELECT (count(?s) as ?c) WHERE {?s ?p ?o .}",
                         [],
 						function(err, results) {
                             if(isNull(err))
@@ -101,7 +101,7 @@ exports.random = function(req, res) {
 						});
 			},
 			function(randomNumber,callback) {
-				db.connection.executeQuery(
+				db.connection.executeViaJDBC(
 						"SELECT ?s WHERE { ?s ?p ?o } ORDER BY ?s OFFSET [0] LIMIT 1",
                         [
                             {
@@ -249,7 +249,7 @@ exports.search = function(req, res)
 //get all nodes that are objects of properties leaving the random node
 getOutNeighbours = function(req, vertexUri, callback)
 {
-	db.connection.executeQuery(
+	db.connection.executeViaJDBC(
 			"SELECT ?p ?o WHERE { [0] ?p ?o } LIMIT 100",
             [
                 {

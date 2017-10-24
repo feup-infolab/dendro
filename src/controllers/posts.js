@@ -62,7 +62,7 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-            db.connection.executeQuery(query,
+            db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type : Elements.types.resourceNoEscape,
@@ -125,7 +125,7 @@ const getNumLikesForAPost = function (postID, cb) {
         "?likeURI ddr:userWhoLiked ?userURI . \n" +
         "} \n";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -172,7 +172,7 @@ const numPostsDatabaseAux = function (projectUrisArray, callback) {
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n ";
 
-            db.connection.executeQuery(query,
+            db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type : Elements.types.resourceNoEscape,
@@ -209,7 +209,7 @@ const userLikedAPost = function (postID, userUri, cb) {
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -249,7 +249,7 @@ const removeOrAddLike = function (postID, userUri, cb) {
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -295,7 +295,7 @@ const getCommentsForAPost = function (postID, cb) {
         "} \n" +
         "ORDER BY ASC(?date) \n";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -374,7 +374,7 @@ const getSharesForAPost = function (postID, cb) {
         "?shareURI ddr:postURI [1]. \n" +
         "} \n";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -472,7 +472,7 @@ const removeLike = function (likeID, userUri, cb) {
         //"?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.executeStatement(query,
+    db.connection.executeViaHTTP(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,

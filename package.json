@@ -70,6 +70,7 @@
     "grunt-cli": "^1.2.0",
     "grunt-contrib-uglify": "^3.0.1",
     "hash-sum": "^1.0.2",
+    "heapdump": "^0.3.9",
     "humanize": "0.0.9",
     "identicon.js": "^2.3.1",
     "jdbc": "^0.4.1-pre.0",

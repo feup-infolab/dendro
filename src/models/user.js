@@ -168,7 +168,7 @@ User.autocomplete_search = function(value, maxResults, callback) {
         " LIMIT [4]";
 
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -283,7 +283,7 @@ User.allInPage = function(page, pageSize, callback) {
         query = query + " OFFSET " + skip;
     }
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [],
         function(err, users) {
             if(isNull(err))
@@ -360,7 +360,7 @@ User.prototype.getInteractions = function(callback)
         " ?interaction ddr:created ?created. \n" +
         "} \n";
 
-    db.connection.executeQuery(query, [
+    db.connection.executeViaJDBC(query, [
         {
             type: Elements.types.resourceNoEscape,
             value : db.graphUri
@@ -573,7 +573,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "	} \n" +
         "} \n";
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
 
@@ -764,7 +764,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "	} \n" +
         "} \n";
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
 
@@ -848,7 +848,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
         "    FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\") \n" +
         "} \n";
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
 
@@ -972,7 +972,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
         "    FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\") \n" +
         "} \n";
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
 
@@ -1097,7 +1097,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
         type : Elements.types.resourceNoEscape
     }]);
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
 

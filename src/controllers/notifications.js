@@ -41,7 +41,7 @@ exports.get_unread_user_notifications = function (req ,res) {
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.executeQuery(query,
+            db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -113,7 +113,7 @@ exports.get_notification_info = function (req, res) {
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.executeQuery(query,
+            db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -195,7 +195,7 @@ exports.delete = function (req, res) {
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.executeStatement(query,
+            db.connection.executeViaHTTP(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type : Elements.types.resourceNoEscape,

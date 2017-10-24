@@ -106,7 +106,7 @@ Resource.exists = function(uri, callback, customGraphUri)
         }
     }
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
         "WITH [0]\n"+
         "ASK \n" +
         "WHERE \n" +
@@ -165,10 +165,10 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
     ];
 
     let query =
-        "SELECT ?uri " +
-        "FROM [0]" +
-        "WHERE " +
-        "{ ";
+        "SELECT ?uri \n" +
+        "FROM [0]\n" +
+        "WHERE \n" +
+        "{ \n";
 
     if(!isNull(type))
     {
@@ -223,7 +223,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
         );
     }
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
         query,
         queryArguments,
         function(err, results) {
@@ -274,7 +274,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
 
     });
 
-    Config.getDBByGraphUri(customGraphUri).connection.executeStatement(
+    Config.getDBByGraphUri(customGraphUri).connection.executeViaHTTP(
             "WITH [0] \n" +
             "DELETE \n" +
             "WHERE " +
@@ -320,7 +320,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
     {
         if(!isNull(valueInPrefixedForm))
         {
-            db.connection.executeStatement(
+            db.connection.executeViaHTTP(
                     "WITH [0] \n" +
                     "DELETE \n" +
                     "WHERE " +
@@ -361,7 +361,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
         }
         else
         {
-            db.connection.executeStatement(
+            db.connection.executeViaHTTP(
                     "WITH [0] \n" +
                     "DELETE \n" +
                     "WHERE " +
@@ -411,7 +411,7 @@ Resource.prototype.descriptorValue = function(descriptorWithNamespaceSeparatedBy
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
             "WITH [0] \n" +
             "SELECT ?p ?o \n" +
             "WHERE " +
@@ -532,7 +532,7 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
         filterString +
         " } \n";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         argumentsArray,
         function(err, descriptors) {
             if(isNull(err))
@@ -638,7 +638,7 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
         filterString +
         " } \n";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         argumentsArray,
         function(err, descriptors) {
             if(isNull(err))
@@ -825,28 +825,26 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
         }
 
         const query =
-            [
-                "WITH GRAPH [0] \n" +
-                "DELETE \n" +
-                "{ \n" +
-                deleteString + " \n" +
-                "} \n" +
-                "WHERE \n" +
-                "{ \n" +
-                deleteString + " \n" +
-                "}",
-                "WITH GRAPH [0] \n" +
-                "INSERT DATA\n" +
-                "{ \n" +
-                insertString + " \n" +
-                "} \n"
-            ];
+            "WITH GRAPH [0] \n" +
+            "DELETE \n" +
+            "{ \n" +
+            deleteString + " \n" +
+            "} \n" +
+            "WHERE \n" +
+            "{ \n" +
+            deleteString + " \n" +
+            "}; \n" +
+            "INSERT DATA\n" +
+            "{ \n" +
+            insertString + " \n" +
+            "} \n";
 
         //Invalidate cache record for the updated resources
         Cache.getByGraphUri(graphName).delete(subject, function(err, result){
-            db.connection.executeStatement(query, queryArguments, function(err, results)
+            db.connection.executeViaHTTP(query, queryArguments, function(err, results)
             {
                 return callback(err, results);
+                //console.log(results);
             });
         });
     }
@@ -1233,7 +1231,7 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function(ontologyURIsArr
         fromString = fromString + fromElements.fromString;
     }
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
             "SELECT ?property ?object\n" +
             " FROM [0] \n"+
             fromString + "\n" +
@@ -1574,7 +1572,7 @@ Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, custo
 
     const getFromTripleStore = function(callback)
     {
-        db.connection.executeQuery(
+        db.connection.executeViaJDBC(
             "SELECT ?uri \n" +
             "FROM [0] \n" +
             "WHERE \n" +
@@ -2018,7 +2016,7 @@ Resource.findByPropertyValue = function(
                 });
             }
 
-            db.connection.executeQuery(
+            db.connection.executeViaJDBC(
                 "SELECT ?uri \n" +
                 "FROM [0]\n"+
                 "WHERE \n" +
@@ -2252,7 +2250,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
         query = query + " OFFSET " + limit + "\n";
     }
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 value : graphUri,
@@ -2624,7 +2622,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 "[1] [2] [3] ." +
                 "} \n";
 
-            db.connection.executeQuery(query,
+            db.connection.executeViaJDBC(query,
                 [
                     {
                         type: Elements.types.resourceNoEscape,
@@ -2778,7 +2776,7 @@ Resource.prototype.getLogicalParts = function(callback)
             childClass : File
         }
     ], function(argument, callback){
-        db.connection.executeQuery(argument.query,
+        db.connection.executeViaJDBC(argument.query,
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -2986,7 +2984,7 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
 
     async.waterfall([
         function(callback) {
-            db.connection.executeQuery(
+            db.connection.executeViaJDBC(
                     "SELECT (count(?s) as ?c) \n" +
                     "FROM [0] \n" +
                     "WHERE \n" +
@@ -3021,7 +3019,7 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
                 });
         },
         function(randomNumber,callback) {
-            db.connection.executeQuery(
+            db.connection.executeViaJDBC(
                 "SELECT ?s \n"+
                 "FROM [0] \n"+
                 "WHERE \n" +
@@ -3130,7 +3128,7 @@ Resource.deleteAll = function(callback, customGraphUri)
     {
         if (isNull(err))
         {
-            db.connection.executeStatement(
+            db.connection.executeViaHTTP(
                 query,
                 queryArguments,
                 function (err, result)
@@ -3160,7 +3158,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
     const pagedFetchResourcesWithDescriptor = function (descriptor, page, pageSize, callback) {
         const offset = pageSize * page;
 
-        db.connection.executeQuery(
+        db.connection.executeViaJDBC(
             "WITH [0] \n" +
             "SELECT ?uri \n" +
             "WHERE \n" +
@@ -3239,7 +3237,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
     deleteAllCachedResourcesWithDescriptorValue(descriptor, 0, Config.limits.db.pageSize, function(err){
         if(isNull(err))
         {
-            db.connection.executeStatement(
+            db.connection.executeViaHTTP(
                 "WITH [0]\n"+
                 "DELETE \n" +
                 "WHERE \n" +
@@ -3467,7 +3465,7 @@ Resource.getCount = function(callback) {
             typeRestrictions +
         "}\n";
 
-    db.connection.executeQuery(
+    db.connection.executeViaJDBC(
         countQuery,
         queryArguments,
         function(err, count) {

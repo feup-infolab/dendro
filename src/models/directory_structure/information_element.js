@@ -61,7 +61,7 @@ InformationElement.prototype.getParent = function(callback)
         " } \n" +
         "} ";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -144,7 +144,7 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
         "   }\n" +
         "}\n ";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -199,7 +199,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
         "   ?uri rdf:type ddr:Project \n" +
         "} ";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -258,7 +258,7 @@ InformationElement.prototype.rename = function(newTitle, callback)
         "} " +
         "}; ";
 
-    db.connection.executeStatement(query,
+    db.connection.executeViaHTTP(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -307,7 +307,7 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
         "   } " +
         "}; \n";
 
-    db.connection.executeStatement(query,
+    db.connection.executeViaHTTP(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -564,7 +564,7 @@ InformationElement.prototype.containedIn = function(parentResource, callback, cu
     {
         const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-        db.connection.executeQuery(
+        db.connection.executeViaJDBC(
             "WITH [0]\n"+
             "ASK \n" +
             "WHERE \n" +

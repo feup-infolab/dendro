@@ -48,7 +48,7 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
         "} \n" +
         "} \n";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,

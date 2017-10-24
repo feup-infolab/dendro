@@ -96,7 +96,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
                         if (isNull(err)) {
                             const metadataRDF = require('pretty-data').pd.xml(Serializers.metadataToRDF(result));
 
-                            fs.writeFile(outputFilenameRDF, metadataRDF, function (err) {
+                            fs.writeFile(outputFilenameRDF, metadataRDF, "utf-8", function (err) {
                                 if (isNull(err)) {
                                     console.log("The file " + outputFilenameRDF + " was saved!");
                                     filesToIncludeInPackage.push(outputFilenameRDF);
@@ -104,7 +104,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
 
                                     const metadataTXT = Serializers.metadataToText(result);
 
-                                    fs.writeFile(outputFilenameTXT, metadataTXT, function (err) {
+                                    fs.writeFile(outputFilenameTXT, metadataTXT, "utf-8", function (err) {
                                         if (isNull(err)) {
                                             console.log("The file " + outputFilenameTXT + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameTXT);
@@ -112,7 +112,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
 
                                             const metadataJSON = require('pretty-data').pd.json(JSON.stringify(result));
 
-                                            fs.writeFile(outputFilenameJSON, metadataJSON, function (err) {
+                                            fs.writeFile(outputFilenameJSON, metadataJSON, "utf-8", function (err) {
                                                 if (isNull(err)) {
                                                     console.log("The file " + outputFilenameJSON + " was saved!");
                                                     filesToIncludeInPackage.push(outputFilenameJSON);

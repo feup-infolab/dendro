@@ -826,7 +826,7 @@ const countProjectTriples = function(projectUri, callback)
         "} \n";
 
     const db = Config.getDBByID();
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,

@@ -248,7 +248,7 @@ Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedCh
         "   ?uri nie:title ?name. \n" +
         "} ";*/
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -358,7 +358,7 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
 
                         console.log("FINAL METADATA : " + JSON.stringify(metadata));
 
-                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), function(err) {
+                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function(err) {
                             if(err) {
                                 console.log(err);
                                 cb(err);
@@ -452,7 +452,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
 
                         console.log("FINAL METADATA : " + JSON.stringify(metadata));
 
-                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), function(err) {
+                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function(err) {
                             if(err) {
                                 console.log(err);
                                 cb(err);

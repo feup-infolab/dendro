@@ -52,7 +52,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
         " ?uri rdf:type ddr:Interaction " +
         "} ";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -98,7 +98,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
 
-                        db.connection.executeQuery(query,
+                        db.connection.executeViaJDBC(query,
                             [
                                 {
                                     type: Elements.types.resourceNoEscape,
@@ -164,7 +164,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                                             "   }\n" +
                                             "}\n";
 
-                                        db.connection.executeQuery(query,
+                                        db.connection.executeViaJDBC(query,
                                             [
                                                 {
                                                     type: Elements.types.resourceNoEscape,
@@ -257,7 +257,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
         " ?uri rdf:type ddr:Interaction " +
         "} ";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -303,7 +303,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
 
-                        db.connection.executeQuery(query,
+                        db.connection.executeViaJDBC(query,
                             [
                                 {
                                     type: Elements.types.resourceNoEscape,
@@ -369,7 +369,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                                             "   }\n" +
                                             "}\n";
 
-                                        db.connection.executeQuery(query,
+                                        db.connection.executeViaJDBC(query,
                                             [
                                                 {
                                                     type: Elements.types.resourceNoEscape,
@@ -446,7 +446,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
         " ?uri rdf:type ddr:Interaction " +
         "} ";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -492,7 +492,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
 
-                        db.connection.executeQuery(query,
+                        db.connection.executeViaJDBC(query,
                             [
                                 {
                                     type: Elements.types.resourceNoEscape,
@@ -558,7 +558,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                                             "   }\n" +
                                             "}\n";
 
-                                        db.connection.executeQuery(query,
+                                        db.connection.executeViaJDBC(query,
                                             [
                                                 {
                                                     type: Elements.types.resourceNoEscape,
@@ -635,7 +635,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
         " ?uri rdf:type ddr:Interaction " +
         "} ";
 
-    db.connection.executeQuery(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -681,7 +681,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
 
-                        db.connection.executeQuery(query,
+                        db.connection.executeViaJDBC(query,
                             [
                                 {
                                     type: Elements.types.resourceNoEscape,
@@ -747,7 +747,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                                             "   }\n" +
                                             "}\n";
 
-                                        db.connection.executeQuery(query,
+                                        db.connection.executeViaJDBC(query,
                                             [
                                                 {
                                                     type: Elements.types.resourceNoEscape,
