@@ -7,6 +7,9 @@ const path = require("path");
 const moment = require("moment");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+const QueryBasedRouter = Object.create(require(Pathfinder.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
+
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
@@ -30,9 +33,6 @@ const util = require('util');
 const async = require("async");
 const _ = require("underscore");
 
-exports.all = function (req, res) {
-
-};
 
 exports.getDeposits = function(req, res) {
 
@@ -41,11 +41,13 @@ exports.getDeposits = function(req, res) {
     const acceptsJSON = req.accepts("json");
 
 
+
+
     if(user instanceof User) {
         //TODO maybe check uri if is valid/exists?
 
         //switch later
-        exports.public(req, res);
+        exports.allowed(req, res);
     } else {
         //not logged in. return public deposits only
         exports.public(req, res);
