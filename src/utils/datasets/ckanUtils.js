@@ -82,14 +82,6 @@ const calculateDendroDiffs = function (folder, packageId, client, callback) {
                         folderResourcesInCkan = result.result.resources;
                         folder.getChildrenRecursive(function (err, children) {
                             if (isNull(err)) {
-                                /*folderResourcesInDendro = children;
-                                let namesOfResourcesInDendro = _.pluck(folderResourcesInDendro, 'name');
-                                let dendroMetadataFiles = [folder.nie.title + ".zip", folder.nie.title + ".rdf", folder.nie.title + ".txt", folder.nie.title + ".json"];
-                                namesOfResourcesInDendro = namesOfResourcesInDendro.concat(dendroMetadataFiles);
-                                let namesOfResourcesInCkan = _.pluck(folderResourcesInCkan, 'name');
-                                let dendroIsMissing = _.difference(namesOfResourcesInCkan, namesOfResourcesInDendro);
-                                let ckanIsMissing = _.difference(namesOfResourcesInDendro, namesOfResourcesInCkan);*/
-
                                 folderResourcesInDendro = children;
                                 let namesOfResourcesInDendro = _.pluck(folderResourcesInDendro, 'name');
                                 let dendroMetadataFiles = [folder.nie.title + ".zip", folder.nie.title + ".rdf", folder.nie.title + ".txt", folder.nie.title + ".json"];
