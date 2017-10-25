@@ -18,22 +18,23 @@ function RepositoryPlatform(object)
     {
         const slug = require('slug');
 
-        if(isNull(object.ddr.humanReadableURI))
+        if(!isNull(object.ddr))
         {
-            if(!isNull(self.ddr.handle) && !isNull(self.dcterms.title))
+            if(isNull(object.ddr.humanReadableURI))
             {
-                self.ddr.humanReadableURI = Config.baseUri + "/repository_platform/" + object.ddr.handle;
-            }
-            else
-            {
-                const error = "Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title";
-                console.error(error);
-                return {error : error};
+                if(!isNull(self.ddr.handle) && !isNull(self.dcterms.title))
+                {
+                    self.ddr.humanReadableURI = Config.baseUri + "/repository_platform/" + object.ddr.handle;
+                }
+                else
+                {
+                    const error = "Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title";
+                    console.error(error);
+                    return {error : error};
+                }
             }
         }
     }
-
-
 
     return self;
 }
@@ -42,7 +43,7 @@ function RepositoryPlatform(object)
 /**TODO replace this with fetching from the database.
  * Beware that it needs initialization during initial setup of the repository
  **/
-RepositoryPlatform.findByUri = function(uri, callback)
+/*RepositoryPlatform.findByUri = function(uri, callback)
 {
     RepositoryPlatform.all(function(err, platformTypes){
         for(let i = 0; i < platformTypes.length; i++)
@@ -55,9 +56,9 @@ RepositoryPlatform.findByUri = function(uri, callback)
 
         return callback(null, null);
     });
-};
+};*/
 
-RepositoryPlatform.all = function(callback){
+/*RepositoryPlatform.all = function(callback){
     return callback(null, [
         {
             uri : Config.baseUri + "/repository_platform/ckan",
@@ -82,8 +83,7 @@ RepositoryPlatform.all = function(callback){
                 nick : "dspace",
                 homepage : "http://www.dspace.org/"
             }
-        }
-        ,
+        },
         {
             uri : Config.baseUri + "/repository_platform/eprints",
             dcterms :
@@ -95,8 +95,7 @@ RepositoryPlatform.all = function(callback){
                 nick : "eprints",
                 homepage : "http://www.eprints.org/"
             }
-        }
-        ,
+        },
         {
             uri : Config.baseUri + "/repository_platform/figshare",
             dcterms :
@@ -136,7 +135,7 @@ RepositoryPlatform.all = function(callback){
         }
 
     ]);
-};
+};*/
 
 RepositoryPlatform = Class.extend(RepositoryPlatform, Resource, "ddr:RepositoryPlatform");
 

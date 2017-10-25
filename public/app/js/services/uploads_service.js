@@ -35,17 +35,24 @@ angular.module('dendroApp.services')
                     });
 
                     return deferred.promise;
-                }
+                };
 
                 this.uploadUsingUpload = function(file, upload_url, resumable, chunkSize)
                 {
-                    var url = URI(upload_url)
-                        .addSearch("upload_id", encodeURIComponent(file.upload_id))
-                        .addSearch("username", encodeURIComponent(file.username))
+                    var url = URI(upload_url);
+                    var keys = Object.keys(file);
+
+                    for (var key in file) {
+                        if (file.hasOwnProperty(key)) {
+                            url.addSearch(key, encodeURIComponent(file[key]));
+                        }
+                    }
+
+                    url.addSearch("size", encodeURIComponent(file.size))
                         .addSearch("filename", encodeURIComponent(file.name))
-                        .addSearch("size", encodeURIComponent(file.size))
-                        .addSearch("md5_checksum", encodeURIComponent(file.md5))
-                        .toString();
+                        .addSearch("md5_checksum", encodeURIComponent(file.md5));
+
+                    url = url.toString();
 
                     var resumeUrl = URI(url)
                         .addSearch("resume", "true").toString();
@@ -80,7 +87,6 @@ angular.module('dendroApp.services')
                         {
                             file.sent_to_server = true;
                         }
-
                         //console.log(file.upload_id + " : " + file.progress);
                     });
 
@@ -89,7 +95,7 @@ angular.module('dendroApp.services')
                     });
 
                     return deferred.promise;
-                }
+                };
 
                 // upload on file select or drop
                 this.upload = function (file, url, extra_parameters)
@@ -135,7 +141,7 @@ angular.module('dendroApp.services')
                             );
                         }
                     }
-                }
+                };
 
                 this.getUploadTicket = function (file, upload_url)
                 {

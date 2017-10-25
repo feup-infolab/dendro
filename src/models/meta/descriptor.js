@@ -131,9 +131,9 @@ function Descriptor(object, typeConfigsToRetain)
                     self.hasRegex = Elements[self.prefix][self.shortName].hasRegex;
                 }
 
-                for(let descriptorType in Config.types)
+                for(let descriptorType in Elements.access_types)
                 {
-                    if(Config.types.hasOwnProperty(descriptorType))
+                    if(Elements.access_types.hasOwnProperty(descriptorType))
                     {
                         if (Elements[self.prefix][self.shortName][descriptorType])
                         {
@@ -154,9 +154,9 @@ function Descriptor(object, typeConfigsToRetain)
             self.setValue(object.value);
 
             //try to get parametrization from ontology level
-            for(let descriptorType in Config.types)
+            for(let descriptorType in Elements.access_types)
             {
-                if(Config.types.hasOwnProperty(descriptorType))
+                if(Elements.access_types.hasOwnProperty(descriptorType))
                 {
                     if(isNull(self[descriptorType]) &&
                         !isNull(Ontology.allOntologies[self.prefix]) &&
@@ -172,7 +172,7 @@ function Descriptor(object, typeConfigsToRetain)
                 for(let i = 0; i < typeConfigsToRetain.length; i++)
                 {
                     let type = typeConfigsToRetain[i];
-                    if (Config.types.hasOwnProperty(type))
+                    if (Elements.access_types.hasOwnProperty(type))
                     {
                         if(!isNull(object[type]))
                         {
@@ -308,7 +308,7 @@ Descriptor.findByUri = function(uri, callback)
             " } \n" +
             " LIMIT 1\n";
 
-        db.connection.execute(query,
+        db.connection.executeViaJDBC(query,
             [
                 {
                     type : Elements.types.resourceNoEscape,
@@ -458,7 +458,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
     }
 
 
-    db.connection.execute(query, args,
+    db.connection.executeViaJDBC(query, args,
         function(err, descriptors) {
             if(isNull(err))
             {
@@ -1002,7 +1002,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
         "ORDER BY DESC(?overall_use_count) \n" +
         "LIMIT " + maxResults;
 
-    db.connection.execute(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
 
@@ -1026,7 +1026,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
                     suggestion.recommendation_types[Descriptor.recommendation_types.frequently_used_overall.key] = true;
                     suggestion.overall_use_count = parseInt(result.overall_use_count);
 
-                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
                         return callback(null, suggestion);
                     }
                     else {
@@ -1098,7 +1098,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
         " } \n" +
         " LIMIT  " + maxResults;
 
-    db.connection.execute(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
 

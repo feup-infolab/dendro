@@ -103,7 +103,7 @@ angular.module('dendroApp.services')
             var hiddenIFrameID = 'hiddenDownloader_' + guid();
             var iframe = document.getElementById(hiddenIFrameID);
 
-            if (iframe === null) {
+            if (iframe === null ||  typeof iframe === "undefined") {
                 iframe = document.createElement('iframe');
                 iframe.id = hiddenIFrameID;
                 iframe.style.display = 'none';

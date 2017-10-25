@@ -12,6 +12,7 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 const FileSystemPost = require(Pathfinder.absPathInSrcFolder("/models/social/fileSystemPost.js")).FileSystemPost;
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const async = require("async");
 
@@ -888,60 +889,79 @@ exports.upload = function(req, res)
                                                             });
 
 
-                                                            const newFile = new File({
-                                                                nie: {
-                                                                    title: file.name,
-                                                                    isLogicalPartOf: parentFolder.uri
-                                                                }
-                                                            });
-
-                                                            newFile.saveWithFileAndContents(file.path, req.index, function (err, newFile)
+                                                            if(isNull(file.error))
                                                             {
-                                                                if (isNull(err))
-                                                                {
-                                                                    return callback(null, {
-                                                                        result: "success",
-                                                                        message: "File submitted successfully.",
-                                                                        uri: newFile.uri
-                                                                    });
-                                                                }
-                                                                else
-                                                                {
-                                                                    const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-                                                                    return callback(500, {
-                                                                        result: "error",
-                                                                        message: "Unable to save files after buffering: " + (result.message)? result.message : JSON.stringify(result),
-                                                                        files: files,
-                                                                        errors: newFile
-                                                                    });
-                                                                }
-                                                            });
+                                                                const newFile = new File({
+                                                                    nie: {
+                                                                        title: file.name,
+                                                                        isLogicalPartOf: parentFolder.uri
+                                                                    }
+                                                                });
 
+                                                                newFile.saveWithFileAndContents(file.path, req.index, function (err, newFile)
+                                                                {
+                                                                    if (isNull(err))
+                                                                    {
+                                                                        return callback(null, {
+                                                                            result: "success",
+                                                                            message: "File submitted successfully.",
+                                                                            uri: newFile.uri
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+                                                                        return callback(500, {
+                                                                            result: "error",
+                                                                            message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+                                                                            files: files,
+                                                                            errors: newFile
+                                                                        });
+                                                                    }
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                //The error flag in the callback is null here although there is an error
+                                                                // because various files can be sent at the same time
+                                                                //and if one fails -> it should be notified as such but all the other successful uploads should not be blocked
+                                                                return callback(null, {
+                                                                    result: "error",
+                                                                    message: file.error
+                                                                });
+                                                            }
                                                         }, function(err, results){
                                                             if(isNull(err))
                                                             {
                                                                 async.map(results, function (result, callback) {
-                                                                    File.findByUri(result.uri, function (error, file) {
-                                                                        if(isNull(error))
-                                                                        {
-                                                                            getProjectFromResource(file, function (error, project) {
-                                                                                if(isNull(error))
-                                                                                {
-                                                                                    buildFileSystemPostFromUpload(req.user.uri, project, file, function (error, result) {
-                                                                                        callback(error, result);
-                                                                                    });
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    callback(error, project);
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            callback(error, file);
-                                                                        }
-                                                                    });
+                                                                    if(result.result === "success")
+                                                                    {
+                                                                        File.findByUri(result.uri, function (error, file) {
+                                                                            if(isNull(error))
+                                                                            {
+                                                                                getProjectFromResource(file, function (error, project) {
+                                                                                    if(isNull(error))
+                                                                                    {
+                                                                                        buildFileSystemPostFromUpload(req.user.uri, project, file, function (error, result) {
+                                                                                            callback(error, result);
+                                                                                        });
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        callback(error, project);
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                callback(error, file);
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        callback(null, result);
+                                                                    }
                                                                 }, function (error, result) {
                                                                     return callback(err, results);
                                                                 })
@@ -1001,115 +1021,38 @@ exports.upload = function(req, res)
         }
     };
 
-    const uploader = new Uploader();
-    uploader.handleUpload(req, res, function(err, result)
+    if(!isNull(req.params.requestedResourceUri))
     {
-        if(!isNull(err))
+        const uploader = new Uploader();
+        uploader.handleUpload(req, res, function(err, result)
         {
-            sendResponse(err, result);
-        }
-        else
-        {
-            saveFilesAfterFinishingUpload(result, function(err, result){
-                if(isNull(err))
-                {
-                    sendResponse(null, result);
-                }
-                else
-                {
-                    sendResponse(err, result);
-                }
-            });
-        }
-    });
-};
-
-exports.resume = function(req, res)
-{
-    let acceptsHTML = req.accepts("html");
-    const acceptsJSON = req.accepts("json");
-
-
-    if (req.originalMethod === "GET")
-    {
-        const resume = req.query.resume;
-        const upload_id = req.query.upload_id;
-        const username = req.query.username;
-
-        if(!isNull(resume))
-        {
-            if(typeof req.session.upload_manager !== "undefined")
+            if(!isNull(err))
             {
-                if (typeof upload_id !== "undefined")
-                {
-                    const upload = UploadManager.get_upload_by_id(upload_id);
-
-                    if (upload.username === username)
-                    {
-                        res.json({
-                            size: upload.loaded
-                        });
-                    }
-                    else
-                    {
-                        const msg = "The upload does not belong to the user currently trying to resume.";
-                        console.error(msg);
-                        res.status(400).json({
-                            result: "error",
-                            msg: msg
-                        });
-                    }
-                }
-                else
-                {
-                    res.json({
-                        size: 0
-                    });
-                }
+                sendResponse(err, result);
             }
             else
             {
-                const msg = "The user does not have a session initiated.";
-                console.error(msg);
-                res.status(400).json({
-                    result: "error",
-                    msg: msg
+                saveFilesAfterFinishingUpload(result, function(err, result){
+                    if(isNull(err))
+                    {
+                        sendResponse(null, result);
+                    }
+                    else
+                    {
+                        sendResponse(err, result);
+                    }
                 });
             }
-        }
-        else
-        {
-            const msg = "Invalid Request, does not contain the 'resume' query parameter.";
-            console.error(msg);
-            res.status(400).json({
-                result: "error",
-                msg: msg
-            });
-        }
+        });
     }
     else
     {
-        if(acceptsJSON && !acceptsHTML)
-        {
-            const msg = "This is only accessible via GET method";
-            req.flash('error', "Invalid Request");
-            console.log(msg);
-            res.status(400).render('',
-                {
-                }
-            );
-        }
-        else
-        {
-            res.status(400).json({
-                result : "error",
-                msg : "This API functionality is only accessible via GET method."
-            });
-        }
-
+        sendResponse(400, {
+            "result" : "error",
+            "message" : "Unable to determine parent folder of new uploaded file"
+        });
     }
 };
-
 
 exports.restore = function(req, res){
 
@@ -2064,7 +2007,7 @@ exports.mkdir = function(req, res){
                         "status" : "1",
                         "id" : folder.uri,
                         "result" : "ok",
-                        "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Config.types.private], [Config.types.api_readable])
+                        "new_folder" : Descriptor.removeUnauthorizedFromObject(folder, [Elements.access_types.private], [Elements.access_types.api_readable])
                     });
                 }
                 else
@@ -2360,7 +2303,7 @@ exports.recent_changes = function(req, res) {
                                 {
                                     for(var i = 0; i < versions.length; i++)
                                     {
-                                        versions[i] = Descriptor.removeUnauthorizedFromObject(versions[i], [Config.types.locked], [Config.types.api_readable])
+                                        versions[i] = Descriptor.removeUnauthorizedFromObject(versions[i], [Elements.access_types.locked], [Elements.access_types.api_readable])
                                     }
 
                                     res.json(versions);

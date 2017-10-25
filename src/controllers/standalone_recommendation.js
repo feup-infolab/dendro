@@ -3,6 +3,8 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+
 
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
@@ -323,7 +325,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                                     }
                                 }
 
-                                return callback(err, resource); //null as 1st argument == no error
+                                return callback(err, resource); //null as 1st argument === no error
                             });
                         };
 

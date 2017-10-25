@@ -206,12 +206,15 @@ angular.module('dendroApp.controllers')
         };
         
         $scope.load_preview = function(){
-            if($scope.shared.selected_file === null )
+            if(!$scope.showing_project_root())
             {
-                preview.load($scope, $scope.shared.file_extension, $scope.get_calling_uri());
-            }
-            else{
-                preview.load($scope, $scope.shared.selected_file.ddr.fileExtension, $scope.shared.selected_file.uri);
+                if($scope.shared.selected_file === null || typeof $scope.shared.selected_file === "undefined")
+                {
+                    preview.load($scope, $scope.shared.file_extension, $scope.get_calling_uri());
+                }
+                else{
+                    preview.load($scope, $scope.shared.selected_file.ddr.fileExtension, $scope.shared.selected_file.uri);
+                }
             }
         };
 

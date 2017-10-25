@@ -1,5 +1,6 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 
 const metadataProjectHandle = 'metadataonlyhtmlprojectcreatedbydemouser1';
 
@@ -11,7 +12,8 @@ const projectData = {
     language: 'En',
     coverage: 'Porto',
     handle: metadataProjectHandle,
-    privacy: 'metadata_only'
+    privacy: 'metadata_only',
+    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/metadataonlyhtmlprojectcreatedbydemouser1.zip")
 };
 
 

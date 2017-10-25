@@ -72,8 +72,9 @@ let mkdirp = require('mkdirp');
 
 const getNonHumanReadableRouteRegex = function(resourceType)
 {
-    const regex = "^/r/"+resourceType+"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
-    return new RegExp(regex);
+    /*const regex = "^/r/"+resourceType+"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+    return new RegExp(regex);*/
+    return Resource.getResourceRegex(resourceType);
 };
 
 const extractUriFromRequest = function (req, res, next) {
@@ -326,7 +327,7 @@ const loadRoutes = function(app, callback)
     //  registration and login
     app.get('/register', auth.register);
     app.post('/register', auth.register);
-    app.get('/logout', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), auth.logout);
+    app.get('/logout', auth.logout);
 
     //people listing
     app.get('/users', users.all);
@@ -619,6 +620,12 @@ const loadRoutes = function(app, callback)
                             handler: datasets.export_to_repository,
                             permissions: modificationPermissions,
                             authentication_error: "Permission denied : cannot export project because you do not have permissions to edit this project."
+                        },
+                        {
+                            queryKeys: ['calculate_ckan_repository_diffs'],
+                            handler: datasets.calculate_ckan_repository_diffs,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot calculate ckan repository diffs because you do not have permissions to edit this project."
                         },
                         {
                             queryKeys: ['request_access'],
@@ -954,6 +961,12 @@ const loadRoutes = function(app, callback)
                             handler: files.copy,
                             permissions: modificationPermissionsBranch,
                             authentication_error: "Permission denied : cannot copy resources because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['calculate_ckan_repository_diffs'],
+                            handler: datasets.calculate_ckan_repository_diffs,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot calculate ckan repository diffs because you do not have permissions to edit this project."
                         }
                     ],
                     delete: [

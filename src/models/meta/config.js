@@ -32,7 +32,13 @@ if(process.env.NODE_ENV === 'test')
 }
 else
 {
-    active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
+    const argv = require('yargs').argv;
+
+    if (argv.config ) {
+        active_config_key = argv.config;
+    } else {
+        active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
+    }
 }
 
 const active_config = configs[active_config_key];
@@ -564,21 +570,6 @@ Config.acl = {
     },
     allow : 1,
     deny : 0
-};
-
-/** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
-Config.types = {
-    public : "public",                                  //can be shared, read and written
-    private : "private",                                //cannot be shared to the outside world under any circumstance
-    locked : "locked",                                  //can not be seen or edited from the main interface or via apis
-    restorable : "restorable",                          //can be restorable from a metadata.json file in a zip backup file
-    backuppable : "backuppable",                        //will be included in a metadata.json file produced in a zip file (backup zips)
-    audit : "audit",                                    //cannot be changed via API calls, changed internally only
-    api_readable : "api_readable",                      //accessible to the outside world via API calls
-    api_writeable : "api_writeable",                    //modifiable from the outside world via API calls
-    immutable : "immutable",                            //cannot be changed under ANY circumstance
-    unrevertable : "unrevertable",                      //cannot be fallen back in the a "restore previous version" operation
-    locked_for_projects : "locked_for_projects"         //project metadata which cannot be modified using the metadata editor, has to go through the project administrator
 };
 
 /*

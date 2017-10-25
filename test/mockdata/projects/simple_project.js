@@ -15,8 +15,7 @@ const projectData = {
     coverage: 'Porto',
     handle: simpleProjectHandle,
     privacy: 'public',
-    uri: "http://" + Config.host + "/" + simpleProjectHandle,
-    backup_path: Pathfinder.absPathInTestsFolder("mockdata/projects/projectBackups/simpleproject.zip")
+    uri: "http://" + Config.host + "/" + simpleProjectHandle
 };
 
 module.exports = projectData;

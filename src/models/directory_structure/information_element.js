@@ -61,7 +61,7 @@ InformationElement.prototype.getParent = function(callback)
         " } \n" +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -144,7 +144,7 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
         "   }\n" +
         "}\n ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -199,7 +199,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
         "   ?uri rdf:type ddr:Project \n" +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -258,7 +258,7 @@ InformationElement.prototype.rename = function(newTitle, callback)
         "} " +
         "}; ";
 
-    db.connection.execute(query,
+    db.connection.executeViaHTTP(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -307,7 +307,7 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
         "   } " +
         "}; \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaHTTP(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -473,7 +473,7 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
             {
                 const metadataResult = {
                     title: resource.nie.title,
-                    descriptors: resource.getDescriptors([Config.types.private], [Config.types.api_readable], typeConfigsToRetain),
+                    descriptors: resource.getDescriptors([Elements.access_types.private], [Elements.access_types.api_readable], typeConfigsToRetain),
                     file_extension: resource.ddr.fileExtension,
                     hasLogicalParts: []
                 };
@@ -549,7 +549,7 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
 
             return callback(true, msg);
         }
-    }, null, null, null, [Config.types.private], [Config.types.api_accessible]);
+    }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_accessible]);
 };
 
 InformationElement.prototype.containedIn = function(parentResource, callback, customGraphUri)
@@ -564,7 +564,7 @@ InformationElement.prototype.containedIn = function(parentResource, callback, cu
     {
         const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-        db.connection.execute(
+        db.connection.executeViaJDBC(
             "WITH [0]\n"+
             "ASK \n" +
             "WHERE \n" +

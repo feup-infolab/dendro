@@ -65,7 +65,7 @@ ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionN
     {
         if(!isNull(versionNumber) && typeof versionNumber === 'number' && versionNumber%1 === 0)
         {
-            db.connection.execute(
+            db.connection.executeViaJDBC(
                 "SELECT ?archived_resource\n" +
                 "FROM [0]\n"+
                 "WHERE \n" +
@@ -178,7 +178,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
         const authorUri = self.ddr.versionCreator;
         User.findByUri(authorUri, function (err, fullVersionCreator) {
             if (isNull(err)) {
-                Descriptor.removeUnauthorizedFromObject(fullVersionCreator, [Config.types.private], [Config.types.api_readable]);
+                Descriptor.removeUnauthorizedFromObject(fullVersionCreator, [Elements.access_types.private], [Elements.access_types.api_readable]);
                 archivedResource.ddr.versionCreator = fullVersionCreator;
                 return cb(null);
             }
@@ -230,7 +230,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
                 function (err, fullChanges) {
                     if (isNull(err)) {
                         archivedResource.changes = fullChanges;
-                        Descriptor.removeUnauthorizedFromObject(archivedResource, [Config.types.private], [Config.types.api_readable]);
+                        Descriptor.removeUnauthorizedFromObject(archivedResource, [Elements.access_types.private], [Elements.access_types.api_readable]);
                         return cb(null);
                     }
                     else {

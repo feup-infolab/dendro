@@ -58,3 +58,7 @@ running.pid
 .vs/slnx.sqlite
 
 profiling/
+
+#ignoring the large file that is generated for export to ckan test
+test/mockdata/files/test_uploads/hugeTxtFile.txt
+.Rproj.user

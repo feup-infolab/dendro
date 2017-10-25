@@ -8,6 +8,7 @@ chai.use(require('chai-http'));
 const should = chai.should();
 const async = require("async");
 const colors = require("colors");
+const path = require('path');
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
@@ -109,6 +110,7 @@ module.exports.setup = function(finish)
                 })
             };
 
+            appUtils.registerStartTimeForUnit(path.basename(__filename));
             async.mapSeries(Config.demo_mode.users, createUser, function(err, results) {
                 if(isNull(err))
                 {
@@ -135,6 +137,7 @@ module.exports.setup = function(finish)
                         function(err, results){
                             if(isNull(err))
                             {
+                                appUtils.registerStopTimeForUnit(path.basename(__filename));
                                 end();
                                 finish(err, results);
                             }
@@ -142,6 +145,7 @@ module.exports.setup = function(finish)
                             {
                                 const msg = "Error creating Admins at createUsers.Unit";
                                 console.error(msg);
+                                appUtils.registerStopTimeForUnit(path.basename(__filename));
                                 end();
                                 finish(err, results);
                             }
@@ -151,6 +155,7 @@ module.exports.setup = function(finish)
                 {
                     var msg = "Error creating users at createUsers.Unit";
                     console.error(msg);
+                    appUtils.registerStopTimeForUnit(path.basename(__filename));
                     end();
                     finish(err, results);
                 }

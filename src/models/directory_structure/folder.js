@@ -3,6 +3,7 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
@@ -10,6 +11,7 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const slug = require('slug');
 const fs = require("fs");
@@ -69,7 +71,7 @@ Folder.prototype.saveIntoFolder = function(
                 includeOriginalNodes,
                 function (err, absPathOfFinishedFile) {
                 if (isNull(err)) {
-                    const descriptors = node.getDescriptors([Config.types.locked], [Config.types.backuppable]);
+                    const descriptors = node.getDescriptors([Elements.access_types.locked], [Elements.access_types.backuppable]);
                     const fileNode = {
                         resource: node.uri,
                         metadata: descriptors
@@ -127,7 +129,7 @@ Folder.prototype.saveIntoFolder = function(
                                         console.log(message);
 
                                         if (includeMetadata) {
-                                            const descriptors = node.getDescriptors([Config.types.locked], [Config.types.backuppable]);
+                                            const descriptors = node.getDescriptors([Elements.access_types.locked], [Elements.access_types.backuppable]);
 
                                             const folderNode = {
                                                 resource: node.uri,
@@ -163,7 +165,7 @@ Folder.prototype.saveIntoFolder = function(
 
                                 const selfMetadata = {
                                     resource: node.uri,
-                                    metadata: node.getDescriptors([Config.types.locked], [Config.types.backuppable]),
+                                    metadata: node.getDescriptors([Elements.access_types.locked], [Elements.access_types.backuppable]),
                                     children: []
                                 };
 
@@ -198,6 +200,83 @@ Folder.prototype.saveIntoFolder = function(
     };
 
     saveIntoFolder(self, destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback);
+};
+
+Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedChildren) {
+    const self = this;
+    let query;
+
+    /**
+     *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+     *    (Recursive querying through inference).
+     *   @type {string}
+     */
+    if(includeSoftDeletedChildren === true)
+    {
+        query =
+            "SELECT ?uri, ?last_modified, ?name\n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart+ ?uri. \n" +
+            "   ?uri ddr:modified ?last_modified. \n" +
+            "   OPTIONAL {?uri ddr:deleted true}. \n" +
+            "   ?uri nie:title ?name. \n" +
+            "} ";
+    }
+    else
+    {
+        query =
+            "SELECT ?uri, ?last_modified, ?name\n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart+ ?uri. \n" +
+            "   ?uri ddr:modified ?last_modified. \n" +
+            "   filter not exists { ?uri ddr:deleted 'true' }. \n" +
+            "   ?uri nie:title ?name. \n" +
+            "} ";
+    }
+
+    /*const query =
+        "SELECT ?uri, ?last_modified, ?name\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:hasLogicalPart+ ?uri. \n" +
+        "   ?uri ddr:modified ?last_modified. \n" +
+        "   ?uri nie:title ?name. \n" +
+        "} ";*/
+
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.resource,
+                value: self.uri
+            }
+        ],
+        function(err, result) {
+            if(isNull(err))
+            {
+                if(result instanceof Array)
+                {
+                    callback(err,result);
+                }
+                else
+                {
+                    return callback(true, "Invalid response when getting recursive children of resource : " + self.uri);
+                }
+            }
+            else
+            {
+                return callback(true, "Error reported when querying for the children of" + self.uri + " . Error was ->" + result);
+            }
+        }
+    );
 };
 
 Folder.prototype.createTempFolderWithContents = function(
@@ -279,7 +358,7 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
 
                         console.log("FINAL METADATA : " + JSON.stringify(metadata));
 
-                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), function(err) {
+                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function(err) {
                             if(err) {
                                 console.log(err);
                                 cb(err);
@@ -373,7 +452,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
 
                         console.log("FINAL METADATA : " + JSON.stringify(metadata));
 
-                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), function(err) {
+                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function(err) {
                             if(err) {
                                 console.log(err);
                                 cb(err);
@@ -736,7 +815,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
 
             if(files.length > 0)
             {
-                console.error("Starting to load children of folder " + absolutePathOfLocalFolder + " into a folder with title " + self.nie.title + " ("+ self.uri +")");
+                //console.error("Starting to load children of folder " + absolutePathOfLocalFolder + " into a folder with title " + self.nie.title + " ("+ self.uri +")");
 
                 async.mapSeries(files, function(fileName, cb){
                     const absPath = path.join(absolutePathOfLocalFolder, fileName);
@@ -744,14 +823,14 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
                         if(stats.isFile())
                         {
                             loadChildFile(fileName, function(err, savedChildFile){
-                                console.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
+                                //console.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
                                 return cb(err, savedChildFile);
                             });
                         }
                         else if(stats.isDirectory())
                         {
                             loadChildFolder(fileName, function(err, savedChildFolder){
-                                console.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
+                                //console.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
                                 return cb(err, savedChildFolder);
                             });
                         }
@@ -759,9 +838,9 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
                 }, function(err, results){
                     if(isNull(err))
                     {
-                        console.log("Adding pointers to children of " + path.basename(absolutePathOfLocalFolder) + " loaded into " + self.nie.title);
+                        //console.log("Adding pointers to children of " + path.basename(absolutePathOfLocalFolder) + " loaded into " + self.nie.title);
                         addChildrenTriples(results, function(err, result){
-                            console.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
+                            //console.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
                             return callback(null, self);
                         });
                     }
@@ -790,7 +869,7 @@ Folder.prototype.loadMetadata = function(
 )
 {
     const self = this;
-    console.log("Restoring metadata of " + node.resource + " into "+ self.uri);
+    //console.log("Restoring metadata of " + node.resource + " into "+ self.uri);
 
     const getDescriptor = function(prefixedForm, node)
     {
@@ -1094,7 +1173,7 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                                 {
                                     return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
                                 }
-                            }, entityLoadingTheMetadataUri, [Config.types.locked],[Config.types.restorable])
+                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked],[Elements.access_types.restorable])
                         });
                     }
                     else

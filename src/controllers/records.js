@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
@@ -196,7 +197,7 @@ exports.show_parent = function(req, res) {
                         {
                             if(!isNull(parent) && parent instanceof Object)
                             {
-                                const descriptors = parent.getDescriptors([Config.types.private, Config.types.locked], [Config.types.api_readable]);
+                                const descriptors = parent.getDescriptors([Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
 
                                 if(!isNull(descriptors) && descriptors instanceof Array)
                                 {
@@ -354,7 +355,7 @@ exports.update = function(req, res) {
                     changeAuthor = req.user.uri;
                 }
 
-                resource.replaceDescriptors(fusedDescriptors, [Config.types.locked, Config.types.private], []);
+                resource.replaceDescriptors(fusedDescriptors, [Elements.access_types.locked, Elements.access_types.private], []);
 
                 resource.save(function(err, updatedResource)
                 {
@@ -382,7 +383,7 @@ exports.update = function(req, res) {
                             message : updatedResource
                         })
                     }
-                }, true, changeAuthor, [Config.types.locked], [], [Config.types.audit]);
+                }, true, changeAuthor, [Elements.access_types.locked], [], [Elements.access_types.audit]);
             },
             function(resource, callback) {
                 //Look for the project
@@ -573,7 +574,7 @@ exports.update = function(req, res) {
                                      changeAuthor = req.user.uri;
                                 }
 
-                                resource.replaceDescriptors(fusedDescriptors, [Config.types.locked, Config.types.private], []);
+                                resource.replaceDescriptors(fusedDescriptors, [Elements.access_types.locked, Elements.access_types.private], []);
 
                                 resource.save(function(err, record)
                                 {
@@ -636,7 +637,7 @@ exports.update = function(req, res) {
                                             message : record
                                         })
                                     }
-                                }, true, changeAuthor, [Config.types.locked], [], [Config.types.audit]);
+                                }, true, changeAuthor, [Elements.access_types.locked], [], [Elements.access_types.audit]);
                             }
                             else
                             {

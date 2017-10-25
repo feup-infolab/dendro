@@ -113,7 +113,10 @@
                         <%- include ../uploads/upload_box.ejs %>
                     </div>
                     <div class="col-xs-12">
-                        <%- include ../uploads/progress_bars.ejs %>
+                        <br/>
+                        <div class="row" ng-repeat="file in upload_files">
+                            <%- include ../uploads/file_upload_progress_bar.ejs %>
+                        </div>
                     </div>
                 </div>
                 <br/>
@@ -187,7 +190,10 @@
                     <%- include ../uploads/upload_box.ejs %>
                 </div>
                 <div class="col-xs-12">
-                    <%- include ../uploads/progress_bars.ejs %>
+                    <br/>
+                    <div class="row" ng-repeat="file in upload_files">
+                        <%- include ../uploads/file_upload_progress_bar.ejs %>
+                    </div>
                 </div>
             </div>
 

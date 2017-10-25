@@ -62,7 +62,7 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-            db.connection.execute(query,
+            db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type : Elements.types.resourceNoEscape,
@@ -87,7 +87,7 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
 };
 
 exports.getUserPostsUris = function (userUri, currentPage, callback) {
-    var index = currentPage == 1 ? 0 : (currentPage * 5) - 5;
+    var index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     var maxResults = 5;
     Project.findByCreatorOrContributor(userUri, function (err, projects) {
         if (!err) {
@@ -125,7 +125,7 @@ const getNumLikesForAPost = function (postID, cb) {
         "?likeURI ddr:userWhoLiked ?userURI . \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -172,7 +172,7 @@ const numPostsDatabaseAux = function (projectUrisArray, callback) {
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n ";
 
-            db.connection.execute(query,
+            db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type : Elements.types.resourceNoEscape,
@@ -209,7 +209,7 @@ const userLikedAPost = function (postID, userUri, cb) {
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -249,7 +249,7 @@ const removeOrAddLike = function (postID, userUri, cb) {
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -295,7 +295,7 @@ const getCommentsForAPost = function (postID, cb) {
         "} \n" +
         "ORDER BY ASC(?date) \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -334,7 +334,7 @@ exports.getPosts_controller = function (req, res) {
 
         getSharesOrPostsInfo(postsQueryInfo, function (err, postInfo) {
             if (isNull(err)) {
-                if (isNull(postInfo) || postInfo.length == 0) {
+                if (isNull(postInfo) || postInfo.length === 0) {
                     var errorMsg = "Post uris not found";
                     res.status(404).json({
                         result: "Error",
@@ -374,7 +374,7 @@ const getSharesForAPost = function (postID, cb) {
         "?shareURI ddr:postURI [1]. \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -472,7 +472,7 @@ const removeLike = function (likeID, userUri, cb) {
         //"?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaHTTP(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -502,7 +502,7 @@ exports.all = function (req, res) {
     const acceptsHTML = req.accepts('html');
     const acceptsJSON = req.accepts('json');
     const currentPage = req.query.currentPage;
-    const index = currentPage == 1 ? 0 : (currentPage * 5) - 5;
+    const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
 
     //TODO receber filters aqui para os posts da timeline de acordo com (order by numLikes, project, all my projects, etc)

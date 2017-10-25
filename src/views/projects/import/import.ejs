@@ -35,8 +35,9 @@
                        class="form-control"
                        id="handle"
                        placeholder="The handle of the imported project"
-                       ng-model="handle">
-                <p class="help-block">This will be a unique identifier for the project that will be created after importing this backup. <u>Only lower case and numbers.</u> Example: "gravimetry01" </p>
+                       ng-model="handle"
+                       required="">
+                <p class="help-block"><u class="label" ng-class="{ 'label-success': valid_word(handle), 'label-primary': !handle, 'label-danger' : handle && !valid_word(handle)}">Only lower case and numbers.</u> Example: "gravimetry01". This will be a unique identifier for the project that will be created after importing this backup. </p>
                 <span ng-show="!handle" class="glyphicon glyphicon-remove form-control-feedback"></span>
                 <span ng-show="valid_word(handle) && handle" class="glyphicon glyphicon-ok form-control-feedback"></span>
                 <span ng-show="!valid_word(handle) && handle" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
@@ -44,34 +45,41 @@
         </div>
 
         <div class="form-group">
+            <label for="handle" class="col-sm-2 control-label">Enter the imported project title</label>
+
+            <div class="col-sm-10">
+                <input type="text"
+                       class="form-control"
+                       id="title"
+                       placeholder="The title of the imported project"
+                       ng-model="title"
+                       required="">
+                <p class="help-block"><u class="label" ng-class="{ 'label-success': title, 'label-primary': !title}">The title of your imported project</u></p>
+                <span ng-show="!title" class="glyphicon glyphicon-remove form-control-feedback"></span>
+                <span ng-show="title" class="glyphicon glyphicon-ok form-control-feedback"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
             <label for="upload" class="col-sm-2 control-label">Select your backup file</label>
             <div class="col-sm-10">
-                <input type="file" ngf-select ng-model="file" name="new_project_file" ngf-accept="'application/zip'" required="" ng-show="!uploading">
+                <input type="file" ngf-select ng-model="file" name="new_project_file" ngf-accept="'application/zip'" required="" ng-show="!file.uploading">
 
-                {{file.name}}
-
-                <div class="progress" ng-show="uploading">
-                    <div class="progress-bar progress-bar-striped"
-                         role="progressbar"
-                         id="upload"
-                         aria-valuenow="{{file.progress}}"
-                         aria-valuemin="0"
-                         aria-valuemax="100"
-                         ng-class="{animated: uploading}"
-                         style="width: {{file.progress}}%">
-                        <span class="sr-only">{{file.upload_progress}}% Complete</span>
-                    </div>
+                <br/>
+                <div ng-if="file.name">
+                    <%- include ../../uploads/file_upload_progress_bar.ejs %>
                 </div>
+
                 <p class="help-block">
-                    A <u>ZIP file</u> containing a project backup.
+                    <u class="label" ng-class="{ 'label-primary': !file.name, 'label-success': file.name }">A <u>ZIP file</u> containing a project backup.</u>
                     Maximum zip file size : <%= locals.maxUploadSize %>. Maximum project size after unzipping : <%= locals.maxProjectSize %>
                 </p>
             </div>
         </div>
 
         <div class="col-sm-10">
-            <button class="btn btn-primary" id="import_button" ng-click="import_project(file)">
-                Import project
+            <button class="btn btn-primary" id="import_button" ng-click="import_project(file, handle, title)" ng-disabled="!file.name || !title || !valid_word(handle) || file.uploading">
+                <i ng-show="file.uploading" class="fa-spinner faa-spin animated"></i>Import project
             </button>
         </div>
     </form>

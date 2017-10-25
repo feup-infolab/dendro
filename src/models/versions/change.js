@@ -35,7 +35,7 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
         "?uri ddr:pertainsTo [1] . \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,

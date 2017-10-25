@@ -7,6 +7,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const async = require("async");
 const _ = require("underscore");
@@ -71,7 +72,7 @@ exports.all = function(req, res){
     const getAllUsers = function (cb) {
         User.all(function (err, users) {
             cb(err, users);
-        }, req, null, [Config.types.private, Config.types.locked], [Config.types.api_readable]);
+        }, req, null, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
     };
 
     async.parallel(
@@ -172,7 +173,7 @@ exports.show = function(req, res){
             {
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
-                    const filteredUser = Descriptor.removeUnauthorizedFromObject(user, [Config.types.private, Config.types.locked], [Config.types.api_readable]);
+                    const filteredUser = Descriptor.removeUnauthorizedFromObject(user, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
                     res.json(
                         filteredUser
                     );
@@ -533,6 +534,22 @@ exports.get_avatar = function (req, res) {
         }
     }
 
+    const serveDefaultAvatar = function()
+    {
+        //User does not have an avatar
+        let absPathOfFileToServe = Pathfinder.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
+        let fileStream = fs.createReadStream(absPathOfFileToServe);
+
+        let filename = path.basename(absPathOfFileToServe);
+
+        res.writeHead(200, {
+            "Content-Type": "application/octet-stream",
+            "Content-Disposition": "attachment; filename=" + filename
+        });
+
+        fileStream.pipe(res);
+    };
+
     getUser(function (err, user) {
         if (!err) {
             if (!user) {
@@ -543,20 +560,10 @@ exports.get_avatar = function (req, res) {
             }
             else {
                 if (!user.ddr.hasAvatar) {
-                    //User does not have an avatar
-                    let absPathOfFileToServe = Pathfinder.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
-                    let fileStream = fs.createReadStream(absPathOfFileToServe);
-
-                    let filename = path.basename(absPathOfFileToServe);
-
-                    res.writeHead(200, {
-                        "Content-Type": "application/octet-stream",
-                        "Content-Disposition": "attachment; filename=" + filename
-                    });
-
-                    fileStream.pipe(res);
+                    serveDefaultAvatar();
                 }
-                else {
+                else
+                {
                     //User has an avatar
                     user.getAvatarFromGridFS(function (err, avatarFilePath) {
                         if (!err) {
@@ -572,10 +579,17 @@ exports.get_avatar = function (req, res) {
                             fileStream.pipe(res);
                         }
                         else {
-                            res.status(500).json({
-                                result: "Error",
-                                message: "Error trying to get from gridFs user Avatar from user identifier " + identifier + " Error reported: " + JSON.stringify(avatarFilePath)
-                            });
+                            if(err === 404)
+                            {
+                                serveDefaultAvatar();
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result: "Error",
+                                    message: "Error trying to get from gridFs user Avatar from user identifier " + identifier + " Error reported: " + JSON.stringify(avatarFilePath)
+                                });
+                            }
                         }
                     });
                 }

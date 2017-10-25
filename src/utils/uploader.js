@@ -16,18 +16,82 @@ const Uploader = function()
 
 };
 
-Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
+Uploader.prototype.handleUpload = function(req, res, callback)
 {
+    const restart = req.query.restart;
     const upload_id = req.query.upload_id;
     const upload = UploadManager.get_upload_by_id(upload_id);
     const username = req.query.username;
     const filename = req.query.filename;
-    const size = req.query.size;
-    const restart = req.query.restart;
+    let size = req.query.size;
+
+    if(!isNull(size))
+    {
+        try{
+            size = parseInt(size);
+        }
+        catch(e)
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "The 'size' field, which should be length of the uploaded file in bytes, is not a valid integer."
+            });
+        }
+    }
+
     let md5_checksum = req.query.md5_checksum;
 
     const processChunkedUpload = function(upload, callback) {
-        if (!isNull(upload))
+
+        //console.log("Recebi um chunk do ficheiro " + filename + " para o upload id " + upload_id);
+
+        if(isNull(username))
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Request is missing the 'username' field, which should be the currently logged in user."
+            });
+        }
+
+        if(isNull(filename))
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Request is missing the 'filename' field, which should be the name of the file being uploaded."
+            });
+        }
+
+        if(isNull(size))
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Request is missing the 'size' field, which should be length of the uploaded file in bytes."
+            });
+        }
+
+        if(!isNull(upload)
+            && (
+                upload.username !== username ||
+                upload.filename !== filename ||
+                upload.expected !== size ||
+                upload.id !== upload_id
+            )
+        )
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Invalid request for appending data to upload : " + upload_id,
+                error: {
+                    invalid_username : !(upload.username === username),
+                    invalid_filename : !(upload.filename === filename),
+                    invalid_size : !(upload.expected === size),
+                    id : !(upload.id === upload_id),
+                }
+            });
+        }
+
+
+        if (!isNull(upload) && upload !== "")
         {
             const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
 
@@ -75,7 +139,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                                 md5File(upload.temp_file, function (err, hash) {
                                     if (isNull(err)) {
                                         if (md5_checksum !== hash) {
-                                            callback(400, {
+                                            res.status(400).json({
                                                 result: "error",
                                                 message: "File was corrupted during transfer. Please repeat this upload.",
                                                 error: "invalid_checksum",
@@ -86,11 +150,11 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                                         else
                                         {
                                             //TODO replace with final processing of files (Saving + metadata)
-                                            uploadCompleteCallback(null, req.files);
+                                            callback(null, req.files);
                                         }
                                     }
                                     else {
-                                        callback(500, {
+                                        res.status(500).json({
                                             result: "error",
                                             message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
                                             error: hash
@@ -100,15 +164,14 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                             }
                             else
                             {
-                                res.json(
-                                    {
-                                        size: upload.size
-                                    });
+                                res.json({
+                                    size: upload.expected
+                                });
                             }
                         }
                         else
                         {
-                            callback(500, {
+                            res.status(500).json({
                                 result: "error",
                                 message: "There was an error writing a part of the upload to the server."
                             });
@@ -126,11 +189,10 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
         }
         else
         {
-            res.status(500).json(
-                {
-                    result: "error",
-                    message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
-                });
+            res.status(500).json({
+                result: "error",
+                message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
+            });
         }
     };
 
@@ -156,6 +218,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
 
             req.busboy.on('file', function (fieldname, file, filename) {
                 ++filesCounter;
+                let fileSize = 0;
 
                 tmp.dir({dir : Config.tempFilesDir}, function _tempDirCreated(err, tempFolderPath) {
                     if(isNull(err))
@@ -167,14 +230,29 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                             return callback(1, "Error saving file from request into temporary file");
                         });
 
+                        file.on('data', function (data) {
+                            fileSize += data.length;
+                        });
+
                         fstream.on('finish', function() {
                             --filesCounter;
 
-                            files.push({
-                                path : newFileLocalPath,
-                                name : filename
-                            });
-
+                            if(fileSize === 0)
+                            {
+                                //if the file is empty push it to the array but with an error message of
+                                files.push({
+                                    path : newFileLocalPath,
+                                    name : filename,
+                                    error: "Invalid file size! You cannot upload empty files!"
+                                });
+                            }
+                            else
+                            {
+                                files.push({
+                                    path : newFileLocalPath,
+                                    name : filename
+                                });
+                            }
                             allDone(filesCounter, false);
                         });
 
@@ -182,7 +260,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                     }
                     else
                     {
-                        return uploadCompleteCallback(1, "Error creating temporary folder for receiving file from request into temporary file");
+                        return callback(1, "Error creating temporary folder for receiving file from request into temporary file");
                     }
                 });
             });
@@ -230,7 +308,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                                 }
                                 else
                                 {
-                                    uploadCompleteCallback(400, {
+                                    res.status(400).json({
                                         result : "result",
                                         message : "Error resetting upload."
                                     });
@@ -247,20 +325,18 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                     }
                     else
                     {
-                        res.status(400).json(
-                            {
-                                result: "error",
-                                message: "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
-                            });
+                        res.status(400).json({
+                            result: "error",
+                            message: "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
+                        });
                     }
                 }
                 else
                 {
-                    res.status(400).json(
-                        {
-                            result: "error",
-                            message: "The upload id is invalid."
-                        });
+                    res.status(400).json({
+                        result: "error",
+                        message: "The upload id is invalid."
+                    });
                 }
 
             }
@@ -274,10 +350,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                     filename !== "" &&
 
                     typeof md5_checksum !== "undefined" &&
-                    md5_checksum !== "" &&
-
-                    !isNull(req.params.requestedResourceUri) &&
-                    req.params.requestedResourceUri !== ""
+                    md5_checksum !== ""
                 )
                 {
                     UploadManager.add_upload(
@@ -297,7 +370,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
                             }
                             else
                             {
-                                uploadCompleteCallback(500, {
+                                res.status(500).json({
                                     result: "error",
                                     message: "There was an error registering the new upload.",
                                     error: err
@@ -318,7 +391,7 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
             {
                 res.status(400).json({
                     result: "error",
-                    message: "User must be authenticated in the system to upload files."
+                    message: "You must supply the username of the user who is trying to perform the upload. Parameter 'username' is missing."
                 });
             }
         }
@@ -329,11 +402,36 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
         {
             if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
             {
-                processChunkedUpload(upload, uploadCompleteCallback);
+                if(req.query.size && !isNaN(req.query.size) && req.query.size > 0)
+                {
+                    processChunkedUpload(upload, function(err, result){
+                        if(isNull(err))
+                        {
+                            console.log("Completed upload of file " + filename + " !! " + new Date().toISOString());
+                            callback(err, result);
+                        }
+                        else
+                        {
+                            res.status(err).json({
+                                result: "error",
+                                message: "There were errors processing your upload",
+                                error : result,
+                                files: fileNames
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    res.status(412).json({
+                        result: "error",
+                        message: "Invalid file size! You cannot upload empty files!"
+                    });
+                }
             }
             else
             {
-                return uploadCompleteCallback(400, {
+                res.status(400).json({
                     result: "error",
                     message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
                     files: fileNames
@@ -342,10 +440,95 @@ Uploader.prototype.handleUpload = function(req, res, uploadCompleteCallback)
         }
         else
         {
-            processNormalUpload(uploadCompleteCallback);
+            processNormalUpload(callback);
         }
     }
-}
+};
+
+exports.resume = function(req, res)
+{
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    if (req.originalMethod === "GET")
+    {
+        const resume = req.query.resume;
+        const upload_id = req.query.upload_id;
+        const username = req.query.username;
+
+        if(!isNull(resume))
+        {
+            if(typeof req.session.upload_manager !== "undefined")
+            {
+                if (typeof upload_id !== "undefined")
+                {
+                    const upload = UploadManager.get_upload_by_id(upload_id);
+
+                    if (upload.username === username)
+                    {
+                        res.json({
+                            size: upload.loaded
+                        });
+                    }
+                    else
+                    {
+                        const msg = "The upload does not belong to the user currently trying to resume.";
+                        console.error(msg);
+                        res.status(400).json({
+                            result: "error",
+                            msg: msg
+                        });
+                    }
+                }
+                else
+                {
+                    res.json({
+                        size: 0
+                    });
+                }
+            }
+            else
+            {
+                const msg = "The user does not have a session initiated.";
+                console.error(msg);
+                res.status(400).json({
+                    result: "error",
+                    msg: msg
+                });
+            }
+        }
+        else
+        {
+            const msg = "Invalid Request, does not contain the 'resume' query parameter.";
+            console.error(msg);
+            res.status(400).json({
+                result: "error",
+                msg: msg
+            });
+        }
+    }
+    else
+    {
+        if(acceptsJSON && !acceptsHTML)
+        {
+            const msg = "This is only accessible via GET method";
+            req.flash('error', "Invalid Request");
+            console.log(msg);
+            res.status(400).render('',
+                {
+                }
+            );
+        }
+        else
+        {
+            res.status(400).json({
+                result : "error",
+                msg : "This API functionality is only accessible via GET method."
+            });
+        }
+
+    }
+};
 
 module.exports.Uploader = Uploader;
 

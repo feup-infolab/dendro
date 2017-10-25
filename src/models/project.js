@@ -38,6 +38,16 @@ function Project(object)
         self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
     }
 
+    if(isNull(object.ddr.hasStorageLimit))
+    {
+        self.ddr.hasStorageLimit = Config.maxProjectSize;
+    }
+
+    if(isNull(object.ddr.requiresVerifiedUploads))
+    {
+        self.ddr.requiresVerifiedUploads = false;
+    }
+
     return self;
 }
 
@@ -79,6 +89,7 @@ Project.prototype.backup = function(callback)
 
                                     const finishedZipFileName = "bagit_backup.zip";
                                     const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
+
                                     Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function(err, zipFileFullPath){
                                         return callback(err, zipFileFullPath, parentFolderPath);
                                     }, finishedZipFileName, true);
@@ -148,7 +159,7 @@ Project.allNonPrivate = function(currentUser, callback) {
         "} ";
 
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -200,7 +211,7 @@ Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
         "    }\n" +
         "}\n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -250,7 +261,7 @@ Project.findByHandle = function(handle, callback) {
         " ?uri ddr:handle [1] " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
 
             {
@@ -323,7 +334,7 @@ Project.prototype.getCreatorsAndContributors = function(callback)
         "} \n";
 
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -380,7 +391,7 @@ Project.findByContributor = function(contributor, callback)
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -434,7 +445,7 @@ Project.findByCreator = function(creator, callback) {
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -493,7 +504,7 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -601,7 +612,7 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback) {
         "   } \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -706,7 +717,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 
     //query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -796,7 +807,7 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type : Elements.types.resourceNoEscape,
@@ -856,7 +867,7 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -973,7 +984,7 @@ Project.prototype.getFilesCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -1024,7 +1035,7 @@ Project.prototype.getMembersCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -1074,7 +1085,7 @@ Project.prototype.getFoldersCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -1122,7 +1133,7 @@ Project.prototype.getRevisionsCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -1244,7 +1255,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "		   	) \n" +
     "		} \n";
 
-    db.connection.execute(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
         function(err, descriptors)
@@ -1378,7 +1389,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "		   	) \n" +
         "		} \n";
 
-    db.connection.execute(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
         function(err, descriptors)
@@ -1581,50 +1592,56 @@ Project.unzipAndValidateBagItBackupStructure = function(absPathToZipFile, maxSto
     {
         if(isNull(err))
         {
-            if(size < maxStorageSize)
+            if(!isNaN(size))
             {
-                File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
-                    if(isNull(err))
-                    {
-                        Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
+                if(size < maxStorageSize)
+                {
+                    File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
+                        if(isNull(err))
                         {
-                            if(isNull(err))
+                            Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
                             {
-                                if(valid)
+                                if(isNull(err))
                                 {
-                                    return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
+                                    if(valid)
+                                    {
+                                        return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
+                                    }
+                                    else
+                                    {
+                                        return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    }
                                 }
                                 else
                                 {
-                                    return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    return callback(err, pathToFolderToRestore);
                                 }
-                            }
-                            else
-                            {
-                                return callback(err, pathToFolderToRestore);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
-                        return callback(err, msg);
-                    }
-                });
+                            });
+                        }
+                        else
+                        {
+                            const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
+                            return callback(err, msg);
+                        }
+                    });
+                }
+                else
+                {
+                    const filesize = require('file-size');
+                    const difference = maxStorageSize - size;
+
+                    const humanSizeDifference = filesize(difference).human('jedec');
+                    const humanZipFileSize = filesize(size).human('jedec');
+                    const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
+
+                    const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
+                    return callback(err, msg);
+                }
             }
             else
             {
-                const filesize = require('file-size');
-                const difference = maxStorageSize - size;
-
-                const humanSizeDifference = filesize(difference).human('jedec');
-                const humanZipFileSize = filesize(size).human('jedec');
-                const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
-
-                const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
-                return callback(err, msg);
+                return callback(1, "Unable to determine the size of the ZIP File, because the file was corrupted during transfer!");
             }
-
         }
         else
         {
@@ -1696,7 +1713,7 @@ Project.prototype.restoreFromFolder = function(
                                     {
                                         return callback(err, "Error restoring metadata for project " + self.uri + " : " + result);
                                     }
-                                }, entityLoadingTheMetadataUri, [Config.types.locked], [Config.types.restorable])
+                                }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable])
                             });
                         }
                         else
@@ -1737,7 +1754,7 @@ Project.prototype.clearCacheRecords = function(callback, customGraphUri)
 
         findQuery = DbConnection.addLimitsClauses(findQuery, pageSize * currentPage, pageSize);
 
-        db.connection.execute(findQuery,
+        db.connection.executeViaJDBC(findQuery,
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -1804,7 +1821,7 @@ Project.prototype.delete = function(callback)
             "   } \n"+
             "} \n";
 
-        db.connection.execute(deleteQuery,
+        db.connection.executeViaHTTP(deleteQuery,
             [
                 {
                     type: Elements.types.resourceNoEscape,
