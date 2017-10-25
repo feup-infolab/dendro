@@ -62,7 +62,7 @@ const buildCkanFileIDsFromDendroFileNames = function (namesOfResourcesInDendro) 
  * @param client the Ckan client object
  * @param callback the callback function
  */
-const compareDendroPackageWithCkanPackage = function (folder, packageId, client, callback) {
+const calculateDendroDiffs = function (folder, packageId, client, callback) {
     let lastExportedAtDate = null;
     let folderResourcesInDendro = null;
     let folderResourcesInCkan = null;
@@ -280,7 +280,7 @@ const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResour
  * @param targetRepository a Ckan repository object containing the properties ddr.hasExternalUri and ddr.hasAPIKey
  * @param callback the callback
  */
-const calculateDiffsBetweenDendroCkan = function (requestedResourceUri, targetRepository, callback) {
+const getBothDendroDiffsAndCkanDiffs = function (requestedResourceUri, targetRepository, callback) {
     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
     let exportedAtDate = null;
     let changedResourcesInCkan = [];
@@ -315,7 +315,7 @@ const calculateDiffsBetweenDendroCkan = function (requestedResourceUri, targetRe
                                         client.getChangesInDatasetAfterDate(exportedAtDate, packageId, function (err, result) {
                                             if(result.success) {
                                                 changedResourcesInCkan = result.result.changedResources;
-                                                compareDendroPackageWithCkanPackage(folder, packageId, client, function (err, diffs) {
+                                                calculateDendroDiffs(folder, packageId, client, function (err, diffs) {
                                                     if (isNull(err)) {
                                                         callback(err, {
                                                             dendroDiffs: diffs,
@@ -380,7 +380,7 @@ const calculateCkanRepositoryDiffs = function (requestedResourceUri, targetRepos
             });
         },
         function (folder, callback) {
-            calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
+            getBothDendroDiffsAndCkanDiffs(requestedResourceUri, targetRepository, function (err, diffs) {
                 callback(err, diffs);
             });
         }
@@ -797,7 +797,7 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
 
     async.waterfall([
         function (callback) {
-            calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
+            getBothDendroDiffsAndCkanDiffs(requestedResourceUri, targetRepository, function (err, diffs) {
                 callback(err, diffs);
             });
         },
@@ -889,11 +889,11 @@ module.exports = {
     updateOrInsertExportedAtByDendroForCkanDataset: updateOrInsertExportedAtByDendroForCkanDataset,
     createCkanFileIdBasedOnDendroFileName: createCkanFileIdBasedOnDendroFileName,
     verifyIfCkanFileWasCreatedInDendro: verifyIfCkanFileWasCreatedInDendro,
-    compareDendroPackageWithCkanPackage: compareDendroPackageWithCkanPackage,
+    calculateDendroDiffs: calculateDendroDiffs,
     getExportedAtByDendroForCkanDataset: getExportedAtByDendroForCkanDataset,
     createPackageID: createPackageID,
     checkIfResourceHasTheRequiredMetadataForExport: checkIfResourceHasTheRequiredMetadataForExport,
-    calculateDiffsBetweenDendroCkan: calculateDiffsBetweenDendroCkan,
+    getBothDendroDiffsAndCkanDiffs: getBothDendroDiffsAndCkanDiffs,
     calculateCkanRepositoryDiffs: calculateCkanRepositoryDiffs,
     createOrUpdateFilesInPackage: createOrUpdateFilesInPackage,
     createPackageInCkan: createPackageInCkan,
