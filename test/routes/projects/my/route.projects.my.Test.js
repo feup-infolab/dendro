@@ -27,8 +27,8 @@ const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
 describe("My Projects", function (done) {
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(Config.testsTimeout);
         addContributorsToProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();

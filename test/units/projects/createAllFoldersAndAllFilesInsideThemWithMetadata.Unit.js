@@ -65,7 +65,8 @@ module.exports.setup = function(finish)
                                 fileUtils.uploadFile(true, agent, projectData.handle, folderData.name,  fileData, function (err, res) {
                                     if(isNull(err))
                                     {
-                                        itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, fileData.metadata, function (err, res) {
+                                        const newFileUri = JSON.parse(res.text)[0].uri;
+                                        itemUtils.updateItemMetadataByUri(true, agent, newFileUri, fileData.metadata, function (err, res) {
                                             cb(err, res);
                                         });
                                     }

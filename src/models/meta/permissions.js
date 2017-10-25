@@ -147,7 +147,7 @@ const getOwnerProject = function (requestedResource, callback) {
 
 /** Role-based validation **/
 
-const checkRoleInSystem = function (req, user, role, callback) {
+const checkRoleInSystem = Permissions.checkRoleInSystem = function (req, user, role, callback) {
     if (!isNull(user)) {
         user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result) {
             return callback(err, result);

@@ -18,15 +18,79 @@ const Uploader = function()
 
 Uploader.prototype.handleUpload = function(req, res, callback)
 {
+    const restart = req.query.restart;
     const upload_id = req.query.upload_id;
     const upload = UploadManager.get_upload_by_id(upload_id);
     const username = req.query.username;
     const filename = req.query.filename;
-    const size = req.query.size;
-    const restart = req.query.restart;
+    let size = req.query.size;
+
+    if(!isNull(size))
+    {
+        try{
+            size = parseInt(size);
+        }
+        catch(e)
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "The 'size' field, which should be length of the uploaded file in bytes, is not a valid integer."
+            });
+        }
+    }
+
     let md5_checksum = req.query.md5_checksum;
 
     const processChunkedUpload = function(upload, callback) {
+
+        //console.log("Recebi um chunk do ficheiro " + filename + " para o upload id " + upload_id);
+
+        if(isNull(username))
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Request is missing the 'username' field, which should be the currently logged in user."
+            });
+        }
+
+        if(isNull(filename))
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Request is missing the 'filename' field, which should be the name of the file being uploaded."
+            });
+        }
+
+        if(isNull(size))
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Request is missing the 'size' field, which should be length of the uploaded file in bytes."
+            });
+        }
+
+        if(!isNull(upload)
+            && (
+                upload.username !== username ||
+                upload.filename !== filename ||
+                upload.expected !== size ||
+                upload.id !== upload_id
+            )
+        )
+        {
+            return res.status(400).json({
+                result: "error",
+                message: "Invalid request for appending data to upload : " + upload_id,
+                error: {
+                    invalid_username : !(upload.username === username),
+                    invalid_filename : !(upload.filename === filename),
+                    invalid_size : !(upload.expected === size),
+                    id : !(upload.id === upload_id),
+                }
+            });
+        }
+
+
         if (!isNull(upload) && upload !== "")
         {
             const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
@@ -101,7 +165,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                             else
                             {
                                 res.json({
-                                    size: upload.size
+                                    size: upload.expected
                                 });
                             }
                         }
@@ -141,7 +205,6 @@ Uploader.prototype.handleUpload = function(req, res, callback)
 
             function allDone(filesCounter, finished)
             {
-
                 if(finished)
                 {
                     allFinished = true;
@@ -341,7 +404,22 @@ Uploader.prototype.handleUpload = function(req, res, callback)
             {
                 if(req.query.size && !isNaN(req.query.size) && req.query.size > 0)
                 {
-                    processChunkedUpload(upload, callback);
+                    processChunkedUpload(upload, function(err, result){
+                        if(isNull(err))
+                        {
+                            console.log("Completed upload of file " + filename + " !! " + new Date().toISOString());
+                            callback(err, result);
+                        }
+                        else
+                        {
+                            res.status(err).json({
+                                result: "error",
+                                message: "There were errors processing your upload",
+                                error : result,
+                                files: fileNames
+                            });
+                        }
+                    });
                 }
                 else
                 {

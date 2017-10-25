@@ -1,4 +1,5 @@
 const path = require("path");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -14,6 +15,7 @@ const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissi
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const nodemailer = require("nodemailer");
 const db = Config.getDBByID();
@@ -238,7 +240,7 @@ exports.show = function(req, res) {
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    }, [Config.types.locked, Config.types.locked_for_projects, Config.types.private]);
+                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
                 }
                 else {
                     requestedResource.findMetadata(function (err, result) {
@@ -252,7 +254,7 @@ exports.show = function(req, res) {
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    }, [Config.types.locked, Config.types.locked_for_projects, Config.types.private]);
+                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
                 }
 
                 return false;
@@ -457,7 +459,7 @@ exports.show = function(req, res) {
                 else
                 {
                     const projectDescriptors = project.getDescriptors(
-                        [Config.types.private, Config.types.locked], [Config.types.api_readable], [Config.types.locked_for_projects, Config.types.locked]
+                        [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
                     );
 
                     if(!isNull(projectDescriptors) && projectDescriptors instanceof Array)
@@ -1043,37 +1045,137 @@ exports.administer = function(req, res) {
                         });
                     };
 
+                    let updateProjectSettings = function(project, callback)
+                    {
+                        const updateStorageLimit = function(callback)
+                        {
+                            if(!isNull(req.body.storage_limit))
+                            {
+                                try{
+                                    req.body.storage_limit = parseInt(req.body.storage_limit)
+                                }
+                                catch(e)
+                                {
+                                    return callback(true, "Invalid storage limit value "+req.body.storage_limit+" specified. It must be an integer number. ");
+                                }
+
+                                User.findByUri(req.user.uri, function(err, user){
+                                    if(isNull(err))
+                                    {
+                                        Permissions.checkRoleInSystem(req, user, Permissions.settings.role.in_system.admin, function (err, isAdmin) {
+                                            //Admins can set sizes larger than the default maximum,
+                                            // otherwise the user is limited to the maximum project size in the development_configs.json file
+                                            if(isAdmin)
+                                            {
+                                                project.ddr.hasStorageLimit = req.body.storage_limit;
+                                            }
+                                            else
+                                            {
+                                                project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize);
+                                            }
+
+                                            return callback(null, project);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        console.error(JSON.stringify(err));
+                                        console.error(JSON.stringify(user));
+                                        return callback(true, "Unable to validate permissions of the currently logged user when updating the storage limit.");
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                callback(null, project);
+                            }
+                        };
+
+                        if(!isNull(req.body.verified_uploads) && (req.body.verified_uploads === true || req.body.verified_uploads === false))
+                        {
+                            project.ddr.requiresVerifiedUploads = req.body.verified_uploads;
+                        }
+
+                        updateStorageLimit(function(err, result){
+                            callback(err, result);
+                        })
+                    };
+
                     let updateProjectContributors = function(project, callback)
                     {
                         if (!isNull(req.body.contributors) && req.body.contributors instanceof Array)
                         {
                             async.map(req.body.contributors, function (contributor, callback) {
-                                //from http://www.dzone.com/snippets/validate-url-regexp
-                                const regexpUsername = /(\w+)?/;
+                                const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+                                const userUriRegexp = Resource.getResourceRegex("user");
+                                const userUsernameRegexp = new RegExp(/^[a-zA-Z0-9_]+$/);
                                 
-                                if (regexpUsername.test(contributor))
+                                let contributorFetcher;
+
+                                const getUser = function(identifier, callback)
                                 {
+                                    if (!isNull(identifier) && userUriRegexp.test(identifier))
+                                    {
+                                        User.findByUri(identifier, callback);
+                                    }
+                                    else if(!isNull(identifier) && userUsernameRegexp.test(identifier))
+                                    {
+                                        User.findByUsername(identifier, callback);
+                                    }
+                                    else if(!isNull(identifier))
+                                    {
+                                        return callback(true, identifier)
+                                    }
+                                    else
+                                    {
+                                        return callback(null, null);
+                                    }
+                                };
 
-                                    User.findByUsername(contributor, function (err, user) {
-
-                                        if (isNull(err) && !isNull(user) && user.foaf.mbox) {
-                                            //TODO Check if user already is a contributor so as to not send a notification
+                                const notifyUser = function(user, callback)
+                                {
+                                    if (isNull(err) && !isNull(user) && user instanceof User ) {
+                                        //Check if user already is a contributor so as to not send a notification
+                                        if(user.foaf.mbox && !_.contains(project.dcterms.contributor, user.uri))
+                                        {
                                             notifyContributor(user);
-                                            return callback(null, user.uri);
-                                        } else {
-                                            return callback(true, contributor);
                                         }
-                                    });
-                                }
-                                else
-                                {
-                                    return callback(true, contributor)
-                                }
+                                        return callback(null, user.uri);
+                                    } else {
+                                        return callback(true, contributor);
+                                    }
+                                };
 
+                                getUser(contributor, function(err, user){
+                                    if(isNull(err))
+                                    {
+                                        if(!isNull(user) && user instanceof User)
+                                        {
+                                            notifyUser(user, callback);
+                                        }
+                                        else
+                                        {
+                                            callback(true, "User " + contributor + " not found.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        callback(err, user);
+                                    }
+                                });
                             }, function(err, contributors){
                                if(isNull(err)){
-                                    project.dcterms.contributor = contributors;
-                                    return callback(null, project);
+                                   //all users were invalid
+                                   if(_.without(contributors, null).length === 0)
+                                   {
+                                       return callback(true, project);
+                                   }
+                                   else //some were invalid but others are ok, lets ignore the wrong ones and save the valid ones.
+                                   {
+                                       project.dcterms.contributor = _.without(contributors, null);
+                                       return callback(null, project);
+                                   }
+
                                 }
                                 else
                                 {
@@ -1097,6 +1199,7 @@ exports.administer = function(req, res) {
                     async.waterfall([
                         updateProjectMetadata,
                         updateProjectContributors,
+                        updateProjectSettings,
                         saveProject
                     ], function(err, project){
                         if (isNull(err))
@@ -1114,7 +1217,14 @@ exports.administer = function(req, res) {
                         }
                         else
                         {
-                            viewVars.error_messages = [project];
+                            if(project instanceof Array)
+                            {
+                                viewVars.error_messages = project;
+                            }
+                            else
+                            {
+                                viewVars.error_messages = [project];
+                            }
 
                             sendResponse(
                                 "projects/administration/administer",
@@ -1169,8 +1279,6 @@ exports.get_contributors = function(req, res){
     Project.findByUri(req.params.requestedResourceUri, function(err, project) {
         if (isNull(err)) {
             if (!isNull(project)) {
-                //from http://www.dzone.com/snippets/validate-url-regexp
-                const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
                 let contributorsUri = [];
                 if (!isNull(project.dcterms.contributor)){
 
@@ -1182,19 +1290,14 @@ exports.get_contributors = function(req, res){
 
                     const contributors = [];
                     async.each(contributorsUri, function (contributor, callback) {
-
-                        if (regexp.test(contributor)) {
-                            User.findByUri(contributor, function (err, user) {
-                                if (isNull(err) && user) {
-                                    contributors.push(user);
-                                    return callback(null);
-                                } else {
-                                    return callback(true, contributor);
-                                }
-                            }, true);
-                        } else {
-                            return callback(true, contributor)
-                        }
+                        User.findByUri(contributor, function (err, user) {
+                            if (isNull(err) && user) {
+                                contributors.push(user);
+                                return callback(null);
+                            } else {
+                                return callback(true, contributor);
+                            }
+                        }, true);
 
                     }, function (err, contributor) {
                         if (isNull(err)) {

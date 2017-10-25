@@ -54,7 +54,7 @@ let ckanData;
 
 describe("Export metadata only project folderExportCkan level to ckan tests", function () {
     before(function (done) {
-        appUtils.newTestRoutetLog(path.basename(__filename));
+        appUtils.newTestRouteLog(path.basename(__filename));
         this.timeout(Config.testsTimeout);
         addChangesToExportedCkanPackagesUnit.setup(metadataOnlyProject, function (err, results) {
             should.equal(err, null);

@@ -316,7 +316,7 @@ angular.module('dendroApp.controllers')
     {
         if(!err)
         {
-            $scope.show_popup("success", "Success", "Files uploaded successfully.");
+            $scope.show_popup("success", "Success", "File uploaded successfully.");
             $scope.get_folder_contents(true);
         }
         else

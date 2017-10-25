@@ -7,14 +7,15 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
 const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+
 
 const async = require("async");
 const _ = require("underscore");
 
 const validateNewBookmarkRequest = function (req, res) {
     const validator = require('validator');
-    const expression = Resource.getResourceRegex("repo_platform");
-    const regex = new RegExp(expression);
+    const regex = Resource.getResourceRegex("repo_platform");
 
     if (isNull(req.body.dcterms.title)) {
         res.status(400).json({
@@ -364,7 +365,7 @@ exports.all = function(req, res) {
             {
                 for(let i = 0; i < externalRepositories.length; i++)
                 {
-                    Descriptor.removeUnauthorizedFromObject(externalRepositories[i],[Config.types.private, Config.types.audit], [Config.types.api_readable]);
+                    Descriptor.removeUnauthorizedFromObject(externalRepositories[i],[Elements.access_types.private, Elements.access_types.audit], [Elements.access_types.api_readable]);
                 }
 
                 res.json(externalRepositories);

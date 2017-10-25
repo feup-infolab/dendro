@@ -53,7 +53,7 @@ let folderExportCkanData, folderExportedCkanNoDiffsData, folderExportedCkanDendr
 
 describe("Calculate metadata only project folderExportCkan level ckan respository diffs tests", function () {
     before(function (done) {
-        appUtils.newTestRoutetLog(path.basename(__filename));
+        appUtils.newTestRouteLog(path.basename(__filename));
         this.timeout(Config.testsTimeout);
         exportFoldersToCkanRepositoryUnit.setup(metadataProject, function (err, results) {
             should.equal(err, null);

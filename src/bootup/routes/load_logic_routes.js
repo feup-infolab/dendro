@@ -73,9 +73,7 @@ const getNonHumanReadableRouteRegex = function(resourceType)
 {
     /*const regex = "^/r/"+resourceType+"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
     return new RegExp(regex);*/
-    const regex = Resource.getResourceRegex(resourceType);
-    return new RegExp(regex);
-
+    return Resource.getResourceRegex(resourceType);
 };
 
 const extractUriFromRequest = function (req, res, next) {
@@ -328,7 +326,7 @@ const loadRoutes = function(app, callback)
     //  registration and login
     app.get('/register', auth.register);
     app.post('/register', auth.register);
-    app.get('/logout', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), auth.logout);
+    app.get('/logout', auth.logout);
 
     //people listing
     app.get('/users', users.all);

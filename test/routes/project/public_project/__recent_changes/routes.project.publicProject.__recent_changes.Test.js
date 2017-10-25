@@ -1,4 +1,5 @@
 const chai = require("chai");
+const path = require("path");
 const chaiHttp = require("chai-http");
 const should = chai.should();
 const _ = require("underscore");
@@ -27,6 +28,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 describe("Public project recent changes", function () {
     this.timeout(Config.testsTimeout);
     before(function (done) {
+        appUtils.newTestRouteLog(path.basename(__filename));
         addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -52,7 +54,7 @@ describe("Public project recent changes", function () {
 
             projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                 res.should.have.status(200);//because the project is public
-                res.body.length.should.equal(4);
+                res.body.length.should.equal(9);
                 done();
             });
         });
@@ -77,7 +79,7 @@ describe("Public project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                     res.should.have.status(200);//because the project is public
-                    res.body.length.should.equal(4);
+                    res.body.length.should.equal(9);
                     done();
                 });
             });
@@ -88,7 +90,7 @@ describe("Public project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(4);
+                    res.body.length.should.equal(9);
                     done();
                 });
             });
@@ -99,7 +101,7 @@ describe("Public project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(4);
+                    res.body.length.should.equal(9);
                     done();
                 });
             });

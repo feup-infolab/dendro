@@ -1,6 +1,7 @@
 const privateProjectHandle = 'privateprojectcreatedbydemouser3';
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 
 const projectData = {
     creator: "http://" + Config.host + "/user/demouser3",
@@ -15,7 +16,8 @@ const projectData = {
     coverage: 'Porto',
     handle: privateProjectHandle,
     privacy: 'private',
-    uri: "http://" + Config.host + "/" + privateProjectHandle
+    uri: "http://" + Config.host + "/" + privateProjectHandle,
+    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/privateprojectcreatedbydemouser3.zip")
 };
 
 module.exports = projectData;

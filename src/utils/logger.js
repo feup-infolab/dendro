@@ -55,5 +55,26 @@ Logger.log_boot_message = function(type, message)
     }
 };
 
+Logger.log = function(type, message)
+{
+    const colors = require("colors");
+    let intro = "[MISC]".cyan;
+    if(type === "info")
+    {
+        intro = "[INFO]".blue;
+    }
+    else if(type === "success")
+    {
+        intro = "[OK]".green;
+    }
+    else if(type === "error")
+    {
+        intro = "[OK]".red;
+    }
+
+    console.log(intro + " " + message);
+};
+
+
 
 module.exports.Logger = Logger;

@@ -8,6 +8,7 @@ const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 const index = require(Pathfinder.absPathInTestsFolder("utils/index/index.Test.js"));
 
 const chai = require("chai");
+const fs = require("fs");
 const should = chai.should();
 const moment = require('moment');
 
@@ -71,10 +72,10 @@ exports.resource_id_uuid_regex = function(resource_type)
     return new RegExp(regex);
 };
 
-exports.newTestRoutetLog = function(routeName){
+exports.newTestRouteLog = function(routeName){
     if(isNull(routeName))
     {
-        const msg = "Error at newTestRoutetLog: Argument routeName is REQUIRED";
+        const msg = "Error at newTestRouteLog: Argument routeName is REQUIRED";
         return msg;
     }
     else
@@ -99,11 +100,11 @@ const saveRouteLogsToFile = function (callback) {
         const msg = "Error at saveRouteLogsToFile: global.testingRoute and global.routesLog were not properly initialized";
         delete global.testingRoute;
         delete global.routesLog;
-        return msg;
+        callback(null, msg);
     }
     else
     {
-        var filePath = Pathfinder.absPathInTestsFolder("logs/") + global.testingRoute + "_" + Date.now() + ".json";
+        const filePath = Pathfinder.absPathInTestsFolder("logs/") + global.testingRoute + "_" + Date.now() + ".json";
 
         mkdirp(getDirName(filePath), function (err) {
             if (err)
@@ -114,7 +115,7 @@ const saveRouteLogsToFile = function (callback) {
             }
             else
             {
-                jsonfile.writeFile(filePath, global.routesLog, function (err) {
+                fs.writeFile(filePath, JSON.stringify(global.routesLog, null, 4), function (err) {
                     delete global.testingRoute;
                     delete global.routesLog;
                     callback(err, err);
