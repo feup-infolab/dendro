@@ -7,9 +7,6 @@ const path = require("path");
 const moment = require("moment");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
-const QueryBasedRouter = Object.create(require(Pathfinder.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
-
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
@@ -39,50 +36,42 @@ exports.getDeposits = function(req, res) {
     const user = req.user;
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
+    let display;
 
+    const verification = function (err, deposits) {
+        if(isNull(err)){
+            res[display](deposits);
+        }
+    };
 
-
+    if(acceptsJSON && !acceptsHTML){
+        display = "json";
+    }else if(!acceptsJSON && acceptsHTML){
+        display = "render";
+    }
 
     if(user instanceof User) {
-        //TODO maybe check uri if is valid/exists?
-
-        //switch later
-        exports.allowed(req, res);
+        exports.allowed(req, verification);
     } else {
         //not logged in. return public deposits only
-        exports.public(req, res);
-
+        exports.public(req, verification);
     }
 };
 
-exports.public = function (req, res) {
-    let deposits = {};
-
-    const acceptsHTML = req.accepts("html");
-    const acceptsJSON = req.accepts("json");
+exports.public = function (req, callback) {
 
     const depositType = "public";
     const page = req.query.page;
     const offset = req.query.offset;
 
     Deposit.public(depositType, page, offset, function(err, results){
-        if(isNull(err)){
-            deposits = results;
-            res.json(deposits);
-        }
+        callback(err, results);
     });
 };
 
-exports.allowed = function (req, res) {
-    let deposits = {};
-
-    const acceptsHTML = req.accepts("html");
-    const acceptsJSON = req.accepts("json");
+exports.allowed = function (req, callback) {
 
     Deposit.allowed(req, function(err, results){
-        if(isNull(err)){
-            deposits = results;
-            res.json(deposits);
-        }
+        callback(err, results);
     });
 };

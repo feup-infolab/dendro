@@ -68,7 +68,7 @@ Deposit.public = function(publicPrivacy, page, offset, callback){
         "WHERE { \n" +
             "?uri rdf:type ddr:Registry . \n" +
             "?uri ddr:exportedFromProject ?projused . \n" +
-            "?projused ddr:privacyStatus [1] . \n" +
+            "?uri ddr:privacyStatus [1] . \n" +
             "?projused ddr:privacyStatus ?privacy . \n" +
             "?projused dcterms:title ?title . \n" +
             "?uri dcterms:creator ?user . \n" +
@@ -182,24 +182,18 @@ Deposit.createQuery = function(params, callback){
         "{ \n" +
         "   ?uri rdf:type ddr:Registry . \n" +
         "   ?uri ddr:exportedFromProject ?projused . \n" +
+        "   ?projused rdf:type ddr:Project . \n" +
+        "   ?projused dcterms:title ?projectTitle . \n" +
+        "   ?projused ddr:privacyStatus ?privacy . \n" +
         "   { \n" +
         "       ?uri ddr:privacyStatus [1] . \n" +
-        "       ?projused rdf:type ddr:Project . \n" +
-        "       ?projused dcterms:title ?projectTitle . \n" +
-        "       ?projused ddr:privacyStatus ?privacy . \n" +
+        "       UNION " +
         "       { \n" +
-        "           ?projused dcterms:creator ?creator . \n" +
-        "           ?creator ddr:username [2] \n" +
+        "           ?uri ddr:privacyStatus [2] . \n" +
+        "           VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+        "           ?projused ?role ?worker . \n" +
+        "           ?worker ddr:username [3] \n" +
         "       } \n" +
-        "       UNION \n" +
-        "       { \n" +
-        "           ?projused dcterms:contributor ?contributor . \n" +
-        "           ?contributor ddr:username [2] \n" +
-        "       } \n" +
-        "       UNION \n" +
-        "       { " +
-        "           ?projused ddr:privacyStatus [3] \n" +
-        "       }\n"+
         "   } \n" +
         "   ?uri dcterms:creator ?user . \n" +
         "   ?uri dcterms:title ?label . \n" +
@@ -220,12 +214,16 @@ Deposit.createQuery = function(params, callback){
         },
         {
             type : DbConnection.string,
-            value : params.username
+            value : "public"
         },
         {
             type : DbConnection.string,
             value : "private"
-        }];
+        },
+        {
+            type : DbConnection.string,
+            value : params.username
+        },];
 
     if(params.offset){
         variables.push({
