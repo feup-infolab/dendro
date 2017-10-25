@@ -181,7 +181,7 @@ Ontology.initAllFromDatabase = function(callback)
                     });
                 }
                 else {
-                    return callback(null, null);
+                    return callback(null, ontology);
                 }
             });
         }, function (err, results) {
@@ -359,17 +359,16 @@ Ontology.initAllFromDatabase = function(callback)
                                     });
                                 }
                             ],
-                            function (err, results) {
+                            function (err, result) {
                                 //TODO check this !!!!!
-                                results.prefix = ontology.prefix;
-                                results.uri = ontology.uri;
-                                return callback(err, results);
+                                result.prefix = ontology.prefix;
+                                result.uri = elementUri;
+                                result.ontology_uri = ontology.uri;
+                                return callback(err, result);
                             });
                     },
                     function (err, results) {
                         //TODO check this !!!!!
-                        results.prefix = ontology.prefix;
-                        results.uri = ontology.uri;
                         return callback(err, results);
                     });
             }
@@ -435,8 +434,8 @@ Ontology.initAllFromDatabase = function(callback)
         },
         function(callback)
         {
-            loadOntologyConfigurationsFromDatabase(function(err, result){
-                return callback(err, result);
+            loadOntologyConfigurationsFromDatabase(function(err, ontologyDescriptors){
+                return callback(err, ontologyDescriptors);
             });
         }
     ],
@@ -445,15 +444,14 @@ Ontology.initAllFromDatabase = function(callback)
         if(isNull(err))
         {
             let allOntologies = {};
-            results = results[1];
+            const ontologies = results[0];
+            const descriptors = results[1];
 
-            for(let i = 0; i < results.length; i++)
+            for(let i = 0; i < ontologies.length; i++)
             {
-                let result = results[i];
-                if(isNull(allOntologies[result.prefix]))
-                    allOntologies[result.prefix] = {};
-
-                Object.assign(allOntologies[result.prefix], result);
+                let ontology = ontologies[i];
+                allOntologies[ontology.prefix] = ontologies[i];
+                allOntologies[ontology.prefix].elements = descriptors;
             }
 
             return callback(err, allOntologies);
@@ -511,6 +509,22 @@ Ontology.getAllOntologiesUris = function()
             const ontology = ontologies[i];
             Ontology.ontologyUris.push(ontology.uri);
         }
+    }
+
+    return Ontology.ontologyUris;
+};
+
+Ontology.getOntologyByQuery = function(jsonPath)
+{
+    const self = this;
+    if(isNull(Ontology.allOntologies))
+    {
+        const JSONPath = require('JSONPath');
+        JSONPath({json: Ontology.allOntologies, path: jsonPath});
+    }
+    else
+    {
+        throw new Error("Ontologies not initialized!");
     }
 
     return Ontology.ontologyUris;

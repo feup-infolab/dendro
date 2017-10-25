@@ -99,10 +99,12 @@ OntologiesCache.prototype.put = function(newOntologies, callback)
                                 ontologyObj,
                                 function (err, result)
                                 {
-                                    db.close();
-                                    callback(err, result);
+                                    callback(err, ontologyObj);
                                 });
-                    }, callback);
+                    }, function(err, results){
+                        db.close();
+                        callback(err, results);
+                    });
                 });
             });
         }

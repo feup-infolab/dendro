@@ -520,13 +520,13 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
         " [1] ?uri ?value .\n" +
         " OPTIONAL \n" +
         "{  \n" +
-        "?uri    rdfs:label  ?label .\n " +
-        "FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
+        "   ?uri    rdfs:label  ?label .\n " +
+        "   FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
         "} .\n" +
-        " OPTIONAL " +
+        "OPTIONAL " +
         "{  \n" +
-        "?uri  rdfs:comment   ?comment. \n" +
-        "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
+        "   ?uri  rdfs:comment   ?comment. \n" +
+        "   FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
         "} .\n" +
 
         filterString +
