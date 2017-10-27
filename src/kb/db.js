@@ -774,14 +774,14 @@ DbConnection.prototype.close = function(callback){
                     console.error(JSON.stringify(result));
                 }
 
-                if(!isNull(self.pool))
+                /*if(!isNull(self.pool))
                 {
                     console.error("Killing all connections of user " + self.jdbc + " via JDBC");
                     self.executeViaJDBC("disconnect_user ('"+  self.username + "');", [], function(err, result){
                         console.error("Killing all connections of user " + self.jdbc + " via JDBC");
                         callback(err, result);
                     });
-                }
+                }*/
             });
         }
         else
