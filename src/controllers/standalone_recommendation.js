@@ -317,16 +317,14 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                     if (!isNull(err) && !isNull(similarResources) && similarResources instanceof Array) {
                         //get properties of the similar resources
                         const getDescriptorsOfSimilarResources = function (resource, callback) {
-                            resource.getPropertiesFromOntologies(allowedOntologies, function (err, descriptors) {
-                                if (isNull(err)) {
-                                    for (let i = 0; i < descriptors.length; i++) {
-                                        descriptors[i].recommendation_types = {};
-                                        descriptors[i].recommendation_types[Descriptor.recommendation_types.from_textually_similar.key] = true;
-                                    }
-                                }
+                            const descriptors = resource.getPropertiesFromOntologies(allowedOntologies);
 
-                                return callback(err, resource); //null as 1st argument === no error
-                            });
+                            for (let i = 0; i < descriptors.length; i++) {
+                                descriptors[i].recommendation_types = {};
+                                descriptors[i].recommendation_types[Descriptor.recommendation_types.from_textually_similar.key] = true;
+                            }
+
+                            return callback(null, resource); //null as 1st argument === no error
                         };
 
                         async.map(similarResources, getDescriptorsOfSimilarResources, function (err, similarResourcesWithDescriptors) {

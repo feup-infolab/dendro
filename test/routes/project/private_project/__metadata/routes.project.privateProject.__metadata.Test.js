@@ -34,20 +34,6 @@ describe("Private project level metadata tests", function () {
 
     describe(privateProject.handle+"?metadata (private project)", function ()
     {
-        /**
-         * Invalid request type
-         */
-        it('[HTML] should refuse request if Accept application/json was not specified', function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.getProjectMetadata(false, agent, privateProject.handle, function (err, res) {
-                    res.statusCode.should.equal(400);
-                    should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
-                    done();
-                });
-            });
-        });
 
         /**
          * Valid request type
@@ -107,9 +93,9 @@ describe("Private project level metadata tests", function () {
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.getProjectMetadata(false, agent, invalidProject.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
+                    res.statusCode.should.equal(404);
                     //Project http://127.0.0.1:3001/project/unknownProjectHandle not found.
-                    res.text.should.include("Project "  + "http://" + Config.host + "/project/" + invalidProject.handle + " not found.");
+                    res.text.should.include("Resource not found at uri");
                     should.not.exist(res.body.descriptors);
                     should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();

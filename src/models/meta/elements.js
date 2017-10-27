@@ -1,4 +1,5 @@
 const path = require("path");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
 
@@ -33,11 +34,13 @@ Elements.types.date = 8;
 Elements.types.long_string = 9;
 Elements.types.stringNoEscape = 10;
 
+Elements.ontologies = {};
+
 /**
  * Elements of the schema.org Ontology
  */
 
-Elements.schema = {
+Elements.ontologies.schema = {
     sharedContent :
     {
         type : Elements.types.string,
@@ -79,7 +82,7 @@ Elements.schema = {
  * Elements of the DC Ontology
  */
 
-Elements.dcterms =
+Elements.ontologies.dcterms =
 {
     abstract :
     {
@@ -369,7 +372,7 @@ Elements.dcterms =
  * Elements of the FOAF ontology
  */
 
-Elements.foaf =
+Elements.ontologies.foaf =
 {
     mbox : {
         type : Elements.types.string,
@@ -688,7 +691,7 @@ Elements.foaf =
  * Dendro Ontology types
  */
 
-Elements.ddr = {
+Elements.ontologies.ddr = {
     hasStorageLimit :
     {
         type : Elements.types.int,
@@ -1197,7 +1200,7 @@ Elements.ddr = {
  * RDF Ontology types
  */
 
-Elements.rdf = {
+Elements.ontologies.rdf = {
     first :
     {
         type : Elements.types.resource,
@@ -1246,7 +1249,7 @@ Elements.rdf = {
  * Nepomuk Information Element Ontology
  * http://www.semanticdesktop.org/ontologies/nie/
  */
-Elements.nie = {
+Elements.ontologies.nie = {
     byteSize :
     {
         type : Elements.types.int,
@@ -1482,7 +1485,7 @@ Elements.nie = {
  * http://www.semanticdesktop.org/ontologies/nfo/
  */
 
-Elements.nfo = {
+Elements.ontologies.nfo = {
     aspectRatio :
     {
         control : Controls.input_box,
@@ -1870,7 +1873,7 @@ Elements.nfo = {
     }
 };
 
-Elements.research = {
+Elements.ontologies.research = {
     /*sampleCollectionDate :
     {
         type : Elements.types.date,
@@ -1920,7 +1923,7 @@ Elements.research = {
     }
 };
 
-Elements.dcb = {
+Elements.ontologies.dcb = {
     specimen :
     {
         type : Elements.types.string,
@@ -1983,7 +1986,7 @@ Elements.dcb = {
     }
 };
 
-Elements.achem = {
+Elements.ontologies.achem = {
     compound :
     {
         type : Elements.types.string,
@@ -1996,7 +1999,7 @@ Elements.achem = {
     }
 };
 
-Elements.bdv = {
+Elements.ontologies.bdv = {
     identifierCode :
     {
         type : Elements.types.string,
@@ -2269,7 +2272,7 @@ Elements.bdv = {
     }
 };
 
-Elements.tsim = {
+Elements.ontologies.tsim = {
     aerodynamicDragCoefficient :
     {
         type : Elements.types.string,
@@ -2332,8 +2335,7 @@ Elements.tsim = {
     }
 };
 
-
-Elements.biocn = {
+Elements.ontologies.biocn = {
     beginDate :
     {
         type : Elements.types.date,
@@ -2421,7 +2423,7 @@ Elements.biocn = {
     }
 };
 
-Elements.grav = {
+Elements.ontologies.grav = {
     altitudeDatumName :
     {
         type : Elements.types.string,
@@ -2479,7 +2481,7 @@ Elements.grav = {
     }
 };
 
-Elements.hdg = {
+Elements.ontologies.hdg = {
     additive:
     {
         type : Elements.types.string,
@@ -2527,7 +2529,7 @@ Elements.hdg = {
     }
 };
 
-Elements.cep = {
+Elements.ontologies.cep = {
     applicationDomain :
     {
         type : Elements.types.string,
@@ -2590,7 +2592,7 @@ Elements.cep = {
     }
 };
 
-Elements.social = {
+Elements.ontologies.social = {
     dataCollectionDate :
     {
         type : Elements.types.string,
@@ -2643,7 +2645,7 @@ Elements.social = {
     }
 };
 
-Elements.cfd = {
+Elements.ontologies.cfd = {
     analyticalSolution :
     {
         type : Elements.types.string,
@@ -2714,7 +2716,7 @@ Elements.cfd = {
 /**
  * Elements of the TVU
  */
-Elements.tvu =
+Elements.ontologies.tvu =
 {
         comment :
             {
@@ -2896,7 +2898,7 @@ Elements.tvu =
 /**
  * Elements of the Programmes Ontology
  */
-Elements.po =
+Elements.ontologies.po =
 {
         actor :
         {
@@ -2925,5 +2927,27 @@ Elements.po =
             control : Controls.input_box
         },
     };
+
+Elements.setAllElements = function(loadedElements)
+{
+    for(let i = 0; i < loadedElements.length;i++)
+    {
+        let loadedElement = loadedElements[i];
+        let prefix = loadedElement.prefix;
+        let shortName = loadedElement.shortName;
+
+        let existingElement = Elements.ontologies[prefix][shortName];
+
+        for(let k in loadedElement)
+        {
+            if(existingElement[k] === null || typeof existingElement[k] === "undefined")
+            {
+                Elements.ontologies[prefix][shortName][k]=loadedElement[k];
+            }
+        }
+    }
+
+    return Elements.ontologies;
+};
 
 module.exports.Elements = Elements;

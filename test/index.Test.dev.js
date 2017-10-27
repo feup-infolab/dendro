@@ -16,10 +16,6 @@ global.tests = {};
 
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
-//PROJECT CHANGES PUBLIC PROJECT
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
-//PROJECT CHANGES PRIVATE PROJECT
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js"));
-//PROJECT CHANGES METADADATA ONlY PROJECT
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
+
 return;

@@ -3,7 +3,6 @@ const Pathfinder = global.Pathfinder;const Config = require(Pathfinder.absPathIn
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const _ = require("underscore");
 const async = require("async");

@@ -25,11 +25,10 @@
     },
     "ontologies_cache" :
     {
-      "database": "127.0.0.1:3002_ontologies",
+      "database": "127.0.0.1:3001_ontologies",
       "host": "192.168.56.249",
       "port": "27017",
-      "id": "default",
-      "collection" : "ontologies_cache"
+      "id": "default"
     },
     "cache": {
       "active": true,
@@ -117,7 +116,7 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 1073741824,
     "maxProjectSize": 1073741824,
-    "maxSimultaneousConnectionsToDb": 1000,
+    "maxSimultaneousConnectionsToDb": 20,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -248,7 +247,7 @@
       }
     },
     "startup": {
-      "load_databases": true,
+      "load_databases": false,
       "reload_administrators_on_startup": true,
       "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": true,
@@ -271,7 +270,7 @@
       "requests_in_apache_format_log_folder": "logs/requests_apache_format",
       "suppress_all_logs": false,
       "suppress_all_errors": false,
-      "log_all_requests": true,
+      "log_all_requests": false,
       "log_emailing": false
     },
     "version": {
@@ -417,8 +416,7 @@
       "database": "127.0.0.1:3002_ontologies",
       "host": "192.168.56.249",
       "port": "27017",
-      "id": "default",
-      "collection" : "ontologies_cache"
+      "id": "default"
     },
     "cache": {
       "active": true,
@@ -487,7 +485,7 @@
       "user": "dba",
       "password": "dba"
     },
-    "virtuosoSQLLogLevel" : 2,
+    "virtuosoSQLLogLevel" : 3,
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
@@ -506,7 +504,7 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 1000,
+    "maxSimultaneousConnectionsToDb": 20,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -657,7 +655,7 @@
       "requests_in_apache_format_log_folder": "logs/requests_apache_format",
       "suppress_all_logs": false,
       "suppress_all_errors": false,
-      "log_all_requests": true,
+      "log_all_requests": false,
       "log_emailing": false,
       "custom_exception_logging": false
     },
@@ -804,8 +802,7 @@
       "database": "127.0.0.1:3001_ontologies",
       "host": "127.0.0.1",
       "port": "27017",
-      "id": "default",
-      "collection" : "ontologies_cache"
+      "id": "default"
     },
     "cache": {
       "active": true,
@@ -874,7 +871,7 @@
       "user": "dba",
       "password": "dba"
     },
-    "virtuosoSQLLogLevel" : 2,
+    "virtuosoSQLLogLevel" : 3,
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
@@ -893,7 +890,7 @@
     "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 1000,
+    "maxSimultaneousConnectionsToDb": 20,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -1025,7 +1022,7 @@
       "reload_administrators_on_startup": true,
       "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
-      "clear_session_store": true,
+      "clear_session_store": false,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,

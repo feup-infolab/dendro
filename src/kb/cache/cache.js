@@ -161,6 +161,11 @@ Cache.closeConnections = function(cb)
     async.map(Object.keys(self.caches), function(cacheKey, cb){
         if(self.caches.hasOwnProperty(cacheKey))
         {
+            if(typeof self.caches[cacheKey].getHitRatio === "function")
+            {
+                console.log("Cache " +self.caches[cacheKey].id + " HIT RATIO: " + self.caches[cacheKey].getHitRatio());
+            }
+
             self.caches[cacheKey].close(function(err, result){
                 cb(err, result);
             });

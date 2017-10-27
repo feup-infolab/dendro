@@ -69,7 +69,7 @@ function Descriptor(object, typeConfigsToRetain)
             return {error : error};
         }
 
-        if(isNull(Elements[self.prefix]))
+        if(isNull(Elements.ontologies[self.prefix]))
         {
             const error = "Unknown ontology for -> " + object.uri +". The owning ontology of the descriptor is not parametrized in this Dendro instance.";
 
@@ -80,7 +80,7 @@ function Descriptor(object, typeConfigsToRetain)
 
             return {error : error};
         }
-        else if(isNull(Elements[self.prefix][self.shortName]) && Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
+        else if(isNull(Elements.ontologies[self.prefix][self.shortName]) && Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
         {
             const error = "Unknown descriptor -> " + object.uri+". This descriptor is not parametrized in this Dendro instance; however, the ontology uri matches an ontology in this instance. Are you sure that descriptor belongs to that ontology? Check the final part of the URI, or parametrize the element in the elements.js file.";
             console.error(error);
@@ -88,13 +88,11 @@ function Descriptor(object, typeConfigsToRetain)
         }
         else
         {
-            if(!isNull(Elements[self.prefix]) && !isNull(Elements[self.prefix][self.shortName]))
+            if(!isNull(Elements.ontologies[self.prefix]) && !isNull(Elements.ontologies[self.prefix][self.shortName]))
             {
-                self.type = Elements[self.prefix][self.shortName].type;
-                self.control = Elements[self.prefix][self.shortName].control;
-                self.label = Elements[self.prefix][self.shortName].label;
-                self.comment = Elements[self.prefix][self.shortName].comment;
-
+                const element = Elements.ontologies[self.prefix][self.shortName];
+                self.type = element.type;
+                self.control = element.control;
 
                 if(!isNull(object.label))
                 {
@@ -102,7 +100,7 @@ function Descriptor(object, typeConfigsToRetain)
                 }
                 else
                 {
-                    self.label = Elements[self.prefix][self.shortName].label;
+                    self.label = element.label;
                 }
 
                 if(!isNull(object.comment))
@@ -111,7 +109,7 @@ function Descriptor(object, typeConfigsToRetain)
                 }
                 else
                 {
-                    self.comment = Elements[self.prefix][self.shortName].comment;
+                    self.comment = element.comment;
                 }
 
                 //override type if supplied in object argument
@@ -120,24 +118,63 @@ function Descriptor(object, typeConfigsToRetain)
                 {
                     self.type = object.type;
                 }
-
-                if(!isNull(Elements[self.prefix][self.shortName].hasAlternative))
+                else
                 {
-                    self.hasAlternative = Elements[self.prefix][self.shortName].hasAlternative;
+                    self.type = element.type;
                 }
 
-                if(Elements[self.prefix][self.shortName].hasRegex)
+                if(!isNull(element.hasAlternative))
                 {
-                    self.hasRegex = Elements[self.prefix][self.shortName].hasRegex;
+                    self.hasAlternative = element.hasAlternative;
+                }
+
+                if(element.hasRegex)
+                {
+                    self.hasRegex = element.hasRegex;
                 }
 
                 for(let descriptorType in Elements.access_types)
                 {
                     if(Elements.access_types.hasOwnProperty(descriptorType))
                     {
-                        if (Elements[self.prefix][self.shortName][descriptorType])
+                        if (element[descriptorType])
                         {
-                            self[descriptorType] = Elements[self.prefix][self.shortName][descriptorType];
+                            self[descriptorType] = element[descriptorType];
+                        }
+                    }
+                }
+
+                if(!isNull(typeConfigsToRetain) && typeConfigsToRetain instanceof Array)
+                {
+                    for(let i = 0; i < typeConfigsToRetain.length; i++)
+                    {
+                        let type = typeConfigsToRetain[i];
+                        if (Elements.access_types.hasOwnProperty(type))
+                        {
+                            if(!isNull(object[type]))
+                            {
+                                self[type] = object[type];
+                            }
+                            else if(!isNull(element) && isNull(element[type]))
+                            {
+                                self[type] = element[type];
+                            }
+                        }
+                    }
+                }
+
+                self.setValue(object.value);
+
+                //try to get parametrization from ontology level
+                for(let descriptorType in Elements.access_types)
+                {
+                    if(Elements.access_types.hasOwnProperty(descriptorType))
+                    {
+                        if(isNull(self[descriptorType]) &&
+                            !isNull(Ontology.allOntologies[self.prefix]) &&
+                            !isNull(Ontology.allOntologies[self.prefix][descriptorType]))
+                        {
+                            self[descriptorType] = Ontology.allOntologies[self.prefix][descriptorType];
                         }
                     }
                 }
@@ -148,41 +185,6 @@ function Descriptor(object, typeConfigsToRetain)
                 if(Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
                 {
                     console.error("Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
-                }
-            }
-
-            self.setValue(object.value);
-
-            //try to get parametrization from ontology level
-            for(let descriptorType in Elements.access_types)
-            {
-                if(Elements.access_types.hasOwnProperty(descriptorType))
-                {
-                    if(isNull(self[descriptorType]) &&
-                        !isNull(Ontology.allOntologies[self.prefix]) &&
-                        !isNull(Ontology.allOntologies[self.prefix][descriptorType]))
-                    {
-                        self[descriptorType] = Ontology.allOntologies[self.prefix][descriptorType];
-                    }
-                }
-            }
-
-            if(!isNull(typeConfigsToRetain) && typeConfigsToRetain instanceof Array)
-            {
-                for(let i = 0; i < typeConfigsToRetain.length; i++)
-                {
-                    let type = typeConfigsToRetain[i];
-                    if (Elements.access_types.hasOwnProperty(type))
-                    {
-                        if(!isNull(object[type]))
-                        {
-                            self[type] = object[type];
-                        }
-                        else if(!isNull(Elements[self.prefix][self.shortName]) && isNull(Elements[self.prefix][self.shortName][type]))
-                        {
-                            self[type] = Elements[self.prefix][self.shortName][type];
-                        }
-                    }
                 }
             }
 
@@ -384,10 +386,12 @@ Descriptor.prototype.setValue = function(value)
     }
 };
 
-Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize) {
+Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize, forceLoadFromTripleStore) {
 
-    let query =
-        " SELECT DISTINCT ?uri ?label ?comment \n"+
+    const getFromTripleStore = function(callback)
+    {
+        let query =
+            " SELECT DISTINCT ?uri ?label ?comment \n"+
             " FROM [0] \n"+
             " WHERE \n" +
             " { \n"+
@@ -426,58 +430,125 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
             " } \n" +
             " ORDER BY ASC(?label) \n";
 
-    let args = [
-        {
-            type: Elements.types.resourceNoEscape,
-            value: ontologyURI
-        },
-        {
-            type: Elements.types.string,
-            value: "en"
-        }
-    ];
-
-
-    if(typeof page_number === "number")
-    {
-        query = query  +
-            " OFFSET [2] \n" +
-            " LIMIT [3] \n";
-
-
-        args = args.concat([
+        let args = [
             {
-                type : Elements.types.int,
-                value :  page_number * pagesize
+                type: Elements.types.resourceNoEscape,
+                value: ontologyURI
             },
             {
-                type : Elements.types.int,
-                value : page_number * (pagesize + 1)
+                type: Elements.types.string,
+                value: "en"
             }
-        ]);
-    }
+        ];
 
 
-    db.connection.executeViaJDBC(query, args,
-        function(err, descriptors) {
-            if(isNull(err))
-            {
-                const formattedResults = [];
+        if(typeof page_number === "number")
+        {
+            query = query  +
+                " OFFSET [2] \n" +
+                " LIMIT [3] \n";
 
-                for(let i = 0; i < descriptors.length; i++)
+
+            args = args.concat([
                 {
-                    const formattedDescriptor = new Descriptor(descriptors[i]);
-                    formattedResults.push(formattedDescriptor);
+                    type : Elements.types.int,
+                    value :  page_number * pagesize
+                },
+                {
+                    type : Elements.types.int,
+                    value : page_number * (pagesize + 1)
                 }
+            ]);
+        }
 
-                return callback(null, formattedResults);
+
+        db.connection.executeViaJDBC(query, args,
+            function(err, descriptors) {
+                if(isNull(err))
+                {
+                    const formattedResults = [];
+
+                    for(let i = 0; i < descriptors.length; i++)
+                    {
+                        const formattedDescriptor = new Descriptor(descriptors[i]);
+                        formattedResults.push(formattedDescriptor);
+                    }
+
+                    return callback(null, formattedResults);
+                }
+                else
+                {
+                    console.error("Error fetching descriptors from ontology : "+ontologyURI + " " + descriptors);
+                    return callback(1, descriptors);
+                }
+            });
+    };
+
+    const getFromCache = function()
+    {
+        const prefix = Ontology.getOntologyPrefix(ontologyURI);
+        let results;
+
+        if(!isNull(prefix))
+        {
+            if(!isNull(Elements.ontologies[prefix]))
+            {
+                let elements = Elements.ontologies[prefix];
+
+                if(!isNull(elements))
+                {
+                    if(!isNull(page_number) && !isNull(pagesize))
+                    {
+                        elements = elements.slice(pagesize * page_number, pagesize * page_number + pagesize);
+                    }
+
+                    elements = _.mapObject(elements, function(element, shortName){
+                        return new Descriptor(
+                            {
+                                prefix : prefix,
+                                shortName : shortName
+                            });
+                    });
+
+                    return elements;
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
-                console.error("Error fetching descriptors from ontology : "+ontologyURI + " " + descriptors);
-                return callback(1, descriptors);
+                return null;
             }
-        });
+        }
+        else
+        {
+            return null;
+        }
+    };
+
+    if(forceLoadFromTripleStore)
+    {
+        getFromTripleStore(function(err, results){
+            callback(err, results);
+        })
+    }
+    else
+    {
+        let results = getFromCache();
+
+        if(isNull(results))
+        {
+            getFromTripleStore(function(err, results){
+                callback(err, results);
+            })
+        }
+        else
+        {
+            callback(null, results);
+        }
+    }
 };
 
 
@@ -490,7 +561,7 @@ Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number
     },function(err, results){
         if(isNull(err))
         {
-            let flat = _.flatten(results);
+            let flat = _.flatten(_.map(results, _.values))
 
             flat = _.sortBy(flat, function(descriptor){
                 return descriptor.shortName;
@@ -528,13 +599,13 @@ Descriptor.removeUnauthorizedFromObject = function(object, excludedDescriptorTyp
 {
     if(!isNull(object))
     {
-        for (let prefix in Elements)
+        for (let prefix in Elements.ontologies)
         {
             if(!isNull(object[prefix]))
             {
-                for(let shortName in Elements[prefix])
+                for(let shortName in Elements.ontologies[prefix])
                 {
-                    if(Elements.hasOwnProperty(prefix) && Elements[prefix].hasOwnProperty(shortName))
+                    if(Elements.ontologies.hasOwnProperty(prefix) && Elements.ontologies[prefix].hasOwnProperty(shortName))
                     {
                         if(!isNull(object[prefix][shortName]) && !Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes))
                         {
@@ -589,16 +660,16 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
         const getDescriptorsOfType = function (type) {
             const descriptorsOfType = {};
 
-            for (let prefix in Elements) {
+            for (let prefix in Elements.ontologies) {
                 if(isNull(descriptorsOfType[prefix]))
                 {
                     descriptorsOfType[prefix] = {};
                 }
 
-                for (let shortName in Elements[prefix]) {
-                    if (!isNull(Elements[prefix]) && !isNull(Elements[prefix][shortName]))
+                for (let shortName in Elements.ontologies[prefix]) {
+                    if (!isNull(Elements.ontologies[prefix]) && !isNull(Elements.ontologies[prefix][shortName]))
                     {
-                        let descriptor = Elements[prefix][shortName];
+                        let descriptor = Elements.ontologies[prefix][shortName];
 
                         if (!isNull(descriptor[type]) && descriptor[type])
                         {
@@ -1149,21 +1220,21 @@ Descriptor.validateDescriptorParametrization = function(callback)
                     {
                         const descriptor = descriptors[i];
                         try{
-                            if(isNull(Elements[descriptor.prefix]))
+                            if(isNull(Elements.ontologies[descriptor.prefix]))
                             {
                                 if(Config.debug.descriptors.log_missing_unknown_descriptors)
                                     console.error("Descriptor " + JSON.stringify(descriptor) + " has an unparametrized namespace " + descriptor.prefix + " . Check your elements.js file and ontology.js file");
 
                                 error = 1;
                             }
-                            else if(isNull(Elements[descriptor.prefix][descriptor.shortName]))
+                            else if(isNull(Elements.ontologies[descriptor.prefix][descriptor.shortName]))
                             {
                                 if(Config.debug.descriptors.log_missing_unknown_descriptors)
                                     console.error("Descriptor " + descriptor.prefixedForm + " is not present in the elements.js file!");
 
                                 error = 1;
                             }
-                            else if(isNull(Elements[descriptor.prefix][descriptor.shortName].control))
+                            else if(isNull(Elements.ontologies[descriptor.prefix][descriptor.shortName].control))
                             {
                                 if(Config.debug.descriptors.log_missing_unknown_descriptors)
                                     console.error("Descriptor " + descriptor.prefixedForm + " is present in the elements.js file, but has no control type associated! Correct the error by setting the appropriate control type.");

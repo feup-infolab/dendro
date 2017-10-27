@@ -7,7 +7,7 @@ const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore
 
 const clearDataStore = function(app, callback)
 {
-    if(Config.startup.destroy_datastore)
+    if(Config.startup.load_databases && Config.startup.destroy_datastore)
     {
         DataStoreConnection.deleteAllDataOfAllResources(function(err, result){
             if(!err)

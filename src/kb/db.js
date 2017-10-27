@@ -564,9 +564,9 @@ DbConnection.prototype.create = function(callback) {
                             recordQueryConclusionInLog(queryObject);
 
                             releaseConnection(queryObject, function(err, result){
-                                queryObject.callback(err, queryObject.result);
                                 recordQueryConclusionInLog(queryObject);
                                 popQueueCallback();
+                                queryObject.callback(err, queryObject.result);
                             });
                         });
                     }
@@ -617,9 +617,9 @@ DbConnection.prototype.create = function(callback) {
 
                         if (!isNull(parsedBody.boolean))
                         {
-                            queryObject.callback(null, parsedBody.boolean);
                             recordQueryConclusionInLog(queryObject);
                             popQueueCallback();
+                            queryObject.callback(null, parsedBody.boolean);
                         }
                         else
                         {
@@ -630,9 +630,9 @@ DbConnection.prototype.create = function(callback) {
 
                                 if (numberOfRows === 0)
                                 {
-                                    queryObject.callback(null, []);
                                     recordQueryConclusionInLog(queryObject);
                                     popQueueCallback();
+                                    queryObject.callback(null, []);
                                 }
                                 else
                                 {
@@ -690,18 +690,18 @@ DbConnection.prototype.create = function(callback) {
                                         }
                                     }
 
-                                    queryObject.callback(null, transformedResults);
                                     recordQueryConclusionInLog(queryObject);
                                     popQueueCallback();
+                                    queryObject.callback(null, transformedResults);
                                 }
                             }
                             else
                             {
                                 const msg = "Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(parsedBody, null, 4);
                                 console.error();
-                                queryObject.callback(1, "Invalid response from server");
                                 recordQueryConclusionInLog(queryObject);
                                 popQueueCallback(1, msg);
+                                queryObject.callback(1, "Invalid response from server");
                             }
                         }
                     })
@@ -711,9 +711,9 @@ DbConnection.prototype.create = function(callback) {
                         const error = "Virtuoso server returned error: \n " + util.inspect(err);
                         console.error(error);
                         console.trace(err);
-                        queryObject.callback(1, error);
                         recordQueryConclusionInLog(queryObject);
                         popQueueCallback(1, error);
+                        queryObject.callback(1, error);
                     });
 
                 self.pendingRequests[queryObject.query_id] = queryRequest;

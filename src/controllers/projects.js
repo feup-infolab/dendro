@@ -676,21 +676,12 @@ exports.show = function(req, res) {
                             }
                             else
                             {
-                                resourceBeingAccessed.getPropertiesFromOntologies(
-                                    Ontology.getPublicOntologiesUris(),
-                                    function(err, descriptors)
-                                    {
-                                        if(isNull(err))
-                                        {
-                                            viewVars.descriptors = descriptors;
-                                            sendResponse(viewVars, resourceBeingAccessed);
-                                        }
-                                        else
-                                        {
-                                            return callback(err,"Unable to fetch folder descriptors. Reported Error: " + descriptors);
-                                        }
-                                    }
+                                const descriptors = resourceBeingAccessed.getPropertiesFromOntologies(
+                                    Ontology.getPublicOntologiesUris()
                                 );
+
+                                viewVars.descriptors = descriptors;
+                                sendResponse(viewVars, resourceBeingAccessed);
                             }
                         }
                         else

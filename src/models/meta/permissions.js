@@ -190,7 +190,7 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
         }
     }
     else {
-        callback(null, false);
+        return callback(null, false);
     }
 };
 

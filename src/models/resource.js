@@ -41,9 +41,9 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
 
     const ontologyPrefixes = Ontology.getAllOntologyPrefixes();
 
-    for(let prefix in Elements)
+    for(let prefix in Elements.ontologies)
     {
-        if(Elements.hasOwnProperty(prefix))
+        if(Elements.ontologies.hasOwnProperty(prefix))
         {
             if(isNull(self[prefix]))
             {
@@ -455,22 +455,20 @@ Resource.prototype.clearOutgoingPropertiesFromOntologies = function(ontologyURIs
     const self = this;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const descriptors = self.getPropertiesFromOntologies(ontologyURIsArray, graphUri);
 
-    self.getPropertiesFromOntologies(ontologyURIsArray, function(err, descriptors)
+    const triplesToDelete = [];
+    for(let i = 0; i < descriptors.length; i++)
     {
-        const triplesToDelete = [];
-        for(let i = 0; i < descriptors.length; i++)
-        {
-            const descriptor = descriptors[i];
-            triplesToDelete.push({
-                subject : self.uri,
-                predicate : descriptor.uri,
-                object : null
-            });
-        }
+        const descriptor = descriptors[i];
+        triplesToDelete.push({
+            subject : self.uri,
+            predicate : descriptor.uri,
+            object : null
+        });
+    }
 
-        db.deleteTriples(triplesToDelete, db.graphUri, callback);
-    }, graphUri);
+    db.deleteTriples(triplesToDelete, db.graphUri, callback);
 };
 
 /**
@@ -479,6 +477,8 @@ Resource.prototype.clearOutgoingPropertiesFromOntologies = function(ontologyURIs
  * @param callback
  * @param customGraphUri
  */
+
+Resource.countBadQueries = 0;
 
 Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, callback, customGraphUri)
 {
@@ -499,38 +499,16 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
         }
     ];
 
-    let fromString = "";
-    let filterString = "";
-
-    if(!isNull(ontologyURIsArray))
-    {
-        const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(ontologyURIsArray, argumentsArray.length);
-        filterString = DbConnection.buildFilterStringForOntologies(ontologyURIsArray, "uri");
-
-        argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
-        fromString = fromString + fromElements.fromString;
-    }
-
     const query =
-        " SELECT DISTINCT ?uri ?value ?label ?comment \n" +
+        " SELECT DISTINCT ?uri ?value \n" +
         " FROM [0] \n" +
-        fromString + "\n" +
         " WHERE \n" +
         " { \n" +
-        " [1] ?uri ?value .\n" +
-        " OPTIONAL \n" +
-        "{  \n" +
-        "   ?uri    rdfs:label  ?label .\n " +
-        "   FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
-        "} .\n" +
-        "OPTIONAL " +
-        "{  \n" +
-        "   ?uri  rdfs:comment   ?comment. \n" +
-        "   FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
-        "} .\n" +
-
-        filterString +
+        "   [1] ?uri ?value .\n" +
         " } \n";
+
+    Resource.countBadQueries++;
+    console.log(Resource.countBadQueries);
 
     db.connection.executeViaJDBC(query,
         argumentsArray,
@@ -543,7 +521,7 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
                     const descriptor = new Descriptor(descriptors[i]);
                     const prefix = descriptor.prefix;
                     const shortName = descriptor.shortName;
-                    if (!isNull(prefix) && !isNull(shortName))
+                    if (!isNull(prefix) && !isNull(shortName) && _.contains(ontologyURIsArray, descriptor.ontology))
                     {
                         if (isNull(self[prefix]))
                         {
@@ -585,88 +563,67 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
  * @param customGraphUri
  */
 
-Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, callback, customGraphUri, typeConfigsToRetain)
+Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, customGraphUri, typeConfigsToRetain)
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-    //build arguments string from the requested ontologies,
-    // as well as the FROM string with the parameter placeholders
-    let argumentsArray = [
-        {
-            type: Elements.types.resourceNoEscape,
-            value: graphUri
-        },
-        {
-            type: Elements.types.resource,
-            value: self.uri
-        }
-    ];
-
-    let fromString = "";
-    let filterString = "";
-
-    if(!isNull(ontologyURIsArray))
+    const transformUrisToPrefixes = function(urisArray)
     {
-        const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(ontologyURIsArray, argumentsArray.length);
-        filterString = DbConnection.buildFilterStringForOntologies(ontologyURIsArray, "uri");
+        let prefixes = [];
+        for (let i = 0; i < urisArray.length; i++)
+        {
+            prefixes.push(Ontology.getOntologyPrefix(urisArray[i]));
+        }
+        return prefixes;
+    };
 
-        argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
-        fromString = fromString + fromElements.fromString;
+    let prefixes;
+    if(ontologyURIsArray instanceof Array)
+    {
+        prefixes = transformUrisToPrefixes(ontologyURIsArray);
+    }
+    else
+    {
+        prefixes = Ontology.getAllOntologyPrefixes();
     }
 
-    const query =
-        " SELECT DISTINCT ?uri ?value ?label ?comment \n" +
-        " FROM [0] \n" +
-        fromString + "\n" +
-        " WHERE \n" +
-        " { \n" +
-        " [1] ?uri ?value .\n" +
-        " OPTIONAL \n" +
-        "{  \n" +
-        "?uri    rdfs:label  ?label .\n " +
-        "FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
-        "} .\n" +
-        " OPTIONAL " +
-        "{  \n" +
-        "?uri  rdfs:comment   ?comment. \n" +
-        "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
-        "} .\n" +
+    const formattedResults = [];
 
-        filterString +
-        " } \n";
-
-    db.connection.executeViaJDBC(query,
-        argumentsArray,
-        function(err, descriptors) {
-            if(isNull(err))
+    for(let i = 0; i < prefixes.length; i++)
+    {
+        let prefix = prefixes[i];
+        if(!isNull(self[prefix]))
+        {
+            let elements = Object.keys(self[prefix]);
+            for(let j = 0; j < elements.length; j++)
             {
-                const formattedResults = [];
+                let element = elements[j];
                 let formattedDescriptor;
-                
-                for(let i = 0; i < descriptors.length; i++)
+                if(!isNull(Elements.ontologies[prefix][element]) && !isNull(self[prefix][element]))
                 {
                     try{
-                        formattedDescriptor = new Descriptor(descriptors[i], typeConfigsToRetain);
+                        formattedDescriptor = new Descriptor({
+                            prefix : prefix,
+                            shortName : element,
+                            value : self[prefix][element]
+                        }, typeConfigsToRetain);
+
+                        formattedResults.push(formattedDescriptor);
                     }
                     catch(e)
                     {
                         console.error(JSON.stringify(e));
                     }
-
-                    formattedResults.push(formattedDescriptor);
                 }
+            }
+        }
+    }
 
-                return callback(null, formattedResults);
-            }
-            else
-            {
-                console.error("Error fetching descriptors from ontologies : "+ JSON.stringify(ontologyURIsArray)+ ". Error returned : " + descriptors);
-                return callback(1, descriptors);
-            }
-        });
+    return formattedResults;
 };
 
 Resource.prototype.validateDescriptorValues = function(callback)
@@ -1585,7 +1542,7 @@ Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, custo
                     value : graphUri
                 },
                 {
-                    type : Elements.ddr.humanReadableURI.type,
+                    type : Elements.ontologies.ddr.humanReadableURI.type,
                     value : humanReadableUri
                 }
             ],
@@ -1704,14 +1661,13 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
     const saveToCache = function (uri, resource, callback) {
         Cache.getByGraphUri(customGraphUri).put(uri, resource, function (err) {
-            if (isNull(err)) {
-                if (typeof callback === "function") {
-                    return callback(null, resource);
-                }
-            }
-            else {
+            if (!isNull(err)) {
                 const msg = "Unable to set value of " + resource.uri + " as " + JSON.stringify(resource) + " in cache : " + JSON.stringify(err);
                 console.log(msg);
+            }
+
+            if (typeof callback === "function") {
+                return callback(null, resource);
             }
         });
     };
@@ -2394,9 +2350,9 @@ Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptor
     const self = this;
     let descriptorsArray = [];
 
-    for(let prefix in Elements)
+    for(let prefix in Elements.ontologies)
     {
-        if(Elements.hasOwnProperty(prefix) && self.hasOwnProperty(prefix))
+        if(Elements.ontologies.hasOwnProperty(prefix) && self.hasOwnProperty(prefix))
         {
             for(let shortName in self[prefix])
             {
@@ -2458,16 +2414,6 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
             }
         }
 
-        // if (!isNull(descriptorsToExclude))
-        // {
-        //     for (let i = 0; i < descriptorsToExclude.length; i++) {
-        //         const descriptorType = descriptorsToExclude[i];
-        //         if (d[descriptorType]) {
-        //              return deltas;
-        //         }
-        //     }
-        // }
-
         const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
 
         const newChange = new Change({
@@ -2487,7 +2433,7 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
     for(let i = 0; i < ontologies.length; i++)
     {
         let prefix = ontologies[i];
-        const descriptors = Elements[prefix];
+        const descriptors = Elements.ontologies[prefix];
 
         for(let descriptor in descriptors)
         {
@@ -2643,7 +2589,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 ],
                 function (err, result) {
                     if (isNull(err)) {
-                        if (result === true) {
+                        if (result instanceof Array && result.length > 0) {
                             return callback(null, true);
                         }
                         else {
@@ -2676,7 +2622,9 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                    {
                        if(descriptorToCheck.type === Elements.types.prefixedResource)
                        {
-                           return callback(null,_.contains(cachedResource[namespace][element], Descriptor.getUriFromPrefixedForm(value)));
+                           let values = cachedResource[namespace][element];
+                           let valueToTest = Descriptor.getUriFromPrefixedForm(value);
+                           return callback(null,_.contains(values, valueToTest));
                        }
                        else
                        {

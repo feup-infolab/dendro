@@ -1434,19 +1434,16 @@ Project.prototype.findMetadata = function(callback, typeConfigsToRetain)
 {
     const self = this;
 
-    self.getPropertiesFromOntologies(
-        null,
-        function(err, descriptors)
-        {
-            return callback(err,
-                {
-                    descriptors : descriptors,
-                    title : self.dcterms.title
-                }
-            );
-        },
+    const descriptors = self.getPropertiesFromOntologies(
         null,
         typeConfigsToRetain);
+
+    return callback(null,
+        {
+            descriptors : descriptors,
+            title : self.dcterms.title
+        }
+    );
 };
 
 Project.prototype.findMetadataOfRootFolder = function(callback)
