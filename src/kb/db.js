@@ -698,7 +698,7 @@ DbConnection.prototype.create = function(callback) {
                             else
                             {
                                 const msg = "Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(parsedBody, null, 4);
-                                console.error();
+                                console.error(JSON.stringify(parsedBody));
                                 recordQueryConclusionInLog(queryObject);
                                 popQueueCallback(1, msg);
                                 queryObject.callback(1, "Invalid response from server");
@@ -774,7 +774,14 @@ DbConnection.prototype.close = function(callback){
                     console.error(JSON.stringify(result));
                 }
 
-                callback(err, result);
+                if(!isNull(self.pool))
+                {
+                    console.error("Killing all connections of user " + self.jdbc + " via JDBC");
+                    self.executeViaJDBC("disconnect_user ('"+  self.username + "');", [], function(err, result){
+                        console.error("Killing all connections of user " + self.jdbc + " via JDBC");
+                        callback(err, result);
+                    });
+                }
             });
         }
         else
