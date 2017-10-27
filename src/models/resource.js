@@ -274,7 +274,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
 
     });
 
-    Config.getDBByGraphUri(customGraphUri).connection.executeViaHTTP(
+    Config.getDBByGraphUri(customGraphUri).connection.executeViaJDBC(
             "WITH [0] \n" +
             "DELETE \n" +
             "WHERE " +
@@ -320,7 +320,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
     {
         if(!isNull(valueInPrefixedForm))
         {
-            db.connection.executeViaHTTP(
+            db.connection.executeViaJDBC(
                     "WITH [0] \n" +
                     "DELETE \n" +
                     "WHERE " +
@@ -361,7 +361,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
         }
         else
         {
-            db.connection.executeViaHTTP(
+            db.connection.executeViaJDBC(
                     "WITH [0] \n" +
                     "DELETE \n" +
                     "WHERE " +
@@ -508,7 +508,7 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
         " } \n";
 
     Resource.countBadQueries++;
-    console.log(Resource.countBadQueries);
+    //console.log(Resource.countBadQueries);
 
     db.connection.executeViaJDBC(query,
         argumentsArray,
@@ -790,7 +790,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
             "WHERE \n" +
             "{ \n" +
             deleteString + " \n" +
-            "}; \n" +
+            "} \n" +
             "INSERT DATA\n" +
             "{ \n" +
             insertString + " \n" +
@@ -798,7 +798,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
 
         //Invalidate cache record for the updated resources
         Cache.getByGraphUri(graphName).delete(subject, function(err, result){
-            db.connection.executeViaHTTP(query, queryArguments, function(err, results)
+            db.connection.executeViaJDBC(query, queryArguments, function(err, results)
             {
                 return callback(err, results);
                 //console.log(results);
@@ -3076,7 +3076,7 @@ Resource.deleteAll = function(callback, customGraphUri)
     {
         if (isNull(err))
         {
-            db.connection.executeViaHTTP(
+            db.connection.executeViaJDBC(
                 query,
                 queryArguments,
                 function (err, result)
@@ -3185,7 +3185,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
     deleteAllCachedResourcesWithDescriptorValue(descriptor, 0, Config.limits.db.pageSize, function(err){
         if(isNull(err))
         {
-            db.connection.executeViaHTTP(
+            db.connection.executeViaJDBC(
                 "WITH [0]\n"+
                 "DELETE \n" +
                 "WHERE \n" +

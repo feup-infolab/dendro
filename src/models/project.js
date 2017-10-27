@@ -1818,7 +1818,7 @@ Project.prototype.delete = function(callback)
             "   } \n"+
             "} \n";
 
-        db.connection.executeViaHTTP(deleteQuery,
+        db.connection.executeViaJDBC(deleteQuery,
             [
                 {
                     type: Elements.types.resourceNoEscape,

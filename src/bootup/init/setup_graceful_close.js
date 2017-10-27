@@ -211,7 +211,7 @@ const setupGracefulClose = function(app, server, callback)
 
                 return false;
             }
-            else if(exitCode === 0)
+            else if(exitCode === 0 && NODE_ENV !== "test")
             {
                 process.exit(0);
             }
@@ -221,14 +221,17 @@ const setupGracefulClose = function(app, server, callback)
             Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code "+exitCode+"!");
         });
 
-        process.on('unhandledRejection', function(rejection){
-            console.error("Unknown error occurred!");
-            console.error(rejection.stack);
+        if(process.env !== "test")
+        {
+            process.on('unhandledRejection', function(rejection){
+                console.error("Unknown error occurred!");
+                console.error(rejection.stack);
 
-            //we send SIGINT (like Ctrl+c) so that the graceful
-            // cleanup process function can be called (see setup_graceful_close.js)
-            process.kill(process.pid, "SIGINT");
-        });
+                //we send SIGINT (like Ctrl+c) so that the graceful
+                // cleanup process function can be called (see setup_graceful_close.js)
+                process.kill(process.pid, "SIGINT");
+            });
+        }
     }
 
     setupGracefulClose._handlers_are_installed = true;

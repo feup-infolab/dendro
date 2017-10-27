@@ -472,7 +472,7 @@ const removeLike = function (likeID, userUri, cb) {
         //"?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.executeViaHTTP(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,

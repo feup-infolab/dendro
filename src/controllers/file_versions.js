@@ -103,7 +103,7 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) 
                             "[1] ?p ?v \n" +
                             "} \n";
 
-                        db.connection.executeViaHTTP(query,
+                        db.connection.executeViaJDBC(query,
                             DbConnection.pushLimitsArguments([
                                 {
                                     type: Elements.types.resourceNoEscape,

@@ -863,7 +863,7 @@ DbConnection.prototype.close = function(callback){
 
 };
 
-DbConnection.prototype.executeViaHTTP =  function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel) {
+DbConnection.prototype.executeViaJDBC =  function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel) {
     const self = this;
 
     queryObjectToString(queryStringWithArguments, argumentsArray, function(err, query){
@@ -1041,7 +1041,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback) {
 
             const runQuery = function(callback)
             {
-                self.executeViaHTTP(query,
+                self.executeViaJDBC(query,
                     function(error, results)
                     {
                         if(isNull(error))
@@ -1253,7 +1253,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
 
         const runQuery = function(callback)
         {
-            self.executeViaHTTP(query, queryArguments, function(err, results)
+            self.executeViaJDBC(query, queryArguments, function(err, results)
             {
                 return callback(err, results);
             });
@@ -1284,7 +1284,7 @@ DbConnection.prototype.deleteGraph = function(graphUri, callback) {
 
     const runQuery = function(callback)
     {
-        self.executeViaHTTP("CLEAR GRAPH <"+graphUri+">",
+        self.executeViaJDBC("CLEAR GRAPH <"+graphUri+">",
             [],
             function(err, resultsOrErrMessage)
             {

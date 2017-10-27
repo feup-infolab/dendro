@@ -258,7 +258,7 @@ InformationElement.prototype.rename = function(newTitle, callback)
         "} " +
         "}; ";
 
-    db.connection.executeViaHTTP(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -307,7 +307,7 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
         "   } " +
         "}; \n";
 
-    db.connection.executeViaHTTP(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
