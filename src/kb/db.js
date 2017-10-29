@@ -863,7 +863,7 @@ DbConnection.prototype.close = function(callback){
 
 };
 
-DbConnection.prototype.executeViaJDBC =  function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel) {
+DbConnection.prototype.executeViaHTTP =  function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel) {
     const self = this;
 
     queryObjectToString(queryStringWithArguments, argumentsArray, function(err, query){

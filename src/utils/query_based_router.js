@@ -22,10 +22,10 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next, validateExistenc
         if(!isNull(resourceUri))
         {
             const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-            Resource.exists(resourceUri, function(err, exists){
+            Resource.findByUri(resourceUri, function(err, resource){
                 if(isNull(err))
                 {
-                    if(exists)
+                    if(!isNull(resource))
                     {
                         callback(null);
                     }
