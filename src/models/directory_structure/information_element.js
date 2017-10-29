@@ -195,8 +195,10 @@ InformationElement.prototype.getOwnerProject = function(callback)
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
-        "   [1] nie:isLogicalPartOf+ ?uri. \n" +
-        "   ?uri rdf:type ddr:Project \n" +
+        "   [1] nie:isLogicalPartOf+ ?uri \n" +
+        "   FILTER EXISTS { \n" +
+        "       ?uri rdf:type ddr:Project \n" +
+        "   }\n"+
         "} ";
 
     db.connection.executeViaJDBC(query,

@@ -972,16 +972,18 @@ Project.prototype.getFilesCount = function(callback)
     const query =
         "SELECT COUNT(?file) as ?file_count \n" +
         "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE " +
         "{ \n" +
-        " ?file rdf:type nfo:FileDataObject . \n" +
-        " ?file nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        " FILTER NOT EXISTS " +
-        "{ \n" +
-        " ?file ddr:isVersionOf ?some_resource .\n" +
-        "} \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?file rdf:type nfo:FileDataObject . \n" +
+        "       ?file nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n"+
+        "       FILTER NOT EXISTS { \n" +
+        "           ?file ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.executeViaJDBC(query,
@@ -1073,16 +1075,19 @@ Project.prototype.getFoldersCount = function(callback)
     const query =
         "SELECT COUNT(?folder) as ?folder_count \n" +
         "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE " +
         "{ \n" +
-        " ?folder rdf:type nfo:Folder . \n" +
-        " ?folder nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        " FILTER NOT EXISTS " +
-        "{ \n" +
-        " ?folder ddr:isVersionOf ?some_resource .\n" +
-        "} \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?folder rdf:type nfo:Folder . \n" +
+        "       ?folder nie:isLogicalPartOf+ [1] . \n" +
+        "       FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n"+
+        "       FILTER NOT EXISTS " +
+        "       { \n" +
+        "           ?folder ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.executeViaJDBC(query,
@@ -1126,11 +1131,13 @@ Project.prototype.getRevisionsCount = function(callback)
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
-        "{ \n" +
-        " ?revision ddr:isVersionOf ?resource . \n" +
-        " ?resource nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?revision ddr:isVersionOf ?resource . \n" +
+        "       ?resource nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           ?resource rdf:type ddr:Project \n" +
+        "       }\n"+
+        "   } \n" +
         "} \n";
 
     db.connection.executeViaJDBC(query,
