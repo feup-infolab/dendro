@@ -24,16 +24,7 @@ global.Config = Config;
 
 global.tests = {};
 
-<<<<<<< HEAD
-//b2drop
-require(Pathfinder.absPathInTestsFolder("/routes/storage/B2Drop/b2drop.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
-=======
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
->>>>>>> origin/machine-plus-human-identifiers
-
-
 
 //administer projects
 require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
