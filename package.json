@@ -93,6 +93,7 @@
     "mysql": "^2.15.0",
     "n3": "^0.10.0",
     "needle": "^1.6.0",
+    "node-b2drop": "0.0.1",
     "node-b2share-v2": "^2.0.0",
     "node-cleanup": "^2.1.2",
     "node-fs": "0.1.7",
