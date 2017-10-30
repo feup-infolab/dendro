@@ -162,7 +162,7 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
                 {
                     const async = require("async");
                     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                    async.map(result, function(result, callback){
+                    async.mapSeries(result, function(result, callback){
                         Folder.findByUri(result.uri, function(err, parentFolder){
                             return callback(err,parentFolder);
                         });
@@ -195,8 +195,10 @@ InformationElement.prototype.getOwnerProject = function(callback)
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
-        "   [1] nie:isLogicalPartOf+ ?uri. \n" +
-        "   ?uri rdf:type ddr:Project \n" +
+        "   [1] nie:isLogicalPartOf+ ?uri \n" +
+        "   FILTER EXISTS { \n" +
+        "       ?uri rdf:type ddr:Project \n" +
+        "   }\n"+
         "} ";
 
     db.connection.executeViaJDBC(query,
@@ -258,7 +260,7 @@ InformationElement.prototype.rename = function(newTitle, callback)
         "} " +
         "}; ";
 
-    db.connection.executeViaHTTP(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -307,7 +309,7 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
         "   } " +
         "}; \n";
 
-    db.connection.executeViaHTTP(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,

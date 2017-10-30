@@ -80,11 +80,11 @@ ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionN
                         value : graphUri
                     },
                     {
-                        type : Elements.ddr.isVersionOf.type,
+                        type : Elements.ontologies.ddr.isVersionOf.type,
                         value : resourceUri
                     },
                     {
-                        type : Elements.ddr.versionNumber.type,
+                        type : Elements.ontologies.ddr.versionNumber.type,
                         value : versionNumber
                     }
                 ],

@@ -94,7 +94,7 @@ const calculateDendroDiffs = function (folder, packageId, client, callback) {
                                 async.parallel([
                                         function (callback) {
                                             if (dendroIsMissing.length > 0) {
-                                                async.map(dendroIsMissing, function (missingFile, callback) {
+                                                async.mapSeries(dendroIsMissing, function (missingFile, callback) {
                                                     let ckanFile = _.find(folderResourcesInCkan, function (folderResourcesInCkan) {
                                                         return folderResourcesInCkan.id === missingFile;
                                                     });
@@ -125,7 +125,7 @@ const calculateDendroDiffs = function (folder, packageId, client, callback) {
                                         },
                                         function (callback) {
                                             if (ckanIsMissing.length > 0) {
-                                                async.map(ckanIsMissing, function (missingFile, callback) {
+                                                async.mapSeries(ckanIsMissing, function (missingFile, callback) {
                                                     let ckanfileEvent = {
                                                         id: missingFile,
                                                         event: "created_in_local"
@@ -178,7 +178,7 @@ const getExportedAtByDendroForCkanDataset = function (packageID, client, callbac
         function (err, result) {
             if (result.success) {
                 let exportedAtDate = _.filter(result.result.extras, function (extra) {
-                    return extra.key == Elements.ddr.exportedAt.uri + "exportedAt";
+                    return extra.key == Elements.ontologies.ddr.exportedAt.uri + "exportedAt";
                 });
                 if (isNull(exportedAtDate) || exportedAtDate.length != 1) {
                     callback(true, "There is no property exportedAt for this ckan dataset: packageID : " + packageID);
@@ -421,7 +421,7 @@ const calculateCkanRepositoryDiffs = function (requestedResourceUri, targetRepos
  */
 const validateChangesPermissions = function(checkPermissionsDictionary, permissionsToCheck, callback) {
     let validated = false;
-    async.map(permissionsToCheck, function (permission, cb) {
+    async.mapSeries(permissionsToCheck, function (permission, cb) {
         if(!checkPermissionsDictionary[permission])
         {
             const msg = "Missing the permission: " + permission;
@@ -465,12 +465,12 @@ const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, clie
                 //call package_update with the new date to update the exportedAt
                 //returns the index where the property is located, if the property does not exist returns -1
                 let resultIndex = _.findIndex(result.result.extras, function (extra) {
-                    return extra.key === Elements.ddr.exportedAt.uri + "exportedAt"
+                    return extra.key === Elements.ontologies.ddr.exportedAt.uri + "exportedAt"
                 });
                 console.log("The index is: " + resultIndex);
 
                 let dendroExportedAt = {
-                    "key": Elements.ddr.exportedAt.uri + "exportedAt",
+                    "key": Elements.ontologies.ddr.exportedAt.uri + "exportedAt",
                     "value": date
                 };
 
@@ -811,7 +811,7 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
 
                     updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
                         if (isNull(err)) {
-                            async.map(diffs.dendroDiffs, function (dendroDiff, cb) {
+                            async.mapSeries(diffs.dendroDiffs, function (dendroDiff, cb) {
                                 if (dendroDiff.event === "deleted_in_local") {
                                     deleteResourceInCkan(dendroDiff.id, packageId, client, function (err, result) {
                                         cb(err, result);

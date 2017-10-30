@@ -195,7 +195,7 @@ exports.delete = function (req, res) {
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.executeViaHTTP(query,
+            db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type : Elements.types.resourceNoEscape,

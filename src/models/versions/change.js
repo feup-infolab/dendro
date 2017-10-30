@@ -60,7 +60,7 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
                     });
                 };
 
-                async.map(results, fetchFullChange, function(err, fullChanges){
+                async.mapSeries(results, fetchFullChange, function(err, fullChanges){
                     if(isNull(err))
                     {
                         return callback(null, fullChanges);

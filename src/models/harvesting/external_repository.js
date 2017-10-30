@@ -70,7 +70,7 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
                         });
                     };
 
-                    async.map(rows, getExternalRepository, function(err, externalRepositories)
+                    async.mapSeries(rows, getExternalRepository, function(err, externalRepositories)
                     {
                         return callback(err, externalRepositories);
                     });

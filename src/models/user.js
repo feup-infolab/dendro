@@ -76,11 +76,14 @@ User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 
 User.findByUsername = function(username, callback, removeSensitiveDescriptors)
 {
-    User.findByPropertyValue(new Descriptor(
+    const usernameDescriptor =
+        new Descriptor(
         {
             value : username,
             prefixedForm : "ddr:username"
-        }), function(err, user){
+        });
+
+    User.findByPropertyValue(usernameDescriptor, function(err, user){
         if(isNull(err))
         {
             if(!isNull(user) && user instanceof User)
@@ -201,7 +204,7 @@ User.autocomplete_search = function(value, maxResults, callback) {
                     });
                 };
 
-                async.map(users, getUserProperties, function(err, results){
+                async.mapSeries(users, getUserProperties, function(err, results){
                     return callback(err, results);
                 })
             }
@@ -292,7 +295,7 @@ User.allInPage = function(page, pageSize, callback) {
                 {
                     //get all the information about all the projects
                     // and return the array of projects, complete with that info
-                    async.map(users, User.findByUri, function(err, usersToReturn)
+                    async.mapSeries(users, User.findByUri, function(err, usersToReturn)
                     {
                         if(isNull(err))
                         {
@@ -390,7 +393,7 @@ User.prototype.getInteractions = function(callback)
                     });
                 };
 
-                async.map(results, createInteraction, function(err, fullInteractions)
+                async.mapSeries(results, createInteraction, function(err, fullInteractions)
                 {
                     return callback(err, fullInteractions);
                 });
@@ -437,7 +440,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
             }
         };
 
-        async.map(descriptors, createDescriptor, function (err, fullDescriptors) {
+        async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors) {
             if (isNull(err)) {
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
@@ -628,7 +631,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
             }
         };
 
-        async.map(descriptors, createDescriptor, function (err, fullDescriptors) {
+        async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors) {
             if (isNull(err)) {
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
@@ -885,7 +888,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
                     }
                 };
 
-                async.map(descriptors, createDescriptor, function(err, fullDescriptors)
+                async.mapSeries(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
                     if(isNull(err))
                     {
@@ -1009,7 +1012,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
                     }
                 };
 
-                async.map(descriptors, createDescriptor, function(err, fullDescriptors)
+                async.mapSeries(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
                     if(isNull(err))
                     {
@@ -1135,7 +1138,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
                     }
                 };
 
-                async.map(descriptors, createDescriptor, function(err, fullDescriptors)
+                async.mapSeries(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
                     if(isNull(err))
                     {
@@ -1427,7 +1430,7 @@ User.prototype.saveAvatarInGridFS = function (avatar, extension, callback) {
             mongoClient.findFileByFilenameOrderedByDate(mongoDb, avatarUri, function (err, files) {
                 if (!err) {
                     if (files.length > 0) {
-                        async.map(files, function (file, callback) {
+                        async.mapSeries(files, function (file, callback) {
                             gfs.connection.deleteAvatar(file._id, function (err, result) {
                                 callback(err, result);
                             });

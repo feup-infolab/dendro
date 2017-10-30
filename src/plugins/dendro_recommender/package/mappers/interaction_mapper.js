@@ -60,7 +60,7 @@ InteractionMapper.map = function(interactionObject, callback)
         );
     };
 
-    async.map(interactionObject, mapInteraction, function(err, mapped){
+    async.mapSeries(interactionObject, mapInteraction, function(err, mapped){
         callback(err, mapped);
     });
 };

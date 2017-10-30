@@ -171,7 +171,7 @@ exports.change_log = function(req, res){
                     {
                         if(isNull(err))
                         {
-                            async.map(archivedResources, fetchVersionsInformation, function(err, fullVersions){
+                            async.mapSeries(archivedResources, fetchVersionsInformation, function(err, fullVersions){
                                 if(isNull(err))
                                 {
                                     res.json(fullVersions);
@@ -433,7 +433,7 @@ exports.show = function(req, res) {
                     {
                         if(isNull(err))
                         {
-                            async.map(archivedResources, fetchVersionsInformation, function(err, archivedResourcesWithFullAuthorInformation){
+                            async.mapSeries(archivedResources, fetchVersionsInformation, function(err, archivedResourcesWithFullAuthorInformation){
                                 if(isNull(err))
                                 {
 
@@ -655,7 +655,7 @@ exports.show = function(req, res) {
                                 {
                                     if(isNull(err))
                                     {
-                                        async.map(archivedResources, fetchVersionsInformation, function(err, fullVersions){
+                                        async.mapSeries(archivedResources, fetchVersionsInformation, function(err, fullVersions){
                                             if(isNull(err))
                                             {
                                                 viewVars.versions = fullVersions;
@@ -676,21 +676,12 @@ exports.show = function(req, res) {
                             }
                             else
                             {
-                                resourceBeingAccessed.getPropertiesFromOntologies(
-                                    Ontology.getPublicOntologiesUris(),
-                                    function(err, descriptors)
-                                    {
-                                        if(isNull(err))
-                                        {
-                                            viewVars.descriptors = descriptors;
-                                            sendResponse(viewVars, resourceBeingAccessed);
-                                        }
-                                        else
-                                        {
-                                            return callback(err,"Unable to fetch folder descriptors. Reported Error: " + descriptors);
-                                        }
-                                    }
+                                const descriptors = resourceBeingAccessed.getPropertiesFromOntologies(
+                                    Ontology.getPublicOntologiesUris()
                                 );
+
+                                viewVars.descriptors = descriptors;
+                                sendResponse(viewVars, resourceBeingAccessed);
                             }
                         }
                         else
@@ -1105,7 +1096,7 @@ exports.administer = function(req, res) {
                     {
                         if (!isNull(req.body.contributors) && req.body.contributors instanceof Array)
                         {
-                            async.map(req.body.contributors, function (contributor, callback) {
+                            async.mapSeries(req.body.contributors, function (contributor, callback) {
                                 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
                                 const userUriRegexp = Resource.getResourceRegex("user");
                                 const userUsernameRegexp = new RegExp(/^[a-zA-Z0-9_]+$/);

@@ -1168,7 +1168,7 @@ File.prototype.generateThumbnails = function (callback) {
                 if (!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension])) {
                     self.writeToTempFile(function (err, tempFileAbsPath) {
                         if (isNull(err)) {
-                            async.map(Config.thumbnails.sizes, function (thumbnailSize, callback) {
+                            async.mapSeries(Config.thumbnails.sizes, function (thumbnailSize, callback) {
                                     generateThumbnail(tempFileAbsPath, project.uri, thumbnailSize, callback);
                                 },
                                 function (err, results) {
@@ -1224,7 +1224,7 @@ File.prototype.moveToFolder = function(newParentFolder, callback)
         "} " +
         "}; ";
 
-    db.connection.executeViaHTTP(query,
+    db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,

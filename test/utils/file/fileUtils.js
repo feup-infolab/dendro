@@ -1,7 +1,6 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-let supertest = require('supertest');
 let _ = require('underscore');
 
 const binaryParser = function (res, cb) {

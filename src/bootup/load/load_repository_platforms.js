@@ -27,8 +27,6 @@ const loadRepositoryPlatforms = function(app, callback)
             active_config_key = "test";
             console.log("[INFO] Running in test environment detected");
         }
-
-        Config.testsTimeOut = 15000;
     }
     else
     {
@@ -41,7 +39,7 @@ const loadRepositoryPlatforms = function(app, callback)
     RepositoryPlatform.all(function (err, repPlatforms) {
         if(isNull(err))
         {
-            async.map(active_config_for_repositoryPlatforms, function (aMissingPlatform, callback) {
+            async.mapSeries(active_config_for_repositoryPlatforms, function (aMissingPlatform, callback) {
                 let found = _.filter(repPlatforms, function (repPlatform) {
                     return repPlatform.foaf.nick === aMissingPlatform.foaf.nick;
                 });

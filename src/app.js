@@ -19,6 +19,7 @@ Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 Logger.log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
 

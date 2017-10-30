@@ -66,7 +66,7 @@ module.exports.setup = function(finish)
                             callback(null, newUser);
                         }
                         else {
-                            console.log("[ERROR] Error creating new demo User " + JSON.stringify(user));
+                            console.log("[ERROR] Error creating new demo User at createUsers.Unit " + JSON.stringify(user));
                             callback(err, user);
                         }
                     });
@@ -101,7 +101,7 @@ module.exports.setup = function(finish)
                                     callback(err, null);
                                 }
                                 else {
-                                    const msg = "Error creating new Administrator" + JSON.stringify(newUser);
+                                    const msg = "Error creating new Administrator at createUsers.Unit" + JSON.stringify(newUser);
                                     console.error(msg);
                                     callback(err, msg);
                                 }
@@ -124,10 +124,10 @@ module.exports.setup = function(finish)
                                 async.mapSeries(Config.administrators, makeAdmin, function(err){
                                     if(isNull(err))
                                     {
-                                        console.log("[OK] Admins successfully loaded.");
+                                        console.log("[OK] Admins successfully loaded at createUsers.Unit.");
                                     }
                                     else {
-                                        console.log("[ERROR] Unable to load admins. Error : " + err);
+                                        console.log("[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
                                     }
 
                                     callback(err);

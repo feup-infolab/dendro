@@ -316,7 +316,7 @@ Config.enabledOntologies = {
     dcterms: {
         prefix: "dcterms",
         uri: "http://purl.org/dc/terms/",
-        elements: Elements.dcterms,
+        elements: Elements.ontologies.dcterms,
         label: "Dublin Core terms",
         description: "Generic description. Creator, title, subject...",
         domain: "Generic",
@@ -325,7 +325,7 @@ Config.enabledOntologies = {
     foaf: {
         prefix: "foaf",
         uri: "http://xmlns.com/foaf/0.1/",
-        elements: Elements.foaf,
+        elements: Elements.ontologies.foaf,
         label: "Friend of a friend",
         description: "For expressing people-related metadata. Mailbox, web page...",
         domain: "Generic",
@@ -335,7 +335,7 @@ Config.enabledOntologies = {
         prefix: "ddr",
         uri: "http://dendro.fe.up.pt/ontology/0.1/",
         private: true,
-        elements: Elements.ddr,
+        elements: Elements.ontologies.ddr,
         label: "Dendro internal ontology",
         description: "Designed to represent internal system information important to Dendro",
         domain: "Generic",
@@ -345,7 +345,7 @@ Config.enabledOntologies = {
         prefix: "rdf",
         uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         private: true,
-        elements: Elements.rdf,
+        elements: Elements.ontologies.rdf,
         label: "Resource Description Framework",
         description: "Low-level technical ontology. It is the building block of all others.",
         domain: "Low-level, System",
@@ -355,7 +355,7 @@ Config.enabledOntologies = {
         prefix: "nie",
         uri: "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
         private: true,
-        elements: Elements.nie,
+        elements: Elements.ontologies.nie,
         label: "Nepomuk Information Element",
         description: "Ontology for representing files and folders. Information Elements",
         domain: "Low-level, System",
@@ -365,7 +365,7 @@ Config.enabledOntologies = {
         prefix: "nfo",
         uri: "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#",
         private: true,
-        elements: Elements.nfo,
+        elements: Elements.ontologies.nfo,
         label: "Nepomuk File Ontology",
         description: "Ontology for representing files and folders. Files and Folders.",
         domain: "Low-level, System",
@@ -374,7 +374,7 @@ Config.enabledOntologies = {
     research: {
         prefix: "research",
         uri: "http://dendro.fe.up.pt/ontology/research/",
-        elements: Elements.research,
+        elements: Elements.ontologies.research,
         label: "Dendro research",
         description: "Experimental research-related metadata. Instrumentation, method...",
         domain: "Generic",
@@ -383,7 +383,7 @@ Config.enabledOntologies = {
     dcb: {
         prefix: "dcb",
         uri: "http://dendro.fe.up.pt/ontology/dcb/",
-        elements: Elements.dcb,
+        elements: Elements.ontologies.dcb,
         label: "Double Cantilever Beam",
         description: "Fracture mechanics experiments. Initial crack length, Material type...",
         domain: "Mechanical Engineering",
@@ -392,7 +392,7 @@ Config.enabledOntologies = {
     achem: {
         prefix: "achem",
         uri: "http://dendro.fe.up.pt/ontology/achem/",
-        elements: Elements.achem,
+        elements: Elements.ontologies.achem,
         label: "Pollutant analysis",
         description: "Analytical Chemistry experimental studies... Analysed substances, Sample count...",
         domain: "Analytical Chemistry",
@@ -401,7 +401,7 @@ Config.enabledOntologies = {
     bdv: {
         prefix: "bdv",
         uri: "http://dendro.fe.up.pt/ontology/BIODIV/0.1#",
-        elements: Elements.bdv,
+        elements: Elements.ontologies.bdv,
         label: "Biodiversity evolution studies",
         description: "For INSPIRE-represented observational data for biodiversity. Reference system identifier, Metadata point of contact...",
         domain: "Biodiversity, Georeferencing",
@@ -410,7 +410,7 @@ Config.enabledOntologies = {
     biocn: {
         prefix: "biocn",
         uri: "http://dendro.fe.up.pt/ontology/BioOc#",
-        elements: Elements.biocn,
+        elements: Elements.ontologies.biocn,
         label: "Biological Oceanography",
         description: "Biological Oceanography observational and experimental studies...Life stage, Species count, individualPerSpecie...",
         domain: "Biological Oceanography",
@@ -419,7 +419,7 @@ Config.enabledOntologies = {
     grav: {
         prefix: "grav",
         uri: "http://dendro.fe.up.pt/ontology/gravimetry#",
-        elements: Elements.grav,
+        elements: Elements.ontologies.grav,
         label: "Gravimetry",
         description: "Gravimetry observational and experimental studies...Altitude resolution; Beginning time...",
         domain: "Gravimetry",
@@ -428,7 +428,7 @@ Config.enabledOntologies = {
     hdg: {
         prefix: "hdg",
         uri: "http://dendro.fe.up.pt/ontology/hydrogen#",
-        elements: Elements.hdg,
+        elements: Elements.ontologies.hdg,
         label: "Hydrogen Generation",
         description: "Hydrogen Generation experimental studies...Catalyst; Reagent...",
         domain: "Hydrogen Generation",
@@ -437,7 +437,7 @@ Config.enabledOntologies = {
     tsim: {
         prefix: "tsim",
         uri: "http://dendro.fe.up.pt/ontology/trafficSim#",
-        elements: Elements.tsim,
+        elements: Elements.ontologies.tsim,
         label: "Traffic Simulation",
         description: "Traffic Simulation studies...Driving cycle; Vehicle Mass...",
         domain: "Traffic Simulation",
@@ -446,7 +446,7 @@ Config.enabledOntologies = {
     cep: {
         prefix: "cep",
         uri: "http://dendro.fe.up.pt/ontology/cep/",
-        elements: Elements.cep,
+        elements: Elements.ontologies.cep,
         label: "Cutting and Packing",
         description: "Cutting and packing optimization strategies...Solver configuration, Optimization strategy, Heuristics used...",
         domain: "Algorithms and optimization",
@@ -455,7 +455,7 @@ Config.enabledOntologies = {
     social: {
         prefix: "social",
         uri: "http://dendro.fe.up.pt/ontology/socialStudies#",
-        elements: Elements.social,
+        elements: Elements.ontologies.social,
         label: "Social Studies",
         description: "Social and Behavioural Studies... Methodology, Sample procedure, Kind of data...",
         domain: "Social and Behavioural Science",
@@ -464,7 +464,7 @@ Config.enabledOntologies = {
     cfd: {
         prefix: "cfd",
         uri: "http://dendro.fe.up.pt/ontology/cfd#",
-        elements: Elements.cfd,
+        elements: Elements.ontologies.cfd,
         label: "Fluid Dynamics",
         description: "Computational Fluid Dynamics... Flow Case, Initial Condition, Temporal Discretization...",
         domain: "Computational Fluid Dynamics",
@@ -473,7 +473,7 @@ Config.enabledOntologies = {
     tvu: {
         prefix: "tvu",
         uri: "http://dendro.fe.up.pt/ontology/tvu#",
-        elements: Elements.tvu,
+        elements: Elements.ontologies.tvu,
         label: "Audiovisual Content",
         description: "Concepts for the description of datasets generated in the scope of audiovisual production",
         domain: "Audiovisual",
@@ -482,7 +482,7 @@ Config.enabledOntologies = {
     po: {
         prefix: "po",
         uri: "http://purl.org/ontology/po/",
-        elements: Elements.po,
+        elements: Elements.ontologies.po,
         label: "Programmes Ontology",
         description: "A vocabulary for programme data. It defines concepts such as brands, series, episodes, broadcasts, etc.",
         domain: "Programmes",
@@ -491,7 +491,7 @@ Config.enabledOntologies = {
     schema : {
         prefix: "schema",
         uri: "http://schema.org/",
-        elements: Elements.schema,
+        elements: Elements.ontologies.schema,
         label: "Schema.org",
         description: "General Purpose schema",
         domain: "Generic",

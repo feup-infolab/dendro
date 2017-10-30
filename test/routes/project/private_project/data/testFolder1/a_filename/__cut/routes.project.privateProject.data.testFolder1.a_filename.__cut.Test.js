@@ -37,7 +37,7 @@ const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtM
 const allFiles = createFilesUnit.allFiles;
 
 const cutFilesFolderName = "cutFiles";
-const filesToMove = [txtMockFile, docxMockFile];
+const filesToMove = [txtMockFile, csvMockFile, xlsxMockFile, zipMockFile];
 
 describe("[File Cut / Move] [Private project] cutFiles ?paste", function () {
     describe("[Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()

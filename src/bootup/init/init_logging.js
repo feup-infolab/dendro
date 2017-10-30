@@ -182,7 +182,6 @@ const initLogging = function(app, callback)
             if(err)
             {
                 console.error("Unable to setup logging!");
-                process.exit(1);
             }
 
             callback(err);

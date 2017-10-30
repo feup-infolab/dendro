@@ -125,7 +125,7 @@ Project.addProjectInformations = function(arrayOfProjectsUris, callback)
 
         //get all the information about all the projects
         // and return the array of projects, complete with that info
-        async.map(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
+        async.mapSeries(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
         {
             if(isNull(err))
             {
@@ -526,7 +526,7 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
                         });
                     };
 
-                    async.map(rows, getProjectProperties, function(err, projects)
+                    async.mapSeries(rows, getProjectProperties, function(err, projects)
                     {
                         return callback(err, projects);
                     });
@@ -737,7 +737,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             {
                 console.log('itemsUri: ', itemsUri);
 
-                async.map(itemsUri, function (itemUri, cb1) {
+                async.mapSeries(itemsUri, function (itemUri, cb1) {
                     Resource.findByUri(itemUri.dataUri, function (error, item) {
                         console.log(item);
                         //item.get
@@ -772,7 +772,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
                 })*/
             }
@@ -838,7 +838,7 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
                 })
             }
@@ -894,7 +894,7 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
                 })
             }
@@ -972,16 +972,18 @@ Project.prototype.getFilesCount = function(callback)
     const query =
         "SELECT COUNT(?file) as ?file_count \n" +
         "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE " +
         "{ \n" +
-        " ?file rdf:type nfo:FileDataObject . \n" +
-        " ?file nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        " FILTER NOT EXISTS " +
-        "{ \n" +
-        " ?file ddr:isVersionOf ?some_resource .\n" +
-        "} \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?file rdf:type nfo:FileDataObject . \n" +
+        "       ?file nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n"+
+        "       FILTER NOT EXISTS { \n" +
+        "           ?file ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.executeViaJDBC(query,
@@ -1073,16 +1075,19 @@ Project.prototype.getFoldersCount = function(callback)
     const query =
         "SELECT COUNT(?folder) as ?folder_count \n" +
         "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE " +
         "{ \n" +
-        " ?folder rdf:type nfo:Folder . \n" +
-        " ?folder nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        " FILTER NOT EXISTS " +
-        "{ \n" +
-        " ?folder ddr:isVersionOf ?some_resource .\n" +
-        "} \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?folder rdf:type nfo:Folder . \n" +
+        "       ?folder nie:isLogicalPartOf+ [1] . \n" +
+        "       FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n"+
+        "       FILTER NOT EXISTS " +
+        "       { \n" +
+        "           ?folder ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.executeViaJDBC(query,
@@ -1126,11 +1131,13 @@ Project.prototype.getRevisionsCount = function(callback)
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
-        "{ \n" +
-        " ?revision ddr:isVersionOf ?resource . \n" +
-        " ?resource nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?revision ddr:isVersionOf ?resource . \n" +
+        "       ?resource nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           ?resource rdf:type ddr:Project \n" +
+        "       }\n"+
+        "   } \n" +
         "} \n";
 
     db.connection.executeViaJDBC(query,
@@ -1434,19 +1441,16 @@ Project.prototype.findMetadata = function(callback, typeConfigsToRetain)
 {
     const self = this;
 
-    self.getPropertiesFromOntologies(
-        null,
-        function(err, descriptors)
-        {
-            return callback(err,
-                {
-                    descriptors : descriptors,
-                    title : self.dcterms.title
-                }
-            );
-        },
+    const descriptors = self.getPropertiesFromOntologies(
         null,
         typeConfigsToRetain);
+
+    return callback(null,
+        {
+            descriptors : descriptors,
+            title : self.dcterms.title
+        }
+    );
 };
 
 Project.prototype.findMetadataOfRootFolder = function(callback)
@@ -1821,7 +1825,7 @@ Project.prototype.delete = function(callback)
             "   } \n"+
             "} \n";
 
-        db.connection.executeViaHTTP(deleteQuery,
+        db.connection.executeViaJDBC(deleteQuery,
             [
                 {
                     type: Elements.types.resourceNoEscape,

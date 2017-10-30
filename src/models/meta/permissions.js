@@ -190,7 +190,7 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
         }
     }
     else {
-        callback(null, false);
+        return callback(null, false);
     }
 };
 
@@ -652,7 +652,7 @@ Permissions.check = function(permissionsRequired, req, callback) {
 
         if(permissionsRequired instanceof Array && permissionsRequired.length > 0)
         {
-            async.map(permissionsRequired,
+            async.mapSeries(permissionsRequired,
                 async.apply(checkPermission, req, user, resource),
                 function(err, results)
                 {

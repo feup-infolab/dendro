@@ -57,7 +57,7 @@ angular.module('dendroApp.controllers')
             bootbox.confirm(message, function(result) {
                 if(result)
                 {
-                    async.map(selectedFiles, function(selectedFile, callback){
+                    async.mapSeries(selectedFiles, function(selectedFile, callback){
                         var forever = selectedFile.ddr.deleted;
 
                         var extension = selectedFile.ddr.fileExtension;
@@ -105,7 +105,7 @@ angular.module('dendroApp.controllers')
             bootbox.confirm(message, function(result) {
                 if(result)
                 {
-                    async.map(selectedFiles, function(selectedFile, callback){
+                    async.mapSeries(selectedFiles, function(selectedFile, callback){
                         const extension = selectedFile.ddr.fileExtension;
 
                         let successMessage;

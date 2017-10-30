@@ -123,7 +123,7 @@ Folder.prototype.saveIntoFolder = function(
                                     });
                                 };
 
-                                async.map(children, saveChild, function (err, childrenNodes) {
+                                async.mapSeries(children, saveChild, function (err, childrenNodes) {
                                     if (isNull(err)) {
                                         const message = "Finished saving a complete folder at " + node.uri;
                                         console.log(message);
@@ -1209,7 +1209,7 @@ Folder.prototype.setDescriptorsRecursively = function(descriptors, callback, uri
                         node.getLogicalParts(function (err, children) {
                             if (isNull(err) && !isNull(children) && children instanceof Array) {
                                 if (children.length > 0) {
-                                    async.map(children, setDescriptors, function (err, results) {
+                                    async.mapSeries(children, setDescriptors, function (err, results) {
                                         if (isNull(err)) {
                                             /*if(Config.debug.active && Config.debug.files.log_all_restore_operations)
                                         {
@@ -1312,7 +1312,7 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
                     child.delete(cb, uriOfUserDeletingTheFolder, notRecursive);
                 };
 
-                async.map(children, deleteChild, function(err, result){
+                async.mapSeries(children, deleteChild, function(err, result){
                     if(isNull(err))
                     {
                         self.deleteAllMyTriples(function(err, result){

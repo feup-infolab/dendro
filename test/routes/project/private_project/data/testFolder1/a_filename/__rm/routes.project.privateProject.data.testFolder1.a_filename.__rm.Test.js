@@ -123,7 +123,7 @@ describe("Private project testFolder1 ?rename", function () {
     describe("[POST] [FILE] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?rename", function () {
         it("Should rename files with success if the user is logged in as demouser1(the creator of the project)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                async.map(allFiles, function(file, callback){
+                async.mapSeries(allFiles, function(file, callback){
                     const newName = "RenamedFile";
                     fileUtils.renameFile(agent, privateProject.handle, testFolder1.name, file.name, newName,  function (err, res) {
                         res.statusCode.should.equal(200);

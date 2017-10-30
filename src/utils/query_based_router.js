@@ -22,10 +22,10 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next, validateExistenc
         if(!isNull(resourceUri))
         {
             const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-            Resource.exists(resourceUri, function(err, exists){
+            Resource.findByUri(resourceUri, function(err, resource){
                 if(isNull(err))
                 {
-                    if(exists)
+                    if(!isNull(resource))
                     {
                         callback(null);
                     }
@@ -112,13 +112,22 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next, validateExistenc
         {
             Permissions.check(matchingRoute.permissions, req, function(err, req)
             {
-                if (typeof req.permissions_management.reasons_for_authorizing !== "undefined" && req.permissions_management.reasons_for_authorizing.length > 0)
+                if (typeof req.permissions_management.reasons_for_authorizing !== "undefined" &&
+                    req.permissions_management.reasons_for_authorizing instanceof Array &&
+                    req.permissions_management.reasons_for_authorizing.length > 0
+                )
                 {
                     matchingRoute.handler(req, res);
                 }
                 else
                 {
-                    Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying, matchingRoute.authentication_error);
+                    Permissions.sendResponse(false,
+                        req,
+                        res,
+                        next,
+                        req.permissions_management.reasons_for_denying,
+                        matchingRoute.authentication_error
+                    );
                 }
             });
         }
@@ -147,7 +156,9 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next, validateExistenc
         {
             if(validateExistenceOfRequestedResourceUri)
             {
-                resourceExists(callback);
+                resourceExists(function(err, result){
+                    callback(null, result);
+                });
             }
             else
             {

@@ -11,7 +11,7 @@ const loadDemoUsers = function(app, callback)
 {
     if (Config.demo_mode.active && Config.startup.load_databases && Config.startup.reload_demo_users_on_startup)
     {
-        Logger.log_boot_message("info", "Existing demo users recreated. ");
+        Logger.log_boot_message("info", "Recreating demo users... ");
         //try to delete all demo users
         const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
@@ -60,7 +60,7 @@ const loadDemoUsers = function(app, callback)
 
         Logger.log_boot_message("info", "Loading Demo Users... ");
 
-        async.map(Config.demo_mode.users, createUser, function (err, results)
+        async.mapSeries(Config.demo_mode.users, createUser, function (err, results)
         {
             if (isNull(err))
             {

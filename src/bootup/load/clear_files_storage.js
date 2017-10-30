@@ -7,7 +7,7 @@ const GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js"))
 
 const clearFilesStorage = function(app, callback)
 {
-    if(Config.startup.destroy_datastore)
+    if(Config.startup.load_databases && Config.startup.destroy_datastore)
     {
         Config.gfs.default.connection.deleteByQuery({}, function(err, result){
             if(!err)

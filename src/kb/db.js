@@ -564,9 +564,9 @@ DbConnection.prototype.create = function(callback) {
                             recordQueryConclusionInLog(queryObject);
 
                             releaseConnection(queryObject, function(err, result){
-                                queryObject.callback(err, queryObject.result);
                                 recordQueryConclusionInLog(queryObject);
                                 popQueueCallback();
+                                queryObject.callback(err, queryObject.result);
                             });
                         });
                     }
@@ -617,9 +617,9 @@ DbConnection.prototype.create = function(callback) {
 
                         if (!isNull(parsedBody.boolean))
                         {
-                            queryObject.callback(null, parsedBody.boolean);
                             recordQueryConclusionInLog(queryObject);
                             popQueueCallback();
+                            queryObject.callback(null, parsedBody.boolean);
                         }
                         else
                         {
@@ -630,9 +630,9 @@ DbConnection.prototype.create = function(callback) {
 
                                 if (numberOfRows === 0)
                                 {
-                                    queryObject.callback(null, []);
                                     recordQueryConclusionInLog(queryObject);
                                     popQueueCallback();
+                                    queryObject.callback(null, []);
                                 }
                                 else
                                 {
@@ -690,18 +690,18 @@ DbConnection.prototype.create = function(callback) {
                                         }
                                     }
 
-                                    queryObject.callback(null, transformedResults);
                                     recordQueryConclusionInLog(queryObject);
                                     popQueueCallback();
+                                    queryObject.callback(null, transformedResults);
                                 }
                             }
                             else
                             {
                                 const msg = "Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(parsedBody, null, 4);
-                                console.error();
-                                queryObject.callback(1, "Invalid response from server");
+                                console.error(JSON.stringify(parsedBody));
                                 recordQueryConclusionInLog(queryObject);
                                 popQueueCallback(1, msg);
+                                queryObject.callback(1, "Invalid response from server");
                             }
                         }
                     })
@@ -711,9 +711,9 @@ DbConnection.prototype.create = function(callback) {
                         const error = "Virtuoso server returned error: \n " + util.inspect(err);
                         console.error(error);
                         console.trace(err);
-                        queryObject.callback(1, error);
                         recordQueryConclusionInLog(queryObject);
                         popQueueCallback(1, error);
+                        queryObject.callback(1, error);
                     });
 
                 self.pendingRequests[queryObject.query_id] = queryRequest;
@@ -774,7 +774,14 @@ DbConnection.prototype.close = function(callback){
                     console.error(JSON.stringify(result));
                 }
 
-                callback(err, result);
+                /*if(!isNull(self.pool))
+                {
+                    console.error("Killing all connections of user " + self.jdbc + " via JDBC");
+                    self.executeViaJDBC("disconnect_user ('"+  self.username + "');", [], function(err, result){
+                        console.error("Killing all connections of user " + self.jdbc + " via JDBC");
+                        callback(err, result);
+                    });
+                }*/
             });
         }
         else
@@ -836,7 +843,7 @@ DbConnection.prototype.close = function(callback){
 
     const closeAllJDBCConnections = function(callback)
     {
-        async.map(self.queue_jdbc, function(queryObject, callback){
+        async.mapSeries(self.queue_jdbc, function(queryObject, callback){
             queryObject.connection.release(callback);
         }, function(err, results){
             self.pool.purge(function(err, result){
@@ -1034,7 +1041,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback) {
 
             const runQuery = function(callback)
             {
-                self.executeViaHTTP(query,
+                self.executeViaJDBC(query,
                     function(error, results)
                     {
                         if(isNull(error))
@@ -1246,7 +1253,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
 
         const runQuery = function(callback)
         {
-            self.executeViaHTTP(query, queryArguments, function(err, results)
+            self.executeViaJDBC(query, queryArguments, function(err, results)
             {
                 return callback(err, results);
             });
@@ -1277,7 +1284,7 @@ DbConnection.prototype.deleteGraph = function(graphUri, callback) {
 
     const runQuery = function(callback)
     {
-        self.executeViaHTTP("CLEAR GRAPH <"+graphUri+">",
+        self.executeViaJDBC("CLEAR GRAPH <"+graphUri+">",
             [],
             function(err, resultsOrErrMessage)
             {

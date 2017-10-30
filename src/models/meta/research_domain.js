@@ -97,7 +97,7 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
                     });
                 };
 
-                async.map(results, fetchResearchDomain, function(err, researchDomains){
+                async.mapSeries(results, fetchResearchDomain, function(err, researchDomains){
                     return callback(err, researchDomains);
                 });
             }
