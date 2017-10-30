@@ -2022,7 +2022,7 @@ Resource.findByPropertyValue = function(
 
                                 if(uris.length > 1)
                                 {
-                                    return callback(1, "[ERROR] There are more than one internal URIs for the human readable URI " + humanReadableUri + " ! They are : " + JSON.stringify(results));
+                                    return callback(1, "[ERROR] There are more than one resources with values " +  JSON.stringify(descriptorValueRestrictions) + " ! They are : " + JSON.stringify(descriptors));
                                 }
                                 if(uris.length === 1)
                                 {

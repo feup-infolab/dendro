@@ -157,7 +157,7 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next, validateExistenc
             if(validateExistenceOfRequestedResourceUri)
             {
                 resourceExists(function(err, result){
-                    callback(null, result);
+                    callback(err, result);
                 });
             }
             else

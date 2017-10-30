@@ -56,7 +56,7 @@ describe("Get the number of posts of a specific user timeline tests", function (
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 socialDendroUtils.getTotalPostsForAUsersSocialDendroTimeline(true, agent, function (err, res) {
                     res.statusCode.should.equal(200);
-                    parseInt(res.body).should.equal(120);
+                    parseInt(res.body).should.equal(260);
                     numberOfPostsForDemouser1Timeline = res.body;
                     done();
                 });
@@ -67,7 +67,7 @@ describe("Get the number of posts of a specific user timeline tests", function (
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.getTotalPostsForAUsersSocialDendroTimeline(true, agent, function (err, res) {
                     res.statusCode.should.equal(200);
-                    parseInt(res.body).should.equal(120);
+                    parseInt(res.body).should.equal(260);
                     numberOfPostsForDemouser1Timeline.should.equal(res.body);
                     done();
                 });
