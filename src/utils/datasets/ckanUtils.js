@@ -178,7 +178,7 @@ const getExportedAtByDendroForCkanDataset = function (packageID, client, callbac
         function (err, result) {
             if (result.success) {
                 let exportedAtDate = _.filter(result.result.extras, function (extra) {
-                    return extra.key == Elements.ontologies.ddr.exportedAt.uri + "exportedAt";
+                    return extra.key == Elements.ontologies.ddr.exportedAt.uri;
                 });
                 if (isNull(exportedAtDate) || exportedAtDate.length != 1) {
                     callback(true, "There is no property exportedAt for this ckan dataset: packageID : " + packageID);
@@ -465,12 +465,12 @@ const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, clie
                 //call package_update with the new date to update the exportedAt
                 //returns the index where the property is located, if the property does not exist returns -1
                 let resultIndex = _.findIndex(result.result.extras, function (extra) {
-                    return extra.key === Elements.ontologies.ddr.exportedAt.uri + "exportedAt"
+                    return extra.key === Elements.ontologies.ddr.exportedAt.uri
                 });
                 console.log("The index is: " + resultIndex);
 
                 let dendroExportedAt = {
-                    "key": Elements.ontologies.ddr.exportedAt.uri + "exportedAt",
+                    "key": Elements.ontologies.ddr.exportedAt.uri,
                     "value": date
                 };
 
