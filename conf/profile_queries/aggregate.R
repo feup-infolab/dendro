@@ -5,7 +5,7 @@ if (!require(pacman)) {
 
 pacman::p_load(magrittr, dplyr, tidyr, ggplot2, gdata, reshape2, forcats, parsedate)
 
-filename <- "database_profiling_2017-10-29T11_49_52.159Z.csv"
+filename <- "database_profiling_2017-10-29T1_41_11.282Z.csv"
 
 queries <- read.csv(paste("./", filename, sep=""), sep = "@", header = F, stringsAsFactors = F)
 colnames(queries) <- c("query", "time")

@@ -58,7 +58,7 @@ OntologiesCache.prototype._putObjects = function(newObjects, collectionName, cal
             const prefixes = Object.keys(newObjects);
             db.collection(collectionName,function(err, collection){
                 collection.remove({},function(err, removed){
-                    async.map(prefixes, function(prefix, callback)
+                    async.mapSeries(prefixes, function(prefix, callback)
                     {
                         let newObj = newObjects[prefix];
                         db.collection(collectionName)

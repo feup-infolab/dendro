@@ -125,7 +125,7 @@ Project.addProjectInformations = function(arrayOfProjectsUris, callback)
 
         //get all the information about all the projects
         // and return the array of projects, complete with that info
-        async.map(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
+        async.mapSeries(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
         {
             if(isNull(err))
             {
@@ -526,7 +526,7 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
                         });
                     };
 
-                    async.map(rows, getProjectProperties, function(err, projects)
+                    async.mapSeries(rows, getProjectProperties, function(err, projects)
                     {
                         return callback(err, projects);
                     });
@@ -737,7 +737,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             {
                 console.log('itemsUri: ', itemsUri);
 
-                async.map(itemsUri, function (itemUri, cb1) {
+                async.mapSeries(itemsUri, function (itemUri, cb1) {
                     Resource.findByUri(itemUri.dataUri, function (error, item) {
                         console.log(item);
                         //item.get
@@ -772,7 +772,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
                 })*/
             }
@@ -838,7 +838,7 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
                 })
             }
@@ -894,7 +894,7 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
                 })
             }

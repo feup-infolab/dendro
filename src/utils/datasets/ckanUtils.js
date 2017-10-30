@@ -90,7 +90,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                 async.parallel([
                                         function (callback) {
                                             if (dendroIsMissing.length > 0) {
-                                                async.map(dendroIsMissing, function (missingFile, callback) {
+                                                async.mapSeries(dendroIsMissing, function (missingFile, callback) {
                                                     let ckanFile = _.find(folderResourcesInCkan, function (folderResourcesInCkan) {
                                                         return folderResourcesInCkan.id === missingFile;
                                                     });
@@ -121,7 +121,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                         },
                                         function (callback) {
                                             if (ckanIsMissing.length > 0) {
-                                                async.map(ckanIsMissing, function (missingFile, callback) {
+                                                async.mapSeries(ckanIsMissing, function (missingFile, callback) {
                                                     let ckanfileEvent = {
                                                         id: missingFile,
                                                         event: "created_in_local"
@@ -384,7 +384,7 @@ const calculateCkanRepositoryDiffs = function (requestedResourceUri, targetRepos
 
 const validateChangesPermissions = function(checkPermissionsDictionary, permissionsToCheck, callback) {
     let validated = false;
-    async.map(permissionsToCheck, function (permission, cb) {
+    async.mapSeries(permissionsToCheck, function (permission, cb) {
         if(!checkPermissionsDictionary[permission])
         {
             const msg = "Missing the permission: " + permission;
@@ -721,7 +721,7 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
 
                     updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
                         if (isNull(err)) {
-                            async.map(diffs.dendroDiffs, function (dendroDiff, cb) {
+                            async.mapSeries(diffs.dendroDiffs, function (dendroDiff, cb) {
                                 if (dendroDiff.event === "deleted_in_local") {
                                     deleteResourceInCkan(dendroDiff.id, packageId, client, function (err, result) {
                                         cb(err, result);

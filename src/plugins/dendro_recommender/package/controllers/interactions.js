@@ -189,7 +189,7 @@ exports.generate_random_interactions = function(req, res)
 
         const saveInteractions = function(interactionsArray, callback)
         {
-            async.map(
+            async.mapSeries(
                 interactionsArray,
                 function(interaction, cb){
                     interaction.save(function(err, interaction){
@@ -498,7 +498,7 @@ exports.by_user = function(req, res)
 
                             console.log("Length of interactions array for user "+ user.uri +" : " + length);
 
-                            async.map(interactions, getFullDescriptor, function(err, interactionsWithFullDescriptors){
+                            async.mapSeries(interactions, getFullDescriptor, function(err, interactionsWithFullDescriptors){
                                 if(isNull(err))
                                 {
                                     interactionsWithFullDescriptors = _.compact(interactionsWithFullDescriptors);

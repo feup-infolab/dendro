@@ -58,7 +58,7 @@ angular.module('dendroApp.controllers')
 
                     $scope.errorMsg = null;
 
-                    async.map(
+                    async.mapSeries(
                         self.files,
                         function (file, callback)
                         {

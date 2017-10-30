@@ -73,7 +73,7 @@ exports.all = function(req, res) {
                     });
                 };
 
-                async.map(research_domains, getResearchDomainProperties, function(err, researchDomains)
+                async.mapSeries(research_domains, getResearchDomainProperties, function(err, researchDomains)
                 {
                     if(isNull(err))
                     {
@@ -111,7 +111,7 @@ exports.edit = function(req, res) {
 
     if(newResearchDomains instanceof Array)
     {
-        async.map(newResearchDomains,
+        async.mapSeries(newResearchDomains,
         function(domain, callback){
             ResearchDomain.create(domain, function(err, rd){
                 rd.save(function(err, result){

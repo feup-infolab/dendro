@@ -27,7 +27,7 @@ InteractionAnalyser.getFullInteractions = function(interactions, callback)
 
     // get all the information about all the interaction
     // and return the array of interactions, complete with that info
-    async.map(interactions, getInteractionInformation, function(err, interactionsToReturn)
+    async.mapSeries(interactions, getInteractionInformation, function(err, interactionsToReturn)
     {
         if(isNull(err))
         {

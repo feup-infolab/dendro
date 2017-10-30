@@ -318,7 +318,7 @@ exports.my = function(req, res) {
                 });
             };
 
-            async.map(myRepositoryBookmarks, getPlatformDetails, function(err, bookmarksWithPlatforms){
+            async.mapSeries(myRepositoryBookmarks, getPlatformDetails, function(err, bookmarksWithPlatforms){
                 if(isNull(err))
                 {
                     res.json(bookmarksWithPlatforms);

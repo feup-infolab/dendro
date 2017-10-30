@@ -62,7 +62,7 @@ module.exports.setup = function(finish)
         else
         {
             appUtils.registerStartTimeForUnit(path.basename(__filename));
-            async.mapSeriesSeries(projectsData, function (projectData, cb) {
+            async.mapSeries(projectsData, function (projectData, cb) {
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                     if(err)
                     {

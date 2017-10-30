@@ -38,7 +38,7 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
     const self = this;
 
     if (projectUrisArray && projectUrisArray.length > 0) {
-        async.map(projectUrisArray, function (uri, cb1) {
+        async.mapSeries(projectUrisArray, function (uri, cb1) {
             cb1(null, '<' + uri + '>');
         }, function (err, fullProjects) {
             const projectsUris = fullProjects.join(" ");
@@ -91,7 +91,7 @@ exports.getUserPostsUris = function (userUri, currentPage, callback) {
     var maxResults = 5;
     Project.findByCreatorOrContributor(userUri, function (err, projects) {
         if (!err) {
-            async.map(projects, function (project, cb1) {
+            async.mapSeries(projects, function (project, cb1) {
                 cb1(null, project.uri);
             }, function (err, fullProjectsUris) {
                 getAllPosts(fullProjectsUris, function (err, results) {
@@ -153,7 +153,7 @@ const numPostsDatabaseAux = function (projectUrisArray, callback) {
      ?postURI rdf:type ddr:Post.
      }*/
     if (projectUrisArray && projectUrisArray.length > 0) {
-        async.map(projectUrisArray, function (uri, cb1) {
+        async.mapSeries(projectUrisArray, function (uri, cb1) {
             cb1(null, '<' + uri + '>');
         }, function (err, fullProjectsUris) {
             const projectsUris = fullProjectsUris.join(" ");
@@ -308,7 +308,7 @@ const getCommentsForAPost = function (postID, cb) {
         ]),
         function (err, results) {
             if (isNull(err)) {
-                async.map(results, function (commentUri, callback) {
+                async.mapSeries(results, function (commentUri, callback) {
                     Comment.findByUri(commentUri.commentURI, function (err, comment) {
                         callback(null, comment);
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
@@ -387,7 +387,7 @@ const getSharesForAPost = function (postID, cb) {
         ]),
         function (err, results) {
             if (isNull(err)) {
-                async.map(results, function (shareObject, callback) {
+                async.mapSeries(results, function (shareObject, callback) {
                     Share.findByUri(shareObject.shareURI, function (err, share) {
                         return callback(null, share);
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
@@ -412,7 +412,7 @@ exports.numPostsDatabase = function (req, res) {
         var currentUserUri = req.user.uri;
         Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
             if (isNull(err)) {
-                async.map(projects, function (project, cb1) {
+                async.mapSeries(projects, function (project, cb1) {
                     cb1(null, project.uri);
                 }, function (err, projectsUris) {
                     if (isNull(err)) {
@@ -511,7 +511,7 @@ exports.all = function (req, res) {
     {
         Project.findByCreatorOrContributor(currentUser.uri, function (err, projects) {
             if (isNull(err)) {
-                async.map(projects, function (project, cb1) {
+                async.mapSeries(projects, function (project, cb1) {
                     cb1(null, project.uri);
                 }, function (err, fullProjectsUris) {
                     getAllPosts(fullProjectsUris, function (err, results) {
@@ -1469,7 +1469,7 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
 
     let postsInfo = {};
 
-    async.map(postsQueryInfo, function (postQueryInfo, callback) {
+    async.mapSeries(postsQueryInfo, function (postQueryInfo, callback) {
         Post.findByUri(postQueryInfo.uri, function (err, post) {
             if (!err && post != null) {
                 async.series([

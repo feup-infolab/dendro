@@ -652,7 +652,7 @@ Permissions.check = function(permissionsRequired, req, callback) {
 
         if(permissionsRequired instanceof Array && permissionsRequired.length > 0)
         {
-            async.map(permissionsRequired,
+            async.mapSeries(permissionsRequired,
                 async.apply(checkPermission, req, user, resource),
                 function(err, results)
                 {

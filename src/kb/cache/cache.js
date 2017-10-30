@@ -22,7 +22,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
         return Config.db.hasOwnProperty(key);
     });
 
-    async.map(keys,
+    async.mapSeries(keys,
         function(key, callback) {
             const dbConfig = Config.db[key];
 
@@ -158,7 +158,7 @@ Cache.closeConnections = function(cb)
 {
     let self = this;
 
-    async.map(Object.keys(self.caches), function(cacheKey, cb){
+    async.mapSeries(Object.keys(self.caches), function(cacheKey, cb){
         if(self.caches.hasOwnProperty(cacheKey))
         {
             if(typeof self.caches[cacheKey].getHitRatio === "function")
@@ -214,7 +214,7 @@ Cache.getByGraphUri = function(graphUri)
 
 Cache.deleteAllRecordsOfAllCaches = function(callback)
 {
-    async.map(Cache.caches, function(cache, callback){
+    async.mapSeries(Cache.caches, function(cache, callback){
         cache.deleteAll(callback);
     }, function(err, results){
       callback(err, results);

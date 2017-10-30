@@ -48,7 +48,7 @@ const setupGracefulClose = function(app, server, callback)
                 }
             }, Config.dbOperationTimeout);
 
-            async.map(Object.keys(Config.db), function(dbConfigKey, cb){
+            async.mapSeries(Object.keys(Config.db), function(dbConfigKey, cb){
                 const dbConfig = Config.db[dbConfigKey];
 
                 if(!isNull(dbConfig.connection) && dbConfig.connection instanceof DbConnection)
@@ -93,7 +93,7 @@ const setupGracefulClose = function(app, server, callback)
 
         const closeGridFSConnections = function(cb)
         {
-            async.map(global.gfs, function(gridFSConnection, cb){
+            async.mapSeries(global.gfs, function(gridFSConnection, cb){
                 if(global.gfs.hasOwnProperty(gridFSConnection))
                 {
                     global.gfs[gridFSConnection].connection.close(cb);

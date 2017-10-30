@@ -843,7 +843,7 @@ DbConnection.prototype.close = function(callback){
 
     const closeAllJDBCConnections = function(callback)
     {
-        async.map(self.queue_jdbc, function(queryObject, callback){
+        async.mapSeries(self.queue_jdbc, function(queryObject, callback){
             queryObject.connection.release(callback);
         }, function(err, results){
             self.pool.purge(function(err, result){

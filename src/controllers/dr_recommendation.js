@@ -250,7 +250,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                                         const recommendations = parsedBody.recommendations;
 
                                         if (!isNull(recommendations) && recommendations instanceof Array) {
-                                            async.map(recommendations, function (recommendation, cb) {
+                                            async.mapSeries(recommendations, function (recommendation, cb) {
                                                     Descriptor.findByUri(recommendation.uri, function (err, fetchedDescriptor) {
                                                         if (isNull(err)) {
                                                             if (isNull(fetchedDescriptor)) {

@@ -204,7 +204,7 @@ exports.search = function(req, res)
                     });
                 };
 
-                async.map(results, getSimilarResources, function(err, resultsWithSimilarOnes)
+                async.mapSeries(results, getSimilarResources, function(err, resultsWithSimilarOnes)
                 {
                     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                     {

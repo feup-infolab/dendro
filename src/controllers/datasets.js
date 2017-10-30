@@ -43,7 +43,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
             function (cb) {
                 fs.readdir(folderToZip, function (err, files) {
                     if (isNull(err)) {
-                        async.map(files, function (file, callback) {
+                        async.mapSeries(files, function (file, callback) {
                             const absPathToChild = path.join(folderToZip, file);
                             fs.stat(absPathToChild, function (err, stats) {
                                 if (!stats.isDirectory()) {

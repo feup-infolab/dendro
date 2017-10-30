@@ -60,7 +60,7 @@ const loadDemoUsers = function(app, callback)
 
         Logger.log_boot_message("info", "Loading Demo Users... ");
 
-        async.map(Config.demo_mode.users, createUser, function (err, results)
+        async.mapSeries(Config.demo_mode.users, createUser, function (err, results)
         {
             if (isNull(err))
             {

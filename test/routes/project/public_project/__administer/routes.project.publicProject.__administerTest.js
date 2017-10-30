@@ -180,7 +180,7 @@ describe("Administer projects", function (done) {
                                 var contributors = project.dcterms.contributor;
                                 contributors.length.should.equal(3);
 
-                                async.map([demouser3.username, demouser4.username, demouser5.username], function(username, callback){
+                                async.mapSeries([demouser3.username, demouser4.username, demouser5.username], function(username, callback){
                                     User.findByUsername(username, callback);
                                 },function(err, users){
                                     should.not.exist(err);

@@ -114,7 +114,7 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb) {
             let isVersionOf = archivedVersion.ddr.isVersionOf;*/
 
 
-            async.map(archivedVersion.changes, function (change, callback) {
+            async.mapSeries(archivedVersion.changes, function (change, callback) {
                 getDescriptorPrefixedForm(change.ddr.changedDescriptor, function (err, prefixedForm) {
                     if(isNull(err))
                     {

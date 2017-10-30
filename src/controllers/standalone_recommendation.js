@@ -327,7 +327,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                             return callback(null, resource); //null as 1st argument === no error
                         };
 
-                        async.map(similarResources, getDescriptorsOfSimilarResources, function (err, similarResourcesWithDescriptors) {
+                        async.mapSeries(similarResources, getDescriptorsOfSimilarResources, function (err, similarResourcesWithDescriptors) {
                             return callback(err, similarResourcesWithDescriptors);
                         });
                     }

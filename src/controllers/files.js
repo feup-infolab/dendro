@@ -786,7 +786,7 @@ exports.upload = function(req, res)
 
         const calculateTotalSizeOfFiles = function(files, callback)
         {
-            async.map(files, function(file){
+            async.mapSeries(files, function(file){
                 fs.stat(file.path, function(err, stats){
                     callback(err, stats.size);
                 });
@@ -933,7 +933,7 @@ exports.upload = function(req, res)
                                                         }, function(err, results){
                                                             if(isNull(err))
                                                             {
-                                                                async.map(results, function (result, callback) {
+                                                                async.mapSeries(results, function (result, callback) {
                                                                     if(result.result === "success")
                                                                     {
                                                                         File.findByUri(result.uri, function (error, file) {

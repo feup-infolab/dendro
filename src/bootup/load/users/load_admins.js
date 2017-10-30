@@ -60,7 +60,7 @@ const loadAdmins = function(app, callback)
                         })
                     };
 
-                    async.map(Config.administrators, createAdmin, function(err){
+                    async.mapSeries(Config.administrators, createAdmin, function(err){
                         if(isNull(err))
                         {
                             Logger.log_boot_message("success","Admins successfully loaded.");

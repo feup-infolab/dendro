@@ -274,7 +274,7 @@ Descriptor.dublinCoreElements = function(callback)
         new Descriptor({prefixedForm: "dcterms:type"})
     ];
 
-    async.map(DCDescriptors, function(descriptor, callback){
+    async.mapSeries(DCDescriptors, function(descriptor, callback){
         Descriptor.findByUri(descriptor.uri, callback);
     },
     function(err, fullDescriptors)
@@ -554,7 +554,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 
 Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number, page_size) {
     const async = require("async");
-    async.map(ontologyURIsArray, function(uri, cb){
+    async.mapSeries(ontologyURIsArray, function(uri, cb){
         Descriptor.all_in_ontology(uri, function(err, descriptors){
             cb(err, descriptors);
         });
@@ -898,7 +898,7 @@ Descriptor.mergeDescriptors = function(descriptorsArray, callback)
     };
 
 
-    async.map(formattedDescriptors, getFullDescriptor, function(err, fullDescriptors)
+    async.mapSeries(formattedDescriptors, getFullDescriptor, function(err, fullDescriptors)
     {
         return callback(err, fullDescriptors);
     });
@@ -1105,7 +1105,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
                     }
                 };
 
-                async.map(descriptors, createDescriptor, function(err, fullDescriptors)
+                async.mapSeries(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
                     if(isNull(err))
                     {
@@ -1182,7 +1182,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
                     });
                 };
 
-                async.map(descriptors, createDescriptor, function(err, fullDescriptors)
+                async.mapSeries(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
                     if(isNull(err))
                     {

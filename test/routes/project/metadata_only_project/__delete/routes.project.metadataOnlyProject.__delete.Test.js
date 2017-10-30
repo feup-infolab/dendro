@@ -94,7 +94,7 @@ describe("Metadata Only Project delete", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 should.equal(err, null);
 
-                async.map(createProjectsUnit.projectsData, function(aProject, callback){
+                async.mapSeries(createProjectsUnit.projectsData, function(aProject, callback){
                     projectUtils.getProjectUriFromHandle(agent, aProject.handle, function(err, projectUri){
                         deletedProjectUris[aProject.handle] = projectUri;
                         should.equal(null, err);
@@ -115,7 +115,7 @@ describe("Metadata Only Project delete", function (done) {
                     projectUtils.deleteProject(false, agent, metadataOnlyProject.handle, function (err, res) {
                         res.statusCode.should.equal(200);
 
-                        async.map(createProjectsUnit.projectsData, function(aProject, callback){
+                        async.mapSeries(createProjectsUnit.projectsData, function(aProject, callback){
                             let projectUri = deletedProjectUris[aProject.handle];
                             projectUtils.countProjectTriples(projectUri, function(err, tripleCount, results){
                                 should.equal(err, null);

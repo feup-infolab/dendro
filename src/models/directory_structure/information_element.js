@@ -162,7 +162,7 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
                 {
                     const async = require("async");
                     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                    async.map(result, function(result, callback){
+                    async.mapSeries(result, function(result, callback){
                         Folder.findByUri(result.uri, function(err, parentFolder){
                             return callback(err,parentFolder);
                         });
