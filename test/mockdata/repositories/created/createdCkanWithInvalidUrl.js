@@ -24,7 +24,7 @@ const newExportRepoData =
                 },
                 foaf: {
                     nick: "ckan",
-                    homepage: "http://192.168.33.60:5000"
+                    homepage: "http://dendro-dev.fe.up.pt:5000"
                 }
             },
             hasExternalUri: "http://wrongUri.com",
