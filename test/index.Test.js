@@ -7,23 +7,36 @@ global.Pathfinder = Pathfinder;
 Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
-Config.testsTimeout = 20000;
-Config.longTestsTimeout = 60000;
+
+
+if(process.env.RUNNING_IN_JENKINS) {
+    Config.testsTimeout = 1200000;
+}
+else
+{
+    Config.testsTimeout = 600000;
+}
+
+
 console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
 
 global.Config = Config;
 
 global.tests = {};
 
+<<<<<<< HEAD
 //b2drop
 require(Pathfinder.absPathInTestsFolder("/routes/storage/B2Drop/b2drop.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
+=======
+require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
+>>>>>>> origin/machine-plus-human-identifiers
 
 
 
 //administer projects
-//require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
+require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
 
 //USERS
 require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
@@ -58,13 +71,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route
 /*require(Pathfinder.absPathInTestsFolder("/routes/project/metadataonly_project/request_access/route.projects.metadataonlyProject.__request_access.Test.js"));*/
 /*require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/request_access/route.projects.privateProject.__request_access.Test.js"));*/
 
-//PROJECT CHANGES PUBLIC PROJECT
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
-//PROJECT CHANGES PRIVATE PROJECT
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js"));
-//PROJECT CHANGES METADADATA ONlY PROJECT
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js"));
-
 //PROJECT VERSION PUBLIC PROJECT THIS TEST SHOULD BE DELETED BECAUSE THE FEATURE DOES NOT EXIST
 /*require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__version/routes.project.publicProject.__version.Test.js"));*/
 
@@ -81,42 +87,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/_
  require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__export_to_repository/routes.project.privateProject.__export_to_repository.Test"));
  //EXPORT METADATA ONLY PROJECT TO REPOSITORIES TESTS
  require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__export_to_repository/routes.project.metadataonlyProject.__export_to_repository.Test"));*/
-
-//PUBLIC PROJECT FOLDER LEVEL RECENT CHANGES
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__recent_changes/routes.project.publicProject.data.testFolder1.__recent_changes.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__recent_changes/routes.project.publicProject.data.testFolder2.__recent_changes.Test.js"));
-
-//PRIVATE PROJECT FOLDER LEVEL RECENT CHANGES
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__recent_changes/routes.project.privateProject.data.testFolder1.__recent_changes.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__recent_changes/routes.project.privateProject.data.testFolder2.__recent_changes.Test.js"));
-
-//METADATA ONLY PROJECT FOLDER LEVEL RECENT CHANGES
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__recent_changes/routes.project.metadataonlyProject.data.testFolder1.__recent_changes.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__recent_changes/routes.project.metadataonlyProject.data.testFolder2.__recent_changes.Test.js"));
-
-//PUBLIC PROJECT FOLDER LEVEL ?VERSION
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__version/routes.project.publicProject.data.testFolder1.__version.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__version/routes.project.publicProject.data.testFolder2.__version.Test.js"));
-
-//PRIVATE PROJECT FOLDER LEVEL ?VERSION
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__version/routes.project.privateProject.data.testFolder1.__version.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__version/routes.project.privateProject.data.testFolder2.__version.Test.js"));
-
-//METADATA ONLY PROJECT FOLDER LEVEL ?VERSION
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__version/routes.project.metadataonlyProject.data.testFolder1.__version.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__version/routes.project.metadataonlyProject.data.testFolder2.__version.Test.js"));
-
-//PUBLIC PROJECT FOLDER LEVEL ?CHANGE_LOG
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__change_log/routes.project.publicProject.data.testFolder1.__change_log.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__change_log/routes.project.publicProject.data.testFolder2.__change_log.Test.js"));
-
-//PRIVATE PROJECT FOLDER LEVEL ?CHANGE_LOG
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__change_log/routes.project.privateProject.data.testFolder1.__change_log.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__change_log/routes.project.privateProject.data.testFolder2.__change_log.Test.js"));
-
-//METADATA ONLY PROJECT FOLDER LEVEL ?CHANGE_LOG
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__change_log/routes.project.metadataonlyProject.data.testFolder1.__change_log.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__change_log/routes.project.metadataonlyProject.data.testFolder2.__change_log.Test.js"));
 
 //PUBLIC PROJECT FOLDER LEVEL ?MKDIR
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__mkdir/routes.project.publicProject.data.testFolder1.__mkdir.Test.js"));
@@ -224,13 +194,13 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/d
  require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__recommendation_ontologies/routes.project.metadataonlyProject.__recommendation_ontologies.Test"));*/
 
 //PUBLIC PROJECT ?metadata TESTS
-/*require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__metadata/routes.project.publicProject.__metadata.Test"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__metadata/routes.project.publicProject.__metadata.Test"));
 
- //PRIVATE PROJECT ?metadata TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));
+//PRIVATE PROJECT ?metadata TESTS
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));
 
- //METADATA ONLY PROJECT ?metadata TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));*/
+//METADATA ONLY PROJECT ?metadata TESTS
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));
 
 //PUBLIC PROJECT ?metadata&deep TESTS
 /*require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__metadata&deep/routes.project.publicProject.__metadata&deep.Test"));
@@ -371,6 +341,99 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/_
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__delete/routes.project.publicProject.__delete.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__delete/routes.project.metadataOnlyProject.__delete.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js"));
+
+
+//SOCIAL DENDRO TESTS
+
+require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/post/likes/routes.posts.post.likes.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/comment/routes.posts.comment.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/comments/routes.posts.comments.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/share/routes.posts.share.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/shares/routes.posts.shares.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/count/routes.posts.count.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/posts/_uri/routes.posts._uri.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/shares/_uri/routes.shares._uri.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/notifications/all/routes.notifications.all.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification[DELETE].Test.js"));
+
+//END OF SOCIAL DENDRO TESTS
+
+
+//PUBLIC PROJECT FOLDER LEVEL ?VERSION
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__version/routes.project.publicProject.data.testFolder1.__version.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__version/routes.project.publicProject.data.testFolder2.__version.Test.js"));
+
+//PRIVATE PROJECT FOLDER LEVEL ?VERSION
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__version/routes.project.privateProject.data.testFolder1.__version.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__version/routes.project.privateProject.data.testFolder2.__version.Test.js"));
+
+//METADATA ONLY PROJECT FOLDER LEVEL ?VERSION
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__version/routes.project.metadataonlyProject.data.testFolder1.__version.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__version/routes.project.metadataonlyProject.data.testFolder2.__version.Test.js"));
+
+//PUBLIC PROJECT FOLDER LEVEL ?CHANGE_LOG
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__change_log/routes.project.publicProject.data.testFolder1.__change_log.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__change_log/routes.project.publicProject.data.testFolder2.__change_log.Test.js"));
+
+//PRIVATE PROJECT FOLDER LEVEL ?CHANGE_LOG
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__change_log/routes.project.privateProject.data.testFolder1.__change_log.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__change_log/routes.project.privateProject.data.testFolder2.__change_log.Test.js"));
+
+//METADATA ONLY PROJECT FOLDER LEVEL ?CHANGE_LOG
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__change_log/routes.project.metadataonlyProject.data.testFolder1.__change_log.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__change_log/routes.project.metadataonlyProject.data.testFolder2.__change_log.Test.js"));
+
+
+//PROJECT CHANGES PUBLIC PROJECT
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
+//PROJECT CHANGES PRIVATE PROJECT
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js"));
+//PROJECT CHANGES METADADATA ONlY PROJECT
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js"));
+
+//PUBLIC PROJECT FOLDER LEVEL RECENT CHANGES
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__recent_changes/routes.project.publicProject.data.testFolder1.__recent_changes.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__recent_changes/routes.project.publicProject.data.testFolder2.__recent_changes.Test.js"));
+
+//PRIVATE PROJECT FOLDER LEVEL RECENT CHANGES
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__recent_changes/routes.project.privateProject.data.testFolder1.__recent_changes.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__recent_changes/routes.project.privateProject.data.testFolder2.__recent_changes.Test.js"));
+
+//METADATA ONLY PROJECT FOLDER LEVEL RECENT CHANGES
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__recent_changes/routes.project.metadataonlyProject.data.testFolder1.__recent_changes.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__recent_changes/routes.project.metadataonlyProject.data.testFolder2.__recent_changes.Test.js"));
+
+//Archived versions test
+require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
+
+//Import projects tests
+require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
+
+//Import projects tests
+require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
 /*
  require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));

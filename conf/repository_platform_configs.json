@@ -1,0 +1,152 @@
+{
+  "dev": [
+    {
+      "uri" : "/repository_platform/ckan",
+      "dcterms" :
+      {
+        "title" : "CKAN"
+      },
+      "foaf":
+      {
+        "nick" : "ckan",
+        "homepage" : "http://ckan.org"
+      }
+    },
+    {
+      "uri" : "/repository_platform/dspace",
+      "dcterms" :
+      {
+        "title" : "DSpace"
+      },
+      "foaf":
+      {
+        "nick" : "dspace",
+        "homepage" : "http://www.dspace.org/"
+      }
+    },
+    {
+      "uri" : "/repository_platform/eprints",
+      "dcterms" :
+      {
+        "title" : "EPrints"
+      },
+      "foaf":
+      {
+        "nick" : "eprints",
+        "homepage" : "http://www.eprints.org/"
+      }
+    },
+    {
+      "uri" : "/repository_platform/figshare",
+      "dcterms" :
+      {
+        "title" : "Figshare"
+      },
+      "foaf":
+      {
+        "nick" : "figshare",
+        "homepage" : "http://www.figshare.com/"
+      }
+    },
+    {
+      "uri" : "/repository_platform/zenodo",
+      "dcterms" :
+      {
+        "title" : "Zenodo"
+      },
+      "foaf":
+      {
+        "nick" : "zenodo",
+        "homepage" : "http://www.zenodo.org/"
+      }
+    },
+    {
+      "uri" : "/repository_platform/b2share",
+      "dcterms" :
+      {
+        "title" : "EUDAT B2Share",
+        "description" : "A EUDAT B2Share deposition"
+      },
+      "foaf" :
+      {
+        "nick" : "b2share",
+        "homepage" : "https://b2share.eudat.eu/"
+      }
+    }
+  ],
+  "test": [
+    {
+      "uri" : "/repository_platform/ckan",
+      "dcterms" :
+      {
+        "title" : "CKAN"
+      },
+      "foaf":
+      {
+        "nick" : "ckan",
+        "homepage" : "http://ckan.org"
+      }
+    },
+    {
+      "uri" : "/repository_platform/dspace",
+      "dcterms" :
+      {
+        "title" : "DSpace"
+      },
+      "foaf":
+      {
+        "nick" : "dspace",
+        "homepage" : "http://www.dspace.org/"
+      }
+    },
+    {
+      "uri" : "/repository_platform/eprints",
+      "dcterms" :
+      {
+        "title" : "EPrints"
+      },
+      "foaf":
+      {
+        "nick" : "eprints",
+        "homepage" : "http://www.eprints.org/"
+      }
+    },
+    {
+      "uri" : "/repository_platform/figshare",
+      "dcterms" :
+      {
+        "title" : "Figshare"
+      },
+      "foaf":
+      {
+        "nick" : "figshare",
+        "homepage" : "http://www.figshare.com/"
+      }
+    },
+    {
+      "uri" : "/repository_platform/zenodo",
+      "dcterms" :
+      {
+        "title" : "Zenodo"
+      },
+      "foaf":
+      {
+        "nick" : "zenodo",
+        "homepage" : "http://www.zenodo.org/"
+      }
+    },
+    {
+      "uri" : "/repository_platform/b2share",
+      "dcterms" :
+      {
+        "title" : "EUDAT B2Share",
+        "description" : "A EUDAT B2Share deposition"
+      },
+      "foaf" :
+      {
+        "nick" : "b2share",
+        "homepage" : "https://b2share.eudat.eu/"
+      }
+    }
+  ]
+}

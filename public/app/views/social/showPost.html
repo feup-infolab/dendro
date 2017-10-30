@@ -1,0 +1,70 @@
+<!--<div class="panel panel-default" style="margin-left: 20%; margin-right: 20%">-->
+<div class="centered-spinner">
+            <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
+                  spinner-start-active="true"></span>
+</div>
+
+<div class="panel panel-default" ng-show="!doingARequest">
+    <div class="panel-heading text-center">
+        <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">-->
+        <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost')">
+            <h3 class="panel-title"> <span class="label label-success">Metadata Post</span> {{postsContents[postUri].dcterms.title}}</h3>
+        </div>
+        <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'">-->
+        <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/FileSystemPost')">
+            <h3 class="panel-title"> <span class="label label-success">FileSystem Post</span> {{postsContents[postUri].dcterms.title}}</h3>
+        </div>
+
+        <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/ManualPost')">
+            <h3 class="panel-title"> <span class="label label-success">Manual Post</span> {{postsContents[postUri].dcterms.title}}</h3>
+        </div>
+    </div>
+
+    <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">-->
+    <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost')">
+        <ng-include src="'/app/views/social/partial/showMetadataChangePost.html'" onload="postUri = postUri;"></ng-include>
+    </div>
+
+    <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'">-->
+    <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/FileSystemPost')">
+        <ng-include src="'/app/views/social/partial/showFileSystemPost.html'" onload="postUri = postUri;"></ng-include>
+    </div>
+
+    <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/ManualPost')">
+        <ng-include src="'/app/views/social/partial/showManualPost.html'" onload="postUri = postUri;"></ng-include>
+    </div>
+
+    <div class="panel-footer">
+        <a ng-model="checkModel.left" ng-class="postsContents[postUri].likesContent.usersWhoLiked.indexOf(loggedUser.uri) > -1 ? 'btn-sm btn-success' : 'btn-sm'" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="likePost(postsContents[postUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</a> <span>{{postsContents[postUri].likesContent.numLikes}}, </span>
+        <a class="btn-sm" ng-model="checkModel.middle" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="social-dendro-btn fa fa-comment" aria-hidden="true"></i> Comment</a> <span>{{postsContents[postUri].commentsContent.length}}</span>,
+        <a class="btn-sm" ng-model="checkModel.right" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="social-dendro-btn fa fa-share" aria-hidden="true"></i> Share</a> <span>{{postsContents[postUri].sharesContent.length}} </span>
+    </div>
+</div>
+
+<div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm" class="comment-reply-form">
+    <div class="wall">
+        <div ng-repeat="comment in postsContents[postUri].commentsContent | orderBy: 'dcterms.created' track by $index">
+            <!--<a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{comment.ddr.userWhoCommented.split('/').pop()}} : </strong></a>
+            <p> <i> {{comment.ddr.commentMsg}} </i> </p>
+            <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+            <hr>-->
+            <div ng-init="getUserInfo(comment.ddr.userWhoCommented)">
+                <a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{fullUsersInfo[comment.ddr.userWhoCommented].ddr.username}} : </strong></a>
+                <p> <i> {{comment.ddr.commentMsg}} </i> </p>
+                <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+                <hr>
+            </div>
+        </div>
+        <label for="new_comment_box">{{loggedUser.ddr.username}} :</label>
+        <textarea class="form-control" rows="5" id="new_comment_box" ng-model="comment_content" placeholder="Write your comment here"></textarea>
+        <a ng-click="commentPost(postsContents[postUri].uri,comment_content);comment_content=''" class="btn btn-default btn-primary">Send</a>
+    </div>
+</div>
+
+<div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare" class="share-reply-form">
+    <div class="wall">
+        <label for="new_post_box_share">{{loggedUser.ddr.username}} :</label>
+        <textarea class="form-control" rows="5" id="new_post_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
+        <a ng-click="sharePost(postsContents[postUri].uri,share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
+    </div>
+</div>

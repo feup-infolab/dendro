@@ -8,29 +8,82 @@
 
 
 <script type="text/javascript" src="/app/js/controllers/project/import/import_project_controller.js"></script>
+<script type="text/javascript" src="/app/js/controllers/uploads/uploads_controller.js"></script>
 
-<div ng-controller="importProjectCtrl" ng-init="init()">
+<div ng-controller="importProjectCtrl as importProjectCtrl" ng-init="init()">
+    <div ng-controller="uploadsCtrl as uploadsCtrl"
+         ng-init="init(
+            get_upload_url,
+            null,
+            null,
+            null,
+            upload_completed,
+            0
+        )">
     <div class="alert alert-info">
-        This page allows you to import a project produced by another Dendro. We will guide you through the process.
+        This page allows you to import a project produced by Dendro. We will guide you through the process.
         <br>
         Start by uploading a <strong>ZIP file</strong> produced by the "Backup" operation in the projects list of your original Dendro installation.
     </div>
 
-    <ul class="nav nav-pills">
-        <li ng-class="{ active: stage.upload }"><a href="#" ng-click="switch('upload')">1. Upload Backup ZIP</a></li>
-        <li ng-class="{ active: stage.analyse }"><a href="#" ng-click="switch('analyse')">2. Analyse changes</a></li>
-        <li ng-class="{ active: stage.confirm }"><a href="#" ng-click="switch('confirm')">3. Confirm Import</a></li>
-    </ul>
+    <form name="myForm">
+        <div class="form-group">
+            <label for="handle" class="col-sm-2 control-label">Enter the imported project handle</label>
 
-    <ng-include ng-show="stage.upload" src="'/app/views/projects/import/upload.html'"></ng-include>
-    <ng-include ng-show="stage.analyse" src="'/app/views/projects/import/analyse.html'"></ng-include>
-    <ng-include ng-show="stage.confirm" src="'/app/views/projects/import/confirm.html'"></ng-include>
+            <div class="col-sm-10">
+                <input type="text"
+                       class="form-control"
+                       id="handle"
+                       placeholder="The handle of the imported project"
+                       ng-model="handle"
+                       required="">
+                <p class="help-block"><u class="label" ng-class="{ 'label-success': valid_word(handle), 'label-primary': !handle, 'label-danger' : handle && !valid_word(handle)}">Only lower case and numbers.</u> Example: "gravimetry01". This will be a unique identifier for the project that will be created after importing this backup. </p>
+                <span ng-show="!handle" class="glyphicon glyphicon-remove form-control-feedback"></span>
+                <span ng-show="valid_word(handle) && handle" class="glyphicon glyphicon-ok form-control-feedback"></span>
+                <span ng-show="!valid_word(handle) && handle" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+            </div>
+        </div>
 
-    <div class="panel-footer" ng-show="stage.upload">
-        Maximum zip file size : <%= locals.maxUploadSize %>.
-        <br>
-        Maximum project size after unzipping : <%= locals.maxProjectSize %>
-    </div>
+        <div class="form-group">
+            <label for="handle" class="col-sm-2 control-label">Enter the imported project title</label>
+
+            <div class="col-sm-10">
+                <input type="text"
+                       class="form-control"
+                       id="title"
+                       placeholder="The title of the imported project"
+                       ng-model="title"
+                       required="">
+                <p class="help-block"><u class="label" ng-class="{ 'label-success': title, 'label-primary': !title}">The title of your imported project</u></p>
+                <span ng-show="!title" class="glyphicon glyphicon-remove form-control-feedback"></span>
+                <span ng-show="title" class="glyphicon glyphicon-ok form-control-feedback"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="upload" class="col-sm-2 control-label">Select your backup file</label>
+            <div class="col-sm-10">
+                <input type="file" ngf-select ng-model="file" name="new_project_file" ngf-accept="'application/zip'" required="" ng-show="!file.uploading">
+
+                <br/>
+                <div ng-if="file.name">
+                    <%- include ../../uploads/file_upload_progress_bar.ejs %>
+                </div>
+
+                <p class="help-block">
+                    <u class="label" ng-class="{ 'label-primary': !file.name, 'label-success': file.name }">A <u>ZIP file</u> containing a project backup.</u>
+                    Maximum zip file size : <%= locals.maxUploadSize %>. Maximum project size after unzipping : <%= locals.maxProjectSize %>
+                </p>
+            </div>
+        </div>
+
+        <div class="col-sm-10">
+            <button class="btn btn-primary" id="import_button" ng-click="import_project(file, handle, title)" ng-disabled="!file.name || !title || !valid_word(handle) || file.uploading">
+                <i ng-show="file.uploading" class="fa-spinner faa-spin animated"></i>Import project
+            </button>
+        </div>
+    </form>
+</div>
 </div>
 
 <%- include ../../layout/footer.ejs %>

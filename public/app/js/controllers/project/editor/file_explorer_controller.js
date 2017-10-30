@@ -57,7 +57,7 @@ angular.module('dendroApp.controllers')
             bootbox.confirm(message, function(result) {
                 if(result)
                 {
-                    async.map(selectedFiles, function(selectedFile, callback){
+                    async.mapSeries(selectedFiles, function(selectedFile, callback){
                         var forever = selectedFile.ddr.deleted;
 
                         var extension = selectedFile.ddr.fileExtension;
@@ -105,7 +105,7 @@ angular.module('dendroApp.controllers')
             bootbox.confirm(message, function(result) {
                 if(result)
                 {
-                    async.map(selectedFiles, function(selectedFile, callback){
+                    async.mapSeries(selectedFiles, function(selectedFile, callback){
                         const extension = selectedFile.ddr.fileExtension;
 
                         let successMessage;
@@ -144,15 +144,15 @@ angular.module('dendroApp.controllers')
     $scope.toggle_upload_area = function()
     {
         angular.element('#upload_droparea_button').triggerHandler('click');
-        $scope.upload_area_visible = !$scope.upload_area_visible;
-        $scope.restore_area_visible = false;
+        //$scope.upload_area_visible = !$scope.upload_area_visible;
+        //$scope.restore_area_visible = false;
     };
 
     $scope.toggle_restore_area = function()
     {
         angular.element('#upload_droparea_button').triggerHandler('click');
-        $scope.upload_area_visible = false;
-        $scope.restore_area_visible = !$scope.restore_area_visible;
+        //$scope.upload_area_visible = false;
+        //$scope.restore_area_visible = !$scope.restore_area_visible;
     };
 
     $scope.mkdir = function() {
@@ -316,12 +316,12 @@ angular.module('dendroApp.controllers')
     {
         if(!err)
         {
-            $scope.show_popup("success", "Success", "Files uploaded successfully.");
+            $scope.show_popup("success", "Success", "File uploaded successfully.");
             $scope.get_folder_contents(true);
         }
         else
         {
-            $scope.show_popup("error", "Error", result[0].message);
+            $scope.show_popup("error", result.name, result.error);
         }
     };
 

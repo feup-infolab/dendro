@@ -16,7 +16,22 @@ function MongoDBCache (options)
     self.database = options.database;
     self.collection = options.collection;
     self.id = options.id;
+
+    self.hits = 0;
+    self.misses = 0;
 }
+
+MongoDBCache.prototype.getHitRatio = function() {
+    var self = this;
+    if((self.hits + self.misses) !== 0)
+    {
+        return self.hits / (self.hits + self.misses);
+    }
+    else
+    {
+        return "No cache accesses recorded";
+    }
+};
 
 MongoDBCache.prototype.open = function(callback) {
     const self = this;
@@ -33,7 +48,21 @@ MongoDBCache.prototype.open = function(callback) {
             if(isNull(err))
             {
                 self.client = db;
-                callback(null, self);
+                self.client.collection(self.collection).ensureIndex(
+                    "uri",
+                    function(err, result)
+                    {
+                        if(isNull(err))
+                        {
+                            callback(null, self);
+                        }
+                        else
+                        {
+
+                            callback(err, self);
+                        }
+                    }
+                );
             }
             else
             {
@@ -46,9 +75,16 @@ MongoDBCache.prototype.open = function(callback) {
 MongoDBCache.prototype.close = function(cb)
 {
     const self = this;
-    self.client.close(function(err, result){
-        cb(err, result);
-    });
+    if(!isNull(self.client))
+    {
+        self.client.close(function(err, result){
+            cb(err, result);
+        });
+    }
+    else
+    {
+        cb(null);
+    }
 };
 
 MongoDBCache.prototype.put = function(resourceUri, object, callback) {
@@ -61,22 +97,58 @@ MongoDBCache.prototype.put = function(resourceUri, object, callback) {
             if(!isNull(self.client))
             {
                 self.client.collection(self.collection).update(
-                    { "uri" : resourceUri },
+                    {
+                        uri : resourceUri
+                    },
                     object,
-                    { "upsert" : true },
-                    function(err, results) {
-                        if(isNull(err))
+                    {
+                        "upsert" : false,
+                        "w" : 1,
+                        "j" : true
+                    },
+                    function (err, results)
+                    {
+                        if (isNull(err))
                         {
-                            if (Config.debug.active && Config.debug.cache.log_cache_writes)
+                            if(results.result.nModified === 0)
                             {
-                                console.log("[DEBUG] Saved cache record for " + resourceUri);
-                            }
+                                self.client.collection(self.collection).insert(
+                                    object,
+                                    {
+                                        "w" : 1,
+                                        "j" : true
+                                    },
+                                    function (err, results)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            if (Config.debug.active && Config.debug.cache.log_cache_writes)
+                                            {
+                                                console.log("[DEBUG] Saved new cache record for " + resourceUri);
+                                            }
 
-                            return callback(null);
+                                            return callback(null);
+                                        }
+                                        else
+                                        {
+                                            return callback(err, "Unable to insert new cache record  for " + resourceUri + " as " + JSON.stringify(object) + " into mongodb cache. Error : " + JSON.stringify(err));
+                                        }
+
+                                    });
+                            }
+                            else
+                            {
+                                if (Config.debug.active && Config.debug.cache.log_cache_writes)
+                                {
+                                    console.log("[DEBUG] Updated cache record for " + resourceUri);
+                                }
+
+                                return callback(null);
+                            }
                         }
                         else
                         {
-                            return callback(1, "Unable to set value of " + resourceUri + " as " + JSON.stringify(object) + " into monogdb cache. Error : " + JSON.stringify(results));
+                            return callback(err, "Unable to update cache record of " + resourceUri + " as " + JSON.stringify(results) + " into monogdb cache. Error : " + JSON.stringify(err));
                         }
                     });
             }
@@ -105,9 +177,9 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
         {
             if(!isNull(query))
             {
-                const cursor = self.client.collection(self.collection).find(query);
+                const cursor = self.client.collection(self.collection).find(query).sort({"ddr.modified" : -1 });
 
-                cursor.toArray(function(err, cachedResults)
+                cursor.next(function(err, result)
                 {
                     if(Config.debug.active && Config.debug.database.log_all_cache_queries)
                     {
@@ -117,31 +189,26 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
 
                     if(isNull(err))
                     {
-                        if(cachedResults.length === 0)
+                        if(isNull(result))
                         {
                             if(Config.cache.active && Config.debug.cache.log_cache_hits)
                             {
                                 console.log("Cache MISS on " + JSON.stringify(query));
                             }
 
+                            self.misses++;
                             return callback(null, null);
                         }
-                        else if(cachedResults.length === 1)
+                        else
                         {
                             if(Config.cache.active && Config.debug.cache.log_cache_hits)
                             {
                                 console.log("Cache HIT on " + JSON.stringify(query)+"\n");
-                                console.log("Cached : \n " + JSON.stringify(cachedResults, null, 4));
+                                console.log("Cached : \n " + JSON.stringify(result, null, 4));
                             }
 
-                            return callback(null, cachedResults[0]);
-                        }
-                        else
-                        {
-                            const msg = "There are more than one resource in cache when running query";
-                            console.error(msg);
-                            console.error(JSON.stringify(query, null, 4));
-                            return callback(1, "Unable to execute query " + JSON.stringify(query) +" from mongodb cache.");
+                            self.hits++;
+                            return callback(null, result);
                         }
                     }
                     else
@@ -150,6 +217,8 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
                         console.error(err.stack);
                         return callback(err, "Unable to execute query " + JSON.stringify(query) +" from mongodb cache.");
                     }
+
+                    cursor.close();
                 });
             }
             else
@@ -175,21 +244,7 @@ MongoDBCache.prototype.get = function(resourceUri, callback) {
         {
             if(!isNull(result))
             {
-                if(result instanceof Array)
-                {
-                    if(result.length === 1)
-                    {
-                        callback(null, result[0]);
-                    }
-                    else
-                    {
-                        callback(1, "There are more than one resource with the same uri "+resourceUri+"in cache " + self.id + ". This is an error.");
-                    }
-                }
-                else if(result instanceof Object)
-                {
-                    callback(null, result)
-                }
+                callback(null, result)
             }
             else
             {
@@ -213,43 +268,47 @@ MongoDBCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callb
             if(!isNull(resourceUriOrArrayOfResourceUris))
             {
                 let filterObject;
-                if(resourceUriOrArrayOfResourceUris instanceof Array)
+                if(resourceUriOrArrayOfResourceUris instanceof Array && resourceUriOrArrayOfResourceUris.length > 0)
                 {
                     filterObject = {
-                        uri :
-                            {
-                                $all : resourceUriOrArrayOfResourceUris
-                            }
+                        "$or": []
                     };
+
+                    for(let i = 0; i < resourceUriOrArrayOfResourceUris.length; i++)
+                    {
+                        filterObject["$or"].push({
+                            "uri" : resourceUriOrArrayOfResourceUris[i]
+                        });
+                    }
                 }
                 else if(typeof resourceUriOrArrayOfResourceUris === "string")
                 {
                     filterObject = {
-                        uri : resourceUriOrArrayOfResourceUris
+                        "uri" : resourceUriOrArrayOfResourceUris
                     }
                 }
 
-                self.client.collection(self.collection)
-                    .deleteMany(
-                        filterObject,
-                        function (err)
+                self.client.collection(self.collection).remove(
+                    filterObject,
+                    function (err)
+                    {
+                        if(isNull(err))
                         {
-                            if(isNull(err))
+                            if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                             {
-                                if (Config.debug.active && Config.debug.cache.log_cache_deletes)
-                                {
-                                    console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
-                                }
+                                console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                            }
 
-                                return callback(null, null);
-                            }
-                            else
-                            {
-                                const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from MongoDB cache " + JSON.stringify(self.id) + "\n" + err;
-                                console.log(msg);
-                                return callback(err, msg);
-                            }
-                        });
+                            return callback(null, null);
+                        }
+                        else
+                        {
+                            const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from MongoDB cache " + JSON.stringify(self.id) + "\n" + err;
+                            console.log(msg);
+                            return callback(err, msg);
+                        }
+                    }
+                );
             }
             else
             {
@@ -275,7 +334,7 @@ MongoDBCache.prototype.deleteByQuery = function(queryObject, callback) {
         if(!isNull(self.client))
         {
             self.client.collection(self.collection)
-                .deleteMany(
+                .remove(
                     queryObject,
                     function (err)
                     {
@@ -290,10 +349,18 @@ MongoDBCache.prototype.deleteByQuery = function(queryObject, callback) {
                         }
                         else
                         {
+                            //TODO this is a hack for running tests, because mongodb connectons should never be closed at this time!!
                             const msg = "Unable to delete resources via query from MongoDB cache\n";
-                            console.error(JSON.stringify(queryObject, null, 4));
-                            console.error(msg);
-                            return callback(err, msg);
+                            if(err.message !==  "server instance pool was destroyed")
+                            {
+                                console.error(JSON.stringify(err, null, 4));
+                                console.error(JSON.stringify(queryObject, null, 4));
+                                return callback(err, msg);
+                            }
+                            else
+                            {
+                                return callback(null, msg);
+                            }
                         }
                     });
         }

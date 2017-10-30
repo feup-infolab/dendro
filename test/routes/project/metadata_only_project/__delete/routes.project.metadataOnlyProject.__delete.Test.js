@@ -27,8 +27,8 @@ let agent;
 let app;
 
 describe("Metadata Only Project delete", function (done) {
+    this.timeout(2*Config.testsTimeOut);
     before(function (done) {
-        this.timeout(Config.longTestsTimeout);
         createFilesUnit.setup(function (err, results) {
             should.equal(err, null);
             app = global.tests.app;
@@ -41,7 +41,7 @@ describe("Metadata Only Project delete", function (done) {
     describe("[Invalid Cases] /project/:handle?delete " + metadataOnlyProject.handle, function () {
 
         it("Should give an error if an invalid project is specified", function (done) {
-            this.timeout(Config.longTestsTimeout);
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.deleteProject(false, agent, "invalidProjectHandle", function (err, res) {
                     res.statusCode.should.equal(404);
@@ -53,7 +53,7 @@ describe("Metadata Only Project delete", function (done) {
         });
 
         it("Should give an error if the request for this route is of type JSON", function (done) {
-            this.timeout(Config.longTestsTimeout);
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.deleteProject(true, agent, metadataOnlyProject.handle, function (err, res) {
                     res.statusCode.should.equal(400);
@@ -65,7 +65,7 @@ describe("Metadata Only Project delete", function (done) {
 
 
         it("Should give an error when the user is unauthenticated", function (done) {
-            this.timeout(Config.longTestsTimeout);
+            this.timeout(Config.testsTimeout);
             projectUtils.deleteProject(false, agent, metadataOnlyProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();
@@ -73,7 +73,7 @@ describe("Metadata Only Project delete", function (done) {
         });
 
         it("Should give an error when the user is logged in as demouser3 (not a collaborator nor creator in a project by demouser1)", function (done) {
-            this.timeout(Config.longTestsTimeout);
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 projectUtils.deleteProject(false, agent, metadataOnlyProject.handle, function (err, res) {
                     res.statusCode.should.equal(401);
@@ -85,7 +85,7 @@ describe("Metadata Only Project delete", function (done) {
 
     describe("[Valid Cases] /project/:handle?delete " + metadataOnlyProject.handle, function () {
         it("Should delete the project if the user is logged in as demouser1 (creator of the project)", function (done) {
-            this.timeout(Config.longTestsTimeout);
+            this.timeout(Config.testsTimeout);
 
             const fileCountsBefore = {};
             const tripleCountsBefore = {};
@@ -94,7 +94,7 @@ describe("Metadata Only Project delete", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 should.equal(err, null);
 
-                async.map(createProjectsUnit.projectsData, function(aProject, callback){
+                async.mapSeries(createProjectsUnit.projectsData, function(aProject, callback){
                     projectUtils.getProjectUriFromHandle(agent, aProject.handle, function(err, projectUri){
                         deletedProjectUris[aProject.handle] = projectUri;
                         should.equal(null, err);
@@ -115,7 +115,7 @@ describe("Metadata Only Project delete", function (done) {
                     projectUtils.deleteProject(false, agent, metadataOnlyProject.handle, function (err, res) {
                         res.statusCode.should.equal(200);
 
-                        async.map(createProjectsUnit.projectsData, function(aProject, callback){
+                        async.mapSeries(createProjectsUnit.projectsData, function(aProject, callback){
                             let projectUri = deletedProjectUris[aProject.handle];
                             projectUtils.countProjectTriples(projectUri, function(err, tripleCount, results){
                                 should.equal(err, null);
@@ -153,12 +153,12 @@ describe("Metadata Only Project delete", function (done) {
         });
     });
 
-    after(function (done) {
+     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

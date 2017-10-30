@@ -28,8 +28,8 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 //LIST ALL PROJECTS
 describe("List all projects tests", function (done) {
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(Config.testsTimeout);
         addContributorsToProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -119,10 +119,10 @@ describe("List all projects tests", function (done) {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

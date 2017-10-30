@@ -5,6 +5,8 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+
 
 const _ = require("underscore");
 const async = require("async");

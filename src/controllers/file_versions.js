@@ -2,6 +2,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const Like = require('../models/social/like.js').Like;
 const Comment = require('../models/social/comment.js').Comment;
@@ -38,14 +39,14 @@ const getNumLikesForAFileVersion = function(fileVersionUri, cb) {
         "?likeURI ddr:userWhoLiked ?userURI . \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : fileVersionUri
             }
         ]),
@@ -73,18 +74,18 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) 
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : fileVersionUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : currentUserUri
             }
         ]),
@@ -102,14 +103,14 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) 
                             "[1] ?p ?v \n" +
                             "} \n";
 
-                        db.connection.execute(query,
+                        db.connection.executeViaJDBC(query,
                             DbConnection.pushLimitsArguments([
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: db_social.graphUri
                                 },
                                 {
-                                    type: DbConnection.resource,
+                                    type: Elements.types.resource,
                                     value: likeUri
                                 }
                             ]),
@@ -152,21 +153,21 @@ const getSharesForAFileVersion = function (fileVersionUri, cb) {
         "?shareURI ddr:fileVersionUri [1]. \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : fileVersionUri
             }
         ]),
         function(err, results) {
             if(isNull(err))
             {
-                async.map(results, function(shareObject, callback){
+                async.mapSeries(results, function(shareObject, callback){
                     Share.findByUri(shareObject.shareURI, function(err, share)
                     {
                         return callback(false,share);
@@ -184,7 +185,7 @@ const getSharesForAFileVersion = function (fileVersionUri, cb) {
 
 const numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
     if (projectUrisArray && projectUrisArray.length > 0) {
-        async.map(projectUrisArray, function (uri, cb1) {
+        async.mapSeries(projectUrisArray, function (uri, cb1) {
             cb1(null, '<' + uri + '>');
         }, function (err, fullProjectsUris) {
             const projectsUris = fullProjectsUris.join(" ");
@@ -201,10 +202,10 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n ";
 
-            db.connection.execute(query,
+            db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type: DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),
@@ -232,7 +233,7 @@ exports.numFileVersionsInDatabase = function (req, res) {
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
         if(isNull(err))
         {
-            async.map(projects, function (project, cb1) {
+            async.mapSeries(projects, function (project, cb1) {
                 cb1(null, project.uri);
             }, function (err, fullProjectsUris) {
                 numFileVersionsDatabaseAux(fullProjectsUris, function (err, count) {
@@ -263,7 +264,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
     const self = this;
 
     if (projectUrisArray && projectUrisArray.length > 0) {
-        async.map(projectUrisArray, function (uri, cb1) {
+        async.mapSeries(projectUrisArray, function (uri, cb1) {
             cb1(null, '<' + uri + '>');
         }, function (err, fullProjectsUris) {
             const projectsUris = fullProjectsUris.join(" ");
@@ -284,10 +285,10 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-            db.connection.execute(query,
+            db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type: DbConnection.resourceNoEscape,
+                        type: Elements.types.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),
@@ -318,7 +319,7 @@ exports.all = function (req, res) {
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
        if(isNull(err))
        {
-           async.map(projects, function (project, cb1) {
+           async.mapSeries(projects, function (project, cb1) {
                cb1(null, project.uri);
            }, function (err, projectsUris) {
                getProjectFileVersions(projectsUris, index, maxResults, function (err, fileVersions) {

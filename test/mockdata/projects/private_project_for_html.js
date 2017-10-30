@@ -1,5 +1,6 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 
 const privateProjectHandle = 'privateprojecthtmlcreatedbydemouser1';
 
@@ -11,7 +12,8 @@ const projectData = {
     language: 'En',
     coverage: 'Porto',
     handle: privateProjectHandle,
-    privacy: 'private'
+    privacy: 'private',
+    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/privateprojecthtmlcreatedbydemouser1.zip")
 };
 
 module.exports = projectData;

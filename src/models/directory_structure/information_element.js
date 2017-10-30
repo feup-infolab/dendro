@@ -10,6 +10,7 @@ const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Cl
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
 
@@ -60,14 +61,14 @@ InformationElement.prototype.getParent = function(callback)
         " } \n" +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],
@@ -143,14 +144,14 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
         "   }\n" +
         "}\n ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],
@@ -161,7 +162,7 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
                 {
                     const async = require("async");
                     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                    async.map(result, function(result, callback){
+                    async.mapSeries(result, function(result, callback){
                         Folder.findByUri(result.uri, function(err, parentFolder){
                             return callback(err,parentFolder);
                         });
@@ -185,7 +186,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
     const self = this;
 
     /**
-    *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+    *   Note the sign (*) on the nie:isLogicalPartOf* of the query below.
     *    (Recursive querying through inference).
     *   @type {string}
     */
@@ -194,18 +195,20 @@ InformationElement.prototype.getOwnerProject = function(callback)
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
-        "   [1] nie:isLogicalPartOf+ ?uri. \n" +
-        "   ?uri rdf:type ddr:Project \n" +
+        "   [1] nie:isLogicalPartOf+ ?uri \n" +
+        "   FILTER EXISTS { \n" +
+        "       ?uri rdf:type ddr:Project \n" +
+        "   }\n"+
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],
@@ -257,18 +260,18 @@ InformationElement.prototype.rename = function(newTitle, callback)
         "} " +
         "}; ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: newTitle
             }
         ],
@@ -306,22 +309,22 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
         "   } " +
         "}; \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: oldParent
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: newParent
             }
         ],
@@ -472,7 +475,7 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
             {
                 const metadataResult = {
                     title: resource.nie.title,
-                    descriptors: resource.getDescriptors([Config.types.private], [Config.types.api_readable], typeConfigsToRetain),
+                    descriptors: resource.getDescriptors([Elements.access_types.private], [Elements.access_types.api_readable], typeConfigsToRetain),
                     file_extension: resource.ddr.fileExtension,
                     hasLogicalParts: []
                 };
@@ -548,7 +551,7 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
 
             return callback(true, msg);
         }
-    }, null, null, null, [Config.types.private], [Config.types.api_accessible]);
+    }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_accessible]);
 };
 
 InformationElement.prototype.containedIn = function(parentResource, callback, customGraphUri)
@@ -563,7 +566,7 @@ InformationElement.prototype.containedIn = function(parentResource, callback, cu
     {
         const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-        db.connection.execute(
+        db.connection.executeViaJDBC(
             "WITH [0]\n"+
             "ASK \n" +
             "WHERE \n" +
@@ -576,15 +579,15 @@ InformationElement.prototype.containedIn = function(parentResource, callback, cu
 
             [
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value : graphUri
                 },
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value : parentResource.uri
                 },
                 {
-                    type : DbConnection.resourceNoEscape,
+                    type : Elements.types.resourceNoEscape,
                     value : self.uri
                 }
             ],

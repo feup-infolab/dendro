@@ -51,7 +51,13 @@ const initMySQL = function(app, callback)
                                 "   `recommendationCallId` text DEFAULT NULL, \n" +
                                 "   `recommendationCallTimeStamp` datetime DEFAULT NULL, \n" +
                                 "   PRIMARY KEY (`id`) \n" +
-                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n";
+                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n" +
+                                "\n" +
+                                "CREATE INDEX " + tablename + "_uri_text ON " + tablename + "(uri(255)); \n" +
+                                "CREATE INDEX " + tablename + "_performedBy_text ON " + tablename + "(performedBy(255)); \n" +
+                                "CREATE INDEX " + tablename + "_interaction_type_text ON " + tablename + "(interactionType(255)); \n" +
+                                "CREATE INDEX " + tablename + "_executedOver_text ON " + tablename + "(executedOver(255)); \n" +
+                                "CREATE INDEX " + tablename + "_originallyRecommendedFor_text ON " + tablename + "(originallyRecommendedFor(255)); \n";
 
                             Logger.log_boot_message("info","Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
 
@@ -61,25 +67,14 @@ const initMySQL = function(app, callback)
                                     if (isNull(err)) {
                                         Logger.log_boot_message("info","Interactions table " + tablename + " succesfully created in the MySQL database.");
 
-                                        const createIndexesQuery =
-                                            "CREATE INDEX " + tablename + "_uri_text ON " + tablename + "(uri(255)); \n" +
-                                            "CREATE INDEX " + tablename + "_performedBy_text ON " + tablename + "(performedBy(255)); \n" +
-                                            "CREATE INDEX " + tablename + "_interaction_type_text ON " + tablename + "(interactionType(255)); \n" +
-                                            "CREATE INDEX " + tablename + "_executedOver_text ON " + tablename + "(executedOver(255)); \n" +
-                                            "CREATE INDEX " + tablename + "_originallyRecommendedFor_text ON " + tablename + "(originallyRecommendedFor(255)); \n";
-
-                                        connection.query(
-                                            createIndexesQuery,
-                                            function (err, result, fields) {
-                                                connection.release();
-                                                if (isNull(err)) {
-                                                    Logger.log_boot_message("info","Indexes on table  " + tablename + " succesfully created in the MySQL database.");
-                                                    poolOK(pool);
-                                                }
-                                                else {
-                                                    return callback("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + result);
-                                                }
-                                            });
+                                        connection.release();
+                                        if (isNull(err)) {
+                                            Logger.log_boot_message("info","Indexes on table  " + tablename + " succesfully created in the MySQL database.");
+                                            poolOK(pool);
+                                        }
+                                        else {
+                                            return callback("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + JSON.stringify(result, null, 4));
+                                        }
                                     }
                                     else {
                                         return callback("[ERROR] Unable to create the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);

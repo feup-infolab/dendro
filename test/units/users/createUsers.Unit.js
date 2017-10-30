@@ -8,6 +8,7 @@ chai.use(require('chai-http'));
 const should = chai.should();
 const async = require("async");
 const colors = require("colors");
+const path = require('path');
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
@@ -65,7 +66,7 @@ module.exports.setup = function(finish)
                             callback(null, newUser);
                         }
                         else {
-                            console.log("[ERROR] Error creating new demo User " + JSON.stringify(user));
+                            console.log("[ERROR] Error creating new demo User at createUsers.Unit " + JSON.stringify(user));
                             callback(err, user);
                         }
                     });
@@ -100,7 +101,7 @@ module.exports.setup = function(finish)
                                     callback(err, null);
                                 }
                                 else {
-                                    const msg = "Error creating new Administrator" + JSON.stringify(newUser);
+                                    const msg = "Error creating new Administrator at createUsers.Unit" + JSON.stringify(newUser);
                                     console.error(msg);
                                     callback(err, msg);
                                 }
@@ -109,6 +110,7 @@ module.exports.setup = function(finish)
                 })
             };
 
+            appUtils.registerStartTimeForUnit(path.basename(__filename));
             async.mapSeries(Config.demo_mode.users, createUser, function(err, results) {
                 if(isNull(err))
                 {
@@ -122,10 +124,10 @@ module.exports.setup = function(finish)
                                 async.mapSeries(Config.administrators, makeAdmin, function(err){
                                     if(isNull(err))
                                     {
-                                        console.log("[OK] Admins successfully loaded.");
+                                        console.log("[OK] Admins successfully loaded at createUsers.Unit.");
                                     }
                                     else {
-                                        console.log("[ERROR] Unable to load admins. Error : " + err);
+                                        console.log("[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
                                     }
 
                                     callback(err);
@@ -135,6 +137,7 @@ module.exports.setup = function(finish)
                         function(err, results){
                             if(isNull(err))
                             {
+                                appUtils.registerStopTimeForUnit(path.basename(__filename));
                                 end();
                                 finish(err, results);
                             }
@@ -142,6 +145,7 @@ module.exports.setup = function(finish)
                             {
                                 const msg = "Error creating Admins at createUsers.Unit";
                                 console.error(msg);
+                                appUtils.registerStopTimeForUnit(path.basename(__filename));
                                 end();
                                 finish(err, results);
                             }
@@ -151,6 +155,7 @@ module.exports.setup = function(finish)
                 {
                     var msg = "Error creating users at createUsers.Unit";
                     console.error(msg);
+                    appUtils.registerStopTimeForUnit(path.basename(__filename));
                     end();
                     finish(err, results);
                 }

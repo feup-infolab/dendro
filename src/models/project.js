@@ -9,8 +9,8 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -36,6 +36,16 @@ function Project(object)
     if(isNull(self.ddr.humanReadableURI))
     {
         self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
+    }
+
+    if(isNull(object.ddr.hasStorageLimit))
+    {
+        self.ddr.hasStorageLimit = Config.maxProjectSize;
+    }
+
+    if(isNull(object.ddr.requiresVerifiedUploads))
+    {
+        self.ddr.requiresVerifiedUploads = false;
     }
 
     return self;
@@ -79,6 +89,7 @@ Project.prototype.backup = function(callback)
 
                                     const finishedZipFileName = "bagit_backup.zip";
                                     const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
+
                                     Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function(err, zipFileFullPath){
                                         return callback(err, zipFileFullPath, parentFolderPath);
                                     }, finishedZipFileName, true);
@@ -114,7 +125,7 @@ Project.addProjectInformations = function(arrayOfProjectsUris, callback)
 
         //get all the information about all the projects
         // and return the array of projects, complete with that info
-        async.map(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
+        async.mapSeries(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
         {
             if(isNull(err))
             {
@@ -148,14 +159,14 @@ Project.allNonPrivate = function(currentUser, callback) {
         "} ";
 
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: "private"
             }
         ],
@@ -200,18 +211,18 @@ Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
         "    }\n" +
         "}\n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: "private"
             },
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: currentUser.uri
             }
         ],
@@ -250,15 +261,15 @@ Project.findByHandle = function(handle, callback) {
         " ?uri ddr:handle [1] " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
 
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value :db.graphUri
             },
             {
-                type : DbConnection.string,
+                type : Elements.types.string,
                 value : handle
             }
         ],
@@ -323,14 +334,14 @@ Project.prototype.getCreatorsAndContributors = function(callback)
         "} \n";
 
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -380,14 +391,14 @@ Project.findByContributor = function(contributor, callback)
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : contributor
             }
         ],
@@ -434,14 +445,14 @@ Project.findByCreator = function(creator, callback) {
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : creator
             }
         ],
@@ -493,14 +504,14 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : creatorOrContributor
             }
         ],
@@ -515,7 +526,7 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
                         });
                     };
 
-                    async.map(rows, getProjectProperties, function(err, projects)
+                    async.mapSeries(rows, getProjectProperties, function(err, projects)
                     {
                         return callback(err, projects);
                     });
@@ -582,6 +593,57 @@ Project.createAndInsertFromObject = function(object, callback) {
             return callback(err, newProject);
         }
     });
+};
+
+Project.prototype.isUserACreatorOrContributor = function (userUri, callback) {
+    const self = this;
+    const query =
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        " { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:creator [2] \n" +
+        "   } \n" +
+        "   UNION \n" +
+        "   { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:contributor [2] \n" +
+        "   } \n" +
+        "} \n";
+
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type : Elements.types.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : Elements.types.resource,
+                value : self.uri
+            },
+            {
+                type : Elements.types.resource,
+                value : userUri
+            }
+        ],
+        function(err, properties) {
+            if(!isNull(err))
+            {
+                const errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
+                console.error(errorMsg);
+
+            }
+
+            if(properties.length > 0 )
+            {
+                callback(err, true);
+            }
+            else
+            {
+                callback(err, false);
+            }
+        });
 };
 
 Project.prototype.getRootFolder = function(callback)
@@ -655,18 +717,18 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 
     //query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : projectData
             }/*,
             {
-                type : DbConnection.date,
+                type : Elements.types.date,
                 value: createdAfterDate
             }*/
         ]),//, startingResultPosition, maxResults),
@@ -675,7 +737,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             {
                 console.log('itemsUri: ', itemsUri);
 
-                async.map(itemsUri, function (itemUri, cb1) {
+                async.mapSeries(itemsUri, function (itemUri, cb1) {
                     Resource.findByUri(itemUri.dataUri, function (error, item) {
                         console.log(item);
                         //item.get
@@ -710,7 +772,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
                 })*/
             }
@@ -745,18 +807,18 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.stringNoEscape,
+                type : Elements.types.stringNoEscape,
                 value : self.uri
             },
             {
-                type : DbConnection.date,
+                type : Elements.types.date,
                 value: createdAfterDate
             }
         ], startingResultPosition, maxResults),
@@ -776,7 +838,7 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
                 })
             }
@@ -805,14 +867,14 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : self.uri
             }
         ],
@@ -832,7 +894,7 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
                 })
             }
@@ -865,7 +927,7 @@ Project.prototype.getStorageSize = function(callback, customBucket)
         {
             collection.aggregate([
                 {
-                    $match: {"metadata.project" : self.uri}
+                    $match: {"metadata.project.uri" : self.uri}
                 },
                 {
                     $group:
@@ -897,7 +959,7 @@ Project.prototype.getStorageSize = function(callback, customBucket)
         }
         else
         {
-            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
+            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(collection));
             return callback(1, "Error retrieving files collection : " + collection);
         }
     });
@@ -910,26 +972,28 @@ Project.prototype.getFilesCount = function(callback)
     const query =
         "SELECT COUNT(?file) as ?file_count \n" +
         "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE " +
         "{ \n" +
-        " ?file rdf:type nfo:FileDataObject . \n" +
-        " ?file nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        " FILTER NOT EXISTS " +
-        "{ \n" +
-        " ?file ddr:isVersionOf ?some_resource .\n" +
-        "} \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?file rdf:type nfo:FileDataObject . \n" +
+        "       ?file nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n"+
+        "       FILTER NOT EXISTS { \n" +
+        "           ?file ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -973,14 +1037,14 @@ Project.prototype.getMembersCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -1011,26 +1075,29 @@ Project.prototype.getFoldersCount = function(callback)
     const query =
         "SELECT COUNT(?folder) as ?folder_count \n" +
         "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE " +
         "{ \n" +
-        " ?folder rdf:type nfo:Folder . \n" +
-        " ?folder nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        " FILTER NOT EXISTS " +
-        "{ \n" +
-        " ?folder ddr:isVersionOf ?some_resource .\n" +
-        "} \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?folder rdf:type nfo:Folder . \n" +
+        "       ?folder nie:isLogicalPartOf+ [1] . \n" +
+        "       FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n"+
+        "       FILTER NOT EXISTS " +
+        "       { \n" +
+        "           ?folder ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -1064,21 +1131,23 @@ Project.prototype.getRevisionsCount = function(callback)
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
-        "{ \n" +
-        " ?revision ddr:isVersionOf ?resource . \n" +
-        " ?resource nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?revision ddr:isVersionOf ?resource . \n" +
+        "       ?resource nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           ?resource rdf:type ddr:Project \n" +
+        "       }\n"+
+        "   } \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : self.uri
             }
         ],
@@ -1109,19 +1178,19 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
 
     let argumentsArray = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         },
         {
-            type: DbConnection.stringNoEscape,
+            type: Elements.types.stringNoEscape,
             value: self.uri
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.favorite_descriptor_from_quick_list_for_project.key
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key
         }
     ];
@@ -1193,7 +1262,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "		   	) \n" +
     "		} \n";
 
-    db.connection.execute(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
         function(err, descriptors)
@@ -1240,19 +1309,19 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
 
     let argumentsArray = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         },
         {
-            type: DbConnection.stringNoEscape,
+            type: Elements.types.stringNoEscape,
             value: self.uri
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.hide_descriptor_from_quick_list_for_project.key
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.unhide_descriptor_from_quick_list_for_project.key
         }
     ];
@@ -1327,7 +1396,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "		   	) \n" +
         "		} \n";
 
-    db.connection.execute(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
         function(err, descriptors)
@@ -1372,19 +1441,16 @@ Project.prototype.findMetadata = function(callback, typeConfigsToRetain)
 {
     const self = this;
 
-    self.getPropertiesFromOntologies(
-        null,
-        function(err, descriptors)
-        {
-            return callback(err,
-                {
-                    descriptors : descriptors,
-                    title : self.dcterms.title
-                }
-            );
-        },
+    const descriptors = self.getPropertiesFromOntologies(
         null,
         typeConfigsToRetain);
+
+    return callback(null,
+        {
+            descriptors : descriptors,
+            title : self.dcterms.title
+        }
+    );
 };
 
 Project.prototype.findMetadataOfRootFolder = function(callback)
@@ -1530,50 +1596,56 @@ Project.unzipAndValidateBagItBackupStructure = function(absPathToZipFile, maxSto
     {
         if(isNull(err))
         {
-            if(size < maxStorageSize)
+            if(!isNaN(size))
             {
-                File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
-                    if(isNull(err))
-                    {
-                        Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
+                if(size < maxStorageSize)
+                {
+                    File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
+                        if(isNull(err))
                         {
-                            if(isNull(err))
+                            Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
                             {
-                                if(valid)
+                                if(isNull(err))
                                 {
-                                    return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
+                                    if(valid)
+                                    {
+                                        return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
+                                    }
+                                    else
+                                    {
+                                        return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    }
                                 }
                                 else
                                 {
-                                    return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    return callback(err, pathToFolderToRestore);
                                 }
-                            }
-                            else
-                            {
-                                return callback(err, pathToFolderToRestore);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
-                        return callback(err, msg);
-                    }
-                });
+                            });
+                        }
+                        else
+                        {
+                            const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
+                            return callback(err, msg);
+                        }
+                    });
+                }
+                else
+                {
+                    const filesize = require('file-size');
+                    const difference = maxStorageSize - size;
+
+                    const humanSizeDifference = filesize(difference).human('jedec');
+                    const humanZipFileSize = filesize(size).human('jedec');
+                    const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
+
+                    const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
+                    return callback(err, msg);
+                }
             }
             else
             {
-                const filesize = require('file-size');
-                const difference = maxStorageSize - size;
-
-                const humanSizeDifference = filesize(difference).human('jedec');
-                const humanZipFileSize = filesize(size).human('jedec');
-                const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
-
-                const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
-                return callback(err, msg);
+                return callback(1, "Unable to determine the size of the ZIP File, because the file was corrupted during transfer!");
             }
-
         }
         else
         {
@@ -1645,7 +1717,7 @@ Project.prototype.restoreFromFolder = function(
                                     {
                                         return callback(err, "Error restoring metadata for project " + self.uri + " : " + result);
                                     }
-                                }, entityLoadingTheMetadataUri, [Config.types.locked], [Config.types.restorable])
+                                }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable])
                             });
                         }
                         else
@@ -1686,14 +1758,14 @@ Project.prototype.clearCacheRecords = function(callback, customGraphUri)
 
         findQuery = DbConnection.addLimitsClauses(findQuery, pageSize * currentPage, pageSize);
 
-        db.connection.execute(findQuery,
+        db.connection.executeViaJDBC(findQuery,
             [
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: graphUri
                 },
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: self.uri
                 }
 
@@ -1753,14 +1825,14 @@ Project.prototype.delete = function(callback)
             "   } \n"+
             "} \n";
 
-        db.connection.execute(deleteQuery,
+        db.connection.executeViaJDBC(deleteQuery,
             [
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: db.graphUri
                 },
                 {
-                    type: DbConnection.resourceNoEscape,
+                    type: Elements.types.resourceNoEscape,
                     value: self.uri
                 }
             ],

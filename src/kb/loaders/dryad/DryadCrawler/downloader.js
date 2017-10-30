@@ -21,7 +21,7 @@ const makeRequestAndSaveToFile = function (url, absolutePath) {
         console.log("Sending request to " + url + "   ... and saving to file " + absolutePath);
         request(url, function (error, response, body) {
             if (isNull(error) && response.statusCode === 200) {
-                fs.writeFile(absolutePath, body, function (err) {
+                fs.writeFile(absolutePath, body,  "utf-8", function (err) {
                     sem.leave();
 
                     if (err) {

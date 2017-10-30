@@ -11,7 +11,7 @@ const destroyAllGraphs = function(app, callback)
         const graphs = Object.keys(Config.db);
         const conn = Config.db.default.connection;
 
-        async.map(graphs, function(graph, cb){
+        async.mapSeries(graphs, function(graph, cb){
 
             const graphUri = Config.db[graph].graphUri;
             conn.deleteGraph(graphUri, function(err){

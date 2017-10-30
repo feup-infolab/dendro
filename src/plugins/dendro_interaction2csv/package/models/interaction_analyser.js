@@ -27,7 +27,7 @@ InteractionAnalyser.getFullInteractions = function(interactions, callback)
 
     // get all the information about all the interaction
     // and return the array of interactions, complete with that info
-    async.map(interactions, getInteractionInformation, function(err, interactionsToReturn)
+    async.mapSeries(interactions, getInteractionInformation, function(err, interactionsToReturn)
     {
         if(isNull(err))
         {
@@ -52,10 +52,10 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
         " ?uri rdf:type ddr:Interaction " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: graphUri
             }
         ],
@@ -98,18 +98,18 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
 
-                        db.connection.execute(query,
+                        db.connection.executeViaJDBC(query,
                             [
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: graphUri
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: pageOffset
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: Config.streaming.db.page_size
                                 }
                             ],
@@ -164,26 +164,26 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                                             "   }\n" +
                                             "}\n";
 
-                                        db.connection.execute(query,
+                                        db.connection.executeViaJDBC(query,
                                             [
                                                 {
-                                                    type: DbConnection.resourceNoEscape,
+                                                    type: Elements.types.resourceNoEscape,
                                                     value: graphUri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: "http://purl.org/dc/terms/"
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.date_created
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.uri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.interaction_type
                                                 },
                                             ],
@@ -257,10 +257,10 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
         " ?uri rdf:type ddr:Interaction " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: graphUri
             }
         ],
@@ -303,18 +303,18 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
 
-                        db.connection.execute(query,
+                        db.connection.executeViaJDBC(query,
                             [
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: graphUri
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: pageOffset
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: Config.streaming.db.page_size
                                 }
                             ],
@@ -369,26 +369,26 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                                             "   }\n" +
                                             "}\n";
 
-                                        db.connection.execute(query,
+                                        db.connection.executeViaJDBC(query,
                                             [
                                                 {
-                                                    type: DbConnection.resourceNoEscape,
+                                                    type: Elements.types.resourceNoEscape,
                                                     value: graphUri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: "http://purl.org/dc/terms/"
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.date_created
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.uri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.interaction_type
                                                 }
                                             ],
@@ -446,10 +446,10 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
         " ?uri rdf:type ddr:Interaction " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: graphUri
             }
         ],
@@ -492,18 +492,18 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
 
-                        db.connection.execute(query,
+                        db.connection.executeViaJDBC(query,
                             [
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: graphUri
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: pageOffset
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: Config.streaming.db.page_size
                                 }
                             ],
@@ -558,26 +558,26 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                                             "   }\n" +
                                             "}\n";
 
-                                        db.connection.execute(query,
+                                        db.connection.executeViaJDBC(query,
                                             [
                                                 {
-                                                    type: DbConnection.resourceNoEscape,
+                                                    type: Elements.types.resourceNoEscape,
                                                     value: graphUri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: "http://purl.org/dc/terms/"
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.date_created
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.uri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.interaction_type
                                                 }
                                             ],
@@ -635,10 +635,10 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
         " ?uri rdf:type ddr:Interaction " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: graphUri
             }
         ],
@@ -681,18 +681,18 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
 
-                        db.connection.execute(query,
+                        db.connection.executeViaJDBC(query,
                             [
                                 {
-                                    type: DbConnection.resourceNoEscape,
+                                    type: Elements.types.resourceNoEscape,
                                     value: graphUri
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: pageOffset
                                 },
                                 {
-                                    type: DbConnection.int,
+                                    type: Elements.types.int,
                                     value: Config.streaming.db.page_size
                                 }
                             ],
@@ -747,26 +747,26 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                                             "   }\n" +
                                             "}\n";
 
-                                        db.connection.execute(query,
+                                        db.connection.executeViaJDBC(query,
                                             [
                                                 {
-                                                    type: DbConnection.resourceNoEscape,
+                                                    type: Elements.types.resourceNoEscape,
                                                     value: graphUri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: "http://purl.org/dc/terms/"
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.date_created
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.uri
                                                 },
                                                 {
-                                                    type: DbConnection.stringNoEscape,
+                                                    type: Elements.types.stringNoEscape,
                                                     value: interaction.interaction_type
                                                 }
                                             ],

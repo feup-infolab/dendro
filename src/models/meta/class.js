@@ -67,6 +67,7 @@ Class.extend = function(childClass, parentClass, rdfTypeForSavingInDatabase)
 
     childClass.baseConstructor = getParentConstructor(parentClass);
     childClass.prototype['baseConstructor'] = getParentConstructor(parentClass);
+    childClass.leafClass = rdfTypeForSavingInDatabase;
 
     let childClassWithFamilyTreePrototypes = copyPrototypeFromParent(parentClass, childClass);
 

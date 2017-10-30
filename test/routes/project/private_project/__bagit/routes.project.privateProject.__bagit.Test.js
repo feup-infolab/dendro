@@ -43,7 +43,7 @@ const odsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/odsM
 
 describe("Backup Private project", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(Config.testsTimeout);
         createFilesUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -53,7 +53,7 @@ describe("Backup Private project", function () {
     describe("[PRIVATE PROJECT] [Invalid Cases] /project/" + project.handle + "?bagit", function() {
         
         it("Should give an error message when a project does not exist", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 should.equal(err, null);
                 projectUtils.bagit(agent, invalidProject.handle, function (err, res) {
@@ -64,7 +64,7 @@ describe("Backup Private project", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.testsTimeout);
             const app = global.tests.app;
             const agent = chai.request.agent(app);
 
@@ -76,7 +76,7 @@ describe("Backup Private project", function () {
         });
 
         it("Should give an error when the user is authenticated, but not as a creator nor contributor of the project", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 should.equal(err, null);
                 projectUtils.bagit(agent, project.handle, function (err, res) {
@@ -89,7 +89,7 @@ describe("Backup Private project", function () {
 
     describe("[PRIVATE PROJECT] [Valid Cases] /project/" + project.handle + "?bagit", function() {
         it("Should backup the private project correctly", function (done) {
-            this.timeout(60000);
+            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 projectUtils.bagit(agent, project.handle, function (err, res) {
@@ -107,12 +107,12 @@ describe("Backup Private project", function () {
         });
     });
 
-    after(function (done) {
+     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

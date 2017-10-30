@@ -4,9 +4,7 @@
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#list" aria-controls="home" role="tab" data-toggle="tab">Projects list</a></li>
-        <li role="presentation"><a href="#timeline" ng-click="tab_changed('timeline')" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li>
-        <!--<li role="presentation"><a href="#fileVersions" aria-controls="home" role="tab" data-toggle="tab">File versions timeline</a></li>-->
-        <li role="presentation"><a href="#fileVersions" ng-click="tab_changed('fileVersions')" aria-controls="home" role="tab" data-toggle="tab">File versions timeline</a></li>
+        <!--<li role="presentation"><a href="#timeline" ng-click="tab_changed('timeline')" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li>-->
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="list">
@@ -55,7 +53,7 @@
                                                         <form>
                                                             <div class="btn-group">
                                                                 <button type="submit" class="btn btn-default" onclick="location.href='<%=project.uri%>'">
-                                                                    <img class="icon16" id="upload_button" src="/images/icons/folder_vertical_open.png"> <%= project.dcterms.title %>
+                                                                    <img class="icon16" id="upload_button" src="/images/icons/folder_vertical_open.png"> <%= (project.dcterms.title)? project.dcterms.title : project.ddr.handle %>
                                                                 </button>
                                                             <%
                                                             if(locals.user != null && locals.user.uri == project.dcterms.creator)
@@ -113,7 +111,7 @@
                                                     <%
                                                     }
                                                     %>
-                                                            <b><%= project.ddr.handle %></b>
+                                                            <b><%= project.dcterms.description %></b>
                                                     <% if(!project.ddr.deleted)
                                                     {
                                                     %>
@@ -186,12 +184,6 @@
                             </div>
                         <% }  %>
                 <% } %>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="timeline" ng-controller="timelineCtrl" ng-init="init();get_logged_user();">
-           <% include ../social/timeline.ejs %>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="fileVersions" ng-controller="fileVersionsCtrl" ng-init="init();get_logged_user();">
-            <%- include ../social/timelineFileVersions.ejs %>
         </div>
 
 </div>

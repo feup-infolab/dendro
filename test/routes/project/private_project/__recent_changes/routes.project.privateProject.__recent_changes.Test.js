@@ -1,4 +1,5 @@
 const chai = require("chai");
+const path = require("path");
 const chaiHttp = require("chai-http");
 const should = chai.should();
 const _ = require("underscore");
@@ -25,8 +26,9 @@ const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTe
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("private project recent changes", function () {
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(Config.longTestsTimeout);
+        appUtils.newTestRouteLog(path.basename(__filename));
         addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -88,7 +90,7 @@ describe("private project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, privateProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(4);
+                    res.body.length.should.equal(9);
                     done();
                 });
             });
@@ -99,7 +101,7 @@ describe("private project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, privateProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(4);
+                    res.body.length.should.equal(9);
                     done();
                 });
             });
@@ -108,10 +110,10 @@ describe("private project recent changes", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            done();
+            done(err);
         });
     });
 });

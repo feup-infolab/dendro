@@ -10,6 +10,7 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
@@ -50,7 +51,7 @@ File.estimateUnzippedSize = function(pathOfZipFile, callback)
     const path = require("path");
     const exec = require("child_process").exec;
 
-    const command = 'unzip -l ' + pathOfZipFile + " | tail -n 1";
+    const command = 'unzip -l \"' + pathOfZipFile + "\" | tail -n 1";
     const parentFolderPath = path.resolve(pathOfZipFile, "..");
 
 
@@ -89,7 +90,7 @@ File.unzip = function(pathOfFile, callback) {
         },
         function(err, tmpFolderPath)
         {
-            let command = 'unzip -qq -o ' + pathOfFile;
+            let command = 'unzip -qq -o \"' + pathOfFile + "\"";
             if(isNull(err))
             {
                 const unzip = exec(command, {cwd: tmpFolderPath}, function (error, stdout, stderr) {
@@ -182,11 +183,11 @@ File.deleteOnLocalFileSystem = function(absPathToFile, callback)
 
     if(isWin)
     {
-        command = `rd /s /q "${absPathToFile}"`
+        command = `rd /s /q \""${absPathToFile}"\"`
     }
     else
     {
-        command = `rm -rf ${absPathToFile}`;
+        command = `rm -rf \"${absPathToFile}\"`;
     }
 
     InformationElement.isSafePath(absPathToFile, function(err, isSafe){
@@ -215,7 +216,44 @@ File.prototype.save = function (callback, rename) {
         if(rename){
             const getParent = function(callback)
             {
-                self.getParent(callback);
+                let parentUri = self.nie.isLogicalPartOf;
+                const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+
+                Folder.findByUri(parentUri, function (err, parentFolder) {
+                    if(isNull(err))
+                    {
+                        if(parentFolder instanceof Folder)
+                        {
+                            callback(err, parentFolder);
+                        }
+                        else
+                        {
+                            Project.findByUri(parentUri, function (err, parentProject) {
+                                if(isNull(err))
+                                {
+                                    if(parentProject instanceof Project)
+                                    {
+                                        callback(err, parentProject);
+                                    }
+                                    else
+                                    {
+                                        callback(true, "Error: Parent of :  " + self.uri + " is neither a folder nor project");
+                                    }
+
+                                }
+                                else
+                                {
+                                    callback(err, parentProject)
+                                }
+                            });
+                        }
+                    }
+                    else
+                    {
+                        callback(err, parentFolder);
+                    }
+                });
             };
 
             const getChildrenOfParent = function(parent, callback)
@@ -225,16 +263,17 @@ File.prototype.save = function (callback, rename) {
 
             const renameIfChildExistsWithSameName = function(children, callback)
             {
-
                 const childrenWithTheSameName = _.find(children, function(child){
-                    return child.nie.title === self.nie.title
+                    return child.nie.title === self.nie.title && child.uri !== self.uri && child.ddr.deleted !==true;
                 });
 
                 if(
-                    !isNull(childrenWithTheSameName) && childrenWithTheSameName.length > 0
+                    !isNull(childrenWithTheSameName) && Array.isArray(childrenWithTheSameName) && childrenWithTheSameName.length > 0 ||
+                    !isNull(childrenWithTheSameName) && childrenWithTheSameName instanceof Object
                 )
                 {
-                    self.nie.title = self.title + " (Copy created at " + new Date().toISOString() + ")";
+                    let fileNameData = self.nie.title.split(".");
+                    self.nie.title = fileNameData[0] + "_Copy_created_" + Date.now()+ "." + fileNameData[1];
                 }
 
                 callback(null);
@@ -293,7 +332,7 @@ File.prototype.saveWithFileAndContents = function(localFilePath, indexConnection
     async.series([
         function(callback)
         {
-            self.save(callback);
+            self.save(callback, true);
         },
         function(callback)
         {
@@ -326,7 +365,7 @@ File.prototype.deleteThumbnails = function () {
         for (let i = 0; i < Config.thumbnails.sizes.length; i++) {
             const dimension = Config.thumbnails.sizes[i];
             if (Config.thumbnails.size_parameters.hasOwnProperty(dimension)) {
-                gfs.connection.deleteByFileUri(self.uri + "?thumbnail&size=" + dimension, function (err, result) {
+                gfs.connection.delete(self.uri + "?thumbnail&size=" + dimension, function (err, result) {
                     if (err) {
                         console.error("Error deleting thumbnail " + self.uri + "?thumbnail&size=" + dimension);
                     }
@@ -355,7 +394,7 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
             if (isNull(err)) {
                 self.unlinkFromParent(function (err, result) {
                     if (isNull(err)) {
-                        gfs.connection.deleteByFileUri(self.uri, function (err, result) {
+                        gfs.connection.delete(self.uri, function (err, result) {
                             self.deleteThumbnails();
                             self.deleteDatastoreData();
                             return callback(err, result);
@@ -728,12 +767,12 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
             let sheetHeader = getHeaders(sheet);
 
             let sheetJSON = XLSX.utils.sheet_to_json(sheet, {raw:true});
-            
+
             for(let i = 0; i < sheetJSON.length; i++)
             {
                 delete sheetJSON[i].__proto__["__rowNum__"];
             }
-            
+
             dataStoreWriter.updateDataFromArrayOfObjects(sheetJSON, callback, sheetName, sheetIndex, sheetHeader);
         }, function(err, result){
             callback(err, result);
@@ -1129,7 +1168,7 @@ File.prototype.generateThumbnails = function (callback) {
                 if (!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension])) {
                     self.writeToTempFile(function (err, tempFileAbsPath) {
                         if (isNull(err)) {
-                            async.map(Config.thumbnails.sizes, function (thumbnailSize, callback) {
+                            async.mapSeries(Config.thumbnails.sizes, function (thumbnailSize, callback) {
                                     generateThumbnail(tempFileAbsPath, project.uri, thumbnailSize, callback);
                                 },
                                 function (err, results) {
@@ -1185,18 +1224,18 @@ File.prototype.moveToFolder = function(newParentFolder, callback)
         "} " +
         "}; ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             },
             {
-                type: DbConnection.string,
+                type: Elements.types.string,
                 value: newTitle
             }
         ],

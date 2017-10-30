@@ -4,7 +4,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
@@ -48,14 +48,14 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
+                type : Elements.types.resourceNoEscape,
                 value : db.graphUri
             },
             {
-                type : DbConnection.resource,
+                type : Elements.types.resource,
                 value : creatorUri
             }
         ],
@@ -70,7 +70,7 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
                         });
                     };
 
-                    async.map(rows, getExternalRepository, function(err, externalRepositories)
+                    async.mapSeries(rows, getExternalRepository, function(err, externalRepositories)
                     {
                         return callback(err, externalRepositories);
                     });

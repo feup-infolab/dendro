@@ -19,8 +19,15 @@ Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-Logger.log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine");
+Logger.log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
+
+const validatenv = require('validate-node-version')();
+
+if (!validatenv.satisfies) {
+    throw new Error(validatenv.message);
+}
 Logger.log_boot_message("info", "Starting Dendro support services...");
 
 /**
@@ -28,12 +35,6 @@ Logger.log_boot_message("info", "Starting Dendro support services...");
  */
 
 let express = require('express'),
-    domain = require('domain'),
-    flash = require("connect-flash"),
-    http = require('http'),
-    fs = require('fs'),
-    morgan = require('morgan'),
-    favicon = require('serve-favicon'),
     Q = require('q');
 
 /**
@@ -45,8 +46,20 @@ let serverListeningPromise = Q.defer();
 self.app = express();
 
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-let async = require('async');
-let util = require('util');
+let async = require("async");
+
+const runIfMaster = function(initFunction, app, callback)
+{
+    const cluster = require("cluster");
+    if(cluster.isMaster)
+    {
+        initFunction(app, callback);
+    }
+    else
+    {
+        callback(null);
+    }
+}
 
 /**
  * Environment initialization sequence
@@ -64,12 +77,12 @@ const prepareEnvironment = function(callback)
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtuoso.js")).initVirtuoso(self.app, callback);
         },
         function(callback) {
-            //destroy graphs if needed
-            require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs(self.app, callback);
-        },
-        function(callback) {
             //setup caches
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_cache.js")).initCache(self.app, callback);
+        },
+        function(callback) {
+            //destroy graphs if needed
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs, self.app, callback);
         },
         function(callback) {
             //setup passport
@@ -80,8 +93,12 @@ const prepareEnvironment = function(callback)
             require(Pathfinder.absPathInSrcFolder("bootup/load/load_ontologies.js")).loadOntologies(self.app, callback);
         },
         function(callback) {
+            //load or save repository platforms on the database
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/load_repository_platforms.js")).loadRepositoryPlatforms, self.app, callback);
+        },
+        function(callback) {
             //load Descriptor Information
-            require(Pathfinder.absPathInSrcFolder("bootup/load/load_descriptor_information.js")).loadDescriptorInformation(self.app, callback);
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/load_descriptor_information.js")).loadDescriptorInformation, self.app, callback);
         },
         function(callback) {
             //init_elasticsearch
@@ -107,26 +124,30 @@ const prepareEnvironment = function(callback)
         },
         function(callback) {
             //init temporary files directory
-            require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_folder.js")).initTempFilesFolder(self.app, callback);
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_folder.js")).initTempFilesFolder, self.app, callback);
         },
         function(callback) {
             //init folder for temporary files
-            require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder(self.app, callback);
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder, self.app, callback);
+        },
+        function(callback) {
+            //clear files storage
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/clear_files_storage.js")).clearFilesStorage, self.app, callback);
         },
         function(callback) {
             //clear datastore
-            require(Pathfinder.absPathInSrcFolder("bootup/load/clear_datastore.js")).clearDataStore(self.app, callback);
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/clear_datastore.js")).clearDataStore, self.app, callback);
         },
         function(callback) {
             //add RAM usage monitor if enabled
-            require(Pathfinder.absPathInSrcFolder("bootup/monitoring/monitor_ram_usage.js")).monitorRAMUsage(self.app, callback);
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/monitoring/monitor_ram_usage.js")).monitorRAMUsage, self.app, callback);
         }
     ],function(err, results)
     {
         if(!isNull(err))
         {
             console.error("There was an error performing preliminary setup operations during Dendro bootup!");
-            console.error(err.stack);
+            console.error(JSON.stringify(err));
         }
         return callback(err, results);
     });
@@ -215,6 +236,7 @@ const startWebServer = function(callback)
             }
             else
             {
+                Logger.log("info", "Completed initialization. Now running units...");
                 return callback(null);
             }
         },
@@ -248,11 +270,21 @@ async.series([
     function(cb)
     {
         startWebServer(cb);
-    },
-    function(cb)
+    }],
+    function(err, result)
     {
-        serverListeningPromise.resolve({server: self.server, app: self.app});
-    }]
+        if(isNull(err))
+        {
+            serverListeningPromise.resolve({server: self.server, app: self.app});
+        }
+        else
+        {
+            serverListeningPromise.reject({
+                err : err,
+                result : result
+            });
+        }
+    }
 );
 
 exports.serverListening = serverListeningPromise.promise;

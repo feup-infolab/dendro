@@ -1,6 +1,7 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -26,7 +27,6 @@ module.exports.login = function(req, res, next){
             req.passport.authenticate(
                 'local',
                 {
-                    //successRedirect: '/projects/my',
                     failureRedirect: '/login',
                     failureFlash: true
                 },
@@ -330,7 +330,7 @@ module.exports.register = function(req, res){
                     User.createAndInsertFromObject(userData, function(err, newUser){
                         if(isNull(err))
                         {
-                            return callback(null, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
+                            return callback(null, newUser, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
                         }
                         else
                         {
@@ -356,7 +356,54 @@ module.exports.register = function(req, res){
                     {
                         if(!isNull(user))
                         {
-                            insertUserRecord(user, cb);
+                            insertUserRecord(user, function(err, newUser, message){
+                                cb(err, newUser, message);
+                            });
+                        }
+                        else
+                        {
+                            cb(1, user);
+                        }
+                    },
+                    function(user, message, cb)
+                    {
+                        if(!isNull(user))
+                        {
+                            try
+                            {
+                                // set up options
+                                const md5 = require("md5");
+                                const uuid = require("uuid");
+                                const Identicon = require("identicon.js/identicon");
+                                const hash = md5(uuid.v4());  // 15+ hex chars
+                                const options = {
+                                    //foreground: [0, 0, 0, 255],               // rgba black
+                                    //background: [255, 255, 255, 255],         // rgba white
+                                    margin: 0.2,                              // 20% margin
+                                    size: 420,                                // 420px square
+                                    format: 'png'                             // use SVG instead of PNG
+                                };
+
+                                // create a base64 encoded SVG
+                                const avatarUri = "/avatar/" + req.body.username + "/avatar.png";
+                                const avatar = new Identicon(hash, options).toString();
+
+                                user.saveAvatarInGridFS(avatar, "png", function (err, data) {
+                                    if (!err) {
+                                        user.ddr.hasAvatar = avatarUri;
+                                        user.save(function (err, newUser) {
+                                            cb(err, message);
+                                        });
+                                    }
+                                });
+                            }
+                            catch(e)
+                            {
+                                return res.status(500).json({
+                                    result: "error",
+                                    message: e.message
+                                });
+                            }
                         }
                         else
                         {
@@ -364,10 +411,10 @@ module.exports.register = function(req, res){
                         }
 
                     }
-                ], function(err, user){
+                ], function(err, message){
                     if(isNull(err))
                     {
-                        req.flash("success", user);
+                        req.flash("success", message);
                         res.redirect("/login");
                     }
                     else

@@ -1,6 +1,7 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
@@ -59,8 +60,8 @@ exports.get_recommendation_ontologies = function(req, res) {
                             /**hide elements**/
                             delete ontologyToReturn.elements;
 
-                            const label = Ontology.allOntologies[prefix].label;
-                            const description = Ontology.allOntologies[prefix].description;
+                            const label = Elements.ontologies[prefix].label;
+                            const description = Elements.ontologies[prefix].description;
 
                             ontologyToReturn.label = label;
                             ontologyToReturn.description = description;

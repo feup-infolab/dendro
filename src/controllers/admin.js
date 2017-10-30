@@ -6,6 +6,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DryadLoader = require(Pathfinder.absPathInSrcFolder("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByGraphUri();
 
@@ -62,7 +63,7 @@ module.exports.reload = function(req, res)
 
     for(let graph in graphNames)
     {
-        /*if(graphNames[i] == "dbpedia")
+        /*if(graphNames[i] === "dbpedia")
         {
             if(graphsToDelete[i])
             {

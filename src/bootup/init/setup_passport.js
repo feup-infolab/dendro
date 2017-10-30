@@ -69,7 +69,7 @@ const setupPassport = function(app, callback)
         next(null, req, res);
     });
 
-    if (Config.startup.clear_session_store && !isNull(sessionMongoStore))
+    if (Config.startup.load_databases && Config.startup.clear_session_store && !isNull(sessionMongoStore))
     {
         Logger.log_boot_message("info", "Clearing session store!");
         sessionMongoStore.clear(function (err, result)

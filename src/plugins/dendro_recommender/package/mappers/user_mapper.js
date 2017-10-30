@@ -17,7 +17,7 @@ UserMapper.map = function (userUri, callback)
 {
     User.findByUri(userUri, function(err, user){
 
-        Descriptor.removeUnauthorizedFromObject(user, [Config.types.private, Config.types.locked], []);
+        Descriptor.removeUnauthorizedFromObject(user, [Elements.access_types.private, Elements.access_types.locked], []);
 
         if(isNull(err) && !isNull(user))
         {

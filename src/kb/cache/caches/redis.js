@@ -23,28 +23,21 @@ RedisCache.prototype.open = function(callback) {
 
     if(Config.cache.active)
     {
-        if(!isNull(self.redis))
+        if(!isNull(self.client))
         {
             return callback(1, "Redis connection is already open.");
         }
         else
         {
-            self.redis = redis.createClient(self.options);
+            self.client = redis.createClient(self.options);
 
             const registerConnectionCallbacks = function (err) {
-
-                /*self.redis.on('connect', function ()
-                {
-                    console.log('Redis client connected');
-                    return callback(null, self);
-                });*/
-
-                self.redis.on('ready', function ()
+                self.client.on('ready', function ()
                 {
                     return callback(null, self);
                 });
 
-                self.redis.on('error', function (err)
+                self.client.on('error', function (err)
                 {
                     const msg = 'Error connecting to Redis client ' + JSON.stringify(err);
                     console.error(msg);
@@ -55,7 +48,7 @@ RedisCache.prototype.open = function(callback) {
             if (!isNull(self.databaseNumber))
             {
                 registerConnectionCallbacks();
-                self.redis.select(self.databaseNumber, function ()
+                self.client.select(self.databaseNumber, function ()
                 {
                     console.log("Redis client switched to database number " + self.databaseNumber);
                 });
@@ -75,7 +68,7 @@ RedisCache.prototype.open = function(callback) {
 RedisCache.prototype.close = function(cb)
 {
     let self = this;
-    self.redis.end(true);
+    self.client.end(true);
     cb(null, null);
 };
 
@@ -86,9 +79,9 @@ RedisCache.prototype.put = function(resourceUri, object, callback) {
     {
         if(!isNull(object))
         {
-            if(!isNull(self.redis))
+            if(!isNull(self.client))
             {
-                self.redis.set(resourceUri, JSON.stringify(object), function(err, reply)
+                self.client.set(resourceUri, JSON.stringify(object), function(err, reply)
                 {
                     if(isNull(err))
                     {
@@ -127,11 +120,11 @@ RedisCache.prototype.get = function(resourceUri, callback) {
     if(Config.cache.active)
     {
 
-        if(!isNull(self.redis))
+        if(!isNull(self.client))
         {
             if(!isNull(resourceUri))
             {
-                self.redis.get(resourceUri, function(err, cachedJSON)
+                self.client.get(resourceUri, function(err, cachedJSON)
                 {
                     if(isNull(err))
                     {
@@ -176,11 +169,11 @@ RedisCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callbac
 
     if(Config.cache.active)
     {
-        if(!isNull(self.redis))
+        if(!isNull(self.client))
         {
             if(!isNull(resourceUriOrArrayOfResourceUris))
             {
-                self.redis.del(resourceUriOrArrayOfResourceUris, function (err)
+                self.client.del(resourceUriOrArrayOfResourceUris, function (err)
                 {
                     if(isNull(err))
                     {
@@ -221,9 +214,9 @@ RedisCache.prototype.deleteAll = function(callback) {
     if(Config.cache.active)
     {
 
-        if(!isNull(self.redis))
+        if(!isNull(self.client))
         {
-            self.redis.flushdb(function (err)
+            self.client.flushdb(function (err)
             {
                 if(isNull(err))
                 {

@@ -20,42 +20,41 @@ const md5File = require('md5-file');
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
-var demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-var demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-var demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
-var demouser4 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser4"));
-var demouser5 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser5"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
+const demouser4 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser4"));
+const demouser5 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser5"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-var db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-var createFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
-let Project;
-let User;
+const Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
     return require(module)
 }
 
-describe("Administer data projects", function (done) {
+describe("Administer projects", function (done) {
+    this.timeout(Config.testsTimeout);
     before(function (done) {
-        this.timeout(60000);
-        createFoldersUnit.setup(function (err, res) {
+        createProjectsUnit.setup(function (err, res) {
             should.equal(err, null);
-            Project = require(Pathfinder.absPathInTestsFolder("models/project.js")).Project;
-            User = require(Pathfinder.absPathInTestsFolder("/models/user.js")).User;
             done();
         });
     });
-    describe('project/' + publicProject.handle + '?downloads', function () {
+    describe('project/' + publicProject.handle + '?administer', function () {
 
         it("[HTML] should not access project without logging in GET", function (done) {
 
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, false, {}, publicProject.handle, function(err, res){
-                res.should.have.status(200);
+                /*res.should.have.status(200);*/
+                res.should.have.status(401);
                 res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
                 done();
             });
@@ -64,7 +63,8 @@ describe("Administer data projects", function (done) {
         it("[HTML] should not access project without admin rights GET", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 projectUtils.administer(agent, false, {}, publicProject.handle, function(err, res){
-                    res.should.have.status(200);
+                    /*res.should.have.status(200);*/
+                    res.should.have.status(401);
                     res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
                     done();
                 });
@@ -118,7 +118,8 @@ describe("Administer data projects", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, true, {}, publicProject.handle, function(err, res){
-                res.should.have.status(200);
+                /*res.should.have.status(200);*/
+                res.should.have.status(401);
                 res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
                 done();
             });
@@ -127,7 +128,8 @@ describe("Administer data projects", function (done) {
         it("[HTML] should not modify project without admin rights POST", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 projectUtils.administer(agent, true, {}, publicProject.handle, function(err, res){
-                    res.should.have.status(200);
+                    /*res.should.have.status(200);*/
+                    res.should.have.status(401);
                     res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
                     done();
                 });
@@ -156,7 +158,8 @@ describe("Administer data projects", function (done) {
             var invalidUsername = 'nonexistinguser';
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.administer(agent, true, {contributors: [invalidUsername]}, publicProject.handle, function(err, res){
-                    res.should.have.status(200);
+                    /*res.should.have.status(200);*/
+                    res.should.have.status(400);
                     res.text.should.contain("error_messages");
                     res.text.should.contain(invalidUsername);
                     done();
@@ -167,36 +170,61 @@ describe("Administer data projects", function (done) {
 
         it("[HTML] add contributors", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                User.findByUsername(demouser4.username, function(err, user){
-                    var user4data = user;
+                User.findByUsername(demouser3.username, function(err, demouser3object){
                     Project.findByHandle(publicProject.handle, function(err, project){
-                        var contributor = project.dcterms.contributor;
-                        projectUtils.administer(agent, true, {contributors: [contributor, demouser5.username, user4data.uri ]}, publicProject.handle, function(err, res){
+                        should.not.exist(project.dcterms.contributor);
+                        projectUtils.administer(agent, true, {contributors: [demouser3object.uri, demouser4.username, demouser5.username ]}, publicProject.handle, function(err, res){
+                            should.equal(err, null);
+                            res.should.have.status(200);
                             Project.findByHandle(publicProject.handle, function(err, project){
                                 var contributors = project.dcterms.contributor;
                                 contributors.length.should.equal(3);
-                                if(contributors[2].includes(demouser5.username))
-                                    contributors[2].should.contain(demouser5.username);
-                                else contributors[1].should.contain(demouser5.username);
-                                contributors.should.include(user4data.uri);
-                                done();
+
+                                async.mapSeries([demouser3.username, demouser4.username, demouser5.username], function(username, callback){
+                                    User.findByUsername(username, callback);
+                                },function(err, users){
+                                    should.not.exist(err);
+
+                                    const demouser3uri = users[0].uri;
+                                    const demouser4uri = users[1].uri;
+                                    const demouser5uri = users[2].uri;
+
+                                    contributors.should.contain(demouser3uri);
+                                    contributors.should.contain(demouser4uri);
+                                    contributors.should.contain(demouser5uri);
+                                    done();
+                                });
                             });
                         });
                     });
                 });
-
             });
         });
 
 
         it("[HTML] remove contributors", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                Project.findByHandle(publicProject.handle, function(err, project){
-                    project.dcterms.contributor.length.should.equal(3);
-                    projectUtils.administer(agent, true, {contributors: [demouser2.username]}, publicProject.handle, function(err, res) {
-                        Project.findByHandle(publicProject.handle, function(err, project) {
-                            project.dcterms.contributor.should.contain(demouser2.username);
-                            done();
+            User.findByUsername(demouser2.username, function(err, user){
+                should.not.exist(err);
+
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                    Project.findByHandle(publicProject.handle, function(err, project){
+                        project.dcterms.contributor.should.be.instanceof(Array);
+                        project.dcterms.contributor.length.should.equal(3);
+                        projectUtils.administer(agent, true, {contributors: [demouser2.username, demouser3.username]}, publicProject.handle, function(err, res) {
+                            Project.findByHandle(publicProject.handle, function(err, project) {
+                                should.not.exist(err);
+                                project.dcterms.contributor.should.be.instanceof(Array);
+                                project.dcterms.contributor.length.should.equal(2);
+
+                                projectUtils.administer(agent, true, {contributors: [demouser2.username]}, publicProject.handle, function(err, res) {
+                                    should.not.exist(err);
+                                    Project.findByHandle(publicProject.handle, function(err, project) {
+                                        should.not.exist(err);
+                                        project.dcterms.contributor.should.equal(user.uri);
+                                        done();
+                                    });
+                                });
+                            });
                         });
                     });
                 });
@@ -205,8 +233,8 @@ describe("Administer data projects", function (done) {
     });
 
     after(function (done) {
-        //destroy graphs
-        this.timeout(60000);
+    //destroy graphs
+        this.timeout(Config.testsTimeout);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             GLOBAL.tests.server.close();

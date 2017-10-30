@@ -7,6 +7,7 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models//meta/ontology.js")).Ontology;
 const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const async = require("async");
 const _ = require("underscore");

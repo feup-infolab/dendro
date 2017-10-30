@@ -4,7 +4,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
@@ -49,10 +49,10 @@ exports.all = function(req, res)
 
 exports.show = function(req, res) {
 	
-	db.connection.execute("SELECT ?p ?o WHERE {[0] ?p ?o .}",
+	db.connection.executeViaJDBC("SELECT ?p ?o WHERE {[0] ?p ?o .}",
             [
                 {
-                    type : DbConnection.resource,
+                    type : Elements.types.resource,
                     value : req.query.vertex_uri
                 }
             ],
@@ -82,7 +82,7 @@ exports.random = function(req, res) {
 
 	req.async.waterfall([
 			function(callback) {
-				db.connection.execute("SELECT (count(?s) as ?c) WHERE {?s ?p ?o .}",
+				db.connection.executeViaJDBC("SELECT (count(?s) as ?c) WHERE {?s ?p ?o .}",
                         [],
 						function(err, results) {
                             if(isNull(err))
@@ -101,11 +101,11 @@ exports.random = function(req, res) {
 						});
 			},
 			function(randomNumber,callback) {
-				db.connection.execute(
+				db.connection.executeViaJDBC(
 						"SELECT ?s WHERE { ?s ?p ?o } ORDER BY ?s OFFSET [0] LIMIT 1",
                         [
                             {
-                                type: DbConnection.int,
+                                type: Elements.types.int,
                                 value: randomNumber
                             }
                         ],
@@ -200,11 +200,11 @@ exports.search = function(req, res)
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function(err, similarResources)
                     {
                         resource.recommendations = similarResources;
-                        return callback(err, resource); //null as 1st argument == no error
+                        return callback(err, resource); //null as 1st argument === no error
                     });
                 };
 
-                async.map(results, getSimilarResources, function(err, resultsWithSimilarOnes)
+                async.mapSeries(results, getSimilarResources, function(err, resultsWithSimilarOnes)
                 {
                     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                     {
@@ -249,11 +249,11 @@ exports.search = function(req, res)
 //get all nodes that are objects of properties leaving the random node
 getOutNeighbours = function(req, vertexUri, callback)
 {
-	db.connection.execute(
+	db.connection.executeViaJDBC(
 			"SELECT ?p ?o WHERE { [0] ?p ?o } LIMIT 100",
             [
                 {
-                    type : DbConnection.resource,
+                    type : Elements.types.resource,
                     value : vertexUri
                 }
             ],

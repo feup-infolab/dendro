@@ -11,6 +11,16 @@ module.exports = {
     metadata: [{
         prefix:"nie",
         shortName:"plainTextContent",
-        value:"This is a test of an upload for the Dendro platform in Word Document (DOC) Format."
+        value:"This is a test of an upload for the Dendro platform in Word Document (DOC) Format.",
+    },
+    {
+        prefix:"dcterms",
+        shortName:"abstract",
+        value:"This is a doc file."
+    },
+    {
+        prefix:"dcterms",
+        shortName:"title",
+        value:"doc file."
     }]
 };

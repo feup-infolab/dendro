@@ -10,10 +10,6 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const initLogging = function(app, callback)
 {
     let registeredUncaughtExceptionHandler = false;
-    
-    process.on('unhandledRejection', function(rejection){
-        console.error(rejection.stack);
-    });
 
     //Setup logging
     if(!isNull(Config.logging))
@@ -126,7 +122,15 @@ const initLogging = function(app, callback)
                 if(Config.logging.log_all_requests)
                 {
                     const morgan = require('morgan');
-                    app.use(morgan('combined'));
+                    app.use(morgan(function (tokens, req, res) {
+                        return [
+                            tokens.method(req, res),
+                            tokens.url(req, res),
+                            tokens.status(req, res),
+                            tokens.res(req, res, 'content-length'), '-',
+                            tokens['response-time'](req, res), 'ms'
+                        ].join(' ')
+                    }));
                 }
 
                 if (Config.logging.log_request_times && typeof Config.logging.request_times_log_folder !== "undefined")
@@ -178,7 +182,6 @@ const initLogging = function(app, callback)
             if(err)
             {
                 console.error("Unable to setup logging!");
-                process.exit(1);
             }
 
             callback(err);

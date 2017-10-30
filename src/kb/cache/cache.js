@@ -22,7 +22,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
         return Config.db.hasOwnProperty(key);
     });
 
-    async.map(keys,
+    async.mapSeries(keys,
         function(key, callback) {
             const dbConfig = Config.db[key];
 
@@ -53,7 +53,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
                                         {
                                             console.log("[OK] Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " +  mongoDBConnection.host + ":" + mongoDBConnection.port);
 
-                                            if(deleteAllCachedRecords)
+                                            if(mongoCacheConfig.clear_on_startup)
                                             {
                                                 newMongoCacheConnection.deleteAll(function(err, result){
                                                     if(isNull(err))
@@ -158,10 +158,17 @@ Cache.closeConnections = function(cb)
 {
     let self = this;
 
-    async.map(Object.keys(self.caches), function(cacheKey, cb){
+    async.mapSeries(Object.keys(self.caches), function(cacheKey, cb){
         if(self.caches.hasOwnProperty(cacheKey))
         {
-            self.caches[cacheKey].close(cb);
+            if(typeof self.caches[cacheKey].getHitRatio === "function")
+            {
+                console.log("Cache " +self.caches[cacheKey].id + " HIT RATIO: " + self.caches[cacheKey].getHitRatio());
+            }
+
+            self.caches[cacheKey].close(function(err, result){
+                cb(err, result);
+            });
         }
         else
         {
@@ -207,7 +214,7 @@ Cache.getByGraphUri = function(graphUri)
 
 Cache.deleteAllRecordsOfAllCaches = function(callback)
 {
-    async.map(Cache.caches, function(cache, callback){
+    async.mapSeries(Cache.caches, function(cache, callback){
         cache.deleteAll(callback);
     }, function(err, results){
       callback(err, results);

@@ -5,7 +5,7 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
@@ -70,7 +70,7 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
 
     const queryArguments = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         }
     ];
@@ -80,12 +80,12 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         query = query + "LIMIT [1]";
 
         queryArguments.push({
-            type : DbConnection.int,
+            type : Elements.types.int,
             value : max_results
         })
     }
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         queryArguments,
         function(err, results)
         {
@@ -97,7 +97,7 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
                     });
                 };
 
-                async.map(results, fetchResearchDomain, function(err, researchDomains){
+                async.mapSeries(results, fetchResearchDomain, function(err, researchDomains){
                     return callback(err, researchDomains);
                 });
             }

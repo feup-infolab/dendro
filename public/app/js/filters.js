@@ -10,10 +10,13 @@ angular.module('dendroApp.filters', []).
     }])
     .filter('markdown', function ($sce) {
     var converter = new showdown.Converter();
-    return function (value) {
-        var html = converter.makeHtml(value || '');
-        return $sce.trustAsHtml(html);
-    }.filter('propsFilter', function() {
+        return function (value)
+        {
+            var html = converter.makeHtml(value || '');
+            return $sce.trustAsHtml(html);
+        }
+    })
+    .filter('propsFilter', function() {
         return function(items, props) {
             var out = [];
 
@@ -44,4 +47,3 @@ angular.module('dendroApp.filters', []).
             return out;
         };
     });
-});
