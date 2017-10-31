@@ -2,7 +2,8 @@ const async = require("async");
 const slug = require('slug');
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
-const CKAN = require("ckan");
+// const CKAN = require("ckan");
+const CKAN = require("/Users/nelsonpereira/Desktop/Infolab/ckanModuleRepo/ckan.js/ckan.js");
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
@@ -731,7 +732,7 @@ const createPackageInCkan = function (targetRepository, parentFolderPath, extraF
                         const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
                         const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/>";
 
-                        updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
+                        /*updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
                             console.log(err);
                             if (isNull(err)) {
                                 callback(err, msg);
@@ -743,7 +744,9 @@ const createPackageInCkan = function (targetRepository, parentFolderPath, extraF
                                 }
                                 callback(err, msg);
                             }
-                        });
+                        });*/
+
+                        callback(err, msg);
                     }
                     else {
                         let msg = "Error uploading files in the dataset to CKAN.";
@@ -809,7 +812,7 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
                     const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
                     const finalMsg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten.";
 
-                    updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
+                    /*updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
                         if (isNull(err)) {
                             async.mapSeries(diffs.dendroDiffs, function (dendroDiff, cb) {
                                 if (dendroDiff.event === "deleted_in_local") {
@@ -840,6 +843,27 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
                                 console.error(msg);
                             }
                             callback(err, result, finalMsg);
+                            generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
+                        }
+                    });*/
+                    async.mapSeries(diffs.dendroDiffs, function (dendroDiff, cb) {
+                        if (dendroDiff.event === "deleted_in_local") {
+                            deleteResourceInCkan(dendroDiff.id, packageId, client, function (err, result) {
+                                cb(err, result);
+                            });
+                        }
+                        else {
+                            cb(err, null);
+                        }
+                    }, function (err, results) {
+                        if (isNull(err)) {
+                            callback(err, results, finalMsg);
+                            generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
+                        }
+                        else {
+                            let msg = "Error uploading files in the dataset to CKAN.";
+                            console.error(msg);
+                            callback(err, results, finalMsg);
                             generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                         }
                     });

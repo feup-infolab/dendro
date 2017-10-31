@@ -18,7 +18,8 @@ const B2ShareClient = require('node-b2share-v2');
 const Zenodo = require(Pathfinder.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const CKAN = require("ckan");
+// const CKAN = require("ckan");
+const CKAN = require("/Users/nelsonpereira/Desktop/Infolab/ckanModuleRepo/ckan.js/ckan.js");
 const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const generalDatasetUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/generalDatasetUtils.js"));
 
@@ -615,7 +616,7 @@ export_to_repository_ckan = function (req, res) {
                                                 };
                                                 console.error(JSON.stringify(errorInfo));
                                                 callback(true, packageId, errorInfo);
-                                            }, exportedAt);
+                                            }, lastExportedAt);
                                         }
                                     }, overwrite);
                                 }
@@ -703,10 +704,29 @@ export_to_repository_ckan = function (req, res) {
                     });
                 }
                 else {
-                    res.json({
+                    //TODO AQUI FAZER UPDATE AO EXPORTED AT ?????
+                    const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
+                    let packageId = CkanUtils.createPackageID(requestedResourceUri);
+
+                    function updateExportedAt() {
+                        CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
+                            res.json({
+                                "result": resultInfo.result,
+                                "message": resultInfo.message
+                            });
+                        }, new Date());
+                    }
+                    setTimeout(updateExportedAt, 3000);
+                    /*CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
+                        res.json({
+                            "result": resultInfo.result,
+                            "message": resultInfo.message
+                        });
+                    });*/
+                    /*res.json({
                         "result": resultInfo.result,
                         "message": resultInfo.message
-                    });
+                    });*/
                 }
             });
         }
