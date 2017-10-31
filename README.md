@@ -8,6 +8,8 @@
 
 #	Welcome to Dendro
 
+[![Join the chat at https://gitter.im/feup-infolab/dendro](https://badges.gitter.im/feup-infolab/dendro.svg)](https://gitter.im/feup-infolab/dendro?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![dendro UI](https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png "Dendro UI")
 
 ## Demo instance
