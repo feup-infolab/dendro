@@ -454,9 +454,6 @@ const validateChangesPermissions = function(checkPermissionsDictionary, permissi
  * @param date an optional parameter. It is the new date value that is going to be associated to the property ddr:exportedAt. If this parameter is not passed the current date in runtime is used instead
  */
 const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, client, callback, date) {
-    if(isNull(date))
-        date = new Date().toISOString();
-
     client.action("package_show",
         {
             id: packageID
@@ -465,10 +462,17 @@ const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, clie
             if (result.success) {
                 //call package_update with the new date to update the exportedAt
                 //returns the index where the property is located, if the property does not exist returns -1
+                //the new exportedAt date is going to be the new date at which the package was updated in ckan(metadata_modified) after the latest export from dendro. Using new Date().toISOString() was causing bugs because there are time differences between ckan and dendro even if the update exported at is called at the correct time
+                let newExportedAt = result.result.metadata_modified;
                 let resultIndex = _.findIndex(result.result.extras, function (extra) {
                     return extra.key === Elements.ontologies.ddr.exportedAt.uri
                 });
                 console.log("The index is: " + resultIndex);
+
+                if(isNull(date))
+                {
+                    date = newExportedAt;
+                }
 
                 let dendroExportedAt = {
                     "key": Elements.ontologies.ddr.exportedAt.uri,
@@ -731,21 +735,6 @@ const createPackageInCkan = function (targetRepository, parentFolderPath, extraF
                     if (isNull(err)) {
                         const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
                         const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/>";
-
-                        /*updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
-                            console.log(err);
-                            if (isNull(err)) {
-                                callback(err, msg);
-                            }
-                            else {
-                                let msg = "Error updating exportedAt property in the dataset to CKAN.";
-                                if (!isNull(response)) {
-                                    msg += " Error returned : " + response;
-                                }
-                                callback(err, msg);
-                            }
-                        });*/
-
                         callback(err, msg);
                     }
                     else {
@@ -811,41 +800,6 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
                 if (isNull(err)) {
                     const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
                     const finalMsg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten.";
-
-                    /*updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
-                        if (isNull(err)) {
-                            async.mapSeries(diffs.dendroDiffs, function (dendroDiff, cb) {
-                                if (dendroDiff.event === "deleted_in_local") {
-                                    deleteResourceInCkan(dendroDiff.id, packageId, client, function (err, result) {
-                                        cb(err, result);
-                                    });
-                                }
-                                else {
-                                    cb(err, result);
-                                }
-                            }, function (err, results) {
-                                if (isNull(err)) {
-                                    callback(err, results, finalMsg);
-                                    generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                }
-                                else {
-                                    let msg = "Error uploading files in the dataset to CKAN.";
-                                    console.error(msg);
-                                    callback(err, results, finalMsg);
-                                    generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                }
-                            });
-                        }
-                        else {
-                            let msg = "Error updating exportedAt property in the dataset to CKAN.";
-                            if (!isNull(response)) {
-                                msg += " Error returned : " + response;
-                                console.error(msg);
-                            }
-                            callback(err, result, finalMsg);
-                            generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                        }
-                    });*/
                     async.mapSeries(diffs.dendroDiffs, function (dendroDiff, cb) {
                         if (dendroDiff.event === "deleted_in_local") {
                             deleteResourceInCkan(dendroDiff.id, packageId, client, function (err, result) {
@@ -877,7 +831,6 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
             }, overwrite, extraFiles);
         }
     ], function (err, result, finalMsg) {
-        // result now equals 'done'
         callback(err, result, finalMsg);
     });
 };

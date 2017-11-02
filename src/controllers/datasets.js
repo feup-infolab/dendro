@@ -704,29 +704,16 @@ export_to_repository_ckan = function (req, res) {
                     });
                 }
                 else {
-                    //TODO AQUI FAZER UPDATE AO EXPORTED AT ?????
+                    //The success case
+                    //Update the exportedAt property in the ckan package
                     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
                     let packageId = CkanUtils.createPackageID(requestedResourceUri);
-
-                    /*function updateExportedAt() {
-                        CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
-                            res.json({
-                                "result": resultInfo.result,
-                                "message": resultInfo.message
-                            });
-                        }, new Date());
-                    }
-                    setTimeout(updateExportedAt, 3000);*/
                     CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
                         res.json({
                             "result": resultInfo.result,
                             "message": resultInfo.message
                         });
                     });
-                    /*res.json({
-                        "result": resultInfo.result,
-                        "message": resultInfo.message
-                    });*/
                 }
             });
         }
