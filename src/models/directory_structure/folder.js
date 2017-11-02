@@ -1,6 +1,12 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
+const fs = require("fs");
+const nfs = require('node-fs');
+const slug = require('slug');
+const async = require("async");
+const _ = require("underscore");
+
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
@@ -13,13 +19,8 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const slug = require('slug');
-const fs = require("fs");
-
 const db = Config.getDBByID();
 
-const async = require("async");
-const _ = require("underscore");
 
 function Folder (object)
 {
@@ -92,10 +93,8 @@ Folder.prototype.saveIntoFolder = function(
                 }
             });
         }
-        else if (node instanceof Folder) {
-            const fs = require("fs");
-            const nfs = require('node-fs');
-            const path = require("path");
+        else if (node instanceof Folder)
+        {
             const destinationFolder = destinationFolderAbsPath + "/" + node.nie.title;
 
             //mode = 0777, recursive = true
@@ -873,13 +872,11 @@ Folder.prototype.loadMetadata = function(
 
     const getDescriptor = function(prefixedForm, node)
     {
-        const titleObject = _.find(node.metadata, function(descriptor){
+        const wantedDescriptor = _.find(node.metadata, function(descriptor){
             return descriptor.prefixedForm === prefixedForm;
         });
 
-        const descriptor = new Descriptor(titleObject);
-
-        return descriptor;
+        return new Descriptor(wantedDescriptor);
     };
 
     const loadMetadataIntoThisFolder = function(node, callback)
@@ -945,7 +942,6 @@ Folder.prototype.loadMetadata = function(
             }
             else
             {
-
                 File.findByUri(childNode.resource, function (err, file) {
                     if (isNull(err) && !isNull(file))
                     {
@@ -1109,7 +1105,10 @@ Folder.prototype.loadMetadata = function(
                 }
                 else
                 {
-                    loadMetadataIntoThisFolder(node, callback);
+                    loadMetadataIntoThisFolder(node, function(err, result)
+                    {
+                        callback(err, result);
+                    });
                 }
             }
             else
@@ -1132,14 +1131,15 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                                               runningOnRoot)
 {
     const self = this;
+    let entityLoadingTheMetadataUri;
 
     if(!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
     {
-        var entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
+        entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
     }
     else
     {
-        var entityLoadingTheMetadataUri = User.anonymous.uri;
+        entityLoadingTheMetadataUri = User.anonymous.uri;
     }
 
     self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function(err, result){

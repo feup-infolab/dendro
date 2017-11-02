@@ -36,10 +36,18 @@ function Resource (object)
 
 Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumentObject)
 {
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     const self = this;
 
-    const ontologyPrefixes = Ontology.getAllOntologyPrefixes();
+    if(deleteIfNotInArgumentObject)
+    {
+        for(let key in self)
+        {
+            if(key !== "uri")
+            {
+                delete self[key];
+            }
+        }
+    }
 
     for(let prefix in Elements.ontologies)
     {
@@ -91,6 +99,7 @@ Resource.prototype.loadObjectWithQueryResults = function(queryResults, ontologyU
             const descriptor = new Descriptor(queryResults[i]);
             const prefix = descriptor.prefix;
             const shortName = descriptor.shortName;
+
             if (!isNull(prefix) && !isNull(shortName) && _.contains(ontologyURIsArray, descriptor.ontology))
             {
                 if (isNull(self[prefix]))
@@ -1937,7 +1946,7 @@ Resource.findByPropertyValue = function(
 
             if(!isNull(ignoreArchivedResources) && ignoreArchivedResources === true )
             {
-                typesRestrictions = typesRestrictions + "       FILTER NOT EXISTS { ?descriptor_uri rdf:type ddr:ArchivedResource }";
+                typesRestrictions = typesRestrictions + "\nFILTER NOT EXISTS { ?resource_uri rdf:type ddr:ArchivedResource }";
             }
 
             if(!isNull(descriptor) && descriptor instanceof Array)
@@ -2022,7 +2031,7 @@ Resource.findByPropertyValue = function(
 
                                 if(uris.length > 1)
                                 {
-                                    return callback(1, "[ERROR] There are more than one resources with values " +  JSON.stringify(descriptorValueRestrictions) + " ! They are : " + JSON.stringify(descriptors));
+                                    return callback(1, "[ERROR] There are more than one resources with values " +  JSON.stringify(descriptorValueRestrictions) + " ! They are : " + JSON.stringify(uris));
                                 }
                                 if(uris.length === 1)
                                 {
