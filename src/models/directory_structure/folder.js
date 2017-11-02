@@ -1003,7 +1003,7 @@ Folder.prototype.loadMetadata = function(
             }
         }
 
-        Descriptor.mergeDescriptors(descriptors, function(err, oldDescriptors)
+        Descriptor.mergeDescriptors(descriptors, function(err, descriptorsInBackup)
         {
             if(!isNull(node.children) && node.children instanceof Array)
             {
@@ -1014,7 +1014,7 @@ Folder.prototype.loadMetadata = function(
                     {
                         if(isNull(err))
                         {
-                            self.replaceDescriptors(oldDescriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                            self.replaceDescriptors(descriptorsInBackup, excludedDescriptorTypes, exceptionedDescriptorTypes);
                             self.save(function(err, result){
                                 if(isNull(err))
                                 {

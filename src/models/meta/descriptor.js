@@ -746,6 +746,11 @@ Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptione
     const prefix = self.getNamespacePrefix();
     const shortName = self.getShortName();
 
+    if(isNull(excludedDescriptorTypes) && isNull(exceptionedDescriptorTypes))
+    {
+        return true;
+    }
+
     //TODO shortname is coming undefined here on some conditions! check
 
     if(!isNull(prefix) && !isNull(shortName))

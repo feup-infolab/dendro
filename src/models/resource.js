@@ -92,6 +92,8 @@ Resource.prototype.loadObjectWithQueryResults = function(queryResults, ontologyU
     const self = this;
     const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
+    self.clearDescriptors();
+
     if(!isNull(queryResults) && queryResults instanceof Array && queryResults.length > 0)
     {
         for (let i = 0; i < queryResults.length; i++)
@@ -1125,7 +1127,15 @@ Resource.prototype.clearDescriptors = function(descriptorTypesToClear, exception
         delete self[descriptor.prefix][descriptor.shortName];
     }
 
-    self.updateDescriptors(filteredDescriptors);
+    if(isNull(descriptorTypesToClear) && isNull(exceptionedDescriptorTypes))
+    {
+        return;
+    }
+    else
+    {
+        self.updateDescriptors(filteredDescriptors);
+    }
+
 };
 
 /**

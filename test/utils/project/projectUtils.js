@@ -659,9 +659,31 @@ const getFileTreeMetadataFromBackup = function(pathOfUnzippedContents, projectHa
         return obj;
     };
 
+    function sortMetadataValuesAlphabetically(obj)
+    {
+        if (obj.children instanceof Array)
+        {
+            _.map(obj.children, function(child){
+                child.metadata
+            });
+
+            obj.children = obj.children.sort(function(a, b){
+                return a.resource < b.resource;
+            });
+
+            for (let i = 0; i < obj.children.length; i++)
+            {
+                sortChildrenByTitle(obj.children[i]);
+            }
+        }
+
+        return obj;
+    };
+
     metadataContents = replaceAllUrisWithTitles(metadataContents);
     metadataContents = replaceAllUrisWithDummyValue(metadataContents);
     metadataContents = sortChildrenByTitle(metadataContents);
+    metadataContents = sortMetadataValuesAlphabetically(metadataContents);
 
     return metadataContents;
 };
