@@ -1,8 +1,7 @@
 const Pathfinder = global.Pathfinder;
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-// const CKAN = require("ckan");
-const CKAN = require("/Users/nelsonpereira/Desktop/Infolab/ckanModuleRepo/ckan.js/ckan.js");
+const CKAN = require("ckan");
 const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const async = require("async");
 const slug = require('slug');

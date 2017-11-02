@@ -18,8 +18,7 @@ const B2ShareClient = require('node-b2share-v2');
 const Zenodo = require(Pathfinder.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-// const CKAN = require("ckan");
-const CKAN = require("/Users/nelsonpereira/Desktop/Infolab/ckanModuleRepo/ckan.js/ckan.js");
+const CKAN = require("ckan");
 const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const generalDatasetUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/generalDatasetUtils.js"));
 
