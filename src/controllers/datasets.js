@@ -1095,7 +1095,7 @@ export_to_repository_b2share = function (req, res) {
                     );
                 }
                 else {
-                    Folder.getOwnerProject(requestedResourceUri, function (err, project) {
+                    folder.getOwnerProject(function (err, project) {
                         if (isNull(err)) {
                             folder.createTempFolderWithContents(false, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata) {
                                 if (isNull(err)) {
@@ -1567,7 +1567,7 @@ exports.sword_collections = function (req, res) {
 
 prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, cb) {
     async.each(files, function (file, callback) {
-        const info = {"fileBucketID": fileBucketID, "fileNameWithExt": file.split('\\').pop()};
+        const info = {"fileBucketID": fileBucketID, "fileNameWithExt": file.split('/').pop()};
         fs.readFile(file, function (err, buffer) {
             if (err) {
                 const msg = 'There was an error reading a file';
