@@ -34,17 +34,26 @@ const loadRepositoryPlatforms = function(app, callback)
     }
 
 
-    const active_config_for_repositoryPlatforms = repositoryPlatformConfigs[active_config_key];
+    let active_config_for_repositoryPlatforms = repositoryPlatformConfigs[active_config_key];
+
+    if(isNull(active_config_for_repositoryPlatforms))
+        active_config_for_repositoryPlatforms = repositoryPlatformConfigs["default"];
 
     RepositoryPlatform.all(function (err, repPlatforms) {
         if(isNull(err))
         {
+            const platformNicks = _.map(active_config_for_repositoryPlatforms, function(platform){
+                return platform.foaf.nick;
+            });
+
+            console.log("Platforms parametrized in " + repository_platform_configs_file_path  + JSON.stringify(platformNicks));
             async.mapSeries(active_config_for_repositoryPlatforms, function (aMissingPlatform, callback) {
                 let found = _.filter(repPlatforms, function (repPlatform) {
                     return repPlatform.foaf.nick === aMissingPlatform.foaf.nick;
                 });
                 if(found.length <=0)
                 {
+                    console.log("Platform " + aMissingPlatform.foaf.nick  + " missing in database record. Recreating...");
                     const newRepPlatform = new RepositoryPlatform({
                         ddr: {
                             handle: aMissingPlatform.foaf.nick
@@ -71,6 +80,7 @@ const loadRepositoryPlatforms = function(app, callback)
                 }
                 else
                 {
+                    console.log("Platform " + aMissingPlatform.foaf.nick  + " already exists in database. Continuing...");
                     callback(null);
                 }
             }, function (err, results) {
