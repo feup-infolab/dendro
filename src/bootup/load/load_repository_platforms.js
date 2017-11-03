@@ -37,7 +37,11 @@ const loadRepositoryPlatforms = function(app, callback)
     let active_config_for_repositoryPlatforms = repositoryPlatformConfigs[active_config_key];
 
     if(isNull(active_config_for_repositoryPlatforms))
+    {
+        console.log("Invalid active repository platforms configuration key " + active_config_key + ". It is not parametrized in the " + active_config_file_path + " file. Please review the configuration.");
+        console.log("Using default configuration for repository platforms...");
         active_config_for_repositoryPlatforms = repositoryPlatformConfigs["default"];
+    }
 
     RepositoryPlatform.all(function (err, repPlatforms) {
         if(isNull(err))
