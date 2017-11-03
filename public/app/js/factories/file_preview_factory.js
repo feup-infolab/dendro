@@ -138,30 +138,30 @@ angular.module('dendroApp.factories')
             },
             load_pdf: function($scope, fileExtension, fileUri) {
                 angular.element("#data-viewer").html('');
-                fileUri = fileUri + '?serve_base64';
-                var downloadFileUri = fileUri + '?download';
+                var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 
-                $http.get(fileUri).
+                if(is_chrome)
+                {
+                    var downloadFileUri = fileUri + '?download';
+                    angular.element("#data-viewer").append(
+                        '<div class="row" ng-if="!preview_available()">'+
+                        "<br/>" +
+                        "<div class=\"col-xs-12\">" +
+                        "<div class=\"alert alert-info\">" +
+                        "PDF Previews are not yet supported when using Google Chrome. " +
+                        "<a href=\"" + downloadFileUri + "\">Download file</a> ." +
+                        "</div>" +
+                        "</div>" +
+                        "</div>");
+                }
+                else
+                {
+                    fileUri = fileUri + '?serve_base64';
+
+                    $http.get(fileUri).
                     then(function(response) {
-                        var data = response.data;var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
-
-                        if(is_chrome)
-                        {
-                            angular.element("#data-viewer").append(
-                            '<div class="row" ng-if="!preview_available()">'+
-                                "<br/>" +
-                                "<div class=\"col-xs-12\">" +
-                                    "<div class=\"alert alert-info\">" +
-                                        "PDF Previews are not yet supported when using Google Chrome. " +
-                                        "<a href=\"" + downloadFileUri + "\">Download file</a> ." +
-                                    "</div>" +
-                                "</div>" +
-                            "</div>");
-                        }
-                        else
-                        {
-                            angular.element("#data-viewer").append('<iframe id="pdf-file-preview" src="data:application/pdf;base64,'+data+'" ></iframe>');
-                        }
+                        var data = response.data;
+                        angular.element("#data-viewer").append('<iframe id="pdf-file-preview" src="data:application/pdf;base64,'+data+'" ></iframe>');
                     })
                     .catch(function(error) {
                         if(error.message != null)
@@ -169,6 +169,7 @@ angular.module('dendroApp.factories')
                             $scope.show_popup("error", "Error", error.message);
                         }
                     });
+                }
             },
             load_audio: function($scope, fileExtension, fileUri) {
                 angular.element("#data-viewer").html('');
