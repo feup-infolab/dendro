@@ -260,7 +260,7 @@ export_to_repository_ckan = function (req, res) {
                 if (!isNull(err)) {
                     res.status(resultInfo.statusCode).json({
                         "result": "error",
-                        "message": resultInfo.msg
+                        "message": resultInfo.message
                     });
                 }
                 else {
@@ -278,23 +278,23 @@ export_to_repository_ckan = function (req, res) {
             });
         }
         else {
-            const msg = "Request body must contain the organization to which the user wants to submit the datataset in the field \"repository.ddr.hasOrganization\"";
-            console.error(msg);
+            const message = "Request body must contain the organization to which the user wants to submit the datataset in the field \"repository.ddr.hasOrganization\"";
+            console.error(message);
             res.status(400).json(
                 {
                     "result": "error",
-                    "message": msg
+                    "message": message
                 }
             );
         }
     }
     catch (e) {
-        const msg = "Error exporting to repository: " + e.message;
-        console.error(msg);
+        const message = "Error exporting to repository: " + e.message;
+        console.error(message);
         res.status(500).json(
             {
                 "result": "error",
-                "message": msg
+                "message": message
             }
         );
     }
