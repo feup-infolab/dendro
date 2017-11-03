@@ -1064,7 +1064,7 @@ const buildPackageForCkanExport = function (client, organization, targetReposito
  * @param overwrite if you want to overwrite existing files set this to true
  * @param requestedResourceUri the dendro folder uri that is going to be exported
  * @param targetRepository the Ckan repository
- * @param resultFromPackageExists the info from the ckanPackage
+ * @param resultFromPackageExists the info from the package_show action
  * @param parentFolderPath the location of the temp folder created in dendro's filesystem so that uploads can be processed
  * @param packageID the Ckan package ID
  * @param extraFiles the metadata extra files(in rdf, JSON, txt)
