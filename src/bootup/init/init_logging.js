@@ -9,6 +9,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const initLogging = function(app, callback)
 {
+    console.log("[INFO] Initializing logs folder...");
     let registeredUncaughtExceptionHandler = false;
 
     //Setup logging
@@ -28,7 +29,7 @@ const initLogging = function(app, callback)
                             try
                             {
                                 mkdirp.sync(absPath);
-                                console.log("[SUCCESS] Temp uploads folder " + absPath + " created.");
+                                console.log("[SUCCESS] Logs folder " + absPath + " created.");
                             }
                             catch (e)
                             {
