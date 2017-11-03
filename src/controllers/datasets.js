@@ -1441,26 +1441,6 @@ exports.export_to_repository = function (req, res) {
                             callback(true, msg);
                         }
                     });
-                    /*RepositoryPlatform.getUriFromHumanReadableUri(targetRepository.ddr.hasPlatform, function (err, resourceUri) {
-                        if (isNull(err)) {
-                            RepositoryPlatform.findByUri(resourceUri, function (err, repositoryPlatform) {
-                                if (isNull(err)) {
-                                    nick = repositoryPlatform.foaf.nick;
-                                    callback(null, nick);
-                                }
-                                else {
-                                    const msg = "Invalid repository platform: " + JSON.stringify(repositoryPlatform);
-                                    console.error(msg);
-                                    callback(true, msg);
-                                }
-                            });
-                        }
-                        else {
-                            const msg = "Invalid target repository hasPlatform value: " + JSON.stringify(resourceUri);
-                            console.error(msg);
-                            callback(true, msg);
-                        }
-                    });*/
                 }
                 else {
                     nick = targetRepository.ddr.hasPlatform.foaf.nick;
@@ -1494,32 +1474,6 @@ exports.export_to_repository = function (req, res) {
                     }
                 );
             }
-
-            /*if (targetRepository.ddr.hasPlatform.foaf.nick === 'ckan') {
-             export_to_repository_ckan(req, res);
-             }
-             else if (targetRepository.ddr.hasPlatform.foaf.nick === 'dspace' || targetRepository.ddr.hasPlatform.foaf.nick === 'eprints') {
-             export_to_repository_sword(req, res);
-             }
-             else if (targetRepository.ddr.hasPlatform.foaf.nick === 'figshare') {
-             export_to_repository_figshare(req, res);
-             }
-             else if (targetRepository.ddr.hasPlatform.foaf.nick === 'zenodo') {
-             export_to_repository_zenodo(req, res);
-             }
-             else if (targetRepository.ddr.hasPlatform.foaf.nick === 'b2share') {
-             export_to_repository_b2share(req, res);
-             }
-             else {
-             const msg = "Invalid target repository";
-             console.error(msg);
-             res.status(500).json(
-             {
-             "result": "error",
-             "message": msg
-             }
-             );
-             }*/
         });
     }
     catch (e) {
