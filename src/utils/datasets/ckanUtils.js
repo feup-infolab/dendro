@@ -856,7 +856,12 @@ const purgeCkanDataset = function (client, datasetID, callback) {
         });
 };
 
-
+/**
+ * Util function that builds the permissions that need to be checked by the user for the export to occur
+ * @param requestedResourceUri the dendro folder uri to be exported to Ckan
+ * @param targetRepository the CKAN respository
+ * @param callback the callback
+ */
 const buildPermissionsToBeCheck = function (requestedResourceUri, targetRepository, callback) {
     let checksNeeded = [];
     calculateCkanRepositoryDiffs(requestedResourceUri, targetRepository, function (err, diffs) {
@@ -888,6 +893,12 @@ const buildPermissionsToBeCheck = function (requestedResourceUri, targetReposito
     });
 };
 
+/**
+ * Util function that that checks if a folder to export contains the metadata(dcterms:title, dcterms:description) and if the ckan respository has the hasExternalUri property
+ * @param requestedResourceUri the dendro folder uri to be exported to Ckan
+ * @param targetRepository the CKAN respository
+ * @param callback the callback
+ */
 const checkIfFolderAndTargetRepositoryHaveRequiredMetadata = function (requestedResourceUri, targetRepository, callback) {
     Folder.findByUri(requestedResourceUri, function (err, folder) {
         if (!isNull(err)) {
@@ -942,6 +953,11 @@ const checkIfFolderAndTargetRepositoryHaveRequiredMetadata = function (requested
     });
 };
 
+/**
+ * Util function that builds the extrasJSONArray(with all the metadata of the folder to be exported)
+ * @param folder a dendro folder to be exported to Ckan
+ * @param callback the callback
+ */
 const buildExtrasJSONArray = function (folder, callback) {
     //build extrasJSONArray
     const jsonDescriptors = folder.getDescriptors([Elements.access_types.private, Elements.access_types.locked]);
@@ -958,6 +974,15 @@ const buildExtrasJSONArray = function (folder, callback) {
     callback(null, folder, extrasJSONArray);
 };
 
+/**
+ * Util function that builds a Ckan package to be exported to ckan
+ * @param client the Ckan client
+ * @param organization the Ckan organization where the package will be exported to
+ * @param targetRepository the Ckan repository
+ * @param extrasJSONArray the extrasJSONArray(with all the metadata of the folder to be exported)
+ * @param folder the Dendro folder to be exported
+ * @param callback the callback
+ */
 const buildPackageForCkanExport = function (client, organization, targetRepository, extrasJSONArray, folder, callback) {
     /**Check if organization exists**/
     client.action("organization_show",
@@ -1034,6 +1059,20 @@ const buildPackageForCkanExport = function (client, organization, targetReposito
         });
 };
 
+/**
+ * Util function that exports package to a ckan target repository
+ * @param overwrite if you want to overwrite existing files set this to true
+ * @param requestedResourceUri the dendro folder uri that is going to be exported
+ * @param targetRepository the Ckan repository
+ * @param resultFromPackageExists the info from the ckanPackage
+ * @param parentFolderPath the location of the temp folder created in dendro's filesystem so that uploads can be processed
+ * @param packageID the Ckan package ID
+ * @param extraFiles the metadata extra files(in rdf, JSON, txt)
+ * @param datasetFolderMetadata the metadata of the folder
+ * @param client the Ckan client
+ * @param packageContents the package metadata
+ * @param callback the callback
+ */
 const exportPackageToCkan = function (overwrite, requestedResourceUri, targetRepository, resultFromPackageExists, parentFolderPath, packageId, extraFiles, datasetFolderMetadata, client, packageContents, callback) {
     if (resultFromPackageExists.success) {
         Utils.copyFromObjectToObject(packageContents[0], resultFromPackageExists.result);
