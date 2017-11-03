@@ -62,90 +62,75 @@ const createPackage = function (parentFolderPath, folder, callback) {
             },
             function (cb) {
                 const archiver = require('archiver');
-
                 const output = fs.createWriteStream(outputFilenameZip);
-
                 const zipArchive = archiver('zip', {
                     zlib: {level: 9} // Sets the compression level.
                 });
-
-                //const zipArchive = archiver('zip');
-
-                zipArchive.pipe(output);
-
-                /*zipArchive.bulk([
-                 {expand: true, src: ["**"], cwd: folderToZip}
-                 ]);*/
-
-                //TODO
-                zipArchive.directory(folderToZip, outputFilenameZip);
-
-                zipArchive.finalize(function (err, bytes) {
-
-                    if (err) {
-                        throw err;
-                    }
-                });
-
-                output.on('close', function () {
-                    console.log('Done with the zip', folderToZip);
-                    filesToIncludeInPackage.push(outputFilenameZip);
-                    extraFiles.push(outputFilenameZip);
-
-                    folder.findMetadataRecursive(function (err, result) {
-                        if (isNull(err)) {
-                            const metadataRDF = require('pretty-data').pd.xml(Serializers.metadataToRDF(result));
-
-                            fs.writeFile(outputFilenameRDF, metadataRDF, "utf-8", function (err) {
-                                if (isNull(err)) {
-                                    console.log("The file " + outputFilenameRDF + " was saved!");
-                                    filesToIncludeInPackage.push(outputFilenameRDF);
-                                    extraFiles.push(outputFilenameRDF);
-
-                                    const metadataTXT = Serializers.metadataToText(result);
-
-                                    fs.writeFile(outputFilenameTXT, metadataTXT, "utf-8", function (err) {
-                                        if (isNull(err)) {
-                                            console.log("The file " + outputFilenameTXT + " was saved!");
-                                            filesToIncludeInPackage.push(outputFilenameTXT);
-                                            extraFiles.push(outputFilenameTXT);
-
-                                            const metadataJSON = require('pretty-data').pd.json(JSON.stringify(result));
-
-                                            fs.writeFile(outputFilenameJSON, metadataJSON, "utf-8", function (err) {
-                                                if (isNull(err)) {
-                                                    console.log("The file " + outputFilenameJSON + " was saved!");
-                                                    filesToIncludeInPackage.push(outputFilenameJSON);
-                                                    extraFiles.push(outputFilenameJSON);
-
+                filesToIncludeInPackage.push(outputFilenameZip);
+                extraFiles.push(outputFilenameZip);
+                folder.findMetadataRecursive(function (err, result) {
+                    if (isNull(err)) {
+                        const metadataRDF = require('pretty-data').pd.xml(Serializers.metadataToRDF(result));
+                        fs.writeFile(outputFilenameRDF, metadataRDF, "utf-8", function (err) {
+                            if (isNull(err)) {
+                                console.log("The file " + outputFilenameRDF + " was saved!");
+                                filesToIncludeInPackage.push(outputFilenameRDF);
+                                extraFiles.push(outputFilenameRDF);
+                                //add the metadata rdf file to the zip folder
+                                zipArchive.file(outputFilenameRDF, { name: folder.nie.title + ".rdf" });
+                                const metadataTXT = Serializers.metadataToText(result);
+                                fs.writeFile(outputFilenameTXT, metadataTXT, "utf-8", function (err) {
+                                    if (isNull(err)) {
+                                        console.log("The file " + outputFilenameTXT + " was saved!");
+                                        filesToIncludeInPackage.push(outputFilenameTXT);
+                                        extraFiles.push(outputFilenameTXT);
+                                        //add the metadata txt file to the zip folder
+                                        zipArchive.file(outputFilenameTXT, { name: folder.nie.title + ".txt" });
+                                        const metadataJSON = require('pretty-data').pd.json(JSON.stringify(result));
+                                        fs.writeFile(outputFilenameJSON, metadataJSON, "utf-8", function (err) {
+                                            if (isNull(err)) {
+                                                console.log("The file " + outputFilenameJSON + " was saved!");
+                                                filesToIncludeInPackage.push(outputFilenameJSON);
+                                                extraFiles.push(outputFilenameJSON);
+                                                //add the metadata JSON file to the zip folder
+                                                zipArchive.file(outputFilenameJSON, { name: folder.nie.title + ".json" });
+                                                zipArchive.pipe(output);
+                                                zipArchive.directory(folderToZip, false);
+                                                zipArchive.finalize(function (err, bytes) {
+                                                    if (err) {
+                                                        cb(true, err);
+                                                    }
+                                                });
+                                                output.on('close', function () {
+                                                    console.log('Done with the zip', folderToZip);
                                                     cb(null, null);
-                                                } else {
-                                                    console.log(err);
-                                                    cb(true, null);
-                                                }
-                                            });
+                                                });
+                                            } else {
+                                                console.log(err);
+                                                cb(true, null);
+                                            }
+                                        });
 
-                                        } else {
-                                            console.log(err);
-                                            cb(true, null);
-                                        }
+                                    } else {
+                                        console.log(err);
+                                        cb(true, null);
+                                    }
 
-                                    });
+                                });
 
-                                } else {
-                                    console.log(err);
-                                    cb(true, null);
-                                }
+                            } else {
+                                console.log(err);
+                                cb(true, null);
+                            }
 
-                            });
-                        }
-                        else {
-                            const msg = "Error finding metadata in " + folder.uri;
-                            console.error(msg);
-                            cb(true, null);
+                        });
+                    }
+                    else {
+                        const msg = "Error finding metadata in " + folder.uri;
+                        console.error(msg);
+                        cb(true, null);
 
-                        }
-                    });
+                    }
                 });
             }
         ],
