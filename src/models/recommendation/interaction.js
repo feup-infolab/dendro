@@ -318,6 +318,10 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
         if (!isNull(self.ddr.recommendationCallTimeStamp) && typeof self.ddr.recommendationCallTimeStamp.slice(0, 19) !== "undefined") {
             inserts.push(moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"));
         }
+        else
+        {
+            inserts.push(null);
+        }
 
         if(Config.debug.database.log_all_queries)
             console.log(insertNewInteractionQuery);
