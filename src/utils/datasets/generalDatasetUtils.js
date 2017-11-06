@@ -46,7 +46,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
                             });
                         }, function (err, results) {
                             cb(err);
-                        })
+                        });
                     }
                     else {
                         cb(err, files);
@@ -54,16 +54,16 @@ const createPackage = function (parentFolderPath, folder, callback) {
                 })
             },
             function (cb) {
-                const archiver = require('archiver');
+                const archiver = require("archiver");
                 const output = fs.createWriteStream(outputFilenameZip);
-                const zipArchive = archiver('zip', {
+                const zipArchive = archiver("zip", {
                     zlib: {level: 9} // Sets the compression level.
                 });
                 filesToIncludeInPackage.push(outputFilenameZip);
                 extraFiles.push(outputFilenameZip);
                 folder.findMetadataRecursive(function (err, result) {
                     if (isNull(err)) {
-                        const metadataRDF = require('pretty-data').pd.xml(Serializers.metadataToRDF(result));
+                        const metadataRDF = require("pretty-data").pd.xml(Serializers.metadataToRDF(result));
                         fs.writeFile(outputFilenameRDF, metadataRDF, "utf-8", function (err) {
                             if (isNull(err)) {
                                 console.log("The file " + outputFilenameRDF + " was saved!");
@@ -79,7 +79,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
                                         extraFiles.push(outputFilenameTXT);
                                         //add the metadata txt file to the zip folder
                                         zipArchive.file(outputFilenameTXT, { name: folder.nie.title + ".txt" });
-                                        const metadataJSON = require('pretty-data').pd.json(JSON.stringify(result));
+                                        const metadataJSON = require("pretty-data").pd.json(JSON.stringify(result));
                                         fs.writeFile(outputFilenameJSON, metadataJSON, "utf-8", function (err) {
                                             if (isNull(err)) {
                                                 console.log("The file " + outputFilenameJSON + " was saved!");
@@ -94,8 +94,8 @@ const createPackage = function (parentFolderPath, folder, callback) {
                                                         cb(true, err);
                                                     }
                                                 });
-                                                output.on('close', function () {
-                                                    console.log('Done with the zip', folderToZip);
+                                                output.on("close", function () {
+                                                    console.log("Done with the zip", folderToZip);
                                                     cb(null, null);
                                                 });
                                             } else {
@@ -138,6 +138,6 @@ const createPackage = function (parentFolderPath, folder, callback) {
 };
 
 module.exports = {
-    deleteFolderRecursive: deleteFolderRecursive,
-    createPackage: createPackage
+    deleteFolderRecursive,
+    createPackage
 };

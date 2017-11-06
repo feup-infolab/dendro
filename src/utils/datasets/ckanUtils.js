@@ -167,7 +167,7 @@ const calculateDendroDiffs = function (folder, packageId, client, callback) {
 
 /**
  * Returns the Date value at which a Dendro package was last exported to Ckan, this function is useful to later calculate which files where added/deleted on both Ckan and Dendro sides
- * @param packageId the packageId in Ckan
+ * @param packageID the packageId in Ckan
  * @param client the Ckan client object
  * @param callback the callback function
  */
@@ -179,9 +179,9 @@ const getExportedAtByDendroForCkanDataset = function (packageID, client, callbac
         function (err, result) {
             if (result.success) {
                 let exportedAtDate = _.filter(result.result.extras, function (extra) {
-                    return extra.key == Elements.ontologies.ddr.exportedAt.uri;
+                    return extra.key === Elements.ontologies.ddr.exportedAt.uri;
                 });
-                if (isNull(exportedAtDate) || exportedAtDate.length != 1) {
+                if (isNull(exportedAtDate) || exportedAtDate.length !== 1) {
                     callback(true, "There is no property exportedAt for this ckan dataset: packageID : " + packageID);
                 }
                 else {
@@ -292,7 +292,7 @@ const getBothDendroDiffsAndCkanDiffs = function (requestedResourceUri, targetRep
                             console.error(JSON.stringify(err));
                             let info = {
                                 error : {
-                                    message: message,
+                                    message,
                                     statusCode: 400
                                 }
                             };
@@ -470,7 +470,7 @@ const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, clie
                 //the new exportedAt date is going to be the new date at which the package was updated in ckan(metadata_modified) after the latest export from dendro. Using new Date().toISOString() was causing bugs because there are time differences between ckan and dendro even if the update exported at is called at the correct time
                 let newExportedAt = result.result.metadata_modified;
                 let resultIndex = _.findIndex(result.result.extras, function (extra) {
-                    return extra.key === Elements.ontologies.ddr.exportedAt.uri
+                    return extra.key === Elements.ontologies.ddr.exportedAt.uri;
                 });
                 console.log("The index is: " + resultIndex);
 
@@ -1106,7 +1106,7 @@ const exportPackageToCkan = function (overwrite, requestedResourceUri, targetRep
                             {
                                 if(finalMsg.indexOf("upload too large") !== -1)
                                 {
-                                    finalMsg = "Upload size per file exceeded for your Ckan instance! Contact you system administrator"
+                                    finalMsg = "Upload size per file exceeded for your Ckan instance! Contact you system administrator";
                                 }
                             }
                             const message = "Error exporting package to CKAN: " + finalMsg;
