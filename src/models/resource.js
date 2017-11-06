@@ -36,10 +36,18 @@ function Resource (object)
 
 Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumentObject)
 {
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     const self = this;
 
-    const ontologyPrefixes = Ontology.getAllOntologyPrefixes();
+    if(deleteIfNotInArgumentObject)
+    {
+        for(let key in self)
+        {
+            if(key !== "uri")
+            {
+                delete self[key];
+            }
+        }
+    }
 
     for(let prefix in Elements.ontologies)
     {
@@ -84,6 +92,8 @@ Resource.prototype.loadObjectWithQueryResults = function(queryResults, ontologyU
     const self = this;
     const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
+    self.clearDescriptors();
+
     if(!isNull(queryResults) && queryResults instanceof Array && queryResults.length > 0)
     {
         for (let i = 0; i < queryResults.length; i++)
@@ -91,6 +101,7 @@ Resource.prototype.loadObjectWithQueryResults = function(queryResults, ontologyU
             const descriptor = new Descriptor(queryResults[i]);
             const prefix = descriptor.prefix;
             const shortName = descriptor.shortName;
+
             if (!isNull(prefix) && !isNull(shortName) && _.contains(ontologyURIsArray, descriptor.ontology))
             {
                 if (isNull(self[prefix]))
@@ -1116,7 +1127,15 @@ Resource.prototype.clearDescriptors = function(descriptorTypesToClear, exception
         delete self[descriptor.prefix][descriptor.shortName];
     }
 
-    self.updateDescriptors(filteredDescriptors);
+    if(isNull(descriptorTypesToClear) && isNull(exceptionedDescriptorTypes))
+    {
+        return;
+    }
+    else
+    {
+        self.updateDescriptors(filteredDescriptors);
+    }
+
 };
 
 /**
@@ -1937,7 +1956,7 @@ Resource.findByPropertyValue = function(
 
             if(!isNull(ignoreArchivedResources) && ignoreArchivedResources === true )
             {
-                typesRestrictions = typesRestrictions + "       FILTER NOT EXISTS { ?descriptor_uri rdf:type ddr:ArchivedResource }";
+                typesRestrictions = typesRestrictions + "\nFILTER NOT EXISTS { ?resource_uri rdf:type ddr:ArchivedResource }";
             }
 
             if(!isNull(descriptor) && descriptor instanceof Array)
@@ -2022,7 +2041,7 @@ Resource.findByPropertyValue = function(
 
                                 if(uris.length > 1)
                                 {
-                                    return callback(1, "[ERROR] There are more than one internal URIs for the human readable URI " + humanReadableUri + " ! They are : " + JSON.stringify(results));
+                                    return callback(1, "[ERROR] There are more than one resources with values " +  JSON.stringify(descriptorValueRestrictions) + " ! They are : " + JSON.stringify(uris));
                                 }
                                 if(uris.length === 1)
                                 {

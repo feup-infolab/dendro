@@ -389,7 +389,7 @@ DbConnection.prototype.create = function(callback) {
         if (!jinst.isJvmCreated()) {
             jinst.addOption("-Xrs");
             jinst.setupClasspath([
-                Pathfinder.absPathInApp("conf/virtuoso-jdbc/virtjdbc4_2.jar")
+                Pathfinder.absPathInApp("conf/virtuoso-jdbc/jdbc-4.2/virtjdbc4_2.jar")
             ]);
         }
 
@@ -508,6 +508,7 @@ DbConnection.prototype.create = function(callback) {
                                     {
                                         console.error("Error Running Update Statement \n" + queryObject.query);
                                         console.error(JSON.stringify(err));
+                                        console.error(err.stack);
                                         console.error(JSON.stringify(results));
                                     }
                                     else
@@ -530,6 +531,7 @@ DbConnection.prototype.create = function(callback) {
                                             {
                                                 console.error("Error Running Query \n" + queryObject.query);
                                                 console.error(JSON.stringify(err));
+                                                console.error(JSON.stringify(err.stack));
                                                 console.error(JSON.stringify(results));
                                             }
                                             else

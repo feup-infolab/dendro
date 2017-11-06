@@ -36,7 +36,7 @@ let notificationsDemouser1;
 
 describe("Get a specific notification information tests", function () {
     before(function (done) {
-        this.timeout(Config.testsTimeout);
+        this.timeout(3*Config.testsTimeout);
         //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
             should.equal(err, null);

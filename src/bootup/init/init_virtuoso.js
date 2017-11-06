@@ -8,6 +8,8 @@ let DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnect
 
 const initVirtuoso = function(app, callback)
 {
+    console.log("[INFO] Initializing Virtuoso Connection...");
+
     let db = new DbConnection(
         Config.db.default.graphHandle,
         Config.virtuosoHost,
