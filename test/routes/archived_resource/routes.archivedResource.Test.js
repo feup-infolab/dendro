@@ -58,8 +58,6 @@ describe("Creation of archived versions", function () {
     {
         it("Should update a folder's metadata and create the adequate archived versions", function (done)
         {
-            this.timeout(10000);
-
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 projectUtils.getProjectRootContent(true, agent, privateProject.handle, function(err, res){
