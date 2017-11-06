@@ -62,7 +62,7 @@ angular.module('dendroApp.controllers')
 
                         var extension = selectedFile.ddr.fileExtension;
 
-                        if(extension == "folder")
+                        if(extension === "folder")
                         {
                             var successMessage = "Folder " + selectedFile.nie.title + " deleted successfully";
                         }

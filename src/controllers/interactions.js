@@ -48,53 +48,58 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                                 if (!isNull(project)) {
                                     project.getCreatorsAndContributors(function (err, contributors) {
                                         if (isNull(err) && !isNull(contributors) && contributors instanceof Array) {
+
+                                            const createInteraction = function()
+                                            {
+                                                Interaction.create({
+                                                    ddr: {
+                                                        performedBy: user.uri,
+                                                        interactionType: req.body.interactionType,
+                                                        executedOver: resource.uri,
+                                                        originallyRecommendedFor: req.body.recommendedFor,
+                                                        rankingPosition: req.body.rankingPosition,
+                                                        pageNumber: req.body.pageNumber,
+                                                        recommendationCallId: req.body.recommendationCallId,
+                                                        recommendationCallTimeStamp: req.body.recommendationCallTimeStamp
+                                                    }
+                                                }, function (err, interaction) {
+                                                    interaction.save(
+                                                        function (err, result) {
+                                                            if (isNull(err)) {
+                                                                interaction.saveToMySQL(function (err, result) {
+                                                                    if (isNull(err)) {
+                                                                        const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
+                                                                        console.log(msg);
+                                                                        return res.json({
+                                                                            result: "OK",
+                                                                            message: msg
+                                                                        });
+                                                                    }
+                                                                    else {
+                                                                        const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
+                                                                        console.log(msg);
+                                                                        return res.json({
+                                                                            result: "OK",
+                                                                            message: msg
+                                                                        });
+                                                                    }
+                                                                });
+                                                            }
+                                                            else {
+                                                                const msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
+                                                                console.error(msg);
+                                                                return res.status(500).json({
+                                                                    result: "Error",
+                                                                    message: msg
+                                                                });
+                                                            }
+                                                        });
+                                                });
+                                            };
+
                                             for (let i = 0; i < contributors.length; i++) {
                                                 if (contributors[i].uri === user.uri) {
-                                                    Interaction.create({
-                                                        ddr: {
-                                                            performedBy: user.uri,
-                                                            interactionType: req.body.interactionType,
-                                                            executedOver: resource.uri,
-                                                            originallyRecommendedFor: req.body.recommendedFor,
-                                                            rankingPosition: req.body.rankingPosition,
-                                                            pageNumber: req.body.pageNumber,
-                                                            recommendationCallId: req.body.recommendationCallId,
-                                                            recommendationCallTimeStamp: req.body.recommendationCallTimeStamp
-                                                        }
-                                                    }, function (err, interaction) {
-                                                        interaction.save(
-                                                            function (err, result) {
-                                                                if (isNull(err)) {
-                                                                    interaction.saveToMySQL(function (err, result) {
-                                                                        if (isNull(err)) {
-                                                                            const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
-                                                                            console.log(msg);
-                                                                            return res.json({
-                                                                                result: "OK",
-                                                                                message: msg
-                                                                            });
-                                                                        }
-                                                                        else {
-                                                                            const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
-                                                                            console.log(msg);
-                                                                            return res.json({
-                                                                                result: "OK",
-                                                                                message: msg
-                                                                            });
-                                                                        }
-                                                                    });
-                                                                }
-                                                                else {
-                                                                    const msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
-                                                                    console.error(msg);
-                                                                    return res.status(500).json({
-                                                                        result: "Error",
-                                                                        message: msg
-                                                                    });
-                                                                }
-                                                            });
-                                                    });
-
+                                                    createInteraction();
                                                     return;
                                                 }
                                             }

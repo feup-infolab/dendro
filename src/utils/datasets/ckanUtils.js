@@ -639,9 +639,9 @@ const checkResourceTypeAndChildren = function (resourceUri, callback) {
 const createOrUpdateFilesInPackage = function (targetRepository, datasetFolderMetadata, packageId, client, callback, overwrite, extraFiles) {
     const files = [];
     const locations = [];
+    let i;
 
-
-    for (var i = 0; i < datasetFolderMetadata.original_node.nie.hasLogicalPart.length; i++) {
+    for (i = 0; i < datasetFolderMetadata.original_node.nie.hasLogicalPart.length; i++) {
         const child = datasetFolderMetadata.children[i];
         if (!isNull(child)) {
             if (child.original_node instanceof File) {
@@ -657,14 +657,14 @@ const createOrUpdateFilesInPackage = function (targetRepository, datasetFolderMe
     const resources = [];
     const path = require("path");
 
-    for (var i = 0; i < files.length; i++) {
+    for (i = 0; i < files.length; i++) {
         const file = files[i];
-        var location = locations[i];
+        let location = locations[i];
 
-        var fileExtension = path.extname(location).substr(1);
-        var fileName = path.basename(location);
+        let fileExtension = path.extname(location).substr(1);
+        let fileName = path.basename(location);
 
-        var record =
+        let record =
             {
                 absolute_file_path: location,
                 url: targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
@@ -681,13 +681,13 @@ const createOrUpdateFilesInPackage = function (targetRepository, datasetFolderMe
         resources.push(record);
     }
 
-    for (var i = 0; i < extraFiles.length; i++) {
-        var location = extraFiles[i];
+    for (i = 0; i < extraFiles.length; i++) {
+        let location = extraFiles[i];
 
-        var fileExtension = path.extname(location).substr(1);
-        var fileName = path.basename(location);
+        let fileExtension = path.extname(location).substr(1);
+        let fileName = path.basename(location);
 
-        var record =
+        let record =
             {
                 absolute_file_path: location,
                 url: targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,

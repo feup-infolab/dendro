@@ -129,15 +129,19 @@ OntologiesCache.prototype.getElements = function(callback)
 
             const allObjects = [];
 
+            const pushToObjectsArray = function(elementsByAPrefix)
+            {
+                _.each(elementsByAPrefix, function(object, key){
+                    allObjects.push(object);
+                });
+            };
+
             cursor.toArray(function (err, results)
             {
                 for(let i = 0; i < results.length; i++)
                 {
                     let elementsByAPrefix = results[i];
-
-                    _.each(elementsByAPrefix, function(object, key){
-                        allObjects.push(object);
-                    });
+                    pushToObjectsArray(elementsByAPrefix);
                 }
 
                 callback(err, allObjects);

@@ -510,7 +510,6 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
     }
     else
     {
-        const fs = require("fs");
         const exec = require("child_process").exec;
 
         if(isNull(nameForFinishedZipFile))
@@ -522,16 +521,19 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
         const parentFolderAbsPath = path.resolve(sourceFolderAbsPath, '..');
         const nameOfFolderToZip = path.basename(sourceFolderAbsPath);
 
+        let cwd;
+        let command;
+
         if(zipContentsInsteadOfFolder)
         {
-            var cwd =  {cwd: sourceFolderAbsPath};
-            var command = 'zip -r \"' + nameForFinishedZipFile + "\" \* &&\n mv " + nameForFinishedZipFile + " ..";
+            cwd =  {cwd: sourceFolderAbsPath};
+            command = 'zip -r \"' + nameForFinishedZipFile + "\" \* &&\n mv " + nameForFinishedZipFile + " ..";
 
         }
         else
         {
-            var cwd =  {cwd: parentFolderAbsPath};
-            var command = 'zip -r \"' + nameForFinishedZipFile + '\" .\/\"' + nameOfFolderToZip + '\"';
+            cwd =  {cwd: parentFolderAbsPath};
+            command = 'zip -r \"' + nameForFinishedZipFile + '\" .\/\"' + nameOfFolderToZip + '\"';
         }
 
         console.log("Zipping file with command " + command + " on folder " + parentFolderAbsPath + "....");
@@ -545,11 +547,13 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
             else {
                 console.log(stdout);
 
+                let finishedZipFileAbsPath;
+
                 if (zipContentsInsteadOfFolder) {
-                    var finishedZipFileAbsPath = destinationFolderForZipAbsPath;
+                    finishedZipFileAbsPath = destinationFolderForZipAbsPath;
                 }
                 else {
-                    var finishedZipFileAbsPath = path.join(destinationFolderForZipAbsPath, nameForFinishedZipFile);
+                    finishedZipFileAbsPath = path.join(destinationFolderForZipAbsPath, nameForFinishedZipFile);
                 }
 
                 console.log("Folder is in zip file " + finishedZipFileAbsPath);
@@ -1412,7 +1416,7 @@ Folder.deleteOnLocalFileSystem = function(absPath, callback)
 
     if(isWin)
     {
-        command = `rd /s /q "${absPath}"`
+        command = `rd /s /q "${absPath}"`;
     }
     else
     {

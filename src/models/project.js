@@ -1474,7 +1474,7 @@ Project.privacy = function (projectUri, callback) {
             }
             else
             {
-                privacy = project.ddr.privacyStatus;
+                const privacy = project.ddr.privacyStatus;
 
                 if(!isNull(privacy) && privacy instanceof Array && privacy.length > 0)
                 {

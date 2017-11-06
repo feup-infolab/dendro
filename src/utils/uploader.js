@@ -138,7 +138,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
 
                                 md5File(upload.temp_file, function (err, hash) {
                                     if (isNull(err)) {
-                                        if (md5_checksum !== hash) {
+                                        if (!isNull(hash) && hash !== md5_checksum) {
                                             res.status(400).json({
                                                 result: "error",
                                                 message: "File was corrupted during transfer. Please repeat this upload.",

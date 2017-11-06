@@ -470,7 +470,7 @@ export_to_repository_figshare = function (req, res) {
     }
 };
 
-export_to_repository_zenodo = function (req, res) {
+const export_to_repository_zenodo = function (req, res) {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
 

@@ -2900,67 +2900,6 @@ Resource.prototype.isOfClass = function(classNameInPrefixedForm, callback)
     });
 };
 
-Resource.prototype.toCSVLine = function(existingHeaders)
-{
-    const self = this;
-
-    const flatDescriptors = self.getDescriptors();
-
-    if(existingHeaders instanceof Object && Object.keys(existingHeaders).length === 0)
-    {
-        var headers = {
-            uri : 0
-        };
-    }
-    else
-    {
-        var headers = JSON.parse(JSON.stringify(existingHeaders));
-    }
-
-    /*Update header positions*/
-    for(var i = 0; i < flatDescriptors.length; i++)
-    {
-        var descriptor = flatDescriptors[i];
-        var descriptorPrefixedEscaped = descriptor.prefix + "_" + descriptor.shortName;
-        if(isNull(headers[descriptorPrefixedEscaped]))
-        {
-            headers[descriptorPrefixedEscaped] = Object.keys(headers).length;
-        }
-    }
-
-    /*Write value in the right column, according to header*/
-
-    const descriptorLine = new Array(headers.length);
-
-    descriptorLine[headers['uri']] = self.uri;
-
-    for(var i = 0; i < flatDescriptors.length; i++)
-    {
-        var descriptor = flatDescriptors[i];
-        var descriptorPrefixedEscaped = descriptor.prefix + "_" + descriptor.shortName;
-        const columnIndex = headers[descriptorPrefixedEscaped];
-        descriptorLine[columnIndex] = descriptor.value;
-    }
-
-    /**Convert CSV Columns Array to string**/
-    let csvLine = '';
-    for(var i = 0; i < descriptorLine.length; i++)
-    {
-        csvLine = csvLine + descriptorLine[i];
-        if(i < descriptorLine.length - 1)
-        {
-            csvLine = csvLine + ',';
-        }
-    }
-
-    csvLine = csvLine + "\n";
-
-    return {
-        csv_line: csvLine,
-        headers : headers
-    };
-};
-
 Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUri) {
     const self = this;
 

@@ -2,6 +2,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
 const RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
 const _ = require("underscore");

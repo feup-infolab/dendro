@@ -210,7 +210,7 @@ User.autocomplete_search = function(value, maxResults, callback) {
             }
             else
             {
-                return callback(err, user);
+                return callback(err, users);
             }
         });
 };

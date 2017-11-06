@@ -27,14 +27,11 @@ exports.recommend_descriptors = function(req, res) {
     else
     {
         const resourceUri = req.params.requestedResourceUri;
+        let userUri = null;
 
         if(!isNull(req.user))
         {
-            var userUri = req.user.uri;
-        }
-        else
-        {
-            var userUri = null;
+            userUri = req.user.uri;
         }
 
         const allowedOntologies = _.map(Config.public_ontologies, function (prefix) {

@@ -586,21 +586,22 @@ Ontology.getPublicOntologies = function()
     if(isNull(Ontology.publicOntologies))
     {
         Ontology.publicOntologies = [];
+        let ontologies;
 
         if(!isNull(Config.public_ontologies) && Config.public_ontologies instanceof Array && Config.public_ontologies.length > 0)
         {
-            var ontologies = _.filter(Ontology.getAllOntologiesArray(), function(ontology){
+            ontologies = _.filter(Ontology.getAllOntologiesArray(), function(ontology){
                 return _.contains(Config.public_ontologies, ontology.prefix);
             });
         }
         else
         {
-            var ontologies = Ontology.getAllOntologiesArray();
+            ontologies = Ontology.getAllOntologiesArray();
         }
 
         for(let i = 0 ; i < ontologies.length; i++)
         {
-            var ontology = ontologies[i];
+            let ontology = ontologies[i];
             if(!ontology.private)
             {
                 Ontology.publicOntologies.push(ontology);
@@ -794,7 +795,7 @@ Ontology.prototype.save = function(callback)
 
 Ontology.autocomplete_research_domains = function(query, callback)
 {
-    var query =
+    const query =
         "WITH [0] \n" +
         "SELECT * \n" +
         "WHERE \n" +
@@ -817,9 +818,10 @@ Ontology.autocomplete_research_domains = function(query, callback)
         ],
         function(err, results)
         {
+            const domains = [];
+
             if (err)
             {
-                var domains = [];
                 for(let i = 0; i < results.length; i++)
                 {
                     domains.push(results['domain']);

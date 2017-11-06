@@ -160,9 +160,7 @@ module.exports.reindex = function(req, res)
                         Resource.all(null, function(err, resources) {
                             if(isNull(err))
                             {
-                                for(let i = 0; i < resources.length; i++)
-                                {
-                                    const resource = resources[i];
+                                async.map(resources, function(resource, callback){
                                     console.log("Resource " + resource.uri + " now being reindexed.");
 
                                     resource.reindex(indexConnection, function(err, results)
@@ -171,10 +169,16 @@ module.exports.reindex = function(req, res)
                                         {
                                             console.error("Error indexing Resource " + resource.uri + " : " + results);
                                         }
+                                        callback(err, results);
                                     });
-                                }
+                                }, function(err, results){
+                                    if(err)
+                                    {
+                                        console.error("Errors occurred indexing all Resources : " + results);
+                                    }
 
-                                return callback(null, null);
+                                    return callback(null, null);
+                                });
                             }
                             else
                             {

@@ -788,16 +788,17 @@ Descriptor.prototype.getShortName = function()
 Descriptor.prototype.getOwnerOntologyUri = function()
 {
     const self = this;
+    let ontologyURI;
 
     //ontology ends with a cardinal
     if(self.uri.match(/.*#[^#]+$/))
     {
-        var ontologyURI = self.uri.replace(/#[^#]+$/, "#");
+        ontologyURI = self.uri.replace(/#[^#]+$/, "#");
     }
     //ontology ends with a forward slash
     else if(self.uri.match(/.*\/[^\/]+$/))
     {
-        var ontologyURI = self.uri.replace(/\/[^\/]+$/, "/");
+        ontologyURI = self.uri.replace(/\/[^\/]+$/, "/");
     }
 
     //from http://stackoverflow.com/questions/8590052/regular-expression-remove-everything-after-last-forward-slash

@@ -100,14 +100,15 @@ angular.module('dendroApp.services')
                 // upload on file select or drop
                 this.upload = function (file, url, extra_parameters)
                 {
+                    var data;
 
                     if (!(extra_parameters instanceof Object))
                     {
-                        var data = {file: file};
+                         data = {file: file};
                     }
                     else
                     {
-                        var data = extra_parameters;
+                        data = extra_parameters;
                         data.file = file;
                     }
 
@@ -125,14 +126,15 @@ angular.module('dendroApp.services')
                         for (var i = 0; i < files.length; i++)
                         {
                             var file = files[i];
+                            var data;
 
                             if (!(extra_parameters instanceof Object))
                             {
-                                var data = {file: file};
+                                data = {file: file};
                             }
                             else
                             {
-                                var data = extra_parameters;
+                                data = extra_parameters;
                                 data.file = file;
                             }
 

@@ -73,7 +73,10 @@ module.exports.metadataToText = function(metadata){
     for(var prefix in comments){
         commentsText += prefix + ":" + "\n";
         for(let shortName in comments[prefix])
-            commentsText += " " + comments[prefix][shortName]['label']+ "(" + shortName +")" + ": " + comments[prefix][shortName]['comment'] + "\n";
+            if(comments[prefix].hasOwnProperty(shortName))
+            {
+                commentsText += " " + comments[prefix][shortName]['label']+ "(" + shortName +")" + ": " + comments[prefix][shortName]['comment'] + "\n";
+            }
     }
 
     return namespacesText + "\n" +  tempText + "\n" + commentsText;

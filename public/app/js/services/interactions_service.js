@@ -124,6 +124,8 @@ angular.module('dendroApp.services')
 
                 this.fill_in_descriptor_from_manual_list_in_metadata_editor = function(descriptor) {
                     var self = this;
+                    var url;
+                    var interactionType;
 
                     if(descriptor.recommendation_types != null)
                     {
@@ -132,29 +134,29 @@ angular.module('dendroApp.services')
                             descriptor.recommendation_types.project_favorite
                         )
                         {
-                            var url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
-                            var interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite"
+                            url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
+                            interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite"
                         }
                         else if (descriptor.recommendation_types.project_favorite)
                         {
-                            var url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite";
-                            var interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite"
+                            url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite";
+                            interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite"
                         }
                         else if (descriptor.recommendation_types.user_favorite)
                         {
-                            var url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite";
-                            var interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite"
+                            url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite";
+                            interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite"
                         }
                         else
                         {
-                            var url = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
-                            var interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor"
+                            url = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
+                            interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor"
                         }
                     }
                     else
                     {
-                        var url = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
-                        var interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor"
+                        url = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
+                        interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor"
                     }
 
                     return self.register_interaction(

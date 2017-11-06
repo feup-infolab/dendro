@@ -509,7 +509,7 @@ exports.getLoggedUser = function (req, res) {
         }
         else
         {
-            viewVars.error_messages = ["There is no user authenticated in the system."];
+            req.flash("error", "There is no user authenticated in the system.");
             res.status(403).render('index');
         }
     }

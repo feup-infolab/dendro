@@ -78,7 +78,7 @@ angular.module('dendroApp.controllers')
 
                 if($scope.get_descriptor_by_prefixed_form("ddr:deleted") === true)
                 {
-                    project.deleted = true;
+                   $scope.project.deleted = true;
                 }
             })
                 .catch(function(error){
@@ -100,7 +100,7 @@ angular.module('dendroApp.controllers')
             if($scope.project != null && $scope.project.descriptors != null)
             {
                 var uri;
-                if(project.deleted)
+                if($scope.project.deleted)
                     uri = $scope.get_current_url() + "?undelete";
                 else
                     uri = $scope.get_current_url() + "?delete";

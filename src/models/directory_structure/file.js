@@ -183,7 +183,7 @@ File.deleteOnLocalFileSystem = function(absPathToFile, callback)
 
     if(isWin)
     {
-        command = `rd /s /q \""${absPathToFile}"\"`
+        command = `rd /s /q \""${absPathToFile}"\"`;
     }
     else
     {
@@ -362,8 +362,9 @@ File.prototype.saveWithFileAndContents = function(localFilePath, indexConnection
 File.prototype.deleteThumbnails = function () {
     const self = this;
     if (!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension])) {
-        for (let i = 0; i < Config.thumbnails.sizes.length; i++) {
-            const dimension = Config.thumbnails.sizes[i];
+        const _ = require('underscore');
+
+        _.map(Config.thumbnails.sizes, function(dimension){
             if (Config.thumbnails.size_parameters.hasOwnProperty(dimension)) {
                 gfs.connection.delete(self.uri + "?thumbnail&size=" + dimension, function (err, result) {
                     if (err) {
@@ -371,7 +372,7 @@ File.prototype.deleteThumbnails = function () {
                     }
                 });
             }
-        }
+        });
     }
 };
 
