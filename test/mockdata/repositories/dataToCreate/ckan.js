@@ -119,10 +119,10 @@ const newExportRepoData = {
         "title":"ckan2"
     },
     "ddr":{
-        "hasExternalUrl":"http://192.168.33.60:5000",
+        "hasExternalUrl":"http://dendro-dev.fe.up.pt:5000",
         "hasUsername":"nelsonpereira1991",
         "hasOrganization":"organization-test1",
-        "hasAPIKey":"6a50a8d3-44ce-4825-b3c7-9bca1c57165f",
+        "hasAPIKey":"15f8dac8-6f95-4318-ae5d-9b390088484c",
         "hasPlatform":{
             "uri":"/r/repo_platform/a765702d-2962-42c3-9e5c-df79deae9730",
             "foaf":{
