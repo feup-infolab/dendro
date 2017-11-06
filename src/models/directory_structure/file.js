@@ -1200,56 +1200,56 @@ File.prototype.generateThumbnails = function (callback) {
     }
 };
 
-File.prototype.moveToFolder = function(newParentFolder, callback)
-{
-    const self = this;
-
-    const oldParent = self.nie.isLogicalPartOf;
-    const newParent = newParentFolder.uri;
-
-    const query =
-        "DELETE DATA " +
-        "{ " +
-        "GRAPH [0] " +
-        "{ " +
-        "[1] nie:title ?title . " +
-        "} " +
-        "}; " +
-
-        "INSERT DATA " +
-        "{ " +
-        "GRAPH [0] " +
-        "{ " +
-        "[1] nie:title [2] " +
-        "} " +
-        "}; ";
-
-    db.connection.executeViaJDBC(query,
-        [
-            {
-                type: Elements.types.resourceNoEscape,
-                value: db.graphUri
-            },
-            {
-                type: Elements.types.resource,
-                value: self.uri
-            },
-            {
-                type: Elements.types.string,
-                value: newTitle
-            }
-        ],
-        function(err, result)
-        {
-            Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
-            {
-                Cache.getByGraphUri(db.graphUri).delete(newParentFolder.uri, function (err, result)
-                {
-                    return callback(err, result);
-                });
-            });
-        });
-};
+// File.prototype.moveToFolder = function(newParentFolder, callback)
+// {
+//     const self = this;
+//
+//     const oldParent = self.nie.isLogicalPartOf;
+//     const newParent = newParentFolder.uri;
+//
+//     const query =
+//         "DELETE DATA " +
+//         "{ " +
+//         "GRAPH [0] " +
+//         "{ " +
+//         "[1] nie:title ?title . " +
+//         "} " +
+//         "}; " +
+//
+//         "INSERT DATA " +
+//         "{ " +
+//         "GRAPH [0] " +
+//         "{ " +
+//         "[1] nie:title [2] " +
+//         "} " +
+//         "}; ";
+//
+//     db.connection.executeViaJDBC(query,
+//         [
+//             {
+//                 type: Elements.types.resourceNoEscape,
+//                 value: db.graphUri
+//             },
+//             {
+//                 type: Elements.types.resource,
+//                 value: self.uri
+//             },
+//             {
+//                 type: Elements.types.string,
+//                 value: newTitle
+//             }
+//         ],
+//         function(err, result)
+//         {
+//             Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+//             {
+//                 Cache.getByGraphUri(db.graphUri).delete(newParentFolder.uri, function (err, result)
+//                 {
+//                     return callback(err, result);
+//                 });
+//             });
+//         });
+// };
 
 File = Class.extend(File, InformationElement, "nfo:FileDataObject");
 

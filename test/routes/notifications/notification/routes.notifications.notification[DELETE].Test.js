@@ -97,7 +97,7 @@ describe("Delete a specific notification tests", function () {
                         //the notification was deleted, so when requesting the notification info of a notification that no longer exists -> should give a not found error
                         socialDendroUtils.getANotificationInfo(true, agent, notificationToDelete, function (err, res) {
                             res.statusCode.should.equal(401);
-                            res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                            res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); //TODO is this correct??
                             done();
                         });
                     });
@@ -120,7 +120,7 @@ describe("Delete a specific notification tests", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res) {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); //TODO is this correct??
                     done();
                 });
             });
@@ -130,7 +130,7 @@ describe("Delete a specific notification tests", function () {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res) {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); //TODO is this correct??
                     done();
                 });
             });
@@ -141,7 +141,7 @@ describe("Delete a specific notification tests", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 socialDendroUtils.deleteANotification(true, agent, null, function (err, res) {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); //TODO is this correct??
                     done();
                 });
             });
@@ -151,7 +151,7 @@ describe("Delete a specific notification tests", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 socialDendroUtils.deleteANotification(true, agent, null, function (err, res) {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); //TODO is this correct??
                     done();
                 });
             });
@@ -161,7 +161,7 @@ describe("Delete a specific notification tests", function () {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 socialDendroUtils.deleteANotification(true, agent, null, function (err, res) {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); //TODO is this correct??
                     done();
                 });
             });

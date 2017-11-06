@@ -239,26 +239,22 @@ InformationElement.prototype.rename = function(newTitle, callback)
 {
     const self = this;
 
-    //an update is made through a delete followed by an insert
-    // http://www.w3.org/TR/2013/REC-sparql11-update-20130321/#insertData
-
-    //TODO CACHE DONE
     const query =
-        "DELETE DATA " +
-        "{ " +
-        "GRAPH [0] " +
-        "{ " +
-        "[1] nie:title ?title . " +
-        "} " +
-        "}; " +
+        "DELETE DATA \n" +
+        "{ \n" +
+        "GRAPH [0] \n" +
+        "   { \n" +
+        "       [1] nie:title ?title . " +
+        "   } \n" +
+        "}; \n" +
 
-        "INSERT DATA " +
-        "{ " +
-        "GRAPH [0] " +
-        "{ " +
-        "[1] nie:title [2] " +
-        "} " +
-        "}; ";
+        "INSERT DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { " +
+        "       [1] nie:title [2] \n" +
+        "   } \n" +
+        "}; \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -290,24 +286,32 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
     const oldParent = self.nie.isLogicalPartOf;
     const newParent = newParentFolder.uri;
 
-    const query =
-        "DELETE DATA \n" +
-        "{ \n" +
-        "   GRAPH [0] \n" +
-        "   { \n" +
-        "       [1] nie:hasLogicalPart [2]. \n" +
-        "       [2] nie:isLogicalPartOf [1]. \n" +
-        "   } \n" +
-        "}; \n" +
+    // "WITH GRAPH [0] \n" +
+    // "DELETE \n" +
+    // "{ \n" +
+    // deleteString + " \n" +
+    // "} \n" +
+    // "WHERE \n" +
+    // "{ \n" +
+    // deleteString + " \n" +
+    // "} \n" +
+    // "INSERT DATA\n" +
+    // "{ \n" +
+    // insertString + " \n" +
+    // "} \n";
 
-        "INSERT DATA \n" +
+    const query =
+        "WITH GRAPH [0] \n" +
+        "DELETE \n" +
         "{ \n" +
-        "   GRAPH [0] \n" +
-        "   { \n" +
-        "       [3] nie:hasLogicalPart [2]. \n" +
-        "       [2] nie:isLogicalPartOf [3]. \n" +
-        "   } " +
-        "}; \n";
+        "   [1] nie:hasLogicalPart [2]. \n" +
+        "   [2] nie:isLogicalPartOf [1] \n" +
+        "} \n" +
+        "INSERT \n" +
+        "{ \n" +
+        "   [3] nie:hasLogicalPart [2]. \n" +
+        "   [2] nie:isLogicalPartOf [3] \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -351,7 +355,7 @@ InformationElement.prototype.moveToFolder = function(newParentFolder, callback)
             {
                 return callback(err, result);
             }
-        });
+        }, null, null, null, true);
 };
 
 InformationElement.prototype.unlinkFromParent = function(callback)
@@ -594,7 +598,21 @@ InformationElement.prototype.containedIn = function(parentResource, callback, cu
             function(err, result) {
                 if(isNull(err))
                 {
-                    return callback(null, result);
+                    if(result instanceof Array)
+                    {
+                        if(result.length === 0)
+                        {
+                            return callback(null, false);
+                        }
+                        else
+                        {
+                            return callback(null, true);
+                        }
+                    }
+                    else
+                    {
+                        return callback(null, result);
+                    }
                 }
                 else
                 {

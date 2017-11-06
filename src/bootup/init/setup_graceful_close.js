@@ -211,7 +211,7 @@ const setupGracefulClose = function(app, server, callback)
 
                 return false;
             }
-            else if(exitCode === 0 && !isNull(NODE_ENV) && NODE_ENV !== "test")
+            else if(exitCode === 0 && !isNull(process.env.NODE_ENV) && process.env.NODE_ENV !== "test")
             {
                 process.exit(0);
             }

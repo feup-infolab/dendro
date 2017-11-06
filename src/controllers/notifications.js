@@ -213,21 +213,35 @@ exports.delete = function (req, res) {
                 function(err, result) {
                     if(isNull(err))
                     {
-                        if(result.length > 0)
-                        {
-                            res.json({
-                                result : "OK",
-                                message : "Notification successfully deleted"
-                            });
-                        }
-                        else
-                        {
-                            const errorMsg = "Invalid notification uri";
-                            res.status(404).json({
-                                result: "Error",
-                                message: errorMsg
-                            });
-                        }
+                        Notification.exists(req.query.notificationUri, function(err, exists){
+                            if(isNull(err))
+                            {
+                                if(!isNull(exists) && !exists)
+                                {
+
+                                    res.json({
+                                        result : "OK",
+                                        message : "Notification successfully deleted"
+                                    });
+                                }
+                                else
+                                {
+                                    const errorMsg = "Unable to delete the notification. It still exists after trying to delete.";
+                                    res.status(500).json({
+                                        result: "Error",
+                                        message: errorMsg
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                const errorMsg = "Error checking a User's notification: error validating if the notification was deleted or not.";
+                                res.status(500).json({
+                                    result: "Error",
+                                    message: errorMsg
+                                });
+                            }
+                        });
                     }
                     else
                     {

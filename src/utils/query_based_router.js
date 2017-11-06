@@ -154,7 +154,7 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next, validateExistenc
     async.series([
         function(callback)
         {
-            if(validateExistenceOfRequestedResourceUri)
+            if(!isNull(validateExistenceOfRequestedResourceUri) && validateExistenceOfRequestedResourceUri)
             {
                 resourceExists(function(err, result){
                     callback(err, result);
