@@ -1,32 +1,17 @@
 process.env.NODE_ENV = 'test';
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const chai = require("chai");
 chai.use(require('chai-http'));
 const async = require("async");
-const should = chai.should();
 
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("/utils/app/appUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
-const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
-
-const csvMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/csvMockFile.js"));
-const docxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/docxMockFile.js"));
-const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"));
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
@@ -35,7 +20,7 @@ const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFol
 
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = createFoldersUnit.foldersData;
-const filesData = [txtMockFile, zipMockFile, docxMockFile];
+const filesData = [txtMockFile, zipMockFile];
 
 module.exports.allFiles  = filesData;
 

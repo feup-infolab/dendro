@@ -126,6 +126,8 @@ angular.module('dendroApp.controllers')
             if(descriptor != null && descriptor instanceof Object)
             {
                 var newDescriptor = JSON.parse(JSON.stringify(descriptor));
+                var uri;
+                var interactionType;
 
                 if(newDescriptor.control == "date_picker")
                 {
@@ -134,8 +136,8 @@ angular.module('dendroApp.controllers')
 
                 if($scope.descriptor_selection_mode == recommendationService.descriptor_selection_modes.recommendation)
                 {
-                    var interactionType = 'accept_descriptor_from_quick_list';
-                    var uri = "/interactions/accept_descriptor_from_quick_list";
+                    interactionType = 'accept_descriptor_from_quick_list';
+                    uri = "/interactions/accept_descriptor_from_quick_list";
 
                     newDescriptor.just_added = true;
                     newDescriptor.added_from_quick_list = true;
@@ -156,29 +158,29 @@ angular.module('dendroApp.controllers')
                             descriptor.recommendation_types.project_favorite
                         )
                         {
-                            var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
-                            var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite"
+                            uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
+                            interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite"
                         }
                         else if (descriptor.recommendation_types.project_favorite)
                         {
-                            var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite";
-                            var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_project_favorite"
+                            uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite";
+                            interactionType = "accept_descriptor_from_manual_list_while_it_was_a_project_favorite"
                         }
                         else if (descriptor.recommendation_types.user_favorite)
                         {
-                            var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite";
-                            var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_favorite"
+                            uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite";
+                            interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_favorite"
                         }
                         else
                         {
-                            var uri = "/interactions/accept_descriptor_from_manual_list";
-                            var interactionType = "accept_descriptor_from_manual_list"
+                            uri = "/interactions/accept_descriptor_from_manual_list";
+                            interactionType = "accept_descriptor_from_manual_list"
                         }
                     }
                     else
                     {
-                        var uri = "/interactions/accept_descriptor_from_manual_list";
-                        var interactionType = "accept_descriptor_from_manual_list"
+                        uri = "/interactions/accept_descriptor_from_manual_list";
+                        interactionType = "accept_descriptor_from_manual_list"
                     }
                 }
                 
