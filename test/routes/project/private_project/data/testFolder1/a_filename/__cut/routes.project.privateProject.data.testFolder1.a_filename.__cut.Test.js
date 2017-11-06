@@ -83,7 +83,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function () {
                             should.equal(err, null);
 
                             JSON.parse(res.text).should.be.instanceof(Array);
-                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+                            JSON.parse(res.text).length.should.equal(0);
 
                             folderUtils.moveFilesIntoFolder(false, agent, urisOfFilesToMove, destinationFolderUri, function(err, res){
                                 res.statusCode.should.equal(400);
@@ -119,7 +119,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function () {
                             should.equal(err, null);
 
                             JSON.parse(res.text).should.be.instanceof(Array);
-                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+                            JSON.parse(res.text).length.should.equal(0);
 
                             userUtils.logoutUser(agent, function(err, agent){
                                 res.statusCode.should.equal(200);
@@ -160,7 +160,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function () {
                             should.equal(err, null);
 
                             JSON.parse(res.text).should.be.instanceof(Array);
-                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+                            JSON.parse(res.text).length.should.equal(0);
 
                             //here we introduce the error, an identifier that does not exist
                             urisOfFilesToMove[0] = "/r/file/00000000-0000-0000-0000-000000000000";
@@ -225,7 +225,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function () {
                             should.equal(err, null);
 
                             JSON.parse(res.text).should.be.instanceof(Array);
-                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+                            JSON.parse(res.text).length.should.equal(0);
 
                             userUtils.logoutUser(agent, function (err, agent) {
                                 res.statusCode.should.equal(200);
@@ -270,7 +270,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function () {
                             should.equal(err, null);
 
                             JSON.parse(res.text).should.be.instanceof(Array);
-                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+                            JSON.parse(res.text).length.should.equal(0);
 
 
                             //here we introduce the error. We log in with demouser3 and
@@ -338,7 +338,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function () {
                             should.equal(err, null);
 
                             JSON.parse(res.text).should.be.instanceof(Array);
-                            should.equal(folderUtils.responseContainsAllMockFiles(res, filesToMove), false);
+                            JSON.parse(res.text).length.should.equal(0);
 
                             folderUtils.createFolderInProject(true, agent, cutFilesFolderName, cutFilesFolderName, privateProject.handle, function(err, res){
                                 res.statusCode.should.equal(200);
