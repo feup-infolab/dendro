@@ -1,4 +1,4 @@
-function getStatusCodeDescription(code)
+function getStatusCodeDescription (code)
 {
     const http_codes = {
         100: 'Continue',
@@ -58,5 +58,5 @@ function getStatusCodeDescription(code)
         510: 'Not Extended'
     };
 
-    return eval("http_codes." + code);
+    return eval('http_codes.' + code);
 }

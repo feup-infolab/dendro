@@ -20,7 +20,11 @@
     "delete-coverage": "rm -rf coverage",
     "everything": "nodengine && rm -rf node_modules && npm cache verify && npm install && npm run test && npm run calculate-coverage && npm run report-coverage",
     "remote_debug": "node app.js --debug=5858",
-    "profile": "nodengine && cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test/index.Test.js -t 75000 --ui bdd --bail"
+    "profile": "nodengine && cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test/index.Test.js -t 75000 --ui bdd --bail",
+    "fix": "npm run fix-tests ; npm run fix-client; npm run fix-server",
+    "fix-server": "eslint --fix ./src/** --config ./src/.eslintrc.json",
+    "fix-tests": "eslint --fix ./test/** --config ./test/.eslintrc.json --quiet",
+    "fix-client": "eslint --fix ./public/app/** --config ./public/app/.eslintrc.json"
   },
   "dependencies": {
     "JSONStream": "^1.3.1",
@@ -149,8 +153,15 @@
     "coveralls": "^3.0.0",
     "cross-env": "^5.1.1",
     "eslint": "^4.10.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-config-strict-standard": "^3.0.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
     "jscs": "^3.0.7",
     "mocha-lcov-reporter": "^1.3.0",
-    "nyc": "^11.3.0"
+    "nyc": "^11.3.0",
+    "standard": "^10.0.3"
   }
 }

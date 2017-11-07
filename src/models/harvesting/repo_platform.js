@@ -1,36 +1,36 @@
-const path = require("path");
+const path = require('path');
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
 
-const async = require("async");
+const async = require('async');
 
-function RepositoryPlatform(object)
+function RepositoryPlatform (object)
 {
     const self = this;
-    self.addURIAndRDFType(object, "repo_platform", RepositoryPlatform);
+    self.addURIAndRDFType(object, 'repo_platform', RepositoryPlatform);
     RepositoryPlatform.baseConstructor.call(this, object);
 
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
         const slug = require('slug');
 
-        if(!isNull(object.ddr))
+        if (!isNull(object.ddr))
         {
-            if(isNull(object.ddr.humanReadableURI))
+            if (isNull(object.ddr.humanReadableURI))
             {
-                if(!isNull(self.ddr.handle) && !isNull(self.dcterms.title))
+                if (!isNull(self.ddr.handle) && !isNull(self.dcterms.title))
                 {
-                    self.ddr.humanReadableURI = Config.baseUri + "/repository_platform/" + object.ddr.handle;
+                    self.ddr.humanReadableURI = Config.baseUri + '/repository_platform/' + object.ddr.handle;
                 }
                 else
                 {
-                    const error = "Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title";
+                    const error = 'Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title';
                     console.error(error);
-                    return {error : error};
+                    return {error: error};
                 }
             }
         }
@@ -39,11 +39,10 @@ function RepositoryPlatform(object)
     return self;
 }
 
-
-/**TODO replace this with fetching from the database.
+/** TODO replace this with fetching from the database.
  * Beware that it needs initialization during initial setup of the repository
  **/
-/*RepositoryPlatform.findByUri = function(uri, callback)
+/* RepositoryPlatform.findByUri = function(uri, callback)
 {
     RepositoryPlatform.all(function(err, platformTypes){
         for(let i = 0; i < platformTypes.length; i++)
@@ -56,9 +55,9 @@ function RepositoryPlatform(object)
 
         return callback(null, null);
     });
-};*/
+}; */
 
-/*RepositoryPlatform.all = function(callback){
+/* RepositoryPlatform.all = function(callback){
     return callback(null, [
         {
             uri : Config.baseUri + "/repository_platform/ckan",
@@ -135,8 +134,8 @@ function RepositoryPlatform(object)
         }
 
     ]);
-};*/
+}; */
 
-RepositoryPlatform = Class.extend(RepositoryPlatform, Resource, "ddr:RepositoryPlatform");
+RepositoryPlatform = Class.extend(RepositoryPlatform, Resource, 'ddr:RepositoryPlatform');
 
 module.exports.RepositoryPlatform = RepositoryPlatform;
