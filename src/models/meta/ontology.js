@@ -14,11 +14,6 @@ const db = Config.getDBByID();
 const _ = require("underscore");
 const async = require("async");
 
-if(isNull(Ontology.allOntologies))
-{
-    Ontology.allOntologies = Config.enabledOntologies;
-}
-
 function Ontology (object)
 {
     const self = this;
@@ -890,6 +885,11 @@ Ontology.findByPrefix = function(prefix, callback)
             }
         });
 };
+
+if(isNull(Ontology.allOntologies))
+{
+    Ontology.allOntologies = Config.enabledOntologies;
+}
 
 Ontology = Class.extend(Ontology, Resource, "ddr:Ontology");
 

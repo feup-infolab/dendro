@@ -36,6 +36,19 @@ angular.module('dendroApp.controllers')
         $scope.isResumeSupported = false; //Upload.isResumeSupported(); //TODO Enable this
         $scope.chunkSize = '1MB';
 
+        const cleanUploadFilesListByPropertyAndValue = function (property, value, timeout) {
+            if(!timeout)
+                timeout = 3000;
+            $timeout(function ()
+            {
+                $scope[$scope.files_array_name] = _.reject($scope[$scope.files_array_name], function (d)
+                {
+                    return d[property] === value;
+                });
+
+            }, timeout);
+        };
+
         $scope.uploadFiles = function(files)
         {
             if(files && files instanceof Array && files.length > 0)
@@ -224,19 +237,6 @@ angular.module('dendroApp.controllers')
                 });
 
             return doUpload.promise;
-        };
-
-        const cleanUploadFilesListByPropertyAndValue = function (property, value, timeout) {
-            if(!timeout)
-                timeout = 3000;
-            $timeout(function ()
-            {
-                $scope[$scope.files_array_name] = _.reject($scope[$scope.files_array_name], function (d)
-                {
-                    return d[property] === value;
-                });
-
-            }, timeout);
         };
 
         $scope.still_uploading_files = function()
