@@ -57,6 +57,35 @@ const buildCkanFileIDsFromDendroFileNames = function (namesOfResourcesInDendro) 
 };
 
 /**
+ * Returns the Date value at which a Dendro package was last exported to Ckan, this function is useful to later calculate which files where added/deleted on both Ckan and Dendro sides
+ * @param packageID the packageId in Ckan
+ * @param client the Ckan client object
+ * @param callback the callback function
+ */
+const getExportedAtByDendroForCkanDataset = function (packageID, client, callback) {
+    client.action("package_show",
+        {
+            id: packageID
+        },
+        function (err, result) {
+            if (result.success) {
+                let exportedAtDate = _.filter(result.result.extras, function (extra) {
+                    return extra.key === Elements.ontologies.ddr.exportedAt.uri;
+                });
+                if (isNull(exportedAtDate) || exportedAtDate.length !== 1) {
+                    callback(true, "There is no property exportedAt for this ckan dataset: packageID : " + packageID);
+                }
+                else {
+                    callback(err, exportedAtDate[0].value);
+                }
+            }
+            else {
+                callback(err, result);
+            }
+        });
+};
+
+/**
  * Returns dendroDiffs, an array of objects with the properties 'id' and 'event'. 'id' identifies an existing/or not ckan resource and 'event' can be "deleted_in_local" or "created_in_local". If the event is "deleted_in_local" it means that a resource was deleted in Dendro and should also be deleted in ckan
  * @param folder the folder object in dendro
  * @param packageId the packageId in Ckan
@@ -163,35 +192,6 @@ const calculateDendroDiffs = function (folder, packageId, client, callback) {
             callback(err, exportedAtDate);
         }
     });
-};
-
-/**
- * Returns the Date value at which a Dendro package was last exported to Ckan, this function is useful to later calculate which files where added/deleted on both Ckan and Dendro sides
- * @param packageID the packageId in Ckan
- * @param client the Ckan client object
- * @param callback the callback function
- */
-const getExportedAtByDendroForCkanDataset = function (packageID, client, callback) {
-    client.action("package_show",
-        {
-            id: packageID
-        },
-        function (err, result) {
-            if (result.success) {
-                let exportedAtDate = _.filter(result.result.extras, function (extra) {
-                    return extra.key === Elements.ontologies.ddr.exportedAt.uri;
-                });
-                if (isNull(exportedAtDate) || exportedAtDate.length !== 1) {
-                    callback(true, "There is no property exportedAt for this ckan dataset: packageID : " + packageID);
-                }
-                else {
-                    callback(err, exportedAtDate[0].value);
-                }
-            }
-            else {
-                callback(err, result);
-            }
-        });
 };
 
 /**

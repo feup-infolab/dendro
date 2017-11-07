@@ -17,7 +17,7 @@ const ManualPost = require("../models/social/manualPost").ManualPost;
 const FileSystemPost = require('../models/social/fileSystemPost').FileSystemPost;
 const _ = require("underscore");
 
-var flash = require('connect-flash');
+const flash = require('connect-flash');
 
 const async = require("async");
 const db = Config.getDBByID();
@@ -25,7 +25,6 @@ const db_social = Config.getDBByID("social");
 const db_notifications = Config.getDBByID("notifications");
 
 const app = require('../app');
-
 
 /**
  * Gets all the posts ordered by modified date and using pagination
@@ -81,14 +80,14 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
     }
     else {
         //User has no projects
-        var results = [];
+        const results = [];
         return callback(null, results);
     }
 };
 
 exports.getUserPostsUris = function (userUri, currentPage, callback) {
-    var index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
-    var maxResults = 5;
+    const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
+    const maxResults = 5;
     Project.findByCreatorOrContributor(userUri, function (err, projects) {
         if (!err) {
             async.mapSeries(projects, function (project, cb1) {
@@ -192,7 +191,7 @@ const numPostsDatabaseAux = function (projectUrisArray, callback) {
     else
     {
         //User has no projects
-        var results = 0;
+        const results = 0;
         return callback(null, results);
     }
 };
@@ -265,6 +264,46 @@ const removeOrAddLike = function (postID, userUri, cb) {
             }
         ]),
         function (err, results) {
+
+            const removeLike = function (likeID, userUri, cb) {
+                const query =
+                    "WITH [0] \n" +
+                    //"DELETE {?likeURI ?p ?v}\n" +
+                    "DELETE {[1] ?p ?v}\n" +
+                    //"FROM [0] \n" +
+                    "WHERE { \n" +
+                    "[1] ?p ?v \n" +
+                    //"?likeURI ddr:postURI ?postID \n" +
+                    //"?likeURI rdf:type ddr:Like. \n" +
+                    //"?likeURI ddr:postURI [1]. \n" +
+                    //"?likeURI ddr:userWhoLiked [2]. \n" +
+                    "} \n";
+
+                db.connection.executeViaJDBC(query,
+                    DbConnection.pushLimitsArguments([
+                        {
+                            type: Elements.types.resourceNoEscape,
+                            value: db_social.graphUri
+                        },
+                        {
+                            type: Elements.types.resource,
+                            value: likeID
+                        }
+                    ]),
+                    function (err, results) {
+                        if (isNull(err)) {
+                            let likeExists = false;
+                            if (results.length > 0) {
+                                likeExists = true;
+                            }
+                            cb(err, likeExists);
+                        }
+                        else {
+                            cb(true, "Error fetching children of project root folder");
+                        }
+                    });
+            };
+
             if (isNull(err)) {
                 let likeExists = false;
                 if (results.length > 0) {
@@ -324,18 +363,185 @@ const getCommentsForAPost = function (postID, cb) {
 };
 
 exports.getPosts_controller = function (req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.user;
-        var postsQueryInfo = req.query.postsQueryInfo;
+        const currentUser = req.user;
+        const postsQueryInfo = req.query.postsQueryInfo;
+
+        //for processing various posts
+        const getSharesOrPostsInfo = function (postsQueryInfo, cb) {
+            const getCommentsForAPost = function (post, cb) {
+                post.getComments(function (err, commentsData) {
+                    cb(err, commentsData);
+                });
+            };
+
+            const getLikesForAPost = function (post, cb) {
+                post.getLikes(function (err, likesData) {
+                    cb(err, likesData);
+                });
+            };
+
+            const getSharesForAPost = function (post, cb) {
+                post.getShares(function (err, sharesData) {
+                    cb(err, sharesData);
+                });
+            };
+
+            const getChangesFromMetadataChangePost = function (metadataChangePost, cb) {
+                metadataChangePost.getChangesFromMetadataChangePost(function (err, changesData) {
+                    cb(err, changesData);
+                });
+            };
+
+            const getResourceInfoFromFileSystemPost = function (fileSystemPost, cb) {
+                fileSystemPost.getResourceInfo(function (err, resourceInfo) {
+                    cb(err, resourceInfo);
+                });
+            };
+
+            let postsInfo = {};
+
+            async.mapSeries(postsQueryInfo, function (postQueryInfo, callback) {
+                Post.findByUri(postQueryInfo.uri, function (err, post) {
+                    if (!err && post != null) {
+                        async.series([
+                                function (callback) {
+                                    getCommentsForAPost(post, function (err, commentsData) {
+                                        post.commentsContent = commentsData;
+                                        callback(err);
+                                    });
+                                },
+                                function (callback) {
+                                    getLikesForAPost(post, function (err, likesData) {
+                                        post.likesContent = likesData;
+                                        callback(err);
+                                    });
+                                },
+                                function (callback) {
+                                    getSharesForAPost(post, function (err, sharesData) {
+                                        post.sharesContent = sharesData;
+                                        callback(err);
+                                    });
+                                },
+                                function (callback) {
+                                    //TODO HOW TO ACCESS THE FULL TYPE
+                                    if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost")) {
+                                        MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost) {
+                                            if (!err) {
+                                                getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo) {
+                                                    //[editChanges, addChanges, deleteChanges]
+                                                    /*post.changesInfo = changesInfo;
+                                                    callback(err);*/
+                                                    if(isNull(err))
+                                                    {
+                                                        post.changesInfo = changesInfo;
+                                                        callback(null, null)
+                                                    }
+                                                    else
+                                                    {
+                                                        // typeof "foo" === "string"
+                                                        /*if(typeof changesInfo === "string" && changesInfo === "Resource at getChangesFromMetadataChangePost resource does not exist")
+                                                        {
+                                                            post = null;
+                                                            delete post;
+                                                            callback(null, null);
+                                                        }
+                                                        else
+                                                        {
+                                                            callback(err, changesInfo);
+                                                        }*/
+                                                        callback(err, changesInfo);
+                                                    }
+                                                });
+                                            }
+                                            else {
+                                                console.error("Error getting a metadataChangePost");
+                                                console.error(err);
+                                                callback(err);
+                                            }
+                                        }, null, db_social.graphUri, false, null, null);
+                                    }
+                                    else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost")) {
+                                        FileSystemPost.findByUri(post.uri, function (err, fileSystemPost) {
+                                            if (isNull(err)) {
+                                                getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo) {
+                                                    post.resourceInfo = resourceInfo;
+                                                    callback(err);
+                                                });
+                                            }
+                                            else {
+                                                console.error("Error getting a File System Post");
+                                                console.error(err);
+                                                callback(err);
+                                            }
+                                        }, null, db_social.graphUri, false, null, null);
+                                    }
+                                    else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/Share")) {
+                                        Share.findByUri(post.uri, function (err, share) {
+                                            if (!err) {
+                                                //Gets the info from the original post that was shared
+                                                getSharesOrPostsInfo([{uri: share.ddr.postURI}], function (err, originalPostInfo) {
+                                                    if(err || isNull(originalPostInfo))
+                                                    {
+                                                        console.error("Error getting the original shared post");
+                                                        console.error(err);
+                                                        callback(err);
+                                                    }
+                                                    else
+                                                    {
+                                                        postsInfo[share.ddr.postURI] = originalPostInfo[share.ddr.postURI];
+                                                        callback(err);
+                                                    }
+                                                });
+                                            }
+                                            else {
+                                                console.error("Error getting a share Post");
+                                                console.error(err);
+                                                callback(err);
+                                            }
+                                        }, null, db_social.graphUri, false, null, null);
+                                    }
+                                    else {
+                                        callback(null);
+                                    }
+                                }
+                            ],
+                            function (err, results) {
+                                if (isNull(err)) {
+                                    postsInfo[postQueryInfo.uri] = post;
+                                    callback(err, results);
+                                }
+                                else {
+                                    if(results.toString().includes("Resource at getChangesFromMetadataChangePost resource does not exist"))
+                                    {
+                                        postsInfo[postQueryInfo.uri] = post;
+                                        callback(null, null);
+                                    }
+                                    else
+                                    {
+                                        callback(err, results);
+                                    }
+                                }
+                            });
+                    }
+                    else {
+                        const errorMsg = "Invalid post uri";
+                        callback(true, errorMsg);
+                    }
+                }, null, db_social.graphUri, false, null, null);
+            }, function (err, results) {
+                cb(err, postsInfo);
+            });
+        };
 
         getSharesOrPostsInfo(postsQueryInfo, function (err, postInfo) {
             if (isNull(err)) {
                 if (isNull(postInfo) || postInfo.length === 0) {
-                    var errorMsg = "Post uris not found";
+                    const errorMsg = "Post uris not found";
                     res.status(404).json({
                         result: "Error",
                         message: errorMsg
@@ -354,7 +560,7 @@ exports.getPosts_controller = function (req, res) {
         });
     }
     else {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result: "Error",
@@ -404,12 +610,12 @@ const getSharesForAPost = function (postID, cb) {
 
 
 exports.numPostsDatabase = function (req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUserUri = req.user.uri;
+        const currentUserUri = req.user.uri;
         Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
             if (isNull(err)) {
                 async.mapSeries(projects, function (project, cb1) {
@@ -447,54 +653,13 @@ exports.numPostsDatabase = function (req, res) {
         });
     }
     else {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result: "Error",
             message: msg
         });
     }
-};
-
-const removeLike = function (likeID, userUri, cb) {
-    const self = this;
-
-    const query =
-        "WITH [0] \n" +
-        //"DELETE {?likeURI ?p ?v}\n" +
-        "DELETE {[1] ?p ?v}\n" +
-        //"FROM [0] \n" +
-        "WHERE { \n" +
-        "[1] ?p ?v \n" +
-        //"?likeURI ddr:postURI ?postID \n" +
-        //"?likeURI rdf:type ddr:Like. \n" +
-        //"?likeURI ddr:postURI [1]. \n" +
-        //"?likeURI ddr:userWhoLiked [2]. \n" +
-        "} \n";
-
-    db.connection.executeViaJDBC(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type: Elements.types.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type: Elements.types.resource,
-                value: likeID
-            }
-        ]),
-        function (err, results) {
-            if (isNull(err)) {
-                let likeExists = false;
-                if (results.length > 0) {
-                    likeExists = true;
-                }
-                cb(err, likeExists);
-            }
-            else {
-                cb(true, "Error fetching children of project root folder");
-            }
-        });
 };
 
 exports.all = function (req, res) {
@@ -698,7 +863,7 @@ exports.share = function (req, res) {
                         });
                     }
                     else {
-                        /*var newShare = new Share({
+                        /*const newShare = new Share({
                          ddr: {
                          userWhoShared : currentUser.uri,
                          postURI: post.uri,
@@ -787,7 +952,7 @@ exports.share = function (req, res) {
         }
     }
     else {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result: "Error",
@@ -931,14 +1096,14 @@ exports.comment = function (req, res) {
 
     /*Post.findByUri(req.body.postID, function(err, post)
      {
-     var newComment = new Comment({
+     const newComment = new Comment({
      ddr: {
      userWhoCommented : currentUser.uri,
      postURI: post.uri,
      commentMsg: commentMsg
      }
      });
-     var newNotification = new Notification({
+     const newNotification = new Notification({
      ddr: {
      userWhoActed : currentUser.uri,
      resourceTargetUri: post.uri,
@@ -1079,9 +1244,9 @@ exports.like = function (req, res) {
     }
 };
 
-/*var updateResource = function(currentResource, newResource, graphUri, cb)
+/*const updateResource = function(currentResource, newResource, graphUri, cb)
 {
-    var descriptors = newResource.getDescriptors();
+    const descriptors = newResource.getDescriptors();
 
     db.connection.replaceDescriptorsOfSubject(
         currentResource.uri,
@@ -1201,31 +1366,31 @@ exports.post = function (req, res) {
     //const postUri = "http://" + Config.host + req.url;
     const postUri = req.url;
 
-    var getCommentsForAPost = function (post, cb) {
+    const getCommentsForAPost = function (post, cb) {
         post.getComments(function (err, commentsData) {
             cb(err, commentsData);
         });
     };
 
-    var getLikesForAPost = function (post, cb) {
+    const getLikesForAPost = function (post, cb) {
         post.getLikes(function (err, likesData) {
             cb(err, likesData);
         });
     };
 
-    var getSharesForAPost = function (post, cb) {
+    const getSharesForAPost = function (post, cb) {
         post.getShares(function (err, sharesData) {
             cb(err, sharesData);
         });
     };
 
-    var getChangesFromMetadataChangePost = function (metadataChangePost, cb) {
+    const getChangesFromMetadataChangePost = function (metadataChangePost, cb) {
         metadataChangePost.getChangesFromMetadataChangePost(function (err, changesData) {
             cb(err, changesData);
         });
     };
 
-    var getResourceInfoFromFileSystemPost = function (fileSystemPost, cb) {
+    const getResourceInfoFromFileSystemPost = function (fileSystemPost, cb) {
         fileSystemPost.getResourceInfo(function (err, resourceInfo) {
             cb(err, resourceInfo);
         });
@@ -1382,7 +1547,7 @@ exports.getShare = function (req, res) {
         else {
             if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
-                var errorMsg = "Invalid share uri";
+                const errorMsg = "Invalid share uri";
                 res.status(404).json({
                     result: "Error",
                     message: errorMsg
@@ -1399,7 +1564,7 @@ exports.getShare = function (req, res) {
     }, null, db_social.graphUri, null);
 };
 
-var getLikesForAPost = function (postUri, callback) {
+const getLikesForAPost = function (postUri, callback) {
     let resultInfo;
     Post.findByUri(postUri, function (err, post) {
         if (isNull(err) && !isNull(post)) {
@@ -1433,171 +1598,4 @@ var getLikesForAPost = function (postUri, callback) {
             console.error(errorMsg);
         }
     }, null, db_social.graphUri, null);
-};
-
-//for processing various posts
-var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
-    var getCommentsForAPost = function (post, cb) {
-        post.getComments(function (err, commentsData) {
-            cb(err, commentsData);
-        });
-    };
-
-    var getLikesForAPost = function (post, cb) {
-        post.getLikes(function (err, likesData) {
-            cb(err, likesData);
-        });
-    };
-
-    var getSharesForAPost = function (post, cb) {
-        post.getShares(function (err, sharesData) {
-            cb(err, sharesData);
-        });
-    };
-
-    var getChangesFromMetadataChangePost = function (metadataChangePost, cb) {
-        metadataChangePost.getChangesFromMetadataChangePost(function (err, changesData) {
-            cb(err, changesData);
-        });
-    };
-
-    var getResourceInfoFromFileSystemPost = function (fileSystemPost, cb) {
-        fileSystemPost.getResourceInfo(function (err, resourceInfo) {
-            cb(err, resourceInfo);
-        });
-    };
-
-    let postsInfo = {};
-
-    async.mapSeries(postsQueryInfo, function (postQueryInfo, callback) {
-        Post.findByUri(postQueryInfo.uri, function (err, post) {
-            if (!err && post != null) {
-                async.series([
-                        function (callback) {
-                            getCommentsForAPost(post, function (err, commentsData) {
-                                post.commentsContent = commentsData;
-                                callback(err);
-                            });
-                        },
-                        function (callback) {
-                            getLikesForAPost(post, function (err, likesData) {
-                                post.likesContent = likesData;
-                                callback(err);
-                            });
-                        },
-                        function (callback) {
-                            getSharesForAPost(post, function (err, sharesData) {
-                                post.sharesContent = sharesData;
-                                callback(err);
-                            });
-                        },
-                        function (callback) {
-                            //TODO HOW TO ACCESS THE FULL TYPE
-                            if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost")) {
-                                MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost) {
-                                    if (!err) {
-                                        getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo) {
-                                            //[editChanges, addChanges, deleteChanges]
-                                            /*post.changesInfo = changesInfo;
-                                            callback(err);*/
-                                            if(isNull(err))
-                                            {
-                                                post.changesInfo = changesInfo;
-                                                callback(null, null)
-                                            }
-                                            else
-                                            {
-                                                // typeof "foo" === "string"
-                                                /*if(typeof changesInfo === "string" && changesInfo === "Resource at getChangesFromMetadataChangePost resource does not exist")
-                                                {
-                                                    post = null;
-                                                    delete post;
-                                                    callback(null, null);
-                                                }
-                                                else
-                                                {
-                                                    callback(err, changesInfo);
-                                                }*/
-                                                callback(err, changesInfo);
-                                            }
-                                        });
-                                    }
-                                    else {
-                                        console.error("Error getting a metadataChangePost");
-                                        console.error(err);
-                                        callback(err);
-                                    }
-                                }, null, db_social.graphUri, false, null, null);
-                            }
-                            else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost")) {
-                                FileSystemPost.findByUri(post.uri, function (err, fileSystemPost) {
-                                    if (isNull(err)) {
-                                        getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo) {
-                                            post.resourceInfo = resourceInfo;
-                                            callback(err);
-                                        });
-                                    }
-                                    else {
-                                        console.error("Error getting a File System Post");
-                                        console.error(err);
-                                        callback(err);
-                                    }
-                                }, null, db_social.graphUri, false, null, null);
-                            }
-                            else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/Share")) {
-                                Share.findByUri(post.uri, function (err, share) {
-                                    if (!err) {
-                                        //Gets the info from the original post that was shared
-                                        getSharesOrPostsInfo([{uri: share.ddr.postURI}], function (err, originalPostInfo) {
-                                            if(err || isNull(originalPostInfo))
-                                            {
-                                                console.error("Error getting the original shared post");
-                                                console.error(err);
-                                                callback(err);
-                                            }
-                                            else
-                                            {
-                                                postsInfo[share.ddr.postURI] = originalPostInfo[share.ddr.postURI];
-                                                callback(err);
-                                            }
-                                        });
-                                    }
-                                    else {
-                                        console.error("Error getting a share Post");
-                                        console.error(err);
-                                        callback(err);
-                                    }
-                                }, null, db_social.graphUri, false, null, null);
-                            }
-                            else {
-                                callback(null);
-                            }
-                        }
-                    ],
-                    function (err, results) {
-                        if (isNull(err)) {
-                            postsInfo[postQueryInfo.uri] = post;
-                            callback(err, results);
-                        }
-                        else {
-                            if(results.toString().includes("Resource at getChangesFromMetadataChangePost resource does not exist"))
-                            {
-                                postsInfo[postQueryInfo.uri] = post;
-                                callback(null, null);
-                            }
-                            else
-                            {
-                                callback(err, results);
-                            }
-                        }
-                    });
-            }
-            else {
-                var errorMsg = "Invalid post uri";
-                callback(true, errorMsg);
-            }
-        }, null, db_social.graphUri, false, null, null);
-    }, function (err, results) {
-        cb(err, postsInfo);
-    });
 };

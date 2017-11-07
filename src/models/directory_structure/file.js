@@ -670,6 +670,8 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
 
     const xlsxFileParser = function (filePath, callback){
 
+        const XLSX = require('xlsx');
+
         function safe_decode_range(range) {
             let o = {s:{c:0,r:0},e:{c:0,r:0}};
             let idx = 0, i = 0, cc = 0;
@@ -746,7 +748,6 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
             return hdr;
         }
 
-        const XLSX = require('xlsx');
         let workbook;
         try{
             workbook = XLSX.readFile(filePath);

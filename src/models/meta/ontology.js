@@ -1,4 +1,3 @@
-const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Controls = require(Pathfinder.absPathInSrcFolder("models/meta/controls.js")).Controls;
@@ -104,14 +103,14 @@ Ontology.findByUri = function(uri, callback)
 
 Ontology.all = function(callback)
 {
-    const query =
+    const allOntologiesQuery =
         "WITH [0] \n" +
         "SELECT ?uri \n" +
         "WHERE { \n" +
         "   ?uri rdf:type ddr:Ontology . \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.executeViaJDBC(allOntologiesQuery,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -795,7 +794,7 @@ Ontology.prototype.save = function(callback)
 
 Ontology.autocomplete_research_domains = function(query, callback)
 {
-    const query =
+    const autocompleteResearchDomainsQuery =
         "WITH [0] \n" +
         "SELECT * \n" +
         "WHERE \n" +
@@ -805,7 +804,7 @@ Ontology.autocomplete_research_domains = function(query, callback)
         "   FILTER regex(?domain, [1] , \"i\"). \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.executeViaJDBC(autocompleteResearchDomainsQuery,
         [
             {
                 type : Elements.types.resourceNoEscape,
@@ -813,7 +812,7 @@ Ontology.autocomplete_research_domains = function(query, callback)
             },
             {
                 type : Elements.types.string,
-                value : query
+                value : autocompleteResearchDomainsQuery
             }
         ],
         function(err, results)
@@ -848,7 +847,7 @@ Ontology.findByPrefix = function(prefix, callback)
         }
     }
 
-    const query =
+    const findByPrefixQuery =
         "WITH [0] \n" +
         "SELECT * \n" +
         "WHERE \n" +
@@ -857,7 +856,7 @@ Ontology.findByPrefix = function(prefix, callback)
         "   ?uri ddr:hasPrefix [1] \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.executeViaJDBC(findByPrefixQuery,
         [
             {
                 type: Elements.types.resourceNoEscape,
