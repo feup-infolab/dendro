@@ -1,21 +1,20 @@
-const path = require("path");
+const path = require('path');
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
 
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-
+const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
+const DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
 const db = Config.getDBByID();
 
 /*
  * GET users listing.
  */
 
-exports.show = function(req, res){
-
+exports.show = function (req, res)
+{
     let viewVars = {
         title: 'Researchers in the knowledge base'
     };
@@ -24,9 +23,9 @@ exports.show = function(req, res){
         viewVars
     );
 
-    User.all(function(err, users)
+    User.all(function (err, users)
     {
-        if(isNull(err))
+        if (isNull(err))
         {
             viewVars.users = users;
 
@@ -44,30 +43,31 @@ exports.show = function(req, res){
     });
 };
 
-exports.query = function(req, res){
-    const username = req.params["username"];
+exports.query = function (req, res)
+{
+    const username = req.params.username;
 
-    User.findByUsername(username, function(err, user)
+    User.findByUsername(username, function (err, user)
     {
-        if(isNull(err))
+        if (isNull(err))
         {
             res.render('users/show',
                 {
-                    title : "Viewing user " + username,
-                    user : user
+                    title: 'Viewing user ' + username,
+                    user: user
                 }
-            )
+            );
         }
         else
         {
             res.render('users/all',
                 {
-                    title : "Researchers",
-                    error_messages :
-                        [
-                                "Unable to retrieve information for user " + username ,
-                            err
-                        ]
+                    title: 'Researchers',
+                    error_messages:
+          [
+              'Unable to retrieve information for user ' + username,
+              err
+          ]
                 }
             );
         }

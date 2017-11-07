@@ -1,6 +1,0 @@
-{
-  "preset": "node_style_guide",
-  "maximumLineLength": null,
-  "requireTrailingComma": null,
-  "requireNewlineBeforeBlockStatements": true
-}

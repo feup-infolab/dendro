@@ -1,42 +1,44 @@
-const chai = require("chai");
-const async = require("async");
-const chaiHttp = require("chai-http");
+const chai = require('chai');
+const async = require('async');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-const _ = require("underscore");
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder('utils/project/projectUtils.js'));
+const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
+const folderUtils = require(Pathfinder.absPathInTestsFolder('utils/folder/folderUtils.js'));
+const httpUtils = require(Pathfinder.absPathInTestsFolder('utils/http/httpUtils.js'));
+const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1.js'));
+const demouser2 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser2.js'));
+const demouser3 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser3.js'));
 
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const privateProject = require(Pathfinder.absPathInTestsFolder('mockdata/projects/private_project.js'));
+const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/projects/createProjects.Unit.js'));
+const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/files/createFiles.Unit.js'));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('utils/db/db.Test.js'));
 
 let agent;
 let app;
 
-describe("Private Project delete", function (done) {
-    this.timeout(2*Config.testsTimeOut);
-    before(function (done) {
-        createFilesUnit.setup(function (err, results) {
+describe('Private Project delete', function (done)
+{
+    this.timeout(2 * Config.testsTimeOut);
+    before(function (done)
+    {
+        createFilesUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             app = global.tests.app;
             agent = chai.request.agent(app);
             done();
         });
     });
-
 
     // describe("[Invalid Cases] /project/:handle?delete " + privateProject.handle, function () {
     //
@@ -83,26 +85,32 @@ describe("Private Project delete", function (done) {
     //     });
     // });
 
-    describe("[Valid Cases] /project/:handle?delete " + privateProject.handle, function () {
-        it("Should delete the project if the user is logged in as demouser1 (creator of the project)", function (done) {
+    describe('[Valid Cases] /project/:handle?delete ' + privateProject.handle, function ()
+    {
+        it('Should delete the project if the user is logged in as demouser1 (creator of the project)', function (done)
+        {
             this.timeout(Config.testsTimeout);
 
             const fileCountsBefore = {};
             const tripleCountsBefore = {};
             let deletedProjectUris = {};
 
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
                 should.equal(err, null);
 
-                async.map(createProjectsUnit.projectsData, function(aProject, callback){
-                    projectUtils.getProjectUriFromHandle(agent, aProject.handle, function(err, projectUri){
+                async.mapSeries(createProjectsUnit.projectsData, function (aProject, callback)
+                {
+                    projectUtils.getProjectUriFromHandle(agent, aProject.handle, function (err, projectUri)
+                    {
                         deletedProjectUris[aProject.handle] = projectUri;
                         should.equal(null, err);
 
-                        projectUtils.countProjectTriples(projectUri, function(err, tripleCount){
+                        projectUtils.countProjectTriples(projectUri, function (err, tripleCount)
+                        {
                             should.equal(err, null);
                             tripleCountsBefore[projectUri] = tripleCount;
-                            projectUtils.countProjectFilesInGridFS(projectUri, function(err, fileCount)
+                            projectUtils.countProjectFilesInGridFS(projectUri, function (err, fileCount)
                             {
                                 should.equal(err, null);
                                 fileCountsBefore[projectUri] = fileCount;
@@ -110,17 +118,21 @@ describe("Private Project delete", function (done) {
                             });
                         });
                     });
-                }, function(err, results){
+                }, function (err, results)
+                {
                     should.equal(err, null);
-                    projectUtils.deleteProject(false, agent, privateProject.handle, function (err, res) {
+                    projectUtils.deleteProject(false, agent, privateProject.handle, function (err, res)
+                    {
                         res.statusCode.should.equal(200);
 
-                        async.map(createProjectsUnit.projectsData, function(aProject, callback){
+                        async.mapSeries(createProjectsUnit.projectsData, function (aProject, callback)
+                        {
                             let projectUri = deletedProjectUris[aProject.handle];
-                            projectUtils.countProjectTriples(projectUri, function(err, tripleCount, results){
+                            projectUtils.countProjectTriples(projectUri, function (err, tripleCount, results)
+                            {
                                 should.equal(err, null);
 
-                                if(aProject.handle === privateProject.handle)
+                                if (aProject.handle === privateProject.handle)
                                 {
                                     tripleCount.should.equal(0);
                                 }
@@ -129,10 +141,10 @@ describe("Private Project delete", function (done) {
                                     tripleCount.should.equal(tripleCountsBefore[deletedProjectUris[aProject.handle]]);
                                 }
 
-                                projectUtils.countProjectFilesInGridFS(projectUri, function(err, fileCount)
+                                projectUtils.countProjectFilesInGridFS(projectUri, function (err, fileCount)
                                 {
                                     should.equal(err, null);
-                                    if(aProject.handle === privateProject.handle)
+                                    if (aProject.handle === privateProject.handle)
                                     {
                                         fileCount.should.equal(0);
                                     }
@@ -144,7 +156,8 @@ describe("Private Project delete", function (done) {
                                     callback(err, fileCount);
                                 });
                             });
-                        }, function(err, results){
+                        }, function (err, results)
+                        {
                             done(err);
                         });
                     });
@@ -153,10 +166,12 @@ describe("Private Project delete", function (done) {
         });
     });
 
-     after(function (done) {
-        //destroy graphs
+    after(function (done)
+    {
+        // destroy graphs
 
-        appUtils.clearAppState(function (err, data) {
+        appUtils.clearAppState(function (err, data)
+        {
             should.equal(err, null);
             done(err);
         });

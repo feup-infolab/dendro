@@ -1,26 +1,26 @@
-const path = require("path");
+const path = require('path');
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
-const uuid = require("uuid");
+const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
+const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
+const Post = require(Pathfinder.absPathInSrcFolder('/models/social/post.js')).Post;
+const uuid = require('uuid');
 
-const db_social = Config.getDBByID("social");
+const db_social = Config.getDBByID('social');
 
-const async = require("async");
+const async = require('async');
 
 function Share (object)
 {
-    /*const self = this;
+    /* const self = this;
     self.addURIAndRDFType(object, "share", Share);
     Share.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-    
+
     let objectType;
     if(object.ddr.postURI)
     {
@@ -31,7 +31,6 @@ function Share (object)
         console.log('is fileVersionURI');
         objectType = "ddr:FileVersion";
     }
-
 
     const newId = uuid.v4();
 
@@ -59,29 +58,30 @@ function Share (object)
         return self;
     }, db_social.graphUri);
 
-    //return self;*/
+    //return self; */
 
     const self = this;
-    self.addURIAndRDFType(object, "share", Share);
+    self.addURIAndRDFType(object, 'share', Share);
     Share.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
     const newId = uuid.v4();
 
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + "/shares/" + newId;
+        self.ddr.humanReadableURI = Config.baseUri + '/shares/' + newId;
     }
 
     return self;
 }
 
-Share.buildFromInfo = function (info, callback) {
+Share.buildFromInfo = function (info, callback)
+{
     let newShare = new this(info);
     callback(null, newShare);
 };
 
-Share = Class.extend(Share, Post, "ddr:Share");
+Share = Class.extend(Share, Post, 'ddr:Share');
 
 module.exports.Share = Share;

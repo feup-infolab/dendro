@@ -1,16 +1,16 @@
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
 
 const appSecret = Config.crypto.secret,
     express = require('express'),
     slug = require('slug'),
     favicon = require('serve-favicon'),
     YAML = require('yamljs'),
-    swaggerDocument = YAML.load(Pathfinder.absPathInApp("swagger.yaml")),
+    swaggerDocument = YAML.load(Pathfinder.absPathInApp('swagger.yaml')),
     swaggerUi = require('swagger-ui-express'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
-    flash = require("connect-flash"),
+    flash = require('connect-flash'),
     errorHandler = require('express-session');
 
 const loadMiscMiddlewares = function (app, callback)
@@ -25,21 +25,25 @@ const loadMiscMiddlewares = function (app, callback)
     app.set('view engine', 'ejs');
     app.set('etag', 'strong');
 
-    app.use(favicon(Pathfinder.absPathInPublicFolder("images/logo_micro.png")));
+    app.use(favicon(Pathfinder.absPathInPublicFolder('images/logo_micro.png')));
 
-    //app.use(express.logger('dev'));
+    // app.use(express.logger('dev'));
 
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(bodyParser.json());
 
-    app.use(function (error, req, res, next) {
-        if (error instanceof SyntaxError) {
+    app.use(function (error, req, res, next)
+    {
+        if (error instanceof SyntaxError)
+        {
             res.status(400).json({
-                result : "error",
-                message : "Error parsing request!",
-                error : error
+                result: 'error',
+                message: 'Error parsing request!',
+                error: error
             });
-        } else {
+        }
+        else
+        {
             next();
         }
     });
@@ -55,14 +59,14 @@ const loadMiscMiddlewares = function (app, callback)
     // all environments
 
     const env = process.env.NODE_ENV || 'development';
-    if ('development' === env)
+    if (env === 'development')
     {
         app.set('title', 'Dendro');
         app.set('theme', Config.theme);
     }
 
     //		development only
-    if ('development' === app.get('env'))
+    if (app.get('env') === 'development')
     {
         app.use(errorHandler({
             secret: appSecret,
@@ -72,7 +76,7 @@ const loadMiscMiddlewares = function (app, callback)
     }
 
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, true, {
-        docExpansion: "list"
+        docExpansion: 'list'
     }));
 
     callback(null);

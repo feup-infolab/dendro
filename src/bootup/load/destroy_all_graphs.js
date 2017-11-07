@@ -1,40 +1,39 @@
-const async = require("async");
-const fs = require("fs");
+const async = require('async');
+const fs = require('fs');
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
 
-const destroyAllGraphs = function(app, callback)
+const destroyAllGraphs = function (app, callback)
 {
-    if(Config.startup.load_databases && Config.startup.destroy_all_graphs)
+    if (Config.startup.load_databases && Config.startup.destroy_all_graphs)
     {
         const graphs = Object.keys(Config.db);
         const conn = Config.db.default.connection;
 
-        async.map(graphs, function(graph, cb){
-
+        async.mapSeries(graphs, function (graph, cb)
+        {
             const graphUri = Config.db[graph].graphUri;
-            conn.deleteGraph(graphUri, function(err){
-                if(err)
+            conn.deleteGraph(graphUri, function (err)
+            {
+                if (err)
                 {
                     return callback(err);
                 }
-                else
+                conn.graphExists(graphUri, function (err, exists)
                 {
-                    conn.graphExists(graphUri, function(err, exists){
-                        if(exists)
-                        {
-                            console.error("Tried to delete graph " + graphUri + " but it still exists!");
-                            process.exit(1);
-                        }
-                        else
-                        {
-                            cb(null, exists);
-                        }
-                    });
-                }
+                    if (exists)
+                    {
+                        console.error('Tried to delete graph ' + graphUri + ' but it still exists!');
+                        process.exit(1);
+                    }
+                    else
+                    {
+                        cb(null, exists);
+                    }
+                });
             });
-        }, function(err, res)
+        }, function (err, res)
         {
             return callback(err);
         });
@@ -43,6 +42,6 @@ const destroyAllGraphs = function(app, callback)
     {
         callback(null);
     }
-}
+};
 
 module.exports.destroyAllGraphs = destroyAllGraphs;
