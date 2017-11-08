@@ -737,39 +737,46 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                 value: folderName
             }), function (err, childFolder)
             {
-                if (isNull(childFolder))
+                if (isNull(err))
                 {
-                    const childFolder = new Folder({
-                        nie: {
-                            isLogicalPartOf: self.uri,
-                            title: folderName
-                        }
-                    });
-
-                    childFolder.save(function (err, newFolder)
+                    if (isNull(childFolder))
                     {
-                        cb(err, newFolder);
-                    });
+                        const childFolder = new Folder({
+                            nie: {
+                                isLogicalPartOf: self.uri,
+                                title: folderName
+                            }
+                        });
+
+                        childFolder.save(function (err, newFolder)
+                        {
+                            cb(err, newFolder);
+                        });
+                    }
+                    else
+                    {
+                        const childFolderObject = new Folder(childFolder);
+
+                        if (childFolderObject.nie.isLogicalPartOf instanceof Array)
+                        {
+                            childFolderObject.nie.isLogicalPartOf.push(self.uri);
+                        }
+                        else if (typeof childFolderObject.nie.isLogicalPartOf === "string")
+                        {
+                            childFolderObject.nie.isLogicalPartOf = [childFolderObject.nie.isLogicalPartOf, self.uri];
+                        }
+
+                        childFolderObject.nie.title = folderName;
+
+                        childFolderObject.save(function (err, result)
+                        {
+                            cb(err, childFolderObject);
+                        });
+                    }
                 }
                 else
                 {
-                    const childFolder = new Folder(childFolder);
-
-                    if (childFolder.nie.isLogicalPartOf instanceof Array)
-                    {
-                        childFolder.nie.isLogicalPartOf.push(self.uri);
-                    }
-                    else if (typeof childFolder.nie.isLogicalPartOf === "string")
-                    {
-                        childFolder.nie.isLogicalPartOf = [childFolder.nie.isLogicalPartOf, self.uri];
-                    }
-
-                    childFolder.nie.title = folderName;
-
-                    childFolder.save(function (err, result)
-                    {
-                        cb(err, childFolder);
-                    });
+                    cb(err, childFolder);
                 }
             });
         };
@@ -803,36 +810,43 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                 value: fileName
             }), function (err, childFile)
             {
-                if (isNull(childFile))
+                if(isNull(err))
                 {
-                    const childFile = new File({
-                        nie: {
-                            isLogicalPartOf: self.uri,
-                            title: fileName
-                        }
-                    });
-
-                    childFile.save(cb);
-                }
-                else
-                {
-                    const childFile = new File(childFile);
-
-                    if (childFile.nie.isLogicalPartOf instanceof Array)
+                    if (isNull(childFile))
                     {
-                        childFile.nie.isLogicalPartOf.push(self.uri);
+                        const childFile = new File({
+                            nie: {
+                                isLogicalPartOf: self.uri,
+                                title: fileName
+                            }
+                        });
+
+                        childFile.save(cb);
                     }
                     else
                     {
-                        childFile.nie.isLogicalPartOf = self.uri;
+                        const childFileObject = new File(childFile);
+
+                        if (childFileObject.nie.isLogicalPartOf instanceof Array)
+                        {
+                            childFileObject.nie.isLogicalPartOf.push(self.uri);
+                        }
+                        else
+                        {
+                            childFileObject.nie.isLogicalPartOf = self.uri;
+                        }
+
+                        childFileObject.nie.title = fileName;
+
+                        childFileObject.save(function (err, result)
+                        {
+                            cb(null, childFileObject);
+                        });
                     }
-
-                    childFile.nie.title = fileName;
-
-                    childFile.save(function (err, result)
-                    {
-                        cb(null, childFile);
-                    });
+                }
+                else
+                {
+                    cb(null, childFile);
                 }
             });
         };

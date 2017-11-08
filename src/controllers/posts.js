@@ -1767,6 +1767,50 @@ exports.getShare = function (req, res)
                     },
                     function (callback)
                     {
+                        const getLikesForAPost = function (postUri, callback)
+                        {
+                            let resultInfo;
+                            Post.findByUri(postUri, function (err, post)
+                            {
+                                if (isNull(err) && !isNull(post))
+                                {
+                                    getNumLikesForAPost(post.uri, function (err, likesArray)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            if (likesArray.length)
+                                            {
+                                                resultInfo = {
+                                                    postURI: post.uri,
+                                                    numLikes: likesArray.length,
+                                                    usersWhoLiked: _.pluck(likesArray, "userURI")
+                                                };
+                                            }
+                                            else
+                                            {
+                                                resultInfo = {
+                                                    postURI: post.uri, numLikes: 0, usersWhoLiked: []
+                                                };
+                                            }
+                                            callback(null, resultInfo);
+                                        }
+                                        else
+                                        {
+                                            console.error("Error getting likesInfo from a post");
+                                            console.error(err);
+                                            callback(true, "Error getting likesInfo from a post");
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    const errorMsg = "Invalid post uri";
+                                    console.error(err);
+                                    console.error(errorMsg);
+                                }
+                            }, null, db_social.graphUri, null);
+                        };
+
                         getLikesForAPost(share.uri, function (err, likesData)
                         {
                             callback(err, likesData);
@@ -1821,46 +1865,3 @@ exports.getShare = function (req, res)
     }, null, db_social.graphUri, null);
 };
 
-const getLikesForAPost = function (postUri, callback)
-{
-    let resultInfo;
-    Post.findByUri(postUri, function (err, post)
-    {
-        if (isNull(err) && !isNull(post))
-        {
-            getNumLikesForAPost(post.uri, function (err, likesArray)
-            {
-                if (isNull(err))
-                {
-                    if (likesArray.length)
-                    {
-                        resultInfo = {
-                            postURI: post.uri,
-                            numLikes: likesArray.length,
-                            usersWhoLiked: _.pluck(likesArray, "userURI")
-                        };
-                    }
-                    else
-                    {
-                        resultInfo = {
-                            postURI: post.uri, numLikes: 0, usersWhoLiked: []
-                        };
-                    }
-                    callback(null, resultInfo);
-                }
-                else
-                {
-                    console.error("Error getting likesInfo from a post");
-                    console.error(err);
-                    callback(true, "Error getting likesInfo from a post");
-                }
-            });
-        }
-        else
-        {
-            const errorMsg = "Invalid post uri";
-            console.error(err);
-            console.error(errorMsg);
-        }
-    }, null, db_social.graphUri, null);
-};
