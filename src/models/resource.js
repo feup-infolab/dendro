@@ -800,18 +800,27 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
         }
 
         const query =
-            "WITH GRAPH [0] \n" +
             "DELETE \n" +
-            "{ \n" +
-            deleteString + " \n" +
+            "{" +
+            "   GRAPH [0] \n" +
+            "   {" +
+            "   \n" +
+                    deleteString + " \n" +
+            "   } \n" +
             "} \n" +
             "WHERE \n" +
             "{ \n" +
-            deleteString + " \n" +
+            "   GRAPH [0] \n" +
+            "   { \n" +
+                    deleteString + " \n" +
+            "   } \n" +
             "} \n" +
             "INSERT DATA\n" +
             "{ \n" +
-            insertString + " \n" +
+            "   GRAPH [0] \n" +
+            "   { \n" +
+                    insertString + " \n" +
+            "   } \n" +
             "} \n";
 
         // Invalidate cache record for the updated resources
@@ -821,7 +830,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
             {
                 return callback(err, results);
                 // console.log(results);
-            });
+            }, null, null, null, true);
         });
     }
     else

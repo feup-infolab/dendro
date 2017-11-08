@@ -275,7 +275,7 @@ InformationElement.prototype.rename = function (newTitle, callback)
             {
                 return callback(err, result);
             });
-        }
+        }, null, null, null, true
     );
 };
 

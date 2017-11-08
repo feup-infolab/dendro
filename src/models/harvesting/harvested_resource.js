@@ -153,7 +153,7 @@ HarvestedResource.prototype.save = function (indexConnection, callback)
             {
                 return callback(1, "Error inserting metadata for resource : " + self.uri + " : Virtuoso error : " + result);
             }
-        }
+        }, null, null, null, true
     );
 };
 

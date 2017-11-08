@@ -497,8 +497,26 @@ DbConnection.prototype.create = function (callback)
                     {
                         if (isNull(err))
                         {
-                            self.pendingRequests[queryObject.query_id] = queryObject.connection = connection;
-                            callback(null, connection);
+                            async.series([
+                                function (callback)
+                                {
+                                    connection.conn.setAutoCommit(true, callback);
+                                }
+                            ], function (err, results)
+                            {
+                                if (isNull(err))
+                                {
+                                    self.pendingRequests[queryObject.query_id] = queryObject.connection = connection;
+                                    callback(null, connection);
+                                }
+                                else
+                                {
+                                    console.error("Error while setting connection settings for running queries");
+                                    console.error(JSON.stringify(err));
+                                    console.error(JSON.stringify(results));
+                                    callback(null, connection);
+                                }
+                            });
                         }
                         else
                         {
@@ -593,6 +611,7 @@ DbConnection.prototype.create = function (callback)
 
                 reserveConnection(function (err, connection)
                 {
+
                     if (isNull(err))
                     {
                         executeQueryOrUpdate(function (err, results)
@@ -1270,10 +1289,6 @@ DbConnection.prototype.insertDescriptorsForSubject = function (subject, newDescr
             {
                 objects = [objects];
             }
-            else
-            {
-                objects = objects;
-            }
 
             for (let j = 0; j < objects.length; j++)
             {
@@ -1314,7 +1329,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function (subject, newDescr
             self.executeViaJDBC(query, queryArguments, function (err, results)
             {
                 return callback(err, results);
-            });
+            }, null, null, null, true);
         };
 
         if (Config.cache.active)
