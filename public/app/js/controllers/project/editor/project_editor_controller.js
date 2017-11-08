@@ -492,7 +492,7 @@ angular.module("dendroApp.controllers")
         $scope.reset_metadata = function (metadata)
         {
             $scope.shared.metadata = metadataService.deserialize_metadata(metadata.descriptors);
-            $scope.shared.metadata = $filter('filter')($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
+            $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
             $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata.descriptors);
             $scope.shared.is_project_root = metadata.is_project_root;
             $scope.shared.is_a_file = metadata.is_a_file;
