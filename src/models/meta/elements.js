@@ -692,6 +692,21 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    hasStorageConfig: {
+        type: Elements.types.resource,
+        locked : true,
+        api_readable :true,
+    },
+    host: {
+        type: Elements.types.string,
+        locked : true,
+        api_readable: true,
+    },
+    port: {
+        type: Elements.types.port,
+        locked: true,
+        api_readable: true,
+    },
     hasStorageLimit :
     {
         type : Elements.types.int,
