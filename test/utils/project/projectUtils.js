@@ -793,19 +793,19 @@ const getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectH
         {
             _.map(obj.children, function (child)
             {
-                child.metadata;
+                sortMetadataValuesAlphabetically(child);
             });
-
-            obj.children = obj.children.sort(function (a, b)
-            {
-                return a.resource < b.resource;
-            });
-
-            for (let i = 0; i < obj.children.length; i++)
-            {
-                sortChildrenByTitle(obj.children[i]);
-            }
         }
+
+        _.map(obj.metadata, function (descriptor)
+        {
+            if (descriptor.value instanceof Array)
+            {
+                descriptor.value.sort();
+            }
+
+            return;
+        });
 
         return obj;
     }

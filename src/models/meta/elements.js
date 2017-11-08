@@ -76,7 +76,14 @@ Elements.ontologies.schema = {
       control: Controls.input_box,
       locked: true,
       api_accessible: true
-  }
+  },
+    email:
+    {
+        type: Elements.types.string,
+        control: Controls.input_box,
+        locked: true,
+        api_accessible: true
+    }
 };
 
 /**

@@ -500,7 +500,8 @@ DbConnection.prototype.create = function (callback)
                             async.series([
                                 function (callback)
                                 {
-                                    connection.conn.setAutoCommit(true, callback);
+                                    callback(null);
+                                    //connection.conn.setAutoCommit(true, callback);
                                 }
                             ], function (err, results)
                             {
@@ -556,19 +557,37 @@ DbConnection.prototype.create = function (callback)
                             {
                                 statement.executeUpdate(queryObject.query, function (err, results)
                                 {
-                                    if (!isNull(err))
+                                    if(isNull(err))
                                     {
-                                        console.error("Error Running Update Statement \n" + queryObject.query);
-                                        console.error(JSON.stringify(err));
-                                        console.error(err.stack);
-                                        console.error(JSON.stringify(results));
-                                    }
-                                    else
-                                    {
-                                        queryObject.result = results;
-                                    }
+                                        if (Config.debug.active && Config.debug.database.log_all_queries)
+                                        {
+                                            console.log(JSON.stringify(results));
+                                        }
 
-                                    callback(err, results);
+                                        if (!isNull(err))
+                                        {
+                                            console.error("Error Running Update Statement \n" + queryObject.query);
+                                            console.error(JSON.stringify(err));
+                                            console.error(err.stack);
+                                            console.error(JSON.stringify(results));
+                                        }
+                                        else
+                                        {
+                                            queryObject.result = results;
+                                        }
+
+                                        statement.close(function (err, result)
+                                        {
+                                            if(!isNull(err))
+                                            {
+                                                console.error("Error closing statement on update statement");
+                                                console.error(JSON.stringify(err));
+                                                console.error(JSON.stringify(result));
+                                            }
+
+                                            callback(err, results);
+                                        });
+                                    }
                                 });
                             }
                             else
@@ -596,7 +615,17 @@ DbConnection.prototype.create = function (callback)
                                                 queryObject.result = results;
                                             }
 
-                                            callback(err, results);
+                                            statement.close(function (err, result)
+                                            {
+                                                if(!isNull(err))
+                                                {
+                                                    console.error("Error closing statement on query statement");
+                                                    console.error(JSON.stringify(err));
+                                                    console.error(JSON.stringify(result));
+                                                }
+
+                                                callback(err, results);
+                                            });
                                         });
                                     }
                                 });
@@ -611,7 +640,6 @@ DbConnection.prototype.create = function (callback)
 
                 reserveConnection(function (err, connection)
                 {
-
                     if (isNull(err))
                     {
                         executeQueryOrUpdate(function (err, results)

@@ -1938,11 +1938,12 @@ exports.import = function (req, res)
                                     {
                                         getMetadata(absPathOfUnzippedBagIt, function (descriptors)
                                         {
+                                            // by default the project is private on import
                                             const newProject = new Project({
                                                 ddr: {
                                                     is_being_imported: true,
                                                     handle: req.query.imported_project_handle,
-                                                    privacyStatus: "private" // by default it is private on import
+                                                    privacyStatus: "private"
                                                 },
                                                 dcterms: {
                                                     creator: req.user.uri,
