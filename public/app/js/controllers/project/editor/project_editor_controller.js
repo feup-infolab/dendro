@@ -540,6 +540,8 @@ angular.module("dendroApp.controllers")
             $scope.$on("$routeChangeStart", function (next, current)
             {
                 console.log("Changing location from " + current + " to " + next);
+                $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
+                $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
                 $scope.change_location(next,
                     metadataService.dirty_metadata(
                         $scope.shared.initial_metadata,

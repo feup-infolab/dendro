@@ -405,6 +405,8 @@ angular.module("dendroApp.controllers")
                         {
                             if ($scope.lastClickInFileExplorer.index === $scope.newClickInFileExplorer.index)
                             {
+                                $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
+                                $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
                                 $scope.change_location(
                                     $scope.shared.folder_contents[index].uri,
                                     metadataService.dirty_metadata(
