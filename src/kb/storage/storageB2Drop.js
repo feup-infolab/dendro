@@ -1,5 +1,8 @@
 const B2DropShare = require('node-b2drop').B2DropShare;
 
+
+//TODO metadata
+
 class storageB2Drop extends storage {
     constructor(shareLink, password) {
         super();
@@ -16,7 +19,6 @@ class storageB2Drop extends storage {
 
     close(callback) {
         this.connection = null;
-
         return callback(null);
     };
 
@@ -32,4 +34,4 @@ class storageB2Drop extends storage {
         this.connection.delete(fileUri, callback);
     };
 
-};
+}
