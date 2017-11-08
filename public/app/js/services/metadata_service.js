@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-angular.module('dendroApp.factories')
-    .service('metadataService',
-        ['$q', '$http', 'filesService', 'interactionsService', 'windowService', 'descriptorsService',
+angular.module("dendroApp.factories")
+    .service("metadataService",
+        ["$q", "$http", "filesService", "interactionsService", "windowService", "descriptorsService",
             function ($q, $http, filesService, interactionsService, windowService, descriptorsService)
             {
                 this.deserialize_metadata = function (descriptorsArray)
@@ -19,7 +19,7 @@ angular.module('dendroApp.factories')
                         {
                             var descriptor = JSON.parse(JSON.stringify(descriptorsArray[i]));
 
-                            if (descriptor.control === 'date_picker')
+                            if (descriptor.control === "date_picker")
                             {
                                 descriptor.value = new Date(descriptor.value);
                             }
@@ -29,7 +29,7 @@ angular.module('dendroApp.factories')
                     }
                     else
                     {
-                        console.error('Error deserializing metadata. Argument should be an array of descriptors');
+                        console.error("Error deserializing metadata. Argument should be an array of descriptors");
                     }
 
                     return deserialized;
@@ -74,16 +74,16 @@ angular.module('dendroApp.factories')
                         uri = windowService.get_current_url();
                     }
 
-                    var requestUri = uri + '?metadata';
+                    var requestUri = uri + "?metadata";
 
                     var deserialize = $q.defer();
 
                     $http({
-                        method: 'GET',
+                        method: "GET",
                         url: requestUri,
                         data: JSON.stringify({}),
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(
                         function (response)
                         {
@@ -134,14 +134,14 @@ angular.module('dendroApp.factories')
                     if (self.metadata_is_valid(metadata_array))
                     {
                         var metadataString = JSON.stringify(metadata_array);
-                        var url = resource_uri + '?update_metadata';
+                        var url = resource_uri + "?update_metadata";
 
                         return $http({
-                            method: 'POST',
+                            method: "POST",
                             url: url,
                             data: metadataString,
-                            contentType: 'application/json',
-                            headers: {Accept: 'application/json'}
+                            contentType: "application/json",
+                            headers: {Accept: "application/json"}
                         }).then(function (response)
                         {
                             var data = response.data;
@@ -164,68 +164,68 @@ angular.module('dendroApp.factories')
                     var url = windowService.get_current_url();
 
                     var mimeTypes = {
-                        txt: 'application/txt',
-                        rdf: 'application/rdf',
-                        json: 'application/json'
+                        txt: "application/txt",
+                        rdf: "application/rdf",
+                        json: "application/json"
                     };
 
                     var mt = mimeTypes[format];
                     if (mt != null)
                     {
                         return $http({
-                            method: 'GET',
+                            method: "GET",
                             url: url,
                             headers: {Accept: mt},
                             data: {}
                         }).then(function (response)
                         {
                             var data = response.data;
-                            if (format == 'json')
+                            if (format == "json")
                             {
                                 data = vkbeautify.json(data);
                             }
-                            else if (format == 'rdf')
+                            else if (format == "rdf")
                             {
                                 data = vkbeautify.xml(data);
                             }
 
                             var filename = url.match(/([^\/]*)\/*$/)[1];
-                            var element = angular.element('<a/>');
+                            var element = angular.element("<a/>");
                             element.attr({
-                                href: 'data:attachment/' + format + ';charset=utf-8,' + encodeURI(data),
-                                target: '_blank',
-                                download: filename + '.' + format
+                                href: "data:attachment/" + format + ";charset=utf-8," + encodeURI(data),
+                                target: "_blank",
+                                download: filename + "." + format
                             })[0].click();
                         }).catch(function (error)
                         {
                             // if there's an error you should see it here
                         });
                     }
-                    windowService.show_popup('error', 'Parser not Found', 'System cannot provide such a representation for this record');
+                    windowService.show_popup("error", "Parser not Found", "System cannot provide such a representation for this record");
                 };
 
                 this.revert_to_version = function (resource_uri, version)
                 {
                     var self = this;
-                    var url = resource_uri + '?restore_metadata_version';
+                    var url = resource_uri + "?restore_metadata_version";
 
                     $.ajax({
-                        type: 'POST',
+                        type: "POST",
                         url: url,
-                        contentType: 'application/json',
+                        contentType: "application/json",
                         data: JSON.stringify({version: version}),
                         beforeSend: function (xhr)
                         {
-                            xhr.setRequestHeader('Accept', 'application/json');
+                            xhr.setRequestHeader("Accept", "application/json");
                         },
                         success: function (response)
                         {
                             location.reload();
-                            windowService.show_popup('success', response.result, response.message);
+                            windowService.show_popup("success", response.result, response.message);
                         },
                         error: function (response)
                         {
-                            windowService.show_popup('error', response.responseJSON.result, response.responseJSON.message);
+                            windowService.show_popup("error", response.responseJSON.result, response.responseJSON.message);
                         }
                     });
                 };
@@ -276,14 +276,14 @@ angular.module('dendroApp.factories')
                 {
                     if (resource_uri != null)
                     {
-                        var requestUri = resource_uri + '?recent_changes&limit=5';
+                        var requestUri = resource_uri + "?recent_changes&limit=5";
 
                         return $http({
-                            method: 'GET',
+                            method: "GET",
                             url: requestUri,
                             data: JSON.stringify({}),
-                            contentType: 'application/json',
-                            headers: {Accept: 'application/json'}
+                            contentType: "application/json",
+                            headers: {Accept: "application/json"}
                         }).then(function (response)
                         {
                             return response;
@@ -295,14 +295,14 @@ angular.module('dendroApp.factories')
                 {
                     if (resourceUri != null)
                     {
-                        var requestUri = resourceUri + '?change_log';
+                        var requestUri = resourceUri + "?change_log";
 
                         return $http({
-                            method: 'GET',
+                            method: "GET",
                             url: requestUri,
                             data: JSON.stringify({}),
-                            contentType: 'application/json',
-                            headers: {Accept: 'application/json'}
+                            contentType: "application/json",
+                            headers: {Accept: "application/json"}
                         }).then(function (response)
                         {
                             return response;

@@ -1,32 +1,32 @@
-const chai = require('chai');
-const async = require('async');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const async = require("async");
+const chaiHttp = require("chai-http");
 const should = chai.should();
-const _ = require('underscore');
+const _ = require("underscore");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder('utils/project/projectUtils.js'));
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const folderUtils = require(Pathfinder.absPathInTestsFolder('utils/folder/folderUtils.js'));
-const httpUtils = require(Pathfinder.absPathInTestsFolder('utils/http/httpUtils.js'));
-const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
+const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1.js'));
-const demouser2 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser2.js'));
-const demouser3 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser3.js'));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Pathfinder.absPathInTestsFolder('mockdata/projects/public_project.js'));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/projects/createProjects.Unit.js'));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/files/createFiles.Unit.js'));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('utils/db/db.Test.js'));
+const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let agent;
 let app;
 
-describe('Public Project delete', function (done)
+describe("Public Project delete", function (done)
 {
     this.timeout(2 * Config.testsTimeOut);
     before(function (done)
@@ -40,24 +40,24 @@ describe('Public Project delete', function (done)
         });
     });
 
-    describe('[Invalid Cases] /project/:handle?delete ' + publicProject.handle, function ()
+    describe("[Invalid Cases] /project/:handle?delete " + publicProject.handle, function ()
     {
-        it('Should give an error if an invalid project is specified', function (done)
+        it("Should give an error if an invalid project is specified", function (done)
         {
             this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                projectUtils.deleteProject(false, agent, 'invalidProjectHandle', function (err, res)
+                projectUtils.deleteProject(false, agent, "invalidProjectHandle", function (err, res)
                 {
                     res.statusCode.should.equal(404);
-                    res.text.should.contain('Resource not found at uri ');
-                    res.text.should.contain('invalidProjectHandle');
+                    res.text.should.contain("Resource not found at uri ");
+                    res.text.should.contain("invalidProjectHandle");
                     done();
                 });
             });
         });
 
-        it('Should give an error if the request for this route is of type JSON', function (done)
+        it("Should give an error if the request for this route is of type JSON", function (done)
         {
             this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -65,13 +65,13 @@ describe('Public Project delete', function (done)
                 projectUtils.deleteProject(true, agent, publicProject.handle, function (err, res)
                 {
                     res.statusCode.should.equal(400);
-                    res.text.should.contain('API Request not valid for this route.');
+                    res.text.should.contain("API Request not valid for this route.");
                     done();
                 });
             });
         });
 
-        it('Should give an error when the user is unauthenticated', function (done)
+        it("Should give an error when the user is unauthenticated", function (done)
         {
             this.timeout(Config.testsTimeout);
             projectUtils.deleteProject(false, agent, publicProject.handle, function (err, res)
@@ -81,7 +81,7 @@ describe('Public Project delete', function (done)
             });
         });
 
-        it('Should give an error when the user is logged in as demouser3 (not a collaborator nor creator in a project by demouser1)', function (done)
+        it("Should give an error when the user is logged in as demouser3 (not a collaborator nor creator in a project by demouser1)", function (done)
         {
             this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
@@ -95,9 +95,9 @@ describe('Public Project delete', function (done)
         });
     });
 
-    describe('[Valid Cases] /project/:handle?delete ' + publicProject.handle, function ()
+    describe("[Valid Cases] /project/:handle?delete " + publicProject.handle, function ()
     {
-        it('Should delete the project if the user is logged in as demouser1 (creator of the project)', function (done)
+        it("Should delete the project if the user is logged in as demouser1 (creator of the project)", function (done)
         {
             this.timeout(Config.testsTimeout);
 

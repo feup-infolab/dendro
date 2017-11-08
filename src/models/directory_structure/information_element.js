@@ -1,23 +1,23 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const path = require('path');
-const async = require('async');
+const path = require("path");
+const async = require("async");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-const DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
-const Cache = require(Pathfinder.absPathInSrcFolder('/kb/cache/cache.js')).Cache;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
 
 function InformationElement (object)
 {
     const self = this;
-    self.addURIAndRDFType(object, 'information_element', InformationElement);
+    self.addURIAndRDFType(object, "information_element", InformationElement);
     InformationElement.baseConstructor.call(this, object);
 
     if (!isNull(object.nie))
@@ -34,7 +34,7 @@ function InformationElement (object)
 
         if (isNull(self.ddr.humanReadableURI))
         {
-            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + '/' + object.nie.title;
+            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
         }
     }
 
@@ -46,20 +46,20 @@ InformationElement.prototype.getParent = function (callback)
     const self = this;
 
     const query =
-        'SELECT ?parent_folder ?parent_project \n' +
-        'FROM [0] \n' +
-        'WHERE \n' +
-        '{ \n' +
-        ' { \n' +
-        '[1] nie:isLogicalPartOf ?parent_folder. \n' +
-        ' ?parent_folder rdf:type nfo:Folder. \n' +
-        ' } \n' +
-        ' UNION ' +
-        ' { ' +
-        '[1] nie:isLogicalPartOf ?parent_project. \n' +
-        ' ?parent_project rdf:type ddr:Project. \n' +
-        ' } \n' +
-        '} ';
+        "SELECT ?parent_folder ?parent_project \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        " { \n" +
+        "[1] nie:isLogicalPartOf ?parent_folder. \n" +
+        " ?parent_folder rdf:type nfo:Folder. \n" +
+        " } \n" +
+        " UNION " +
+        " { " +
+        "[1] nie:isLogicalPartOf ?parent_project. \n" +
+        " ?parent_project rdf:type ddr:Project. \n" +
+        " } \n" +
+        "} ";
 
     db.connection.executeViaJDBC(query,
         [
@@ -84,32 +84,32 @@ InformationElement.prototype.getParent = function (callback)
                         if (!isNull(results[0].parent_folder))
                         {
                             result.uri = result.parent_folder;
-                            const Folder = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/folder.js')).Folder;
+                            const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                             let parent = new Folder(result);
                             return callback(null, parent);
                         }
                         else if (!isNull(result[0].parent_project))
                         {
                             result.uri = result.parent_project;
-                            const Project = require(Pathfinder.absPathInSrcFolder('/models/project.js')).Project;
+                            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
                             let parent = new Project(result);
                             return callback(null, parent);
                         }
 
-                        return callback(1, 'There was an error calculating the parent of resource ' + self.uri);
+                        return callback(1, "There was an error calculating the parent of resource " + self.uri);
                     }
                     else if (results.length === 0)
                     {
-                        return callback(null, 'There is no parent of ' + self.uri);
+                        return callback(null, "There is no parent of " + self.uri);
                     }
 
-                    return callback(1, 'ERROR : There is more than one parent to ' + self.uri + ' !');
+                    return callback(1, "ERROR : There is more than one parent to " + self.uri + " !");
                 }
 
-                return callback(1, 'Invalid result set or no parent found when querying for the parent of' + self.uri);
+                return callback(1, "Invalid result set or no parent found when querying for the parent of" + self.uri);
             }
 
-            return callback(1, 'Error reported when querying for the parent of' + self.uri + ' . Error was ->' + results);
+            return callback(1, "Error reported when querying for the parent of" + self.uri + " . Error was ->" + results);
         }
     );
 };
@@ -124,18 +124,18 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
      *   @type {string}
      */
     const query =
-        'SELECT ?uri \n' +
-        'FROM [0] \n' +
-        'WHERE \n' +
-        '{ \n' +
-        '   [1] nie:isLogicalPartOf+ ?uri. \n' +
-        '   ?uri rdf:type ddr:Resource. \n' +
-        '   ?uri rdf:type nfo:Folder \n' +
-        '   FILTER NOT EXISTS \n' +
-        '   { \n' +
-        '       ?project ddr:rootFolder ?uri\n' +
-        '   }\n' +
-        '}\n ';
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:isLogicalPartOf+ ?uri. \n" +
+        "   ?uri rdf:type ddr:Resource. \n" +
+        "   ?uri rdf:type nfo:Folder \n" +
+        "   FILTER NOT EXISTS \n" +
+        "   { \n" +
+        "       ?project ddr:rootFolder ?uri\n" +
+        "   }\n" +
+        "}\n ";
 
     db.connection.executeViaJDBC(query,
         [
@@ -154,8 +154,8 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
             {
                 if (result instanceof Array)
                 {
-                    const async = require('async');
-                    const Folder = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/folder.js')).Folder;
+                    const async = require("async");
+                    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                     async.mapSeries(result, function (result, callback)
                     {
                         Folder.findByUri(result.uri, function (err, parentFolder)
@@ -166,12 +166,12 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
                 }
                 else
                 {
-                    return callback(1, 'Invalid result set or no parent PROJECT found when querying for the parent project of' + self.uri);
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
                 }
             }
             else
             {
-                return callback(1, 'Error reported when querying for the parent PROJECT of' + self.uri + ' . Error was ->' + result);
+                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
             }
         }
     );
@@ -187,15 +187,15 @@ InformationElement.prototype.getOwnerProject = function (callback)
     *   @type {string}
     */
     const query =
-        'SELECT ?uri \n' +
-        'FROM [0] \n' +
-        'WHERE \n' +
-        '{ \n' +
-        '   [1] nie:isLogicalPartOf+ ?uri \n' +
-        '   FILTER EXISTS { \n' +
-        '       ?uri rdf:type ddr:Project \n' +
-        '   }\n' +
-        '} ';
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:isLogicalPartOf+ ?uri \n" +
+        "   FILTER EXISTS { \n" +
+        "       ?uri rdf:type ddr:Project \n" +
+        "   }\n" +
+        "} ";
 
     db.connection.executeViaJDBC(query,
         [
@@ -214,7 +214,7 @@ InformationElement.prototype.getOwnerProject = function (callback)
             {
                 if (result instanceof Array && result.length === 1)
                 {
-                    const Project = require(Pathfinder.absPathInSrcFolder('/models/project.js')).Project;
+                    const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
                     Project.findByUri(result[0].uri, function (err, project)
                     {
                         callback(err, project);
@@ -222,12 +222,12 @@ InformationElement.prototype.getOwnerProject = function (callback)
                 }
                 else
                 {
-                    return callback(1, 'Invalid result set or no parent PROJECT found when querying for the parent project of' + self.uri);
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
                 }
             }
             else
             {
-                return callback(1, 'Error reported when querying for the parent PROJECT of' + self.uri + ' . Error was ->' + result);
+                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
             }
         }
     );
@@ -238,21 +238,21 @@ InformationElement.prototype.rename = function (newTitle, callback)
     const self = this;
 
     const query =
-        'DELETE DATA \n' +
-        '{ \n' +
-        'GRAPH [0] \n' +
-        '   { \n' +
-        '       [1] nie:title ?title . ' +
-        '   } \n' +
-        '}; \n' +
+        "DELETE DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       [1] nie:title ?title . " +
+        "   } \n" +
+        "}; \n" +
 
-        'INSERT DATA \n' +
-        '{ \n' +
-        '   GRAPH [0] \n' +
-        '   { ' +
-        '       [1] nie:title [2] \n' +
-        '   } \n' +
-        '}; \n';
+        "INSERT DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { " +
+        "       [1] nie:title [2] \n" +
+        "   } \n" +
+        "}; \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -275,7 +275,7 @@ InformationElement.prototype.rename = function (newTitle, callback)
             {
                 return callback(err, result);
             });
-        }
+        }, null, null, null, true
     );
 };
 
@@ -301,17 +301,17 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
     // "} \n";
 
     const query =
-        'WITH GRAPH [0] \n' +
-        'DELETE \n' +
-        '{ \n' +
-        '   [1] nie:hasLogicalPart [2]. \n' +
-        '   [2] nie:isLogicalPartOf [1] \n' +
-        '} \n' +
-        'INSERT \n' +
-        '{ \n' +
-        '   [3] nie:hasLogicalPart [2]. \n' +
-        '   [2] nie:isLogicalPartOf [3] \n' +
-        '} \n';
+        "WITH GRAPH [0] \n" +
+        "DELETE \n" +
+        "{ \n" +
+        "   [1] nie:hasLogicalPart [2]. \n" +
+        "   [2] nie:isLogicalPartOf [1] \n" +
+        "} \n" +
+        "INSERT \n" +
+        "{ \n" +
+        "   [3] nie:hasLogicalPart [2]. \n" +
+        "   [2] nie:isLogicalPartOf [3] \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -396,12 +396,12 @@ InformationElement.prototype.unlinkFromParent = function (callback)
             }
             else
             {
-                return callback(null, self.uri + ' already has no parent.');
+                return callback(null, self.uri + " already has no parent.");
             }
         }
         else
         {
-            return callback(1, 'Unable to retrieve the parent of ' + self.uri + ' for unlinking it. Error reported by database : ' + parent);
+            return callback(1, "Unable to retrieve the parent of " + self.uri + " for unlinking it. Error reported by database : " + parent);
         }
     });
 };
@@ -430,7 +430,7 @@ InformationElement.prototype.isHiddenOrSystem = function ()
 
 InformationElement.removeInvalidFileNames = function (fileNamesArray)
 {
-    const _ = require('underscore');
+    const _ = require("underscore");
 
     const validFiles = [];
 
@@ -453,7 +453,7 @@ InformationElement.removeInvalidFileNames = function (fileNamesArray)
 
 InformationElement.isSafePath = function (absPath, callback)
 {
-    let fs = require('fs');
+    let fs = require("fs");
     fs.realpath(absPath, function (err, realPath)
     {
         function b_in_a (b, a)
@@ -471,14 +471,14 @@ InformationElement.isSafePath = function (absPath, callback)
             }
         }
 
-        console.error('Path ' + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
+        console.error("Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
         return callback(null, false);
     });
 };
 
 InformationElement.prototype.findMetadata = function (callback, typeConfigsToRetain)
 {
-    const async = require('async');
+    const async = require("async");
 
     const self = this;
     InformationElement.findByUri(self.uri, function (err, resource)
@@ -509,7 +509,7 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
                     {
                         if (isNull(err))
                         {
-                            const _ = require('underscore');
+                            const _ = require("underscore");
                             children = _.reject(children, function (child)
                             {
                                 return child.ddr.deleted;
@@ -548,20 +548,20 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
                         }
                         else
                         {
-                            console.info('[findMetadataRecursive] error accessing logical parts of folder ' + resource.nie.title);
+                            console.info("[findMetadataRecursive] error accessing logical parts of folder " + resource.nie.title);
                             return callback(true, null);
                         }
                     });
                 }
                 else
                 {
-                    console.info('[findMetadataRecursive] ' + resource.nie.title + ' is not a folder.');
+                    console.info("[findMetadataRecursive] " + resource.nie.title + " is not a folder.");
                     return callback(null, metadataResult);
                 }
             }
             else
             {
-                const msg = self.uri + ' does not exist in Dendro.';
+                const msg = self.uri + " does not exist in Dendro.";
                 console.error(msg);
 
                 return callback(true, msg);
@@ -569,7 +569,7 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
         }
         else
         {
-            const msg = 'Error fetching ' + self.uri + ' from the Dendro platform.';
+            const msg = "Error fetching " + self.uri + " from the Dendro platform.";
             console.error(msg);
 
             return callback(true, msg);
@@ -587,18 +587,18 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
     }
     else
     {
-        const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+        const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
         db.connection.executeViaJDBC(
-            'WITH [0]\n' +
-            'ASK \n' +
-            'WHERE \n' +
-            '{ \n' +
-            '   {\n' +
-            '       [2] nie:isLogicalPartOf+ [1]. \n' +
-            '       [1] nie:hasLogicalPart+ [2]. \n' +
-            '   }\n' +
-            '} \n',
+            "WITH [0]\n" +
+            "ASK \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   {\n" +
+            "       [2] nie:isLogicalPartOf+ [1]. \n" +
+            "       [1] nie:hasLogicalPart+ [2]. \n" +
+            "   }\n" +
+            "} \n",
 
             [
                 {
@@ -631,13 +631,13 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
                     return callback(null, result);
                 }
 
-                const msg = 'Error checking if resource ' + self.uri + ' is contained in ' + anotherResourceUri;
+                const msg = "Error checking if resource " + self.uri + " is contained in " + anotherResourceUri;
                 console.error(msg);
                 return callback(err, msg);
             });
     }
 };
 
-InformationElement = Class.extend(InformationElement, Resource, 'nie:InformationElement');
+InformationElement = Class.extend(InformationElement, Resource, "nie:InformationElement");
 
 module.exports.InformationElement = InformationElement;

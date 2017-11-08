@@ -1,14 +1,14 @@
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-const Ontology = require(Pathfinder.absPathInSrcFolder('/models//meta/ontology.js')).Ontology;
-const Project = require(Pathfinder.absPathInSrcFolder('/models//project.js')).Project;
-const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models//meta/ontology.js")).Ontology;
+const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 exports.descriptors_autocomplete = function (req, res)
 {
@@ -39,15 +39,15 @@ exports.descriptors_autocomplete = function (req, res)
 
 exports.from_ontology = function (req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     // will be null if the client does not accept html
     if (acceptsJSON && !acceptsHTML)
     {
         const ontologyIdentifier = req.query.descriptors_from_ontology;
         let fetchingFunction;
-        const validator = require('validator');
+        const validator = require("validator");
 
         if (validator.isURL(ontologyIdentifier))
         {
@@ -60,8 +60,8 @@ exports.from_ontology = function (req, res)
         else
         {
             return res.status(400).json({
-                result: 'error',
-                message: 'Ontology uri / prefix  was not specified or is invalid!'
+                result: "error",
+                message: "Ontology uri / prefix  was not specified or is invalid!"
             });
         }
 
@@ -106,7 +106,7 @@ exports.from_ontology = function (req, res)
                                 descriptors = removeDuplicates(descriptors);
                                 descriptors = removeLockedAndPrivate(descriptors);
 
-                                const uuid = require('uuid');
+                                const uuid = require("uuid");
                                 const recommendation_call_id = uuid.v4();
                                 const recommendation_call_timestamp = new Date().toISOString();
 
@@ -118,7 +118,7 @@ exports.from_ontology = function (req, res)
 
                                 res.json(
                                     {
-                                        result: 'ok',
+                                        result: "ok",
                                         descriptors: descriptors
                                     }
                                 );
@@ -127,7 +127,7 @@ exports.from_ontology = function (req, res)
                             {
                                 res.status(500).json(
                                     {
-                                        result: 'error',
+                                        result: "error",
                                         error_messages: [descriptors]
                                     }
                                 );
@@ -138,8 +138,8 @@ exports.from_ontology = function (req, res)
                     {
                         res.status(401).json(
                             {
-                                result: 'error',
-                                error_messages: 'Unauthorized. Ontology with prefix or uri ' + ontologyIdentifier + ' is not public.'
+                                result: "error",
+                                error_messages: "Unauthorized. Ontology with prefix or uri " + ontologyIdentifier + " is not public."
                             }
                         );
                     }
@@ -148,8 +148,8 @@ exports.from_ontology = function (req, res)
                 {
                     res.status(404).json(
                         {
-                            result: 'error',
-                            error_messages: 'Ontology with prefix or uri ' + ontologyIdentifier + ' does not exist in this Dendro instance.'
+                            result: "error",
+                            error_messages: "Ontology with prefix or uri " + ontologyIdentifier + " does not exist in this Dendro instance."
                         }
                     );
                 }
@@ -158,8 +158,8 @@ exports.from_ontology = function (req, res)
             {
                 res.status(500).json(
                     {
-                        result: 'error',
-                        error_messages: 'Error retrieving ontology with prefix ' + ontologyIdentifier + ' Error reported : ' + ontology
+                        result: "error",
+                        error_messages: "Error retrieving ontology with prefix " + ontologyIdentifier + " Error reported : " + ontology
                     }
                 );
             }
@@ -167,10 +167,10 @@ exports.from_ontology = function (req, res)
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         console.log(msg);
-        res.status(405).render('',
+        res.status(405).render("",
             {
             }
         );
@@ -179,9 +179,9 @@ exports.from_ontology = function (req, res)
 
 exports.from_ontology_in_project = function (req, res)
 {
-    const validator = require('validator');
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const validator = require("validator");
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     const getOwnerProjectUri = function (callback)
     {
@@ -191,8 +191,8 @@ exports.from_ontology_in_project = function (req, res)
         }
         else
         {
-            const InformationElement = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/information_element.js')).InformationElement;
-            const Project = require(Pathfinder.absPathInSrcFolder('/models/project.js')).Project;
+            const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 
             InformationElement.findByUri(req.params.requestedResourceUri, function (err, ie)
             {
@@ -210,14 +210,14 @@ exports.from_ontology_in_project = function (req, res)
                                 }
                                 else
                                 {
-                                    const msg = 'Result is not a project while getting parent project of information element with uri ' + req.params.requestedResourceUri + ' when fetching descriptors from ontology in project.';
+                                    const msg = "Result is not a project while getting parent project of information element with uri " + req.params.requestedResourceUri + " when fetching descriptors from ontology in project.";
                                     console.error(msg);
                                     callback(1, msg);
                                 }
                             }
                             else
                             {
-                                const msg = 'Error while getting parent project of information element with uri ' + req.params.requestedResourceUri + ' when fetching descriptors from ontology in project.';
+                                const msg = "Error while getting parent project of information element with uri " + req.params.requestedResourceUri + " when fetching descriptors from ontology in project.";
                                 console.error(msg);
                                 callback(1, msg);
                             }
@@ -225,14 +225,14 @@ exports.from_ontology_in_project = function (req, res)
                     }
                     else
                     {
-                        const msg = 'Unable to retrieve information element with uri ' + req.params.requestedResourceUri + ' when fetching descriptors from ontology in project.';
+                        const msg = "Unable to retrieve information element with uri " + req.params.requestedResourceUri + " when fetching descriptors from ontology in project.";
                         console.error(msg);
                         callback(1, msg);
                     }
                 }
                 else
                 {
-                    const msg = 'Error while retrieving information element with uri ' + req.params.requestedResourceUri + ' when fetching descriptors from ontology in project.';
+                    const msg = "Error while retrieving information element with uri " + req.params.requestedResourceUri + " when fetching descriptors from ontology in project.";
                     console.error(msg);
                     callback(1, msg);
                 }
@@ -257,8 +257,8 @@ exports.from_ontology_in_project = function (req, res)
         else
         {
             return res.status(400).json({
-                result: 'error',
-                message: 'Ontology uri / prefix  was not specified or is invalid!'
+                result: "error",
+                message: "Ontology uri / prefix  was not specified or is invalid!"
             });
         }
 
@@ -291,7 +291,7 @@ exports.from_ontology_in_project = function (req, res)
                                         }
                                         else
                                         {
-                                            const error = 'Error fetching user : ' + user + ' : ' + err;
+                                            const error = "Error fetching user : " + user + " : " + err;
                                             console.error(error);
                                             return callback(1, error);
                                         }
@@ -315,7 +315,7 @@ exports.from_ontology_in_project = function (req, res)
                                         }
                                         else
                                         {
-                                            const error = 'Error fetching project : ' + project + ' : ' + err;
+                                            const error = "Error fetching project : " + project + " : " + err;
                                             console.error(error);
                                             return callback(1, error);
                                         }
@@ -339,7 +339,7 @@ exports.from_ontology_in_project = function (req, res)
                                         }
                                         else
                                         {
-                                            const error = 'Error fetching user : ' + user + ' : ' + err;
+                                            const error = "Error fetching user : " + user + " : " + err;
                                             console.error(error);
                                             return callback(1, error);
                                         }
@@ -359,7 +359,7 @@ exports.from_ontology_in_project = function (req, res)
                                         }
                                         else
                                         {
-                                            const error = 'Error fetching project : ' + project + ' : ' + err;
+                                            const error = "Error fetching project : " + project + " : " + err;
                                             console.error(error);
                                             return callback(1, error);
                                         }
@@ -375,7 +375,7 @@ exports.from_ontology_in_project = function (req, res)
                                             return callback(error, dcElementsDescriptors);
                                         }
 
-                                        console.error('Error fetching DC Elements Descriptors : ' + err);
+                                        console.error("Error fetching DC Elements Descriptors : " + err);
                                         return callback(1, error);
                                     });
                                 };
@@ -396,7 +396,7 @@ exports.from_ontology_in_project = function (req, res)
                                                 },
                                                 function (callback)
                                                 {
-                                                    if (typeof req.params.requestedResourceUri === 'undefined')
+                                                    if (typeof req.params.requestedResourceUri === "undefined")
                                                     {
                                                         return callback(null, []);
                                                     }
@@ -412,7 +412,7 @@ exports.from_ontology_in_project = function (req, res)
                                                 },
                                                 function (callback)
                                                 {
-                                                    if (typeof req.params.requestedResourceUri === 'undefined')
+                                                    if (typeof req.params.requestedResourceUri === "undefined")
                                                     {
                                                         return callback(null, []);
                                                     }
@@ -501,7 +501,7 @@ exports.from_ontology_in_project = function (req, res)
                                                     descriptors = removeDuplicates(descriptors);
                                                     descriptors = removeLockedAndPrivate(descriptors);
 
-                                                    const uuid = require('uuid');
+                                                    const uuid = require("uuid");
                                                     const recommendation_call_id = uuid.v4();
                                                     const recommendation_call_timestamp = new Date().toISOString();
 
@@ -513,7 +513,7 @@ exports.from_ontology_in_project = function (req, res)
 
                                                     res.json(
                                                         {
-                                                            result: 'ok',
+                                                            result: "ok",
                                                             descriptors: descriptors
                                                         }
                                                     );
@@ -522,7 +522,7 @@ exports.from_ontology_in_project = function (req, res)
                                                 {
                                                     res.status(500).json(
                                                         {
-                                                            result: 'error',
+                                                            result: "error",
                                                             error_messages: [results]
                                                         }
                                                     );
@@ -533,7 +533,7 @@ exports.from_ontology_in_project = function (req, res)
                                     {
                                         res.status(500).json(
                                             {
-                                                result: 'error',
+                                                result: "error",
                                                 error_messages: [projectUri]
                                             }
                                         );
@@ -544,7 +544,7 @@ exports.from_ontology_in_project = function (req, res)
                             {
                                 res.status(500).json(
                                     {
-                                        result: 'error',
+                                        result: "error",
                                         error_messages: [descriptors]
                                     }
                                 );
@@ -555,8 +555,8 @@ exports.from_ontology_in_project = function (req, res)
                     {
                         res.status(401).json(
                             {
-                                result: 'error',
-                                error_messages: 'Unauthorized. Ontology with prefix or uri ' + ontologyIdentifier + ' is not public.'
+                                result: "error",
+                                error_messages: "Unauthorized. Ontology with prefix or uri " + ontologyIdentifier + " is not public."
                             }
                         );
                     }
@@ -565,8 +565,8 @@ exports.from_ontology_in_project = function (req, res)
                 {
                     res.status(404).json(
                         {
-                            result: 'error',
-                            error_messages: 'Ontology with prefix or uri ' + ontologyIdentifier + ' does not exist in this Dendro instance.'
+                            result: "error",
+                            error_messages: "Ontology with prefix or uri " + ontologyIdentifier + " does not exist in this Dendro instance."
                         }
                     );
                 }
@@ -575,8 +575,8 @@ exports.from_ontology_in_project = function (req, res)
             {
                 res.status(500).json(
                     {
-                        result: 'error',
-                        error_messages: 'Error retrieving ontology with prefix or uri ' + ontologyIdentifier + ' Error reported : ' + ontology
+                        result: "error",
+                        error_messages: "Error retrieving ontology with prefix or uri " + ontologyIdentifier + " Error reported : " + ontology
                     }
                 );
             }
@@ -584,10 +584,10 @@ exports.from_ontology_in_project = function (req, res)
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         console.log(msg);
-        res.status(405).render('',
+        res.status(405).render("",
             {
             }
         );

@@ -1,13 +1,13 @@
-const fs = require('fs');
-const mkdirp = require('mkdirp');
+const fs = require("fs");
+const mkdirp = require("mkdirp");
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder('utils/logger.js')).Logger;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const initTempUploadsFolder = function (app, callback)
 {
-    let fs = require('fs');
+    let fs = require("fs");
     let registeredUncaughtExceptionHandler;
 
     // create temporary uploads folder if not exists
@@ -19,15 +19,15 @@ const initTempUploadsFolder = function (app, callback)
     }
     catch (e)
     {
-        Logger.log_boot_message('info', 'Temp folder for uploads ' + tempUploadsFolder + ' does not exist. Creating...');
+        Logger.log_boot_message("info", "Temp folder for uploads " + tempUploadsFolder + " does not exist. Creating...");
         try
         {
             mkdirp.sync(tempUploadsFolder);
-            Logger.log_boot_message('success', 'Temp folder for uploads ' + tempUploadsFolder + ' created.');
+            Logger.log_boot_message("success", "Temp folder for uploads " + tempUploadsFolder + " created.");
         }
         catch (e)
         {
-            return callback('[FATAL] Unable to create Temp folder for uploads at ' + tempUploadsFolder + '\n Error : ' + JSON.stringify(e));
+            return callback("[FATAL] Unable to create Temp folder for uploads at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
         }
     }
 

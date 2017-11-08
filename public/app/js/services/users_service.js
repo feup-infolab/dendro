@@ -1,22 +1,22 @@
-'use strict';
+"use strict";
 
-angular.module('dendroApp.services')
-    .service('usersService',
-        [ '$http',
-            '$q',
+angular.module("dendroApp.services")
+    .service("usersService",
+        [ "$http",
+            "$q",
             function ($http, $q)
             {
                 this.get_logged_user = function ()
                 {
-                    var requestUri = '/users/loggedUser';
+                    var requestUri = "/users/loggedUser";
 
                     var getUserPromise = $q.defer();
 
                     $http({
-                        method: 'GET',
+                        method: "GET",
                         url: requestUri,
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(
                         function (response)
                         {
@@ -26,7 +26,7 @@ angular.module('dendroApp.services')
                             }
                             else
                             {
-                                getUserPromise.reject('Invalid response format received from server');
+                                getUserPromise.reject("Invalid response format received from server");
                             }
                         }
                     ).catch(function (error)
@@ -39,15 +39,15 @@ angular.module('dendroApp.services')
 
                 this.get_users_by_text_search = function (current_resource_uri, typed)
                 {
-                    if (typeof typed !== 'undefined')
+                    if (typeof typed !== "undefined")
                     {
                         return $http({
-                            method: 'GET',
+                            method: "GET",
                             params: {
                                 user_autocomplete: typed
                             },
                             url: current_resource_uri,
-                            responseType: 'json'
+                            responseType: "json"
                         })
                             .then(function (response)
                             {
@@ -58,7 +58,7 @@ angular.module('dendroApp.services')
                             })
                             .catch(function (error)
                             {
-                                console.error('Unable to fetch autocompleted descriptors. Query was: ' + typed + ' Error : ' + JSON.stringify(error));
+                                console.error("Unable to fetch autocompleted descriptors. Query was: " + typed + " Error : " + JSON.stringify(error));
                                 $scope.autocompleted_descriptors = [];
                             });
                     }
@@ -66,18 +66,18 @@ angular.module('dendroApp.services')
 
                 this.updateAvatar = function (newAvatarPicture)
                 {
-                    var requestUri = '/user_avatar';
+                    var requestUri = "/user_avatar";
 
                     var params = {
                         newAvatar: newAvatarPicture
                     };
 
                     return $http({
-                        method: 'POST',
+                        method: "POST",
                         url: requestUri,
                         data: params,
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                         // contentType: "data:image/png;base64",
                         // headers: {"Accept": "data:image/png;base64"}
                     });
@@ -85,13 +85,13 @@ angular.module('dendroApp.services')
 
                 this.receiveAvatar = function (username)
                 {
-                    var requestUri = '/user/' + username + '?avatar';
+                    var requestUri = "/user/" + username + "?avatar";
 
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         url: requestUri,
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     });
                 };
 
@@ -100,10 +100,10 @@ angular.module('dendroApp.services')
                     var requestUri = userUri;
 
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         url: requestUri,
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     });
                 };
             }]);

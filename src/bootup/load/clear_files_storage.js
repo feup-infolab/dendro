@@ -1,9 +1,9 @@
-const fs = require('fs');
+const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder('utils/logger.js')).Logger;
-const GridFSConnection = require(Pathfinder.absPathInSrcFolder('/kb/gridfs.js')).GridFSConnection;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
 
 const clearFilesStorage = function (app, callback)
 {
@@ -13,7 +13,7 @@ const clearFilesStorage = function (app, callback)
         {
             if (!err)
             {
-                Logger.log_boot_message('info', 'Files storage cleared successfully.');
+                Logger.log_boot_message("info", "Files storage cleared successfully.");
             }
 
             callback(err);
@@ -21,7 +21,7 @@ const clearFilesStorage = function (app, callback)
     }
     else
     {
-        Logger.log_boot_message('info', 'Files storage is not set to be cleared. Continuing...');
+        Logger.log_boot_message("info", "Files storage is not set to be cleared. Continuing...");
         return callback(null);
     }
 };

@@ -1,13 +1,13 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
-const async = require('async');
+const async = require("async");
 
 exports.recommend = function (req, res)
 {
@@ -29,14 +29,14 @@ exports.recommend = function (req, res)
 
 exports.get_recommendation_ontologies = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if (!acceptsJSON && acceptsHTML)
     {
         res.status(400).json({
-            result: 'error',
-            message: 'HTML Request not valid for this route.'
+            result: "error",
+            message: "HTML Request not valid for this route."
         });
     }
     else
@@ -82,16 +82,16 @@ exports.get_recommendation_ontologies = function (req, res)
             else
             {
                 res.status(401).json({
-                    result: 'Error',
-                    message: 'Action not permitted. You are not logged into the system.'
+                    result: "Error",
+                    message: "Action not permitted. You are not logged into the system."
                 });
             }
         }
         else
         {
             res.status(500).json({
-                result: 'Error',
-                message: 'No/invalid requested resource'
+                result: "Error",
+                message: "No/invalid requested resource"
             });
         }
     }
@@ -128,7 +128,7 @@ exports.ontologies_autocomplete = function (req, res)
     {
         res.status(400).json(
             {
-                error_messages: ['You did not send the autocomplete query. The request should be something like /ontologies/autocomplete?query=dummy_query_string.']
+                error_messages: ["You did not send the autocomplete query. The request should be something like /ontologies/autocomplete?query=dummy_query_string."]
             }
         );
     }
@@ -136,8 +136,8 @@ exports.ontologies_autocomplete = function (req, res)
 
 exports.public = function (req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -146,7 +146,7 @@ exports.public = function (req, res)
     }
     else
     {
-        res.render('ontologies/public');
+        res.render("ontologies/public");
     }
 };
 
@@ -155,8 +155,8 @@ exports.all = function (req, res)
     // TODO JROCHA 24-11-2014
     // Remove attributes that should not be seen by external systems
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -166,7 +166,7 @@ exports.all = function (req, res)
     }
     else
     {
-        res.render('ontologies/all');
+        res.render("ontologies/all");
     }
 };
 
@@ -178,21 +178,21 @@ exports.show = function (req, res)
     {
         if (isNull(err))
         {
-            res.render('ontologies/show',
+            res.render("ontologies/show",
                 {
-                    title: 'Viewing ontology ' + prefix,
+                    title: "Viewing ontology " + prefix,
                     ontology: ontology
                 }
             );
         }
         else
         {
-            res.render('ontologies/all',
+            res.render("ontologies/all",
                 {
-                    title: 'Ontologies',
+                    title: "Ontologies",
                     error_messages:
           [
-              'Unable to retrieve ontology with prefix ' + prefix,
+              "Unable to retrieve ontology with prefix " + prefix,
               err
           ]
                 }
@@ -218,15 +218,15 @@ exports.edit = function (req, res)
                     if (isNull(err))
                     {
                         res.json({
-                            result: 'ok',
+                            result: "ok",
                             ontologies: Ontology.publicOntologies
                         });
                     }
                     else
                     {
                         res.status(500).json({
-                            result: 'error',
-                            message: 'Error reloading ontologies after updating : ' + JSON.stringify(result)
+                            result: "error",
+                            message: "Error reloading ontologies after updating : " + JSON.stringify(result)
                         });
                     }
                 });
@@ -234,8 +234,8 @@ exports.edit = function (req, res)
             else
             {
                 res.status(500).json({
-                    result: 'error',
-                    message: 'Error editing ontologies : ' + JSON.stringify(result)
+                    result: "error",
+                    message: "Error editing ontologies : " + JSON.stringify(result)
                 });
             }
         });
@@ -243,8 +243,8 @@ exports.edit = function (req, res)
     else
     {
         res.status(400).json({
-            result: 'error',
-            message: 'Invalid JSON sent. The JSON should be an Array containing the new attributes of the ontologies.'
+            result: "error",
+            message: "Invalid JSON sent. The JSON should be an Array containing the new attributes of the ontologies."
         });
     }
 };

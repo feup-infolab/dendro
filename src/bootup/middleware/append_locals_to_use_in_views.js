@@ -1,13 +1,13 @@
-const path = require('path');
-const fs = require('fs');
+const path = require("path");
+const fs = require("fs");
 const Pathfinder = global.Pathfinder;
-let isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const appendLocalsToUseInViews = function (app, callback)
 {
     const appendLocalsToUseInViews = function (req, res, next)
     {
-        const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+        const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
         // append request and session to use directly in views and avoid passing around needless stuff
         res.locals.request = req;
@@ -18,13 +18,13 @@ const appendLocalsToUseInViews = function (app, callback)
             res.locals.Config = Config;
         }
 
-        const flashMessagesInfo = req.flash('info');
+        const flashMessagesInfo = req.flash("info");
 
         if (!isNull(flashMessagesInfo) &&
             flashMessagesInfo instanceof Array &&
             flashMessagesInfo.length > 0)
         {
-            if (typeof res.locals.info_messages === 'undefined')
+            if (typeof res.locals.info_messages === "undefined")
             {
                 res.locals.info_messages = flashMessagesInfo;
             }
@@ -34,7 +34,7 @@ const appendLocalsToUseInViews = function (app, callback)
             }
         }
 
-        const flashMessagesError = req.flash('error');
+        const flashMessagesError = req.flash("error");
 
         if (!isNull(flashMessagesError) &&
             flashMessagesError instanceof Array &&
@@ -50,13 +50,13 @@ const appendLocalsToUseInViews = function (app, callback)
             }
         }
 
-        const flashMessagesSuccess = req.flash('success');
+        const flashMessagesSuccess = req.flash("success");
 
         if (!isNull(flashMessagesSuccess) &&
             flashMessagesSuccess instanceof Array &&
             flashMessagesSuccess.length > 0)
         {
-            if (typeof res.locals.success_messages === 'undefined')
+            if (typeof res.locals.success_messages === "undefined")
             {
                 res.locals.success_messages = flashMessagesSuccess;
             }
@@ -82,7 +82,7 @@ const appendLocalsToUseInViews = function (app, callback)
 
                         if (err)
                         {
-                            console.error('Error checking for admin status of user ' + req.user.uri + ' !!');
+                            console.error("Error checking for admin status of user " + req.user.uri + " !!");
                         }
                     });
                 }

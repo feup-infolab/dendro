@@ -1,14 +1,14 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
  *  Avatar controller
  */
-    .controller('avatarCtrl', function ($scope, $http, $filter, $window, $element, usersService)
+    .controller("avatarCtrl", function ($scope, $http, $filter, $window, $element, usersService)
     {
         $scope.editAvatarModalActivated = false;
-        $scope.myImage = '';
-        $scope.myCroppedImage = '';
+        $scope.myImage = "";
+        $scope.myCroppedImage = "";
         $scope.imageCompressed = null;
-        $scope.avatarUri = '';
+        $scope.avatarUri = "";
 
         $scope.openEditAvatarModal = function ()
         {
@@ -30,7 +30,7 @@ angular.module('dendroApp.controllers')
                 })
                 .catch(function (error)
                 {
-                    console.error('Error updating avatar ' + JSON.stringify(error));
+                    console.error("Error updating avatar " + JSON.stringify(error));
                 });
         };
 
@@ -39,7 +39,7 @@ angular.module('dendroApp.controllers')
             $scope.myImage = compressedImage.compressed.dataURL;
         };
 
-        $scope.$watch('imageCompressed', function ()
+        $scope.$watch("imageCompressed", function ()
         {
             if ($scope.imageCompressed)
             {

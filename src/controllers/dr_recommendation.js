@@ -1,17 +1,17 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
-const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
-const Interaction = require(Pathfinder.absPathInSrcFolder('/models/recommendation/interaction.js')).Interaction;
-const InformationElement = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/information_element.js')).InformationElement;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 exports.recommend_descriptors = function (req, res)
 {
@@ -20,7 +20,7 @@ exports.recommend_descriptors = function (req, res)
         if (!isNull(req.user))
         {
             const recommendationMode = req.query.recommendations_mode;
-            const recommendAlreadyFilledIn = (req.query.recommend_already_filled_in === 'true' || req.query.recommend_already_filled_in === true);
+            const recommendAlreadyFilledIn = (req.query.recommend_already_filled_in === "true" || req.query.recommend_already_filled_in === true);
 
             const getAllowedOntologies = function ()
             {
@@ -92,11 +92,11 @@ exports.recommend_descriptors = function (req, res)
                                     {
                                         if (err)
                                         {
-                                            console.err('Unable to record interaction of type ' + interactionType + ' for shifting between pages in the descriptor recommender list. ');
+                                            console.err("Unable to record interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list. ");
                                         }
                                         else
                                         {
-                                            console.log('Successfully recorded interaction of type ' + interactionType + ' for shifting between pages in the descriptor recommender list in resource with uri ' + req.params.requestedResourceUri);
+                                            console.log("Successfully recorded interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list in resource with uri " + req.params.requestedResourceUri);
                                         }
                                     });
                                 }
@@ -116,7 +116,7 @@ exports.recommend_descriptors = function (req, res)
                     req.user.recommendations.lastRecommendationList = descriptors;
                     res.json(
                         {
-                            result: 'ok',
+                            result: "ok",
                             descriptors: descriptors
                         }
                     );
@@ -125,8 +125,8 @@ exports.recommend_descriptors = function (req, res)
                 {
                     res.status(500).json(
                         {
-                            result: 'error',
-                            error_messages: ['Error producing metadata recommendations for resource ' + req.params.requestedResourceUri + ' . Error reported : ' + descriptors]
+                            result: "error",
+                            error_messages: ["Error producing metadata recommendations for resource " + req.params.requestedResourceUri + " . Error reported : " + descriptors]
                         }
                     );
                 }
@@ -142,8 +142,8 @@ exports.recommend_descriptors = function (req, res)
         {
             res.status(400).json(
                 {
-                    result: 'error',
-                    error_messages: ['No user is authenticated in the system, so no metadata recommendations can be obtained.']
+                    result: "error",
+                    error_messages: ["No user is authenticated in the system, so no metadata recommendations can be obtained."]
                 }
             );
         }
@@ -152,8 +152,8 @@ exports.recommend_descriptors = function (req, res)
     {
         res.status(404).json(
             {
-                result: 'error',
-                error_messages: ['Resource with uri .' + req.params.requestedResourceUri + ' does not exist in this Dendro instance.']
+                result: "error",
+                error_messages: ["Resource with uri ." + req.params.requestedResourceUri + " does not exist in this Dendro instance."]
             }
         );
     }
@@ -173,10 +173,10 @@ exports.shared = {};
  */
 
 exports.shared.recommendation_options = {
-    favorites: 'favorites',
-    smart: 'smart',
-    hidden: 'hidden',
-    recommend_already_filled_in: 'recommend_already_filled_in'
+    favorites: "favorites",
+    smart: "smart",
+    hidden: "hidden",
+    recommend_already_filled_in: "recommend_already_filled_in"
 };
 
 exports.shared.recommend_descriptors = function (resourceUri, userUri, page, allowedOntologies, indexConnection, callback, options)
@@ -216,8 +216,8 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
             {
                 if (isNull(err) && !isNull(metadata))
                 {
-                    const request = require('request');
-                    const DRUrl = 'http://' + Config.recommendation.modes.dendro_recommender.host + ':' + Config.recommendation.modes.dendro_recommender.port + '/recommendations/recommend';
+                    const request = require("request");
+                    const DRUrl = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/recommendations/recommend";
 
                     const qs = {
                         project: projectUri,
@@ -230,11 +230,11 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
                     if (recommendAlreadyFilledIn)
                     {
-                        qs.recommend_already_filled_in = 'true';
+                        qs.recommend_already_filled_in = "true";
                     }
                     else
                     {
-                        qs.recommend_already_filled_in = 'false';
+                        qs.recommend_already_filled_in = "false";
                     }
 
                     if (isNull(page))
@@ -249,15 +249,15 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
                     if (includeOnlyFavorites)
                     {
-                        qs.descriptor_filter = 'favorites';
+                        qs.descriptor_filter = "favorites";
                     }
                     else if (includeOnlyHiddenDescriptors)
                     {
-                        qs.descriptor_filter = 'hidden';
+                        qs.descriptor_filter = "hidden";
                     }
                     else
                     {
-                        qs.descriptor_filter = 'all';
+                        qs.descriptor_filter = "all";
                     }
                     request.post(
                         {
@@ -265,8 +265,8 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             form: qs,
                             headers: [
                                 {
-                                    name: 'Accept',
-                                    value: 'application/json'
+                                    name: "Accept",
+                                    value: "application/json"
                                 }
                             ]
                         },
@@ -292,13 +292,13 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                                     {
                                                         if (isNull(fetchedDescriptor))
                                                         {
-                                                            cb(1, 'Descriptor ' + recommendation.uri + ' is not present in this Dendro instance. Check your Virtuoso parametrization to see if it exists in its own graph.');
+                                                            cb(1, "Descriptor " + recommendation.uri + " is not present in this Dendro instance. Check your Virtuoso parametrization to see if it exists in its own graph.");
                                                         }
                                                         else
                                                         {
                                                             fetchedDescriptor.score = recommendation.score;
 
-                                                            if (typeof recommendation.recommendation_types !== 'undefined')
+                                                            if (typeof recommendation.recommendation_types !== "undefined")
                                                             {
                                                                 fetchedDescriptor.recommendation_types = recommendation.recommendation_types;
                                                             }
@@ -312,7 +312,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                                     }
                                                     else
                                                     {
-                                                        cb(1, 'Unable to fetch descriptor data after getting recommendations from Dendro Recommender');
+                                                        cb(1, "Unable to fetch descriptor data after getting recommendations from Dendro Recommender");
                                                     }
                                                 });
                                             },
@@ -323,29 +323,29 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                         }
                                         else
                                         {
-                                            return callback(1, 'Unable to fetch recommendations from Dendro Recommender : no "recommendations" field at the root of JSON response from Dendro Recommender or it is not an array of object recommendations.');
+                                            return callback(1, "Unable to fetch recommendations from Dendro Recommender : no \"recommendations\" field at the root of JSON response from Dendro Recommender or it is not an array of object recommendations.");
                                         }
                                     }
                                     catch (exc)
                                     {
-                                        return callback(1, 'Unable to fetch recommendations from Dendro Recommender : invalid JSON response from recommender server.');
+                                        return callback(1, "Unable to fetch recommendations from Dendro Recommender : invalid JSON response from recommender server.");
                                     }
                                 }
                                 else
                                 {
-                                    return callback(1, 'Unable to fetch recommendations from Dendro Recommender : Null Body on HTTP response from DR Server.');
+                                    return callback(1, "Unable to fetch recommendations from Dendro Recommender : Null Body on HTTP response from DR Server.");
                                 }
                             }
                             else
                             {
-                                return callback(1, 'Unable to fetch recommendations from Dendro Recommender');
+                                return callback(1, "Unable to fetch recommendations from Dendro Recommender");
                             }
                         }
                     );
                 }
                 else
                 {
-                    return callback(err, 'Unable to fetch resource with uri ' + resourceUri + ' when retrieving current metadata to send to the dendro recommender.');
+                    return callback(err, "Unable to fetch resource with uri " + resourceUri + " when retrieving current metadata to send to the dendro recommender.");
                 }
             });
         };
@@ -357,7 +357,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
         {
             results = removeLockedAndPrivate(results);
 
-            const uuid = require('uuid');
+            const uuid = require("uuid");
             const recommendation_call_id = uuid.v4();
             const recommendation_call_timestamp = new Date().toISOString();
 

@@ -1,9 +1,9 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 
 /**
      * share folder controller
      */
-    .controller('shareCtrl',
+    .controller("shareCtrl",
         function (
             $scope,
             $http,
@@ -12,7 +12,7 @@ angular.module('dendroApp.controllers')
         {
             $scope.get_current_url = function ()
             {
-                var newURL = window.location.protocol + '//' + window.location.host + window.location.pathname;
+                var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 return newURL;
             };
 
@@ -25,31 +25,31 @@ angular.module('dendroApp.controllers')
 
                 var requestString = JSON.stringify(payload);
 
-                var url = $scope.get_calling_uri() + '?calculate_ckan_repository_diffs';
+                var url = $scope.get_calling_uri() + "?calculate_ckan_repository_diffs";
 
-                $scope.show_popup('info', 'Notice', 'Calculating diffs with target repository');
+                $scope.show_popup("info", "Notice", "Calculating diffs with target repository");
                 $scope.is_sending_data = true;
                 $scope.firstExportToCkan = false;
                 $http({
-                    method: 'POST',
+                    method: "POST",
                     url: url,
                     data: requestString,
-                    contentType: 'application/json',
-                    headers: {Accept: 'application/json'}
+                    contentType: "application/json",
+                    headers: {Accept: "application/json"}
                 }).then(function (response)
                 {
                     var data = response.data;
                     $scope.is_sending_data = false;
-                    if (typeof data === 'string')
+                    if (typeof data === "string")
                     {
-                        if (data === 'Package was not previously exported')
+                        if (data === "Package was not previously exported")
                         {
                             $scope.firstExportToCkan = true;
-                            $scope.show_popup('info', data, 'You can now export the resource', 20000);
+                            $scope.show_popup("info", data, "You can now export the resource", 20000);
                         }
                         else
                         {
-                            $scope.show_popup('error', data, 'Invalid data message', 20000);
+                            $scope.show_popup("error", data, "Invalid data message", 20000);
                         }
                     }
                     else if (data instanceof Object)
@@ -58,58 +58,58 @@ angular.module('dendroApp.controllers')
                         $scope.needsCkanPermissions = data.ckanDiffs;
                         if (!$scope.needsCkanPermissions && !$scope.needsDendroPermissions || $scope.needsCkanPermissions.length === 0 && $scope.needsDendroPermissions.length === 0)
                         {
-                            $scope.show_popup('info', 'No files added/deleted on Dendro or Ckan', 'HOWEVER!! if the content of a file was updated in Dendro tick the OVERWRITE option.', 20000);
+                            $scope.show_popup("info", "No files added/deleted on Dendro or Ckan", "HOWEVER!! if the content of a file was updated in Dendro tick the OVERWRITE option.", 20000);
                         }
                         else
                         {
                             if ($scope.needsCkanPermissions && $scope.needsCkanPermissions.length > 0)
                             {
-                                $scope.show_popup('warning', 'Ckan diffs', 'There were changes made to the package on the Ckan repository. To export again from dendro tick the boxes bellow. Note that changes made on the Ckan side could be lost if the same resources were worked on Dendro.', 60000);
+                                $scope.show_popup("warning", "Ckan diffs", "There were changes made to the package on the Ckan repository. To export again from dendro tick the boxes bellow. Note that changes made on the Ckan side could be lost if the same resources were worked on Dendro.", 60000);
                             }
                             if ($scope.needsDendroPermissions && $scope.needsDendroPermissions.length > 0)
                             {
-                                $scope.show_popup('warning', 'Dendro diffs', 'There were files added or deleted in the package via Dendro. To export again from Dendro tick the boxes bellow. Note that if files were added or deleted in Dendro it will also be deleted or added in Ckan.', 60000);
+                                $scope.show_popup("warning", "Dendro diffs", "There were files added or deleted in the package via Dendro. To export again from Dendro tick the boxes bellow. Note that if files were added or deleted in Dendro it will also be deleted or added in Ckan.", 60000);
                             }
                         }
                     }
                     else
                     {
-                        $scope.show_popup('error', data, 'Invalid data type', 20000);
+                        $scope.show_popup("error", data, "Invalid data type", 20000);
                     }
                 }).catch(function (error)
                 {
                     if (error.data != null && error.data.message != null)
                     {
-                        $scope.show_popup('error', error.data.title, error.data.message);
+                        $scope.show_popup("error", error.data.title, error.data.message);
                     }
                     else
                     {
-                        $scope.show_popup('error', 'Error occurred', JSON.stringify(error));
+                        $scope.show_popup("error", "Error occurred", JSON.stringify(error));
                     }
                     $scope.is_sending_data = false;
                 });
             };
 
             $scope.datepickerOptions = {
-                'close-on-date-selection': true
+                "close-on-date-selection": true
             };
 
             $scope.statusCodeDefaults = {
                 404: function (e, data)
                 {
-                    $scope.show_popup('info', 'Notice', e.responseJSON.message);
+                    $scope.show_popup("info", "Notice", e.responseJSON.message);
                 },
                 500: function (e, data)
                 {
-                    $scope.show_popup('error', 'error', e.responseJSON.message);
+                    $scope.show_popup("error", "error", e.responseJSON.message);
                 },
                 401: function (e, data)
                 {
-                    $scope.show_popup('error', 'Unauthorized', e.responseJSON.message);
+                    $scope.show_popup("error", "Unauthorized", e.responseJSON.message);
                 },
                 400: function (e, data)
                 {
-                    $scope.show_popup('error', 'Invalid Request', e.responseJSON.message);
+                    $scope.show_popup("error", "Invalid Request", e.responseJSON.message);
                 }
             };
 
@@ -136,7 +136,7 @@ angular.module('dendroApp.controllers')
 
             $scope.valid_base_address = function (baseAddress)
             {
-                return baseAddress != null && $scope.valid_url(baseAddress) && !baseAddress.endsWith('/');
+                return baseAddress != null && $scope.valid_url(baseAddress) && !baseAddress.endsWith("/");
             };
 
             $scope.valid_api_key = function (key)
@@ -175,19 +175,19 @@ angular.module('dendroApp.controllers')
                 var requestPayload = JSON.stringify(new_repository);
 
                 $.ajax({
-                    type: 'POST',
-                    url: '/external_repositories/new',
+                    type: "POST",
+                    url: "/external_repositories/new",
                     data: requestPayload,
-                    contentType: 'application/json',
+                    contentType: "application/json",
                     beforeSend: function (xhr)
                     {
-                        xhr.setRequestHeader('Accept', 'application/json');
+                        xhr.setRequestHeader("Accept", "application/json");
                     },
                     success: function (e, data)
                     {
                         $scope.clear_repository_type();
                         // $scope.get_my_repositories();
-                        $scope.show_popup('success', 'Success', e.message);
+                        $scope.show_popup("success", "Success", e.message);
                     },
                     statusCode: $scope.statusCodeDefaults
                 });
@@ -215,7 +215,7 @@ angular.module('dendroApp.controllers')
             $scope.recall_repository = function (my_repository)
             {
                 $scope.recalled_repository = my_repository;
-                if ($scope.recalled_repository.ddr.hasPlatform.foaf.nick === 'ckan')
+                if ($scope.recalled_repository.ddr.hasPlatform.foaf.nick === "ckan")
                 {
                     $scope.calculateCkanRepositoryDiffs($scope.recalled_repository);
                 }
@@ -225,7 +225,7 @@ angular.module('dendroApp.controllers')
 
             $scope.clear_all_bookmarks = function ()
             {
-                bootbox.confirm('Are you sure you want to delete ALL your bookmarks?', function (confirmed)
+                bootbox.confirm("Are you sure you want to delete ALL your bookmarks?", function (confirmed)
                 {
                     if (confirmed)
                     {
@@ -247,12 +247,12 @@ angular.module('dendroApp.controllers')
                 var doDeletion = function (bookmark)
                 {
                     $.ajax({
-                        type: 'DELETE',
+                        type: "DELETE",
                         url: bookmark.uri,
-                        contentType: 'application/json',
+                        contentType: "application/json",
                         beforeSend: function (xhr)
                         {
-                            xhr.setRequestHeader('Accept', 'application/json');
+                            xhr.setRequestHeader("Accept", "application/json");
                         },
                         success: function (e, data)
                         {
@@ -261,7 +261,7 @@ angular.module('dendroApp.controllers')
                                 $scope.get_my_repositories();
                             }, 1000);
 
-                            $scope.show_popup('success', 'Success', e.message);
+                            $scope.show_popup("success", "Success", e.message);
                             $scope.clear_recalled_repository();
                         },
                         statusCode: $scope.statusCodeDefaults
@@ -270,7 +270,7 @@ angular.module('dendroApp.controllers')
 
                 if (confirmDelete)
                 {
-                    bootbox.confirm('Are you sure you want to delete the bookmark ' + bookmark.dcterms.title + ' ?', function (confirmed)
+                    bootbox.confirm("Are you sure you want to delete the bookmark " + bookmark.dcterms.title + " ?", function (confirmed)
                     {
                         if (confirmed)
                         {
@@ -313,49 +313,49 @@ angular.module('dendroApp.controllers')
 
                 var requestString = JSON.stringify(payload);
 
-                var url = $scope.get_calling_uri() + '?export_to_repository';
+                var url = $scope.get_calling_uri() + "?export_to_repository";
 
-                $scope.show_popup('info', 'Notice', 'Exporting data to target repository');
+                $scope.show_popup("info", "Notice", "Exporting data to target repository");
                 $scope.is_sending_data = true;
 
                 $http({
-                    method: 'POST',
+                    method: "POST",
                     url: url,
                     data: requestString,
-                    contentType: 'application/json',
-                    headers: {Accept: 'application/json'}
+                    contentType: "application/json",
+                    headers: {Accept: "application/json"}
                 }).then(function (response)
                 {
                     var data = response.data;
 
                     if (data != null)
                     {
-                        if (data.result === 'error')
+                        if (data.result === "error")
                         {
                             if (data.message != null)
                             {
-                                $scope.show_popup('error', 'Error', data.message);
+                                $scope.show_popup("error", "Error", data.message);
                             }
                             else
                             {
-                                $scope.show_popup('error', 'Error', 'Unknown error occurred.');
+                                $scope.show_popup("error", "Error", "Unknown error occurred.");
                             }
                         }
                         else
                         {
                             if (data.message != null)
                             {
-                                $scope.show_popup('success', 'Success', data.message);
+                                $scope.show_popup("success", "Success", data.message);
                             }
                             else
                             {
-                                $scope.show_popup('success', 'Success', 'Operation completed successfully.');
+                                $scope.show_popup("success", "Success", "Operation completed successfully.");
                             }
                         }
                     }
                     else
                     {
-                        $scope.show_popup('error', 'Connection lost', 'Connection lost during dataset deposit. Please try again.');
+                        $scope.show_popup("error", "Connection lost", "Connection lost during dataset deposit. Please try again.");
                     }
                     $scope.is_sending_data = false;
                     $scope.clear_recalled_repository();
@@ -363,22 +363,22 @@ angular.module('dendroApp.controllers')
                 {
                     if (error.data != null && error.data.message != null)
                     {
-                        if (error.data.message.indexOf('ckanDiffs') !== -1)
+                        if (error.data.message.indexOf("ckanDiffs") !== -1)
                         {
-                            $scope.show_popup('error', 'Ckan export error', 'If you want to export to Ckan again you have to tick the boxes bellow. Note that the changes made on the Ckan side may be lost if they overlap with the ones made on Dendro', 5000);
+                            $scope.show_popup("error", "Ckan export error", "If you want to export to Ckan again you have to tick the boxes bellow. Note that the changes made on the Ckan side may be lost if they overlap with the ones made on Dendro", 5000);
                         }
-                        else if (error.data.message.indexOf('dendroDiffs') !== -1)
+                        else if (error.data.message.indexOf("dendroDiffs") !== -1)
                         {
-                            $scope.show_popup('error', 'Ckan export error', 'If you want to export to Ckan again you have to tick the boxes bellow. Note that if files were added or deleted on Dendro the same will happen in Ckan', 5000);
+                            $scope.show_popup("error", "Ckan export error", "If you want to export to Ckan again you have to tick the boxes bellow. Note that if files were added or deleted on Dendro the same will happen in Ckan", 5000);
                         }
                         else
                         {
-                            $scope.show_popup('error', error.data.title, error.data.message);
+                            $scope.show_popup("error", error.data.title, error.data.message);
                         }
                     }
                     else
                     {
-                        $scope.show_popup('error', 'Error occurred', JSON.stringify(error));
+                        $scope.show_popup("error", "Error occurred", JSON.stringify(error));
                     }
                     $scope.is_sending_data = false;
                 });
@@ -387,12 +387,12 @@ angular.module('dendroApp.controllers')
             $scope.get_my_repositories = function ()
             {
                 $.ajax({
-                    type: 'GET',
-                    url: '/external_repositories/my',
-                    contentType: 'application/json',
+                    type: "GET",
+                    url: "/external_repositories/my",
+                    contentType: "application/json",
                     beforeSend: function (xhr)
                     {
-                        xhr.setRequestHeader('Accept', 'application/json');
+                        xhr.setRequestHeader("Accept", "application/json");
                     },
                     success: function (e, data)
                     {
@@ -405,12 +405,12 @@ angular.module('dendroApp.controllers')
             $scope.get_repository_types = function ()
             {
                 $.ajax({
-                    type: 'GET',
-                    url: '/external_repositories/types',
-                    contentType: 'application/json',
+                    type: "GET",
+                    url: "/external_repositories/types",
+                    contentType: "application/json",
                     beforeSend: function (xhr)
                     {
-                        xhr.setRequestHeader('Accept', 'application/json');
+                        xhr.setRequestHeader("Accept", "application/json");
                     },
                     success: function (e, data)
                     {
@@ -431,17 +431,17 @@ angular.module('dendroApp.controllers')
                 };
 
                 var requestString = JSON.stringify(payload);
-                $scope.show_popup('info', 'Notice', 'Accessing workspaces and collections of target repository');
+                $scope.show_popup("info", "Notice", "Accessing workspaces and collections of target repository");
                 $http({
-                    method: 'POST',
-                    url: '/external_repositories/sword_collections',
+                    method: "POST",
+                    url: "/external_repositories/sword_collections",
                     data: requestString
                 }).then(function (response)
                 {
                     var data = response.data;
-                    if (data.result == 'error' && data.message != null)
+                    if (data.result == "error" && data.message != null)
                     {
-                        $scope.show_popup('error', 'Error', data.message);
+                        $scope.show_popup("error", "Error", data.message);
                     }
                     else
                     {
@@ -456,7 +456,7 @@ angular.module('dendroApp.controllers')
 
                         if (n_collections == 0)
                         {
-                            $scope.show_popup('info', 'Notice', 'There are no collections available in this repository');
+                            $scope.show_popup("info", "Notice", "There are no collections available in this repository");
                         }
                         else
                         {
@@ -467,11 +467,11 @@ angular.module('dendroApp.controllers')
                 {
                     if (error.data != null && error.data.message != null)
                     {
-                        $scope.show_popup('error', error.data.title, error.data.message);
+                        $scope.show_popup("error", error.data.title, error.data.message);
                     }
                     else
                     {
-                        $scope.show_popup('error', 'Error occurred', JSON.stringify(error));
+                        $scope.show_popup("error", "Error occurred", JSON.stringify(error));
                     }
                 });
             };

@@ -1,9 +1,9 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const _ = require('underscore');
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const _ = require("underscore");
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 function Class ()
 {
@@ -22,7 +22,7 @@ const copyPrototypeFromParent = function (parentClass, childClass)
 
     for (aClassMethod in parentClass)
     {
-        if (aClassMethod !== 'prototype')
+        if (aClassMethod !== "prototype")
         {
             if (isNull(childClass[aClassMethod]))
             {
@@ -67,7 +67,7 @@ Class.extend = function (childClass, parentClass, rdfTypeForSavingInDatabase)
             childClass.prefixedRDFType = [rdfTypeForSavingInDatabase];
             childClass.prefixedRDFType = parentClass.prefixedRDFType.concat(childClass.prefixedRDFType);
         }
-        else if (typeof parentClass.prefixedRDFType === 'string')
+        else if (typeof parentClass.prefixedRDFType === "string")
         {
             childClass.prefixedRDFType = [parentClass.prefixedRDFType, rdfTypeForSavingInDatabase];
         }

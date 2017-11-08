@@ -1,24 +1,24 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
-const Change = require(Pathfinder.absPathInSrcFolder('/models/versions/change.js')).Change;
-const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 
 function ArchivedResource (object)
 {
     const self = this;
-    self.addURIAndRDFType(object, 'archived_resource', ArchivedResource);
+    self.addURIAndRDFType(object, "archived_resource", ArchivedResource);
     ArchivedResource.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
@@ -27,23 +27,23 @@ function ArchivedResource (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.humanReadableURI = object.ddr.humanReadableURI + '/version/' + object.ddr.newVersionNumber;
+        self.humanReadableURI = object.ddr.humanReadableURI + "/version/" + object.ddr.newVersionNumber;
     }
 
     if (!isNull(object.rdf.type))
     {
         if (object.rdf.type instanceof Array)
         {
-            if (!_.contains(object.rdf.type, 'ddr:ArchivedResource'))
+            if (!_.contains(object.rdf.type, "ddr:ArchivedResource"))
             {
-                self.rdf.type = object.rdf.type.concat(['ddr:ArchivedResource']);
+                self.rdf.type = object.rdf.type.concat(["ddr:ArchivedResource"]);
             }
         }
-        else if (typeof object.rdf.type === 'string')
+        else if (typeof object.rdf.type === "string")
         {
-            if (object.rdf.type !== 'ddr:ArchivedResource')
+            if (object.rdf.type !== "ddr:ArchivedResource")
             {
-                self.rdf.type = [object.rdf.type, 'ddr:ArchivedResource'];
+                self.rdf.type = [object.rdf.type, "ddr:ArchivedResource"];
             }
         }
     }
@@ -59,20 +59,20 @@ function ArchivedResource (object)
 
 ArchivedResource.findByResourceAndVersionNumber = function (resourceUri, versionNumber, callback, customGraphUri)
 {
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     try
     {
-        if (!isNull(versionNumber) && typeof versionNumber === 'number' && versionNumber % 1 === 0)
+        if (!isNull(versionNumber) && typeof versionNumber === "number" && versionNumber % 1 === 0)
         {
             db.connection.executeViaJDBC(
-                'SELECT ?archived_resource\n' +
-                'FROM [0]\n' +
-                'WHERE \n' +
-                '{ \n' +
-                '   ?archived_resource ddr:isVersionOf [1]. \n' +
-                '   ?archived_resource ddr:versionNumber [2]. \n' +
-                '} \n',
+                "SELECT ?archived_resource\n" +
+                "FROM [0]\n" +
+                "WHERE \n" +
+                "{ \n" +
+                "   ?archived_resource ddr:isVersionOf [1]. \n" +
+                "   ?archived_resource ddr:versionNumber [2]. \n" +
+                "} \n",
 
                 [
                     {
@@ -98,14 +98,14 @@ ArchivedResource.findByResourceAndVersionNumber = function (resourceUri, version
                         }
                         else
                         {
-                            const msg = 'Unable to determine the URI of the archived resource version ' + versionNumber + ' of ' + resourceUri;
+                            const msg = "Unable to determine the URI of the archived resource version " + versionNumber + " of " + resourceUri;
                             console.error(msg);
                             return callback(1, msg);
                         }
                     }
                     else
                     {
-                        const msg = 'Error finding archived version ' + versionNumber + ' of resource ' + resourceUri + ' . Error returned: ' + JSON.stringify(results);
+                        const msg = "Error finding archived version " + versionNumber + " of resource " + resourceUri + " . Error returned: " + JSON.stringify(results);
                         console.error(msg);
                         return callback(err, msg);
                     }
@@ -113,12 +113,12 @@ ArchivedResource.findByResourceAndVersionNumber = function (resourceUri, version
         }
         else
         {
-            return callback(1, versionNumber + ' is not a valid integer.');
+            return callback(1, versionNumber + " is not a valid integer.");
         }
     }
     catch (ex)
     {
-        return callback(1, versionNumber + ' is not a valid integer. Exception reported : ' + ex);
+        return callback(1, versionNumber + " is not a valid integer. Exception reported : " + ex);
     }
 };
 
@@ -141,7 +141,7 @@ ArchivedResource.findByUri = function (uri, callback)
         }
         else
         {
-            const error = 'Unable to find archived resource with uri : ' + uri;
+            const error = "Unable to find archived resource with uri : " + uri;
             console.error(error);
             return callback(1, null);
         }
@@ -185,7 +185,7 @@ ArchivedResource.prototype.getDetailedInformation = function (callback)
 
     const setHumanReadableDate = function (cb)
     {
-        const moment = require('moment');
+        const moment = require("moment");
         const humanReadableDate = moment(archivedResource.ddr.created);
 
         archivedResource.ddr.created = humanReadableDate.calendar();
@@ -237,7 +237,7 @@ ArchivedResource.prototype.getDetailedInformation = function (callback)
                         return cb(null);
                     }
 
-                    return cb(1, 'Unable to fetch descriptor information. Reported Error: ' + fullChanges);
+                    return cb(1, "Unable to fetch descriptor information. Reported Error: " + fullChanges);
                 });
         }
         else
@@ -258,6 +258,6 @@ ArchivedResource.prototype.getDetailedInformation = function (callback)
     });
 };
 
-ArchivedResource = Class.extend(ArchivedResource, Resource, 'ddr:ArchivedResource');
+ArchivedResource = Class.extend(ArchivedResource, Resource, "ddr:ArchivedResource");
 
 module.exports.ArchivedResource = ArchivedResource;

@@ -1,12 +1,12 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
      *  Project administration controller
      */
-    .controller('projectsCtrl', function ($scope, $window)
+    .controller("projectsCtrl", function ($scope, $window)
     {
         $scope.tab_changed = function (tabName)
         {
-            var tabID = 'tab_changed:' + tabName;
+            var tabID = "tab_changed:" + tabName;
             $scope.$broadcast(tabID);
         };
     });

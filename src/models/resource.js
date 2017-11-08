@@ -1,23 +1,23 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
-const DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder('/kb/index.js')).IndexConnection;
-const Cache = require(Pathfinder.absPathInSrcFolder('/kb/cache/cache.js')).Cache;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 const db = Config.getDBByID();
 
 function Resource (object)
 {
     let self = this;
-    self.addURIAndRDFType(object, 'resource', Resource);
+    self.addURIAndRDFType(object, "resource", Resource);
     Resource.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
@@ -43,7 +43,7 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
     {
         for (let key in self)
         {
-            if (key !== 'uri')
+            if (key !== "uri")
             {
                 delete self[key];
             }
@@ -89,7 +89,7 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
 Resource.prototype.loadObjectWithQueryResults = function (queryResults, ontologyURIsArray)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
     self.clearDescriptors();
 
@@ -132,9 +132,9 @@ Resource.prototype.loadObjectWithQueryResults = function (queryResults, ontology
 Resource.exists = function (uri, callback, customGraphUri)
 {
     const self = this;
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-    let typesRestrictions = '';
+    let typesRestrictions = "";
     let types;
 
     if (self.prefixedRDFType instanceof Array)
@@ -148,24 +148,24 @@ Resource.exists = function (uri, callback, customGraphUri)
 
     for (let i = 0; i < types.length; i++)
     {
-        typesRestrictions = typesRestrictions + '[1] rdf:type ' + types[i];
+        typesRestrictions = typesRestrictions + "[1] rdf:type " + types[i];
 
         if (i < types.length - 1)
         {
-            typesRestrictions = typesRestrictions + '.\n';
+            typesRestrictions = typesRestrictions + ".\n";
         }
     }
 
     db.connection.executeViaJDBC(
-        'WITH [0]\n' +
-        'ASK \n' +
-        'WHERE \n' +
-        '{ \n' +
-        '   {\n' +
-        '       [1] ?p ?o. \n' +
+        "WITH [0]\n" +
+        "ASK \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   {\n" +
+        "       [1] ?p ?o. \n" +
         typesRestrictions +
-        '   }\n' +
-        '} \n',
+        "   }\n" +
+        "} \n",
 
         [
             {
@@ -187,7 +187,7 @@ Resource.exists = function (uri, callback, customGraphUri)
                 }
                 return callback(null, result);
             }
-            const msg = 'Error checking for the existence of resource with uri : ' + uri;
+            const msg = "Error checking for the existence of resource with uri : " + uri;
             console.error(msg);
             console.error(JSON.stringify(err));
             console.error(JSON.stringify(result));
@@ -200,7 +200,7 @@ Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove,
     const self = this;
     const type = self.prefixedRDFType;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const queryArguments = [
         {
@@ -210,10 +210,10 @@ Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove,
     ];
 
     let query =
-        'SELECT ?uri \n' +
-        'FROM [0]\n' +
-        'WHERE \n' +
-        '{ \n';
+        "SELECT ?uri \n" +
+        "FROM [0]\n" +
+        "WHERE \n" +
+        "{ \n";
 
     if (!isNull(type))
     {
@@ -229,10 +229,10 @@ Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove,
         }
 
         let argumentCount = 1;
-        let typeRestrictions = '';
+        let typeRestrictions = "";
         for (let i = 0; i < rdfTypes.length; i++)
         {
-            typeRestrictions = typeRestrictions + ' ?uri rdf:type [' + argumentCount + ']';
+            typeRestrictions = typeRestrictions + " ?uri rdf:type [" + argumentCount + "]";
             argumentCount++;
 
             queryArguments.push({
@@ -242,23 +242,23 @@ Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove,
 
             if (i < rdfTypes.length - 1)
             {
-                typeRestrictions += '.\n';
+                typeRestrictions += ".\n";
             }
             else
             {
-                typeRestrictions += '\n';
+                typeRestrictions += "\n";
             }
         }
 
         query = query + typeRestrictions;
     }
 
-    query = query + '} \n';
+    query = query + "} \n";
 
     if (!isNull(req))
     {
         const viewVars = {
-            title: 'All vertexes in the knowledge base'
+            title: "All vertexes in the knowledge base"
         };
 
         req.viewVars = DbConnection.paginate(req,
@@ -299,7 +299,7 @@ Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove,
             }
             else
             {
-                return callback(1, 'Unable to fetch all resources from the graph');
+                return callback(1, "Unable to fetch all resources from the graph");
             }
         });
 };
@@ -329,12 +329,12 @@ Resource.prototype.deleteAllMyTriples = function (callback, customGraphUri)
     });
 
     Config.getDBByGraphUri(customGraphUri).connection.executeViaJDBC(
-        'WITH [0] \n' +
-            'DELETE \n' +
-            'WHERE ' +
-            '{ \n' +
-                '[1] ?p ?o \n' +
-            '} \n',
+        "WITH [0] \n" +
+            "DELETE \n" +
+            "WHERE " +
+            "{ \n" +
+                "[1] ?p ?o \n" +
+            "} \n",
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -366,19 +366,19 @@ Resource.prototype.deleteDescriptorTriples = function (descriptorInPrefixedForm,
 {
     const self = this;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     if (!isNull(descriptorInPrefixedForm))
     {
         if (!isNull(valueInPrefixedForm))
         {
             db.connection.executeViaJDBC(
-                'WITH [0] \n' +
-                    'DELETE \n' +
-                    'WHERE ' +
-                    '{ ' +
-                    '   [1] [2] [3] ' +
-                    '} \n',
+                "WITH [0] \n" +
+                    "DELETE \n" +
+                    "WHERE " +
+                    "{ " +
+                    "   [1] [2] [3] " +
+                    "} \n",
                 [
                     {
                         type: Elements.types.resourceNoEscape,
@@ -416,12 +416,12 @@ Resource.prototype.deleteDescriptorTriples = function (descriptorInPrefixedForm,
         else
         {
             db.connection.executeViaJDBC(
-                'WITH [0] \n' +
-                    'DELETE \n' +
-                    'WHERE ' +
-                    '{ ' +
-                    '   [1] [2] ?o ' +
-                    '} \n',
+                "WITH [0] \n" +
+                    "DELETE \n" +
+                    "WHERE " +
+                    "{ " +
+                    "   [1] [2] ?o " +
+                    "} \n",
                 [
                     {
                         type: Elements.types.resourceNoEscape,
@@ -455,7 +455,7 @@ Resource.prototype.deleteDescriptorTriples = function (descriptorInPrefixedForm,
     }
     else
     {
-        const msg = 'No descriptor specified --> Descriptor ' + descriptorInPrefixedForm;
+        const msg = "No descriptor specified --> Descriptor " + descriptorInPrefixedForm;
         console.error(msg);
         return callback(1, msg);
     }
@@ -465,15 +465,15 @@ Resource.prototype.descriptorValue = function (descriptorWithNamespaceSeparatedB
 {
     const self = this;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     db.connection.executeViaJDBC(
-        'WITH [0] \n' +
-            'SELECT ?p ?o \n' +
-            'WHERE ' +
-            '{' +
-                ' [1] [2] ?o ' +
-            '} \n',
+        "WITH [0] \n" +
+            "SELECT ?p ?o \n" +
+            "WHERE " +
+            "{" +
+                " [1] [2] ?o " +
+            "} \n",
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -508,7 +508,7 @@ Resource.prototype.clearOutgoingPropertiesFromOntologies = function (ontologyURI
 {
     const self = this;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const descriptors = self.getPropertiesFromOntologies(ontologyURIsArray, graphUri);
 
     const triplesToDelete = [];
@@ -536,7 +536,7 @@ Resource.prototype.loadPropertiesFromOntologies = function (ontologyURIsArray, c
 {
     const self = this;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     // build arguments string from the requested ontologies,
     // as well as the FROM string with the parameter placeholders
@@ -552,12 +552,12 @@ Resource.prototype.loadPropertiesFromOntologies = function (ontologyURIsArray, c
     ];
 
     const query =
-        ' SELECT DISTINCT ?uri ?value \n' +
-        ' FROM [0] \n' +
-        ' WHERE \n' +
-        ' { \n' +
-        '   [1] ?uri ?value .\n' +
-        ' } \n';
+        " SELECT DISTINCT ?uri ?value \n" +
+        " FROM [0] \n" +
+        " WHERE \n" +
+        " { \n" +
+        "   [1] ?uri ?value .\n" +
+        " } \n";
 
     db.connection.executeViaJDBC(query,
         argumentsArray,
@@ -570,7 +570,7 @@ Resource.prototype.loadPropertiesFromOntologies = function (ontologyURIsArray, c
             }
             else
             {
-                console.error('Error fetching descriptors from ontologies : ' + JSON.stringify(ontologyURIsArray) + '. Error returned : ' + descriptors);
+                console.error("Error fetching descriptors from ontologies : " + JSON.stringify(ontologyURIsArray) + ". Error returned : " + descriptors);
                 return callback(1, descriptors);
             }
         });
@@ -586,10 +586,10 @@ Resource.prototype.loadPropertiesFromOntologies = function (ontologyURIsArray, c
 Resource.prototype.getPropertiesFromOntologies = function (ontologyURIsArray, customGraphUri, typeConfigsToRetain)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-    const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const transformUrisToPrefixes = function (urisArray)
     {
@@ -671,8 +671,8 @@ Resource.prototype.validateDescriptorValues = function (callback)
 
             if (!detectedAlternative)
             {
-                const error = '[ERROR] Value "' + descriptor.value + '" of descriptor ' + descriptor.uri + ' is invalid, because it is not one of the valid alternatives ' + JSON.stringify(descriptor.hasAlternative) + '. ' +
-                    'This error occurred when checking the validity of the descriptors of resource ' + self.uri;
+                const error = "[ERROR] Value \"" + descriptor.value + "\" of descriptor " + descriptor.uri + " is invalid, because it is not one of the valid alternatives " + JSON.stringify(descriptor.hasAlternative) + ". " +
+                    "This error occurred when checking the validity of the descriptors of resource " + self.uri;
                 console.error(error);
                 return callback(1, error);
             }
@@ -683,14 +683,14 @@ Resource.prototype.validateDescriptorValues = function (callback)
 
     const descriptorValueConformsToRegex = function (descriptor, callback)
     {
-        if (!isNull(descriptor.hasRegex) && (typeof descriptor.hasRegex === 'string'))
+        if (!isNull(descriptor.hasRegex) && (typeof descriptor.hasRegex === "string"))
         {
             const regex = new RegExp(descriptor.hasRegex);
 
             if (!regex.match(descriptor.value))
             {
-                const error = '[ERROR] Value "' + descriptor.value + '" of descriptor ' + descriptor.uri + ' is invalid, because it does not comply with the regular expression ' + descriptor.hasRegex + '. ' +
-                    'This error occurred when checking the validity of the descriptors of resource ' + self.uri;
+                const error = "[ERROR] Value \"" + descriptor.value + "\" of descriptor " + descriptor.uri + " is invalid, because it does not comply with the regular expression " + descriptor.hasRegex + ". " +
+                    "This error occurred when checking the validity of the descriptors of resource " + self.uri;
                 console.error(error);
                 return callback(1, error);
             }
@@ -717,7 +717,7 @@ Resource.prototype.validateDescriptorValues = function (callback)
         {
             if (err)
             {
-                console.error('Error detected while validating descriptors: ' + JSON.stringify(errors));
+                console.error("Error detected while validating descriptors: " + JSON.stringify(errors));
                 return callback(err, errors);
             }
             return callback(err, errors);
@@ -733,8 +733,8 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
 
     if (!isNull(newDescriptors) && newDescriptors instanceof Object)
     {
-        let deleteString = '';
-        let insertString = '';
+        let deleteString = "";
+        let insertString = "";
 
         let predCount = 0;
         let argCount = 1;
@@ -747,15 +747,15 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
         ];
 
         // build the delete string
-        deleteString = deleteString + ' [' + argCount++ + ']';
+        deleteString = deleteString + " [" + argCount++ + "]";
 
         queryArguments.push({
             type: Elements.types.resource,
             value: subject
         });
 
-        deleteString = deleteString + ' ?p' + predCount++;
-        deleteString = deleteString + ' ?o' + predCount++ + ' . \n';
+        deleteString = deleteString + " ?p" + predCount++;
+        deleteString = deleteString + " ?o" + predCount++ + " . \n";
 
         for (let i = 0; i < newDescriptors.length; i++)
         {
@@ -773,46 +773,55 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
 
                 for (let j = 0; j < objects.length; j++)
                 {
-                    insertString = insertString + ' [' + argCount++ + '] ';
+                    insertString = insertString + " [" + argCount++ + "] ";
 
                     queryArguments.push({
                         type: Elements.types.resource,
                         value: subject
                     });
 
-                    insertString = insertString + ' [' + argCount++ + '] ';
+                    insertString = insertString + " [" + argCount++ + "] ";
 
                     queryArguments.push({
                         type: Elements.types.resource,
                         value: newDescriptor.uri
                     });
 
-                    insertString = insertString + ' [' + argCount++ + '] ';
+                    insertString = insertString + " [" + argCount++ + "] ";
 
                     queryArguments.push({
                         type: newDescriptor.type,
                         value: objects[j]
                     });
 
-                    insertString = insertString + '.\n';
+                    insertString = insertString + ".\n";
                 }
             }
         }
 
         const query =
-            'WITH GRAPH [0] \n' +
-            'DELETE \n' +
-            '{ \n' +
-            deleteString + ' \n' +
-            '} \n' +
-            'WHERE \n' +
-            '{ \n' +
-            deleteString + ' \n' +
-            '} \n' +
-            'INSERT DATA\n' +
-            '{ \n' +
-            insertString + ' \n' +
-            '} \n';
+            "DELETE \n" +
+            "{" +
+            "   GRAPH [0] \n" +
+            "   {" +
+            "   \n" +
+                    deleteString + " \n" +
+            "   } \n" +
+            "} \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   GRAPH [0] \n" +
+            "   { \n" +
+                    deleteString + " \n" +
+            "   } \n" +
+            "} \n" +
+            "INSERT DATA\n" +
+            "{ \n" +
+            "   GRAPH [0] \n" +
+            "   { \n" +
+                    insertString + " \n" +
+            "   } \n" +
+            "} \n";
 
         // Invalidate cache record for the updated resources
         Cache.getByGraphUri(graphName).delete(subject, function (err, result)
@@ -821,12 +830,12 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
             {
                 return callback(err, results);
                 // console.log(results);
-            });
+            }, null, null, null, true);
         });
     }
     else
     {
-        return callback(1, 'Invalid or no triples sent for insertion / update');
+        return callback(1, "Invalid or no triples sent for insertion / update");
     }
 };
 
@@ -852,10 +861,10 @@ Resource.prototype.save = function
         customGraphUri
     )
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const now = new Date();
     self.ddr.modified = now.toISOString();
@@ -864,7 +873,7 @@ Resource.prototype.save = function
     {
         if (isNull(self.uri))
         {
-            cb(1, 'Cannot save a resource without providing an URI. Please make sure that the .uri key is not null in every object you save');
+            cb(1, "Cannot save a resource without providing an URI. Please make sure that the .uri key is not null in every object you save");
         }
         else
         {
@@ -872,7 +881,7 @@ Resource.prototype.save = function
             {
                 if (err)
                 {
-                    console.error('Error validating values before saving resource ' + self.uri + ' : ' + JSON.stringify(results));
+                    console.error("Error validating values before saving resource " + self.uri + " : " + JSON.stringify(results));
                 }
                 cb(err, results);
             });
@@ -889,7 +898,7 @@ Resource.prototype.save = function
             }
             else
             {
-                console.error('Error occurred while getting last version of the resource ' + myUri);
+                console.error("Error occurred while getting last version of the resource " + myUri);
                 console.error(JSON.stringify(currentResource));
                 cb(err, currentResource);
             }
@@ -933,7 +942,7 @@ Resource.prototype.save = function
                     if (changedDescriptor.isAuthorized(excludeAuditDescriptorsArray, descriptorsToExceptionFromChangeLog))
                     {
                         change.ddr.pertainsTo = archivedResource.uri;
-                        change.ddr.humanReadableURI = archivedResource.uri + '/change/' + change.ddr.changeIndex;
+                        change.ddr.humanReadableURI = archivedResource.uri + "/change/" + change.ddr.changeIndex;
                         change.save(function (err, result)
                         {
                             cb(err, result);
@@ -956,14 +965,14 @@ Resource.prototype.save = function
                     }
                     else
                     {
-                        console.error('Error saving changes to resource  ' + archivedResource.uri + '. Error reported : ' + err);
+                        console.error("Error saving changes to resource  " + archivedResource.uri + ". Error reported : " + err);
                         cb(1, results);
                     }
                 });
             }
             else
             {
-                console.error('Error making archived version of resource with URI : ' + self.uri + '. Error returned : ' + archivedResource);
+                console.error("Error making archived version of resource with URI : " + self.uri + ". Error returned : " + archivedResource);
                 cb(1, archivedResource);
             }
         });
@@ -1084,7 +1093,7 @@ Resource.prototype.save = function
                 }
                 else
                 {
-                    cb(1, 'Unable to archive resource or to get current one.');
+                    cb(1, "Unable to archive resource or to get current one.");
                 }
             }
             else
@@ -1127,8 +1136,8 @@ Resource.prototype.updateDescriptors = function (descriptors, cannotChangeTheseD
         }
         else
         {
-            const util = require('util');
-            const error = 'Descriptor ' + util.inspect(descriptor) + ' does not have a prefix and a short name.';
+            const util = require("util");
+            const error = "Descriptor " + util.inspect(descriptor) + " does not have a prefix and a short name.";
             console.error(error);
         }
     }
@@ -1215,7 +1224,7 @@ Resource.prototype.replaceDescriptors = function (newDescriptors, cannotChangeTh
 Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsArray, returnAsFlatArray, callback, customGraphUri)
 {
     const self = this;
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     let argumentsArray = [
         {
@@ -1228,43 +1237,43 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
         }
     ];
 
-    let fromString = '';
-    let filterString = '';
+    let fromString = "";
+    let filterString = "";
 
     if (!isNull(ontologyURIsArray))
     {
         const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(ontologyURIsArray, argumentsArray.length);
-        filterString = DbConnection.buildFilterStringForOntologies(ontologyURIsArray, 'property');
+        filterString = DbConnection.buildFilterStringForOntologies(ontologyURIsArray, "property");
 
         argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
         fromString = fromString + fromElements.fromString;
     }
 
     db.connection.executeViaJDBC(
-        'SELECT ?property ?object\n' +
-            ' FROM [0] \n' +
-            fromString + '\n' +
-            'WHERE \n' +
-            '{ \n' +
-                ' [1] ?property ?object. \n' +
-                ' OPTIONAL { \n' +
-                '   ?property  rdfs:label      ?label  .\n' +
-                    'FILTER (lang(?label) = "" || lang(?label) = "en")' +
-                '}' +
-                ' OPTIONAL { ' +
-                '   ?property  rdfs:comment    ?comment .' +
-                '   FILTER (lang(?comment) = "" || lang(?comment) = "en")' +
-                '} .\n' +
-                ' FILTER isLiteral(?object) .\n' +
+        "SELECT ?property ?object\n" +
+            " FROM [0] \n" +
+            fromString + "\n" +
+            "WHERE \n" +
+            "{ \n" +
+                " [1] ?property ?object. \n" +
+                " OPTIONAL { \n" +
+                "   ?property  rdfs:label      ?label  .\n" +
+                    "FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
+                "}" +
+                " OPTIONAL { " +
+                "   ?property  rdfs:comment    ?comment ." +
+                "   FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
+                "} .\n" +
+                " FILTER isLiteral(?object) .\n" +
                 filterString +
-            '} \n',
+            "} \n",
         argumentsArray
         ,
         function (err, results)
         {
             if (err)
             {
-                const error = 'error retrieving literal properties for resource ' + self.uri;
+                const error = "error retrieving literal properties for resource " + self.uri;
                 console.log(error);
                 return callback(1, error);
             }
@@ -1302,7 +1311,7 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
 
 Resource.prototype.reindex = function (indexConnection, callback)
 {
-    const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
+    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     const self = this;
     const infoMessages = [];
     const errorMessages = [];
@@ -1349,10 +1358,10 @@ Resource.prototype.reindex = function (indexConnection, callback)
                             {
                                 if (isNull(err))
                                 {
-                                    infoMessages.push(results.length + ' resources successfully reindexed in index ' + indexConnection.index.short_name);
+                                    infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.index.short_name);
                                     return callback(null, infoMessages);
                                 }
-                                const msg = 'Error deleting old document for resource ' + self.uri + ' error returned ' + result;
+                                const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
                                 errorMessages.push(msg);
                                 console.error(msg);
                                 return callback(1, errorMessages);
@@ -1360,14 +1369,14 @@ Resource.prototype.reindex = function (indexConnection, callback)
                     }
                     else
                     {
-                        errorMessages.push('Error getting document id for resource ' + self.uri + ' error returned ' + id);
+                        errorMessages.push("Error getting document id for resource " + self.uri + " error returned " + id);
                         return callback(1, errorMessages);
                     }
                 });
             }
             else
             {
-                infoMessages.push('Node ' + self.uri + ' has no literal properties to be indexed, moving on');
+                infoMessages.push("Node " + self.uri + " has no literal properties to be indexed, moving on");
                 return callback(null, errorMessages);
             }
         });
@@ -1425,14 +1434,14 @@ Resource.prototype.getTextuallySimilarResources = function (indexConnection, max
         }
         else
         {
-            return callback(1, 'Error retrieving similar resources for resource ' + self.uri + ' : ' + id);
+            return callback(1, "Error retrieving similar resources for resource " + self.uri + " : " + id);
         }
     });
 };
 
 Resource.getResourceRegex = function (resourceType)
 {
-    const regex = '^/r/' + resourceType + '/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$';
+    const regex = "^/r/" + resourceType + "/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
     return new RegExp(regex);
 };
 
@@ -1446,7 +1455,7 @@ Resource.findResourcesByTextQuery = function (
     const queryObject = {
         query: {
             match: {
-                'descriptors.object': {
+                "descriptors.object": {
                     query: queryString
                 }
             }
@@ -1454,7 +1463,7 @@ Resource.findResourcesByTextQuery = function (
         from: resultSkip,
         size: maxResultSize,
         sort: [
-            '_score'
+            "_score"
         ],
         version: true
     };
@@ -1510,7 +1519,7 @@ Resource.prototype.restoreFromIndexDocument = function (indexConnection, callbac
                 },
                 filter: {
                     term: {
-                        'resource.uri': self.uri
+                        "resource.uri": self.uri
                     }
                 }
             }
@@ -1518,7 +1527,7 @@ Resource.prototype.restoreFromIndexDocument = function (indexConnection, callbac
         from: 0,
         size: 2,
         sort: [
-            '_score'
+            "_score"
         ],
         version: true
     };
@@ -1536,7 +1545,7 @@ Resource.prototype.restoreFromIndexDocument = function (indexConnection, callbac
                 {
                     if (hits.length > 1)
                     {
-                        console.error('Duplicate document in index detected for resource !!! Fix it ' + self.uri);
+                        console.error("Duplicate document in index detected for resource !!! Fix it " + self.uri);
                     }
 
                     let hit = hits[0];
@@ -1552,7 +1561,7 @@ Resource.prototype.restoreFromIndexDocument = function (indexConnection, callbac
 
 Resource.getUriFromHumanReadableUri = function (humanReadableUri, callback, customGraphUri, skipCache)
 {
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const getFromCache = function (callback)
     {
@@ -1563,12 +1572,12 @@ Resource.getUriFromHumanReadableUri = function (humanReadableUri, callback, cust
     const getFromTripleStore = function (callback)
     {
         db.connection.executeViaJDBC(
-            'SELECT ?uri \n' +
-            'FROM [0] \n' +
-            'WHERE \n' +
-            '{ \n' +
-            '   ?uri ddr:humanReadableURI [1] \n' +
-            '}\n',
+            "SELECT ?uri \n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   ?uri ddr:humanReadableURI [1] \n" +
+            "}\n",
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -1591,7 +1600,7 @@ Resource.getUriFromHumanReadableUri = function (humanReadableUri, callback, cust
                         }
                         else if (results.length > 1)
                         {
-                            return callback(1, '[ERROR] There are more than one internal URIs for the human readable URI ' + humanReadableUri + ' ! They are : ' + JSON.stringify(results));
+                            return callback(1, "[ERROR] There are more than one internal URIs for the human readable URI " + humanReadableUri + " ! They are : " + JSON.stringify(results));
                         }
                         return callback(null, null);
                     }
@@ -1697,11 +1706,11 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
         {
             if (!isNull(err))
             {
-                const msg = 'Unable to set value of ' + resource.uri + ' as ' + JSON.stringify(resource) + ' in cache : ' + JSON.stringify(err);
+                const msg = "Unable to set value of " + resource.uri + " as " + JSON.stringify(resource) + " in cache : " + JSON.stringify(err);
                 console.log(msg);
             }
 
-            if (typeof callback === 'function')
+            if (typeof callback === "function")
             {
                 return callback(null, resource);
             }
@@ -1710,7 +1719,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
 
     const getFromTripleStore = function (uri, callback, customGraphUri)
     {
-        const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
+        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
         if (uri instanceof Object && !isNull(uri.uri))
         {
@@ -1749,7 +1758,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
                             resource.baseConstructor(loadedObject);
                             return callback(null, resource);
                         }
-                        const msg = 'Error while trying to retrieve resource with uri ' + self.uri + ' from triple store.';
+                        const msg = "Error while trying to retrieve resource with uri " + self.uri + " from triple store.";
                         console.error(msg);
                         console.error(JSON.stringify(resource));
                         return callback(1, msg);
@@ -1759,7 +1768,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
                 {
                     if (Config.debug.resources.log_missing_resources)
                     {
-                        const msg = uri + ' does not exist in Dendro.';
+                        const msg = uri + " does not exist in Dendro.";
                         console.log(msg);
                     }
 
@@ -1768,7 +1777,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
             }
             else
             {
-                const msg = 'Error ' + exists + ' while trying to check existence of resource with uri ' + uri + ' from triple store.';
+                const msg = "Error " + exists + " while trying to check existence of resource with uri " + uri + " from triple store.";
                 console.error(msg);
                 return callback(1, msg);
             }
@@ -1816,7 +1825,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
                         }
                         else
                         {
-                            const msg = 'Unable to get resource with uri ' + uri + ' from triple store.';
+                            const msg = "Unable to get resource with uri " + uri + " from triple store.";
                             console.error(msg);
                             console.error(err);
                         }
@@ -1928,21 +1937,21 @@ Resource.findByPropertyValue = function (
         {
             if (isNull(err))
             {
-                if (typeof callback === 'function')
+                if (typeof callback === "function")
                 {
                     return callback(null, resource);
                 }
             }
             else
             {
-                const msg = 'Unable to set value of ' + resource.uri + ' as ' + JSON.stringify(resource) + ' in cache : ' + JSON.stringify(err);
+                const msg = "Unable to set value of " + resource.uri + " as " + JSON.stringify(resource) + " in cache : " + JSON.stringify(err);
                 console.log(msg);
             }
         });
     };
     const getFromTripleStore = function (callback, customGraphUri)
     {
-        const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
+        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
         let ontologiesArray;
         if (!isNull(allowedGraphsArray) && allowedGraphsArray instanceof Array)
@@ -1956,11 +1965,11 @@ Resource.findByPropertyValue = function (
 
         const queryTripleStore = function (callback)
         {
-            const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+            const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-            let typesRestrictions = '';
+            let typesRestrictions = "";
 
-            let descriptorValueRestrictions = '';
+            let descriptorValueRestrictions = "";
             let descriptorValueArguments = [];
 
             let types;
@@ -1977,31 +1986,31 @@ Resource.findByPropertyValue = function (
 
             for (let i = 0; i < types.length; i++)
             {
-                typesRestrictions = typesRestrictions + '       ?resource_uri rdf:type ' + types[i];
+                typesRestrictions = typesRestrictions + "       ?resource_uri rdf:type " + types[i];
 
                 if (i < types.length - 1)
                 {
-                    typesRestrictions = typesRestrictions + '.\n';
+                    typesRestrictions = typesRestrictions + ".\n";
                 }
             }
 
             if (!isNull(ignoreArchivedResources) && ignoreArchivedResources === true)
             {
-                typesRestrictions = typesRestrictions + '\nFILTER NOT EXISTS { ?resource_uri rdf:type ddr:ArchivedResource }';
+                typesRestrictions = typesRestrictions + "\nFILTER NOT EXISTS { ?resource_uri rdf:type ddr:ArchivedResource }";
             }
 
             if (!isNull(descriptor) && descriptor instanceof Array)
             {
                 for (let i = 0; i < descriptor.length; i++)
                 {
-                    descriptorValueRestrictions += '       ?resource_uri  ';
+                    descriptorValueRestrictions += "       ?resource_uri  ";
 
                     descriptorValueArguments.push({
                         type: Elements.types.prefixedResource,
                         value: descriptor[i].getPrefixedForm()
                     });
 
-                    descriptorValueRestrictions += ' [' + (argumentsOffset) + ']';
+                    descriptorValueRestrictions += " [" + (argumentsOffset) + "]";
                     argumentsOffset++;
 
                     descriptorValueArguments.push({
@@ -2009,13 +2018,13 @@ Resource.findByPropertyValue = function (
                         value: descriptor[i].value
                     });
 
-                    descriptorValueRestrictions += ' [' + argumentsOffset + '] . \n';
+                    descriptorValueRestrictions += " [" + argumentsOffset + "] . \n";
                     argumentsOffset++;
                 }
             }
             else
             {
-                descriptorValueRestrictions = '       ?resource_uri [1] [2]. \n';
+                descriptorValueRestrictions = "       ?resource_uri [1] [2]. \n";
 
                 descriptorValueArguments.push({
                     type: Elements.types.prefixedResource,
@@ -2038,16 +2047,16 @@ Resource.findByPropertyValue = function (
                 */
 
             db.connection.executeViaJDBC(
-                'SELECT ?resource_uri ?descriptor_uri ?value\n' +
-                'FROM [0]\n' +
-                'WHERE \n' +
-                '{ \n' +
-                '   {\n' +
-                '       ?resource_uri ?descriptor_uri ?value .' + '\n ' +
+                "SELECT ?resource_uri ?descriptor_uri ?value\n" +
+                "FROM [0]\n" +
+                "WHERE \n" +
+                "{ \n" +
+                "   {\n" +
+                "       ?resource_uri ?descriptor_uri ?value ." + "\n " +
                         descriptorValueRestrictions +
-                        typesRestrictions + '\n ' +
-                '   }\n' +
-                '} \n',
+                        typesRestrictions + "\n " +
+                "   }\n" +
+                "} \n",
 
                 [
                     {
@@ -2072,7 +2081,7 @@ Resource.findByPropertyValue = function (
 
                             if (uris.length > 1)
                             {
-                                return callback(1, '[ERROR] There are more than one resources with values ' + JSON.stringify(descriptorValueRestrictions) + ' ! They are : ' + JSON.stringify(uris));
+                                return callback(1, "[ERROR] There are more than one resources with values " + JSON.stringify(descriptorValueRestrictions) + " ! They are : " + JSON.stringify(uris));
                             }
                             if (uris.length === 1)
                             {
@@ -2105,7 +2114,7 @@ Resource.findByPropertyValue = function (
                     }
                     else
                     {
-                        const msg = 'Error checking for the existence of resource with property value : ' + descriptor.value;
+                        const msg = "Error checking for the existence of resource with property value : " + descriptor.value;
                         console.error(msg);
                         return callback(err, msg);
                     }
@@ -2122,7 +2131,7 @@ Resource.findByPropertyValue = function (
                 }
                 if (Config.debug.resources.log_missing_resources)
                 {
-                    const msg = 'Resource with property ' + descriptor.getPrefixedForm() + ' of value ' + descriptor.value + '  does not exist in Dendro.';
+                    const msg = "Resource with property " + descriptor.getPrefixedForm() + " of value " + descriptor.value + "  does not exist in Dendro.";
                     console.log(msg);
                 }
 
@@ -2131,17 +2140,17 @@ Resource.findByPropertyValue = function (
             let msg;
             if (!(descriptor instanceof Array))
             {
-                msg = 'Error ' + result + ' while trying to check existence of resource with value ' + descriptor.value + ' of property ' + descriptor.getPrefixedForm() + ' from triple store.';
+                msg = "Error " + result + " while trying to check existence of resource with value " + descriptor.value + " of property " + descriptor.getPrefixedForm() + " from triple store.";
             }
             else
             {
-                let descriptorValues = '';
+                let descriptorValues = "";
                 for (let i = 0; i < descriptor.length; i++)
                 {
-                    descriptorValues += descriptor[i].getPrefixedForm() + ' : ' + descriptor[i].value + ' || ';
+                    descriptorValues += descriptor[i].getPrefixedForm() + " : " + descriptor[i].value + " || ";
                 }
 
-                msg = 'Error ' + result + ' while trying to check existence of resources with values ' + descriptorValues + ' from triple store.';
+                msg = "Error " + result + " while trying to check existence of resources with values " + descriptorValues + " from triple store.";
             }
 
             console.error(msg);
@@ -2235,7 +2244,7 @@ Resource.prototype.loadFromIndexHit = function (hit)
 Resource.prototype.insertDescriptors = function (newDescriptors, callback, customGraphUri)
 {
     const self = this;
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     db.connection.insertDescriptorsForSubject(self.uri, newDescriptors, graphUri, function (err, result)
     {
@@ -2247,27 +2256,27 @@ Resource.prototype.getArchivedVersions = function (offset, limit, callback, cust
 {
     const self = this;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     let query =
-        'WITH [0] \n' +
-        'SELECT ?uri ?version_number\n' +
-        'WHERE \n' +
-        '{ \n' +
-        '   ?uri rdf:type ddr:ArchivedResource. \n' +
-        '   ?uri ddr:isVersionOf [1]. \n' +
-        '   ?uri ddr:versionNumber ?version_number. \n' +
-        '}\n' +
-        'ORDER BY DESC(?version_number)\n';
+        "WITH [0] \n" +
+        "SELECT ?uri ?version_number\n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   ?uri rdf:type ddr:ArchivedResource. \n" +
+        "   ?uri ddr:isVersionOf [1]. \n" +
+        "   ?uri ddr:versionNumber ?version_number. \n" +
+        "}\n" +
+        "ORDER BY DESC(?version_number)\n";
 
     if (!isNull(limit) && limit > 0)
     {
-        query = query + ' LIMIT ' + limit + '\n';
+        query = query + " LIMIT " + limit + "\n";
     }
 
     if (!isNull(offset) && offset > 0)
     {
-        query = query + ' OFFSET ' + limit + '\n';
+        query = query + " OFFSET " + limit + "\n";
     }
 
     db.connection.executeViaJDBC(query,
@@ -2286,7 +2295,7 @@ Resource.prototype.getArchivedVersions = function (offset, limit, callback, cust
             {
                 const getVersionContents = function (versionRow, cb)
                 {
-                    const ArchivedResource = require(Pathfinder.absPathInSrcFolder('/models/versions/archived_resource.js')).ArchivedResource;
+                    const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
                     ArchivedResource.findByUri(versionRow.uri, function (err, archivedResource)
                     {
                         cb(err, archivedResource);
@@ -2299,14 +2308,14 @@ Resource.prototype.getArchivedVersions = function (offset, limit, callback, cust
                     {
                         return callback(null, formattedVersions);
                     }
-                    const error = 'Error occurred fetching data about a past version of resource ' + self.uri + '. Error returned : ' + formattedVersions;
+                    const error = "Error occurred fetching data about a past version of resource " + self.uri + ". Error returned : " + formattedVersions;
                     console.error(error);
                     return callback(1, error);
                 });
             }
             else
             {
-                const error = 'Error occurred fetching versions of resource ' + self.uri + '. Error returned : ' + versions;
+                const error = "Error occurred fetching versions of resource " + self.uri + ". Error returned : " + versions;
                 console.error(error);
                 return callback(1, error);
             }
@@ -2326,7 +2335,7 @@ Resource.prototype.getLatestArchivedVersion = function (callback)
         {
             return callback(null, null);
         }
-        const error = 'Error occurred fetching latest version of resource ' + self.uri + '. Error returned : ' + latestRevisionArray;
+        const error = "Error occurred fetching latest version of resource " + self.uri + ". Error returned : " + latestRevisionArray;
         console.error(error);
         return callback(1, error);
     });
@@ -2361,7 +2370,7 @@ Resource.prototype.makeArchivedVersion = function (entitySavingTheResource, call
             }
             else
             {
-                const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
+                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 versionCreator = User.anonymous.uri;
             }
 
@@ -2369,14 +2378,14 @@ Resource.prototype.makeArchivedVersion = function (entitySavingTheResource, call
             objectValues.ddr.versionCreator = versionCreator;
             objectValues.ddr.isVersionOf = self.uri;
             objectValues.ddr.versionNumber = newVersionNumber;
-            objectValues.ddr.humanReadableURI = self.ddr.humanReadableURI + '/version/' + newVersionNumber;
+            objectValues.ddr.humanReadableURI = self.ddr.humanReadableURI + "/version/" + newVersionNumber;
 
-            const ArchivedResource = require(Pathfinder.absPathInSrcFolder('/models/versions/archived_resource.js')).ArchivedResource;
+            const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
             const archivedResource = new ArchivedResource(objectValues);
 
             return callback(null, archivedResource);
         }
-        const error = 'Error occurred creating a new archived version of resource ' + self.uri + '. Error returned : ' + latestArchivedVersion;
+        const error = "Error occurred creating a new archived version of resource " + self.uri + ". Error returned : " + latestArchivedVersion;
         console.error(error);
         return callback(1, error);
     });
@@ -2404,7 +2413,7 @@ Resource.prototype.getPublicDescriptorsForAPICalls = function ()
 
 Resource.prototype.getDescriptors = function (descriptorTypesNotToGet, descriptorTypesToForcefullyGet, typeConfigsToRetain)
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
     let descriptorsArray = [];
 
@@ -2443,8 +2452,8 @@ Resource.prototype.getDescriptors = function (descriptorTypesNotToGet, descripto
  */
 Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptorsToExclude)
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-    const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
     const self = this;
     let deltas = [];
@@ -2454,7 +2463,7 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 
     const instanceOfBaseType = function (value)
     {
-        return (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number');
+        return (typeof value === "string" || typeof value === "boolean" || typeof value === "number");
     };
 
     const pushDelta = function (deltas, prefix, shortName, oldValue, newValue, changeType, changeIndex)
@@ -2474,7 +2483,7 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
             }
         }
 
-        const Change = require(Pathfinder.absPathInSrcFolder('/models/versions/change.js')).Change;
+        const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
 
         const newChange = new Change({
             ddr: {
@@ -2518,11 +2527,11 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 
                 if (isNull(oldValue) && !isNull(newValue))
                 {
-                    deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'add', changeIndex++);
+                    deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add", changeIndex++);
                 }
                 else if (!isNull(oldValue) && isNull(newValue))
                 {
-                    deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'delete', changeIndex++);
+                    deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete", changeIndex++);
                 }
                 else if (!isNull(oldValue) && !isNull(newValue))
                 {
@@ -2532,11 +2541,11 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 
                         if (intersection.length === 0)
                         {
-                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'delete_edit', changeIndex++);
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete_edit", changeIndex++);
                         }
                         else
                         {
-                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'delete', changeIndex++);
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete", changeIndex++);
                         }
                     }
                     else if (newValue instanceof Array && instanceOfBaseType(oldValue))
@@ -2545,18 +2554,18 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 
                         if (intersection.length === 0)
                         {
-                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'add_edit', changeIndex++);
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add_edit", changeIndex++);
                         }
                         else
                         {
-                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'add', changeIndex++);
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add", changeIndex++);
                         }
                     }
                     else if (instanceOfBaseType(oldValue) && instanceOfBaseType(newValue))
                     {
                         if (!(oldValue === newValue))
                         {
-                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'edit', changeIndex++);
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "edit", changeIndex++);
                         }
                     }
                     else if (oldValue instanceof Array && newValue instanceof Array)
@@ -2567,7 +2576,7 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 
                             if (intersection.length !== oldValue.length || intersection.length !== newValue.length)
                             {
-                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'edit', changeIndex++);
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "edit", changeIndex++);
                             }
                         }
                         else if (oldValue.length < newValue.length)
@@ -2576,11 +2585,11 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 
                             if (intersection.length < oldValue.length)
                             {
-                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'add_edit', changeIndex++);
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add_edit", changeIndex++);
                             }
                             else
                             {
-                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'add', changeIndex++);
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add", changeIndex++);
                             }
                         }
                         else if (oldValue.length > newValue.length)
@@ -2589,11 +2598,11 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 
                             if (intersection.length < newValue.length)
                             {
-                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'delete_edit', changeIndex++);
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete_edit", changeIndex++);
                             }
                             else
                             {
-                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, 'delete', changeIndex++);
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete", changeIndex++);
                             }
                         }
                     }
@@ -2608,9 +2617,9 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm, value, callback, customGraphUri)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const descriptorToCheck = new Descriptor({
         prefixedForm: predicateInPrefixedForm,
@@ -2622,10 +2631,10 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
         const checkInTripleStore = function (callback)
         {
             const query =
-                'WITH [0] \n' +
-                'ASK {' +
-                '[1] [2] [3] .' +
-                '} \n';
+                "WITH [0] \n" +
+                "ASK {" +
+                "[1] [2] [3] ." +
+                "} \n";
 
             db.connection.executeViaJDBC(query,
                 [
@@ -2656,7 +2665,7 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
                         }
                         return callback(null, false);
                     }
-                    const msg = 'Error verifying existence of triple "' + self.uri + ' ' + predicateInPrefixedForm + ' ' + value + '". Error reported ' + JSON.stringify(result);
+                    const msg = "Error verifying existence of triple \"" + self.uri + " " + predicateInPrefixedForm + " " + value + "\". Error reported " + JSON.stringify(result);
                     if (Config.debug.resources.log_all_type_checks === true)
                     {
                         console.error(msg);
@@ -2687,7 +2696,7 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
                         }
                         return callback(null, _.contains(cachedResource[namespace][element], value));
                     }
-                    else if (typeof descriptorValue === 'string')
+                    else if (typeof descriptorValue === "string")
                     {
                         if (descriptorToCheck.type === Elements.types.prefixedResource)
                         {
@@ -2695,7 +2704,7 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
                         }
                         return callback(null, (descriptorValue === value));
                     }
-                    return callback(1, 'Unable to determine type of descriptor from cached object when determining if resource ' + self.uri + ' has predicate ' + predicateInPrefixedForm + ' with a value of' + value);
+                    return callback(1, "Unable to determine type of descriptor from cached object when determining if resource " + self.uri + " has predicate " + predicateInPrefixedForm + " with a value of" + value);
                 }
                 checkInTripleStore(callback);
             }
@@ -2707,7 +2716,7 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
     }
     else
     {
-        console.error('Attempting to check the value of an unknown descriptor ' + predicateInPrefixedForm + ' for resource ' + self.uri);
+        console.error("Attempting to check the value of an unknown descriptor " + predicateInPrefixedForm + " for resource " + self.uri);
         return false;
     }
 };
@@ -2738,27 +2747,27 @@ Resource.prototype.restoreFromArchivedVersion = function (version, callback, uri
 Resource.prototype.getLogicalParts = function (callback)
 {
     const self = this;
-    const fs = require('fs');
-    const Folder = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/folder.js')).Folder;
-    const File = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/file.js')).File;
+    const fs = require("fs");
+    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
     const childFoldersQuery =
-        'SELECT ?uri\n' +
-        'FROM [0] \n' +
-        'WHERE \n' +
-        '{ \n' +
-        '   [1] nie:hasLogicalPart ?uri . \n' +
-        '   ?uri rdf:type nfo:Folder  \n' +
-        '} \n';
+        "SELECT ?uri\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:hasLogicalPart ?uri . \n" +
+        "   ?uri rdf:type nfo:Folder  \n" +
+        "} \n";
 
     const childFilesQuery =
-        'SELECT ?uri\n' +
-        'FROM [0] \n' +
-        'WHERE \n' +
-        '{ \n' +
-        '   [1] nie:hasLogicalPart ?uri . \n' +
-        '   ?uri rdf:type nfo:FileDataObject \n' +
-        '} \n';
+        "SELECT ?uri\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:hasLogicalPart ?uri . \n" +
+        "   ?uri rdf:type nfo:FileDataObject \n" +
+        "} \n";
 
     async.mapSeries([
         {
@@ -2827,7 +2836,7 @@ Resource.prototype.getLogicalParts = function (callback)
 Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToRetain)
 {
     const self = this;
-    const async = require('async');
+    const async = require("async");
     const myDescriptors = self.getDescriptors(
         [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], typeConfigsToRetain
     );
@@ -2846,7 +2855,7 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
         {
             if (isNull(err))
             {
-                const _ = require('underscore');
+                const _ = require("underscore");
                 children = _.reject(children, function (child)
                 {
                     return child.ddr.deleted;
@@ -2867,7 +2876,7 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
                                     metadataResult.hasLogicalParts.push(result2);
                                     return callback(null);
                                 }
-                                console.info('[findMetadataRecursive] error accessing metadata of resource ' + folder.nie.title);
+                                console.info("[findMetadataRecursive] error accessing metadata of resource " + folder.nie.title);
                                 return callback(err);
                             }, typeConfigsToRetain);
                         },
@@ -2890,7 +2899,7 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
             }
             else
             {
-                console.info('[findMetadataRecursive] error accessing logical parts of folder ' + folder.nie.title);
+                console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
                 return callback(true, null);
             }
         });
@@ -2904,17 +2913,17 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
 Resource.prototype.isOfClass = function (classNameInPrefixedForm, callback)
 {
     const self = this;
-    self.checkIfHasPredicateValue('rdf:type', classNameInPrefixedForm, function (err, isOfClass)
+    self.checkIfHasPredicateValue("rdf:type", classNameInPrefixedForm, function (err, isOfClass)
     {
         if (Config.debug.active && Config.debug.resources.log_all_type_checks)
         {
             if (isOfClass)
             {
-                console.log('Resource ' + self.uri + ' IS of type ' + classNameInPrefixedForm);
+                console.log("Resource " + self.uri + " IS of type " + classNameInPrefixedForm);
             }
             else
             {
-                console.log('Resource ' + self.uri + ' IS NOT of type ' + classNameInPrefixedForm);
+                console.log("Resource " + self.uri + " IS NOT of type " + classNameInPrefixedForm);
             }
         }
         return callback(err, isOfClass);
@@ -2925,23 +2934,23 @@ Resource.randomInstance = function (typeInPrefixedFormat, callback, customGraphU
 {
     const self = this;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     async.waterfall([
         function (callback)
         {
             db.connection.executeViaJDBC(
-                'SELECT (count(?s) as ?c) \n' +
-                    'FROM [0] \n' +
-                    'WHERE \n' +
-                    '{ \n' +
-                        '?s ?p ?o . \n' +
-                        '?s rdf:type [1] \n' +
-                        ' FILTER NOT EXISTS ' +
-                        '{ \n' +
-                        '   ?s ddr:isVersionOf ?version .\n' +
-                        '} \n' +
-                    '}\n',
+                "SELECT (count(?s) as ?c) \n" +
+                    "FROM [0] \n" +
+                    "WHERE \n" +
+                    "{ \n" +
+                        "?s ?p ?o . \n" +
+                        "?s rdf:type [1] \n" +
+                        " FILTER NOT EXISTS " +
+                        "{ \n" +
+                        "   ?s ddr:isVersionOf ?version .\n" +
+                        "} \n" +
+                    "}\n",
                 [
                     {
                         type: Elements.types.resourceNoEscape,
@@ -2965,20 +2974,20 @@ Resource.randomInstance = function (typeInPrefixedFormat, callback, customGraphU
         function (randomNumber, callback)
         {
             db.connection.executeViaJDBC(
-                'SELECT ?s \n' +
-                'FROM [0] \n' +
-                'WHERE \n' +
-                '{ \n' +
-                    '?s ?p ?o . \n' +
-                    '?s rdf:type [2] \n' +
-                    ' FILTER NOT EXISTS ' +
-                    '{ \n' +
-                    '   ?s ddr:isVersionOf ?version .\n' +
-                    '} \n' +
-                '} \n' +
-                'ORDER BY ?s \n' +
-                'OFFSET [1] \n' +
-                'LIMIT 1 \n',
+                "SELECT ?s \n" +
+                "FROM [0] \n" +
+                "WHERE \n" +
+                "{ \n" +
+                    "?s ?p ?o . \n" +
+                    "?s rdf:type [2] \n" +
+                    " FILTER NOT EXISTS " +
+                    "{ \n" +
+                    "   ?s ddr:isVersionOf ?version .\n" +
+                    "} \n" +
+                "} \n" +
+                "ORDER BY ?s \n" +
+                "OFFSET [1] \n" +
+                "LIMIT 1 \n",
                 [
                     {
                         type: Elements.types.resourceNoEscape,
@@ -3020,7 +3029,7 @@ Resource.deleteAll = function (callback, customGraphUri)
     const self = this;
     const type = self.prefixedRDFType;
 
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const queryArguments = [
         {
@@ -3030,10 +3039,10 @@ Resource.deleteAll = function (callback, customGraphUri)
     ];
 
     let query =
-        'WITH [0] \n' +
-        'DELETE { ?uri ?p ?o} \n' +
-        'WHERE { \n' +
-        '?uri ?p ?v. \n';
+        "WITH [0] \n" +
+        "DELETE { ?uri ?p ?o} \n" +
+        "WHERE { \n" +
+        "?uri ?p ?v. \n";
 
     if (!isNull(type))
     {
@@ -3049,10 +3058,10 @@ Resource.deleteAll = function (callback, customGraphUri)
         }
 
         let argumentCount = 1;
-        let typeRestrictions = '';
+        let typeRestrictions = "";
         for (let i = 0; i < rdfTypes.length; i++)
         {
-            typeRestrictions = typeRestrictions + ' ?uri rdf:type [' + argumentCount + ']';
+            typeRestrictions = typeRestrictions + " ?uri rdf:type [" + argumentCount + "]";
             argumentCount++;
 
             queryArguments.push({
@@ -3062,18 +3071,18 @@ Resource.deleteAll = function (callback, customGraphUri)
 
             if (i < rdfTypes.length - 1)
             {
-                typeRestrictions += '.\n';
+                typeRestrictions += ".\n";
             }
             else
             {
-                typeRestrictions += '\n';
+                typeRestrictions += "\n";
             }
         }
 
         query = query + typeRestrictions;
     }
 
-    query = query + '} \n';
+    query = query + "} \n";
 
     Cache.getByGraphUri(graphUri).deleteAlByType(self.prefixedRDFType, function (err, result)
     {
@@ -3086,36 +3095,36 @@ Resource.deleteAll = function (callback, customGraphUri)
                 {
                     if (isNull(err))
                     {
-                        return callback(null, 'All resources of type ' + self.prefixedRDFType + ' deleted successfully.');
+                        return callback(null, "All resources of type " + self.prefixedRDFType + " deleted successfully.");
                     }
-                    return callback(1, 'Unable to fetch all resources from the graph');
+                    return callback(1, "Unable to fetch all resources from the graph");
                 });
         }
         else
         {
-            return callback(1, 'Unable to delete all the resources of type ' + self.prefixedRDFType + ' from cache.');
+            return callback(1, "Unable to delete all the resources of type " + self.prefixedRDFType + " from cache.");
         }
     });
 };
 
 Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function (descriptor, callback, customGraphUri)
 {
-    const async = require('async');
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const async = require("async");
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const pagedFetchResourcesWithDescriptor = function (descriptor, page, pageSize, callback)
     {
         const offset = pageSize * page;
 
         db.connection.executeViaJDBC(
-            'WITH [0] \n' +
-            'SELECT ?uri \n' +
-            'WHERE \n' +
-            '{ \n' +
-            '   ?uri [1] [2] \n' +
-            '} \n' +
-            'LIMIT [3] \n' +
-            'OFFSET [4] \n',
+            "WITH [0] \n" +
+            "SELECT ?uri \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   ?uri [1] [2] \n" +
+            "} \n" +
+            "LIMIT [3] \n" +
+            "OFFSET [4] \n",
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -3188,7 +3197,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function (
                 }
                 else
                 {
-                    return callback(1, 'Unable to delete resources with descriptor ' + descriptor.getPrefixedForm() + ' and value' + descriptor.value + ' from cache.');
+                    return callback(1, "Unable to delete resources with descriptor " + descriptor.getPrefixedForm() + " and value" + descriptor.value + " from cache.");
                 }
             }
         });
@@ -3201,13 +3210,13 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function (
         if (isNull(err))
         {
             db.connection.executeViaJDBC(
-                'WITH [0]\n' +
-                'DELETE \n' +
-                'WHERE \n' +
-                '{ \n' +
-                '   ?s [1] [2]. \n' +
-                '   ?s ?p ?o \n' +
-                '} \n',
+                "WITH [0]\n" +
+                "DELETE \n" +
+                "WHERE \n" +
+                "{ \n" +
+                "   ?s [1] [2]. \n" +
+                "   ?s ?p ?o \n" +
+                "} \n",
 
                 [
                     {
@@ -3229,14 +3238,14 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function (
                     {
                         return callback(null, results);
                     }
-                    const msg = 'Error deleting all resources of type with descriptor ' + descriptor.getPrefixedForm() + ' and value' + descriptor.value + ' and their outgoing triples. Error returned: ' + JSON.stringify(results);
+                    const msg = "Error deleting all resources of type with descriptor " + descriptor.getPrefixedForm() + " and value" + descriptor.value + " and their outgoing triples. Error returned: " + JSON.stringify(results);
                     console.error(msg);
                     return callback(err, msg);
                 });
         }
         else
         {
-            const msg = 'Error deleting all CACHED resources of type with descriptor ' + descriptor.getPrefixedForm() + ' and value' + descriptor.value + ' and their outgoing triples. Error returned: ' + JSON.stringify(err);
+            const msg = "Error deleting all CACHED resources of type with descriptor " + descriptor.getPrefixedForm() + " and value" + descriptor.value + " and their outgoing triples. Error returned: " + JSON.stringify(err);
             console.error(msg);
             return callback(err, msg);
         }
@@ -3256,7 +3265,7 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function (callback
 
     const typeDescriptor = new Descriptor(
         {
-            prefixedForm: 'rdf:type',
+            prefixedForm: "rdf:type",
             value: type
         }
     );
@@ -3282,8 +3291,8 @@ Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, cla
     {
         if (isNull(self.uri))
         {
-            const uuid = require('uuid');
-            self.uri = '/r/' + resourceTypeSection + '/' + uuid.v4();
+            const uuid = require("uuid");
+            self.uri = "/r/" + resourceTypeSection + "/" + uuid.v4();
         }
     }
     else
@@ -3305,9 +3314,9 @@ Resource.prototype.isA = function (prototype)
 
     const getFullUri = function (prefixedForm)
     {
-        const prefix = prefixedForm.split(':')[0];
-        const shortName = prefixedForm.split(':')[1];
-        const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
+        const prefix = prefixedForm.split(":")[0];
+        const shortName = prefixedForm.split(":")[1];
+        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
         return Ontology.allOntologies[prefix].uri + shortName;
     };
 
@@ -3317,7 +3326,7 @@ Resource.prototype.isA = function (prototype)
     {
         if (!isNull(objectRDFType))
         {
-            if (typeof objectRDFType === 'string' && typeof myRDFType === 'string')
+            if (typeof objectRDFType === "string" && typeof myRDFType === "string")
             {
                 return (objectRDFType === myRDFType);
             }
@@ -3335,18 +3344,18 @@ Resource.prototype.isA = function (prototype)
         }
         else
         {
-            throw new Error('Unable to determine rdf:type of ' + prototype.name);
+            throw new Error("Unable to determine rdf:type of " + prototype.name);
         }
     }
     else
     {
-        throw new Error('Unable to determine rdf:type of ' + self.uri);
+        throw new Error("Unable to determine rdf:type of " + self.uri);
     }
 };
 
 Resource.arrayToCSVFile = function (resourceArray, fileName, callback)
 {
-    const File = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/file.js')).File;
+    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
     File.createBlankTempFile(fileName, function (err, tempFileAbsPath)
     {
@@ -3396,10 +3405,10 @@ Resource.getCount = function (callback)
     }
 
     let argumentCount = 1;
-    let typeRestrictions = '';
+    let typeRestrictions = "";
     for (let i = 0; i < rdfTypes.length; i++)
     {
-        typeRestrictions = typeRestrictions + ' ?uri rdf:type [' + argumentCount + ']';
+        typeRestrictions = typeRestrictions + " ?uri rdf:type [" + argumentCount + "]";
         queryArguments.push({
             type: Elements.types.prefixedResource,
             value: self.prefixedRDFType[i]
@@ -3409,22 +3418,22 @@ Resource.getCount = function (callback)
 
         if (i < rdfTypes.length - 1)
         {
-            typeRestrictions += '.\n';
+            typeRestrictions += ".\n";
         }
         else
         {
-            typeRestrictions += '\n';
+            typeRestrictions += "\n";
         }
     }
 
     const countQuery =
-        'SELECT \n' +
-        'COUNT(?uri) as ?count \n' +
-        'FROM [0] \n' +
-        'WHERE \n' +
-        '{ \n' +
+        "SELECT \n" +
+        "COUNT(?uri) as ?count \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
             typeRestrictions +
-        '}\n';
+        "}\n";
 
     db.connection.executeViaJDBC(
         countQuery,
@@ -3441,6 +3450,6 @@ Resource.getCount = function (callback)
     );
 };
 
-Resource = Class.extend(Resource, Class, 'ddr:Resource');
+Resource = Class.extend(Resource, Class, "ddr:Resource");
 
 module.exports.Resource = Resource;

@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
  *  Project administration controller
  */
-    .controller('projectAdminCtrl', function (
+    .controller("projectAdminCtrl", function (
         $scope,
         $http,
         $filter,
@@ -28,36 +28,36 @@ angular.module('dendroApp.controllers')
             var url = $scope.get_current_url();
 
             $http({
-                method: 'GET',
+                method: "GET",
                 url: url,
                 data: JSON.stringify({}),
-                contentType: 'application/json',
-                headers: {Accept: 'application/json'}
+                contentType: "application/json",
+                headers: {Accept: "application/json"}
             }).then(function (response)
             {
                 var descriptors = response.data.descriptors;
 
                 $scope.project = {
                     dcterms: {
-                        creator: $scope.get_descriptor_by_prefixed_form(descriptors, 'dcterms:creator'),
-                        title: $scope.get_descriptor_by_prefixed_form(descriptors, 'dcterms:title'),
-                        description: $scope.get_descriptor_by_prefixed_form(descriptors, 'dcterms:description'),
-                        publisher: $scope.get_descriptor_by_prefixed_form(descriptors, 'dcterms:publisher'),
-                        language: $scope.get_descriptor_by_prefixed_form(descriptors, 'dcterms:language'),
-                        coverage: $scope.get_descriptor_by_prefixed_form(descriptors, 'dcterms:coverage')
+                        creator: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:creator"),
+                        title: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:title"),
+                        description: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:description"),
+                        publisher: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:publisher"),
+                        language: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:language"),
+                        coverage: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:coverage")
                     },
                     ddr: {
-                        handle: $scope.get_descriptor_by_prefixed_form(descriptors, 'ddr:handle'),
-                        privacyStatus: $scope.get_descriptor_by_prefixed_form(descriptors, 'ddr:privacyStatus'),
-                        hasStorageLimit: $scope.get_descriptor_by_prefixed_form(descriptors, 'ddr:hasStorageLimit'),
-                        requiresVerifiedUploads: $scope.get_descriptor_by_prefixed_form(descriptors, 'ddr:requiresVerifiedUploads')
+                        handle: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:handle"),
+                        privacyStatus: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:privacyStatus"),
+                        hasStorageLimit: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:hasStorageLimit"),
+                        requiresVerifiedUploads: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:requiresVerifiedUploads")
                     },
                     schema: {
-                        provider: $scope.get_descriptor_by_prefixed_form(descriptors, 'schema:provider'),
-                        telephone: $scope.get_descriptor_by_prefixed_form(descriptors, 'schema:telephone'),
-                        address: $scope.get_descriptor_by_prefixed_form(descriptors, 'schema:address'),
-                        email: $scope.get_descriptor_by_prefixed_form(descriptors, 'schema:email'),
-                        license: $scope.get_descriptor_by_prefixed_form(descriptors, 'schema:license')
+                        provider: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:provider"),
+                        telephone: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:telephone"),
+                        address: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:address"),
+                        email: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:email"),
+                        license: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:license")
                     }
                 };
 
@@ -79,7 +79,7 @@ angular.module('dendroApp.controllers')
                         });
                     });
 
-                if ($scope.get_descriptor_by_prefixed_form('ddr:deleted') === true)
+                if ($scope.get_descriptor_by_prefixed_form("ddr:deleted") === true)
                 {
                     $scope.project.deleted = true;
                 }
@@ -88,11 +88,11 @@ angular.module('dendroApp.controllers')
                 {
                     if (error.message != null && error.title != null)
                     {
-                        Utils.show_popup('error', error.title, error.message);
+                        Utils.show_popup("error", error.title, error.message);
                     }
                     else
                     {
-                        Utils.show_popup('error', 'Error occurred', JSON.stringify(error));
+                        Utils.show_popup("error", "Error occurred", JSON.stringify(error));
                     }
                 });
         };
@@ -106,11 +106,11 @@ angular.module('dendroApp.controllers')
                 var uri;
                 if ($scope.project.deleted)
                 {
-                    uri = $scope.get_current_url() + '?undelete';
+                    uri = $scope.get_current_url() + "?undelete";
                 }
                 else
                 {
-                    uri = $scope.get_current_url() + '?delete';
+                    uri = $scope.get_current_url() + "?delete";
                 }
 
                 // console.log("deleting " + get_current_url() + " via url " + uri);
@@ -119,17 +119,17 @@ angular.module('dendroApp.controllers')
                     .then(function (response)
                     {
                         var data = response.data;
-                        Utils.show_popup('success', data.title, data.message);
+                        Utils.show_popup("success", data.title, data.message);
                     })
                     .catch(function (error)
                     {
                         if (error.message != null && error.title != null)
                         {
-                            Utils.show_popup('error', error.title, error.message);
+                            Utils.show_popup("error", error.title, error.message);
                         }
                         else
                         {
-                            Utils.show_popup('error', 'Error occurred', JSON.stringify(error));
+                            Utils.show_popup("error", "Error occurred", JSON.stringify(error));
                         }
                     });
             }
@@ -137,7 +137,7 @@ angular.module('dendroApp.controllers')
 
         $scope.project_data_uri = function (node)
         {
-            node.uri = $scope.get_current_url() + '/data';
+            node.uri = $scope.get_current_url() + "/data";
         };
 
         $scope.init = function (contributors)
@@ -191,9 +191,9 @@ angular.module('dendroApp.controllers')
 
         $scope.get_contributors = function (contributors)
         {
-            if (contributors != '')
+            if (contributors != "")
             {
-                var names = contributors.split(',');
+                var names = contributors.split(",");
                 projectsService.get_contributors(names)
                     .then(function (response)
                     {
@@ -209,7 +209,7 @@ angular.module('dendroApp.controllers')
 
         $scope.add_new_contributor = function ()
         {
-            $scope.contributors.push({info: {ddr: {username: ''}}, remove: false});
+            $scope.contributors.push({info: {ddr: {username: ""}}, remove: false});
         };
 
         $scope.update_contributors = function ()
@@ -220,7 +220,7 @@ angular.module('dendroApp.controllers')
                 var person = $scope.contributors[i];
                 if (!person.remove)
                 {
-                    if (person.info.ddr.username != '')
+                    if (person.info.ddr.username != "")
                     {
                         if (person.info.uri)
                         {
@@ -238,34 +238,34 @@ angular.module('dendroApp.controllers')
                 .then(function (result)
                 {
                     location.reload();
-                    $scope.show_popup('success', 'Success', 'Project updated');
+                    $scope.show_popup("success", "Success", "Project updated");
                 }).catch(function (error)
                 {
-                    $scope.show_popup('error', 'Error', error.message);
+                    $scope.show_popup("error", "Error", error.message);
                 });
         };
 
         $scope.clicked_information_tab = function ()
         {
-            $scope.active_tab = 'information';
+            $scope.active_tab = "information";
             $localStorage.active_tab = $scope.active_tab;
         };
 
         $scope.clicked_metadataquality_tab = function ()
         {
-            $scope.active_tab = 'metadataquality';
+            $scope.active_tab = "metadataquality";
             $localStorage.active_tab = $scope.active_tab;
         };
 
         $scope.clicked_people_tab = function ()
         {
-            $scope.active_tab = 'people';
+            $scope.active_tab = "people";
             $localStorage.active_tab = $scope.active_tab;
         };
 
         $scope.clicked_settings_tab = function ()
         {
-            $scope.active_tab = 'settings';
+            $scope.active_tab = "settings";
             $localStorage.active_tab = $scope.active_tab;
         };
 
@@ -274,12 +274,12 @@ angular.module('dendroApp.controllers')
             projectsService.update_project_settings($scope.project)
                 .then(function (response)
                 {
-                    $scope.show_popup('success', 'Project settings updated', response.message);
+                    $scope.show_popup("success", "Project settings updated", response.message);
                     $scope.get_project();
                 })
                 .catch(function (error)
                 {
-                    $scope.show_popup('error', 'Error occurred', error.message);
+                    $scope.show_popup("error", "Error occurred", error.message);
                 });
         };
 
@@ -294,12 +294,12 @@ angular.module('dendroApp.controllers')
             projectsService.update_metadata($scope.project)
                 .then(function (response)
                 {
-                    $scope.show_popup('success', 'Project Updated', response.message);
+                    $scope.show_popup("success", "Project Updated", response.message);
                     $scope.get_project();
                 })
                 .catch(function (error)
                 {
-                    $scope.show_popup('error', 'Error occurred', error.message);
+                    $scope.show_popup("error", "Error occurred", error.message);
                 });
         };
     });

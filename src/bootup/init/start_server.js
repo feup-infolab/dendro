@@ -1,7 +1,7 @@
-const cluster = require('cluster');
+const cluster = require("cluster");
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const numCPUs = Config.numCPUs;
 
 const startServer = function (app, server, callback)
@@ -18,18 +18,18 @@ const startServer = function (app, server, callback)
         }
         else
         {
-            server.listen(app.get('port'), function ()
+            server.listen(app.get("port"), function ()
             {
-                console.log('Express server listening on port ' + app.get('port'));
+                console.log("Express server listening on port " + app.get("port"));
                 callback(null);
             });
         }
     }
     else
     {
-        server.listen(app.get('port'), function ()
+        server.listen(app.get("port"), function ()
         {
-            console.log('Express server listening on port ' + app.get('port'));
+            console.log("Express server listening on port " + app.get("port"));
             callback(null);
         });
     }

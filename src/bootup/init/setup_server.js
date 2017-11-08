@@ -1,8 +1,8 @@
 const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder('utils/null.js')).isNull;
-const enableDestroy = require('server-destroy');
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
+const enableDestroy = require("server-destroy");
 
-const http = require('http');
+const http = require("http");
 
 const setupServer = function (app, callback)
 {

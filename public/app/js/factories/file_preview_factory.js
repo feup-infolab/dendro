@@ -1,8 +1,8 @@
 /**
  * Created by Filipe on 01/09/2014.
  */
-angular.module('dendroApp.factories')
-    .factory('preview', function ($http)
+angular.module("dendroApp.factories")
+    .factory("preview", function ($http)
     {
         return {
             available: function (fileExtension)
@@ -27,19 +27,19 @@ angular.module('dendroApp.factories')
             },
             load_dataset: function ($scope, fileExtension, fileUri)
             {
-                fileUri = fileUri + '?data&format=csv';
+                fileUri = fileUri + "?data&format=csv";
 
                 var dataset = new recline.Model.Dataset({
                     url: fileUri,
-                    backend: 'csv'
+                    backend: "csv"
                 });
 
                 dataset.fetch().done(function (loadedData)
                 {
                     var views = [
                         {
-                            id: 'grid',
-                            label: 'Grid',
+                            id: "grid",
+                            label: "Grid",
                             view: new recline.View.SlickGrid({
                                 model: dataset,
                                 state: {
@@ -60,16 +60,16 @@ angular.module('dendroApp.factories')
                             })
                         },
                         {
-                            id: 'graph',
-                            label: 'Graph',
+                            id: "graph",
+                            label: "Graph",
                             view: new recline.View.Graph({
                                 model: dataset
 
                             })
                         },
                         {
-                            id: 'map',
-                            label: 'Map',
+                            id: "map",
+                            label: "Map",
                             view: new recline.View.Map({
                                 model: dataset,
                                 state: {
@@ -81,8 +81,8 @@ angular.module('dendroApp.factories')
                     ];
                     var sidebarViews = [
                         {
-                            id: 'filterEditor', // used for routing
-                            label: 'Filters', // used for view switcher
+                            id: "filterEditor", // used for routing
+                            label: "Filters", // used for view switcher
                             view: new recline.View.FilterEditor({
                                 model: dataset
                             })
@@ -92,7 +92,7 @@ angular.module('dendroApp.factories')
                         model: dataset,
                         views: views,
                         sidebarViews: sidebarViews,
-                        el: angular.element('#data-viewer')
+                        el: angular.element("#data-viewer")
                     });
 
                     multi_view.visible = true;
@@ -103,21 +103,21 @@ angular.module('dendroApp.factories')
             },
             load_text: function ($scope, fileExtension, fileUri)
             {
-                angular.element('#data-viewer').html('');
-                fileUri = fileUri + '?serve';
+                angular.element("#data-viewer").html("");
+                fileUri = fileUri + "?serve";
 
                 $http.get(fileUri)
                     .then(function (response)
                     {
                         var data = response.data;
-                        angular.element('#data-viewer').append('<div id="text-file-content"></div>');
-                        var pre = angular.element('<pre class="prettyprint"></pre>');
+                        angular.element("#data-viewer").append("<div id=\"text-file-content\"></div>");
+                        var pre = angular.element("<pre class=\"prettyprint\"></pre>");
                         if (data.constructor == Object)
                         {
                             data = JSON.stringify(data, null, 4);
                         }
                         pre.text(data);
-                        angular.element('#text-file-content').append(pre);
+                        angular.element("#text-file-content").append(pre);
 
                         prettyPrint();
                     })
@@ -125,136 +125,136 @@ angular.module('dendroApp.factories')
                     {
                         if (error.message != null)
                         {
-                            $scope.show_popup('error', 'Error', error.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },
             load_image: function ($scope, fileExtension, fileUri)
             {
-                angular.element('#data-viewer').html('');
-                fileUri = fileUri + '?serve';
+                angular.element("#data-viewer").html("");
+                fileUri = fileUri + "?serve";
 
                 $http.get(fileUri)
                     .then(function (response)
                     {
                         var data = response.data;
-                        angular.element('#data-viewer').append('<img id="image-file-preview" src="' + fileUri + '" />');
+                        angular.element("#data-viewer").append("<img id=\"image-file-preview\" src=\"" + fileUri + "\" />");
                     })
                     .catch(function (error)
                     {
                         if (error.message != null)
                         {
-                            $scope.show_popup('error', 'Error', error.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },
             load_pdf: function ($scope, fileExtension, fileUri)
             {
-                angular.element('#data-viewer').html('');
-                var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+                angular.element("#data-viewer").html("");
+                var is_chrome = navigator.userAgent.toLowerCase().indexOf("chrome") > -1;
 
                 if (is_chrome)
                 {
-                    var downloadFileUri = fileUri + '?download';
-                    angular.element('#data-viewer').append(
-                        '<div class="row" ng-if="!preview_available()">' +
-                        '<br/>' +
-                        '<div class="col-xs-12">' +
-                        '<div class="alert alert-info">' +
-                        'PDF Previews are not yet supported when using Google Chrome. ' +
-                        '<a href="' + downloadFileUri + '">Download file</a> .' +
-                        '</div>' +
-                        '</div>' +
-                        '</div>');
+                    var downloadFileUri = fileUri + "?download";
+                    angular.element("#data-viewer").append(
+                        "<div class=\"row\" ng-if=\"!preview_available()\">" +
+                        "<br/>" +
+                        "<div class=\"col-xs-12\">" +
+                        "<div class=\"alert alert-info\">" +
+                        "PDF Previews are not yet supported when using Google Chrome. " +
+                        "<a href=\"" + downloadFileUri + "\">Download file</a> ." +
+                        "</div>" +
+                        "</div>" +
+                        "</div>");
                 }
                 else
                 {
-                    fileUri = fileUri + '?serve_base64';
+                    fileUri = fileUri + "?serve_base64";
 
                     $http.get(fileUri)
                         .then(function (response)
                         {
                             var data = response.data;
-                            angular.element('#data-viewer').append('<iframe id="pdf-file-preview" src="data:application/pdf;base64,' + data + '" ></iframe>');
+                            angular.element("#data-viewer").append("<iframe id=\"pdf-file-preview\" src=\"data:application/pdf;base64," + data + "\" ></iframe>");
                         })
                         .catch(function (error)
                         {
                             if (error.message != null)
                             {
-                                $scope.show_popup('error', 'Error', error.message);
+                                $scope.show_popup("error", "Error", error.message);
                             }
                         });
                 }
             },
             load_audio: function ($scope, fileExtension, fileUri)
             {
-                angular.element('#data-viewer').html('');
+                angular.element("#data-viewer").html("");
                 var types = {
-                    mp3: 'audio/mpeg',
-                    wav: 'audio/wav',
-                    ogg: 'audio/ogg'
+                    mp3: "audio/mpeg",
+                    wav: "audio/wav",
+                    ogg: "audio/ogg"
                 };
                 if (types[fileExtension] == null)
                 {
-                    $scope.show_popup('error', 'Error', 'Error playing audio file.');
+                    $scope.show_popup("error", "Error", "Error playing audio file.");
                     return;
                 }
 
-                fileUri = fileUri + '?serve_base64';
+                fileUri = fileUri + "?serve_base64";
 
                 $http.get(fileUri)
                     .then(function (response)
                     {
                         var data = response.data;
-                        angular.element('#data-viewer').append('<audio preload="auto" controls="controls" id="audio-file-preview"></audio>');
+                        angular.element("#data-viewer").append("<audio preload=\"auto\" controls=\"controls\" id=\"audio-file-preview\"></audio>");
 
-                        var src = angular.element('<source src="data:' + types[fileExtension] + ';base64,' + data + '">');
+                        var src = angular.element("<source src=\"data:" + types[fileExtension] + ";base64," + data + "\">");
 
-                        angular.element('#audio-file-preview').append(src);
-                        angular.element('#audio-file-preview').append('Your browser does not support the audio tag.');
+                        angular.element("#audio-file-preview").append(src);
+                        angular.element("#audio-file-preview").append("Your browser does not support the audio tag.");
                     })
                     .catch(function (error)
                     {
                         if (error.message != null)
                         {
-                            $scope.show_popup('error', 'Error', error.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },
             load_video: function ($scope, fileExtension, fileUri)
             {
-                angular.element('#data-viewer').html('');
+                angular.element("#data-viewer").html("");
                 var types = {
-                    mp4: 'video/mp4',
-                    webm: 'video/webm',
-                    ogg: 'video/ogg',
-                    '3gp': 'video/3gp',
-                    flv: 'video/flv'
+                    mp4: "video/mp4",
+                    webm: "video/webm",
+                    ogg: "video/ogg",
+                    "3gp": "video/3gp",
+                    flv: "video/flv"
                 };
                 if (types[fileExtension] == null)
                 {
-                    $scope.show_popup('error', 'Error', 'Error playing audio file.');
+                    $scope.show_popup("error", "Error", "Error playing audio file.");
                     return;
                 }
 
-                fileUri = fileUri + '?serve_base64';
+                fileUri = fileUri + "?serve_base64";
 
                 $http.get(fileUri)
                     .then(function (response)
                     {
                         var data = response.data;
-                        angular.element('#data-viewer').append('<video preload="auto" controls="controls"  id="video-file-preview"></video>');
+                        angular.element("#data-viewer").append("<video preload=\"auto\" controls=\"controls\"  id=\"video-file-preview\"></video>");
 
-                        var src = angular.element('<source src="data:' + types[fileExtension] + ';base64,' + data + '">');
+                        var src = angular.element("<source src=\"data:" + types[fileExtension] + ";base64," + data + "\">");
 
-                        angular.element('#video-file-preview').append(src);
-                        angular.element('#video-file-preview').append('Your browser does not support the video tag.');
+                        angular.element("#video-file-preview").append(src);
+                        angular.element("#video-file-preview").append("Your browser does not support the video tag.");
                     })
                     .catch(function (error)
                     {
                         if (error.message != null)
                         {
-                            $scope.show_popup('error', 'Error', error.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },

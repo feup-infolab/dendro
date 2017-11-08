@@ -1,30 +1,30 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Post = require('../models/social/post.js').Post;
-const Like = require('../models/social/like.js').Like;
-const Notification = require('../models/notifications/notification.js').Notification;
-const Comment = require('../models/social/comment.js').Comment;
-const Share = require('../models/social/share.js').Share;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
-const Project = require('../models/project.js').Project;
-const DbConnection = require('../kb/db.js').DbConnection;
-const MetadataChangePost = require('../models/social/metadataChangePost').MetadataChangePost;
-const ManualPost = require('../models/social/manualPost').ManualPost;
-const FileSystemPost = require('../models/social/fileSystemPost').FileSystemPost;
-const _ = require('underscore');
+const Post = require("../models/social/post.js").Post;
+const Like = require("../models/social/like.js").Like;
+const Notification = require("../models/notifications/notification.js").Notification;
+const Comment = require("../models/social/comment.js").Comment;
+const Share = require("../models/social/share.js").Share;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Project = require("../models/project.js").Project;
+const DbConnection = require("../kb/db.js").DbConnection;
+const MetadataChangePost = require("../models/social/metadataChangePost").MetadataChangePost;
+const ManualPost = require("../models/social/manualPost").ManualPost;
+const FileSystemPost = require("../models/social/fileSystemPost").FileSystemPost;
+const _ = require("underscore");
 
-const flash = require('connect-flash');
+const flash = require("connect-flash");
 
-const async = require('async');
+const async = require("async");
 const db = Config.getDBByID();
-const db_social = Config.getDBByID('social');
-const db_notifications = Config.getDBByID('notifications');
+const db_social = Config.getDBByID("social");
+const db_notifications = Config.getDBByID("notifications");
 
-const app = require('../app');
+const app = require("../app");
 
 /**
  * Gets all the posts ordered by modified date and using pagination
@@ -41,27 +41,27 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
         {
-            cb1(null, '<' + uri + '>');
+            cb1(null, "<" + uri + ">");
         }, function (err, fullProjects)
         {
-            const projectsUris = fullProjects.join(' ');
+            const projectsUris = fullProjects.join(" ");
             let query =
-                'WITH [0] \n' +
+                "WITH [0] \n" +
                 // "SELECT DISTINCT ?uri ?postTypes\n" +
-                'SELECT DISTINCT ?uri\n' +
-                'WHERE { \n' +
-                'VALUES ?project { \n' +
+                "SELECT DISTINCT ?uri\n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
                 projectsUris +
-                '} \n' +
+                "} \n" +
                 /* "VALUES ?postTypes { \n" +
                 "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
                 "} \n" + */
-                '?uri ddr:modified ?date. \n' +
+                "?uri ddr:modified ?date. \n" +
                 // "?uri rdf:type ?postTypes. \n" +
-                '?uri rdf:type ddr:Post. \n' +
-                '?uri ddr:projectUri ?project. \n' +
-                '} \n ' +
-                'ORDER BY DESC(?date) \n';
+                "?uri rdf:type ddr:Post. \n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n " +
+                "ORDER BY DESC(?date) \n";
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
@@ -78,7 +78,7 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
                     {
                         return callback(err, results);
                     }
-                    return callback(true, 'Error fetching posts in getAllPosts');
+                    return callback(true, "Error fetching posts in getAllPosts");
                 });
         });
     }
@@ -111,7 +111,7 @@ exports.getUserPostsUris = function (userUri, currentPage, callback)
                     }
                     else
                     {
-                        console.error('Error getting a user post');
+                        console.error("Error getting a user post");
                         console.error(err);
                         callback(err, results);
                     }
@@ -120,7 +120,7 @@ exports.getUserPostsUris = function (userUri, currentPage, callback)
         }
         else
         {
-            console.error('Error finding user projects');
+            console.error("Error finding user projects");
             console.error(projects);
             callback(err, projects);
         }
@@ -130,13 +130,13 @@ exports.getUserPostsUris = function (userUri, currentPage, callback)
 const getNumLikesForAPost = function (postID, cb)
 {
     const query =
-        'SELECT ?likeURI ?userURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?likeURI rdf:type ddr:Like. \n' +
-        '?likeURI ddr:postURI [1]. \n' +
-        '?likeURI ddr:userWhoLiked ?userURI . \n' +
-        '} \n';
+        "SELECT ?likeURI ?userURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -157,7 +157,7 @@ const getNumLikesForAPost = function (postID, cb)
             }
             else
             {
-                cb(true, 'Error fetching children of project root folder');
+                cb(true, "Error fetching children of project root folder");
             }
         });
 };
@@ -173,24 +173,24 @@ const numPostsDatabaseAux = function (projectUrisArray, callback)
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
         {
-            cb1(null, '<' + uri + '>');
+            cb1(null, "<" + uri + ">");
         }, function (err, fullProjectsUris)
         {
-            const projectsUris = fullProjectsUris.join(' ');
+            const projectsUris = fullProjectsUris.join(" ");
             const query =
-                'WITH [0] \n' +
-                'SELECT (COUNT(DISTINCT ?uri) AS ?count) \n' +
-                'WHERE { \n' +
-                'VALUES ?project { \n' +
+                "WITH [0] \n" +
+                "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
                 projectsUris +
-                '} \n' +
+                "} \n" +
                 /* "VALUES ?postTypes { \n" +
                 "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
                 "} \n" + */
                 // "?uri rdf:type ?postTypes. \n" +
-                '?uri rdf:type ddr:Post. \n' +
-                '?uri ddr:projectUri ?project. \n' +
-                '} \n ';
+                "?uri rdf:type ddr:Post. \n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n ";
 
             db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
@@ -205,7 +205,7 @@ const numPostsDatabaseAux = function (projectUrisArray, callback)
                     {
                         return callback(err, results[0].count);
                     }
-                    return callback(true, 'Error fetching numPosts in numPostsDatabaseAux');
+                    return callback(true, "Error fetching numPosts in numPostsDatabaseAux");
                 });
         });
     }
@@ -222,13 +222,13 @@ const userLikedAPost = function (postID, userUri, cb)
     const self = this;
 
     const query =
-        'SELECT ?likeURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?likeURI rdf:type ddr:Like. \n' +
-        '?likeURI ddr:postURI [1]. \n' +
-        '?likeURI ddr:userWhoLiked [2]. \n' +
-        '} \n';
+        "SELECT ?likeURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked [2]. \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -260,7 +260,7 @@ const userLikedAPost = function (postID, userUri, cb)
             }
             else
             {
-                cb(true, 'Error checking if a post is liked by a user');
+                cb(true, "Error checking if a post is liked by a user");
             }
         });
 };
@@ -270,13 +270,13 @@ const removeOrAddLike = function (postID, userUri, cb)
     const self = this;
 
     const query =
-        'SELECT ?likeURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?likeURI rdf:type ddr:Like. \n' +
-        '?likeURI ddr:postURI [1]. \n' +
-        '?likeURI ddr:userWhoLiked [2]. \n' +
-        '} \n';
+        "SELECT ?likeURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked [2]. \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -298,17 +298,17 @@ const removeOrAddLike = function (postID, userUri, cb)
             const removeLike = function (likeID, userUri, cb)
             {
                 const query =
-                    'WITH [0] \n' +
+                    "WITH [0] \n" +
                     // "DELETE {?likeURI ?p ?v}\n" +
-                    'DELETE {[1] ?p ?v}\n' +
+                    "DELETE {[1] ?p ?v}\n" +
                     // "FROM [0] \n" +
-                    'WHERE { \n' +
-                    '[1] ?p ?v \n' +
+                    "WHERE { \n" +
+                    "[1] ?p ?v \n" +
                     // "?likeURI ddr:postURI ?postID \n" +
                     // "?likeURI rdf:type ddr:Like. \n" +
                     // "?likeURI ddr:postURI [1]. \n" +
                     // "?likeURI ddr:userWhoLiked [2]. \n" +
-                    '} \n';
+                    "} \n";
 
                 db.connection.executeViaJDBC(query,
                     DbConnection.pushLimitsArguments([
@@ -334,7 +334,7 @@ const removeOrAddLike = function (postID, userUri, cb)
                         }
                         else
                         {
-                            cb(true, 'Error fetching children of project root folder');
+                            cb(true, "Error fetching children of project root folder");
                         }
                     });
             };
@@ -357,7 +357,7 @@ const removeOrAddLike = function (postID, userUri, cb)
             }
             else
             {
-                cb(true, 'Error fetching children of project root folder');
+                cb(true, "Error fetching children of project root folder");
             }
         });
 };
@@ -367,14 +367,14 @@ const getCommentsForAPost = function (postID, cb)
     const self = this;
 
     const query =
-        'SELECT ?commentURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?commentURI rdf:type ddr:Comment. \n' +
-        '?commentURI ddr:postURI [1]. \n' +
-        '?commentURI ddr:modified ?date. \n ' +
-        '} \n' +
-        'ORDER BY ASC(?date) \n';
+        "SELECT ?commentURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?commentURI rdf:type ddr:Comment. \n" +
+        "?commentURI ddr:postURI [1]. \n" +
+        "?commentURI ddr:modified ?date. \n " +
+        "} \n" +
+        "ORDER BY ASC(?date) \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -405,15 +405,15 @@ const getCommentsForAPost = function (postID, cb)
             }
             else
             {
-                cb(true, 'Error fetching children of project root folder');
+                cb(true, "Error fetching children of project root folder");
             }
         });
 };
 
 exports.getPosts_controller = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -499,7 +499,7 @@ exports.getPosts_controller = function (req, res)
                             function (callback)
                             {
                                 // TODO HOW TO ACCESS THE FULL TYPE
-                                if (post.rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'))
+                                if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost"))
                                 {
                                     MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost)
                                     {
@@ -534,13 +534,13 @@ exports.getPosts_controller = function (req, res)
                                         }
                                         else
                                         {
-                                            console.error('Error getting a metadataChangePost');
+                                            console.error("Error getting a metadataChangePost");
                                             console.error(err);
                                             callback(err);
                                         }
                                     }, null, db_social.graphUri, false, null, null);
                                 }
-                                else if (post.rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'))
+                                else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost"))
                                 {
                                     FileSystemPost.findByUri(post.uri, function (err, fileSystemPost)
                                     {
@@ -554,13 +554,13 @@ exports.getPosts_controller = function (req, res)
                                         }
                                         else
                                         {
-                                            console.error('Error getting a File System Post');
+                                            console.error("Error getting a File System Post");
                                             console.error(err);
                                             callback(err);
                                         }
                                     }, null, db_social.graphUri, false, null, null);
                                 }
-                                else if (post.rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/Share'))
+                                else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/Share"))
                                 {
                                     Share.findByUri(post.uri, function (err, share)
                                     {
@@ -571,7 +571,7 @@ exports.getPosts_controller = function (req, res)
                                             {
                                                 if (err || isNull(originalPostInfo))
                                                 {
-                                                    console.error('Error getting the original shared post');
+                                                    console.error("Error getting the original shared post");
                                                     console.error(err);
                                                     callback(err);
                                                 }
@@ -584,7 +584,7 @@ exports.getPosts_controller = function (req, res)
                                         }
                                         else
                                         {
-                                            console.error('Error getting a share Post');
+                                            console.error("Error getting a share Post");
                                             console.error(err);
                                             callback(err);
                                         }
@@ -605,7 +605,7 @@ exports.getPosts_controller = function (req, res)
                             }
                             else
                             {
-                                if (results.toString().includes('Resource at getChangesFromMetadataChangePost resource does not exist'))
+                                if (results.toString().includes("Resource at getChangesFromMetadataChangePost resource does not exist"))
                                 {
                                     postsInfo[postQueryInfo.uri] = post;
                                     callback(null, null);
@@ -619,7 +619,7 @@ exports.getPosts_controller = function (req, res)
                     }
                     else
                     {
-                        const errorMsg = 'Invalid post uri';
+                        const errorMsg = "Invalid post uri";
                         callback(true, errorMsg);
                     }
                 }, null, db_social.graphUri, false, null, null);
@@ -635,9 +635,9 @@ exports.getPosts_controller = function (req, res)
             {
                 if (isNull(postInfo) || postInfo.length === 0)
                 {
-                    const errorMsg = 'Post uris not found';
+                    const errorMsg = "Post uris not found";
                     res.status(404).json({
-                        result: 'Error',
+                        result: "Error",
                         message: errorMsg
                     });
                 }
@@ -649,18 +649,18 @@ exports.getPosts_controller = function (req, res)
             else
             {
                 res.status(500).json({
-                    result: 'Error',
-                    message: 'Error getting a post. ' + JSON.stringify(postInfo)
+                    result: "Error",
+                    message: "Error getting a post. " + JSON.stringify(postInfo)
                 });
             }
         });
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -671,12 +671,12 @@ const getSharesForAPost = function (postID, cb)
     const self = this;
 
     const query =
-        'SELECT ?shareURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?shareURI rdf:type ddr:Share. \n' +
-        '?shareURI ddr:postURI [1]. \n' +
-        '} \n';
+        "SELECT ?shareURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?shareURI rdf:type ddr:Share. \n" +
+        "?shareURI ddr:postURI [1]. \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -707,15 +707,15 @@ const getSharesForAPost = function (postID, cb)
             }
             else
             {
-                cb(true, 'Error shares for a post');
+                cb(true, "Error shares for a post");
             }
         });
 };
 
 exports.numPostsDatabase = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -740,19 +740,19 @@ exports.numPostsDatabase = function (req, res)
                             else
                             {
                                 res.status(500).json({
-                                    result: 'Error',
-                                    message: 'Error counting posts. ' + JSON.stringify(err)
+                                    result: "Error",
+                                    message: "Error counting posts. " + JSON.stringify(err)
                                 });
                             }
                         });
                     }
                     else
                     {
-                        console.error('Error iterating over projects URIs');
+                        console.error("Error iterating over projects URIs");
                         console.log(err);
                         res.status(500).json({
-                            result: 'Error',
-                            message: 'Error counting posts. ' + JSON.stringify(err)
+                            result: "Error",
+                            message: "Error counting posts. " + JSON.stringify(err)
                         });
                     }
                 });
@@ -760,18 +760,18 @@ exports.numPostsDatabase = function (req, res)
             else
             {
                 res.status(500).json({
-                    result: 'Error',
-                    message: 'Error finding user projects'
+                    result: "Error",
+                    message: "Error finding user projects"
                 });
             }
         });
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -780,8 +780,8 @@ exports.numPostsDatabase = function (req, res)
 exports.all = function (req, res)
 {
     const currentUser = req.user;
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
     const currentPage = req.query.currentPage;
     const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
@@ -808,8 +808,8 @@ exports.all = function (req, res)
                         else
                         {
                             res.status(500).json({
-                                result: 'Error',
-                                message: 'Error getting posts. ' + JSON.stringify(err)
+                                result: "Error",
+                                message: "Error getting posts. " + JSON.stringify(err)
                             });
                         }
                     }, index, maxResults);
@@ -818,18 +818,18 @@ exports.all = function (req, res)
             else
             {
                 res.status(500).json({
-                    result: 'Error',
-                    message: 'Error finding user projects'
+                    result: "Error",
+                    message: "Error finding user projects"
                 });
             }
         });
     }
     else
     {
-        let msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        let msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -866,16 +866,16 @@ exports.new = function (req, res)
                                         if (!err)
                                         {
                                             res.status(200).json({
-                                                result: 'OK',
-                                                message: 'Manual Post ' + manualPost.uri + ' successfully created'
+                                                result: "OK",
+                                                message: "Manual Post " + manualPost.uri + " successfully created"
                                             });
                                         }
                                         else
                                         {
-                                            let errorMsg = '[Error] When saving a new manual post' + JSON.stringify(result);
+                                            let errorMsg = "[Error] When saving a new manual post" + JSON.stringify(result);
                                             console.error(errorMsg);
                                             res.status(500).json({
-                                                result: 'Error',
+                                                result: "Error",
                                                 message: errorMsg
                                             });
                                         }
@@ -883,10 +883,10 @@ exports.new = function (req, res)
                                 }
                                 else
                                 {
-                                    let errorMsg = '[Error] When creating a new manual post' + JSON.stringify(manualPost);
+                                    let errorMsg = "[Error] When creating a new manual post" + JSON.stringify(manualPost);
                                     console.error(errorMsg);
                                     res.status(500).json({
-                                        result: 'Error',
+                                        result: "Error",
                                         message: errorMsg
                                     });
                                 }
@@ -895,18 +895,18 @@ exports.new = function (req, res)
                         else
                         {
                             // is not a creator or contributor -> reject post creation
-                            let errorMsg = 'You are not creator or contributor of this Project';
+                            let errorMsg = "You are not creator or contributor of this Project";
                             res.status(401).json({
-                                result: 'Error',
+                                result: "Error",
                                 message: errorMsg
                             });
                         }
                     }
                     else
                     {
-                        let errorMsg = '[Error] When checking if a user is a contributor or creator of a project: ' + JSON.stringify(isCreatorOrContributor);
+                        let errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(isCreatorOrContributor);
                         res.status(500).json({
-                            result: 'Error',
+                            result: "Error",
                             message: errorMsg
                         });
                     }
@@ -914,10 +914,10 @@ exports.new = function (req, res)
             }
             else
             {
-                let errorMsg = '[Error]: This project does not exist: ' + JSON.stringify(project);
+                let errorMsg = "[Error]: This project does not exist: " + JSON.stringify(project);
                 console.error(errorMsg);
                 res.status(404).json({
-                    result: 'Error',
+                    result: "Error",
                     message: errorMsg
                 });
             }
@@ -928,7 +928,7 @@ exports.new = function (req, res)
         let errorMsg = "Error saving post. The request body is missing a parameter(REQUIRED 'newPostContent'; 'newPostTitle', 'newPostProjectUri')";
         console.error(errorMsg);
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: errorMsg
         });
     }
@@ -936,8 +936,8 @@ exports.new = function (req, res)
 
 exports.getPost_controller = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -950,9 +950,9 @@ exports.getPost_controller = function (req, res)
             {
                 if (!post)
                 {
-                    const errorMsg = 'Invalid post uri';
+                    const errorMsg = "Invalid post uri";
                     res.status(404).json({
-                        result: 'Error',
+                        result: "Error",
                         message: errorMsg
                     });
                 }
@@ -964,18 +964,18 @@ exports.getPost_controller = function (req, res)
             else
             {
                 res.status(500).json({
-                    result: 'Error',
-                    message: 'Error getting a post. ' + JSON.stringify(post)
+                    result: "Error",
+                    message: "Error getting a post. " + JSON.stringify(post)
                 });
             }
         }, null, db_social.graphUri, false, null, null);
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -983,8 +983,8 @@ exports.getPost_controller = function (req, res)
 
 exports.share = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -996,7 +996,7 @@ exports.share = function (req, res)
         {
             const errorMsg = "Missing required body parameter 'shareMsg'";
             res.status(400).json({
-                result: 'Error',
+                result: "Error",
                 message: errorMsg
             });
         }
@@ -1008,9 +1008,9 @@ exports.share = function (req, res)
                 {
                     if (!post)
                     {
-                        const errorMsg = 'Invalid post uri';
+                        const errorMsg = "Invalid post uri";
                         res.status(404).json({
-                            result: 'Error',
+                            result: "Error",
                             message: errorMsg
                         });
                     }
@@ -1052,12 +1052,12 @@ exports.share = function (req, res)
                                 ddr: {
                                     userWhoActed: currentUser.uri,
                                     resourceTargetUri: post.uri,
-                                    actionType: 'Share',
+                                    actionType: "Share",
                                     resourceAuthorUri: post.dcterms.creator,
                                     shareURI: newShare.uri
                                 },
                                 foaf: {
-                                    status: 'unread'
+                                    status: "unread"
                                 }
                             });
 
@@ -1075,26 +1075,26 @@ exports.share = function (req, res)
                                         if (isNull(error))
                                         {
                                             res.json({
-                                                result: 'OK',
-                                                message: 'Post shared successfully'
+                                                result: "OK",
+                                                message: "Post shared successfully"
                                             });
                                         }
                                         else
                                         {
                                             res.status(500).json({
-                                                result: 'Error',
-                                                message: 'Error saving a notification for a Share ' + JSON.stringify(resultNotification)
+                                                result: "Error",
+                                                message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
                                             });
                                         }
                                     }, false, null, null, null, null, db_notifications.graphUri);
                                 }
                                 else
                                 {
-                                    console.error('Error share a post');
+                                    console.error("Error share a post");
                                     console.error(err);
                                     res.status(500).json({
-                                        result: 'Error',
-                                        message: 'Error sharing a post. ' + JSON.stringify(resultShare)
+                                        result: "Error",
+                                        message: "Error sharing a post. " + JSON.stringify(resultShare)
                                     });
                                 }
                             }, false, null, null, null, null, db_social.graphUri);
@@ -1104,8 +1104,8 @@ exports.share = function (req, res)
                 else
                 {
                     res.status(500).json({
-                        result: 'Error',
-                        message: 'Error sharing a post. ' + JSON.stringify(post)
+                        result: "Error",
+                        message: "Error sharing a post. " + JSON.stringify(post)
                     });
                 }
             }, null, db_social.graphUri, null);
@@ -1113,10 +1113,10 @@ exports.share = function (req, res)
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -1124,8 +1124,8 @@ exports.share = function (req, res)
 
 exports.getPostComments = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -1141,8 +1141,8 @@ exports.getPostComments = function (req, res)
                     if (!isNull(err))
                     {
                         res.status(500).json({
-                            result: 'Error',
-                            message: 'Error getting comments from a post ' + JSON.stringify(comments)
+                            result: "Error",
+                            message: "Error getting comments from a post " + JSON.stringify(comments)
                         });
                     }
                     else
@@ -1153,9 +1153,9 @@ exports.getPostComments = function (req, res)
             }
             else
             {
-                const errorMsg = 'Invalid post uri';
+                const errorMsg = "Invalid post uri";
                 res.status(404).json({
-                    result: 'Error',
+                    result: "Error",
                     message: errorMsg
                 });
             }
@@ -1163,10 +1163,10 @@ exports.getPostComments = function (req, res)
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -1174,8 +1174,8 @@ exports.getPostComments = function (req, res)
 
 exports.comment = function (req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -1186,7 +1186,7 @@ exports.comment = function (req, res)
         {
             const errorMsg = "Missing required body parameter 'commentMsg'";
             res.status(400).json({
-                result: 'Error',
+                result: "Error",
                 message: errorMsg
             });
         }
@@ -1208,11 +1208,11 @@ exports.comment = function (req, res)
                         ddr: {
                             userWhoActed: currentUser.uri,
                             resourceTargetUri: post.uri,
-                            actionType: 'Comment',
+                            actionType: "Comment",
                             resourceAuthorUri: post.dcterms.creator
                         },
                         foaf: {
-                            status: 'unread'
+                            status: "unread"
                         }
                     });
 
@@ -1230,15 +1230,15 @@ exports.comment = function (req, res)
                                 if (isNull(error))
                                 {
                                     res.json({
-                                        result: 'OK',
-                                        message: 'Post commented successfully'
+                                        result: "OK",
+                                        message: "Post commented successfully"
                                     });
                                 }
                                 else
                                 {
                                     res.status(500).json({
-                                        result: 'Error',
-                                        message: 'Error saving a notification for a Comment ' + JSON.stringify(resultNotification)
+                                        result: "Error",
+                                        message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
                                     });
                                 }
                             }, false, null, null, null, null, db_notifications.graphUri);
@@ -1246,17 +1246,17 @@ exports.comment = function (req, res)
                         else
                         {
                             res.status(500).json({
-                                result: 'Error',
-                                message: 'Error Commenting a post. ' + JSON.stringify(resultComment)
+                                result: "Error",
+                                message: "Error Commenting a post. " + JSON.stringify(resultComment)
                             });
                         }
                     }, false, null, null, null, null, db_social.graphUri);
                 }
                 else
                 {
-                    const errorMsg = 'Invalid post uri';
+                    const errorMsg = "Invalid post uri";
                     res.status(404).json({
-                        result: 'Error',
+                        result: "Error",
                         message: errorMsg
                     });
                 }
@@ -1265,10 +1265,10 @@ exports.comment = function (req, res)
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -1333,8 +1333,8 @@ exports.comment = function (req, res)
 
 exports.like = function (req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -1347,8 +1347,8 @@ exports.like = function (req, res)
                 {
                     // like was removed
                     res.json({
-                        result: 'OK',
-                        message: 'Like was removed'
+                        result: "OK",
+                        message: "Like was removed"
                     });
                 }
                 else
@@ -1374,11 +1374,11 @@ exports.like = function (req, res)
                                 ddr: {
                                     userWhoActed: currentUser.uri,
                                     resourceTargetUri: post.uri,
-                                    actionType: 'Like',
+                                    actionType: "Like",
                                     resourceAuthorUri: post.dcterms.creator
                                 },
                                 foaf: {
-                                    status: 'unread'
+                                    status: "unread"
                                 }
                             });
 
@@ -1391,15 +1391,15 @@ exports.like = function (req, res)
                                         if (isNull(error))
                                         {
                                             res.json({
-                                                result: 'OK',
-                                                message: 'Post liked successfully'
+                                                result: "OK",
+                                                message: "Post liked successfully"
                                             });
                                         }
                                         else
                                         {
                                             res.status(500).json({
-                                                result: 'Error',
-                                                message: 'Error saving a notification for a Like ' + JSON.stringify(resultNotification)
+                                                result: "Error",
+                                                message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
                                             });
                                         }
                                     }, false, null, null, null, null, db_notifications.graphUri);
@@ -1407,17 +1407,17 @@ exports.like = function (req, res)
                                 else
                                 {
                                     res.status(500).json({
-                                        result: 'Error',
-                                        message: 'Error Liking a post. ' + JSON.stringify(resultLike)
+                                        result: "Error",
+                                        message: "Error Liking a post. " + JSON.stringify(resultLike)
                                     });
                                 }
                             }, false, null, null, null, null, db_social.graphUri);
                         }
                         else
                         {
-                            const errorMsg = 'Invalid post uri';
+                            const errorMsg = "Invalid post uri";
                             res.status(404).json({
-                                result: 'Error',
+                                result: "Error",
                                 message: errorMsg
                             });
                         }
@@ -1428,10 +1428,10 @@ exports.like = function (req, res)
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -1454,8 +1454,8 @@ exports.like = function (req, res)
 
 exports.getPostShares = function (req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -1471,8 +1471,8 @@ exports.getPostShares = function (req, res)
                     if (!isNull(err))
                     {
                         res.status(500).json({
-                            result: 'Error',
-                            message: 'Error getting shares from a post ' + JSON.stringify(shares)
+                            result: "Error",
+                            message: "Error getting shares from a post " + JSON.stringify(shares)
                         });
                     }
                     else
@@ -1483,9 +1483,9 @@ exports.getPostShares = function (req, res)
             }
             else
             {
-                const errorMsg = 'Invalid post uri';
+                const errorMsg = "Invalid post uri";
                 res.status(404).json({
-                    result: 'Error',
+                    result: "Error",
                     message: errorMsg
                 });
             }
@@ -1493,10 +1493,10 @@ exports.getPostShares = function (req, res)
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -1504,8 +1504,8 @@ exports.getPostShares = function (req, res)
 
 exports.postLikesInfo = function (req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -1527,7 +1527,7 @@ exports.postLikesInfo = function (req, res)
                             resultInfo = {
                                 postURI: postURI,
                                 numLikes: likesArray.length,
-                                usersWhoLiked: _.pluck(likesArray, 'userURI')
+                                usersWhoLiked: _.pluck(likesArray, "userURI")
                             };
                         }
                         else
@@ -1541,17 +1541,17 @@ exports.postLikesInfo = function (req, res)
                     else
                     {
                         res.status(500).json({
-                            result: 'Error',
-                            message: 'Error getting likesInfo from a post ' + JSON.stringify(err)
+                            result: "Error",
+                            message: "Error getting likesInfo from a post " + JSON.stringify(err)
                         });
                     }
                 });
             }
             else
             {
-                const errorMsg = 'Invalid post uri';
+                const errorMsg = "Invalid post uri";
                 res.status(404).json({
-                    result: 'Error',
+                    result: "Error",
                     message: errorMsg
                 });
             }
@@ -1559,10 +1559,10 @@ exports.postLikesInfo = function (req, res)
     }
     else
     {
-        const msg = 'This method is only accessible via API. Accepts:"application/json" header is missing or is not the only Accept type';
-        req.flash('error', 'Invalid Request');
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
         res.status(400).json({
-            result: 'Error',
+            result: "Error",
             message: msg
         });
     }
@@ -1571,8 +1571,8 @@ exports.postLikesInfo = function (req, res)
 // Gets a specific post
 exports.post = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
     const currentUser = req.user;
     // const postUri = "http://" + Config.host + req.url;
     const postUri = req.url;
@@ -1651,7 +1651,7 @@ exports.post = function (req, res)
                     function (callback)
                     {
                         // TODO HOW TO ACCESS THE FULL TYPE
-                        if (post.rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'))
+                        if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost"))
                         {
                             MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost)
                             {
@@ -1673,13 +1673,13 @@ exports.post = function (req, res)
                                 }
                                 else
                                 {
-                                    console.error('Error getting a metadataChangePost');
+                                    console.error("Error getting a metadataChangePost");
                                     console.error(err);
                                     callback(err);
                                 }
                             }, null, db_social.graphUri, false, null, null);
                         }
-                        else if (post.rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'))
+                        else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost"))
                         {
                             FileSystemPost.findByUri(post.uri, function (err, fileSystemPost)
                             {
@@ -1693,7 +1693,7 @@ exports.post = function (req, res)
                                 }
                                 else
                                 {
-                                    console.error('Error getting a File System Post');
+                                    console.error("Error getting a File System Post");
                                     console.error(err);
                                     callback(err);
                                 }
@@ -1712,7 +1712,7 @@ exports.post = function (req, res)
             }
             else
             {
-                res.render('social/showPost',
+                res.render("social/showPost",
                     {
                         postUri: postUri
                     }
@@ -1723,18 +1723,18 @@ exports.post = function (req, res)
         {
             if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
             {
-                const errorMsg = 'Invalid post uri';
+                const errorMsg = "Invalid post uri";
                 res.status(404).json({
-                    result: 'Error',
+                    result: "Error",
                     message: errorMsg
                 });
             }
             else
             {
-                flash('error', 'Unable to retrieve the post : ' + postUri);
-                res.render('index',
+                flash("error", "Unable to retrieve the post : " + postUri);
+                res.render("index",
                     {
-                        error_messages: ['Post ' + postUri + ' not found.']
+                        error_messages: ["Post " + postUri + " not found."]
                     });
             }
         }
@@ -1744,8 +1744,8 @@ exports.post = function (req, res)
 // Gets a specific share
 exports.getShare = function (req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     const currentUser = req.user;
     // const shareUri = "http://" + req.headers.host + req.url;
@@ -1767,6 +1767,50 @@ exports.getShare = function (req, res)
                     },
                     function (callback)
                     {
+                        const getLikesForAPost = function (postUri, callback)
+                        {
+                            let resultInfo;
+                            Post.findByUri(postUri, function (err, post)
+                            {
+                                if (isNull(err) && !isNull(post))
+                                {
+                                    getNumLikesForAPost(post.uri, function (err, likesArray)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            if (likesArray.length)
+                                            {
+                                                resultInfo = {
+                                                    postURI: post.uri,
+                                                    numLikes: likesArray.length,
+                                                    usersWhoLiked: _.pluck(likesArray, "userURI")
+                                                };
+                                            }
+                                            else
+                                            {
+                                                resultInfo = {
+                                                    postURI: post.uri, numLikes: 0, usersWhoLiked: []
+                                                };
+                                            }
+                                            callback(null, resultInfo);
+                                        }
+                                        else
+                                        {
+                                            console.error("Error getting likesInfo from a post");
+                                            console.error(err);
+                                            callback(true, "Error getting likesInfo from a post");
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    const errorMsg = "Invalid post uri";
+                                    console.error(err);
+                                    console.error(errorMsg);
+                                }
+                            }, null, db_social.graphUri, null);
+                        };
+
                         getLikesForAPost(share.uri, function (err, likesData)
                         {
                             callback(err, likesData);
@@ -1791,7 +1835,7 @@ exports.getShare = function (req, res)
             }
             else
             {
-                res.render('social/showShare',
+                res.render("social/showShare",
                     {
                         shareUri: shareUri,
                         postUri: share.ddr.postURI
@@ -1803,64 +1847,21 @@ exports.getShare = function (req, res)
         {
             if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
             {
-                const errorMsg = 'Invalid share uri';
+                const errorMsg = "Invalid share uri";
                 res.status(404).json({
-                    result: 'Error',
+                    result: "Error",
                     message: errorMsg
                 });
             }
             else
             {
-                flash('error', 'Unable to retrieve the share : ' + shareUri);
-                res.render('index',
+                flash("error", "Unable to retrieve the share : " + shareUri);
+                res.render("index",
                     {
-                        error_messages: ['Share ' + shareUri + ' not found.']
+                        error_messages: ["Share " + shareUri + " not found."]
                     });
             }
         }
     }, null, db_social.graphUri, null);
 };
 
-const getLikesForAPost = function (postUri, callback)
-{
-    let resultInfo;
-    Post.findByUri(postUri, function (err, post)
-    {
-        if (isNull(err) && !isNull(post))
-        {
-            getNumLikesForAPost(post.uri, function (err, likesArray)
-            {
-                if (isNull(err))
-                {
-                    if (likesArray.length)
-                    {
-                        resultInfo = {
-                            postURI: post.uri,
-                            numLikes: likesArray.length,
-                            usersWhoLiked: _.pluck(likesArray, 'userURI')
-                        };
-                    }
-                    else
-                    {
-                        resultInfo = {
-                            postURI: post.uri, numLikes: 0, usersWhoLiked: []
-                        };
-                    }
-                    callback(null, resultInfo);
-                }
-                else
-                {
-                    console.error('Error getting likesInfo from a post');
-                    console.error(err);
-                    callback(true, 'Error getting likesInfo from a post');
-                }
-            });
-        }
-        else
-        {
-            const errorMsg = 'Invalid post uri';
-            console.error(err);
-            console.error(errorMsg);
-        }
-    }, null, db_social.graphUri, null);
-};

@@ -1,24 +1,24 @@
-const path = require('path');
-const _ = require('underscore');
+const path = require("path");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
-const Controls = require(Pathfinder.absPathInSrcFolder('/models/meta/controls.js')).Controls;
+const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
 
 function Elements ()
 {}
 
 /** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
 Elements.access_types = {
-    public: 'public', // can be shared, read and written
-    private: 'private', // cannot be shared to the outside world under any circumstance
-    locked: 'locked', // can not be seen or edited from the main interface or via apis
-    restorable: 'restorable', // can be restorable from a metadata.json file in a zip backup file
-    backuppable: 'backuppable', // will be included in a metadata.json file produced in a zip file (backup zips)
-    audit: 'audit', // cannot be changed via API calls, changed internally only
-    api_readable: 'api_readable', // accessible to the outside world via API calls
-    api_writeable: 'api_writeable', // modifiable from the outside world via API calls
-    immutable: 'immutable', // cannot be changed under ANY circumstance
-    unrevertable: 'unrevertable', // cannot be fallen back in the a "restore previous version" operation
-    locked_for_projects: 'locked_for_projects' // project metadata which cannot be modified using the metadata editor, has to go through the project administrator
+    public: "public", // can be shared, read and written
+    private: "private", // cannot be shared to the outside world under any circumstance
+    locked: "locked", // can not be seen or edited from the main interface or via apis
+    restorable: "restorable", // can be restorable from a metadata.json file in a zip backup file
+    backuppable: "backuppable", // will be included in a metadata.json file produced in a zip file (backup zips)
+    audit: "audit", // cannot be changed via API calls, changed internally only
+    api_readable: "api_readable", // accessible to the outside world via API calls
+    api_writeable: "api_writeable", // modifiable from the outside world via API calls
+    immutable: "immutable", // cannot be changed under ANY circumstance
+    unrevertable: "unrevertable", // cannot be fallen back in the a "restore previous version" operation
+    locked_for_projects: "locked_for_projects" // project metadata which cannot be modified using the metadata editor, has to go through the project administrator
 };
 
 Elements.types = {};
@@ -76,7 +76,14 @@ Elements.ontologies.schema = {
       control: Controls.input_box,
       locked: true,
       api_accessible: true
-  }
+  },
+    email:
+    {
+        type: Elements.types.string,
+        control: Controls.input_box,
+        locked: true,
+        api_accessible: true
+    }
 };
 
 /**
@@ -2941,7 +2948,7 @@ Elements.setAllElements = function (loadedElements)
 
         for (let k in loadedElement)
         {
-            if (existingElement[k] === null || typeof existingElement[k] === 'undefined')
+            if (existingElement[k] === null || typeof existingElement[k] === "undefined")
             {
                 Elements.ontologies[prefix][shortName][k] = loadedElement[k];
             }

@@ -1,14 +1,14 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const util = require('util');
+const util = require("util");
 const db = Config.getDBByID();
 
-const es = require('elasticsearch');
-const slug = require('slug');
+const es = require("elasticsearch");
+const slug = require("slug");
 
 const IndexConnection = function ()
 {
@@ -16,7 +16,7 @@ const IndexConnection = function ()
 
 IndexConnection.indexTypes =
 {
-    resource: 'resource'
+    resource: "resource"
 };
 
 // exclude a field from indexing : add "index" : "no".
@@ -31,18 +31,18 @@ IndexConnection.indexes = {
             properties: {
                 uri:
           {
-              type: 'string',
-              index: 'not_analyzed' // we only want exact matches, disable term analysis
+              type: "string",
+              index: "not_analyzed" // we only want exact matches, disable term analysis
           },
                 graph:
           {
-              type: 'string',
-              index: 'not_analyzed' // we only want exact matches, disable term analysis
+              type: "string",
+              index: "not_analyzed" // we only want exact matches, disable term analysis
           },
                 last_indexing_date:
           {
-              type: 'string',
-              index: 'not_analyzed' // we only want exact matches, disable term analysis
+              type: "string",
+              index: "not_analyzed" // we only want exact matches, disable term analysis
           },
                 descriptors:
           {
@@ -50,14 +50,14 @@ IndexConnection.indexes = {
             {
                 predicate:
               {
-                  type: 'string',
-                  index: 'not_analyzed' // we only want exact matches, disable term analysis
+                  type: "string",
+                  index: "not_analyzed" // we only want exact matches, disable term analysis
               },
                 object:
               {
-                  type: 'string',
-                  index_options: 'offsets',
-                  analyzer: 'standard'
+                  type: "string",
+                  index_options: "offsets",
+                  analyzer: "standard"
               }
             }
           }
@@ -67,18 +67,18 @@ IndexConnection.indexes = {
     },
     dbpedia:
   {
-      short_name: slug('http://dbpedia.org'),
-      uri: 'http://dbpedia.org'
+      short_name: slug("http://dbpedia.org"),
+      uri: "http://dbpedia.org"
   },
     dryad:
   {
-      short_name: slug('http://dryad.org'),
-      uri: 'http://dryad.org'
+      short_name: slug("http://dryad.org"),
+      uri: "http://dryad.org"
   },
     freebase:
   {
-      short_name: slug('http://freebase.org'),
-      uri: 'http://freebase.org'
+      short_name: slug("http://freebase.org"),
+      uri: "http://freebase.org"
   }
 };
 
@@ -87,7 +87,7 @@ IndexConnection.prototype.open = function (host, port, index, callback)
     const self = this;
     if (!self.client)
     {
-        const util = require('util');
+        const util = require("util");
 
         self.client = {};
         self.host = host;
@@ -95,10 +95,10 @@ IndexConnection.prototype.open = function (host, port, index, callback)
         self.index = index;
 
         let serverOptions = {
-            host: host + ':' + port
+            host: host + ":" + port
         };
 
-        if (Config.debug.index.elasticsearch_connection_log_type !== 'undefined' && Config.elasticsearch_connection_log_type !== '')
+        if (Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
         {
             serverOptions.log = Config.debug.index.elasticsearch_connection_log_type;
         }
@@ -127,7 +127,7 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
 {
     const self = this;
 
-    if (typeof document._id !== 'undefined')
+    if (typeof document._id !== "undefined")
     {
         delete document._id;
 
@@ -139,10 +139,10 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
         {
             if (isNull(err))
             {
-                return callback(null, 'Document successfully RE indexed' + JSON.stringify(document) + ' with ID ' + data._id);
+                return callback(null, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             console.error(err.stack);
-            return callback(1, 'Unable to RE index document ' + JSON.stringify(document));
+            return callback(1, "Unable to RE index document " + JSON.stringify(document));
         });
     }
     else
@@ -155,10 +155,10 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
         {
             if (isNull(err))
             {
-                return callback(null, 'Document successfully indexed' + JSON.stringify(document) + ' with ID ' + data._id);
+                return callback(null, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             console.error(err.stack);
-            return callback(1, 'Unable to index document ' + JSON.stringify(document));
+            return callback(1, "Unable to index document " + JSON.stringify(document));
         });
     }
 };
@@ -168,7 +168,7 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
     const self = this;
     if (isNull(documentID))
     {
-        return callback(null, 'No document to delete');
+        return callback(null, "No document to delete");
     }
 
     self.client.delete(self.index.short_name,
@@ -179,17 +179,17 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
         {
             return callback(err, result);
         })
-        .on('data', function (data)
+        .on("data", function (data)
         {
-            console.log('Deleting document... data received : ' + data);
+            console.log("Deleting document... data received : " + data);
         })
-        .on('done', function (data)
+        .on("done", function (data)
         {
-            return callback(null, 'Document with id ' + documentID + ' successfully deleted.' + '.  result : ' + JSON.stringify(data));
+            return callback(null, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(data));
         })
-        .on('error', function (data)
+        .on("error", function (data)
         {
-            return callback(1, 'Unable to delete document ' + JSON.stringify(document) + '.  error reported : ' + data);
+            return callback(1, "Unable to delete document " + JSON.stringify(document) + ".  error reported : " + data);
         });
 };
 
@@ -197,7 +197,7 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
 {
     let self = this;
     let endCallback = callback;
-    let async = require('async');
+    let async = require("async");
     let indexName = self.index.short_name;
 
     async.waterfall([
@@ -216,7 +216,7 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                                 {
                                     return callback();
                                 }
-                                console.error('Unable do delete index ' + self.index.short_name + ' Error returned  : ' + err);
+                                console.error("Unable do delete index " + self.index.short_name + " Error returned  : " + err);
                                 return callback(1);
                             });
                         }
@@ -256,18 +256,18 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                 {
                     if (isNull(data.error) && data.acknowledged === true)
                     {
-                        endCallback(null, 'Index with name ' + indexName + ' successfully created.');
+                        endCallback(null, "Index with name " + indexName + " successfully created.");
                     }
                     else
                     {
-                        const error = 'Error creating index : ' + JSON.stringify(data);
+                        const error = "Error creating index : " + JSON.stringify(data);
                         console.error(error);
                         endCallback(err, error);
                     }
                 }
                 else
                 {
-                    const error = 'Error creating index : ' + data;
+                    const error = "Error creating index : " + data;
                     console.error(error);
                     endCallback(1, error);
                 }
@@ -287,9 +287,9 @@ IndexConnection.prototype.delete_index = function (callback)
         {
             if (isNull(err) && !data.error)
             {
-                return callback(null, 'Index with name ' + self.index.short_name + ' successfully deleted.');
+                return callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
             }
-            const error = 'Error deleting index : ' + data.error;
+            const error = "Error deleting index : " + data.error;
             console.error(error);
             return callback(error, data.error);
         });
@@ -305,7 +305,7 @@ IndexConnection.prototype.delete_index = function (callback)
 IndexConnection.prototype.check_if_index_exists = function (callback)
 {
     const self = this;
-    const XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+    const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
     const xmlHttp = new XMLHttpRequest();
 
     // var util = require('util');
@@ -317,7 +317,7 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
         {
             if (xmlHttp.status !== 200)
             {
-                throw new Error('[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: ' + self.host + ' running on port ' + self.port + '\n Server returned status code ' + xmlHttp.status);
+                throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: " + self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
             }
             else
             {
@@ -334,13 +334,13 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
         if (xmlHttp.status &&
             xmlHttp.status !== 200)
         {
-            throw new Error('[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: ' + self.host + ' running on port ' + self.port + '\n Server returned status code ' + xmlHttp.status);
+            throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: " + self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
         }
     };
 
-    const fullUrl = 'http://' + self.host + ':' + self.port + '/_stats';
+    const fullUrl = "http://" + self.host + ":" + self.port + "/_stats";
 
-    xmlHttp.open('GET', fullUrl, true);
+    xmlHttp.open("GET", fullUrl, true);
     xmlHttp.send(null);
 };
 
@@ -366,7 +366,7 @@ IndexConnection.prototype.search = function (typeName,
             return callback(null, response.hits.hits);
         }, function (error)
         {
-            error = 'Error fetching documents for query : ' + JSON.stringify(queryObject) + '. Reported error : ' + JSON.stringify(error);
+            error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
             console.error(error);
             return callback(1, error);
         });
@@ -401,14 +401,14 @@ IndexConnection.prototype.moreLikeThis = function (typeName,
                 return callback(null, data.hits.hits);
             }, function (error)
             {
-                error = 'Error fetching documents similar to document with ID : ' + documentId + '. Reported error : ' + JSON.stringify(error);
+                error = "Error fetching documents similar to document with ID : " + documentId + ". Reported error : " + JSON.stringify(error);
                 console.error(error);
                 return callback(1, error);
             });
     }
     else
     {
-        const error = 'No documentId Specified for similarity calculation';
+        const error = "No documentId Specified for similarity calculation";
         console.error(error);
         return callback(1, error);
     }
@@ -420,7 +420,7 @@ IndexConnection.prototype.moreLikeThis = function (typeName,
 
 IndexConnection.prototype.transformURIintoVarName = function (uri)
 {
-    const transformedUri = uri.replace(/[^A-z]|[0-9]/g, '_');
+    const transformedUri = uri.replace(/[^A-z]|[0-9]/g, "_");
     return transformedUri;
 };
 

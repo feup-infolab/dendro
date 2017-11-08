@@ -1,20 +1,20 @@
-const async = require('async');
+const async = require("async");
 
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getGFSByID();
 
 function ResearchDomain (object)
 {
     const self = this;
-    self.addURIAndRDFType(object, 'research_domain', ResearchDomain);
+    self.addURIAndRDFType(object, "research_domain", ResearchDomain);
     ResearchDomain.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
@@ -33,15 +33,15 @@ ResearchDomain.create = function (object, callback)
         }
         else
         {
-            if (typeof self.dcterms.title === 'string')
+            if (typeof self.dcterms.title === "string")
             {
-                const slug = require('slug');
+                const slug = require("slug");
                 const slugified_title = slug(self.dcterms.title);
-                self.ddr.humanReadableURI = Config.baseUri + '/research_domains/' + slugified_title;
+                self.ddr.humanReadableURI = Config.baseUri + "/research_domains/" + slugified_title;
             }
             else
             {
-                return callback(1, 'No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: ' + JSON.stringify(object));
+                return callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
             }
         }
     }
@@ -51,22 +51,22 @@ ResearchDomain.create = function (object, callback)
 ResearchDomain.findByTitleOrDescription = function (query, callback, max_results)
 {
     var query =
-        'WITH [0] \n' +
-        'SELECT DISTINCT (?uri) \n' +
-        'WHERE \n' +
-        '{ \n' +
-        '   {\n' +
-        '      ?uri rdf:type ddr:ResearchDomain . \n' +
-        '      ?uri dcterms:title ?title .\n' +
-        '      FILTER regex(?title, "' + query + '", "i")  \n' +
-        '   }\n' +
-        '   UNION \n' +
-        '   {\n' +
-        '       ?uri rdf:type ddr:ResearchDomain . \n' +
-        '       ?uri dcterms:description ?description .\n' +
-        '       FILTER regex(?description, "' + query + '", "i")  \n' +
-        '   } \n' +
-        '} \n';
+        "WITH [0] \n" +
+        "SELECT DISTINCT (?uri) \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   {\n" +
+        "      ?uri rdf:type ddr:ResearchDomain . \n" +
+        "      ?uri dcterms:title ?title .\n" +
+        "      FILTER regex(?title, \"" + query + "\", \"i\")  \n" +
+        "   }\n" +
+        "   UNION \n" +
+        "   {\n" +
+        "       ?uri rdf:type ddr:ResearchDomain . \n" +
+        "       ?uri dcterms:description ?description .\n" +
+        "       FILTER regex(?description, \"" + query + "\", \"i\")  \n" +
+        "   } \n" +
+        "} \n";
 
     const queryArguments = [
         {
@@ -75,9 +75,9 @@ ResearchDomain.findByTitleOrDescription = function (query, callback, max_results
         }
     ];
 
-    if (typeof max_results !== 'undefined' && typeof max_results === 'number')
+    if (typeof max_results !== "undefined" && typeof max_results === "number")
     {
-        query = query + 'LIMIT [1]';
+        query = query + "LIMIT [1]";
 
         queryArguments.push({
             type: Elements.types.int,
@@ -111,6 +111,6 @@ ResearchDomain.findByTitleOrDescription = function (query, callback, max_results
         });
 };
 
-ResearchDomain = Class.extend(ResearchDomain, Resource, 'ddr:ResearchDomain');
+ResearchDomain = Class.extend(ResearchDomain, Resource, "ddr:ResearchDomain");
 
 module.exports.ResearchDomain = ResearchDomain;

@@ -1,19 +1,19 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
-const Interaction = require(Pathfinder.absPathInSrcFolder('/models/recommendation/interaction.js')).Interaction;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
-const InformationElement = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/information_element.js')).InformationElement;
-const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 exports.recommend_descriptors = function (req, res)
 {
@@ -93,11 +93,11 @@ exports.recommend_descriptors = function (req, res)
                                     {
                                         if (err)
                                         {
-                                            console.err('Unable to record interaction of type ' + interactionType + ' for shifting between pages in the descriptor recommender list. ');
+                                            console.err("Unable to record interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list. ");
                                         }
                                         else
                                         {
-                                            console.log('Successfully recorded interaction of type ' + interactionType + ' for shifting between pages in the descriptor recommender list in resource with uri ' + req.params.requestedResourceUri);
+                                            console.log("Successfully recorded interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list in resource with uri " + req.params.requestedResourceUri);
                                         }
                                     });
                                 }
@@ -117,7 +117,7 @@ exports.recommend_descriptors = function (req, res)
                     req.user.recommendations.lastRecommendationList = descriptors;
                     res.json(
                         {
-                            result: 'ok',
+                            result: "ok",
                             descriptors: descriptors
                         }
                     );
@@ -126,8 +126,8 @@ exports.recommend_descriptors = function (req, res)
                 {
                     res.status(500).json(
                         {
-                            result: 'error',
-                            error_messages: ['Error producing metadata recommendations for resource ' + req.params.requestedResourceUri + ' . Error reported : ' + descriptors]
+                            result: "error",
+                            error_messages: ["Error producing metadata recommendations for resource " + req.params.requestedResourceUri + " . Error reported : " + descriptors]
                         }
                     );
                 }
@@ -142,8 +142,8 @@ exports.recommend_descriptors = function (req, res)
         {
             res.status(400).json(
                 {
-                    result: 'error',
-                    error_messages: ['No user is authenticated in the system, so no metadata recommendations can be obtained.']
+                    result: "error",
+                    error_messages: ["No user is authenticated in the system, so no metadata recommendations can be obtained."]
                 }
             );
         }
@@ -152,8 +152,8 @@ exports.recommend_descriptors = function (req, res)
     {
         res.status(404).json(
             {
-                result: 'error',
-                error_messages: ['Resource with uri .' + req.params.requestedResourceUri + ' does not exist in this Dendro instance.']
+                result: "error",
+                error_messages: ["Resource with uri ." + req.params.requestedResourceUri + " does not exist in this Dendro instance."]
             }
         );
     }
@@ -173,9 +173,9 @@ exports.shared = {};
  */
 
 exports.shared.recommendation_options = {
-    favorites: 'favorites',
-    smart: 'smart',
-    hidden: 'hidden'
+    favorites: "favorites",
+    smart: "smart",
+    hidden: "hidden"
 };
 
 exports.shared.recommend_descriptors = function (resourceUri, userUri, page, allowedOntologies, indexConnection, callback, options)
@@ -188,7 +188,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
     ie.getOwnerProject(function (err, ownerProject)
     {
-        const Project = require(Pathfinder.absPathInSrcFolder('/models/project.js')).Project;
+        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 
         if (isNull(err) && ownerProject instanceof Project)
         {
@@ -227,7 +227,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     }
                     else
                     {
-                        const error = 'Error fetching user : ' + user + ' : ' + err;
+                        const error = "Error fetching user : " + user + " : " + err;
                         console.error(error);
                         return callback(1, error);
                     }
@@ -251,7 +251,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     }
                     else
                     {
-                        const error = 'Error fetching user : ' + user + ' : ' + err;
+                        const error = "Error fetching user : " + user + " : " + err;
                         console.error(error);
                         return callback(1, error);
                     }
@@ -275,7 +275,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     }
                     else
                     {
-                        const error = 'Error fetching user : ' + user + ' : ' + err;
+                        const error = "Error fetching user : " + user + " : " + err;
                         console.error(error);
                         return callback(1, error);
                     }
@@ -288,7 +288,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
              */
             const getProjectsFavoriteDescriptors = function (projectUri, callback)
             {
-                const Project = require('./project.js').Project;
+                const Project = require("./project.js").Project;
 
                 Project.findByUri(projectUri, function (err, project)
                 {
@@ -303,14 +303,14 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                         }
                         else
                         {
-                            const error = 'Project with uri : ' + projectUri + ' is not registered in this Dendro instance.';
+                            const error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
                             console.error(error);
                             return callback(1, error);
                         }
                     }
                     else
                     {
-                        const error = 'Error fetching project : ' + project + ' : ' + err;
+                        const error = "Error fetching project : " + project + " : " + err;
                         console.error(error);
                         return callback(1, error);
                     }
@@ -319,7 +319,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
             const getProjectsHiddenDescriptors = function (projectUri, callback)
             {
-                const Project = require('./project.js').Project;
+                const Project = require("./project.js").Project;
 
                 Project.findByUri(projectUri, function (err, project)
                 {
@@ -334,14 +334,14 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                         }
                         else
                         {
-                            const error = 'Project with uri : ' + projectUri + ' is not registered in this Dendro instance.';
+                            const error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
                             console.error(error);
                             return callback(1, error);
                         }
                     }
                     else
                     {
-                        const error = 'Error fetching project : ' + project + ' : ' + err;
+                        const error = "Error fetching project : " + project + " : " + err;
                         console.error(error);
                         return callback(1, error);
                     }
@@ -385,7 +385,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     }
                     else
                     {
-                        const error = 'Error fetching similar resources : ' + similarResources + ' : ' + err;
+                        const error = "Error fetching similar resources : " + similarResources + " : " + err;
                         console.error(error);
                         return callback(1, error);
                     }
@@ -408,7 +408,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     }
                     else
                     {
-                        const error = 'Error fetching user : ' + user + ' : ' + err;
+                        const error = "Error fetching user : " + user + " : " + err;
                         console.error(error);
                         return callback(1, error);
                     }
@@ -431,7 +431,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     }
                     else
                     {
-                        const error = 'Error fetching user : ' + user + ' : ' + err;
+                        const error = "Error fetching user : " + user + " : " + err;
                         console.error(error);
                         return callback(1, error);
                     }
@@ -534,23 +534,23 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                     d = new Descriptor(flatResults[i]);
                                 }
 
-                                if (typeof flatResults[i].recent_use_count !== 'undefined')
+                                if (typeof flatResults[i].recent_use_count !== "undefined")
                                 {
                                     d.recent_use_count = flatResults[i].recent_use_count;
                                 }
-                                if (typeof flatResults[i].overall_use_count !== 'undefined')
+                                if (typeof flatResults[i].overall_use_count !== "undefined")
                                 {
                                     d.overall_use_count = flatResults[i].overall_use_count;
                                 }
-                                if (typeof flatResults[i].times_smart_accepted_in_md_editor !== 'undefined')
+                                if (typeof flatResults[i].times_smart_accepted_in_md_editor !== "undefined")
                                 {
                                     d.times_smart_accepted_in_md_editor = flatResults[i].times_smart_accepted_in_md_editor;
                                 }
-                                if (typeof flatResults[i].times_favorite_accepted_in_md_editor !== 'undefined')
+                                if (typeof flatResults[i].times_favorite_accepted_in_md_editor !== "undefined")
                                 {
                                     d.times_favorite_accepted_in_md_editor = flatResults[i].times_favorite_accepted_in_md_editor;
                                 }
-                                if (typeof flatResults[i].last_use !== 'undefined')
+                                if (typeof flatResults[i].last_use !== "undefined")
                                 {
                                     d.last_use = flatResults[i].last_use;
                                 }
@@ -563,7 +563,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                 d = new Descriptor(flatResults[i]);
 
                                 let fused_result_types = descriptors[d.prefix][d.shortName].recommendation_types;
-                                if (typeof fused_result_types === 'undefined')
+                                if (typeof fused_result_types === "undefined")
                                 {
                                     fused_result_types = {};
                                 }
@@ -577,10 +577,10 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                     }
                                     catch (e)
                                     {
-                                        console.error('Estourei onde devia');
+                                        console.error("Estourei onde devia");
                                     }
 
-                                    if (typeof result_rec_types === 'undefined')
+                                    if (typeof result_rec_types === "undefined")
                                     {
                                         result_rec_types = [];
                                     }
@@ -653,7 +653,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
                                 let rec_types = {};
 
-                                if (typeof descriptor.recommendation_types !== 'undefined')
+                                if (typeof descriptor.recommendation_types !== "undefined")
                                 {
                                     rec_types = descriptor.recommendation_types;
                                 }
@@ -749,7 +749,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                     results = results.concat(randomDescriptors);
                                     return callback(err, results);
                                 }
-                                const msg = 'Error occurred when padding recommended descriptors list with random descriptors: ' + err + '. Error reported: ' + JSON.stringify(randomDescriptors);
+                                const msg = "Error occurred when padding recommended descriptors list with random descriptors: " + err + ". Error reported: " + JSON.stringify(randomDescriptors);
                                 console.error(msg);
                                 return callback(err, msg);
                             });
@@ -780,7 +780,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                         results = rankDescriptors(results);
                         results = removeLockedAndPrivate(results);
 
-                        const uuid = require('uuid');
+                        const uuid = require("uuid");
                         const recommendation_call_id = uuid.v4();
                         const recommendation_call_timestamp = new Date().toISOString();
                         for (var i = 0; i < results.length; i++)
@@ -826,7 +826,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             }
                         }
 
-                        const msg = 'Error performing final ranking of descriptors. Error reported : ' + err + ', Errors reported  ' + JSON.stringify(error_messages);
+                        const msg = "Error performing final ranking of descriptors. Error reported : " + err + ", Errors reported  " + JSON.stringify(error_messages);
                         console.log(msg);
                         return callback(err, msg);
                     }

@@ -1,11 +1,11 @@
-const util = require('util');
-const path = require('path');
+const util = require("util");
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const colors = require('colors');
-const MongoClient = require('mongodb').MongoClient;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const colors = require("colors");
+const MongoClient = require("mongodb").MongoClient;
 
 function MongoDBCache (options)
 {
@@ -28,7 +28,7 @@ MongoDBCache.prototype.getHitRatio = function ()
     {
         return self.hits / (self.hits + self.misses);
     }
-    return 'No cache accesses recorded';
+    return "No cache accesses recorded";
 };
 
 MongoDBCache.prototype.open = function (callback)
@@ -37,17 +37,17 @@ MongoDBCache.prototype.open = function (callback)
 
     if (!isNull(self.client))
     {
-        return callback(1, 'MongoDB connection is already open.');
+        return callback(1, "MongoDB connection is already open.");
     }
-    const slug = require('slug');
-    const url = 'mongodb://' + self.host + ':' + self.port + '/' + slug(self.database, '_');
+    const slug = require("slug");
+    const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, "_");
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))
         {
             self.client = db;
             self.client.collection(self.collection).ensureIndex(
-                'uri',
+                "uri",
                 function (err, result)
                 {
                     if (isNull(err))
@@ -122,20 +122,20 @@ MongoDBCache.prototype.put = function (resourceUri, object, callback)
                                         {
                                             if (Config.debug.active && Config.debug.cache.log_cache_writes)
                                             {
-                                                console.log('[DEBUG] Saved new cache record for ' + resourceUri);
+                                                console.log("[DEBUG] Saved new cache record for " + resourceUri);
                                             }
 
                                             return callback(null);
                                         }
 
-                                        return callback(err, 'Unable to insert new cache record  for ' + resourceUri + ' as ' + JSON.stringify(object) + ' into mongodb cache. Error : ' + JSON.stringify(err));
+                                        return callback(err, "Unable to insert new cache record  for " + resourceUri + " as " + JSON.stringify(object) + " into mongodb cache. Error : " + JSON.stringify(err));
                                     });
                             }
                             else
                             {
                                 if (Config.debug.active && Config.debug.cache.log_cache_writes)
                                 {
-                                    console.log('[DEBUG] Updated cache record for ' + resourceUri);
+                                    console.log("[DEBUG] Updated cache record for " + resourceUri);
                                 }
 
                                 return callback(null);
@@ -143,13 +143,13 @@ MongoDBCache.prototype.put = function (resourceUri, object, callback)
                         }
                         else
                         {
-                            return callback(err, 'Unable to update cache record of ' + resourceUri + ' as ' + JSON.stringify(results) + ' into monogdb cache. Error : ' + JSON.stringify(err));
+                            return callback(err, "Unable to update cache record of " + resourceUri + " as " + JSON.stringify(results) + " into monogdb cache. Error : " + JSON.stringify(err));
                         }
                     });
             }
             else
             {
-                return callback(1, 'Tried to save a resource into cache providing a null object!');
+                return callback(1, "Tried to save a resource into cache providing a null object!");
             }
         }
         else
@@ -173,13 +173,13 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
         {
             if (!isNull(query))
             {
-                const cursor = self.client.collection(self.collection).find(query).sort({'ddr.modified': -1 });
+                const cursor = self.client.collection(self.collection).find(query).sort({"ddr.modified": -1 });
 
                 cursor.next(function (err, result)
                 {
                     if (Config.debug.active && Config.debug.database.log_all_cache_queries)
                     {
-                        console.log('Cache Query:\n');
+                        console.log("Cache Query:\n");
                         console.log(JSON.stringify(query, null, 2));
                     }
 
@@ -189,7 +189,7 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
                         {
                             if (Config.cache.active && Config.debug.cache.log_cache_hits)
                             {
-                                console.log('Cache MISS on ' + JSON.stringify(query));
+                                console.log("Cache MISS on " + JSON.stringify(query));
                             }
 
                             self.misses++;
@@ -197,28 +197,28 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
                         }
                         if (Config.cache.active && Config.debug.cache.log_cache_hits)
                         {
-                            console.log('Cache HIT on ' + JSON.stringify(query) + '\n');
-                            console.log('Cached : \n ' + JSON.stringify(result, null, 4));
+                            console.log("Cache HIT on " + JSON.stringify(query) + "\n");
+                            console.log("Cached : \n " + JSON.stringify(result, null, 4));
                         }
 
                         self.hits++;
                         return callback(null, result);
                     }
-                    console.error('Error running query: ' + JSON.stringify(query, null, 4));
+                    console.error("Error running query: " + JSON.stringify(query, null, 4));
                     console.error(err.stack);
-                    return callback(err, 'Unable to execute query ' + JSON.stringify(query) + ' from mongodb cache.');
+                    return callback(err, "Unable to execute query " + JSON.stringify(query) + " from mongodb cache.");
 
                     cursor.close();
                 });
             }
             else
             {
-                return callback(1, 'Tried to fetch a resource from cache ' + JSON.stringify(self) + ' providing a null resourceUri!');
+                return callback(1, "Tried to fetch a resource from cache " + JSON.stringify(self) + " providing a null resourceUri!");
             }
         }
         else
         {
-            return callback(1, 'Must open connection to MongoDB cache ' + JSON.stringify(self) + 'first!');
+            return callback(1, "Must open connection to MongoDB cache " + JSON.stringify(self) + "first!");
         }
     }
     else
@@ -274,7 +274,7 @@ MongoDBCache.prototype.delete = function (resourceUriOrArrayOfResourceUris, call
                         });
                     }
                 }
-                else if (typeof resourceUriOrArrayOfResourceUris === 'string')
+                else if (typeof resourceUriOrArrayOfResourceUris === "string")
                 {
                     filterObject = {
                         uri: resourceUriOrArrayOfResourceUris
@@ -289,13 +289,13 @@ MongoDBCache.prototype.delete = function (resourceUriOrArrayOfResourceUris, call
                         {
                             if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                             {
-                                console.log('[DEBUG] Deleted mongodb cache records for ' + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                                console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
                             }
 
                             return callback(null, null);
                         }
 
-                        const msg = 'Unable to delete resource ' + resourceUriOrArrayOfResourceUris + ' from MongoDB cache ' + JSON.stringify(self.id) + '\n' + err;
+                        const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from MongoDB cache " + JSON.stringify(self.id) + "\n" + err;
                         console.log(msg);
                         return callback(err, msg);
                     }
@@ -303,12 +303,12 @@ MongoDBCache.prototype.delete = function (resourceUriOrArrayOfResourceUris, call
             }
             else
             {
-                return callback(1, 'Tried to fetch a resource from cache ' + JSON.stringify(self) + ' providing a null resourceUri array!');
+                return callback(1, "Tried to fetch a resource from cache " + JSON.stringify(self) + " providing a null resourceUri array!");
             }
         }
         else
         {
-            return callback(1, 'Must open connection to MongoDB cache ' + JSON.stringify(self) + 'first!');
+            return callback(1, "Must open connection to MongoDB cache " + JSON.stringify(self) + "first!");
         }
     }
     else
@@ -334,15 +334,15 @@ MongoDBCache.prototype.deleteByQuery = function (queryObject, callback)
                         {
                             if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                             {
-                                console.log('[DEBUG] Deleted mongodb cache records for ' + JSON.stringify(queryObject));
+                                console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(queryObject));
                             }
 
                             return callback(null, null);
                         }
 
                         // TODO this is a hack for running tests, because mongodb connectons should never be closed at this time!!
-                        const msg = 'Unable to delete resources via query from MongoDB cache\n';
-                        if (err.message !== 'server instance pool was destroyed')
+                        const msg = "Unable to delete resources via query from MongoDB cache\n";
+                        if (err.message !== "server instance pool was destroyed")
                         {
                             console.error(JSON.stringify(err, null, 4));
                             console.error(JSON.stringify(queryObject, null, 4));
@@ -354,7 +354,7 @@ MongoDBCache.prototype.deleteByQuery = function (queryObject, callback)
         }
         else
         {
-            return callback(1, 'Must open connection to MongoDB cache ' + JSON.stringify(self) + 'first!');
+            return callback(1, "Must open connection to MongoDB cache " + JSON.stringify(self) + "first!");
         }
     }
     else
@@ -391,7 +391,7 @@ MongoDBCache.prototype.deleteAlByType = function (typeOrTypesArray, callback)
                         queryObject.rdf.type.$and.push(typeOrTypesArray[i]);
                     }
                 }
-                else if (typeof typeOrTypesArray === 'string')
+                else if (typeof typeOrTypesArray === "string")
                 {
                     queryObject = {
                         rdf: {
@@ -404,12 +404,12 @@ MongoDBCache.prototype.deleteAlByType = function (typeOrTypesArray, callback)
             }
             else
             {
-                return callback(1, 'Tried to fetch a resource from cache ' + JSON.stringify(self) + ' providing a null resourceUri array!');
+                return callback(1, "Tried to fetch a resource from cache " + JSON.stringify(self) + " providing a null resourceUri array!");
             }
         }
         else
         {
-            return callback(1, 'Must open connection to MongoDB cache ' + JSON.stringify(self) + 'first!');
+            return callback(1, "Must open connection to MongoDB cache " + JSON.stringify(self) + "first!");
         }
     }
     else
@@ -428,23 +428,23 @@ MongoDBCache.prototype.deleteAll = function (callback)
         {
             self.client.collection(self.collection).drop(function (err)
             {
-                if (isNull(err) || err.message === 'ns not found')
+                if (isNull(err) || err.message === "ns not found")
                 {
                     if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                     {
-                        console.log('[DEBUG] Deleted ALL cache records');
+                        console.log("[DEBUG] Deleted ALL cache records");
                     }
 
                     return callback(null);
                 }
-                const msg = 'Unable to delete collection ' + self.collection + ' : ' + JSON.stringify(err);
+                const msg = "Unable to delete collection " + self.collection + " : " + JSON.stringify(err);
                 console.log(msg);
                 return callback(err, msg);
             });
         }
         else
         {
-            return callback(1, 'Must open connection to MongoDB cache ' + JSON.stringify(self) + 'first!');
+            return callback(1, "Must open connection to MongoDB cache " + JSON.stringify(self) + "first!");
         }
     }
     else
@@ -455,6 +455,6 @@ MongoDBCache.prototype.deleteAll = function (callback)
 
 MongoDBCache.default = {};
 
-MongoDBCache.type = 'mongodb';
+MongoDBCache.type = "mongodb";
 
 module.exports.MongoDBCache = MongoDBCache;

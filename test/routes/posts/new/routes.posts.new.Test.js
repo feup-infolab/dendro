@@ -1,44 +1,44 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 const should = chai.should();
-const _ = require('underscore');
-const md5 = require('md5');
-const fs = require('fs');
-const path = require('path');
-const async = require('async');
+const _ = require("underscore");
+const md5 = require("md5");
+const fs = require("fs");
+const path = require("path");
+const async = require("async");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const fileUtils = require(Pathfinder.absPathInTestsFolder('utils/file/fileUtils.js'));
-const itemUtils = require(Pathfinder.absPathInTestsFolder('utils/item/itemUtils.js'));
-const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
-const projectUtils = require(Pathfinder.absPathInTestsFolder('utils/project/projectUtils.js'));
-const versionUtils = require(Pathfinder.absPathInTestsFolder('utils/versions/versionUtils.js'));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder('utils/descriptor/descriptorUtils.js'));
-const socialDendroUtils = require(Pathfinder.absPathInTestsFolder('/utils/social/socialDendroUtils'));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const versionUtils = require(Pathfinder.absPathInTestsFolder("utils/versions/versionUtils.js"));
+const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
+const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1.js'));
-const demouser2 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser2.js'));
-const demouser3 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser3.js'));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProjectData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('mockdata/projects/public_project.js'));
-const metadataOnlyProjectData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('mockdata/projects/metadata_only_project.js'));
-const privateProjectData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('mockdata/projects/private_project.js'));
-let manualPostMockData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('mockdata/social/manualPostMock.js'));
-let manualPostMockDataMissingTitle = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('mockdata/social/manualPostMockMissingTitle.js'));
-let manualPostMockDataMissingContent = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('mockdata/social/manualPostMockMissingContent.js'));
+const publicProjectData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const metadataOnlyProjectData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const privateProjectData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+let manualPostMockData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMock.js"));
+let manualPostMockDataMissingTitle = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMockMissingTitle.js"));
+let manualPostMockDataMissingContent = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMockMissingContent.js"));
 
 let publicProjectMachineURI;
 let metadataOnlyProjectMachineURI;
 let privateProjectMachineURI;
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('utils/db/db.Test.js'));
-const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js'));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 
-describe('Create a new manual post tests', function ()
+describe("Create a new manual post tests", function ()
 {
     before(function (done)
     {
@@ -51,9 +51,9 @@ describe('Create a new manual post tests', function ()
         });
     });
 
-    describe('[POST] [Public Project] create a new Manual Post /posts/new', function ()
+    describe("[POST] [Public Project] create a new Manual Post /posts/new", function ()
     {
-        it('[For an unauthenticated user] Should give an unauthorized error', function (done)
+        it("[For an unauthenticated user] Should give an unauthorized error", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -71,7 +71,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser1, as the creator of all projects] Should create the manual post and it should be saved in the database', function (done)
+        it("[For demouser1, as the creator of all projects] Should create the manual post and it should be saved in the database", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -86,7 +86,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should create the manual post and it should be saved in the database', function (done)
+        it("[For demouser2, a collaborator in all projects] Should create the manual post and it should be saved in the database", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -102,7 +102,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -115,7 +115,7 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post title is missing
-        it('[For demouser1, as the creator of all projects] Should give a bad request error if the post title is missing', function (done)
+        it("[For demouser1, as the creator of all projects] Should give a bad request error if the post title is missing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -130,7 +130,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give a bad request error if the post title is missing', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give a bad request error if the post title is missing", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -145,7 +145,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the title is missing', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the title is missing", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -158,7 +158,7 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post content is missing
-        it('[For demouser1, as the creator of all projects] Should give a bad request error if the post content is missing', function (done)
+        it("[For demouser1, as the creator of all projects] Should give a bad request error if the post content is missing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -173,7 +173,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give a bad request error if the post content is missing', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give a bad request error if the post content is missing", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -188,7 +188,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post content is missing', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post content is missing", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -201,7 +201,7 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post project is missing
-        it('[For demouser1, as the creator of all projects] Should give an unauthorized error error if the post project is missing', function (done)
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error error if the post project is missing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -213,7 +213,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give an unauthorized error error if the post project is missing', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error error if the post project is missing", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -225,7 +225,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project is missing', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project is missing", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -238,11 +238,11 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post project does not exist
-        it('[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project does not exist', function (done)
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project does not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                socialDendroUtils.createManualPostInProject(true, agent, 'invalidProjectURI', manualPostMockData, function (err, res)
+                socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();
@@ -250,11 +250,11 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project does not exist', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project does not exist", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                socialDendroUtils.createManualPostInProject(true, agent, 'invalidProjectURI', manualPostMockData, function (err, res)
+                socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();
@@ -262,11 +262,11 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project does not exist', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project does not exist", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
-                socialDendroUtils.createManualPostInProject(true, agent, 'invalidProjectURI', manualPostMockData, function (err, res)
+                socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();
@@ -275,9 +275,9 @@ describe('Create a new manual post tests', function ()
         });
     });
 
-    describe('[POST] [Metadata only Project] create a new Manual Post /posts/new', function ()
+    describe("[POST] [Metadata only Project] create a new Manual Post /posts/new", function ()
     {
-        it('[For an unauthenticated user] Should give an unauthorized error', function (done)
+        it("[For an unauthenticated user] Should give an unauthorized error", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -295,7 +295,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser1, as the creator of all projects] Should create the manual post and it should be saved in the database', function (done)
+        it("[For demouser1, as the creator of all projects] Should create the manual post and it should be saved in the database", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -310,7 +310,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should create the manual post and it should be saved in the database', function (done)
+        it("[For demouser2, a collaborator in all projects] Should create the manual post and it should be saved in the database", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -326,7 +326,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -339,7 +339,7 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post title is missing
-        it('[For demouser1, as the creator of all projects] Should give a bad request error if the post title is missing', function (done)
+        it("[For demouser1, as the creator of all projects] Should give a bad request error if the post title is missing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -354,7 +354,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give a bad request error if the post title is missing', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give a bad request error if the post title is missing", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -369,7 +369,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the title is missing', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the title is missing", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -382,7 +382,7 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post content is missing
-        it('[For demouser1, as the creator of all projects] Should give a bad request error if the post content is missing', function (done)
+        it("[For demouser1, as the creator of all projects] Should give a bad request error if the post content is missing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -397,7 +397,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give a bad request error if the post content is missing', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give a bad request error if the post content is missing", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -412,7 +412,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post content is missing', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post content is missing", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -425,7 +425,7 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post project is missing
-        it('[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project is missing', function (done)
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project is missing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -437,7 +437,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project is missing', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project is missing", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -449,7 +449,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project is missing', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project is missing", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -462,11 +462,11 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post project does not exist
-        it('[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project does not exist', function (done)
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project does not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                socialDendroUtils.createManualPostInProject(true, agent, 'invalidProjectURI', manualPostMockData, function (err, res)
+                socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();
@@ -474,11 +474,11 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project does not exist', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project does not exist", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                socialDendroUtils.createManualPostInProject(true, agent, 'invalidProjectURI', manualPostMockData, function (err, res)
+                socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();
@@ -486,11 +486,11 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project does not exist', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project does not exist", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
-                socialDendroUtils.createManualPostInProject(true, agent, 'invalidProjectURI', manualPostMockData, function (err, res)
+                socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();
@@ -499,9 +499,9 @@ describe('Create a new manual post tests', function ()
         });
     });
 
-    describe('[POST] [Private Project] create a new Manual Post /posts/new', function ()
+    describe("[POST] [Private Project] create a new Manual Post /posts/new", function ()
     {
-        it('[For an unauthenticated user] Should give an unauthorized error', function (done)
+        it("[For an unauthenticated user] Should give an unauthorized error", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -519,7 +519,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser1, as the creator of all projects] Should create the manual post and it should be saved in the database', function (done)
+        it("[For demouser1, as the creator of all projects] Should create the manual post and it should be saved in the database", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -534,7 +534,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should create the manual post and it should be saved in the database', function (done)
+        it("[For demouser2, a collaborator in all projects] Should create the manual post and it should be saved in the database", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -550,7 +550,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -563,7 +563,7 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post title is missing
-        it('[For demouser1, as the creator of all projects] Should give a bad request error if the post title is missing', function (done)
+        it("[For demouser1, as the creator of all projects] Should give a bad request error if the post title is missing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -578,7 +578,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give a bad request error if the post title is missing', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give a bad request error if the post title is missing", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -593,7 +593,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the title is missing', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the title is missing", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -606,7 +606,7 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post content is missing
-        it('[For demouser1, as the creator of all projects] Should give a bad request error if the post content is missing', function (done)
+        it("[For demouser1, as the creator of all projects] Should give a bad request error if the post content is missing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -621,7 +621,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give a bad request error if the post content is missing', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give a bad request error if the post content is missing", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -636,7 +636,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post content is missing', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post content is missing", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -649,7 +649,7 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post project is missing
-        it('[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project is missing', function (done)
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project is missing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -661,7 +661,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project is missing', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project is missing", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -673,7 +673,7 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project is missing', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project is missing", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -686,11 +686,11 @@ describe('Create a new manual post tests', function ()
         });
 
         // The case when the post project does not exist
-        it('[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project does not exist', function (done)
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post project does not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                socialDendroUtils.createManualPostInProject(true, agent, 'invalidProjectURI', manualPostMockData, function (err, res)
+                socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();
@@ -698,11 +698,11 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project does not exist', function (done)
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post project does not exist", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                socialDendroUtils.createManualPostInProject(true, agent, 'invalidProjectURI', manualPostMockData, function (err, res)
+                socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();
@@ -710,11 +710,11 @@ describe('Create a new manual post tests', function ()
             });
         });
 
-        it('[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project does not exist', function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post project does not exist", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
-                socialDendroUtils.createManualPostInProject(true, agent, 'invalidProjectURI', manualPostMockData, function (err, res)
+                socialDendroUtils.createManualPostInProject(true, agent, "invalidProjectURI", manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();

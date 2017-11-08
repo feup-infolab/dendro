@@ -1,22 +1,22 @@
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-var Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-var Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-var Post = require(Pathfinder.absPathInSrcFolder('/models/social/post.js')).Post;
-const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
-var ArchivedResource = require(Pathfinder.absPathInSrcFolder('/models/versions/archived_resource.js')).ArchivedResource;
-var InformationElement = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/information_element.js')).InformationElement;
-var Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
-var DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
-var uuid = require('uuid');
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+var Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+var ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+var InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var uuid = require("uuid");
 
 const db = Config.getDBByID();
-const db_social = Config.getDBByID('social');
+const db_social = Config.getDBByID("social");
 
 var gfs = Config.getGFSByID();
-var _ = require('underscore');
-var async = require('async');
+var _ = require("underscore");
+var async = require("async");
 
 function FileSystemPost (object)
 {
@@ -39,7 +39,7 @@ function FileSystemPost (object)
     return self; */
 
     const self = this;
-    self.addURIAndRDFType(object, 'post', FileSystemPost);
+    self.addURIAndRDFType(object, "post", FileSystemPost);
     FileSystemPost.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
@@ -48,7 +48,7 @@ function FileSystemPost (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + '/posts/' + newId;
+        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
     }
 
     return self;
@@ -60,11 +60,11 @@ FileSystemPost.buildFromRmdirOperation = function (userUri, project, folder, rea
     {
         if (isNull(err))
         {
-            let title = creator.ddr.username + ' deleted folder ' + folder.nie.title;
+            let title = creator.ddr.username + " deleted folder " + folder.nie.title;
             let newPost = new FileSystemPost({
                 ddr: {
                     projectUri: project.uri,
-                    changeType: 'rmdir',
+                    changeType: "rmdir",
                     deleted: reallyDelete
                 },
                 dcterms: {
@@ -79,7 +79,7 @@ FileSystemPost.buildFromRmdirOperation = function (userUri, project, folder, rea
         }
         else
         {
-            const msg = 'Error building a FileSystemPost from an rmdir operation: ' + JSON.stringify(creator);
+            const msg = "Error building a FileSystemPost from an rmdir operation: " + JSON.stringify(creator);
             console.error(msg);
             callback(err, creator);
         }
@@ -92,11 +92,11 @@ FileSystemPost.buildFromMkdirOperation = function (userUri, project, folder, cal
     {
         if (isNull(err))
         {
-            let title = creator.ddr.username + ' created folder ' + folder.nie.title;
+            let title = creator.ddr.username + " created folder " + folder.nie.title;
             let newPost = new FileSystemPost({
                 ddr: {
                     projectUri: project.uri,
-                    changeType: 'mkdir'
+                    changeType: "mkdir"
                 },
                 dcterms: {
                     creator: userUri,
@@ -110,7 +110,7 @@ FileSystemPost.buildFromMkdirOperation = function (userUri, project, folder, cal
         }
         else
         {
-            const msg = 'Error building a FileSystemPost from an mkdir operation: ' + JSON.stringify(creator);
+            const msg = "Error building a FileSystemPost from an mkdir operation: " + JSON.stringify(creator);
             console.error(msg);
             callback(err, creator);
         }
@@ -123,11 +123,11 @@ FileSystemPost.buildFromUpload = function (userUri, project, file, callback)
     {
         if (isNull(err))
         {
-            let title = creator.ddr.username + ' uploaded file ' + file.nie.title;
+            let title = creator.ddr.username + " uploaded file " + file.nie.title;
             let newPost = new FileSystemPost({
                 ddr: {
                     projectUri: project.uri,
-                    changeType: 'upload'
+                    changeType: "upload"
                 },
                 dcterms: {
                     creator: userUri,
@@ -141,7 +141,7 @@ FileSystemPost.buildFromUpload = function (userUri, project, file, callback)
         }
         else
         {
-            const msg = 'Error building a FileSystemPost from an upload operation: ' + JSON.stringify(creator);
+            const msg = "Error building a FileSystemPost from an upload operation: " + JSON.stringify(creator);
             console.error(msg);
             callback(err, creator);
         }
@@ -155,11 +155,11 @@ FileSystemPost.buildFromDeleteFile = function (userUri, projectUri, file, callba
     {
         if (isNull(err))
         {
-            let title = creator.ddr.username + ' deleted file ' + file.nie.title;
+            let title = creator.ddr.username + " deleted file " + file.nie.title;
             let newPost = new FileSystemPost({
                 ddr: {
                     projectUri: projectUri,
-                    changeType: 'delete'
+                    changeType: "delete"
                 },
                 dcterms: {
                     creator: userUri,
@@ -173,7 +173,7 @@ FileSystemPost.buildFromDeleteFile = function (userUri, projectUri, file, callba
         }
         else
         {
-            const msg = 'Error building a FileSystemPost from a delete file operation: ' + JSON.stringify(creator);
+            const msg = "Error building a FileSystemPost from a delete file operation: " + JSON.stringify(creator);
             console.error(msg);
             callback(err, creator);
         }
@@ -199,7 +199,7 @@ FileSystemPost.prototype.getResourceInfo = function (callback)
         }
         else
         {
-            console.error('Error getting resource info from a FileSystemPost');
+            console.error("Error getting resource info from a FileSystemPost");
             console.error(resource);
             callback(err, resource);
         }
@@ -207,6 +207,6 @@ FileSystemPost.prototype.getResourceInfo = function (callback)
 };
 
 /* FileSystemPost = Class.extend(FileSystemPost, Post); */
-FileSystemPost = Class.extend(FileSystemPost, Post, 'ddr:FileSystemPost');
+FileSystemPost = Class.extend(FileSystemPost, Post, "ddr:FileSystemPost");
 
 module.exports.FileSystemPost = FileSystemPost;

@@ -1,6 +1,6 @@
 const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder('utils/null.js')).isNull;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 function Logger ()
 {
@@ -42,42 +42,42 @@ Logger.override_console = function (window, morgan)
 
 Logger.log_boot_message = function (type, message)
 {
-    const path = require('path');
-    const colors = require('colors');
-    let intro = '[MISC]'.cyan;
+    const path = require("path");
+    const colors = require("colors");
+    let intro = "[MISC]".cyan;
     if (Config.startup.log_bootup_actions)
     {
-        if (type === 'info')
+        if (type === "info")
         {
-            intro = '[INFO]'.blue;
+            intro = "[INFO]".blue;
         }
-        else if (type === 'success')
+        else if (type === "success")
         {
-            intro = '[OK]'.green;
+            intro = "[OK]".green;
         }
 
-        console.log(intro + ' ' + message);
+        console.log(intro + " " + message);
     }
 };
 
 Logger.log = function (type, message)
 {
-    const colors = require('colors');
-    let intro = '[MISC]'.cyan;
-    if (type === 'info')
+    const colors = require("colors");
+    let intro = "[MISC]".cyan;
+    if (type === "info")
     {
-        intro = '[INFO]'.blue;
+        intro = "[INFO]".blue;
     }
-    else if (type === 'success')
+    else if (type === "success")
     {
-        intro = '[OK]'.green;
+        intro = "[OK]".green;
     }
-    else if (type === 'error')
+    else if (type === "error")
     {
-        intro = '[OK]'.red;
+        intro = "[OK]".red;
     }
 
-    console.log(intro + ' ' + message);
+    console.log(intro + " " + message);
 };
 
 module.exports.Logger = Logger;

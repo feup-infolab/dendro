@@ -3,7 +3,7 @@
  */
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 /*
  This data is used to create a new export repository configuration
@@ -114,32 +114,32 @@ const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).C
 
 const newExportRepoData = {
     dcterms: {
-        title: 'ckan2'
+        title: "ckan2"
     },
     ddr: {
-        hasExternalUrl: 'http://dendro-dev.fe.up.pt:5000',
-        hasUsername: 'nelsonpereira1991',
-        hasOrganization: 'organization-test1',
-        hasAPIKey: '15f8dac8-6f95-4318-ae5d-9b390088484c',
+        hasExternalUrl: "http://dendro-dev.fe.up.pt:5000",
+        hasUsername: "nelsonpereira1991",
+        hasOrganization: "organization-test1",
+        hasAPIKey: "15f8dac8-6f95-4318-ae5d-9b390088484c",
         hasPlatform: {
-            uri: '/r/repo_platform/a765702d-2962-42c3-9e5c-df79deae9730',
+            uri: "/r/repo_platform/a765702d-2962-42c3-9e5c-df79deae9730",
             foaf: {
-                homepage: 'http://ckan.org',
-                nick: 'ckan'
+                homepage: "http://ckan.org",
+                nick: "ckan"
             },
             dcterms: {
-                title: 'CKAN'
+                title: "CKAN"
             },
             ddr: {
-                handle: 'ckan',
-                created: '2017-10-10T15:19:09.041Z',
-                modified: '2017-10-10T15:19:09.044Z',
-                humanReadableURI: 'http://127.0.0.1:3001/repository_platform/ckan'
+                handle: "ckan",
+                created: "2017-10-10T15:19:09.041Z",
+                modified: "2017-10-10T15:19:09.044Z",
+                humanReadableURI: "http://127.0.0.1:3001/repository_platform/ckan"
             },
             rdf: {
                 type: [
-                    'http://dendro.fe.up.pt/ontology/0.1/RepositoryPlatform',
-                    'http://dendro.fe.up.pt/ontology/0.1/Resource'
+                    "http://dendro.fe.up.pt/ontology/0.1/RepositoryPlatform",
+                    "http://dendro.fe.up.pt/ontology/0.1/Resource"
                 ]
             },
             types: {
@@ -193,7 +193,7 @@ const newExportRepoData = {
             po: {
 
             },
-            $$hashKey: 'object:42'
+            $$hashKey: "object:42"
         }
     }
 };

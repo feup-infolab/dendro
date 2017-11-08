@@ -1,26 +1,26 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const path = require('path');
-const _ = require('underscore');
+const path = require("path");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const InformationElement = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/information_element.js')).InformationElement;
-const DataStoreConnection = require(Pathfinder.absPathInSrcFolder('/kb/datastore/datastore_connection.js')).DataStoreConnection;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
-const async = require('async');
+const async = require("async");
 
 function File (object)
 {
     const self = this;
-    self.addURIAndRDFType(object, 'file', File);
+    self.addURIAndRDFType(object, "file", File);
     File.baseConstructor.call(this, object);
 
     if (!isNull(object.nie))
@@ -30,7 +30,7 @@ function File (object)
 
         if (isNull(self.ddr.humanReadableURI))
         {
-            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + '/' + object.nie.title;
+            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
         }
     }
 
@@ -39,11 +39,11 @@ function File (object)
 
     if (isNull(ext))
     {
-        self.ddr.fileExtension = 'default';
+        self.ddr.fileExtension = "default";
     }
     else
     {
-        let getClassNameForExtension = require('font-awesome-filetypes').getClassNameForExtension;
+        let getClassNameForExtension = require("font-awesome-filetypes").getClassNameForExtension;
         self.ddr.fileExtension = ext;
         self.ddr.hasFontAwesomeClass = getClassNameForExtension(ext);
     }
@@ -53,25 +53,25 @@ function File (object)
 
 File.estimateUnzippedSize = function (pathOfZipFile, callback)
 {
-    const path = require('path');
-    const exec = require('child_process').exec;
+    const path = require("path");
+    const exec = require("child_process").exec;
 
-    const command = 'unzip -l \"' + pathOfZipFile + '" | tail -n 1';
-    const parentFolderPath = path.resolve(pathOfZipFile, '..');
+    const command = "unzip -l \"" + pathOfZipFile + "\" | tail -n 1";
+    const parentFolderPath = path.resolve(pathOfZipFile, "..");
 
     exec(command, {cwd: parentFolderPath}, function (error, stdout, stderr)
     {
         if (isNull(error))
         {
-            const regex = new RegExp(' *[0-9]* [0-9]* file[s]?');
+            const regex = new RegExp(" *[0-9]* [0-9]* file[s]?");
 
-            let size = stdout.replace(regex, '');
-            size = size.replace(/ /g, '');
-            size = size.replace(/\n/g, '');
-            console.log('Estimated unzipped file size is ' + size);
+            let size = stdout.replace(regex, "");
+            size = size.replace(/ /g, "");
+            size = size.replace(/\n/g, "");
+            console.log("Estimated unzipped file size is " + size);
             return callback(null, Number.parseInt(size));
         }
-        const errorMessage = '[INFO] There was an error estimating unzipped file size with command ' + command + '. Code Returned by Zip Command ' + JSON.stringify(error);
+        const errorMessage = "[INFO] There was an error estimating unzipped file size with command " + command + ". Code Returned by Zip Command " + JSON.stringify(error);
         console.error(errorMessage);
         return callback(1, errorMessage);
     });
@@ -84,9 +84,9 @@ File.estimateUnzippedSize = function (pathOfZipFile, callback)
  */
 File.unzip = function (pathOfFile, callback)
 {
-    const fs = require('fs');
-    const exec = require('child_process').exec;
-    const tmp = require('tmp');
+    const fs = require("fs");
+    const exec = require("child_process").exec;
+    const tmp = require("tmp");
 
     tmp.dir(
         {
@@ -95,24 +95,24 @@ File.unzip = function (pathOfFile, callback)
         },
         function (err, tmpFolderPath)
         {
-            let command = 'unzip -qq -o \"' + pathOfFile + '"';
+            let command = "unzip -qq -o \"" + pathOfFile + "\"";
             if (isNull(err))
             {
                 const unzip = exec(command, {cwd: tmpFolderPath}, function (error, stdout, stderr)
                 {
                     if (isNull(error))
                     {
-                        console.log('Contents are in folder ' + tmpFolderPath);
+                        console.log("Contents are in folder " + tmpFolderPath);
                         return callback(null, tmpFolderPath);
                     }
-                    const errorMessage = '[INFO] There was an error unzipping file with command ' + command + ' on folder ' + tmpFolderPath + '. Code Returned by Zip Command ' + JSON.stringify(error);
+                    const errorMessage = "[INFO] There was an error unzipping file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(error);
                     console.error(errorMessage);
                     return callback(1, tmpFolderPath);
                 });
             }
             else
             {
-                const errorMessage = 'Error unzipping the backup file with command ' + command + ' on folder ' + tmpFolderPath + '. Code Returned by Zip Command ' + JSON.stringify(tmpFolderPath);
+                const errorMessage = "Error unzipping the backup file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(tmpFolderPath);
                 console.error(errorMessage);
                 return callback(1, errorMessage);
             }
@@ -122,8 +122,8 @@ File.unzip = function (pathOfFile, callback)
 
 File.createBlankTempFile = function (fileName, callback)
 {
-    const tmp = require('tmp');
-    const path = require('path');
+    const tmp = require("tmp");
+    const path = require("path");
 
     tmp.dir(
         {
@@ -136,11 +136,11 @@ File.createBlankTempFile = function (fileName, callback)
 
             if (isNull(err))
             {
-                console.log('Temp File Created! Location: ' + tempFilePath);
+                console.log("Temp File Created! Location: " + tempFilePath);
             }
             else
             {
-                console.error('Error creating temp file : ' + tempFolderAbsPath);
+                console.error("Error creating temp file : " + tempFolderAbsPath);
             }
 
             return callback(err, tempFilePath);
@@ -150,10 +150,10 @@ File.createBlankTempFile = function (fileName, callback)
 
 File.createBlankFileRelativeToAppRoot = function (relativePathToFile, callback)
 {
-    const fs = require('fs');
+    const fs = require("fs");
 
     const absPathToFile = Pathfinder.absPathInApp(relativePathToFile);
-    const parentFolder = path.resolve(absPathToFile, '..');
+    const parentFolder = path.resolve(absPathToFile, "..");
 
     fs.stat(absPathToFile, function (err, stat)
     {
@@ -161,24 +161,24 @@ File.createBlankFileRelativeToAppRoot = function (relativePathToFile, callback)
         {
             return callback(null, absPathToFile, parentFolder);
         }
-        else if (err.code === 'ENOENT')
+        else if (err.code === "ENOENT")
         {
             // file does not exist
-            const mkpath = require('mkpath');
+            const mkpath = require("mkpath");
 
             mkpath(parentFolder, function (err)
             {
                 if (err)
                 {
-                    return callback(1, 'Error creating file ' + err);
+                    return callback(1, "Error creating file " + err);
                 }
-                const fs = require('fs');
-                fs.open(absPathToFile, 'wx', function (err, fd)
+                const fs = require("fs");
+                fs.open(absPathToFile, "wx", function (err, fd)
                 {
                     // handle error
                     fs.close(fd, function (err)
                     {
-                        console.log('Directory structure ' + parentFolder + ' created. File ' + absPathToFile + ' also created.');
+                        console.log("Directory structure " + parentFolder + " created. File " + absPathToFile + " also created.");
                         return callback(null, absPathToFile, parentFolder);
                     });
                 });
@@ -186,7 +186,7 @@ File.createBlankFileRelativeToAppRoot = function (relativePathToFile, callback)
         }
         else
         {
-            return callback(1, 'Error creating file ' + err);
+            return callback(1, "Error creating file " + err);
         }
     });
 };
@@ -194,7 +194,7 @@ File.createBlankFileRelativeToAppRoot = function (relativePathToFile, callback)
 File.deleteOnLocalFileSystem = function (absPathToFile, callback)
 {
     const isWin = /^win/.test(process.platform);
-    const exec = require('child_process').exec;
+    const exec = require("child_process").exec;
     let command;
 
     if (isWin)
@@ -224,7 +224,7 @@ File.prototype.save = function (callback, rename)
 
     const newDescriptorsOfParent = [
         new Descriptor({
-            prefixedForm: 'nie:hasLogicalPart',
+            prefixedForm: "nie:hasLogicalPart",
             value: self.uri
         })
     ];
@@ -236,8 +236,8 @@ File.prototype.save = function (callback, rename)
             const getParent = function (callback)
             {
                 let parentUri = self.nie.isLogicalPartOf;
-                const Folder = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/folder.js')).Folder;
-                const Project = require(Pathfinder.absPathInSrcFolder('/models/project.js')).Project;
+                const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 
                 Folder.findByUri(parentUri, function (err, parentFolder)
                 {
@@ -259,7 +259,7 @@ File.prototype.save = function (callback, rename)
                                     }
                                     else
                                     {
-                                        callback(true, 'Error: Parent of :  ' + self.uri + ' is neither a folder nor project');
+                                        callback(true, "Error: Parent of :  " + self.uri + " is neither a folder nor project");
                                     }
                                 }
                                 else
@@ -293,8 +293,8 @@ File.prototype.save = function (callback, rename)
                     !isNull(childrenWithTheSameName) && childrenWithTheSameName instanceof Object
                 )
                 {
-                    let fileNameData = self.nie.title.split('.');
-                    self.nie.title = fileNameData[0] + '_Copy_created_' + Date.now() + '.' + fileNameData[1];
+                    let fileNameData = self.nie.title.split(".");
+                    self.nie.title = fileNameData[0] + "_Copy_created_" + Date.now() + "." + fileNameData[1];
                 }
 
                 callback(null);
@@ -330,21 +330,21 @@ File.prototype.save = function (callback, rename)
                             {
                                 return callback(null, self);
                             }
-                            console.error('Error adding child file descriptors : ' + result);
-                            return callback(1, 'Error adding child file descriptors : ' + result);
+                            console.error("Error adding child file descriptors : " + result);
+                            return callback(1, "Error adding child file descriptors : " + result);
                         });
                     }
                     else
                     {
-                        console.error('Error adding parent file descriptors : ' + result);
-                        return callback(1, 'Error adding parent file descriptors: ' + result);
+                        console.error("Error adding parent file descriptors : " + result);
+                        return callback(1, "Error adding parent file descriptors: " + result);
                     }
                 }
             );
         }
         else
         {
-            callback(1, 'There is a file with the same name ' + self.nie.title + ' in this folder and there was an error renaming the new duplicate.');
+            callback(1, "There is a file with the same name " + self.nie.title + " in this folder and there was an error renaming the new duplicate.");
         }
     });
 };
@@ -352,7 +352,7 @@ File.prototype.save = function (callback, rename)
 File.prototype.saveWithFileAndContents = function (localFilePath, indexConnectionToReindexContents, callback)
 {
     const self = this;
-    const _ = require('underscore');
+    const _ = require("underscore");
 
     async.series([
         function (callback)
@@ -390,17 +390,17 @@ File.prototype.deleteThumbnails = function ()
     const self = this;
     if (!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension]))
     {
-        const _ = require('underscore');
+        const _ = require("underscore");
 
         _.map(Config.thumbnails.sizes, function (dimension)
         {
             if (Config.thumbnails.size_parameters.hasOwnProperty(dimension))
             {
-                gfs.connection.delete(self.uri + '?thumbnail&size=' + dimension, function (err, result)
+                gfs.connection.delete(self.uri + "?thumbnail&size=" + dimension, function (err, result)
                 {
                     if (err)
                     {
-                        console.error('Error deleting thumbnail ' + self.uri + '?thumbnail&size=' + dimension);
+                        console.error("Error deleting thumbnail " + self.uri + "?thumbnail&size=" + dimension);
                     }
                 });
             }
@@ -444,13 +444,13 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
                     }
                     else
                     {
-                        return callback(err, 'Error unlinking file ' + self.uri + ' from its parent. Error reported : ' + result);
+                        return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
                     }
                 });
             }
             else
             {
-                return callback(err, 'Error clearing descriptors for deleting file ' + self.uri + '. Error reported : ' + result);
+                return callback(err, "Error clearing descriptors for deleting file " + self.uri + ". Error reported : " + result);
             }
         });
     }
@@ -471,7 +471,7 @@ File.prototype.undelete = function (callback, uriOfUserUnDeletingTheFile)
     self.updateDescriptors(
         [
             new Descriptor({
-                prefixedForm: 'ddr:deleted',
+                prefixedForm: "ddr:deleted",
                 value: null
             })
         ]
@@ -490,15 +490,15 @@ File.prototype.undelete = function (callback, uriOfUserUnDeletingTheFile)
 File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetadata, includeTempFileLocations, includeOriginalNodes, callback)
 {
     const self = this;
-    const fs = require('fs');
+    const fs = require("fs");
 
     fs.exists(destinationFolderAbsPath, function (exists)
     {
         if (!exists)
         {
-            return callback(1, 'Destination Folder :' + destinationFolderAbsPath + ' does not exist .');
+            return callback(1, "Destination Folder :" + destinationFolderAbsPath + " does not exist .");
         }
-        const fs = require('fs');
+        const fs = require("fs");
         const tempFilePath = destinationFolderAbsPath + path.sep + self.nie.title;
 
         const writeStream = fs.createWriteStream(tempFilePath);
@@ -550,7 +550,7 @@ File.prototype.writeDataContentToStream = function (stream, callback)
 File.prototype.writeToTempFile = function (callback)
 {
     let self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
 
     let fetchMetadataCallback = function (err, tempFolderPath)
     {
@@ -562,10 +562,10 @@ File.prototype.writeToTempFile = function (callback)
 
                 if (Config.debug.log_temp_file_writes)
                 {
-                    console.log('Temp file location: ' + tempFilePath);
+                    console.log("Temp file location: " + tempFilePath);
                 }
 
-                const fs = require('fs');
+                const fs = require("fs");
                 const writeStream = fs.createWriteStream(tempFilePath);
                 gfs.connection.get(self.uri, writeStream, function (err, result)
                 {
@@ -606,8 +606,8 @@ File.prototype.writeToTempFile = function (callback)
 File.prototype.getThumbnail = function (size, callback)
 {
     let self = this;
-    const tmp = require('tmp');
-    const fs = require('fs');
+    const tmp = require("tmp");
+    const fs = require("fs");
 
     if (isNull(size))
     {
@@ -621,21 +621,21 @@ File.prototype.getThumbnail = function (size, callback)
         },
         function (err, tempFolderPath)
         {
-            const tempFilePath = tempFolderPath + path.sep + path.basename(self.nie.title) + '_thumbnail_' + size + path.extname(self.nie.title);
+            const tempFilePath = tempFolderPath + path.sep + path.basename(self.nie.title) + "_thumbnail_" + size + path.extname(self.nie.title);
             let writeStream = fs.createWriteStream(tempFilePath);
-            gfs.connection.get(self.uri + '?thumbnail&size=' + size, writeStream, function (err, result)
+            gfs.connection.get(self.uri + "?thumbnail&size=" + size, writeStream, function (err, result)
             {
                 if (err === 404)
                 {
                     // try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function (err, result)
                     {
-                        return callback(null, Pathfinder.absPathInPublicFolder('images/icons/page_white_gear.png'));
+                        return callback(null, Pathfinder.absPathInPublicFolder("images/icons/page_white_gear.png"));
                     });
                 }
                 else if (isNull(err))
                 {
-                    console.log('Thumbnail temp file location: ' + tempFilePath);
+                    console.log("Thumbnail temp file location: " + tempFilePath);
                     return callback(null, tempFilePath);
                 }
                 else
@@ -649,12 +649,12 @@ File.prototype.getThumbnail = function (size, callback)
 File.prototype.loadFromLocalFile = function (localFile, callback)
 {
     const self = this;
-    const tmp = require('tmp');
-    const fs = require('fs');
+    const tmp = require("tmp");
+    const fs = require("fs");
 
     self.getOwnerProject(function (err, ownerProject)
     {
-        const Project = require(Pathfinder.absPathInSrcFolder('/models/project.js')).Project;
+        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
         if (isNull && ownerProject instanceof Project)
         {
             /** SAVE FILE**/
@@ -668,12 +668,12 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
                         return callback(null, self);
                     }
 
-                    console.log('Error [' + err + '] saving file in GridFS :' + result);
+                    console.log("Error [" + err + "] saving file in GridFS :" + result);
                     return callback(err, result);
                 },
                 {
                     project: ownerProject,
-                    type: 'nie:File'
+                    type: "nie:File"
                 }
             );
         }
@@ -690,7 +690,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
     let dataStoreWriter;
 
     let processingDataDescriptor = new Descriptor({
-        prefixedForm: 'ddr:processingData',
+        prefixedForm: "ddr:processingData",
         value: true
     });
 
@@ -704,10 +704,10 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
 
     const markDataOK = function (callback)
     {
-        self.deleteDescriptorTriples('ddr:hasProcessingError', function (err, result)
+        self.deleteDescriptorTriples("ddr:hasProcessingError", function (err, result)
         {
             let hasDataContentTrue = new Descriptor({
-                prefixedForm: 'ddr:hasDataContent',
+                prefixedForm: "ddr:hasDataContent",
                 value: true
             });
 
@@ -721,7 +721,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
     const markErrorProcessingData = function (err, callback)
     {
         let hasDataProcessingErrorTrue = new Descriptor({
-            prefixedForm: 'ddr:hasDataProcessingError',
+            prefixedForm: "ddr:hasDataProcessingError",
             value: err
         });
 
@@ -733,7 +733,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
 
     const markFileDataProcessed = function (callback)
     {
-        self.deleteDescriptorTriples('ddr:processingData', function (err, result)
+        self.deleteDescriptorTriples("ddr:processingData", function (err, result)
         {
             callback(err);
         });
@@ -741,7 +741,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
 
     const xlsxFileParser = function (filePath, callback)
     {
-        const XLSX = require('xlsx');
+        const XLSX = require("xlsx");
 
         function safe_decode_range (range)
         {
@@ -787,19 +787,19 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             let header = 0, offset = 1;
             let hdr = [];
             let o = {};
-            if (sheet === null || sheet['!ref'] === null) return [];
-            let range = o.range !== undefined ? o.range : sheet['!ref'];
+            if (sheet === null || sheet["!ref"] === null) return [];
+            let range = o.range !== undefined ? o.range : sheet["!ref"];
             let r;
             if (o.header === 1) header = 1;
-            else if (o.header === 'A') header = 2;
+            else if (o.header === "A") header = 2;
             else if (Array.isArray(o.header)) header = 3;
             switch (typeof range)
             {
-            case 'string':
+            case "string":
                 r = safe_decode_range(range);
                 break;
-            case 'number':
-                r = safe_decode_range(sheet['!ref']);
+            case "number":
+                r = safe_decode_range(sheet["!ref"]);
                 r.s.r = range;
                 break;
             default:
@@ -870,7 +870,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
 
     const csvFileParser = function (filePath, callback)
     {
-        const Baby = require('babyparse');
+        const Baby = require("babyparse");
         let pendingRecords = [];
         let chunkSize = 5000;
         let header;
@@ -892,7 +892,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
                 {
                     if (!isNull(err))
                     {
-                        console.error('Error occurred while recording header of sheet ' + 0 + ' of resource ' + self.uri);
+                        console.error("Error occurred while recording header of sheet " + 0 + " of resource " + self.uri);
                         console.error(err.stack);
                     }
                 });
@@ -920,17 +920,17 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
 
         const handleProcessingError = function ()
         {
-            callback(1, 'Unable to read file into CSV Parser');
+            callback(1, "Unable to read file into CSV Parser");
         };
 
         Baby.parseFiles(filePath, {
-            delimiter: '',	// auto-detect
-            newline: '',	// auto-detect
-            quoteChar: '"',
+            delimiter: "",	// auto-detect
+            newline: "",	// auto-detect
+            quoteChar: "\"",
             header: true,
             dynamicTyping: true,
             preview: 0,
-            encoding: '',
+            encoding: "",
             worker: true,
             comments: false,
             step: processRecord,
@@ -1017,14 +1017,14 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
     }
     else
     {
-        callback(null, 'There is no data parser for this format file : ' + self.ddr.fileExtension);
+        callback(null, "There is no data parser for this format file : " + self.ddr.fileExtension);
     }
 };
 
 File.prototype.rebuildData = function (callback)
 {
     const self = this;
-    const tmp = require('tmp');
+    const tmp = require("tmp");
 
     tmp.dir(
         {
@@ -1050,7 +1050,7 @@ File.prototype.rebuildData = function (callback)
                             }
                             else
                             {
-                                callback(err, 'Error parsing the data inside the file. Does the first row of all your sheets contain only alphanumeric characters and is there a header for every column with non-empty cells? Error returned was : ' + err.message);
+                                callback(err, "Error parsing the data inside the file. Does the first row of all your sheets contain only alphanumeric characters and is there a header for every column with non-empty cells? Error returned was : " + err.message);
                             }
                         });
                     }
@@ -1075,16 +1075,16 @@ File.prototype.extractTextAndSaveIntoGraph = function (callback)
     {
         self.writeToTempFile(function (err, locationOfTempFile)
         {
-            const textract = require('textract');
+            const textract = require("textract");
             textract.fromFileWithPath(locationOfTempFile, function (err, textContent)
             {
                 // delete temporary file, we are done with it
-                const fs = require('fs');
+                const fs = require("fs");
                 fs.unlink(locationOfTempFile, function (err)
                 {
                     if (err)
                     {
-                        console.log('Error deleting file ' + locationOfTempFile);
+                        console.log("Error deleting file " + locationOfTempFile);
                     }
                 });
 
@@ -1102,7 +1102,7 @@ File.prototype.extractTextAndSaveIntoGraph = function (callback)
                 }
                 else
                 {
-                    console.error('Error extracting text from ' + locationOfTempFile + ' : ');
+                    console.error("Error extracting text from " + locationOfTempFile + " : ");
                     console.error(err);
                     return callback(1, err);
                 }
@@ -1130,7 +1130,7 @@ File.prototype.getSheets = function (callback)
     }
     else
     {
-        const result = 'File : ' + self.uri + ' does not have any data associated to it';
+        const result = "File : " + self.uri + " does not have any data associated to it";
         res.writeHead(400, result);
         res.end();
     }
@@ -1148,7 +1148,7 @@ File.prototype.pipeData = function (writeStream, skipRows, pageSize, sheetIndex,
     }
     else
     {
-        const result = 'File : ' + self.uri + ' does not have any data associated to it';
+        const result = "File : " + self.uri + " does not have any data associated to it";
         res.writeHead(400, result);
         res.end();
     }
@@ -1156,28 +1156,28 @@ File.prototype.pipeData = function (writeStream, skipRows, pageSize, sheetIndex,
 
 File.prototype.connectToMongo = function (callback)
 {
-    const MongoClient = require('mongodb').MongoClient;
-    const url = 'mongodb://' + Config.mongoDBHost + ':' + Config.mongoDbPort + '/' + Config.mongoDbCollectionName;
+    const MongoClient = require("mongodb").MongoClient;
+    const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDbCollectionName;
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))
         {
-            console.log('Connected successfully to MongoDB');
+            console.log("Connected successfully to MongoDB");
             return callback(null, db);
         }
-        const msg = 'Error connecting to MongoDB';
+        const msg = "Error connecting to MongoDB";
         return callback(true, msg);
     });
 };
 
 File.prototype.findFileInMongo = function (db, callback)
 {
-    const collection = db.collection('fs.files');
+    const collection = db.collection("fs.files");
     collection.find({filename: this.uri}).toArray(function (err, files)
     {
         if (Config.debug.files.log_file_version_fetches)
         {
-            console.log('Found the following Files');
+            console.log("Found the following Files");
             console.log(files);
         }
 
@@ -1185,7 +1185,7 @@ File.prototype.findFileInMongo = function (db, callback)
         {
             return callback(null, files);
         }
-        const msg = 'Error findind document with uri: ' + this.uri + ' in Mongo';
+        const msg = "Error findind document with uri: " + this.uri + " in Mongo";
         return callback(true, msg);
     });
 };
@@ -1222,21 +1222,21 @@ File.prototype.loadMetadata = function (node, callback, entityLoadingTheMetadata
     }
     else
     {
-        return callback(1, 'Cannot load metadata from an empty node.');
+        return callback(1, "Cannot load metadata from an empty node.");
     }
 };
 
 File.prototype.generateThumbnails = function (callback)
 {
-    let _ = require('underscore');
+    let _ = require("underscore");
     let self = this;
     const generateThumbnail = function (localFile, ownerProject, sizeTag, cb)
     {
-        let easyimg = require('easyimage');
+        let easyimg = require("easyimage");
         const fileName = path.basename(localFile, path.extname(localFile));
         const parentDir = path.dirname(localFile);
-        const thumbnailFile = path.join(parentDir, fileName + '_thumbnail_' + sizeTag + '.' + Config.thumbnails.thumbnail_format_extension);
-        const fs = require('fs');
+        const thumbnailFile = path.join(parentDir, fileName + "_thumbnail_" + sizeTag + "." + Config.thumbnails.thumbnail_format_extension);
+        const fs = require("fs");
 
         easyimg.resize(
             {
@@ -1248,17 +1248,17 @@ File.prototype.generateThumbnails = function (callback)
                 y: 0
             }).then(function (image)
         {
-            console.log('Resized and cropped: ' + image.width + ' x ' + image.height);
+            console.log("Resized and cropped: " + image.width + " x " + image.height);
 
             // TODO
             gfs.connection.put(
-                self.uri + '?thumbnail&size=' + sizeTag,
+                self.uri + "?thumbnail&size=" + sizeTag,
                 fs.createReadStream(thumbnailFile),
                 function (err, result)
                 {
                     if (!isNull(err))
                     {
-                        const msg = 'Error saving thumbnail file in GridFS :' + result + ' when generating ' + sizeTag + ' size thumbnail for file ' + self.uri;
+                        const msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
                         console.error(msg);
                         cb(err, msg);
                     }
@@ -1269,7 +1269,7 @@ File.prototype.generateThumbnails = function (callback)
                 },
                 {
                     project: ownerProject,
-                    type: 'nie:File',
+                    type: "nie:File",
                     thumbnail: true,
                     thumbnailOf: self.uri,
                     size: sizeTag
@@ -1278,7 +1278,7 @@ File.prototype.generateThumbnails = function (callback)
         })
             .catch(function (err)
             {
-                return callback(err, Number('Error saving thumbnail for file ') + self.uri + ' . \nCheck that you have the xpdf ghostscript-x tesseract-ocr imagemagick dependencies installed in the server.\nIf you are on a Mac, you need XQuartz and all other dependencies: run this command: brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext' + err);
+                return callback(err, Number("Error saving thumbnail for file ") + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr imagemagick dependencies installed in the server.\nIf you are on a Mac, you need XQuartz and all other dependencies: run this command: brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext" + err);
             });
     };
 
@@ -1305,23 +1305,23 @@ File.prototype.generateThumbnails = function (callback)
                                     return callback(null, null);
                                 }
 
-                                return callback(err, 'Error generating thumbnail for file ' + self.uri + '. Errors reported by generator : ' + JSON.stringify(results));
+                                return callback(err, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + JSON.stringify(results));
                             });
                         }
                         else
                         {
-                            return callback(1, 'Error generating thumbnail for file ' + self.uri + '. Errors reported by generator : ' + tempFileAbsPath);
+                            return callback(1, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + tempFileAbsPath);
                         }
                     });
                 }
                 else
                 {
-                    return callback(null, 'Nothing to be done for this file, since ' + self.ddr.fileExtension + ' is not a thumbnailable extension.');
+                    return callback(null, "Nothing to be done for this file, since " + self.ddr.fileExtension + " is not a thumbnailable extension.");
                 }
             }
             else
             {
-                return callback(null, 'Unable to retrieve owner project of ' + self.uri + ' for thumbnail generation.');
+                return callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
             }
         });
     }
@@ -1382,6 +1382,6 @@ File.prototype.generateThumbnails = function (callback)
 //         });
 // };
 
-File = Class.extend(File, InformationElement, 'nfo:FileDataObject');
+File = Class.extend(File, InformationElement, "nfo:FileDataObject");
 
 module.exports.File = File;

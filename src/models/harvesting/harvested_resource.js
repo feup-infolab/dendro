@@ -1,11 +1,11 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
 
@@ -32,7 +32,7 @@ function HarvestedResource (object)
 HarvestedResource.prototype.save = function (indexConnection, callback)
 {
     const self = this;
-    let metadataInsertionString = '';
+    let metadataInsertionString = "";
     let argumentCount = 6;
 
     const argumentsArray =
@@ -74,19 +74,19 @@ HarvestedResource.prototype.save = function (indexConnection, callback)
             if (isNull(metadataDescriptor.qualifier))
             {
                 predicate = {
-                    value: metadataDescriptor.namespace + ':' + metadataDescriptor.element,
+                    value: metadataDescriptor.namespace + ":" + metadataDescriptor.element,
                     type: Elements.types.prefixedResource
                 };
             }
             else
             {
                 predicate = {
-                    value: metadataDescriptor.namespace + ':' + metadataDescriptor.qualifier,
+                    value: metadataDescriptor.namespace + ":" + metadataDescriptor.qualifier,
                     type: Elements.types.prefixedResource
                 };
             }
 
-            metadataInsertionString = metadataInsertionString + '[1] [' + argumentCount + '] [' + (argumentCount + 1) + '] .\n';
+            metadataInsertionString = metadataInsertionString + "[1] [" + argumentCount + "] [" + (argumentCount + 1) + "] .\n";
 
             const object = {
                 value: metadataDescriptor.value,
@@ -102,34 +102,34 @@ HarvestedResource.prototype.save = function (indexConnection, callback)
 
     // TODO CACHE
     const fullQueryString =
-        ' DELETE FROM [0]\n' +
-        '{ \n' +
-        '[1] ?p ?o . \n' +
-        '}' +
-        'WHERE \n' +
-        '{ \n' +
-        ' FILTER NOT EXISTS ' +
-        '{ \n' +
-        ' [1] ddr:md5_checksum [2] .\n' +
-        '} \n' +
-        '}; \n' +
-        ' INSERT INTO [0]\n' +
-        '{ \n' +
-        '   [1] rdf:type ddr:HarvestedResource . \n' +
-        '   [1] ddr:last_harvested [3] . \n' +
-        '   [1] ddr:md5_checksum [4] . \n' +
-        '   [1] dcterms:publisher [5] . \n ' +
-        '   [2] rdf:type ddr:ExternalRepository . \n ' +
+        " DELETE FROM [0]\n" +
+        "{ \n" +
+        "[1] ?p ?o . \n" +
+        "}" +
+        "WHERE \n" +
+        "{ \n" +
+        " FILTER NOT EXISTS " +
+        "{ \n" +
+        " [1] ddr:md5_checksum [2] .\n" +
+        "} \n" +
+        "}; \n" +
+        " INSERT INTO [0]\n" +
+        "{ \n" +
+        "   [1] rdf:type ddr:HarvestedResource . \n" +
+        "   [1] ddr:last_harvested [3] . \n" +
+        "   [1] ddr:md5_checksum [4] . \n" +
+        "   [1] dcterms:publisher [5] . \n " +
+        "   [2] rdf:type ddr:ExternalRepository . \n " +
         metadataInsertionString +
-        '} \n' +
-        'WHERE \n' +
-        '{ \n' +
-        ' FILTER NOT EXISTS ' +
-        '{ \n' +
-        ' [1] rdf:type ddr:HarvestedResource . \n' +
-        ' [1] ddr:md5_checksum [3] .\n' +
-        '} \n' +
-        '} \n';
+        "} \n" +
+        "WHERE \n" +
+        "{ \n" +
+        " FILTER NOT EXISTS " +
+        "{ \n" +
+        " [1] rdf:type ddr:HarvestedResource . \n" +
+        " [1] ddr:md5_checksum [3] .\n" +
+        "} \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(
         fullQueryString,
@@ -142,21 +142,21 @@ HarvestedResource.prototype.save = function (indexConnection, callback)
                 {
                     if (isNull(err))
                     {
-                        return callback(null, 'Metadata successfully inserted for resource : ' + self.uri + ' Virtuoso error : ' + result);
+                        return callback(null, "Metadata successfully inserted for resource : " + self.uri + " Virtuoso error : " + result);
                     }
-                    const error = 'Error indexing harvested resource with uri ' + self.uri + '. Error reported: ' + result;
+                    const error = "Error indexing harvested resource with uri " + self.uri + ". Error reported: " + result;
                     console.error(error);
                     return callback(1, error);
                 });
             }
             else
             {
-                return callback(1, 'Error inserting metadata for resource : ' + self.uri + ' : Virtuoso error : ' + result);
+                return callback(1, "Error inserting metadata for resource : " + self.uri + " : Virtuoso error : " + result);
             }
-        }
+        }, null, null, null, true
     );
 };
 
-HarvestedResource = Class.extend(HarvestedResource, Resource, 'ddr:HarvestedResource');
+HarvestedResource = Class.extend(HarvestedResource, Resource, "ddr:HarvestedResource");
 
 module.exports.HarvestedResource = HarvestedResource;

@@ -1,12 +1,12 @@
-const path = require('path');
-const async = require('async');
+const path = require("path");
+const async = require("async");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const util = require('util');
-const GridFSBucket = require('mongodb').GridFSBucket;
+const util = require("util");
+const GridFSBucket = require("mongodb").GridFSBucket;
 
 function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, password)
 {
@@ -26,13 +26,13 @@ GridFSConnection.prototype.open = function (callback, customBucket)
 
     if (!isNull(self.gfs))
     {
-        return callback(1, 'Database connection is already open');
+        return callback(1, "Database connection is already open");
     }
-    const mongo = require('mongodb');
-    const Grid = require('gridfs-stream');
-    const slug = require('slug');
+    const mongo = require("mongodb");
+    const Grid = require("gridfs-stream");
+    const slug = require("slug");
 
-    const db = new mongo.Db(slug(self.collectionName, '_'), new mongo.Server(
+    const db = new mongo.Db(slug(self.collectionName, "_"), new mongo.Server(
         self.hostname,
         self.port,
         {
@@ -40,7 +40,7 @@ GridFSConnection.prototype.open = function (callback, customBucket)
             poolSize: 4
         }),
     {
-        w: 'majority',
+        w: "majority",
         safe: false,
         strict: false
     }
@@ -58,9 +58,9 @@ GridFSConnection.prototype.open = function (callback, customBucket)
             }
             else
             {
-                collectionName = 'fs.files';
+                collectionName = "fs.files";
             }
-            db.collection(collectionName).ensureIndex('uri', function (err, result)
+            db.collection(collectionName).ensureIndex("uri", function (err, result)
             {
                 if (isNull(err))
                 {
@@ -109,25 +109,25 @@ GridFSConnection.prototype.put = function (fileUri, inputStream, callback, metad
 
         // streaming to gridfs
         // error handling, e.g. file does not exist
-        uploadStream.on('error', function (err)
+        uploadStream.on("error", function (err)
         {
             hasError = true;
-            console.log('An error occurred saving the file to the database!', err);
+            console.log("An error occurred saving the file to the database!", err);
             return callback(1, err);
         });
 
         // callback on complete
-        uploadStream.once('finish', function (file)
+        uploadStream.once("finish", function (file)
         {
             // console.log('GridFS: Write stream closed for file with uri :'+fileUri);
 
             if (!hasError)
             {
-                message = 'GridFS: Save complete for file uri :' + fileUri;
+                message = "GridFS: Save complete for file uri :" + fileUri;
             }
             else
             {
-                message = 'GridFS: Error saving file with uri :' + fileUri;
+                message = "GridFS: Error saving file with uri :" + fileUri;
             }
 
             return callback(hasError, message, file);
@@ -137,7 +137,7 @@ GridFSConnection.prototype.put = function (fileUri, inputStream, callback, metad
     }
     else
     {
-        return callback(1, 'Must open connection to database first!');
+        return callback(1, "Must open connection to database first!");
     }
 };
 
@@ -150,31 +150,31 @@ GridFSConnection.prototype.get = function (fileUri, outputStream, callback, cust
         let bucket = new GridFSBucket(self.db, { bucketName: customBucket });
         let downloadStream = bucket.openDownloadStreamByName(fileUri);
 
-        downloadStream.on('error', function (error)
+        downloadStream.on("error", function (error)
         {
-            if (error.code === 'ENOENT')
+            if (error.code === "ENOENT")
             {
                 return callback(404, error);
             }
             return callback(1, error);
         });
 
-        downloadStream.on('data', function (data)
+        downloadStream.on("data", function (data)
         {
         });
 
-        downloadStream.on('end', function ()
+        downloadStream.on("end", function ()
         {
             if (Config.debug.log_temp_file_reads)
             {
-                const msg = 'EOF of file';
+                const msg = "EOF of file";
                 console.log(msg);
             }
         });
 
-        downloadStream.on('close', function ()
+        downloadStream.on("close", function ()
         {
-            const msg = 'Finished reading the file';
+            const msg = "Finished reading the file";
 
             if (Config.debug.log_temp_file_reads)
             {
@@ -188,7 +188,7 @@ GridFSConnection.prototype.get = function (fileUri, outputStream, callback, cust
     }
     else
     {
-        return callback(1, 'Must open connection to database first!');
+        return callback(1, "Must open connection to database first!");
     }
 };
 
@@ -205,7 +205,7 @@ GridFSConnection.prototype.delete = function (fileUri, callback, customBucket)
         }
         else
         {
-            collectionName = 'fs.files';
+            collectionName = "fs.files";
         }
 
         const collection = self.db.collection(collectionName);
@@ -226,20 +226,20 @@ GridFSConnection.prototype.delete = function (fileUri, callback, customBucket)
                             {
                                 if (isNull(err) && !exists)
                                 {
-                                    return callback(null, 'File ' + fileUri + 'successfully deleted');
+                                    return callback(null, "File " + fileUri + "successfully deleted");
                                 }
-                                return callback(err, 'Error verifying deletion of file ' + fileUri + '. Error reported ' + exists);
+                                return callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
                             });
                         }
                         else
                         {
-                            return callback(err, 'Error deleting file ' + fileUri + '. Error reported ' + err);
+                            return callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
                         }
                     });
                 }
                 else
                 {
-                    return callback(1, 'File with uri ' + fileUri + ' not found.');
+                    return callback(1, "File with uri " + fileUri + " not found.");
                 }
             }
             else
@@ -250,7 +250,7 @@ GridFSConnection.prototype.delete = function (fileUri, callback, customBucket)
     }
     else
     {
-        return callback(1, 'Must open connection to database first!');
+        return callback(1, "Must open connection to database first!");
     }
 };
 
@@ -265,7 +265,7 @@ GridFSConnection.prototype.deleteByQuery = function (query, callback, customBuck
     }
     else
     {
-        collectionName = 'fs.files';
+        collectionName = "fs.files";
     }
 
     const collection = self.db.collection(collectionName);
@@ -307,14 +307,14 @@ GridFSConnection.prototype.deleteByQuery = function (query, callback, customBuck
                             {
                                 if (isNull(err) && count === 0)
                                 {
-                                    return callback(null, 'Files successfully deleted after query ' + JSON.stringify(query));
+                                    return callback(null, "Files successfully deleted after query " + JSON.stringify(query));
                                 }
-                                return callback(err, 'Error verifying deletion of files after query ' + JSON.stringify(query) + '. Error reported ' + count);
+                                return callback(err, "Error verifying deletion of files after query " + JSON.stringify(query) + ". Error reported " + count);
                             });
                         }
                         else
                         {
-                            callback(1, 'There was a problem deleting files after query ' + JSON.stringify(query));
+                            callback(1, "There was a problem deleting files after query " + JSON.stringify(query));
                         }
                     };
 
@@ -325,24 +325,24 @@ GridFSConnection.prototype.deleteByQuery = function (query, callback, customBuck
                     {
                         if (!isNull(err))
                         {
-                            return callback(err, 'Error deleting files after query ' + JSON.stringify(query) + '. Error reported ' + err);
+                            return callback(err, "Error deleting files after query " + JSON.stringify(query) + ". Error reported " + err);
                         }
                     });
                 }
                 else
                 {
-                    return callback(null, 'There are no files corresponding to query ' + JSON.stringify(query));
+                    return callback(null, "There are no files corresponding to query " + JSON.stringify(query));
                 }
             }
             else
             {
-                return callback(1, 'Unable to determine the number of files that match query ' + JSON.stringify(query));
+                return callback(1, "Unable to determine the number of files that match query " + JSON.stringify(query));
             }
         });
     }
     else
     {
-        return callback(1, 'Must open connection to database first!');
+        return callback(1, "Must open connection to database first!");
     }
 };
 
@@ -357,14 +357,14 @@ GridFSConnection.prototype.deleteAvatar = function (fileUri, callback, customBuc
         {
             if (!err)
             {
-                return callback(null, 'File ' + fileUri + 'successfully deleted');
+                return callback(null, "File " + fileUri + "successfully deleted");
             }
-            return callback(err, 'Error deleting file ' + fileUri + '. Error reported ' + err);
+            return callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
         });
     }
     else
     {
-        return callback(1, 'Must open connection to database first!');
+        return callback(1, "Must open connection to database first!");
     }
 };
 

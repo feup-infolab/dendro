@@ -1,16 +1,16 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
-const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-const DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const async = require('async');
-const fs = require('fs');
+const async = require("async");
+const fs = require("fs");
 
 /*
  * GET users listing.
@@ -45,11 +45,11 @@ exports.users_autocomplete = function (req, res)
 
 exports.all = function (req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     let viewVars = {
-        title: 'User list'
+        title: "User list"
     };
 
     viewVars = DbConnection.paginate(req,
@@ -91,7 +91,7 @@ exports.all = function (req, res)
                     viewVars.count = results[0];
                     viewVars.users = results[1];
 
-                    res.render('users/all',
+                    res.render("users/all",
                         viewVars
                     );
                 }
@@ -101,8 +101,8 @@ exports.all = function (req, res)
                 if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
                 {
                     res.json({
-                        result: 'error',
-                        message: 'Unable to fetch users list.',
+                        result: "error",
+                        message: "Unable to fetch users list.",
                         error: results
                     });
                 }
@@ -110,7 +110,7 @@ exports.all = function (req, res)
                 {
                     viewVars.users = [];
                     viewVars.error_messages = [results];
-                    res.render('users/all',
+                    res.render("users/all",
                         viewVars
                     );
                 }
@@ -131,8 +131,8 @@ exports.username_exists = function (req, res)
             {
                 res.json(
                     {
-                        result: 'ok',
-                        message: 'found'
+                        result: "ok",
+                        message: "found"
                     }
                 );
             }
@@ -140,8 +140,8 @@ exports.username_exists = function (req, res)
             {
                 res.json(
                     {
-                        result: 'ok',
-                        message: 'not_found'
+                        result: "ok",
+                        message: "not_found"
                     }
                 );
             }
@@ -150,7 +150,7 @@ exports.username_exists = function (req, res)
         {
             res.status(500).json(
                 {
-                    result: 'error'
+                    result: "error"
                 }
             );
         }
@@ -161,8 +161,8 @@ exports.show = function (req, res)
 {
     const username = req.params.username;
 
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     const sendResponse = function (err, user)
     {
@@ -179,9 +179,9 @@ exports.show = function (req, res)
                 }
                 else
                 {
-                    res.render('users/show',
+                    res.render("users/show",
                         {
-                            title: 'Viewing user ' + user.foaf.firstName + ' ' + user.foaf.surname,
+                            title: "Viewing user " + user.foaf.firstName + " " + user.foaf.surname,
                             user: user
                         }
                     );
@@ -192,15 +192,15 @@ exports.show = function (req, res)
                 if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
                 {
                     res.json({
-                        result: 'error',
-                        message: 'User ' + username + ' does not exist.'
+                        result: "error",
+                        message: "User " + username + " does not exist."
                     });
                 }
                 else
                 {
-                    res.render('index',
+                    res.render("index",
                         {
-                            error_messages: ['User ' + username + ' does not exist.']
+                            error_messages: ["User " + username + " does not exist."]
                         }
                     );
                 }
@@ -212,16 +212,16 @@ exports.show = function (req, res)
             {
                 res.json(
                     {
-                        result: 'error',
-                        message: 'There is no user authenticated in the system.'
+                        result: "error",
+                        message: "There is no user authenticated in the system."
                     }
                 );
             }
             else
             {
-                res.render('users/show',
+                res.render("users/show",
                     {
-                        title: 'Viewing user ' + username,
+                        title: "Viewing user " + username,
                         user: user
                     }
                 );
@@ -249,19 +249,19 @@ exports.me = function (req, res)
 {
     req.params.user = req.user;
 
-    if (req.originalMethod === 'GET')
+    if (req.originalMethod === "GET")
     {
-        res.render('users/edit',
+        res.render("users/edit",
             {
                 user: req.user
             }
         );
     }
-    else if (req.originalMethod === 'POST')
+    else if (req.originalMethod === "POST")
     {
     // perform modifications
 
-        res.render('users/edit',
+        res.render("users/edit",
             {
                 user: req.user
             }
@@ -274,13 +274,13 @@ exports.set_new_password = function (req, res)
     let email = req.query.email;
     let token = req.query.token;
 
-    if (req.originalMethod === 'GET')
+    if (req.originalMethod === "GET")
     {
         if (isNull(email) || isNull(token))
         {
-            res.render('index',
+            res.render("index",
                 {
-                    info_messages: ['Invalid request.']
+                    info_messages: ["Invalid request."]
                 }
             );
         }
@@ -292,21 +292,21 @@ exports.set_new_password = function (req, res)
                 {
                     if (!user)
                     {
-                        res.render('index',
+                        res.render("index",
                             {
-                                error_messages: ['Non-existent user with email ' + email + ' : ' + JSON.stringify(user)]
+                                error_messages: ["Non-existent user with email " + email + " : " + JSON.stringify(user)]
                             }
                         );
                     }
                     else
                     {
-                        user.checkIfHasPredicateValue('ddr:password_reset_token', token, function (err, tokenMatches)
+                        user.checkIfHasPredicateValue("ddr:password_reset_token", token, function (err, tokenMatches)
                         {
                             if (isNull(err))
                             {
                                 if (tokenMatches)
                                 {
-                                    res.render('users/set_new_password',
+                                    res.render("users/set_new_password",
                                         {
                                             email: email,
                                             token: token
@@ -315,18 +315,18 @@ exports.set_new_password = function (req, res)
                                 }
                                 else
                                 {
-                                    res.render('index',
+                                    res.render("index",
                                         {
-                                            error_messages: ['Invalid token']
+                                            error_messages: ["Invalid token"]
                                         }
                                     );
                                 }
                             }
                             else
                             {
-                                res.render('index',
+                                res.render("index",
                                     {
-                                        error_messages: ['Error retrieving token : ' + JSON.stringify(user)]
+                                        error_messages: ["Error retrieving token : " + JSON.stringify(user)]
                                     }
                                 );
                             }
@@ -335,25 +335,25 @@ exports.set_new_password = function (req, res)
                 }
                 else
                 {
-                    res.render('index',
+                    res.render("index",
                         {
-                            error_messages: ['Error retrieving user with email ' + email + ' : ' + JSON.stringify(user)]
+                            error_messages: ["Error retrieving user with email " + email + " : " + JSON.stringify(user)]
                         }
                     );
                 }
             });
         }
     }
-    else if (req.originalMethod === 'POST')
+    else if (req.originalMethod === "POST")
     {
         if (isNull(token) || isNull(email))
         {
-            res.render('users/set_new_password',
+            res.render("users/set_new_password",
                 {
                     token: token,
                     email: email,
                     error_messages: [
-                        'Wrong link specified.'
+                        "Wrong link specified."
                     ]
                 }
             );
@@ -365,12 +365,12 @@ exports.set_new_password = function (req, res)
 
             if (new_password !== new_password_confirm)
             {
-                res.render('users/set_new_password',
+                res.render("users/set_new_password",
                     {
                         token: token,
                         email: email,
                         error_messages: [
-                            'Please make sure that the password and its confirmation match.'
+                            "Please make sure that the password and its confirmation match."
                         ]
                     }
                 );
@@ -383,11 +383,11 @@ exports.set_new_password = function (req, res)
                     {
                         if (!user)
                         {
-                            res.render('index',
+                            res.render("index",
                                 {
                                     error_messages:
                   [
-                      'Unknown account with email ' + email + '.'
+                      "Unknown account with email " + email + "."
                   ]
                                 }
                             );
@@ -398,22 +398,22 @@ exports.set_new_password = function (req, res)
                             {
                                 if (err)
                                 {
-                                    res.render('index',
+                                    res.render("index",
                                         {
                                             error_messages:
                       [
-                          'Error resetting password for email : ' + email + '. Error description: ' + JSON.stringify(result)
+                          "Error resetting password for email : " + email + ". Error description: " + JSON.stringify(result)
                       ]
                                         }
                                     );
                                 }
                                 else
                                 {
-                                    res.render('index',
+                                    res.render("index",
                                         {
                                             info_messages:
                       [
-                          'Password successfully reset for : ' + email + '. You can now login with your new password.'
+                          "Password successfully reset for : " + email + ". You can now login with your new password."
                       ]
                                         }
                                     );
@@ -429,13 +429,13 @@ exports.set_new_password = function (req, res)
 
 exports.reset_password = function (req, res)
 {
-    if (req.originalMethod === 'GET')
+    if (req.originalMethod === "GET")
     {
-        res.render('users/reset_password',
+        res.render("users/reset_password",
             {}
         );
     }
-    else if (req.originalMethod === 'POST')
+    else if (req.originalMethod === "POST")
     {
         const email = req.body.email;
         if (!isNull(email))
@@ -446,10 +446,10 @@ exports.reset_password = function (req, res)
                 {
                     if (!user)
                     {
-                        res.render('users/reset_password',
+                        res.render("users/reset_password",
                             {
                                 error_messages: [
-                                    'Unknown account with email ' + email + '.'
+                                    "Unknown account with email " + email + "."
                                 ]
                             }
                         );
@@ -460,20 +460,20 @@ exports.reset_password = function (req, res)
                         {
                             if (err)
                             {
-                                res.render('index',
+                                res.render("index",
                                     {
                                         error_messages: [
-                                            'Error resetting password for email : ' + email + '. Error description: ' + JSON.stringify(result)
+                                            "Error resetting password for email : " + email + ". Error description: " + JSON.stringify(result)
                                         ]
                                     }
                                 );
                             }
                             else
                             {
-                                res.render('index',
+                                res.render("index",
                                     {
                                         info_messages: [
-                                            'Password reset instructions have been sent to : ' + email + '.'
+                                            "Password reset instructions have been sent to : " + email + "."
                                         ]
                                     }
                                 );
@@ -485,10 +485,10 @@ exports.reset_password = function (req, res)
         }
         else
         {
-            res.render('users/reset_password',
+            res.render("users/reset_password",
                 {
                     error_messages: [
-                        'Please specify a valid email address'
+                        "Please specify a valid email address"
                     ]
                 }
             );
@@ -498,8 +498,8 @@ exports.reset_password = function (req, res)
 
 exports.getLoggedUser = function (req, res)
 {
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (!isNull(req.user))
     {
@@ -513,15 +513,15 @@ exports.getLoggedUser = function (req, res)
             res.status(403);
             res.json(
                 {
-                    result: 'error',
-                    message: 'There is no user authenticated in the system.'
+                    result: "error",
+                    message: "There is no user authenticated in the system."
                 }
             );
         }
         else
         {
-            req.flash('error', 'There is no user authenticated in the system.');
-            res.status(403).render('index');
+            req.flash("error", "There is no user authenticated in the system.");
+            res.status(403).render("index");
         }
     }
 };
@@ -548,14 +548,14 @@ exports.get_avatar = function (req, res)
     const serveDefaultAvatar = function ()
     {
     // User does not have an avatar
-        let absPathOfFileToServe = Pathfinder.absPathInPublicFolder('images/default_avatar/defaultAvatar.png');
+        let absPathOfFileToServe = Pathfinder.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
         let fileStream = fs.createReadStream(absPathOfFileToServe);
 
         let filename = path.basename(absPathOfFileToServe);
 
         res.writeHead(200, {
-            'Content-Type': 'application/octet-stream',
-            'Content-Disposition': 'attachment; filename=' + filename
+            "Content-Type": "application/octet-stream",
+            "Content-Disposition": "attachment; filename=" + filename
         });
 
         fileStream.pipe(res);
@@ -568,8 +568,8 @@ exports.get_avatar = function (req, res)
             if (!user)
             {
                 res.status(404).json({
-                    result: 'Error',
-                    message: 'Error trying to find user with identifier ' + identifier + ' User does not exist'
+                    result: "Error",
+                    message: "Error trying to find user with identifier " + identifier + " User does not exist"
                 });
             }
             else
@@ -589,9 +589,9 @@ exports.get_avatar = function (req, res)
                             let filename = path.basename(avatarFilePath);
 
                             res.writeHead(200, {
-                                'Content-Type': 'application/octet-stream',
-                                Connection: 'keep-alive',
-                                'Content-Disposition': 'attachment; filename=' + filename
+                                "Content-Type": "application/octet-stream",
+                                Connection: "keep-alive",
+                                "Content-Disposition": "attachment; filename=" + filename
                             });
 
                             fileStream.pipe(res);
@@ -605,8 +605,8 @@ exports.get_avatar = function (req, res)
                             else
                             {
                                 res.status(500).json({
-                                    result: 'Error',
-                                    message: 'Error trying to get from gridFs user Avatar from user identifier ' + identifier + ' Error reported: ' + JSON.stringify(avatarFilePath)
+                                    result: "Error",
+                                    message: "Error trying to get from gridFs user Avatar from user identifier " + identifier + " Error reported: " + JSON.stringify(avatarFilePath)
                                 });
                             }
                         }
@@ -617,8 +617,8 @@ exports.get_avatar = function (req, res)
         else
         {
             res.status(500).json({
-                result: 'Error',
-                message: 'Error trying to find user with username ' + username + ' Error reported: ' + JSON.stringify(err)
+                result: "Error",
+                message: "Error trying to find user with username " + username + " Error reported: " + JSON.stringify(err)
             });
         }
     });
@@ -637,13 +637,13 @@ exports.upload_avatar = function (req, res)
 
             try
             {
-                avatarExt = avatar.split(';')[0].split('/')[1];
-                avatarUri = '/avatar/' + currentUser.ddr.username + '/avatar.' + avatarExt;
+                avatarExt = avatar.split(";")[0].split("/")[1];
+                avatarUri = "/avatar/" + currentUser.ddr.username + "/avatar." + avatarExt;
             }
             catch (e)
             {
                 return res.status(400).json({
-                    result: 'error',
+                    result: "error",
                     message: e.message
                 });
             }
@@ -658,14 +658,14 @@ exports.upload_avatar = function (req, res)
                         if (!err)
                         {
                             return res.status(200).json({
-                                result: 'Success',
-                                message: 'Avatar saved successfully.'
+                                result: "Success",
+                                message: "Avatar saved successfully."
                             });
                         }
-                        let msg = 'Error updating hasAvatar for user ' + user.uri + '. Error reported :' + newUser;
+                        let msg = "Error updating hasAvatar for user " + user.uri + ". Error reported :" + newUser;
                         console.error(msg);
                         return res.status(500).json({
-                            result: 'Error',
+                            result: "Error",
                             message: msg
                         });
                     });
@@ -673,8 +673,8 @@ exports.upload_avatar = function (req, res)
                 else
                 {
                     return res.status(500).json({
-                        result: 'Error',
-                        message: 'Error user ' + currentUser.uri + ' avatar. Error reported: ' + JSON.stringify(data)
+                        result: "Error",
+                        message: "Error user " + currentUser.uri + " avatar. Error reported: " + JSON.stringify(data)
                     });
                 }
             });
@@ -682,8 +682,8 @@ exports.upload_avatar = function (req, res)
         else
         {
             return res.status(500).json({
-                result: 'Error',
-                message: 'Error trying to find user with uri ' + currentUser.uri + ' Error reported: ' + JSON.stringify(err)
+                result: "Error",
+                message: "Error trying to find user with uri " + currentUser.uri + " Error reported: " + JSON.stringify(err)
             });
         }
     });
@@ -712,7 +712,7 @@ exports.edit = function (req, res, next)
                             user.foaf.mbox = req.body.email;
                             return callback(null, null);
                         }
-                        let msg = 'Invalid email format!';
+                        let msg = "Invalid email format!";
                         return callback(true, msg);
                     },
                     function (callback)
@@ -737,7 +737,7 @@ exports.edit = function (req, res, next)
                         {
                             if (req.body.password === req.body.repeat_password && req.body.password.length >= 8)
                             {
-                                const bcrypt = require('bcryptjs');
+                                const bcrypt = require("bcryptjs");
                                 bcrypt.hash(req.body.password, user.ddr.salt, function (err, hashedPassword)
                                 {
                                     if (!err)
@@ -746,7 +746,7 @@ exports.edit = function (req, res, next)
                                         changedPassword = true;
                                         return callback(null, null);
                                     }
-                                    let msg = 'Error encrypting password';
+                                    let msg = "Error encrypting password";
                                     console.error(msg);
                                     /* req.flash('error', msg);
                                          res.redirect('/me'); */
@@ -755,7 +755,7 @@ exports.edit = function (req, res, next)
                             }
                             else
                             {
-                                let msg = 'Passwords fields must be the same and at least 8 characters in length!';
+                                let msg = "Passwords fields must be the same and at least 8 characters in length!";
                                 console.error(msg);
                                 // req.flash('error', msg);
                                 // res.redirect('/me');
@@ -775,13 +775,13 @@ exports.edit = function (req, res, next)
                         {
                             if (!err)
                             {
-                                let auth = require(Pathfinder.absPathInSrcFolder('/controllers/auth.js'));
-                                req.flash('success', 'User ' + editedUser.ddr.username + ' edited.');
+                                let auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth.js"));
+                                req.flash("success", "User " + editedUser.ddr.username + " edited.");
                                 // console.log("User " + editedUser.ddr.username + " edited.");
                                 // res.redirect('/me');
                                 if (changedPassword)
                                 {
-                                    req.flash('info', 'Since you changed your password, you need to login again!');
+                                    req.flash("info", "Since you changed your password, you need to login again!");
                                     auth.logout(req, res);
                                 }
                                 else
@@ -793,56 +793,56 @@ exports.edit = function (req, res, next)
                                         {
                                             if (!err)
                                             {
-                                                res.redirect('back');
+                                                res.redirect("back");
                                             }
                                             else
                                             {
-                                                let msg = 'Error updating user session. Error reported:  ' + JSON.stringify(err);
+                                                let msg = "Error updating user session. Error reported:  " + JSON.stringify(err);
                                                 console.error(msg);
-                                                req.flash('error', msg);
+                                                req.flash("error", msg);
                                                 auth.logout(req, res);
                                             }
                                         });
                                     }
                                     else
                                     {
-                                        req.flash('info', 'Session was lost! Please login again.');
+                                        req.flash("info", "Session was lost! Please login again.");
                                         auth.logout(req, res);
                                     }
                                 }
                             }
                             else
                             {
-                                let msg = 'Error editing user ' + user.uri + '. Error reported :' + editedUser;
+                                let msg = "Error editing user " + user.uri + ". Error reported :" + editedUser;
                                 console.error(msg);
-                                req.flash('error', msg);
-                                res.redirect('/me');
+                                req.flash("error", msg);
+                                res.redirect("/me");
                             }
                         });
                     }
                     else
                     {
-                        let msg = 'Error editing user ' + user.uri + '. Error reported :' + JSON.stringify(results);
+                        let msg = "Error editing user " + user.uri + ". Error reported :" + JSON.stringify(results);
                         console.error(msg);
-                        req.flash('error', msg);
-                        res.redirect('/me');
+                        req.flash("error", msg);
+                        res.redirect("/me");
                     }
                 });
             }
             else
             {
-                let msg = 'User to edit was not found';
+                let msg = "User to edit was not found";
                 console.error(msg);
-                req.flash('error', msg);
-                res.redirect('/me');
+                req.flash("error", msg);
+                res.redirect("/me");
             }
         });
     }
     else
     {
-        let msg = 'User to edit was not specified';
+        let msg = "User to edit was not specified";
         console.error(msg);
-        req.flash('error', msg);
-        res.redirect('/me');
+        req.flash("error", msg);
+        res.redirect("/me");
     }
 };
