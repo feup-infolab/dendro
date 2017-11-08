@@ -1,15 +1,15 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
 
-const async = require('async');
+const async = require("async");
 
 /*
  * GET home page.
@@ -19,10 +19,10 @@ const async = require('async');
 
 exports.all = function (req, res)
 {
-    const Resource = require('./resource.js').Resource;
+    const Resource = require("./resource.js").Resource;
 
     const viewVars = {
-        title: 'All vertexes',
+        title: "All vertexes",
         currentPage: 0,
         pageSize: 0
     };
@@ -32,15 +32,15 @@ exports.all = function (req, res)
         if (isNull(err))
         {
             viewVars.vertexes = results;
-            res.render('vertexes/all',
+            res.render("vertexes/all",
                 viewVars
             );
         }
         else
         {
             viewVars.vertexes = [];
-            viewVars.error_messages = 'Unable to fetch nodes';
-            res.render('vertexes/all',
+            viewVars.error_messages = "Unable to fetch nodes";
+            res.render("vertexes/all",
                 viewVars
             );
         }
@@ -49,7 +49,7 @@ exports.all = function (req, res)
 
 exports.show = function (req, res)
 {
-    db.connection.executeViaJDBC('SELECT ?p ?o WHERE {[0] ?p ?o .}',
+    db.connection.executeViaJDBC("SELECT ?p ?o WHERE {[0] ?p ?o .}",
         [
             {
                 type: Elements.types.resource,
@@ -60,19 +60,19 @@ exports.show = function (req, res)
         {
             if (isNull(err))
             {
-                res.render('vertexes/show', {
-                    title: 'Showing a single vertex',
+                res.render("vertexes/show", {
+                    title: "Showing a single vertex",
                     neighbours: results,
                     vertex: req.query.vertex_uri
                 });
             }
             else
             {
-                res.render('vertexes/show', {
-                    title: 'Error',
+                res.render("vertexes/show", {
+                    title: "Error",
                     neighbours: [],
                     vertex: null,
-                    error_messages: ['Error retrieving vertex from the database']
+                    error_messages: ["Error retrieving vertex from the database"]
                 });
             }
         });
@@ -83,7 +83,7 @@ exports.random = function (req, res)
     req.async.waterfall([
         function (callback)
         {
-            db.connection.executeViaJDBC('SELECT (count(?s) as ?c) WHERE {?s ?p ?o .}',
+            db.connection.executeViaJDBC("SELECT (count(?s) as ?c) WHERE {?s ?p ?o .}",
                 [],
                 function (err, results)
                 {
@@ -92,9 +92,9 @@ exports.random = function (req, res)
                         const randomNumber = Math.floor(Math.random() * results[0].c + 1);
                         return callback(null, randomNumber);
                     }
-                    res.render('index', {
+                    res.render("index", {
                         error_messages: [
-                            'Error connecting to the Virtuoso database'
+                            "Error connecting to the Virtuoso database"
                         ]
                     });
                 });
@@ -102,7 +102,7 @@ exports.random = function (req, res)
         function (randomNumber, callback)
         {
             db.connection.executeViaJDBC(
-                'SELECT ?s WHERE { ?s ?p ?o } ORDER BY ?s OFFSET [0] LIMIT 1',
+                "SELECT ?s WHERE { ?s ?p ?o } ORDER BY ?s OFFSET [0] LIMIT 1",
                 [
                     {
                         type: Elements.types.int,
@@ -115,12 +115,12 @@ exports.random = function (req, res)
                     {
                         return callback(null, results[0].s, randomNumber);
                     }
-                    res.render('vertexes/show', {
-                        title: 'Viewing a random vertex in the knowledge base',
+                    res.render("vertexes/show", {
+                        title: "Viewing a random vertex in the knowledge base",
                         vertexIndex: 0,
                         vertex: null,
                         neighbours: null,
-                        error_messages: ['Unable to fetch random vertex']
+                        error_messages: ["Unable to fetch random vertex"]
                     });
 
                     return callback(true);
@@ -135,7 +135,7 @@ exports.random = function (req, res)
         },
         function (selectedVertex, randomNumber, neighbours, callback)
         {
-            req.util.debug('Results :\n' +
+            req.util.debug("Results :\n" +
 						req.util.inspect(neighbours, true, null));
 
             res.format({
@@ -145,8 +145,8 @@ exports.random = function (req, res)
                 },
                 html: function ()
                 {
-                    res.render('vertexes/show', {
-                        title: 'Viewing a random vertex in the knowledge base',
+                    res.render("vertexes/show", {
+                        title: "Viewing a random vertex in the knowledge base",
                         vertexIndex: randomNumber,
                         vertex: selectedVertex,
                         neighbours: neighbours
@@ -166,8 +166,8 @@ exports.random = function (req, res)
 
 exports.search = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
     const query = req.query.q;
 
     if (query)
@@ -204,14 +204,14 @@ exports.search = function (req, res)
                     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
                     {
                         res.json({
-                            result: 'ok',
+                            result: "ok",
                             hits: results
                         });
                     }
                     else
                     {
                         let renderParameters = {
-                            title: 'Search Results'
+                            title: "Search Results"
                         };
 
                         if (!isNull(results) && results.length > 0)
@@ -223,17 +223,17 @@ exports.search = function (req, res)
                         else
                         {
                             renderParameters.vertexes = [];
-                            renderParameters.info_messages = ['No results found for query: "' + query + '".'];
+                            renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
                         }
-                        res.render('vertexes/search', renderParameters);
+                        res.render("vertexes/search", renderParameters);
                     }
                 });
             });
     }
     else
     {
-        res.render('vertexes/all', {
-            title: 'No query specified',
+        res.render("vertexes/all", {
+            title: "No query specified",
             vertexes: []
         });
     }
@@ -245,7 +245,7 @@ exports.search = function (req, res)
 getOutNeighbours = function (req, vertexUri, callback)
 {
     db.connection.executeViaJDBC(
-        'SELECT ?p ?o WHERE { [0] ?p ?o } LIMIT 100',
+        "SELECT ?p ?o WHERE { [0] ?p ?o } LIMIT 100",
         [
             {
                 type: Elements.types.resource,

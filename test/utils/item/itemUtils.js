@@ -1,20 +1,20 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const _ = require('underscore');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const _ = require("underscore");
 chai.use(chaiHttp);
 
 module.exports.createFolder = function (jsonOnly, agent, projectHandle, parentFolderName, newFolderName, cb)
 {
     // /project/:handle/data/:foldername?mkdir
-    const path = '/project/' + projectHandle + '/data/' + parentFolderName;
+    const path = "/project/" + projectHandle + "/data/" + parentFolderName;
     // console.log(path);
     if (jsonOnly)
     {
         agent
             .post(path)
             .query({mkdir: newFolderName})
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 if (err)
@@ -32,8 +32,8 @@ module.exports.createFolder = function (jsonOnly, agent, projectHandle, parentFo
         agent
             .post(path)
             .query({mkdir: newFolderName})
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -44,13 +44,13 @@ module.exports.createFolder = function (jsonOnly, agent, projectHandle, parentFo
 module.exports.updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, metadata, cb)
 {
     // / project/:handle/data/itemPath?update_metadata
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?update_metadata';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?update_metadata";
     if (jsonOnly)
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send(metadata)
             .end(function (err, res)
             {
@@ -61,8 +61,8 @@ module.exports.updateItemMetadata = function (jsonOnly, agent, projectHandle, it
     {
         agent
             .post(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .send(metadata)
             .end(function (err, res)
             {
@@ -73,13 +73,13 @@ module.exports.updateItemMetadata = function (jsonOnly, agent, projectHandle, it
 
 module.exports.updateItemMetadataByUri = function (jsonOnly, agent, itemUri, metadata, cb)
 {
-    const path = itemUri + '?update_metadata';
+    const path = itemUri + "?update_metadata";
     if (jsonOnly)
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send(metadata)
             .end(function (err, res)
             {
@@ -90,8 +90,8 @@ module.exports.updateItemMetadataByUri = function (jsonOnly, agent, itemUri, met
     {
         agent
             .post(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .send(metadata)
             .end(function (err, res)
             {
@@ -103,13 +103,13 @@ module.exports.updateItemMetadataByUri = function (jsonOnly, agent, itemUri, met
 module.exports.getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
     // http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?metadata';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?metadata";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -119,8 +119,8 @@ module.exports.getItemMetadata = function (jsonOnly, agent, projectHandle, itemP
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -137,8 +137,8 @@ module.exports.getItemMetadataByUri = function (jsonOnly, agent, uri, cb)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -148,8 +148,8 @@ module.exports.getItemMetadataByUri = function (jsonOnly, agent, uri, cb)
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -160,13 +160,13 @@ module.exports.getItemMetadataByUri = function (jsonOnly, agent, uri, cb)
 module.exports.getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
     // http://127.0.0.1:3001/project/testproject1/data/folder1?metadata&deep
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?metadata&deep';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?metadata&deep";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -176,8 +176,8 @@ module.exports.getItemMetadataDeep = function (jsonOnly, agent, projectHandle, i
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -188,13 +188,13 @@ module.exports.getItemMetadataDeep = function (jsonOnly, agent, projectHandle, i
 module.exports.getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
     // http://127.0.0.1:3001/project/testproject1/data/folder1?parent_metadata
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?parent_metadata';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?parent_metadata";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -204,8 +204,8 @@ module.exports.getItemParentMetadata = function (jsonOnly, agent, projectHandle,
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -216,13 +216,13 @@ module.exports.getItemParentMetadata = function (jsonOnly, agent, projectHandle,
 module.exports.getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
     // /project/:handle/data/foldername?recent_changes
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?recent_changes';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?recent_changes";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -232,8 +232,8 @@ module.exports.getItemRecentChanges = function (jsonOnly, agent, projectHandle, 
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -244,14 +244,14 @@ module.exports.getItemRecentChanges = function (jsonOnly, agent, projectHandle, 
 module.exports.getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVersion, cb)
 {
     // /project/:handle/data/foldername?version
-    const path = '/project/' + projectHandle + '/data/' + itemPath;
+    const path = "/project/" + projectHandle + "/data/" + itemPath;
     if (jsonOnly)
     {
         agent
             .get(path)
             .query({version: itemVersion})
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -262,8 +262,8 @@ module.exports.getItemVersion = function (jsonOnly, agent, projectHandle, itemPa
         agent
             .get(path)
             .query({version: itemVersion})
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -278,8 +278,8 @@ module.exports.getItemVersionByUri = function (jsonOnly, agent, archivedVersionU
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -289,8 +289,8 @@ module.exports.getItemVersionByUri = function (jsonOnly, agent, archivedVersionU
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -300,13 +300,13 @@ module.exports.getItemVersionByUri = function (jsonOnly, agent, archivedVersionU
 
 module.exports.getChangeLog = function (jsonOnly, agent, resourceUri, cb)
 {
-    const path = resourceUri + '?recent_changes';
+    const path = resourceUri + "?recent_changes";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -316,8 +316,8 @@ module.exports.getChangeLog = function (jsonOnly, agent, resourceUri, cb)
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -328,15 +328,15 @@ module.exports.getChangeLog = function (jsonOnly, agent, resourceUri, cb)
 module.exports.deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reallyDelete)
 {
     // / project/:handle/data/:foldername
-    const path = '/project/' + projectHandle + '/data/' + itemPath;
+    const path = "/project/" + projectHandle + "/data/" + itemPath;
     var reallyDelete = reallyDelete || false;
     if (jsonOnly)
     {
         agent
             .del(path)
             .query({really_delete: reallyDelete})
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -347,8 +347,8 @@ module.exports.deleteItem = function (jsonOnly, agent, projectHandle, itemPath, 
         agent
             .del(path)
             .query({really_delete: reallyDelete})
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -365,8 +365,8 @@ module.exports.deleteItemByUri = function (jsonOnly, agent, itemURI, cb, reallyD
         agent
             .del(path)
             .query({really_delete: reallyDelete})
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -377,8 +377,8 @@ module.exports.deleteItemByUri = function (jsonOnly, agent, itemURI, cb, reallyD
         agent
             .del(path)
             .query({really_delete: reallyDelete})
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -388,13 +388,13 @@ module.exports.deleteItemByUri = function (jsonOnly, agent, itemURI, cb, reallyD
 
 module.exports.undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?undelete';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?undelete";
     if (jsonOnly)
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -404,7 +404,7 @@ module.exports.undeleteItem = function (jsonOnly, agent, projectHandle, itemPath
     {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -415,13 +415,13 @@ module.exports.undeleteItem = function (jsonOnly, agent, projectHandle, itemPath
 module.exports.itemRestoreMetadataVersion = function (jsonOnly, agent, projectHandle, itemPath, version, cb)
 {
     // /project/:handle/data/foldername?restore_metadata_version
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?restore_metadata_version';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?restore_metadata_version";
     if (jsonOnly)
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({version: version})
             .end(function (err, res)
             {
@@ -432,8 +432,8 @@ module.exports.itemRestoreMetadataVersion = function (jsonOnly, agent, projectHa
     {
         agent
             .post(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .send({version: version})
             .end(function (err, res)
             {
@@ -445,13 +445,13 @@ module.exports.itemRestoreMetadataVersion = function (jsonOnly, agent, projectHa
 module.exports.getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
     // /project/:handle/data/foldername?change_log
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?change_log';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?change_log";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -461,7 +461,7 @@ module.exports.getItemChangeLog = function (jsonOnly, agent, projectHandle, item
     {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -471,12 +471,12 @@ module.exports.getItemChangeLog = function (jsonOnly, agent, projectHandle, item
 
 module.exports.getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?metadata_recommendations';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?metadata_recommendations";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -486,7 +486,7 @@ module.exports.getItemMetadataRecommendations = function (jsonOnly, agent, proje
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -497,12 +497,12 @@ module.exports.getItemMetadataRecommendations = function (jsonOnly, agent, proje
 module.exports.getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
     // recommendation_ontologies
-    const path = '/project/' + projectHandle + '/data/' + itemPath + '?recommendation_ontologies';
+    const path = "/project/" + projectHandle + "/data/" + itemPath + "?recommendation_ontologies";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -512,7 +512,7 @@ module.exports.getItemRecommendationOntologies = function (jsonOnly, agent, proj
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -522,12 +522,12 @@ module.exports.getItemRecommendationOntologies = function (jsonOnly, agent, proj
 
 module.exports.viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
-    const path = '/project/' + projectHandle + '/data/' + itemPath;
+    const path = "/project/" + projectHandle + "/data/" + itemPath;
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -537,8 +537,8 @@ module.exports.viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);

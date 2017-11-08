@@ -1,3 +1,3 @@
 module.exports = {
-    newPostContent: 'This is the manual post content'
+    newPostContent: "This is the manual post content"
 };

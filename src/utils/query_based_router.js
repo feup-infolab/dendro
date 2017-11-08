@@ -1,11 +1,11 @@
-const path = require('path');
-const async = require('async');
-const _ = require('underscore');
+const path = require("path");
+const async = require("async");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder('/models/meta/permissions.js')).Permissions);
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
 const QueryBasedRouter = function ()
 {
@@ -22,7 +22,7 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
         const resourceUri = req.params.requestedResourceUri;
         if (!isNull(resourceUri))
         {
-            const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
+            const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
             Resource.findByUri(resourceUri, function (err, resource)
             {
                 if (isNull(err))
@@ -33,7 +33,7 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
                     }
                     else
                     {
-                        callback(404, 'Resource with URI ' + resourceUri + ' does not exist');
+                        callback(404, "Resource with URI " + resourceUri + " does not exist");
                     }
                 }
                 else
@@ -44,7 +44,7 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
         }
         else
         {
-            callback(400, 'Unable to determine which resource is being referenced in this HTTP request.');
+            callback(400, "Unable to determine which resource is being referenced in this HTTP request.");
         }
     }
 
@@ -105,7 +105,7 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
         {
             Permissions.check(matchingRoute.permissions, req, function (err, req)
             {
-                if (typeof req.permissions_management.reasons_for_authorizing !== 'undefined' &&
+                if (typeof req.permissions_management.reasons_for_authorizing !== "undefined" &&
                     req.permissions_management.reasons_for_authorizing instanceof Array &&
                     req.permissions_management.reasons_for_authorizing.length > 0
                 )
@@ -126,13 +126,13 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
         }
         else if (!isNull(matchingRoute))
         {
-            if (typeof matchingRoute === 'function')
+            if (typeof matchingRoute === "function")
             {
                 matchingRoute.handler(req, res);
             }
             else
             {
-                console.error('Matching route is not a function!');
+                console.error("Matching route is not a function!");
                 next();
             }
         }

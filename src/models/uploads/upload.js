@@ -1,9 +1,9 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 
 function Upload (object)
 {
@@ -15,28 +15,28 @@ function Upload (object)
     if (!isNull(object.username) &&
         !isNull(object.filename) &&
         !isNull(object.expected) &&
-        typeof object.md5_checksum !== 'undefined'
+        typeof object.md5_checksum !== "undefined"
     )
     {
-        if (typeof object.username === 'string')
+        if (typeof object.username === "string")
         {
             self.username = object.username;
         }
         else
         {
-            throw 'Invalid username parameter when setting up a new Upload.';
+            throw "Invalid username parameter when setting up a new Upload.";
         }
 
-        if (typeof object.filename === 'string')
+        if (typeof object.filename === "string")
         {
             self.filename = object.filename;
         }
         else
         {
-            throw 'Invalid filename parameter when setting up a new Upload.';
+            throw "Invalid filename parameter when setting up a new Upload.";
         }
 
-        if (typeof object.expected === 'number')
+        if (typeof object.expected === "number")
         {
             self.expected = object.expected;
         }
@@ -45,7 +45,7 @@ function Upload (object)
             throw "Invalid 'expected' parameter when setting up a new Upload. It must be an integer";
         }
 
-        if (typeof object.md5_checksum === 'string')
+        if (typeof object.md5_checksum === "string")
         {
             self.md5_checksum = object.md5_checksum;
         }
@@ -60,7 +60,7 @@ function Upload (object)
         }
         else
         {
-            if (typeof object.loaded === 'number')
+            if (typeof object.loaded === "number")
             {
                 self.loaded = object.loaded;
             }
@@ -70,12 +70,12 @@ function Upload (object)
             }
         }
 
-        const uuid = require('uuid');
+        const uuid = require("uuid");
         self.id = uuid.v4();
     }
     else
     {
-        throw 'Insufficient parameters provided to create a new Upload.';
+        throw "Insufficient parameters provided to create a new Upload.";
     }
 
     return self;
@@ -85,10 +85,10 @@ Upload.create = function (object, callback)
 {
     const self = new Upload(object);
 
-    if (typeof object.tmp_file_dir === 'undefined')
+    if (typeof object.tmp_file_dir === "undefined")
     {
-        const tmp = require('tmp');
-        const path = require('path');
+        const tmp = require("tmp");
+        const path = require("path");
 
         tmp.dir(
             {
@@ -104,7 +104,7 @@ Upload.create = function (object, callback)
                     return callback(err, self);
                 }
 
-                return callback(err, 'Unable to create a temporary directory for upload of file ' + object.filename + 'by ' + object.username);
+                return callback(err, "Unable to create a temporary directory for upload of file " + object.filename + "by " + object.username);
             });
     }
 };
@@ -120,7 +120,7 @@ Upload.prototype.restart = function (callback)
             self.loaded = 0;
             return callback(null);
         }
-        const msg = 'Unable to delete file ' + self.temp_file + ' when restarting the upload ' + self.id;
+        const msg = "Unable to delete file " + self.temp_file + " when restarting the upload " + self.id;
         return callback(err, msg);
     });
 };
@@ -129,13 +129,13 @@ Upload.prototype.destroy = function (callback)
 {
     const self = this;
 
-    const rmdir = require('rmdir');
+    const rmdir = require("rmdir");
 
     rmdir(self.temp_dir, function (err, dirs, files)
     {
         console.log(dirs);
         console.log(files);
-        console.log('all files are removed');
+        console.log("all files are removed");
 
         return callback(err, dirs, files);
     });
@@ -150,33 +150,33 @@ Upload.prototype.set_expected = function (expected)
 Upload.prototype.pipe = function (part, callback)
 {
     const self = this;
-    const fs = require('fs');
+    const fs = require("fs");
 
     const targetStream = fs.createWriteStream(
         self.temp_file,
         {
-            flags: 'a'
+            flags: "a"
         }
     );
 
     let error = null;
 
-    targetStream.on('error', function (err)
+    targetStream.on("error", function (err)
     {
         error = err;
     });
 
-    targetStream.on('close', function ()
+    targetStream.on("close", function ()
     {
 
     });
 
-    targetStream.on('finish', function ()
+    targetStream.on("finish", function ()
     {
         if (!isNull(error))
         {
             fs.unlink(file.path);
-            return callback(1, 'There was an error writing to the temporary file on upload of file ' + self.filename + ' by username ' + file.username, error);
+            return callback(1, "There was an error writing to the temporary file on upload of file " + self.filename + " by username " + file.username, error);
         }
         self.loaded += part.byteCount;
         return callback(null);
@@ -196,11 +196,11 @@ Upload.prototype.get_temp_file_size = function (callback)
 {
     const self = this;
 
-    const fs = require('fs');
+    const fs = require("fs");
     const stat = fs.statSync(self.temp_file);
     return callback(null, stat.size);
 };
 
-Upload = Class.extend(Upload, Class, true, 'ddr:Upload');
+Upload = Class.extend(Upload, Class, true, "ddr:Upload");
 
 module.exports.Upload = Upload;

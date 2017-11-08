@@ -1,25 +1,25 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
-const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 
 exports.recommend_descriptors = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if (!acceptsJSON && acceptsHTML)
     {
         res.status(400).json({
-            result: 'error',
-            message: 'HTML Request not valid for this route.'
+            result: "error",
+            message: "HTML Request not valid for this route."
         });
     }
     else
@@ -45,7 +45,7 @@ exports.recommend_descriptors = function (req, res)
             {
                 res.json(
                     {
-                        result: 'ok',
+                        result: "ok",
                         descriptors: descriptors
                     }
                 );
@@ -53,8 +53,8 @@ exports.recommend_descriptors = function (req, res)
             else
             {
                 res.status(500).json({
-                    result: 'error',
-                    message: 'There was an error fetching the descriptors',
+                    result: "error",
+                    message: "There was an error fetching the descriptors",
                     error: results
                 });
             }
@@ -68,9 +68,9 @@ exports.recommend_descriptors = function (req, res)
 exports.shared = {};
 
 exports.shared.recommendation_options = {
-    favorites: 'favorites',
-    smart: 'smart',
-    hidden: 'hidden'
+    favorites: "favorites",
+    smart: "smart",
+    hidden: "hidden"
 };
 
 exports.shared.recommend_descriptors = function (resourceUri, userUri, page, allowedOntologies, indexConnection, callback, options)
@@ -87,7 +87,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
     {
         if (isNull(err))
         {
-            const uuid = require('uuid');
+            const uuid = require("uuid");
             const recommendation_call_id = uuid.v4();
             const recommendation_call_timestamp = new Date().toISOString();
 

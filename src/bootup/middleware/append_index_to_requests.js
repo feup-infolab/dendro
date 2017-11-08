@@ -4,13 +4,13 @@ const appendIndexToRequests = function (app, index, callback)
     {
         req.index = index;
         // for debugging
-        req.util = require('util');
-        req.async = require('async');
+        req.util = require("util");
+        req.async = require("async");
 
         req.sha1_encode = function (value)
         {
-            const crypto = require('crypto');
-            return crypto.createHash('sha1').update(value);
+            const crypto = require("crypto");
+            return crypto.createHash("sha1").update(value);
         };
 
         next(null, req, res);

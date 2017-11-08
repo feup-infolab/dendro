@@ -1,3 +1,3 @@
 module.exports = {
-    newPostTitle: 'This is the manual post title'
+    newPostTitle: "This is the manual post title"
 };

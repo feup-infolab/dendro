@@ -2,40 +2,40 @@
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
-const Cache = require(Pathfinder.absPathInSrcFolder('/kb/cache/cache.js')).Cache;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
-const Folder = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/folder.js')).Folder;
-const File = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/file.js')).File;
-const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
-const Interaction = require(Pathfinder.absPathInSrcFolder('/models/recommendation/interaction.js')).Interaction;
-const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-const ArchivedResource = require(Pathfinder.absPathInSrcFolder('/models/versions/archived_resource')).ArchivedResource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
-const util = require('util');
-const async = require('async');
-const _ = require('underscore');
+const util = require("util");
+const async = require("async");
+const _ = require("underscore");
 
 function Project (object)
 {
     const self = this;
-    self.addURIAndRDFType(object, 'project', Project);
+    self.addURIAndRDFType(object, "project", Project);
     Project.baseConstructor.call(this, object);
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + '/project/' + self.ddr.handle;
+        self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
     }
 
     if (isNull(object.ddr.hasStorageLimit))
@@ -67,19 +67,19 @@ Project.prototype.backup = function (callback)
         {
             if (!isNull(self.ddr.rootFolder))
             {
-                console.log('Started backup of project ' + self.uri);
+                console.log("Started backup of project " + self.uri);
                 Folder.findByUri(self.ddr.rootFolder, function (err, folder)
                 {
                     if (isNull(err) && folder instanceof Folder)
                     {
                         const bagItOptions = {
-                            cryptoMethod: 'sha256',
-                            sourceOrganization: (self.dcterms.publisher) ? self.dcterms.publisher : 'No publisher specified',
-                            organizationAddress: (self.schema.address) ? self.schema.address : 'No contact physical address specified',
-                            contactName: (self.schema.provider) ? self.schema.provider : 'No contact name specified',
-                            contactPhone: (self.schema.telephone) ? self.schema.telephone : 'No contact phone specified',
-                            contactEmail: (self.schema.email) ? self.schema.email : 'No contact email specified',
-                            externalDescription: (self.dcterms.description) ? self.dcterms.description : 'No project description specified'
+                            cryptoMethod: "sha256",
+                            sourceOrganization: (self.dcterms.publisher) ? self.dcterms.publisher : "No publisher specified",
+                            organizationAddress: (self.schema.address) ? self.schema.address : "No contact physical address specified",
+                            contactName: (self.schema.provider) ? self.schema.provider : "No contact name specified",
+                            contactPhone: (self.schema.telephone) ? self.schema.telephone : "No contact phone specified",
+                            contactEmail: (self.schema.email) ? self.schema.email : "No contact email specified",
+                            externalDescription: (self.dcterms.description) ? self.dcterms.description : "No project description specified"
                         };
 
                         folder.bagit(
@@ -88,9 +88,9 @@ Project.prototype.backup = function (callback)
                             {
                                 if (isNull(err))
                                 {
-                                    const path = require('path');
+                                    const path = require("path");
 
-                                    const finishedZipFileName = 'bagit_backup.zip';
+                                    const finishedZipFileName = "bagit_backup.zip";
                                     const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
 
                                     Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function (err, zipFileFullPath)
@@ -100,20 +100,20 @@ Project.prototype.backup = function (callback)
                                 }
                                 else
                                 {
-                                    return callback(1, 'Unable to zip folder at ' + finalBagItOptions.bagName + ' \n ' + finalBagItOptions);
+                                    return callback(1, "Unable to zip folder at " + finalBagItOptions.bagName + " \n " + finalBagItOptions);
                                 }
                             }
                         );
                     }
                     else
                     {
-                        return callback(1, 'Folder with ' + self.ddr.rootFolder + ' does not exist: ' + folder);
+                        return callback(1, "Folder with " + self.ddr.rootFolder + " does not exist: " + folder);
                     }
                 });
             }
             else
             {
-                return callback(1, 'Project : ' + self.uri + ' has no root folder.');
+                return callback(1, "Project : " + self.uri + " has no root folder.");
             }
         }
     });
@@ -136,7 +136,7 @@ Project.addProjectInformations = function (arrayOfProjectsUris, callback)
             {
                 return callback(null, projectsToReturn);
             }
-            return callback('error fetching project information : ' + err, projectsToReturn);
+            return callback("error fetching project information : " + err, projectsToReturn);
         });
     }
     else
@@ -150,15 +150,15 @@ Project.allNonPrivate = function (currentUser, callback)
 {
     // TODO @silvae86 exception for the projects where the current user is either creator or contributor.
     const query =
-        'SELECT * ' +
-        'FROM [0] ' +
-        'WHERE ' +
-        '{ ' +
-        ' ?uri rdf:type ddr:Project ' +
-        ' FILTER NOT EXISTS {' +
-        '    ?uri ddr:privacyStatus [1] ' +
-        '   } ' +
-        '} ';
+        "SELECT * " +
+        "FROM [0] " +
+        "WHERE " +
+        "{ " +
+        " ?uri rdf:type ddr:Project " +
+        " FILTER NOT EXISTS {" +
+        "    ?uri ddr:privacyStatus [1] " +
+        "   } " +
+        "} ";
 
     db.connection.executeViaJDBC(query,
         [
@@ -168,7 +168,7 @@ Project.allNonPrivate = function (currentUser, callback)
             },
             {
                 type: Elements.types.string,
-                value: 'private'
+                value: "private"
             }
         ],
 
@@ -190,27 +190,27 @@ Project.allNonPrivateUnlessTheyBelongToMe = function (currentUser, callback)
 {
     // TODO @silvae86 exception for the projects where the current user is either creator or contributor.
     const query =
-        'SELECT DISTINCT(?uri) \n' +
-        'FROM [0] \n' +
-        'WHERE \n' +
-        '{ \n' +
-        '    {  \n' +
-        '        ?uri rdf:type ddr:Project \n' +
-        '        FILTER NOT EXISTS { \n' +
-        '           ?uri ddr:privacyStatus [1] \n' +
-        '        }\n' +
-        '    }\n' +
-        '    UNION \n' +
-        '    {\n' +
-        '        ?uri rdf:type ddr:Project .\n' +
-        '        ?uri dcterms:creator  [2]\n' +
-        '    }\n' +
-        '    UNION\n' +
-        '    {\n' +
-        '        ?uri rdf:type ddr:Project .\n' +
-        '        ?uri dcterms:contributor  [2]\n' +
-        '    }\n' +
-        '}\n';
+        "SELECT DISTINCT(?uri) \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "    {  \n" +
+        "        ?uri rdf:type ddr:Project \n" +
+        "        FILTER NOT EXISTS { \n" +
+        "           ?uri ddr:privacyStatus [1] \n" +
+        "        }\n" +
+        "    }\n" +
+        "    UNION \n" +
+        "    {\n" +
+        "        ?uri rdf:type ddr:Project .\n" +
+        "        ?uri dcterms:creator  [2]\n" +
+        "    }\n" +
+        "    UNION\n" +
+        "    {\n" +
+        "        ?uri rdf:type ddr:Project .\n" +
+        "        ?uri dcterms:contributor  [2]\n" +
+        "    }\n" +
+        "}\n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -220,7 +220,7 @@ Project.allNonPrivateUnlessTheyBelongToMe = function (currentUser, callback)
             },
             {
                 type: Elements.types.string,
-                value: 'private'
+                value: "private"
             },
             {
                 type: Elements.types.resourceNoEscape,
@@ -255,13 +255,13 @@ Project.all = function (callback, req)
 Project.findByHandle = function (handle, callback)
 {
     const query =
-        'SELECT ?uri \n' +
-        'FROM [0] ' +
-        'WHERE ' +
-        '{ ' +
-        ' ?uri rdf:type ddr:Project. ' +
-        ' ?uri ddr:handle [1] ' +
-        '} ';
+        "SELECT ?uri \n" +
+        "FROM [0] " +
+        "WHERE " +
+        "{ " +
+        " ?uri rdf:type ddr:Project. " +
+        " ?uri ddr:handle [1] " +
+        "} ";
 
     db.connection.executeViaJDBC(query,
         [
@@ -284,7 +284,7 @@ Project.findByHandle = function (handle, callback)
                 {
                     if (project.length > 1)
                     {
-                        console.log('Duplicate projects found!! Project handle : ' + handle);
+                        console.log("Duplicate projects found!! Project handle : " + handle);
                     }
                     else
                     {
@@ -315,26 +315,26 @@ Project.prototype.getCreatorsAndContributors = function (callback)
     const self = this;
 
     const query =
-        'SELECT * \n' +
-        'FROM [0] \n' +
-        'WHERE \n' +
-        '{ \n' +
-        '   { \n' +
-        '       [1] dcterms:contributor ?uri .\n' +
-        '       OPTIONAL { ?uri ddr:username ?username . }\n' +
-        '       OPTIONAL { ?uri foaf:mbox ?email . }\n' +
-        '       OPTIONAL { ?uri foaf:firstName ?firstname . }\n' +
-        '       OPTIONAL { ?uri foaf:surname ?surname . }\n' +
-        '   } \n' +
-        '   UNION ' +
-        '   { ' +
-        '       [1] dcterms:creator ?uri .\n' +
-        '       OPTIONAL { ?uri ddr:username ?username . }\n' +
-        '       OPTIONAL { ?uri foaf:mbox ?email . }\n' +
-        '       OPTIONAL { ?uri foaf:firstName ?firstname . }\n' +
-        '       OPTIONAL { ?uri foaf:surname ?surname . }\n' +
-        '   } \n' +
-        '} \n';
+        "SELECT * \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   { \n" +
+        "       [1] dcterms:contributor ?uri .\n" +
+        "       OPTIONAL { ?uri ddr:username ?username . }\n" +
+        "       OPTIONAL { ?uri foaf:mbox ?email . }\n" +
+        "       OPTIONAL { ?uri foaf:firstName ?firstname . }\n" +
+        "       OPTIONAL { ?uri foaf:surname ?surname . }\n" +
+        "   } \n" +
+        "   UNION " +
+        "   { " +
+        "       [1] dcterms:creator ?uri .\n" +
+        "       OPTIONAL { ?uri ddr:username ?username . }\n" +
+        "       OPTIONAL { ?uri foaf:mbox ?email . }\n" +
+        "       OPTIONAL { ?uri foaf:firstName ?firstname . }\n" +
+        "       OPTIONAL { ?uri foaf:surname ?surname . }\n" +
+        "   } \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -375,16 +375,16 @@ Project.prototype.getCreatorsAndContributors = function (callback)
 Project.findByContributor = function (contributor, callback)
 {
     const query =
-        'SELECT * ' +
-        'FROM [0] ' +
-        'WHERE ' +
-        '{ ' +
-        ' ?uri ddr:handle ?handle . ' +
-        ' ?uri dcterms:contributor [1] .' +
-        ' ?uri dcterms:title ?title .' +
-        ' ?uri dcterms:description ?description . ' +
-        ' ?uri dcterms:subject ?subject . ' +
-        '} ';
+        "SELECT * " +
+        "FROM [0] " +
+        "WHERE " +
+        "{ " +
+        " ?uri ddr:handle ?handle . " +
+        " ?uri dcterms:contributor [1] ." +
+        " ?uri dcterms:title ?title ." +
+        " ?uri dcterms:description ?description . " +
+        " ?uri dcterms:subject ?subject . " +
+        "} ";
 
     db.connection.executeViaJDBC(query,
         [
@@ -424,17 +424,17 @@ Project.findByContributor = function (contributor, callback)
 Project.findByCreator = function (creator, callback)
 {
     const query =
-        'SELECT * ' +
-        'FROM [0] ' +
-        'WHERE ' +
-        '{ ' +
-        ' ?uri rdf:type ddr:Project . ' +
-        ' ?uri ddr:handle ?handle . ' +
-        ' ?uri dcterms:creator [1] .' +
-        ' ?uri dcterms:title ?title .' +
-        ' ?uri dcterms:description ?description . ' +
-        ' ?uri dcterms:subject ?subject . ' +
-        '} ';
+        "SELECT * " +
+        "FROM [0] " +
+        "WHERE " +
+        "{ " +
+        " ?uri rdf:type ddr:Project . " +
+        " ?uri ddr:handle ?handle . " +
+        " ?uri dcterms:creator [1] ." +
+        " ?uri dcterms:title ?title ." +
+        " ?uri dcterms:description ?description . " +
+        " ?uri dcterms:subject ?subject . " +
+        "} ";
 
     db.connection.executeViaJDBC(query,
         [
@@ -476,19 +476,19 @@ Project.findByCreator = function (creator, callback)
 Project.findByCreatorOrContributor = function (creatorOrContributor, callback)
 {
     const query =
-        'SELECT ?uri \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '{ \n' +
-        ' ?uri rdf:type ddr:Project . ' +
-        ' ?uri dcterms:creator [1] \n' +
-        '} \n' +
-        ' UNION \n' +
-        '{ \n' +
-        ' ?uri rdf:type ddr:Project . ' +
-        ' ?uri dcterms:contributor [1] \n' +
-        '} \n' +
-        '} \n';
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "{ \n" +
+        " ?uri rdf:type ddr:Project . " +
+        " ?uri dcterms:creator [1] \n" +
+        "} \n" +
+        " UNION \n" +
+        "{ \n" +
+        " ?uri rdf:type ddr:Project . " +
+        " ?uri dcterms:contributor [1] \n" +
+        "} \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -551,7 +551,7 @@ Project.createAndInsertFromObject = function (object, callback)
                     },
                     ddr:
           {
-              humanReadableURI: newProject.ddr.humanReadableURI + '/data'
+              humanReadableURI: newProject.ddr.humanReadableURI + "/data"
           }
                 });
 
@@ -569,14 +569,14 @@ Project.createAndInsertFromObject = function (object, callback)
                     }
                     else
                     {
-                        console.error('There was an error saving the root folder of project ' + newProject.ddr.humanReadableURI + ': ' + JSON.stringify(result));
+                        console.error("There was an error saving the root folder of project " + newProject.ddr.humanReadableURI + ": " + JSON.stringify(result));
                         return callback(err, result);
                     }
                 });
             }
             else
             {
-                return callback(1, 'Statement executed but result was not what was expected. ' + result);
+                return callback(1, "Statement executed but result was not what was expected. " + result);
             }
         }
         else
@@ -590,19 +590,19 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
 {
     const self = this;
     const query =
-        'SELECT ?uri \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        ' { \n' +
-        '       [1] rdf:type ddr:Project . \n' +
-        '       ?uri dcterms:creator [2] \n' +
-        '   } \n' +
-        '   UNION \n' +
-        '   { \n' +
-        '       [1] rdf:type ddr:Project . \n' +
-        '       ?uri dcterms:contributor [2] \n' +
-        '   } \n' +
-        '} \n';
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        " { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:creator [2] \n" +
+        "   } \n" +
+        "   UNION \n" +
+        "   { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:contributor [2] \n" +
+        "   } \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -623,7 +623,7 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
         {
             if (!isNull(err))
             {
-                const errorMsg = '[Error] When checking if a user is a contributor or creator of a project: ' + JSON.stringify(properties);
+                const errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
                 console.error(errorMsg);
             }
 
@@ -662,17 +662,17 @@ Project.prototype.getFirstLevelDirectoryContents = function (callback)
                     {
                         return callback(null, children);
                     }
-                    return callback(1, 'Error fetching children of project root folder');
+                    return callback(1, "Error fetching children of project root folder");
                 });
             }
             else
             {
-                return callback(1, 'unable to retrieve project ' + self.ddr.handle + " 's root folder. Error :" + err);
+                return callback(1, "unable to retrieve project " + self.ddr.handle + " 's root folder. Error :" + err);
             }
         }
         else
         {
-            return callback(1, 'unable to retrieve project ' + self.ddr.handle + " 's root folder's contents. Error :" + err);
+            return callback(1, "unable to retrieve project " + self.ddr.handle + " 's root folder's contents. Error :" + err);
         }
     });
 };
@@ -680,11 +680,11 @@ Project.prototype.getFirstLevelDirectoryContents = function (callback)
 Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 {
     const self = this;
-    console.log('In getProjectWideFolderFileCreationEvents');
-    console.log('the projectUri is:');
+    console.log("In getProjectWideFolderFileCreationEvents");
+    console.log("the projectUri is:");
     // <http://127.0.0.1:3001/project/testproject3/data>
     // var projectData = projectUri + '/data'; //TODO this is probably wrong
-    const projectData = self.uri + '/data'; // TODO this is probably wrong
+    const projectData = self.uri + "/data"; // TODO this is probably wrong
     /* WITH <http://127.0.0.1:3001/dendro_graph>
      SELECT ?dataUri
      WHERE {
@@ -698,13 +698,13 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
     // TODO test query first
 
     const query =
-        'WITH [0] \n' +
-        'SELECT ?dataUri \n' +
-        'WHERE { \n' +
-        '?dataUri ddr:modified ?date. \n' +
-        '[1] nie:hasLogicalPart ?dataUri. \n' +
-        '} \n' +
-        'ORDER BY DESC(?date) \n';
+        "WITH [0] \n" +
+        "SELECT ?dataUri \n" +
+        "WHERE { \n" +
+        "?dataUri ddr:modified ?date. \n" +
+        "[1] nie:hasLogicalPart ?dataUri. \n" +
+        "} \n" +
+        "ORDER BY DESC(?date) \n";
 
     // query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
@@ -727,7 +727,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
         {
             if (isNull(err))
             {
-                console.log('itemsUri: ', itemsUri);
+                console.log("itemsUri: ", itemsUri);
 
                 async.mapSeries(itemsUri, function (itemUri, cb1)
                 {
@@ -743,7 +743,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
                     {
                         return callback(null, fullItems);
                     }
-                    const msg = 'Error fetching file/folders creation info for project:' + self.uri;
+                    const msg = "Error fetching file/folders creation info for project:" + self.uri;
                     return callback(true, msg);
                 });
 
@@ -770,7 +770,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             }
             else
             {
-                const msg = 'Error fetching file/folder change data';
+                const msg = "Error fetching file/folder change data";
                 console.log(msg);
                 return callback(1, msg);
             }
@@ -780,23 +780,23 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 Project.prototype.getRecentProjectWideChangesSocial = function (callback, startingResultPosition, maxResults, createdAfterDate)
 {
     const self = this;
-    console.log('createdAfterDate:', createdAfterDate);
-    console.log('startingResultPosition: ', startingResultPosition);
-    console.log('maxResults: ', maxResults);
+    console.log("createdAfterDate:", createdAfterDate);
+    console.log("startingResultPosition: ", startingResultPosition);
+    console.log("maxResults: ", maxResults);
 
     let query =
-        'WITH [0] \n' +
-        'SELECT ?version \n' +
-        'WHERE { \n' +
-        '?version ddr:created ?date. \n' +
-        'filter ( \n' +
-        'xsd:dateTime(?date) >= [2]' + '^^xsd:dateTime' + ' ). \n' +
-        '?version rdf:type ddr:ArchivedResource . \n' +
-        ' filter ( \n' +
-        'STRSTARTS(STR(?version), [1]) \n' +
-        ' ) \n' +
-        '} \n' +
-        'ORDER BY DESC(?date) \n';
+        "WITH [0] \n" +
+        "SELECT ?version \n" +
+        "WHERE { \n" +
+        "?version ddr:created ?date. \n" +
+        "filter ( \n" +
+        "xsd:dateTime(?date) >= [2]" + "^^xsd:dateTime" + " ). \n" +
+        "?version rdf:type ddr:ArchivedResource . \n" +
+        " filter ( \n" +
+        "STRSTARTS(STR(?version), [1]) \n" +
+        " ) \n" +
+        "} \n" +
+        "ORDER BY DESC(?date) \n";
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
@@ -844,7 +844,7 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
             }
             else
             {
-                return callback(1, 'Error fetching children of project root folder');
+                return callback(1, "Error fetching children of project root folder");
             }
         });
 };
@@ -854,16 +854,16 @@ Project.prototype.getRecentProjectWideChanges = function (callback, startingResu
     const self = this;
 
     let query =
-        'WITH [0]\n' +
-        'SELECT ?version\n' +
-        'WHERE {\n' +
-        '   ?version ddr:created ?date.\n' +
-        '   ?version rdf:type ddr:ArchivedResource .\n' +
-        '   ?version ddr:isVersionOf ?resource.\n' +
-        '   ?resource nie:isLogicalPartOf+ ?parent.\n' +
-        '   [1] ddr:rootFolder ?parent.\n' +
-        '}\n' +
-        'ORDER BY DESC(?date)\n';
+        "WITH [0]\n" +
+        "SELECT ?version\n" +
+        "WHERE {\n" +
+        "   ?version ddr:created ?date.\n" +
+        "   ?version rdf:type ddr:ArchivedResource .\n" +
+        "   ?version ddr:isVersionOf ?resource.\n" +
+        "   ?resource nie:isLogicalPartOf+ ?parent.\n" +
+        "   [1] ddr:rootFolder ?parent.\n" +
+        "}\n" +
+        "ORDER BY DESC(?date)\n";
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
@@ -907,7 +907,7 @@ Project.prototype.getRecentProjectWideChanges = function (callback, startingResu
             }
             else
             {
-                return callback(1, 'Error fetching children of project root folder');
+                return callback(1, "Error fetching children of project root folder");
             }
         });
 };
@@ -923,7 +923,7 @@ Project.prototype.getStorageSize = function (callback, customBucket)
     }
     else
     {
-        collectionName = 'fs.files';
+        collectionName = "fs.files";
     }
 
     /**
@@ -935,14 +935,14 @@ Project.prototype.getStorageSize = function (callback, customBucket)
         {
             collection.aggregate([
                 {
-                    $match: {'metadata.project.uri': self.uri}
+                    $match: {"metadata.project.uri": self.uri}
                 },
                 {
                     $group:
           {
               _id: null,
               sum: {
-                  $sum: '$length'
+                  $sum: "$length"
               }
           }
                 }
@@ -956,14 +956,14 @@ Project.prototype.getStorageSize = function (callback, customBucket)
                     }
                     return callback(null, 0);
                 }
-                console.error('* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : ' + JSON.stringify(err) + JSON.stringify(result));
-                return callback(1, 'Error retrieving project size : ' + JSON.stringify(err) + JSON.stringify(result));
+                console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
             });
         }
         else
         {
-            console.error('* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : ' + JSON.stringify(err) + JSON.stringify(collection));
-            return callback(1, 'Error retrieving files collection : ' + collection);
+            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(collection));
+            return callback(1, "Error retrieving files collection : " + collection);
         }
     });
 };
@@ -973,21 +973,21 @@ Project.prototype.getFilesCount = function (callback)
     const self = this;
 
     const query =
-        'SELECT COUNT(?file) as ?file_count \n' +
-        'FROM [0] \n' +
-        'WHERE ' +
-        '{ \n' +
-        '   { \n' +
-        '       ?file rdf:type nfo:FileDataObject . \n' +
-        '       ?file nie:isLogicalPartOf+ [1] . \n' +
-    '           FILTER EXISTS { \n' +
-        '           [1] rdf:type ddr:Project \n' +
-        '       }\n' +
-        '       FILTER NOT EXISTS { \n' +
-        '           ?file ddr:isVersionOf ?some_resource .\n' +
-        '       } \n' +
-        '   } \n' +
-        '} \n';
+        "SELECT COUNT(?file) as ?file_count \n" +
+        "FROM [0] \n" +
+        "WHERE " +
+        "{ \n" +
+        "   { \n" +
+        "       ?file rdf:type nfo:FileDataObject . \n" +
+        "       ?file nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n" +
+        "       FILTER NOT EXISTS { \n" +
+        "           ?file ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -1008,7 +1008,7 @@ Project.prototype.getFilesCount = function (callback)
                 {
                     return callback(null, result[0].file_count);
                 }
-                return callback(1, 'invalid result retrieved when querying for project file count');
+                return callback(1, "invalid result retrieved when querying for project file count");
             }
             return callback(err, -1);
         });
@@ -1019,20 +1019,20 @@ Project.prototype.getMembersCount = function (callback)
     const self = this;
 
     const query =
-        'SELECT COUNT(?contributor) as ?contributor_count \n' +
-        'FROM [0] \n' +
-        'WHERE ' +
-        '{ \n' +
-        '{ \n' +
-        '   [1] rdf:type ddr:Project . \n' +
-        '   [1] dcterms:contributor ?contributor. \n' +
-        '} \n' +
-        ' UNION \n' +
-        '{ \n' +
-        '   [1] rdf:type ddr:Project . \n' +
-        '   [1] dcterms:creator ?contributor. \n' +
-        '} \n' +
-        '} \n';
+        "SELECT COUNT(?contributor) as ?contributor_count \n" +
+        "FROM [0] \n" +
+        "WHERE " +
+        "{ \n" +
+        "{ \n" +
+        "   [1] rdf:type ddr:Project . \n" +
+        "   [1] dcterms:contributor ?contributor. \n" +
+        "} \n" +
+        " UNION \n" +
+        "{ \n" +
+        "   [1] rdf:type ddr:Project . \n" +
+        "   [1] dcterms:creator ?contributor. \n" +
+        "} \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -1053,7 +1053,7 @@ Project.prototype.getMembersCount = function (callback)
                 {
                     return callback(null, result[0].contributor_count);
                 }
-                return callback(1, 'invalid result retrieved when querying for project contributor count');
+                return callback(1, "invalid result retrieved when querying for project contributor count");
             }
             return callback(err, -1);
         });
@@ -1064,22 +1064,22 @@ Project.prototype.getFoldersCount = function (callback)
     const self = this;
 
     const query =
-        'SELECT COUNT(?folder) as ?folder_count \n' +
-        'FROM [0] \n' +
-        'WHERE ' +
-        '{ \n' +
-        '   { \n' +
-        '       ?folder rdf:type nfo:Folder . \n' +
-        '       ?folder nie:isLogicalPartOf+ [1] . \n' +
-        '       FILTER EXISTS { \n' +
-        '           [1] rdf:type ddr:Project \n' +
-        '       }\n' +
-        '       FILTER NOT EXISTS ' +
-        '       { \n' +
-        '           ?folder ddr:isVersionOf ?some_resource .\n' +
-        '       } \n' +
-        '   } \n' +
-        '} \n';
+        "SELECT COUNT(?folder) as ?folder_count \n" +
+        "FROM [0] \n" +
+        "WHERE " +
+        "{ \n" +
+        "   { \n" +
+        "       ?folder rdf:type nfo:Folder . \n" +
+        "       ?folder nie:isLogicalPartOf+ [1] . \n" +
+        "       FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n" +
+        "       FILTER NOT EXISTS " +
+        "       { \n" +
+        "           ?folder ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -1100,7 +1100,7 @@ Project.prototype.getFoldersCount = function (callback)
                 {
                     return callback(null, result[0].folder_count);
                 }
-                return callback(1, 'invalid result retrieved when querying for project folder count');
+                return callback(1, "invalid result retrieved when querying for project folder count");
             }
             return callback(err, -1);
         });
@@ -1111,18 +1111,18 @@ Project.prototype.getRevisionsCount = function (callback)
     const self = this;
 
     const query =
-        'SELECT COUNT(?revision) as ?revision_count \n' +
-        'FROM [0] \n' +
-        'WHERE ' +
-        '{ \n' +
-        '   { \n' +
-        '       ?revision ddr:isVersionOf ?resource . \n' +
-        '       ?resource nie:isLogicalPartOf+ [1] . \n' +
-    '           FILTER EXISTS { \n' +
-        '           ?resource rdf:type ddr:Project \n' +
-        '       }\n' +
-        '   } \n' +
-        '} \n';
+        "SELECT COUNT(?revision) as ?revision_count \n" +
+        "FROM [0] \n" +
+        "WHERE " +
+        "{ \n" +
+        "   { \n" +
+        "       ?revision ddr:isVersionOf ?resource . \n" +
+        "       ?resource nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           ?resource rdf:type ddr:Project \n" +
+        "       }\n" +
+        "   } \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -1143,7 +1143,7 @@ Project.prototype.getRevisionsCount = function (callback)
                 {
                     return callback(null, result[0].revision_count);
                 }
-                return callback(1, 'invalid result retrieved when querying for revisions count');
+                return callback(1, "invalid result retrieved when querying for revisions count");
             }
             return callback(err, -1);
         });
@@ -1182,62 +1182,62 @@ Project.prototype.getFavoriteDescriptors = function (maxResults, callback, allow
         allowedOntologies = publicOntologies;
     }
 
-    let fromString = '';
+    let fromString = "";
 
     const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
     argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
     fromString = fromString + fromElements.fromString;
 
-    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, 'favorited_descriptor');
+    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "favorited_descriptor");
 
     const query =
-    '       SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n' +
-    fromString + '\n' +
-    '		WHERE \n' +
-    '		{ \n' +
-    '			?favorited_descriptor rdfs:label ?label.  \n' +
-    '			?favorited_descriptor rdfs:comment ?comment.  \n' +
-    '			FILTER(    (str(?label) != "") && ( str(?comment) != "") ).  \n' +
-    '			FILTER(   lang(?label) = "" || lang(?label) = "en") .  \n' +
-    '			FILTER(   lang(?comment) = "" || lang(?comment) = "en")   \n' +
-    filterString + '\n' +
-    '			{ \n' +
-    '				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n' +
-    '				FROM [0]  \n' +
-    '				WHERE  \n' +
-    '				{  \n' +
-    '				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n' +
-    '				   	?favorite_interaction ddr:interactionType [2] . \n' +
-    '					?favorite_interaction ddr:originallyRecommendedFor ?information_element. \n' +
-    '				   	?favorite_interaction ddr:created ?date_favorited. \n' +
-    '				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n' +
-    '				} \n' +
-    '			}. \n' +
-    '			OPTIONAL ' +
-    '           { \n' +
-    '				SELECT ?favorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n' +
-    '				FROM [0]  \n' +
-    '				WHERE  \n' +
-    '				{  \n' +
-    '				   	?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n' +
-    '				   	?unfavorite_interaction ddr:interactionType [3]. \n' +
+    "       SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n" +
+    fromString + "\n" +
+    "		WHERE \n" +
+    "		{ \n" +
+    "			?favorited_descriptor rdfs:label ?label.  \n" +
+    "			?favorited_descriptor rdfs:comment ?comment.  \n" +
+    "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
+    "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
+    "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
+    filterString + "\n" +
+    "			{ \n" +
+    "				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n" +
+    "				FROM [0]  \n" +
+    "				WHERE  \n" +
+    "				{  \n" +
+    "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
+    "				   	?favorite_interaction ddr:interactionType [2] . \n" +
+    "					?favorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
+    "				   	?favorite_interaction ddr:created ?date_favorited. \n" +
+    "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
+    "				} \n" +
+    "			}. \n" +
+    "			OPTIONAL " +
+    "           { \n" +
+    "				SELECT ?favorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n" +
+    "				FROM [0]  \n" +
+    "				WHERE  \n" +
+    "				{  \n" +
+    "				   	?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
+    "				   	?unfavorite_interaction ddr:interactionType [3]. \n" +
 
-    '				   	?unfavorite_interaction ddr:originallyRecommendedFor ?information_element. \n' +
-    '				   	?unfavorite_interaction ddr:created ?date_unfavorited. \n' +
-    '				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n' +
-    '				} \n' +
-    '			} \n' +
-    '		   	FILTER' +
-    '           ( \n' +
-    '		   	    ( \n' +
-    '		   	        bound(?last_unfavorited) && (?last_favorited > ?last_unfavorited)\n' +
-    '		   	    ) \n' +
-    '		   	    || \n' +
-    '		   	    ( \n' +
-    '                   !bound(?last_unfavorited)\n' +
-    '		   	    ) \n' +
-    '		   	) \n' +
-    '		} \n';
+    "				   	?unfavorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
+    "				   	?unfavorite_interaction ddr:created ?date_unfavorited. \n" +
+    "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
+    "				} \n" +
+    "			} \n" +
+    "		   	FILTER" +
+    "           ( \n" +
+    "		   	    ( \n" +
+    "		   	        bound(?last_unfavorited) && (?last_favorited > ?last_unfavorited)\n" +
+    "		   	    ) \n" +
+    "		   	    || \n" +
+    "		   	    ( \n" +
+    "                   !bound(?last_unfavorited)\n" +
+    "		   	    ) \n" +
+    "		   	) \n" +
+    "		} \n";
 
     db.connection.executeViaJDBC(
         query,
@@ -1306,63 +1306,63 @@ Project.prototype.getHiddenDescriptors = function (maxResults, callback, allowed
         allowedOntologies = publicOntologies;
     }
 
-    let fromString = '';
+    let fromString = "";
 
     const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
     argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
     fromString = fromString + fromElements.fromString;
 
-    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, 'hidden_descriptor');
+    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "hidden_descriptor");
 
     const query =
-        '		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden \n' +
-        fromString + '\n' +
-        '		WHERE \n' +
-        '		{ \n' +
-        '			?hidden_descriptor rdfs:label ?label.  \n' +
-        '			?hidden_descriptor rdfs:comment ?comment.  \n' +
-        '			FILTER(    (str(?label) != "") && ( str(?comment) != "") ).  \n' +
-        '			FILTER(   lang(?label) = "" || lang(?label) = "en") .  \n' +
-        '			FILTER(   lang(?comment) = "" || lang(?comment) = "en")   \n' +
-        filterString + '\n' +
-        '			{ \n' +
-        '				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden \n' +
-        '				FROM [0]  \n' +
-        '				WHERE  \n' +
-        '				{  \n' +
-        '				   	?hiding_interaction ddr:executedOver ?hidden_descriptor. \n' +
-        '				   	?hiding_interaction ddr:interactionType [2] . \n' +
+        "		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden \n" +
+        fromString + "\n" +
+        "		WHERE \n" +
+        "		{ \n" +
+        "			?hidden_descriptor rdfs:label ?label.  \n" +
+        "			?hidden_descriptor rdfs:comment ?comment.  \n" +
+        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
+        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
+        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
+        filterString + "\n" +
+        "			{ \n" +
+        "				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden \n" +
+        "				FROM [0]  \n" +
+        "				WHERE  \n" +
+        "				{  \n" +
+        "				   	?hiding_interaction ddr:executedOver ?hidden_descriptor. \n" +
+        "				   	?hiding_interaction ddr:interactionType [2] . \n" +
 
-        '					?hiding_interaction ddr:originallyRecommendedFor ?information_element. \n' +
-        '				   	?hiding_interaction ddr:created ?date_hidden. \n' +
-        '				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n' +
-        '				} \n' +
-        '			}. \n' +
-        '			OPTIONAL' +
-        '           { \n' +
-        '				SELECT ?hidden_descriptor MAX(?date_unhidden) as ?last_unhidden \n' +
-        '				FROM [0]  \n' +
-        '				WHERE  \n' +
-        '				{  \n' +
-        '				   	?unhiding_interaction ddr:executedOver ?hidden_descriptor. \n' +
-        '				   	?unhiding_interaction ddr:interactionType [3]. \n' +
+        "					?hiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
+        "				   	?hiding_interaction ddr:created ?date_hidden. \n" +
+        "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
+        "				} \n" +
+        "			}. \n" +
+        "			OPTIONAL" +
+        "           { \n" +
+        "				SELECT ?hidden_descriptor MAX(?date_unhidden) as ?last_unhidden \n" +
+        "				FROM [0]  \n" +
+        "				WHERE  \n" +
+        "				{  \n" +
+        "				   	?unhiding_interaction ddr:executedOver ?hidden_descriptor. \n" +
+        "				   	?unhiding_interaction ddr:interactionType [3]. \n" +
 
-        '				   	?unhiding_interaction ddr:originallyRecommendedFor ?information_element. \n' +
-        '				   	?unhiding_interaction ddr:created ?date_unhidden. \n' +
-        '				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n' +
-        '				} \n' +
-        '			} \n' +
-        '		   	FILTER' +
-        '           ( \n' +
-        '		   	    ( \n' +
-        '		   	        bound(?last_unhidden) && (?last_hidden > ?last_unhidden)\n' +
-        '		   	    ) \n' +
-        '		   	    || \n' +
-        '		   	    ( \n' +
-        '                   !bound(?last_unhidden)\n' +
-        '		   	    ) \n' +
-        '		   	) \n' +
-        '		} \n';
+        "				   	?unhiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
+        "				   	?unhiding_interaction ddr:created ?date_unhidden. \n" +
+        "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
+        "				} \n" +
+        "			} \n" +
+        "		   	FILTER" +
+        "           ( \n" +
+        "		   	    ( \n" +
+        "		   	        bound(?last_unhidden) && (?last_hidden > ?last_unhidden)\n" +
+        "		   	    ) \n" +
+        "		   	    || \n" +
+        "		   	    ( \n" +
+        "                   !bound(?last_unhidden)\n" +
+        "		   	    ) \n" +
+        "		   	) \n" +
+        "		} \n";
 
     db.connection.executeViaJDBC(
         query,
@@ -1443,14 +1443,14 @@ Project.privacy = function (projectUri, callback)
             }
             return callback(null, null);
         }
-        return callback(1, 'Error occurred fetching the privacy status of project ' + projectUri + '. Error : ' + project);
+        return callback(1, "Error occurred fetching the privacy status of project " + projectUri + ". Error : " + project);
     });
 };
 
 Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
 {
-    const fs = require('fs');
-    const path = require('path');
+    const fs = require("fs");
+    const path = require("path");
 
     fs.stat(absPathOfBagItFolder, function (err, stat)
     {
@@ -1458,7 +1458,7 @@ Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
         {
             if (stat.isDirectory())
             {
-                const dataFolder = path.join(absPathOfBagItFolder, 'data');
+                const dataFolder = path.join(absPathOfBagItFolder, "data");
                 fs.stat(dataFolder, function (err, stat)
                 {
                     if (isNull(err))
@@ -1487,50 +1487,50 @@ Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
                                                             {
                                                                 return callback(null, true, childOfDataFolderAbsPath);
                                                             }
-                                                            return callback(null, false, 'There is no ' + Config.packageMetadataFileName + ' inside the /data subdirectory.');
+                                                            return callback(null, false, "There is no " + Config.packageMetadataFileName + " inside the /data subdirectory.");
                                                         }
-                                                        return callback(err, false, 'child of /data contains only one element but is not a directory.');
+                                                        return callback(err, false, "child of /data contains only one element but is not a directory.");
                                                     });
                                                 }
                                                 else
                                                 {
-                                                    return callback(null, false, 'child of /data contains only one element but is not a directory.');
+                                                    return callback(null, false, "child of /data contains only one element but is not a directory.");
                                                 }
                                             }
                                             else
                                             {
-                                                return callback(err, false, '/data contains only one element but is not a directory.');
+                                                return callback(err, false, "/data contains only one element but is not a directory.");
                                             }
                                         });
                                     }
                                     else
                                     {
-                                        return callback(null, false, '/data folder should contain exactly one directory.');
+                                        return callback(null, false, "/data folder should contain exactly one directory.");
                                     }
                                 }
                                 else
                                 {
-                                    return callback(err, false, '/data exists but is not a directory.');
+                                    return callback(err, false, "/data exists but is not a directory.");
                                 }
                             });
                         }
                         else
                         {
-                            return callback(null, false, '/data exists but is not a directory.');
+                            return callback(null, false, "/data exists but is not a directory.");
                         }
                     }
-                    else if (err.code === 'ENOENT')
+                    else if (err.code === "ENOENT")
                     {
-                        return callback(null, false, '/data subfolder does not exist.');
+                        return callback(null, false, "/data subfolder does not exist.");
                     }
                 });
             }
             else
             {
-                return callback(null, false, absPathOfBagItFolder + ' is not a directory');
+                return callback(null, false, absPathOfBagItFolder + " is not a directory");
             }
         }
-        else if (err.code === 'ENOENT')
+        else if (err.code === "ENOENT")
         {
             return callback(null, false);
         }
@@ -1539,7 +1539,7 @@ Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
 
 Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, callback)
 {
-    const path = require('path');
+    const path = require("path");
 
     File.estimateUnzippedSize(absPathToZipFile, function (err, size)
     {
@@ -1561,39 +1561,39 @@ Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxSt
                                     {
                                         return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
                                     }
-                                    return callback(500, 'Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: ' + pathToFolderToRestore);
+                                    return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
                                 }
                                 return callback(err, pathToFolderToRestore);
                             });
                         }
                         else
                         {
-                            const msg = 'Unable to unzip file ' + absPathToZipFile + '. Error reported: ' + absPathToZipFile;
+                            const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
                             return callback(err, msg);
                         }
                     });
                 }
                 else
                 {
-                    const filesize = require('file-size');
+                    const filesize = require("file-size");
                     const difference = maxStorageSize - size;
 
-                    const humanSizeDifference = filesize(difference).human('jedec');
-                    const humanZipFileSize = filesize(size).human('jedec');
-                    const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
+                    const humanSizeDifference = filesize(difference).human("jedec");
+                    const humanZipFileSize = filesize(size).human("jedec");
+                    const humanMaxStorageSize = filesize(maxStorageSize).human("jedec");
 
-                    const msg = 'Estimated storage size of the project after unzipping ( ' + humanZipFileSize + ' ) exceeds the maximum storage allowed for a project ( ' + humanMaxStorageSize + ' ) by ' + humanSizeDifference;
+                    const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( " + humanMaxStorageSize + " ) by " + humanSizeDifference;
                     return callback(err, msg);
                 }
             }
             else
             {
-                return callback(1, 'Unable to determine the size of the ZIP File, because the file was corrupted during transfer!');
+                return callback(1, "Unable to determine the size of the ZIP File, because the file was corrupted during transfer!");
             }
         }
         else
         {
-            const msg = 'Unable to estimate size of the zip file sent in as the project backup. Error reported: ' + absPathToZipFile;
+            const msg = "Unable to estimate size of the zip file sent in as the project backup. Error reported: " + absPathToZipFile;
             return callback(err, msg);
         }
     });
@@ -1608,7 +1608,7 @@ Project.prototype.restoreFromFolder = function (
 )
 {
     const self = this;
-    const path = require('path');
+    const path = require("path");
     let entityLoadingTheMetadataUri;
 
     if (!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
@@ -1635,17 +1635,17 @@ Project.prototype.restoreFromFolder = function (
                      * Restore metadata values from metadata.json file
                      */
                     const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-                    const fs = require('fs');
+                    const fs = require("fs");
 
                     fs.exists(metadataFileLocation, function (existsMetadataFile)
                     {
                         if (attemptToRestoreMetadata && existsMetadataFile)
                         {
-                            fs.readFile(metadataFileLocation, 'utf8', function (err, data)
+                            fs.readFile(metadataFileLocation, "utf8", function (err, data)
                             {
                                 if (err)
                                 {
-                                    console.log('Error: ' + err);
+                                    console.log("Error: " + err);
                                     return;
                                 }
 
@@ -1655,15 +1655,15 @@ Project.prototype.restoreFromFolder = function (
                                 {
                                     if (isNull(err))
                                     {
-                                        return callback(null, 'Data and metadata restored successfully. Result : ' + result);
+                                        return callback(null, "Data and metadata restored successfully. Result : " + result);
                                     }
-                                    return callback(err, 'Error restoring metadata for project ' + self.uri + ' : ' + result);
+                                    return callback(err, "Error restoring metadata for project " + self.uri + " : " + result);
                                 }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable]);
                             });
                         }
                         else
                         {
-                            return callback(null, 'Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : ' + result);
+                            return callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
                         }
                     });
                 }
@@ -1683,7 +1683,7 @@ Project.prototype.restoreFromFolder = function (
 Project.prototype.clearCacheRecords = function (callback, customGraphUri)
 {
     const self = this;
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === 'string') ? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const pageSize = Config.limits.db.maxResults;
     let currentPage = 0;
     let currentResults = [];
@@ -1691,12 +1691,12 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
     const findMoreMembersOfProject = function (callback)
     {
         let findQuery =
-            'SELECT ?part \n' +
-            'FROM [0] \n' +
-            'WHERE \n' +
-            '{ \n' +
-            '   [1] nie:hasLogicalPart* ?part \n' +
-            '} \n';
+            "SELECT ?part \n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart* ?part \n" +
+            "} \n";
 
         findQuery = DbConnection.addLimitsClauses(findQuery, pageSize * currentPage, pageSize);
 
@@ -1754,20 +1754,20 @@ Project.prototype.delete = function (callback)
     const deleteProjectTriples = function (callback)
     {
         const deleteQuery =
-            'WITH [0] \n' +
-            'DELETE \n' +
-            '{\n' +
-            '    ?resource ?p ?o \n' +
-            '} \n' +
-            'WHERE \n' +
-            '{ \n' +
-            '   SELECT ?resource ?p ?o \n' +
-            '   WHERE \n' +
-            '   { \n' +
-            '    [1] nie:hasLogicalPart* ?resource .\n' +
-            '    ?resource ?p ?o \n' +
-            '   } \n' +
-            '} \n';
+            "WITH [0] \n" +
+            "DELETE \n" +
+            "{\n" +
+            "    ?resource ?p ?o \n" +
+            "} \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   SELECT ?resource ?p ?o \n" +
+            "   WHERE \n" +
+            "   { \n" +
+            "    [1] nie:hasLogicalPart* ?resource .\n" +
+            "    ?resource ?p ?o \n" +
+            "   } \n" +
+            "} \n";
 
         db.connection.executeViaJDBC(deleteQuery,
             [
@@ -1789,7 +1789,7 @@ Project.prototype.delete = function (callback)
 
     const deleteProjectFiles = function (callback)
     {
-        gfs.connection.deleteByQuery({ 'metadata.project.uri': self.uri}, function (err, result)
+        gfs.connection.deleteByQuery({ "metadata.project.uri": self.uri}, function (err, result)
         {
             callback(err, result);
         });
@@ -1813,6 +1813,6 @@ Project.prototype.delete = function (callback)
     });
 };
 
-Project = Class.extend(Project, Resource, 'ddr:Project');
+Project = Class.extend(Project, Resource, "ddr:Project");
 
 module.exports.Project = Project;

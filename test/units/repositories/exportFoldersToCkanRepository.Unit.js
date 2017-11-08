@@ -1,23 +1,23 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
-const _ = require('underscore');
-const chai = require('chai');
+const _ = require("underscore");
+const chai = require("chai");
 const should = chai.should();
 const Pathfinder = global.Pathfinder;
-const path = require('path');
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const async = require('async');
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder('utils/repository/repositoryUtils.js'));
-const projectUtils = require(Pathfinder.absPathInTestsFolder('utils/project/projectUtils.js'));
-const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
+const path = require("path");
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const async = require("async");
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1'));
-const ckan = require(Pathfinder.absPathInTestsFolder('mockdata/repositories/dataToCreate/ckan'));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
 
-const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder('mockdata/folders/folderExportedCkanNoDiffs.js'));
-const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder('mockdata/folders/folderExportedCkanDendroDiffs.js'));
-const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder('mockdata/folders/folderExportedCkanCkanDiffs.js'));
+const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanNoDiffs.js"));
+const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
+const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
 let foldersToExport = [];
 
 let ckanData;
@@ -31,7 +31,7 @@ function requireUncached (module)
 // TODO chamar a createExportToRepositoriesConfigs.Unit.js
 module.exports.setup = function (project, finish)
 {
-    let createExportToRepositoriesConfig = requireUncached(Pathfinder.absPathInTestsFolder('units/repositories/createExportToRepositoriesConfigs.Unit.js'));
+    let createExportToRepositoriesConfig = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
     createExportToRepositoriesConfig.setup(project, function (err, results)
     {
         if (err)
@@ -40,7 +40,7 @@ module.exports.setup = function (project, finish)
         }
         else
         {
-            console.log('---------- RUNNING UNIT exportFoldersToCkanRepository for: ' + project.handle + ' ----------');
+            console.log("---------- RUNNING UNIT exportFoldersToCkanRepository for: " + project.handle + " ----------");
             appUtils.registerStartTimeForUnit(path.basename(__filename));
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -56,7 +56,7 @@ module.exports.setup = function (project, finish)
                         res.body.length.should.equal(6);
                         ckanData = _.find(res.body, function (externalRepo)
                         {
-                            return externalRepo.dcterms.title === 'ckan2';
+                            return externalRepo.dcterms.title === "ckan2";
                         });
                         should.exist(ckanData);
 

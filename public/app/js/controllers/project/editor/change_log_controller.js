@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
      *  Descriptors List controller
      */
-    .controller('changeLogController', function (
+    .controller("changeLogController", function (
         $scope,
         $http,
         $filter,
@@ -54,9 +54,9 @@ angular.module('dendroApp.controllers')
                     })
                     .catch(function (e)
                     {
-                        console.error('Unable to fetch parent project of the currently selected file.');
+                        console.error("Unable to fetch parent project of the currently selected file.");
                         console.error(JSON.stringify(e));
-                        windowService.show_popup('error', 'Error', e.statusText);
+                        windowService.show_popup("error", "Error", e.statusText);
                     });
             }
         };
@@ -72,7 +72,7 @@ angular.module('dendroApp.controllers')
                     var recent_versions = response.data;
                     for (var i = 0; i < recent_versions.length; i++)
                     {
-                        recent_versions[i].thumbnail = '/images/icons/extensions/file_extension_' + recent_versions[i].ddr.isVersionOf.ddr.fileExtension + '.png';
+                        recent_versions[i].thumbnail = "/images/icons/extensions/file_extension_" + recent_versions[i].ddr.isVersionOf.ddr.fileExtension + ".png";
                     }
 
                     $scope.shared.recent_versions = recent_versions;
@@ -91,7 +91,7 @@ angular.module('dendroApp.controllers')
                             var recent_versions = response.data;
                             for (var i = 0; i < recent_versions.length; i++)
                             {
-                                recent_versions[i].thumbnail = '/images/icons/extensions/file_extension_' + recent_versions[i].ddr.isVersionOf.ddr.fileExtension + '.png';
+                                recent_versions[i].thumbnail = "/images/icons/extensions/file_extension_" + recent_versions[i].ddr.isVersionOf.ddr.fileExtension + ".png";
                             }
 
                             $scope.shared.recent_versions = recent_versions;

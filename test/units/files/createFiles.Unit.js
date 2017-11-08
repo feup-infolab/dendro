@@ -1,21 +1,21 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
 
-const chai = require('chai');
-chai.use(require('chai-http'));
-const async = require('async');
+const chai = require("chai");
+chai.use(require("chai-http"));
+const async = require("async");
 
-const appUtils = require(Pathfinder.absPathInTestsFolder('/utils/app/appUtils.js'));
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const fileUtils = require(Pathfinder.absPathInTestsFolder('utils/file/fileUtils.js'));
+const appUtils = require(Pathfinder.absPathInTestsFolder("/utils/app/appUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1'));
-const zipMockFile = require(Pathfinder.absPathInTestsFolder('mockdata/files/zipMockFile.js'));
-const txtMockFile = require(Pathfinder.absPathInTestsFolder('mockdata/files/txtMockFile.js'));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
+const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/folders/createFolders.Unit.js'));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/projects/createProjects.Unit.js'));
+const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = createFoldersUnit.foldersData;

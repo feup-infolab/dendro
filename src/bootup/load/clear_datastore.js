@@ -1,9 +1,9 @@
-const fs = require('fs');
+const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder('utils/logger.js')).Logger;
-const DataStoreConnection = require(Pathfinder.absPathInSrcFolder('/kb/datastore/datastore_connection.js')).DataStoreConnection;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
 
 const clearDataStore = function (app, callback)
 {
@@ -13,7 +13,7 @@ const clearDataStore = function (app, callback)
         {
             if (!err)
             {
-                Logger.log_boot_message('info', 'Datastore cleared successfully.');
+                Logger.log_boot_message("info", "Datastore cleared successfully.");
             }
 
             callback(err);
@@ -21,7 +21,7 @@ const clearDataStore = function (app, callback)
     }
     else
     {
-        Logger.log_boot_message('info', 'Datastore is not set to be cleared. Continuing...');
+        Logger.log_boot_message("info", "Datastore is not set to be cleared. Continuing...");
         return callback(null);
     }
 };

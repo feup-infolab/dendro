@@ -1,20 +1,20 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const Like = require('../models/social/like.js').Like;
-const Comment = require('../models/social/comment.js').Comment;
-const Share = require('../models/social/share.js').Share;
-const Ontology = require('../models/meta/ontology.js').Ontology;
-const Project = require('../models/project.js').Project;
-const FileVersion = require('../models/versions/file_version.js').FileVersion;
-const Notification = require('../models/notifications/notification.js').Notification;
-const DbConnection = require('../kb/db.js').DbConnection;
-const _ = require('underscore');
+const Like = require("../models/social/like.js").Like;
+const Comment = require("../models/social/comment.js").Comment;
+const Share = require("../models/social/share.js").Share;
+const Ontology = require("../models/meta/ontology.js").Ontology;
+const Project = require("../models/project.js").Project;
+const FileVersion = require("../models/versions/file_version.js").FileVersion;
+const Notification = require("../models/notifications/notification.js").Notification;
+const DbConnection = require("../kb/db.js").DbConnection;
+const _ = require("underscore");
 
-const async = require('async');
+const async = require("async");
 const db = Config.getDBByID();
 
 const db_social = (function ()
@@ -27,20 +27,20 @@ const db_notifications = (function ()
     return Config.db.notifications;
 }());
 
-const app = require('../app');
+const app = require("../app");
 
 const getNumLikesForAFileVersion = function (fileVersionUri, cb)
 {
     const self = this;
 
     const query =
-        'SELECT ?likeURI ?userURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?likeURI rdf:type ddr:Like. \n' +
-        '?likeURI ddr:postURI [1]. \n' +
-        '?likeURI ddr:userWhoLiked ?userURI . \n' +
-        '} \n';
+        "SELECT ?likeURI ?userURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -61,7 +61,7 @@ const getNumLikesForAFileVersion = function (fileVersionUri, cb)
             }
             else
             {
-                cb(true, 'Error fetching number of likes for a fileVersion');
+                cb(true, "Error fetching number of likes for a fileVersion");
             }
         });
 };
@@ -71,13 +71,13 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
     const self = this;
 
     const query =
-        'SELECT ?likeURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?likeURI rdf:type ddr:Like. \n' +
-        '?likeURI ddr:postURI [1]. \n' +
-        '?likeURI ddr:userWhoLiked [2]. \n' +
-        '} \n';
+        "SELECT ?likeURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked [2]. \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -104,11 +104,11 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
                     const removeLikeInFileVersion = function (likeUri, currentUserUri, cb)
                     {
                         const query =
-                            'WITH [0] \n' +
-                            'DELETE {[1] ?p ?v}\n' +
-                            'WHERE { \n' +
-                            '[1] ?p ?v \n' +
-                            '} \n';
+                            "WITH [0] \n" +
+                            "DELETE {[1] ?p ?v}\n" +
+                            "WHERE { \n" +
+                            "[1] ?p ?v \n" +
+                            "} \n";
 
                         db.connection.executeViaJDBC(query,
                             DbConnection.pushLimitsArguments([
@@ -134,7 +134,7 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
                                 }
                                 else
                                 {
-                                    cb(true, 'Error Liking a fileVersion');
+                                    cb(true, "Error Liking a fileVersion");
                                 }
                             });
                     };
@@ -152,7 +152,7 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
             }
             else
             {
-                cb(true, 'Error Liking FileVersion');
+                cb(true, "Error Liking FileVersion");
             }
         });
 };
@@ -160,12 +160,12 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
 const getSharesForAFileVersion = function (fileVersionUri, cb)
 {
     const query =
-        'SELECT ?shareURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?shareURI rdf:type ddr:Share. \n' +
-        '?shareURI ddr:fileVersionUri [1]. \n' +
-        '} \n';
+        "SELECT ?shareURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?shareURI rdf:type ddr:Share. \n" +
+        "?shareURI ddr:fileVersionUri [1]. \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -195,7 +195,7 @@ const getSharesForAFileVersion = function (fileVersionUri, cb)
             }
             else
             {
-                cb(true, 'Error shares for a FileVersion');
+                cb(true, "Error shares for a FileVersion");
             }
         });
 };
@@ -206,22 +206,22 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback)
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
         {
-            cb1(null, '<' + uri + '>');
+            cb1(null, "<" + uri + ">");
         }, function (err, fullProjectsUris)
         {
-            const projectsUris = fullProjectsUris.join(' ');
+            const projectsUris = fullProjectsUris.join(" ");
             const query =
-                'WITH [0] \n' +
-                'SELECT (COUNT(DISTINCT ?uri) AS ?count) \n' +
-                'WHERE { \n' +
-                'VALUES ?project { \n' +
+                "WITH [0] \n" +
+                "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
                 projectsUris +
-                '}\n' +
-                '{?uri rdf:type ddr:FileVersion. }\n' +
-                'UNION \n' +
-                '{?uri ddr:fileVersionUri ?x }\n' +
-                '?uri ddr:projectUri ?project. \n' +
-                '} \n ';
+                "}\n" +
+                "{?uri rdf:type ddr:FileVersion. }\n" +
+                "UNION \n" +
+                "{?uri ddr:fileVersionUri ?x }\n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n ";
 
             db.connection.executeViaJDBC(query,
                 DbConnection.pushLimitsArguments([
@@ -236,7 +236,7 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback)
                     {
                         return callback(err, results[0].count);
                     }
-                    const msg = 'Error fetching number of fileVersions in graph';
+                    const msg = "Error fetching number of fileVersions in graph";
                     return callback(true, msg);
                 });
         });
@@ -271,8 +271,8 @@ exports.numFileVersionsInDatabase = function (req, res)
                     else
                     {
                         res.status(500).json({
-                            result: 'Error',
-                            message: 'Error counting FileVersion. ' + JSON.stringify(err)
+                            result: "Error",
+                            message: "Error counting FileVersion. " + JSON.stringify(err)
                         });
                     }
                 });
@@ -281,8 +281,8 @@ exports.numFileVersionsInDatabase = function (req, res)
         else
         {
             res.status(500).json({
-                result: 'Error',
-                message: 'Error finding user projects'
+                result: "Error",
+                message: "Error finding user projects"
             });
         }
     });
@@ -296,24 +296,24 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
         {
-            cb1(null, '<' + uri + '>');
+            cb1(null, "<" + uri + ">");
         }, function (err, fullProjectsUris)
         {
-            const projectsUris = fullProjectsUris.join(' ');
+            const projectsUris = fullProjectsUris.join(" ");
             let query =
-                'WITH [0] \n' +
-                'SELECT DISTINCT ?fileVersion \n' +
-                'WHERE { \n' +
-                'VALUES ?project { \n' +
-                projectsUris + '\n' +
-                '}. \n' +
-                '?fileVersion ddr:modified ?date. \n' +
-                '{?fileVersion rdf:type ddr:FileVersion. }\n' +
-                'UNION \n' +
-                '{?fileVersion ddr:fileVersionUri ?x }\n' +
-                '?fileVersion ddr:projectUri ?project. \n' +
-                '} \n ' +
-                'ORDER BY DESC(?date) \n';
+                "WITH [0] \n" +
+                "SELECT DISTINCT ?fileVersion \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris + "\n" +
+                "}. \n" +
+                "?fileVersion ddr:modified ?date. \n" +
+                "{?fileVersion rdf:type ddr:FileVersion. }\n" +
+                "UNION \n" +
+                "{?fileVersion ddr:fileVersionUri ?x }\n" +
+                "?fileVersion ddr:projectUri ?project. \n" +
+                "} \n " +
+                "ORDER BY DESC(?date) \n";
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
@@ -330,7 +330,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
                     {
                         return callback(err, results);
                     }
-                    const msg = 'Error fetching FileVersion';
+                    const msg = "Error fetching FileVersion";
                     return callback(true, msg);
                 });
         });
@@ -368,8 +368,8 @@ exports.all = function (req, res)
                     else
                     {
                         res.status(500).json({
-                            result: 'Error',
-                            message: 'Error getting posts. ' + JSON.stringify(err)
+                            result: "Error",
+                            message: "Error getting posts. " + JSON.stringify(err)
                         });
                     }
                 });
@@ -392,8 +392,8 @@ exports.getFileVersion = function (req, res)
         else
         {
             res.status(500).json({
-                result: 'Error',
-                message: 'Error getting a File version. ' + JSON.stringify(fileVersion)
+                result: "Error",
+                message: "Error getting a File version. " + JSON.stringify(fileVersion)
             });
         }
     }, null, db_social.graphUri);
@@ -412,13 +412,13 @@ exports.fileVersionLikesInfo = function (req, res)
             if (likesArray.length)
             {
                 resultInfo = {
-                    fileVersionUri: fileVersionUri, numLikes: likesArray.length, usersWhoLiked: _.pluck(likesArray, 'userURI')
+                    fileVersionUri: fileVersionUri, numLikes: likesArray.length, usersWhoLiked: _.pluck(likesArray, "userURI")
                 };
             }
             else
             {
                 resultInfo = {
-                    fileVersionUri: fileVersionUri, numLikes: 0, usersWhoLiked: 'undefined'
+                    fileVersionUri: fileVersionUri, numLikes: 0, usersWhoLiked: "undefined"
                 };
             }
             res.json(resultInfo);
@@ -426,8 +426,8 @@ exports.fileVersionLikesInfo = function (req, res)
         else
         {
             res.status(500).json({
-                result: 'Error',
-                message: 'Error getting likesInfo from a fileVersion ' + JSON.stringify(err)
+                result: "Error",
+                message: "Error getting likesInfo from a fileVersion " + JSON.stringify(err)
             });
         }
     });
@@ -446,8 +446,8 @@ exports.like = function (req, res)
             {
                 // like was removed
                 res.json({
-                    result: 'OK',
-                    message: 'FileVersion already liked'
+                    result: "OK",
+                    message: "FileVersion already liked"
                 });
             }
             else
@@ -465,11 +465,11 @@ exports.like = function (req, res)
                         ddr: {
                             userWhoActed: currentUser.uri,
                             resourceTargetUri: fileVersion.uri,
-                            actionType: 'Like',
+                            actionType: "Like",
                             resourceAuthorUri: fileVersion.ddr.creatorUri
                         },
                         foaf: {
-                            status: 'unread'
+                            status: "unread"
                         }
                     });
 
@@ -482,15 +482,15 @@ exports.like = function (req, res)
                                 if (isNull(error))
                                 {
                                     res.json({
-                                        result: 'OK',
-                                        message: 'FileVersion liked successfully'
+                                        result: "OK",
+                                        message: "FileVersion liked successfully"
                                     });
                                 }
                                 else
                                 {
                                     res.status(500).json({
-                                        result: 'Error',
-                                        message: 'Error saving a notification for a Like ' + JSON.stringify(resultNotification)
+                                        result: "Error",
+                                        message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
                                     });
                                 }
                             }, false, null, null, null, null, db_notifications.graphUri);
@@ -498,8 +498,8 @@ exports.like = function (req, res)
                         else
                         {
                             res.status(500).json({
-                                result: 'Error',
-                                message: 'Error Liking a FileVersion. ' + JSON.stringify(resultLike)
+                                result: "Error",
+                                message: "Error Liking a FileVersion. " + JSON.stringify(resultLike)
                             });
                         }
                     }, false, null, null, null, null, db_social.graphUri);
@@ -509,8 +509,8 @@ exports.like = function (req, res)
         else
         {
             res.status(500).json({
-                result: 'Error',
-                message: 'Error Liking a FileVersion. '
+                result: "Error",
+                message: "Error Liking a FileVersion. "
             });
         }
     });
@@ -535,11 +535,11 @@ exports.comment = function (req, res)
             ddr: {
                 userWhoActed: currentUser.uri,
                 resourceTargetUri: fileVersion.uri,
-                actionType: 'Comment',
+                actionType: "Comment",
                 resourceAuthorUri: fileVersion.ddr.creatorUri
             },
             foaf: {
-                status: 'unread'
+                status: "unread"
             }
         });
 
@@ -552,15 +552,15 @@ exports.comment = function (req, res)
                     if (isNull(error))
                     {
                         res.json({
-                            result: 'OK',
-                            message: 'FileVersion commented successfully'
+                            result: "OK",
+                            message: "FileVersion commented successfully"
                         });
                     }
                     else
                     {
                         res.status(500).json({
-                            result: 'Error',
-                            message: 'Error saving a notification for a Comment ' + JSON.stringify(resultNotification)
+                            result: "Error",
+                            message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
                         });
                     }
                 }, false, null, null, null, null, db_notifications.graphUri);
@@ -568,8 +568,8 @@ exports.comment = function (req, res)
             else
             {
                 res.status(500).json({
-                    result: 'Error',
-                    message: 'Error Commenting a FileVersion. ' + JSON.stringify(resultComment)
+                    result: "Error",
+                    message: "Error Commenting a FileVersion. " + JSON.stringify(resultComment)
                 });
             }
         }, false, null, null, null, null, db_social.graphUri);
@@ -600,12 +600,12 @@ exports.share = function (req, res)
             ddr: {
                 userWhoActed: currentUser.uri,
                 resourceTargetUri: fileVersion.uri,
-                actionType: 'Share',
+                actionType: "Share",
                 resourceAuthorUri: fileVersion.ddr.creatorUri,
                 shareURI: newShare.uri
             },
             foaf: {
-                status: 'unread'
+                status: "unread"
             }
         });
 
@@ -618,15 +618,15 @@ exports.share = function (req, res)
                     if (isNull(error))
                     {
                         res.json({
-                            result: 'OK',
-                            message: 'FileVersion shared successfully'
+                            result: "OK",
+                            message: "FileVersion shared successfully"
                         });
                     }
                     else
                     {
                         res.status(500).json({
-                            result: 'Error',
-                            message: 'Error saving a notification for a Share ' + JSON.stringify(resultNotification)
+                            result: "Error",
+                            message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
                         });
                     }
                 }, false, null, null, null, null, db_notifications.graphUri);
@@ -634,8 +634,8 @@ exports.share = function (req, res)
             else
             {
                 res.status(500).json({
-                    result: 'Error',
-                    message: 'Error sharing a fileVersion. ' + JSON.stringify(resultShare)
+                    result: "Error",
+                    message: "Error sharing a fileVersion. " + JSON.stringify(resultShare)
                 });
             }
         }, false, null, null, null, null, db_social.graphUri);
@@ -652,8 +652,8 @@ exports.getFileVersionShares = function (req, res)
         if (err)
         {
             res.status(500).json({
-                result: 'Error',
-                message: 'Error getting shares from a FileVersion ' + JSON.stringify(shares)
+                result: "Error",
+                message: "Error getting shares from a FileVersion " + JSON.stringify(shares)
             });
         }
         else
@@ -666,8 +666,8 @@ exports.getFileVersionShares = function (req, res)
 exports.fileVersion = function (req, res)
 {
     const currentUser = req.user;
-    const fileVersionUri = 'http://' + req.headers.host + req.url;
-    res.render('social/showFileVersion',
+    const fileVersionUri = "http://" + req.headers.host + req.url;
+    res.render("social/showFileVersion",
         {
             fileVersionUri: fileVersionUri
         }

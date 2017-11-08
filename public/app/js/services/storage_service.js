@@ -1,5 +1,5 @@
-angular.module('dendroApp.services')
-    .service('storageService', ['$http', '$localStorage',
+angular.module("dendroApp.services")
+    .service("storageService", ["$http", "$localStorage",
         function ($http, $localStorage)
         {
             this.$storage = $localStorage.$default({});

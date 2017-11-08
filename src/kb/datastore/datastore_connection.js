@@ -1,12 +1,12 @@
-const util = require('util');
-const path = require('path');
+const util = require("util");
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const colors = require('colors');
-const MongoClient = require('mongodb').MongoClient;
-const slug = require('slug');
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const colors = require("colors");
+const MongoClient = require("mongodb").MongoClient;
+const slug = require("slug");
 
 function DataStoreConnection (options)
 {
@@ -16,7 +16,7 @@ function DataStoreConnection (options)
     self.host = options.host;
     self.database = options.database;
     self.resourceUri = options.resourceUri;
-    self.collection = slug(self.resourceUri, '_');
+    self.collection = slug(self.resourceUri, "_");
     self.counter = 1;
 }
 
@@ -26,9 +26,9 @@ DataStoreConnection.prototype.open = function (callback)
 
     if (!isNull(self.client))
     {
-        return callback(1, 'DataStoreConnection connection is already open.');
+        return callback(1, "DataStoreConnection connection is already open.");
     }
-    const url = 'mongodb://' + self.host + ':' + self.port + '/' + slug(self.database, '_');
+    const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, "_");
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))
@@ -57,7 +57,7 @@ DataStoreConnection.prototype.getSheets = function (callback)
 
     const cursor = self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
         .find(queryObject, {_id: 0})
-        .sort([['index', 1]]);
+        .sort([["index", 1]]);
 
     cursor.toArray(function (err, results)
     {
@@ -99,14 +99,14 @@ DataStoreConnection.prototype.createSheetRecord = function (sheetName, sheetInde
 DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, skip, limit, sheetIndex, outputFormat)
 {
     const self = this;
-    let JSONStream = require('JSONStream');
+    let JSONStream = require("JSONStream");
     if (!isNull(self.client))
     {
         const queryObject = {
             $and: []
         };
 
-        if (!isNull(query) && JSON.stringify(query) !== '{}')
+        if (!isNull(query) && JSON.stringify(query) !== "{}")
         {
             queryObject.$and.push({
                 data: query
@@ -137,13 +137,13 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
 
         const cursor = self.client.collection(self.collection)
             .find(queryObject, { sheet_index: 0, _id: 0})
-            .sort([['row', 1]]);
+            .sort([["row", 1]]);
 
-        if (outputFormat === 'csv')
+        if (outputFormat === "csv")
         {
             const getRowInCSV = function (data)
             {
-                let row = '';
+                let row = "";
                 if (!isNull(data))
                 {
                     let keys = Object.keys(data);
@@ -158,7 +158,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
 
                         if (i < keys.length - 1)
                         {
-                            row += ',';
+                            row += ",";
                         }
                     }
                 }
@@ -191,39 +191,39 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
                     {
                         if (!isNull(results) && results instanceof Array && results.length === 1)
                         {
-                            let headerRow = '';
+                            let headerRow = "";
                             let header = results[0].header;
                             if (!isNull(header))
                             {
                                 for (let i = 0; i < header.length; i++)
                                 {
                                     let headerColumn = header[i];
-                                    headerRow += '"' + header[i] + '"';
+                                    headerRow += "\"" + header[i] + "\"";
 
                                     if (i < header.length - 1)
                                     {
-                                        headerRow += ',';
+                                        headerRow += ",";
                                     }
                                 }
 
                                 writeStream.write(headerRow);
-                                writeStream.write('\n');
+                                writeStream.write("\n");
 
                                 callback(null);
                             }
                             else
                             {
-                                callback(1, 'Unable to fetch the header of resource ' + self.resourceUri);
+                                callback(1, "Unable to fetch the header of resource " + self.resourceUri);
                             }
                         }
                         else
                         {
-                            callback(1, 'Unable to fetch header of sheet ' + sheetIndex + ' of resource ' + self.resourceUri + ': Sheet or resource does not exist in the sheet records collection!');
+                            callback(1, "Unable to fetch header of sheet " + sheetIndex + " of resource " + self.resourceUri + ": Sheet or resource does not exist in the sheet records collection!");
                         }
                     }
                     else
                     {
-                        callback(1, 'unable to fetch header of sheet ' + sheetIndex + ' of resource ' + self.resourceUri + '. Error reported: ' + err);
+                        callback(1, "unable to fetch header of sheet " + sheetIndex + " of resource " + self.resourceUri + ". Error reported: " + err);
                     }
                 });
             };
@@ -241,7 +241,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
 
                             if (i < results.length - 1)
                             {
-                                writeStream.write('\n');
+                                writeStream.write("\n");
                             }
                         }
                         callback(null);
@@ -253,7 +253,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
                 });
             };
 
-            const async = require('async');
+            const async = require("async");
             async.series([
                 getHeader,
                 getData
@@ -266,7 +266,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
         else
         {
             cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
-            cursor.on('end', function ()
+            cursor.on("end", function ()
             {
                 self.close();
             });
@@ -274,7 +274,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
     }
     else
     {
-        return callback(1, 'Must open connection to MongoDB datastore ' + JSON.stringify(self) + 'first!');
+        return callback(1, "Must open connection to MongoDB datastore " + JSON.stringify(self) + "first!");
     }
 };
 DataStoreConnection.prototype.getData = function (writeStream, callback, sheetName, outputFormat)
@@ -306,7 +306,7 @@ DataStoreConnection.prototype.clearData = function (callback, sheetIndex)
                             {
                                 self.client.collection(self.collection).drop(function (err, result)
                                 {
-                                    if (isNull(err) || err.errmsg === 'ns not found')
+                                    if (isNull(err) || err.errmsg === "ns not found")
                                     {
                                         callback(null);
                                     }
@@ -345,7 +345,7 @@ DataStoreConnection.prototype.clearData = function (callback, sheetIndex)
 
             self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION).deleteMany(clearSheetQuery, function (err, result)
             {
-                if (isNull(err) || err.errmsg === 'ns not found')
+                if (isNull(err) || err.errmsg === "ns not found")
                 {
                     callback(err, result);
                 }
@@ -356,12 +356,12 @@ DataStoreConnection.prototype.clearData = function (callback, sheetIndex)
             });
         };
 
-        const async = require('async');
+        const async = require("async");
         async.series([clearDataRecords, clearSheetRecord], callback);
     }
     else
     {
-        return callback(1, 'Must open connection to MongoDB cache ' + JSON.stringify(self) + 'first!');
+        return callback(1, "Must open connection to MongoDB cache " + JSON.stringify(self) + "first!");
     }
 };
 
@@ -408,7 +408,7 @@ DataStoreConnection.prototype.appendArrayOfObjects = function (arrayOfRecords, c
     }
     else
     {
-        return callback(1, 'Open the connection to the DataStoreConnection first !');
+        return callback(1, "Open the connection to the DataStoreConnection first !");
     }
 };
 
@@ -430,19 +430,19 @@ DataStoreConnection.prototype.updateDataFromArrayOfObjects = function (arrayOfRe
                     }
                     else
                     {
-                        callback(1, 'Unable to create Sheet Record for sheet ' + sheetName + ', with index ' + sheetIndex + ' of resource ' + self.resourceUri);
+                        callback(1, "Unable to create Sheet Record for sheet " + sheetName + ", with index " + sheetIndex + " of resource " + self.resourceUri);
                     }
                 });
             }
             else
             {
-                callback(1, 'Unable to Delete existing records for sheet ' + sheetName + ', with index ' + sheetIndex + ' of resource ' + self.resourceUri);
+                callback(1, "Unable to Delete existing records for sheet " + sheetName + ", with index " + sheetIndex + " of resource " + self.resourceUri);
             }
         }, sheetIndex);
     }
     else
     {
-        return callback(1, 'Open the connection to the DataStoreConnection first !');
+        return callback(1, "Open the connection to the DataStoreConnection first !");
     }
 };
 
@@ -461,7 +461,7 @@ DataStoreConnection.deleteAllDataOfAllResources = function (callback)
 {
     const self = this;
 
-    DataStoreConnection.create('NO_RES', function (err, openDataStore)
+    DataStoreConnection.create("NO_RES", function (err, openDataStore)
     {
         if (!err)
         {
@@ -469,32 +469,32 @@ DataStoreConnection.deleteAllDataOfAllResources = function (callback)
             {
                 openDataStore.client.dropDatabase(function (err)
                 {
-                    if (isNull(err) || err.message === 'ns not found')
+                    if (isNull(err) || err.message === "ns not found")
                     {
                         if (Config.debug.active && Config.datastore.log.log_datastore_ops)
                         {
-                            console.log('[DEBUG] Deleted ALL datastore records');
+                            console.log("[DEBUG] Deleted ALL datastore records");
                         }
 
                         return callback(null);
                     }
-                    const msg = 'Unable to delete database ' + self.database + ' : ' + JSON.stringify(err);
+                    const msg = "Unable to delete database " + self.database + " : " + JSON.stringify(err);
                     console.log(msg);
                     return callback(err, msg);
                 });
             }
             else
             {
-                return callback(1, 'Open the connection to the DataStoreConnection first !');
+                return callback(1, "Open the connection to the DataStoreConnection first !");
             }
         }
         else
         {
-            return callback(err, 'Unable to open the connection to the DataStoreConnection!');
+            return callback(err, "Unable to open the connection to the DataStoreConnection!");
         }
     });
 };
 
-DataStoreConnection.SHEETS_CATALOG_COLLECTION = 'sheets_catalog';
+DataStoreConnection.SHEETS_CATALOG_COLLECTION = "sheets_catalog";
 
 module.exports.DataStoreConnection = DataStoreConnection;

@@ -1,33 +1,33 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
-const UploadManager = require(Pathfinder.absPathInSrcFolder('/models/uploads/upload_manager.js')).UploadManager;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
-const async = require('async');
+const async = require("async");
 
 module.exports.login = function (req, res, next)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
-    if (req.originalMethod === 'GET')
+    if (req.originalMethod === "GET")
     {
-        res.render('auth/login');
+        res.render("auth/login");
     }
-    else if (req.originalMethod === 'POST')
+    else if (req.originalMethod === "POST")
     {
     // prevent injections, test for alphanumeric and _ characters only in the username
         const alphaNumericTest = new RegExp(/^[a-zA-Z0-9_]+$/);
         if (!isNull(req.body.username) && alphaNumericTest.test(req.body.username))
         {
             req.passport.authenticate(
-                'local',
+                "local",
                 {
-                    failureRedirect: '/login',
+                    failureRedirect: "/login",
                     failureFlash: true
                 },
                 function (err, user, info)
@@ -45,18 +45,18 @@ module.exports.login = function (req, res, next)
                                 {
                                     res.json(
                                         {
-                                            result: 'ok',
-                                            message: 'User ' + user.ddr.username + ' signed in.'
+                                            result: "ok",
+                                            message: "User " + user.ddr.username + " signed in."
                                         }
                                     );
                                 }
                                 else
                                 {
-                                    req.flash('success', 'Welcome, ' + user.foaf.firstName + ' ' + user.foaf.surname + '.');
+                                    req.flash("success", "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
 
                                     if (Config.debug.permissions.log_authorizations)
                                     {
-                                        console.log('User ' + user.ddr.username + ' signed in.');
+                                        console.log("User " + user.ddr.username + " signed in.");
                                     }
 
                                     if (req.body.redirect)
@@ -65,7 +65,7 @@ module.exports.login = function (req, res, next)
                                     }
                                     else
                                     {
-                                        res.redirect('/projects/my');
+                                        res.redirect("/projects/my");
                                     }
                                 }
                             }
@@ -75,16 +75,16 @@ module.exports.login = function (req, res, next)
                                 {
                                     res.json(
                                         {
-                                            result: 'error',
-                                            message: 'Error signing in user',
+                                            result: "error",
+                                            message: "Error signing in user",
                                             error: err
                                         }
                                     );
                                 }
                                 else
                                 {
-                                    req.flash('success', 'There was an error signing you in.');
-                                    console.log('Error signing in user ' + JSON.stringify(err));
+                                    req.flash("success", "There was an error signing you in.");
+                                    console.log("Error signing in user " + JSON.stringify(err));
                                     throw err;
                                 }
                             }
@@ -96,22 +96,22 @@ module.exports.login = function (req, res, next)
                         {
                             res.status(401).json(
                                 {
-                                    result: 'error',
+                                    result: "error",
                                     message: err
                                 }
                             );
                         }
                         else
                         {
-                            req.flash('error', err);
+                            req.flash("error", err);
 
                             if (req.body.redirect)
                             {
-                                res.redirect('/login?redirect=' + req.body.redirect);
+                                res.redirect("/login?redirect=" + req.body.redirect);
                             }
                             else
                             {
-                                res.redirect('/login');
+                                res.redirect("/login");
                             }
                         }
                     }
@@ -120,12 +120,12 @@ module.exports.login = function (req, res, next)
         }
         else
         {
-            res.render('auth/login',
+            res.render("auth/login",
                 {
-                    title: 'Error Logging in',
+                    title: "Error Logging in",
                     error_messages:
           [
-              'Usernames must be alphanumeric only'
+              "Usernames must be alphanumeric only"
           ]
                 }
             );
@@ -144,102 +144,102 @@ module.exports.logout = function (req, res)
         delete res.locals.user;
         delete res.locals.session;
 
-        req.flash('success', 'Successfully logged out');
-        res.redirect('/');
+        req.flash("success", "Successfully logged out");
+        res.redirect("/");
     }
     else
     {
-        req.flash('error', 'Cannot log you out because you are not logged in');
-        res.redirect('/');
+        req.flash("error", "Cannot log you out because you are not logged in");
+        res.redirect("/");
     }
 };
 
 module.exports.register = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
         res.status(405).json(
             {
-                result: 'error',
-                message: 'This function is not yet available via the JSON API. You need to register at ' + Config.host + ' .'
+                result: "error",
+                message: "This function is not yet available via the JSON API. You need to register at " + Config.host + " ."
             }
         );
     }
     else
     {
-        if (req.originalMethod === 'GET')
+        if (req.originalMethod === "GET")
         {
-            res.render('auth/register',
+            res.render("auth/register",
                 {
-                    title: 'Register on Dendro'
+                    title: "Register on Dendro"
                 }
             );
         }
-        else if (req.originalMethod === 'POST')
+        else if (req.originalMethod === "POST")
         {
             if (isNull(req.body.username))
             {
-                res.render('auth/register',
+                res.render("auth/register",
                     {
-                        title: 'Register on Dendro',
-                        error_messages: ['Please specify your username']
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your username"]
                     }
                 );
             }
             else if (isNull(req.body.email))
             {
-                res.render('auth/register',
+                res.render("auth/register",
                     {
-                        title: 'Register on Dendro',
-                        error_messages: ['Please specify your email']
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your email"]
                     }
                 );
             }
             else if (isNull(req.body.password))
             {
-                res.render('auth/register',
+                res.render("auth/register",
                     {
-                        title: 'Register on Dendro',
-                        error_messages: ['Please specify your password']
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your password"]
                     }
                 );
             }
-            else if (typeof req.body.repeat_password === 'undefined')
+            else if (typeof req.body.repeat_password === "undefined")
             {
-                res.render('auth/register',
+                res.render("auth/register",
                     {
-                        title: 'Register on Dendro',
-                        error_messages: ['Please repeat your password']
+                        title: "Register on Dendro",
+                        error_messages: ["Please repeat your password"]
                     }
                 );
             }
             else if (isNull(req.body.firstname))
             {
-                res.render('auth/register',
+                res.render("auth/register",
                     {
-                        title: 'Register on Dendro',
-                        error_messages: ['Please specify your first name']
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your first name"]
                     }
                 );
             }
             else if (isNull(req.body.surname))
             {
-                res.render('auth/register',
+                res.render("auth/register",
                     {
-                        title: 'Register on Dendro',
-                        error_messages: ['Please specify your surname']
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your surname"]
                     }
                 );
             }
             else if (!isNull(req.body.username) && !req.body.username.match(/^[0-9a-zA-Z]+$/))
             {
-                res.render('auth/register',
+                res.render("auth/register",
                     {
-                        title: 'Register on Dendro',
-                        error_messages: ['Username can not include spaces or special characters. It should only include letters (a to Z) and numbers (0 to 9). Valid : joHNdoe91. Invalid: johndoe 01, johndoe*01, john@doe, john%doe9$ ']
+                        title: "Register on Dendro",
+                        error_messages: ["Username can not include spaces or special characters. It should only include letters (a to Z) and numbers (0 to 9). Valid : joHNdoe91. Invalid: johndoe 01, johndoe*01, john@doe, john%doe9$ "]
                     }
                 );
             }
@@ -253,7 +253,7 @@ module.exports.register = function (req, res)
                         {
                             if (!isNull(user))
                             {
-                                return callback(1, 'Username already exists');
+                                return callback(1, "Username already exists");
                             }
                             if (req.body.password === req.body.repeat_password)
                             {
@@ -271,7 +271,7 @@ module.exports.register = function (req, res)
 
                                 return callback(null, userData);
                             }
-                            return callback(1, 'Passwords do not match');
+                            return callback(1, "Passwords do not match");
                         }
                         return callback(1, user);
                     });
@@ -285,7 +285,7 @@ module.exports.register = function (req, res)
                         {
                             if (!isNull(user))
                             {
-                                return callback(1, 'User with that ORCID already exists');
+                                return callback(1, "User with that ORCID already exists");
                             }
                             if (req.body.password === req.body.repeat_password)
                             {
@@ -304,7 +304,7 @@ module.exports.register = function (req, res)
 
                                 return callback(null, userData);
                             }
-                            return callback(1, 'Passwords do not match');
+                            return callback(1, "Passwords do not match");
                         }
                         return callback(1, user);
                     });
@@ -316,7 +316,7 @@ module.exports.register = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            return callback(null, newUser, 'New user ' + userData.ddr.username + ' created successfully. You can now login with the username and password you specified.');
+                            return callback(null, newUser, "New user " + userData.ddr.username + " created successfully. You can now login with the username and password you specified.");
                         }
                         return callback(1, newUser);
                     });
@@ -355,23 +355,23 @@ module.exports.register = function (req, res)
                             try
                             {
                                 // set up options
-                                const md5 = require('md5');
-                                const uuid = require('uuid');
-                                const Identicon = require('identicon.js/identicon');
+                                const md5 = require("md5");
+                                const uuid = require("uuid");
+                                const Identicon = require("identicon.js/identicon");
                                 const hash = md5(uuid.v4()); // 15+ hex chars
                                 const options = {
                                     // foreground: [0, 0, 0, 255],               // rgba black
                                     // background: [255, 255, 255, 255],         // rgba white
                                     margin: 0.2, // 20% margin
                                     size: 420, // 420px square
-                                    format: 'png' // use SVG instead of PNG
+                                    format: "png" // use SVG instead of PNG
                                 };
 
                                 // create a base64 encoded SVG
-                                const avatarUri = '/avatar/' + req.body.username + '/avatar.png';
+                                const avatarUri = "/avatar/" + req.body.username + "/avatar.png";
                                 const avatar = new Identicon(hash, options).toString();
 
-                                user.saveAvatarInGridFS(avatar, 'png', function (err, data)
+                                user.saveAvatarInGridFS(avatar, "png", function (err, data)
                                 {
                                     if (!err)
                                     {
@@ -386,7 +386,7 @@ module.exports.register = function (req, res)
                             catch (e)
                             {
                                 return res.status(500).json({
-                                    result: 'error',
+                                    result: "error",
                                     message: e.message
                                 });
                             }
@@ -400,14 +400,14 @@ module.exports.register = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        req.flash('success', message);
-                        res.redirect('/login');
+                        req.flash("success", message);
+                        res.redirect("/login");
                     }
                     else
                     {
-                        req.flash('error', 'Error registering a new user');
-                        console.error('Error registering a new user: ' + JSON.stringify(err));
-                        res.redirect('/register');
+                        req.flash("error", "Error registering a new user");
+                        console.error("Error registering a new user: " + JSON.stringify(err));
+                        res.redirect("/register");
                     }
                 });
             }

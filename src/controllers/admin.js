@@ -1,19 +1,19 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder('/kb/index.js')).IndexConnection;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = Config.getDBByGraphUri();
 
 module.exports.home = function (req, res)
 {
-    res.render('admin/home',
+    res.render("admin/home",
         {
-            title: 'List of available administration operations'
+            title: "List of available administration operations"
         }
     );
 };
@@ -22,38 +22,38 @@ module.exports.reload = function (req, res)
 {
     const graphNames = req.query.graphs;
     const graphsToDelete = req.query.graphs_to_delete;
-    const async = require('async');
+    const async = require("async");
 
     const renderResponse = function (err, messages)
     {
         if (isNull(err))
         {
-            const util = require('util');
+            const util = require("util");
             // noinspection ES6ConvertVarToLetConst
-            let messages = 'All resources successfully loaded in graph(s) : ';
+            let messages = "All resources successfully loaded in graph(s) : ";
 
             for (let i = 0; i < graphNames.length; i++)
             {
-                messages = messages + ' ' + graphNames[i];
+                messages = messages + " " + graphNames[i];
 
                 if (i < graphNames.length - 1)
                 {
-                    messages = messages + ', ';
+                    messages = messages + ", ";
                 }
             }
 
-            res.render('admin/home',
+            res.render("admin/home",
                 {
-                    title: 'List of available administration operations',
+                    title: "List of available administration operations",
                     info_messages: [messages]
                 }
             );
         }
         else
         {
-            res.render('admin/home',
+            res.render("admin/home",
                 {
-                    title: 'List of available administration operations',
+                    title: "List of available administration operations",
                     error_messages: messages
                 }
             );
@@ -100,17 +100,17 @@ module.exports.reload = function (req, res)
                 dbpediaLoader.load_dbpedia(renderResponse);
             }
         } */
-        if (graph === 'dryad')
+        if (graph === "dryad")
         {
             const dryadLoader = new DryadLoader();
             dryadLoader.loadFromDownloadedFiles(req.index);
         }
     }
 
-    res.render('admin/home',
+    res.render("admin/home",
         {
-            title: 'List of available administration operations',
-            info_messages: [JSON.stringify(graphNames) + ' loading in the background']
+            title: "List of available administration operations",
+            info_messages: [JSON.stringify(graphNames) + " loading in the background"]
         }
     );
 };
@@ -121,7 +121,7 @@ module.exports.reindex = function (req, res)
     const graphsToBeIndexed = req.query.graphs;
     const graphsToDelete = req.query.graphs_to_delete;
 
-    const async = require('async');
+    const async = require("async");
 
     const rebuildIndex = function (indexConnection, graphShortName, deleteBeforeReindexing, callback)
     {
@@ -139,7 +139,7 @@ module.exports.reindex = function (req, res)
 
         if (!isNull(index))
         {
-            const async = require('async');
+            const async = require("async");
 
             async.waterfall([
                 function (callback) // delete current index if requested
@@ -148,10 +148,10 @@ module.exports.reindex = function (req, res)
                     {
                         if (isNull(err) && result)
                         {
-                            console.log('Index ' + indexConnection.index.short_name + ' recreated .');
+                            console.log("Index " + indexConnection.index.short_name + " recreated .");
                             return callback(null);
                         }
-                        console.log('Error recreating index ' + indexConnection.index.short_name + ' . ' + result);
+                        console.log("Error recreating index " + indexConnection.index.short_name + " . " + result);
                         return callback(1); // delete success, move on
                     });
                 },
@@ -163,13 +163,13 @@ module.exports.reindex = function (req, res)
                         {
                             async.map(resources, function (resource, callback)
                             {
-                                console.log('Resource ' + resource.uri + ' now being reindexed.');
+                                console.log("Resource " + resource.uri + " now being reindexed.");
 
                                 resource.reindex(indexConnection, function (err, results)
                                 {
                                     if (err)
                                     {
-                                        console.error('Error indexing Resource ' + resource.uri + ' : ' + results);
+                                        console.error("Error indexing Resource " + resource.uri + " : " + results);
                                     }
                                     callback(err, results);
                                 });
@@ -177,7 +177,7 @@ module.exports.reindex = function (req, res)
                             {
                                 if (err)
                                 {
-                                    console.error('Errors occurred indexing all Resources : ' + results);
+                                    console.error("Errors occurred indexing all Resources : " + results);
                                 }
 
                                 return callback(null, null);
@@ -185,7 +185,7 @@ module.exports.reindex = function (req, res)
                         }
                         else
                         {
-                            return callback(1, 'Error fetching all resources in the graph : ' + results);
+                            return callback(1, "Error fetching all resources in the graph : " + results);
                         }
                     });
                 }
@@ -201,7 +201,7 @@ module.exports.reindex = function (req, res)
         }
         else
         {
-            return callback(1, 'Non-existent index : ' + graphShortName);
+            return callback(1, "Non-existent index : " + graphShortName);
         }
     };
 
@@ -216,19 +216,19 @@ module.exports.reindex = function (req, res)
             {
                 if (err)
                 {
-                    res.render('admin/home',
+                    res.render("admin/home",
                         {
-                            title: 'List of available administration operations',
+                            title: "List of available administration operations",
                             error_messages: [result]
                         }
                     );
                 }
                 else
                 {
-                    res.render('admin/home',
+                    res.render("admin/home",
                         {
-                            title: 'List of available administration operations',
-                            info_messages: ['Resources successfully indexed for graphs ' + JSON.stringify(graphsToBeIndexed)]
+                            title: "List of available administration operations",
+                            info_messages: ["Resources successfully indexed for graphs " + JSON.stringify(graphsToBeIndexed)]
                         }
                     );
                 }

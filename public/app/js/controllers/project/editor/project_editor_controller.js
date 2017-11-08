@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
      *  Metadata editor controller
      */
-    .controller('projectEditorCtrl', function (
+    .controller("projectEditorCtrl", function (
         $scope,
         $rootScope,
         $http,
@@ -93,14 +93,14 @@ angular.module('dendroApp.controllers')
                 {
                     if ($scope.showing_project_root())
                     {
-                        if ($scope.shared.initial_metadata[i].prefixedForm === 'dcterms:title')
+                        if ($scope.shared.initial_metadata[i].prefixedForm === "dcterms:title")
                         {
                             return $scope.shared.initial_metadata[i].value;
                         }
                     }
                     else
                     {
-                        if ($scope.shared.initial_metadata[i].prefixedForm === 'nie:title')
+                        if ($scope.shared.initial_metadata[i].prefixedForm === "nie:title")
                         {
                             return $scope.shared.initial_metadata[i].value;
                         }
@@ -108,7 +108,7 @@ angular.module('dendroApp.controllers')
                 }
             }
 
-            return '(No file name available)';
+            return "(No file name available)";
         };
 
         $scope.get_owner_project = function ()
@@ -160,7 +160,7 @@ angular.module('dendroApp.controllers')
                 $scope.remove_recommendations();
             }
 
-            storageService.save_to_local_storage('edit_mode', $scope.edit_mode);
+            storageService.save_to_local_storage("edit_mode", $scope.edit_mode);
             $scope.load_preview();
         };
 
@@ -182,7 +182,7 @@ angular.module('dendroApp.controllers')
         {
             if ($scope.shared.selected_file != null)
             {
-                if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, 'nie:File'))
+                if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, "nie:File"))
                 {
                     return true;
                 }
@@ -202,7 +202,7 @@ angular.module('dendroApp.controllers')
         {
             if (!$scope.showing_project_root())
             {
-                if ($scope.shared.selected_file === null || typeof $scope.shared.selected_file === 'undefined')
+                if ($scope.shared.selected_file === null || typeof $scope.shared.selected_file === "undefined")
                 {
                     preview.load($scope, $scope.shared.file_extension, $scope.get_calling_uri());
                 }
@@ -228,7 +228,7 @@ angular.module('dendroApp.controllers')
         {
             if (validationCondition)
             {
-                bootbox.confirm('You have unsaved changes. Are you sure you want to move away from this file or folder?', function (confirmed)
+                bootbox.confirm("You have unsaved changes. Are you sure you want to move away from this file or folder?", function (confirmed)
                 {
                     callback(confirmed);
                 });
@@ -423,7 +423,7 @@ angular.module('dendroApp.controllers')
                 })
                 .catch(function (error)
                 {
-                    loadFolderContentsPromise.reject('Unable to load folder contents from server' + JSON.stringify(error));
+                    loadFolderContentsPromise.reject("Unable to load folder contents from server" + JSON.stringify(error));
                 });
 
             return loadFolderContentsPromise.promise;
@@ -442,7 +442,7 @@ angular.module('dendroApp.controllers')
                     })
                     .catch(function (error)
                     {
-                        getFolderContentsPromise.reject('Unable to get folder contents' + JSON.stringify(error));
+                        getFolderContentsPromise.reject("Unable to get folder contents" + JSON.stringify(error));
                     });
             }
             else
@@ -455,12 +455,12 @@ angular.module('dendroApp.controllers')
 
         $scope.download = function ()
         {
-            windowService.download_url($scope.get_calling_uri(), '?download');
+            windowService.download_url($scope.get_calling_uri(), "?download");
         };
 
         $scope.backup = function ()
         {
-            windowService.download_url($scope.get_calling_uri(), '?backup');
+            windowService.download_url($scope.get_calling_uri(), "?backup");
         };
 
         $scope.download_selected_items = function ()
@@ -471,7 +471,7 @@ angular.module('dendroApp.controllers')
 
                 if (item.selected)
                 {
-                    windowService.download_url(item.uri, '?download');
+                    windowService.download_url(item.uri, "?download");
                 }
             }
         };
@@ -484,7 +484,7 @@ angular.module('dendroApp.controllers')
 
                 if (item.selected)
                 {
-                    windowService.download_url(item.uri, '?backup');
+                    windowService.download_url(item.uri, "?backup");
                 }
             }
         };
@@ -529,16 +529,16 @@ angular.module('dendroApp.controllers')
         $scope.init = function ()
         {
             // init interface parameters
-            $scope.set_from_local_storage_and_then_from_value('edit_mode', false);
+            $scope.set_from_local_storage_and_then_from_value("edit_mode", false);
 
             // put some services in scope i.e. to access constants
 
             $scope.recommendationService = recommendationService;
 
             // monitor url change events (ask to save if metadata changed)
-            $scope.$on('$routeChangeStart', function (next, current)
+            $scope.$on("$routeChangeStart", function (next, current)
             {
-                console.log('Changing location from ' + current + ' to ' + next);
+                console.log("Changing location from " + current + " to " + next);
                 $scope.change_location(next,
                     metadataService.dirty_metadata(
                         $scope.shared.initial_metadata,

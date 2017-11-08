@@ -1,22 +1,22 @@
-'use strict';
+"use strict";
 
-angular.module('dendroApp.services')
-    .service('uploadsService',
+angular.module("dendroApp.services")
+    .service("uploadsService",
         [
-            'usersService',
-            'Upload',
-            '$http',
-            '$timeout',
-            '$q',
+            "usersService",
+            "Upload",
+            "$http",
+            "$timeout",
+            "$q",
             function (usersService, Upload, $http, $timeout, $q)
             {
                 this.uploadUsing$http = function (file, upload_url)
                 {
                     file.upload = Upload.http({
                         url: upload_url,
-                        method: 'POST',
+                        method: "POST",
                         headers: {
-                            'Content-Type': file.type
+                            "Content-Type": file.type
                         },
                         data: file
                     });
@@ -54,21 +54,21 @@ angular.module('dendroApp.services')
                         }
                     }
 
-                    url.addSearch('size', encodeURIComponent(file.size))
-                        .addSearch('filename', encodeURIComponent(file.name))
-                        .addSearch('md5_checksum', encodeURIComponent(file.md5));
+                    url.addSearch("size", encodeURIComponent(file.size))
+                        .addSearch("filename", encodeURIComponent(file.name))
+                        .addSearch("md5_checksum", encodeURIComponent(file.md5));
 
                     url = url.toString();
 
                     var resumeUrl = URI(url)
-                        .addSearch('resume', 'true').toString();
+                        .addSearch("resume", "true").toString();
 
                     file.upload = Upload.upload({
                         url: url,
                         resumeSizeUrl: resumable ? resumeUrl : null,
                         resumeChunkSize: resumable ? chunkSize : null,
                         headers: {
-                            'optional-header': 'header-value'
+                            "optional-header": "header-value"
                         },
                         data: {
                             file: file
@@ -166,16 +166,16 @@ angular.module('dendroApp.services')
                             try
                             {
                                 var uploadUri = URI(upload_url)
-                                    .addQuery('filename', encodeURIComponent(file.name))
-                                    .addQuery('size', encodeURIComponent(file.size))
-                                    .addQuery('md5_checksum', encodeURIComponent(file.md5))
-                                    .addQuery('username', response.ddr.username);
+                                    .addQuery("filename", encodeURIComponent(file.name))
+                                    .addQuery("size", encodeURIComponent(file.size))
+                                    .addQuery("md5_checksum", encodeURIComponent(file.md5))
+                                    .addQuery("username", response.ddr.username);
 
                                 $http({
-                                    method: 'GET',
+                                    method: "GET",
                                     url: uploadUri.toString(),
-                                    contentType: 'application/json',
-                                    headers: {Accept: 'application/json'}
+                                    contentType: "application/json",
+                                    headers: {Accept: "application/json"}
                                 }).then(
                                     function (response)
                                     {
@@ -185,7 +185,7 @@ angular.module('dendroApp.services')
                                         }
                                         else
                                         {
-                                            ticketPromise.reject('Invalid response format received from server');
+                                            ticketPromise.reject("Invalid response format received from server");
                                         }
                                     }
                                 ).catch(function (error)
@@ -195,7 +195,7 @@ angular.module('dendroApp.services')
                             }
                             catch (e)
                             {
-                                ticketPromise.reject('Invalid response format received from server');
+                                ticketPromise.reject("Invalid response format received from server");
                             }
                         })
                         .catch(function (error)

@@ -1,25 +1,25 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder('utils/null')).isNull;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null")).isNull;
 
-const chai = require('chai');
-chai.use(require('chai-http'));
+const chai = require("chai");
+chai.use(require("chai-http"));
 const should = chai.should();
-const async = require('async');
-const colors = require('colors');
-const path = require('path');
+const async = require("async");
+const colors = require("colors");
+const path = require("path");
 
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const start = function ()
 {
     if (Config.debug.tests.log_unit_completion_and_startup)
     {
-        console.log('**********************************************'.green);
-        console.log('[Create Users Unit] Creating new users...'.green);
-        console.log('**********************************************'.green);
+        console.log("**********************************************".green);
+        console.log("[Create Users Unit] Creating new users...".green);
+        console.log("**********************************************".green);
     }
 };
 
@@ -27,16 +27,16 @@ const end = function ()
 {
     if (Config.debug.tests.log_unit_completion_and_startup)
     {
-        console.log('**********************************************'.blue);
-        console.log('[Create Users Unit] Complete'.blue);
-        console.log('**********************************************'.blue);
+        console.log("**********************************************".blue);
+        console.log("[Create Users Unit] Complete".blue);
+        console.log("**********************************************".blue);
     }
 };
 
 module.exports.setup = function (finish)
 {
     start();
-    let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/bootup.Unit.js'));
+    let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
     bootupUnit.setup(function (err, results)
     {
@@ -47,8 +47,8 @@ module.exports.setup = function (finish)
         }
         else
         {
-            const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
-            const Administrator = require(Pathfinder.absPathInSrcFolder('/models/administrator.js')).Administrator;
+            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+            const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
 
             const createUser = function (user, callback)
             {
@@ -71,7 +71,7 @@ module.exports.setup = function (finish)
                     }
                     else
                     {
-                        console.log('[ERROR] Error creating new demo User at createUsers.Unit ' + JSON.stringify(user));
+                        console.log("[ERROR] Error creating new demo User at createUsers.Unit " + JSON.stringify(user));
                         callback(err, user);
                     }
                 });
@@ -111,7 +111,7 @@ module.exports.setup = function (finish)
                             }
                             else
                             {
-                                const msg = 'Error creating new Administrator at createUsers.Unit' + JSON.stringify(newUser);
+                                const msg = "Error creating new Administrator at createUsers.Unit" + JSON.stringify(newUser);
                                 console.error(msg);
                                 callback(err, msg);
                             }
@@ -136,11 +136,11 @@ module.exports.setup = function (finish)
                             {
                                 if (isNull(err))
                                 {
-                                    console.log('[OK] Admins successfully loaded at createUsers.Unit.');
+                                    console.log("[OK] Admins successfully loaded at createUsers.Unit.");
                                 }
                                 else
                                 {
-                                    console.log('[ERROR] Unable to load admins at createUsers.Unit. Error : ' + err);
+                                    console.log("[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
                                 }
 
                                 callback(err);
@@ -157,7 +157,7 @@ module.exports.setup = function (finish)
                         }
                         else
                         {
-                            const msg = 'Error creating Admins at createUsers.Unit';
+                            const msg = "Error creating Admins at createUsers.Unit";
                             console.error(msg);
                             appUtils.registerStopTimeForUnit(path.basename(__filename));
                             end();
@@ -167,7 +167,7 @@ module.exports.setup = function (finish)
                 }
                 else
                 {
-                    var msg = 'Error creating users at createUsers.Unit';
+                    var msg = "Error creating users at createUsers.Unit";
                     console.error(msg);
                     appUtils.registerStopTimeForUnit(path.basename(__filename));
                     end();

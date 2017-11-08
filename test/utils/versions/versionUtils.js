@@ -1,10 +1,10 @@
-const chai = require('chai');
-const path = require('path');
-const chaiHttp = require('chai-http');
-const _ = require('underscore');
+const chai = require("chai");
+const path = require("path");
+const chaiHttp = require("chai-http");
+const _ = require("underscore");
 chai.use(chaiHttp);
 const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder(path.join('utils', 'null.js'))).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder(path.join("utils", "null.js"))).isNull;
 
 module.exports.getVersionErrors = function (version, expectedVersion)
 {
@@ -21,7 +21,7 @@ module.exports.getVersionErrors = function (version, expectedVersion)
             }
         };
 
-        if (changesType !== 'delete')
+        if (changesType !== "delete")
         {
             expectedChange.newValue = expectedVersion.changes[i].value;
         }
@@ -29,10 +29,10 @@ module.exports.getVersionErrors = function (version, expectedVersion)
 
     if (expectedChanges.length !== versionChanges.length)
     {
-        return 'Length of expected changes do not match received changes';
+        return "Length of expected changes do not match received changes";
     }
 
-    if (changesType === 'add' || changesType === 'update')
+    if (changesType === "add" || changesType === "update")
     {
         for (var i = 0; i < versionChanges.length; i++)
         {
@@ -41,16 +41,16 @@ module.exports.getVersionErrors = function (version, expectedVersion)
 
             if (change.ddr.changeType !== changesType)
             {
-                return 'Type of change does not match expected value. ' + change.ddr.changeType + ' EXPECTED' + changesType;
+                return "Type of change does not match expected value. " + change.ddr.changeType + " EXPECTED" + changesType;
             }
 
             if (change.ddr.newValue !== expectedChange.value)
             {
-                return 'Value of change does not match expected value. ' + change.ddr.newValue + ' ' + expectedChange.value;
+                return "Value of change does not match expected value. " + change.ddr.newValue + " " + expectedChange.value;
             }
         }
     }
-    else if (changesType === 'delete')
+    else if (changesType === "delete")
     {
         for (var i = 0; i < versionChanges.length; i++)
         {
@@ -59,23 +59,23 @@ module.exports.getVersionErrors = function (version, expectedVersion)
 
             if (isNull(change.oldValue))
             {
-                return 'The change is of type delete, but system is not showing the previous value!';
+                return "The change is of type delete, but system is not showing the previous value!";
             }
 
             if (!isNull(change.newValue))
             {
-                return 'The change is of type delete, but system is showing the resource as having a new value. Deletes nave no new value!';
+                return "The change is of type delete, but system is showing the resource as having a new value. Deletes nave no new value!";
             }
 
             if (change.changeType !== changesType)
             {
-                return 'Type of change does not match expected value. ' + change.ddr.changeType + ' EXPECTED' + changesType;
+                return "Type of change does not match expected value. " + change.ddr.changeType + " EXPECTED" + changesType;
             }
         }
     }
     else
     {
-        return 'Changes type not correct! Check your test calls! ' + changesType;
+        return "Changes type not correct! Check your test calls! " + changesType;
     }
 
     return null;

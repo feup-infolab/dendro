@@ -1,16 +1,16 @@
 const Pathfinder = global.Pathfinder;
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const CKAN = require('ckan');
-const CkanUtils = require(Pathfinder.absPathInSrcFolder('/utils/datasets/ckanUtils.js'));
-const async = require('async');
-const slug = require('slug');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const CKAN = require("ckan");
+const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
+const async = require("async");
+const slug = require("slug");
 chai.use(chaiHttp);
 
 const createCkanOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb)
 {
     const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUrl, ckanRepoData.ddr.hasAPIKey);
-    client.action('organization_create',
+    client.action("organization_create",
         {
             name: organizationData.name,
             id: organizationData.id
@@ -26,7 +26,7 @@ const deleteCkanOrganization = function (jsonOnly, agent, ckanRepoData, organiza
     const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUrl, ckanRepoData.ddr.hasAPIKey);
     // organization_purge
     // client.action("organization_delete",
-    client.action('organization_delete',
+    client.action("organization_delete",
         {
             id: organizationData.id
         },
@@ -48,7 +48,7 @@ const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoDat
 {
     const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUrl, ckanRepoData.ddr.hasAPIKey);
 
-    client.action('organization_show',
+    client.action("organization_show",
         {
             id: organizationData.id,
             include_datasets: true
@@ -66,7 +66,7 @@ const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoDat
                     async.mapSeries(result.result.packages, function (package, cb)
                     {
                         /* client.action("package_delete",*/
-                        client.action('dataset_purge',
+                        client.action("dataset_purge",
                             {
                                 id: package.id
                             },
@@ -122,7 +122,7 @@ const uploadFileToCkanPackage = function (jsonOnly, agent, ckanRepoData, fileDat
     client.upload_file_into_package(
         fileData.location,
         packageInfo.id,
-        'This is the description of' + fileData.name,
+        "This is the description of" + fileData.name,
         fileData.name,
         fileData.extension,
         fileData.extension.toUpperCase()
@@ -136,7 +136,7 @@ const getCkanFolderContents = function (jsonOnly, agent, ckanRepoData, folderDat
 {
     const client = new CKAN.Client(ckanRepoData.repository.ddr.hasExternalUri, ckanRepoData.repository.ddr.hasAPIKey);
     let packageId = CkanUtils.createPackageID(folderData.uri);
-    client.action('package_show',
+    client.action("package_show",
         {
             id: packageId
         },

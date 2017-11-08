@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
  *  Metadata editor controller
  */
-    .controller('metadataEditorCtrl', function (
+    .controller("metadataEditorCtrl", function (
         $scope,
         $http,
         $filter,
@@ -25,7 +25,7 @@ angular.module('dendroApp.controllers')
     {
         $scope.recover_metadata = function ()
         {
-            bootbox.confirm('Undo all changes to the metadata?', function (confirmed)
+            bootbox.confirm("Undo all changes to the metadata?", function (confirmed)
             {
                 if (confirmed)
                 {
@@ -153,7 +153,7 @@ angular.module('dendroApp.controllers')
                 var report_problems = function (fault)
                 {
                     console.log(fault);
-                    windowService.show_popup('error', 'Error', fault);
+                    windowService.show_popup("error", "Error", fault);
                     deferred.reject(fault);
                 };
 
@@ -165,16 +165,16 @@ angular.module('dendroApp.controllers')
                     .then(refetch_metadata)
                     .then(function ()
                     {
-                        var msg = 'Information was saved successfully';
-                        windowService.show_popup('success', 'OK', msg);
+                        var msg = "Information was saved successfully";
+                        windowService.show_popup("success", "OK", msg);
                     })
                     .catch(report_problems);
             }
             else
             {
-                var msg = 'There are still errors in your metadata. Please go over each descriptor and check for any warnings before trying to save again.';
-                windowService.show_popup('warning',
-                    'Warning',
+                var msg = "There are still errors in your metadata. Please go over each descriptor and check for any warnings before trying to save again.";
+                windowService.show_popup("warning",
+                    "Warning",
                     msg
                 );
 
@@ -220,7 +220,7 @@ angular.module('dendroApp.controllers')
 
         $scope.clear_metadata = function ()
         {
-            bootbox.confirm('Clear metadata?', function (confirmed)
+            bootbox.confirm("Clear metadata?", function (confirmed)
             {
                 if (confirmed)
                 {
@@ -240,7 +240,7 @@ angular.module('dendroApp.controllers')
 
         $scope.inherit_metadata = function ()
         {
-            var requestUri = $scope.get_calling_uri('?parent_metadata');
+            var requestUri = $scope.get_calling_uri("?parent_metadata");
 
             return $http
                 .get(requestUri)
@@ -255,11 +255,11 @@ angular.module('dendroApp.controllers')
 
                         $scope.add_all_descriptors(data.descriptors);
 
-                        windowService.show_popup('success', 'Completed', 'Copied ' + data.descriptors.length + ' descriptors from parent folder.');
+                        windowService.show_popup("success", "Completed", "Copied " + data.descriptors.length + " descriptors from parent folder.");
 
                         return $scope.shared.metadata;
                     }
-                    windowService.show_popup('info', 'No descriptors', 'Parent has no descriptors to copy.');
+                    windowService.show_popup("info", "No descriptors", "Parent has no descriptors to copy.");
                 });
         };
 
@@ -317,7 +317,7 @@ angular.module('dendroApp.controllers')
 
         $scope.save_descriptor_on_enter = function ()
         {
-            bootbox.confirm('Save changes to the annotations?', function (confirmed)
+            bootbox.confirm("Save changes to the annotations?", function (confirmed)
             {
                 if (confirmed)
                 {
@@ -407,7 +407,7 @@ angular.module('dendroApp.controllers')
 
         $scope.get_map_src = function (descriptor, key)
         {
-            return 'https://www.google.com/maps/embed/v1/place?key=' + key + '&q=' + descriptor.value;
+            return "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value;
         };
 
         $scope.shared.descriptor_is_filled_in = function (descriptor)

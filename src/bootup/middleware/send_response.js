@@ -1,8 +1,8 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const sendAnyResponse = function (data, options, req, res, next)
 {
@@ -11,8 +11,8 @@ const sendAnyResponse = function (data, options, req, res, next)
         data = {};
     }
 
-    const acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
     if (!options.code)
     {
@@ -26,20 +26,20 @@ const sendAnyResponse = function (data, options, req, res, next)
         switch (options.code)
         {
         case 200:
-            result = 'ok';
+            result = "ok";
             break;
         case 404:
-            result = 'not_found';
+            result = "not_found";
             break;
         case 500:
-            result = 'error';
+            result = "error";
             break;
         case 405:
-            result = 'invalid_request';
+            result = "invalid_request";
             break;
         default:
-            console.error('Unknown status code : ' + options.code);
-            result = 'other';
+            console.error("Unknown status code : " + options.code);
+            result = "other";
             break;
         }
 

@@ -1,13 +1,13 @@
-'use strict';
+"use strict";
 
 /* Directives */
 
-angular.module('dendroApp.directives', [])
-    .directive('focusOn', function ()
+angular.module("dendroApp.directives", [])
+    .directive("focusOn", function ()
     {
         return function (scope, elem, attr)
         {
-            scope.$on('focusOn', function (e, name)
+            scope.$on("focusOn", function (e, name)
             {
                 // alert("dentro do foco 1" + elem + " name :" + name + " e : " + e);
                 if (name === attr.focusOn)
@@ -17,15 +17,15 @@ angular.module('dendroApp.directives', [])
             });
         };
     })
-    .directive('datepicker', function ()
+    .directive("datepicker", function ()
     {
         return {
-            restrict: 'A',
-            require: 'ngModel',
+            restrict: "A",
+            require: "ngModel",
             link: function (scope, element, attrs, ngModelCtrl)
             {
                 element.datetimepicker({
-                    dateFormat: 'dd/MM/yyyy hh:mm:ss'
+                    dateFormat: "dd/MM/yyyy hh:mm:ss"
                 });
 
                 /* .on('changeDate', function(e) {
@@ -35,14 +35,14 @@ angular.module('dendroApp.directives', [])
             }
         };
     })
-    .directive('ngEnter', function ()
+    .directive("ngEnter", function ()
     {
         return function (scope, element, attrs)
         {
             scope.safeApply = function (fn)
             {
                 var phase = this.$root.$$phase;
-                if (phase == '$apply' || phase == '$digest')
+                if (phase == "$apply" || phase == "$digest")
                 {
 
                 }
@@ -53,7 +53,7 @@ angular.module('dendroApp.directives', [])
                 }
             };
 
-            element.bind('keydown keypress', function (event)
+            element.bind("keydown keypress", function (event)
             {
                 if (event.which === 13)
                 {
@@ -69,7 +69,7 @@ angular.module('dendroApp.directives', [])
             });
         };
     })
-    .directive('focusMe', function ($timeout, $parse)
+    .directive("focusMe", function ($timeout, $parse)
     {
         return {
             scope: true, // optionally create a child scope
@@ -97,15 +97,15 @@ angular.module('dendroApp.directives', [])
             }
         };
     })
-    .directive('a', function ()
+    .directive("a", function ()
     {
         return {
-            restrict: 'E',
+            restrict: "E",
             link: function (scope, elem, attrs)
             {
-                if (attrs.ngClick || attrs.href === '' || attrs.href === '#')
+                if (attrs.ngClick || attrs.href === "" || attrs.href === "#")
                 {
-                    elem.on('click', function (e)
+                    elem.on("click", function (e)
                     {
                         e.preventDefault();
                     });
@@ -113,7 +113,7 @@ angular.module('dendroApp.directives', [])
             }
         };
     })
-    .directive('calculateIsOverflown', ['$timeout', function ($timeout)
+    .directive("calculateIsOverflown", ["$timeout", function ($timeout)
     {
         return {
             link: function ($scope, element, attrs)
@@ -122,16 +122,16 @@ angular.module('dendroApp.directives', [])
                 // so that element properties reflect content size.
                 $timeout(function ()
                 {
-                    console.log('element[0].scrollHeight:', element[0].scrollHeight);
-                    console.log('element[0].offsetHeight', element[0].offsetHeight);
+                    console.log("element[0].scrollHeight:", element[0].scrollHeight);
+                    console.log("element[0].offsetHeight", element[0].offsetHeight);
                     if (element[0].scrollHeight > element[0].offsetHeight)
                     {
-                        console.log('Is overflown');
+                        console.log("Is overflown");
                         $scope.overflowsOriginally = true;
                     }
                     else
                     {
-                        console.log('Is not overflown');
+                        console.log("Is not overflown");
                         $scope.overflowsOriginally = false;
                     }
                 }, 200); // $timeout

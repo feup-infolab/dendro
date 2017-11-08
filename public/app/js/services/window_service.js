@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-angular.module('dendroApp.services')
-    .service('windowService',
-        ['$http',
+angular.module("dendroApp.services")
+    .service("windowService",
+        ["$http",
             function ($http)
             {
                 this.show_popup = function (type, title, message, delay)
@@ -12,55 +12,55 @@ angular.module('dendroApp.services')
                         delay = 2000;
                     }
 
-                    if (type == 'success')
+                    if (type == "success")
                     {
                         new PNotify({
                             title: title,
                             text: message,
-                            type: 'success',
+                            type: "success",
                             opacity: 1.0,
                             delay: delay,
-                            addclass: 'stack-bar-top',
-                            cornerclass: '',
+                            addclass: "stack-bar-top",
+                            cornerclass: "",
                             stack: stack_topright
                         });
                     }
-                    if (type == 'warning')
+                    if (type == "warning")
                     {
                         new PNotify({
                             title: title,
                             text: message,
-                            type: 'warning',
+                            type: "warning",
                             opacity: 1.0,
                             delay: delay,
-                            addclass: 'stack-bar-top',
-                            cornerclass: '',
+                            addclass: "stack-bar-top",
+                            cornerclass: "",
                             stack: stack_topright
                         });
                     }
-                    else if (type == 'error')
+                    else if (type == "error")
                     {
                         new PNotify({
                             title: title,
                             text: message,
-                            type: 'error',
+                            type: "error",
                             opacity: 1.0,
                             delay: 5000,
-                            addclass: 'stack-bar-top',
-                            cornerclass: '',
+                            addclass: "stack-bar-top",
+                            cornerclass: "",
                             stack: stack_topright
                         });
                     }
-                    else if (type == 'info')
+                    else if (type == "info")
                     {
                         new PNotify({
                             title: title,
                             text: message,
-                            type: 'info',
+                            type: "info",
                             opacity: 1.0,
                             delay: delay,
-                            addclass: 'stack-bar-top',
-                            cornerclass: '',
+                            addclass: "stack-bar-top",
+                            cornerclass: "",
                             stack: stack_topright
                         });
                     }
@@ -77,7 +77,7 @@ angular.module('dendroApp.services')
 
                 this.get_current_url = function ()
                 {
-                    var newURL = window.location.protocol + '//' + window.location.host + window.location.pathname;
+                    var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
                     return newURL;
                 };
 
@@ -97,18 +97,18 @@ angular.module('dendroApp.services')
 
                     function guid ()
                     {
-                        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-                    s4() + '-' + s4() + s4() + s4();
+                        return s4() + s4() + "-" + s4() + "-" + s4() + "-" +
+                    s4() + "-" + s4() + s4() + s4();
                     }
 
-                    var hiddenIFrameID = 'hiddenDownloader_' + guid();
+                    var hiddenIFrameID = "hiddenDownloader_" + guid();
                     var iframe = document.getElementById(hiddenIFrameID);
 
-                    if (iframe === null || typeof iframe === 'undefined')
+                    if (iframe === null || typeof iframe === "undefined")
                     {
-                        iframe = document.createElement('iframe');
+                        iframe = document.createElement("iframe");
                         iframe.id = hiddenIFrameID;
-                        iframe.style.display = 'none';
+                        iframe.style.display = "none";
                         document.body.appendChild(iframe);
                     }
 
@@ -119,12 +119,12 @@ angular.module('dendroApp.services')
                 {
                     if (!event_name)
                     {
-                        throw 'No event name provided.';
+                        throw "No event name provided.";
                     }
 
                     if (url == null)
                     {
-                        url = '';
+                        url = "";
                     }
 
                     var source = new EventSource(url);

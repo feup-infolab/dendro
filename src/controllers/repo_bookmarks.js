@@ -1,35 +1,35 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-const ExternalRepository = require(Pathfinder.absPathInSrcFolder('/models/harvesting/external_repository.js')).ExternalRepository;
-const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder('/models/harvesting/repo_platform')).RepositoryPlatform;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
+const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 const validateNewBookmarkRequest = function (req, res)
 {
-    const validator = require('validator');
-    const regex = Resource.getResourceRegex('repo_platform');
+    const validator = require("validator");
+    const regex = Resource.getResourceRegex("repo_platform");
 
     if (isNull(req.body.dcterms.title))
     {
         res.status(400).json({
-            result: 'error',
-            message: 'No bookmark title specified.'
+            result: "error",
+            message: "No bookmark title specified."
         });
         return false;
     }
-    else if (isNull(req.body.ddr.hasUsername) && req.body.ddr.hasPlatform.foaf.nick !== 'figshare' && req.body.ddr.hasPlatform.foaf.nick !== 'zenodo' && req.body.ddr.hasPlatform.foaf.nick !== 'b2share')
+    else if (isNull(req.body.ddr.hasUsername) && req.body.ddr.hasPlatform.foaf.nick !== "figshare" && req.body.ddr.hasPlatform.foaf.nick !== "zenodo" && req.body.ddr.hasPlatform.foaf.nick !== "b2share")
     {
         res.status(400).json({
-            result: 'error',
-            message: 'No repository username specified.'
+            result: "error",
+            message: "No repository username specified."
         });
 
         return false;
@@ -37,8 +37,8 @@ const validateNewBookmarkRequest = function (req, res)
     else if (isNull(req.body.ddr.hasPlatform))
     {
         res.status(400).json({
-            result: 'error',
-            message: 'No repository type specified.'
+            result: "error",
+            message: "No repository type specified."
         });
 
         return false;
@@ -46,8 +46,8 @@ const validateNewBookmarkRequest = function (req, res)
     else if (isNull(req.body.ddr.hasPlatform.uri))
     {
         res.status(400).json({
-            result: 'error',
-            message: 'Platform field does not have a valid uri field.'
+            result: "error",
+            message: "Platform field does not have a valid uri field."
         });
 
         return false;
@@ -55,8 +55,8 @@ const validateNewBookmarkRequest = function (req, res)
     else if (!regex.test(req.body.ddr.hasPlatform.uri))
     {
         res.status(400).json({
-            result: 'error',
-            message: 'Invalid platform URI specified. '
+            result: "error",
+            message: "Invalid platform URI specified. "
         });
 
         return false;
@@ -64,8 +64,8 @@ const validateNewBookmarkRequest = function (req, res)
     else if (isNull(req.body.ddr.hasExternalUrl))
     {
         res.status(400).json({
-            result: 'error',
-            message: 'You must specify the url of the bookmarked repository'
+            result: "error",
+            message: "You must specify the url of the bookmarked repository"
         });
 
         return false;
@@ -73,43 +73,43 @@ const validateNewBookmarkRequest = function (req, res)
     else if (!validator.isURL(req.body.ddr.hasExternalUrl))
     {
         res.status(400).json({
-            result: 'error',
-            message: 'Invalid url for the repository bookmark'
+            result: "error",
+            message: "Invalid url for the repository bookmark"
         });
 
         return false;
     }
-    else if (req.body.ddr.hasPlatform.foaf.nick === 'dspace' || req.body.ddr.hasPlatform.foaf.nick === 'eprints')
+    else if (req.body.ddr.hasPlatform.foaf.nick === "dspace" || req.body.ddr.hasPlatform.foaf.nick === "eprints")
     {
         if (isNull(req.body.ddr.hasSwordCollectionUri) || isNull(req.body.ddr.hasSwordCollectionLabel))
         {
             res.status(400).json({
-                result: 'error',
-                message: 'No collection specified'
+                result: "error",
+                message: "No collection specified"
             });
 
             return false;
         }
     }
-    else if (req.body.ddr.hasPlatform.foaf.nick === 'ckan')
+    else if (req.body.ddr.hasPlatform.foaf.nick === "ckan")
     {
         if (isNull(req.body.ddr.hasAPIKey))
         {
             res.status(400).json({
-                result: 'error',
-                message: 'No API Key specified'
+                result: "error",
+                message: "No API Key specified"
             });
 
             return false;
         }
     }
-    else if (req.body.ddr.hasPlatform.foaf.nick === 'figshare')
+    else if (req.body.ddr.hasPlatform.foaf.nick === "figshare")
     {
         if (isNull(req.body.ddr.hasConsumerKey))
         {
             res.status(400).json({
-                result: 'error',
-                message: 'No consumer key specified'
+                result: "error",
+                message: "No consumer key specified"
             });
 
             return false;
@@ -117,8 +117,8 @@ const validateNewBookmarkRequest = function (req, res)
         else if (isNull(req.body.ddr.hasConsumerSecret))
         {
             res.status(400).json({
-                result: 'error',
-                message: 'No consumer secret specified'
+                result: "error",
+                message: "No consumer secret specified"
             });
 
             return false;
@@ -126,8 +126,8 @@ const validateNewBookmarkRequest = function (req, res)
         else if (isNull(req.body.ddr.hasAccessToken))
         {
             res.status(400).json({
-                result: 'error',
-                message: 'No access token specified'
+                result: "error",
+                message: "No access token specified"
             });
 
             return false;
@@ -135,8 +135,8 @@ const validateNewBookmarkRequest = function (req, res)
         else if (isNull(req.body.ddr.hasAccessTokenSecret))
         {
             res.status(400).json({
-                result: 'error',
-                message: 'No access token secret specified'
+                result: "error",
+                message: "No access token secret specified"
             });
 
             return false;
@@ -175,27 +175,27 @@ exports.new = function (req, res)
     if (!req.body)
     {
         return res.status(400).json({
-            result: 'error',
-            message: 'HTTP Body of the request was null.'
+            result: "error",
+            message: "HTTP Body of the request was null."
         });
     }
     else if (isNull(req.user))
     {
         return res.status(401).json({
-            result: 'error',
-            message: 'You are not logged in the system.'
+            result: "error",
+            message: "You are not logged in the system."
         });
     }
-    else if (req.originalMethod === 'POST')
+    else if (req.originalMethod === "POST")
     {
         try
         {
-            if (req.body.ddr.hasPlatform.foaf.nick === 'eprints')
+            if (req.body.ddr.hasPlatform.foaf.nick === "eprints")
             {
                 req.body.ddr.hasSwordCollectionUri = req.body.ddr.hasExternalUrl + Config.swordConnection.EprintsCollectionRef;
-                req.body.ddr.hasSwordCollectionLabel = 'EPrints';
+                req.body.ddr.hasSwordCollectionLabel = "EPrints";
             }
-            else if (req.body.ddr.hasPlatform.foaf.nick === 'b2share')
+            else if (req.body.ddr.hasPlatform.foaf.nick === "b2share")
             {
                 if (isNull(req.body.ddr.hasAccessToken))
                 {
@@ -209,7 +209,7 @@ exports.new = function (req, res)
                 RepositoryPlatform.findByPropertyValue(new Descriptor(
                     {
                         value: req.body.ddr.hasPlatform.ddr.handle,
-                        prefixedForm: 'ddr:handle'
+                        prefixedForm: "ddr:handle"
                     }), function (err, repo_platform)
                 {
                     if (isNull(err))
@@ -243,15 +243,15 @@ exports.new = function (req, res)
                                     if (isNull(err))
                                     {
                                         res.json({
-                                            result: 'ok',
-                                            message: 'New bookmark saved as ' + newBookmark.dcterms.title
+                                            result: "ok",
+                                            message: "New bookmark saved as " + newBookmark.dcterms.title
                                         });
                                     }
                                     else
                                     {
                                         res.status(500).json({
-                                            result: 'error',
-                                            message: 'Error saving new bookmark . ' + result
+                                            result: "error",
+                                            message: "Error saving new bookmark . " + result
                                         });
                                     }
                                 });
@@ -259,24 +259,24 @@ exports.new = function (req, res)
                             else
                             {
                                 res.status(500).json({
-                                    result: 'error',
-                                    message: 'Error saving the new bookmark. Error reported: ' + newBookmark.error
+                                    result: "error",
+                                    message: "Error saving the new bookmark. Error reported: " + newBookmark.error
                                 });
                             }
                         }
                         else
                         {
                             res.status(500).json({
-                                result: 'error',
-                                message: 'Error fetching repo_platform handle for the new bookmark. Error reported: ' + JSON.stringify(repo_platform)
+                                result: "error",
+                                message: "Error fetching repo_platform handle for the new bookmark. Error reported: " + JSON.stringify(repo_platform)
                             });
                         }
                     }
                     else
                     {
                         res.status(500).json({
-                            result: 'error',
-                            message: 'Error fetching repo_platform handle for the new bookmark. Error reported: ' + JSON.stringify(repo_platform)
+                            result: "error",
+                            message: "Error fetching repo_platform handle for the new bookmark. Error reported: " + JSON.stringify(repo_platform)
                         });
                     }
                 });
@@ -285,16 +285,16 @@ exports.new = function (req, res)
         catch (e)
         {
             res.status(400).json({
-                result: 'error',
-                message: 'Invalid HTTP Body : ' + e.message
+                result: "error",
+                message: "Invalid HTTP Body : " + e.message
             });
         }
     }
     else
     {
         res.status(400).json({
-            result: 'error',
-            message: 'Invalid HTTP Method. Only POST requests are allowed.'
+            result: "error",
+            message: "Invalid HTTP Method. Only POST requests are allowed."
         });
     }
 };
@@ -354,10 +354,10 @@ exports.my = function (req, res)
                 }
                 else
                 {
-                    const msg = 'Error fetching repository platforms for your bookmarks.';
+                    const msg = "Error fetching repository platforms for your bookmarks.";
 
                     res.status(500).json({
-                        result: 'error',
+                        result: "error",
                         message: msg
                     });
                 }
@@ -365,10 +365,10 @@ exports.my = function (req, res)
         }
         else
         {
-            const msg = 'Unable to find repository bookmarks created by ' + req.user.uri + ' . Error returned : ' + myRepositoryBookmarks;
+            const msg = "Unable to find repository bookmarks created by " + req.user.uri + " . Error returned : " + myRepositoryBookmarks;
 
             res.status(500).json({
-                result: 'error',
+                result: "error",
                 message: msg
             });
         }
@@ -377,14 +377,14 @@ exports.my = function (req, res)
 
 exports.all = function (req, res)
 {
-    const acceptsHTML = req.accepts('html');
-    let acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
 
     if (!acceptsJSON && acceptsHTML)
     {
         res.status(400).json({
-            result: 'error',
-            message: 'HTML Request not valid for this route.'
+            result: "error",
+            message: "HTML Request not valid for this route."
         });
     }
     else
@@ -402,9 +402,9 @@ exports.all = function (req, res)
             }
             else
             {
-                const msg = 'Unable to retrieve all instances of external repositories';
+                const msg = "Unable to retrieve all instances of external repositories";
                 res.status(500).json({
-                    result: 'error',
+                    result: "error",
                     message: msg
                 });
             }
@@ -416,7 +416,7 @@ exports.delete = function (req, res)
 {
     const requestedResourceUri = Config.baseUri + req.originalUrl;
 
-    if (req.originalMethod === 'DELETE')
+    if (req.originalMethod === "DELETE")
     {
         ExternalRepository.findByUri(requestedResourceUri, function (err, bookmark)
         {
@@ -424,9 +424,9 @@ exports.delete = function (req, res)
             {
                 if (!bookmark)
                 {
-                    const msg = 'Unable to retrieve the requested bookmark for deletion.';
+                    const msg = "Unable to retrieve the requested bookmark for deletion.";
                     res.status(400).json({
-                        result: 'error',
+                        result: "error",
                         message: msg
                     });
                 }
@@ -436,17 +436,17 @@ exports.delete = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            const msg = 'Bookmark ' + bookmark.dcterms.title + ' successfully deleted. ';
+                            const msg = "Bookmark " + bookmark.dcterms.title + " successfully deleted. ";
                             res.json({
-                                result: 'ok',
+                                result: "ok",
                                 message: msg
                             });
                         }
                         else
                         {
-                            const msg = 'Error deleting bookmark ' + requestedResourceUri + '. Error reported: ' + result;
+                            const msg = "Error deleting bookmark " + requestedResourceUri + ". Error reported: " + result;
                             res.status(500).json({
-                                result: 'error',
+                                result: "error",
                                 message: msg
                             });
                         }
@@ -455,9 +455,9 @@ exports.delete = function (req, res)
             }
             else
             {
-                const msg = 'Unable to retrieve types of external repository platforms for this Dendro instance.';
+                const msg = "Unable to retrieve types of external repository platforms for this Dendro instance.";
                 res.status(500).json({
-                    result: 'error',
+                    result: "error",
                     message: msg
                 });
             }
@@ -505,9 +505,9 @@ exports.repository_types = function (req, res)
         }
         else
         {
-            const msg = 'Unable to retrieve types of external repository platforms for this Dendro instance.';
+            const msg = "Unable to retrieve types of external repository platforms for this Dendro instance.";
             res.status(500).json({
-                result: 'error',
+                result: "error",
                 message: msg
             });
         }

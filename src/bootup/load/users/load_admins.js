@@ -1,17 +1,17 @@
-const async = require('async');
-const fs = require('fs');
+const async = require("async");
+const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder('utils/null.js')).isNull;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder('utils/logger.js')).Logger;
-const Administrator = require(Pathfinder.absPathInSrcFolder('/models/administrator.js')).Administrator;
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
 
 const loadAdmins = function (app, callback)
 {
     if (Config.startup.load_databases && Config.startup.reload_administrators_on_startup)
     {
-        Logger.log_boot_message('info', 'Loading default administrators.');
+        Logger.log_boot_message("info", "Loading default administrators.");
         async.series([
             function (callback)
             {
@@ -33,7 +33,7 @@ const loadAdmins = function (app, callback)
                         {
                             return callback(err, administrator);
                         }
-                        Logger.log_boot_message('info', 'Non-existent administrator ' + username + '. Creating new admin...');
+                        Logger.log_boot_message("info", "Non-existent administrator " + username + ". Creating new admin...");
 
                         Administrator.createAndInsertFromObject({
                             foaf: {
@@ -53,7 +53,7 @@ const loadAdmins = function (app, callback)
                                 return callback(err, newUser);
                             }
 
-                            const msg = 'Error creating new Administrator' + JSON.stringify(newUser);
+                            const msg = "Error creating new Administrator" + JSON.stringify(newUser);
                             console.error(msg);
                             return callback(err, msg);
                         });
@@ -64,11 +64,11 @@ const loadAdmins = function (app, callback)
                 {
                     if (isNull(err))
                     {
-                        Logger.log_boot_message('success', 'Admins successfully loaded.');
+                        Logger.log_boot_message("success", "Admins successfully loaded.");
                     }
                     else
                     {
-                        console.error('[ERROR] Unable to load admins. Error : ' + err);
+                        console.error("[ERROR] Unable to load admins. Error : " + err);
                     }
 
                     return callback(err);
@@ -82,7 +82,7 @@ const loadAdmins = function (app, callback)
                 return callback(null);
             }
 
-            return callback('Error promoting default admins ' + JSON.stringify(results));
+            return callback("Error promoting default admins " + JSON.stringify(results));
         });
     }
     else

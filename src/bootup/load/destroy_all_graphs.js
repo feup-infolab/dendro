@@ -1,8 +1,8 @@
-const async = require('async');
-const fs = require('fs');
+const async = require("async");
+const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const destroyAllGraphs = function (app, callback)
 {
@@ -24,7 +24,7 @@ const destroyAllGraphs = function (app, callback)
                 {
                     if (exists)
                     {
-                        console.error('Tried to delete graph ' + graphUri + ' but it still exists!');
+                        console.error("Tried to delete graph " + graphUri + " but it still exists!");
                         process.exit(1);
                     }
                     else

@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
  *  Project administration controller
  */
-    .controller('notificationCtrl', function ($scope, $http, $filter, usersService, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce)
+    .controller("notificationCtrl", function ($scope, $http, $filter, usersService, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce)
     {
         $scope.numNotifications = 0;
         $scope.notifsUris = [];
@@ -10,49 +10,49 @@ angular.module('dendroApp.controllers')
         $scope.awaitingResponse = false;
 
         $scope.actionTypeDictionary = {
-            Like: 'liked',
-            Comment: 'commented',
-            Share: 'shared'
+            Like: "liked",
+            Comment: "commented",
+            Share: "shared"
         };
 
         $scope.resourceTypeDictionary = {
-            post: 'post',
-            share: 'share'
+            post: "post",
+            share: "share"
         };
 
         $scope.parseResourceTarget = function (resourceTargetUri)
         {
-            let debug = resourceTargetUri.split('/')[2];
-            return $scope.resourceTypeDictionary[resourceTargetUri.split('/')[2]];
-            console.log('debug');
+            let debug = resourceTargetUri.split("/")[2];
+            return $scope.resourceTypeDictionary[resourceTargetUri.split("/")[2]];
+            console.log("debug");
         };
 
         $scope.parseActionType = function (notification)
         {
             var actionType = $scope.actionTypeDictionary[notification.actionType];
-            var shareURL = actionType == 'shared' ? '<' + 'a href=' + '"' + notification.shareURI + '"' + '>' + actionType + '</a>' : actionType;
+            var shareURL = actionType == "shared" ? "<" + "a href=" + "\"" + notification.shareURI + "\"" + ">" + actionType + "</a>" : actionType;
             return shareURL;
         };
 
-        $scope.$on(ngAlertsEvent.event('remove'), function (e, id)
+        $scope.$on(ngAlertsEvent.event("remove"), function (e, id)
         {
             $scope.delete_notification(id);
         });
 
         $scope.createAlert = function (notification, notificationUri)
         {
-            let type = 'info';
-            let shareURL = notification.actionType == 'Share' ? notification.shareURI : null;
+            let type = "info";
+            let shareURL = notification.actionType == "Share" ? notification.shareURI : null;
             let userInfo;
 
             usersService.getUserInfo(notification.userWhoActed)
                 .then(function (response)
                 {
                     userInfo = response.data;
-                    var resourceURL = '<' + 'a href=' + '"' + notification.resourceTargetUri + '"' + '>' + $scope.parseResourceTarget(notification.resourceTargetUri) + '</a>';
-                    var userWhoActedURL = '<' + 'a href=' + '"' + notification.userWhoActed + '"' + '>' + userInfo.ddr.username + '</a>';
+                    var resourceURL = "<" + "a href=" + "\"" + notification.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.resourceTargetUri) + "</a>";
+                    var userWhoActedURL = "<" + "a href=" + "\"" + notification.userWhoActed + "\"" + ">" + userInfo.ddr.username + "</a>";
                     // var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + resourceUrl;
-                    var notificationMsg = userWhoActedURL + ' ' + $scope.parseActionType(notification) + ' your ' + resourceURL;
+                    var notificationMsg = userWhoActedURL + " " + $scope.parseActionType(notification) + " your " + resourceURL;
 
                     $scope.msg = $sce.trustAsHtml(notificationMsg);
 
@@ -65,7 +65,7 @@ angular.module('dendroApp.controllers')
                 })
                 .catch(function (error)
                 {
-                    Utils.show_popup('error', "Error getting a user's information", JSON.stringify(error));
+                    Utils.show_popup("error", "Error getting a user's information", JSON.stringify(error));
                 });
 
             /* var resourceURL = "<" + "a href=" + "\"" + notification.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.resourceTargetUri) + "</a>";
@@ -108,7 +108,7 @@ angular.module('dendroApp.controllers')
                     })
                     .catch(function (error)
                     {
-                        console.error('Error getting unread notifications' + JSON.stringify(error));
+                        console.error("Error getting unread notifications" + JSON.stringify(error));
                         $scope.awaitingResponse = false;
                     });
             }
@@ -133,7 +133,7 @@ angular.module('dendroApp.controllers')
                 })
                 .catch(function (error)
                 {
-                    console.error('Error getting Notification Info' + JSON.stringify(error));
+                    console.error("Error getting Notification Info" + JSON.stringify(error));
                 });
         };
 
@@ -146,7 +146,7 @@ angular.module('dendroApp.controllers')
                 })
                 .catch(function (error)
                 {
-                    console.error('Error deleting a notification' + JSON.stringify(error));
+                    console.error("Error deleting a notification" + JSON.stringify(error));
                 });
         };
     });

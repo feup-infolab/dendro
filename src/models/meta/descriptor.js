@@ -1,16 +1,16 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('/models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("/models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
-const Ontology = require(Pathfinder.absPathInSrcFolder('/models/meta/ontology.js')).Ontology;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
-const ObjectManipulator = require(Pathfinder.absPathInSrcFolder('/utils/object_manipulation.js'));
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const ObjectManipulator = require(Pathfinder.absPathInSrcFolder("/utils/object_manipulation.js"));
 
 const db = Config.getDBByID();
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 function Descriptor (object, typeConfigsToRetain)
 {
@@ -36,10 +36,10 @@ function Descriptor (object, typeConfigsToRetain)
         }
         else if (!isNull(object.prefixedForm))
         {
-            const indexOfColon = object.prefixedForm.indexOf(':');
+            const indexOfColon = object.prefixedForm.indexOf(":");
             if (indexOfColon < 0)
             {
-                const error = 'Invalid prefixed form for descriptor ' + object.prefixedForm;
+                const error = "Invalid prefixed form for descriptor " + object.prefixedForm;
                 console.error(error);
                 throw error;
             }
@@ -61,9 +61,9 @@ function Descriptor (object, typeConfigsToRetain)
         }
         else
         {
-            const error = 'Invalid Descriptor.' + JSON.stringify(object) + '. ' +
-                'Check that you have included one of the following: an uri; an ontology uri and shortName; a prefixed form; a prefix and a shortName. ' +
-                'Also, does that descriptor really belong to that ontology?';
+            const error = "Invalid Descriptor." + JSON.stringify(object) + ". " +
+                "Check that you have included one of the following: an uri; an ontology uri and shortName; a prefixed form; a prefix and a shortName. " +
+                "Also, does that descriptor really belong to that ontology?";
 
             console.error(error);
             return {error: error};
@@ -71,7 +71,7 @@ function Descriptor (object, typeConfigsToRetain)
 
         if (isNull(Elements.ontologies[self.prefix]))
         {
-            const error = 'Unknown ontology for -> ' + object.uri + '. The owning ontology of the descriptor is not parametrized in this Dendro instance.';
+            const error = "Unknown ontology for -> " + object.uri + ". The owning ontology of the descriptor is not parametrized in this Dendro instance.";
 
             if (Config.debug.log_missing_unknown_descriptors)
             {
@@ -82,7 +82,7 @@ function Descriptor (object, typeConfigsToRetain)
         }
         else if (isNull(Elements.ontologies[self.prefix][self.shortName]) && Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
         {
-            const error = 'Unknown descriptor -> ' + object.uri + '. This descriptor is not parametrized in this Dendro instance; however, the ontology uri matches an ontology in this instance. Are you sure that descriptor belongs to that ontology? Check the final part of the URI, or parametrize the element in the elements.js file.';
+            const error = "Unknown descriptor -> " + object.uri + ". This descriptor is not parametrized in this Dendro instance; however, the ontology uri matches an ontology in this instance. Are you sure that descriptor belongs to that ontology? Check the final part of the URI, or parametrize the element in the elements.js file.";
             console.error(error);
             return {error: error};
         }
@@ -182,68 +182,68 @@ function Descriptor (object, typeConfigsToRetain)
             self.type = Elements.types.string;
             if (Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
             {
-                console.error('Unable to determine type of descriptor ' + self.prefixedForm + '. Defaulting to string.');
+                console.error("Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
             }
         }
 
         return self;
     }
-    const error = 'No object supplied for descriptor creation';
+    const error = "No object supplied for descriptor creation";
     console.error(error);
     return {error: error};
 }
 
 Descriptor.recommendation_types = {
     frequently_used_overall: {
-        key: 'frequently_used_overall',
+        key: "frequently_used_overall",
         weight: 5
     },
     from_textually_similar: {
-        key: 'from_textually_similar',
+        key: "from_textually_similar",
         weight: 20.0
     },
     recently_used: {
-        key: 'recently_used',
+        key: "recently_used",
         weight: 20.0
     },
     used_in_project: {
-        key: 'used_in_project',
+        key: "used_in_project",
         weight: 20.0
     },
     smart_accepted_in_metadata_editor: {
-        key: 'smart_accepted_in_metadata_editor',
+        key: "smart_accepted_in_metadata_editor",
         weight: 50.0
     },
     favorite_accepted_in_metadata_editor: {
-        key: 'favorite_accepted_in_metadata_editor',
+        key: "favorite_accepted_in_metadata_editor",
         weight: 50.0
     },
     project_favorite: {
-        key: 'project_favorite',
+        key: "project_favorite",
         weight: 80.0
     },
     random: {
-        key: 'random',
+        key: "random",
         weight: 1.0
     },
     user_favorite: {
-        key: 'user_favorite',
+        key: "user_favorite",
         weight: 80.0
     },
     project_hidden: {
-        key: 'project_hidden',
+        key: "project_hidden",
         weight: 0.0
     },
     user_hidden: {
-        key: 'user_hidden',
+        key: "user_hidden",
         weight: 0.0
     },
     dc_element_forced: {
-        key: 'dc_element_forced',
+        key: "dc_element_forced",
         weight: 0.0
     },
     project_descriptors: {
-        key: 'dc_element_forced',
+        key: "dc_element_forced",
         weight: 0.0
     }
 };
@@ -251,21 +251,21 @@ Descriptor.recommendation_types = {
 Descriptor.dublinCoreElements = function (callback)
 {
     const DCDescriptors = [
-        new Descriptor({prefixedForm: 'dcterms:contributor'}),
-        new Descriptor({prefixedForm: 'dcterms:coverage'}),
-        new Descriptor({prefixedForm: 'dcterms:creator'}),
-        new Descriptor({prefixedForm: 'dcterms:date'}),
-        new Descriptor({prefixedForm: 'dcterms:description'}),
-        new Descriptor({prefixedForm: 'dcterms:format'}),
-        new Descriptor({prefixedForm: 'dcterms:identifier'}),
-        new Descriptor({prefixedForm: 'dcterms:language'}),
-        new Descriptor({prefixedForm: 'dcterms:publisher'}),
-        new Descriptor({prefixedForm: 'dcterms:relation'}),
-        new Descriptor({prefixedForm: 'dcterms:rights'}),
-        new Descriptor({prefixedForm: 'dcterms:source'}),
-        new Descriptor({prefixedForm: 'dcterms:subject'}),
-        new Descriptor({prefixedForm: 'dcterms:title'}),
-        new Descriptor({prefixedForm: 'dcterms:type'})
+        new Descriptor({prefixedForm: "dcterms:contributor"}),
+        new Descriptor({prefixedForm: "dcterms:coverage"}),
+        new Descriptor({prefixedForm: "dcterms:creator"}),
+        new Descriptor({prefixedForm: "dcterms:date"}),
+        new Descriptor({prefixedForm: "dcterms:description"}),
+        new Descriptor({prefixedForm: "dcterms:format"}),
+        new Descriptor({prefixedForm: "dcterms:identifier"}),
+        new Descriptor({prefixedForm: "dcterms:language"}),
+        new Descriptor({prefixedForm: "dcterms:publisher"}),
+        new Descriptor({prefixedForm: "dcterms:relation"}),
+        new Descriptor({prefixedForm: "dcterms:rights"}),
+        new Descriptor({prefixedForm: "dcterms:source"}),
+        new Descriptor({prefixedForm: "dcterms:subject"}),
+        new Descriptor({prefixedForm: "dcterms:title"}),
+        new Descriptor({prefixedForm: "dcterms:type"})
     ];
 
     async.mapSeries(DCDescriptors, function (descriptor, callback)
@@ -288,23 +288,23 @@ Descriptor.findByUri = function (uri, callback)
         });
 
         const query =
-            ' SELECT ?label ?comment \n' +
-            ' FROM [0] \n' +
-            ' WHERE \n' +
-            ' { \n' +
-            ' [1]   rdf:type    ?type. \n' +
-            ' OPTIONAL \n' +
-            '{  \n' +
-            '   [1]    rdfs:label  ?label.  \n' +
-            '   FILTER (lang(?label) = "" || lang(?label) = "en")' +
-            '} .\n' +
-            ' OPTIONAL \n' +
-            '{  \n' +
-            '   [1]  rdfs:comment   ?comment.  \n' +
-            '   FILTER (lang(?comment) = "" || lang(?comment) = "en")' +
-            '} .\n' +
-            ' } \n' +
-            ' LIMIT 1\n';
+            " SELECT ?label ?comment \n" +
+            " FROM [0] \n" +
+            " WHERE \n" +
+            " { \n" +
+            " [1]   rdf:type    ?type. \n" +
+            " OPTIONAL \n" +
+            "{  \n" +
+            "   [1]    rdfs:label  ?label.  \n" +
+            "   FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
+            "} .\n" +
+            " OPTIONAL \n" +
+            "{  \n" +
+            "   [1]  rdfs:comment   ?comment.  \n" +
+            "   FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
+            "} .\n" +
+            " } \n" +
+            " LIMIT 1\n";
 
         db.connection.executeViaJDBC(query,
             [
@@ -340,13 +340,13 @@ Descriptor.findByUri = function (uri, callback)
                     return callback(null, formattedDescriptor);
                 }
 
-                console.error('Error fetching descriptor with uri : ' + uri + ' : ' + descriptors);
+                console.error("Error fetching descriptor with uri : " + uri + " : " + descriptors);
                 return callback(1, descriptors);
             });
     }
     catch (e)
     {
-        console.error('Exception finding descriptor by URI ' + uri);
+        console.error("Exception finding descriptor by URI " + uri);
         return callback(null, null);
     }
 };
@@ -354,7 +354,7 @@ Descriptor.findByUri = function (uri, callback)
 Descriptor.prototype.setValue = function (value)
 {
     const self = this;
-    if (typeof value === 'string')
+    if (typeof value === "string")
     {
         if (self.type === Elements.types.int)
         {
@@ -384,44 +384,44 @@ Descriptor.all_in_ontology = function (ontologyURI, callback, page_number, pages
     const getFromTripleStore = function (callback)
     {
         let query =
-            ' SELECT DISTINCT ?uri ?label ?comment \n' +
-            ' FROM [0] \n' +
-            ' WHERE \n' +
-            ' { \n' +
-            '    FILTER( STRSTARTS(str(?uri), str([0]) ) )    . \n' +
-            '   {\n ' +
-            '      ?uri  rdf:type     rdf:Property    . \n' +
-            '       OPTIONAL {  \n' +
-            '           ?uri    rdfs:label  ?label .\n' +
-            '           FILTER (lang(?label) = "" || lang(?label) = [1] )\n' +
-            '       } .\n' +
-            '       OPTIONAL {  \n' +
-            '           ?uri  rdfs:comment   ?comment .\n' +
-            '           FILTER (lang(?comment) = "" || lang(?comment) = [1] )\n' +
-            '       } .\n' +
-            '   } UNION {\n ' +
-            '      ?uri  rdf:type     owl:DatatypeProperty    . \n' +
-            '       OPTIONAL {  \n' +
-            '           ?uri    rdfs:label  ?label .\n' +
-            '           FILTER (lang(?label) = "" || lang(?label) = [1] )\n' +
-            '       } .\n' +
-            '       OPTIONAL {  \n' +
-            '           ?uri  rdfs:comment   ?comment .\n' +
-            '           FILTER (lang(?comment) = "" || lang(?comment) = [1] )\n' +
-            '       } .\n' +
-            '   } UNION {\n ' +
-            '      ?uri  rdf:type     owl:ObjectProperty    . \n' +
-            '       OPTIONAL {  \n' +
-            '           ?uri    rdfs:label  ?label .\n' +
-            '           FILTER (lang(?label) = "" || lang(?label) = [1] )\n' +
-            '       } .\n' +
-            '       OPTIONAL {  \n' +
-            '           ?uri  rdfs:comment   ?comment .\n' +
-            '           FILTER (lang(?comment) = "" || lang(?comment) = [1] )\n' +
-            '       } .\n' +
-            '   } \n' +
-            ' } \n' +
-            ' ORDER BY ASC(?label) \n';
+            " SELECT DISTINCT ?uri ?label ?comment \n" +
+            " FROM [0] \n" +
+            " WHERE \n" +
+            " { \n" +
+            "    FILTER( STRSTARTS(str(?uri), str([0]) ) )    . \n" +
+            "   {\n " +
+            "      ?uri  rdf:type     rdf:Property    . \n" +
+            "       OPTIONAL {  \n" +
+            "           ?uri    rdfs:label  ?label .\n" +
+            "           FILTER (lang(?label) = \"\" || lang(?label) = [1] )\n" +
+            "       } .\n" +
+            "       OPTIONAL {  \n" +
+            "           ?uri  rdfs:comment   ?comment .\n" +
+            "           FILTER (lang(?comment) = \"\" || lang(?comment) = [1] )\n" +
+            "       } .\n" +
+            "   } UNION {\n " +
+            "      ?uri  rdf:type     owl:DatatypeProperty    . \n" +
+            "       OPTIONAL {  \n" +
+            "           ?uri    rdfs:label  ?label .\n" +
+            "           FILTER (lang(?label) = \"\" || lang(?label) = [1] )\n" +
+            "       } .\n" +
+            "       OPTIONAL {  \n" +
+            "           ?uri  rdfs:comment   ?comment .\n" +
+            "           FILTER (lang(?comment) = \"\" || lang(?comment) = [1] )\n" +
+            "       } .\n" +
+            "   } UNION {\n " +
+            "      ?uri  rdf:type     owl:ObjectProperty    . \n" +
+            "       OPTIONAL {  \n" +
+            "           ?uri    rdfs:label  ?label .\n" +
+            "           FILTER (lang(?label) = \"\" || lang(?label) = [1] )\n" +
+            "       } .\n" +
+            "       OPTIONAL {  \n" +
+            "           ?uri  rdfs:comment   ?comment .\n" +
+            "           FILTER (lang(?comment) = \"\" || lang(?comment) = [1] )\n" +
+            "       } .\n" +
+            "   } \n" +
+            " } \n" +
+            " ORDER BY ASC(?label) \n";
 
         let args = [
             {
@@ -430,15 +430,15 @@ Descriptor.all_in_ontology = function (ontologyURI, callback, page_number, pages
             },
             {
                 type: Elements.types.string,
-                value: 'en'
+                value: "en"
             }
         ];
 
-        if (typeof page_number === 'number')
+        if (typeof page_number === "number")
         {
             query = query +
-                ' OFFSET [2] \n' +
-                ' LIMIT [3] \n';
+                " OFFSET [2] \n" +
+                " LIMIT [3] \n";
 
             args = args.concat([
                 {
@@ -468,7 +468,7 @@ Descriptor.all_in_ontology = function (ontologyURI, callback, page_number, pages
                     return callback(null, formattedResults);
                 }
 
-                console.error('Error fetching descriptors from ontology : ' + ontologyURI + ' ' + descriptors);
+                console.error("Error fetching descriptors from ontology : " + ontologyURI + " " + descriptors);
                 return callback(1, descriptors);
             });
     };
@@ -536,7 +536,7 @@ Descriptor.all_in_ontology = function (ontologyURI, callback, page_number, pages
 
 Descriptor.all_in_ontologies = function (ontologyURIsArray, callback, page_number, page_size)
 {
-    const async = require('async');
+    const async = require("async");
     async.mapSeries(ontologyURIsArray, function (uri, cb)
     {
         Descriptor.all_in_ontology(uri, function (err, descriptors)
@@ -554,7 +554,7 @@ Descriptor.all_in_ontologies = function (ontologyURIsArray, callback, page_numbe
                 return descriptor.shortName;
             });
 
-            if (typeof page_number !== 'undefined' && typeof page_size !== 'undefined')
+            if (typeof page_number !== "undefined" && typeof page_size !== "undefined")
             {
                 try
                 {
@@ -563,11 +563,11 @@ Descriptor.all_in_ontologies = function (ontologyURIsArray, callback, page_numbe
                 }
                 catch (e)
                 {
-                    return callback(1, 'Unable to parse page size of page number');
+                    return callback(1, "Unable to parse page size of page number");
                 }
             }
 
-            if (typeof page_number === 'number' && typeof page_size === 'number')
+            if (typeof page_number === "number" && typeof page_size === "number")
             {
                 const offset = page_number * page_size;
                 flat = flat.slice(offset, offset + page_size);
@@ -595,7 +595,7 @@ Descriptor.removeUnauthorizedFromObject = function (object, excludedDescriptorTy
                         {
                             if (Config.debug.descriptors.log_descriptor_filtering_operations)
                             {
-                                console.log('Removing descriptor ' + prefix + ':' + shortName + ' because excluded descriptor types are ' + JSON.stringify(excludedDescriptorTypes) + ' and exceptioned descriptor types are ' + JSON.stringify(exceptionedDescriptorTypes));
+                                console.log("Removing descriptor " + prefix + ":" + shortName + " because excluded descriptor types are " + JSON.stringify(excludedDescriptorTypes) + " and exceptioned descriptor types are " + JSON.stringify(exceptionedDescriptorTypes));
                             }
                             delete object[prefix][shortName];
                         }
@@ -620,11 +620,11 @@ Descriptor.isAuthorized = function (prefix, shortName, excludedDescriptorTypes, 
         exceptionedDescriptorTypes = [];
     }
 
-    const _ = require('underscore');
+    const _ = require("underscore");
     const sortedExcluded = excludedDescriptorTypes.sort();
     const sortedExceptioned = exceptionedDescriptorTypes.sort();
 
-    const sum = require('hash-sum');
+    const sum = require("hash-sum");
     const excludedHash = sum(sortedExcluded);
     const exceptionedHash = sum(sortedExceptioned);
 
@@ -711,7 +711,7 @@ Descriptor.isAuthorized = function (prefix, shortName, excludedDescriptorTypes, 
     {
         if (Config.debug.descriptors.log_descriptor_filtering_operations)
         {
-            console.log('Removing descriptor ' + prefix + ':' + shortName + ' because excluded descriptor types are ' + JSON.stringify(excludedDescriptorTypes) + ' and exceptioned descriptor types are ' + JSON.stringify(exceptionedDescriptorTypes));
+            console.log("Removing descriptor " + prefix + ":" + shortName + " because excluded descriptor types are " + JSON.stringify(excludedDescriptorTypes) + " and exceptioned descriptor types are " + JSON.stringify(exceptionedDescriptorTypes));
         }
         return false;
     } return true;
@@ -735,7 +735,7 @@ Descriptor.prototype.isAuthorized = function (excludedDescriptorTypes, exception
         const isAuthorized = Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes);
         return isAuthorized;
     }
-    throw new Error('Invalid descriptor ' + prefix + ':' + shortName);
+    throw new Error("Invalid descriptor " + prefix + ":" + shortName);
 };
 
 Descriptor.prototype.getNamespacePrefix = function ()
@@ -751,8 +751,8 @@ Descriptor.prototype.getShortName = function ()
     const self = this;
 
     const ontologyURI = self.getOwnerOntologyUri(self.uri);
-    let shortName = self.uri.replace(ontologyURI, '');
-    if (shortName[0] === ('/') || shortName[0] === '#')
+    let shortName = self.uri.replace(ontologyURI, "");
+    if (shortName[0] === ("/") || shortName[0] === "#")
     {
         shortName = shortName.substring();
     }
@@ -767,12 +767,12 @@ Descriptor.prototype.getOwnerOntologyUri = function ()
     // ontology ends with a cardinal
     if (self.uri.match(/.*#[^#]+$/))
     {
-        ontologyURI = self.uri.replace(/#[^#]+$/, '#');
+        ontologyURI = self.uri.replace(/#[^#]+$/, "#");
     }
     // ontology ends with a forward slash
     else if (self.uri.match(/.*\/[^\/]+$/))
     {
-        ontologyURI = self.uri.replace(/\/[^\/]+$/, '/');
+        ontologyURI = self.uri.replace(/\/[^\/]+$/, "/");
     }
 
     // from http://stackoverflow.com/questions/8590052/regular-expression-remove-everything-after-last-forward-slash
@@ -787,7 +787,7 @@ Descriptor.prototype.getPrefixedForm = function ()
     const prefix = self.getNamespacePrefix();
     const shortName = self.getShortName();
 
-    const shortDescriptor = prefix + ':' + shortName;
+    const shortDescriptor = prefix + ":" + shortName;
 
     return shortDescriptor;
 };
@@ -937,7 +937,7 @@ Descriptor.getRandomDescriptors = function (allowedOntologies, numberOfDescripto
 
             if (isNull(randomOntology))
             {
-                console.error('Error fetching random ontology from among ' + JSON.stringify(allowedOntologies));
+                console.error("Error fetching random ontology from among " + JSON.stringify(allowedOntologies));
                 return callback(null);
             }
 
@@ -979,7 +979,7 @@ Descriptor.getRandomDescriptors = function (allowedOntologies, numberOfDescripto
                         {
                             if (Config.debug.log_missing_unknown_descriptors)
                             {
-                                console.error('Unable to find descriptor with URI : ' + randomDescriptor.uri + '. Review the loaded ontologies and the elements.js configuration file.');
+                                console.error("Unable to find descriptor with URI : " + randomDescriptor.uri + ". Review the loaded ontologies and the elements.js configuration file.");
                             }
 
                             cb(null);
@@ -1020,40 +1020,40 @@ Descriptor.mostUsedPublicDescriptors = function (maxResults, callback, allowedOn
         allowedOntologies = publicOntologies;
     }
 
-    let fromString = '';
+    let fromString = "";
 
     const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
     argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
     fromString = fromString + fromElements.fromString;
 
-    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, 'uri');
+    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "uri");
 
     const query =
-        'SELECT DISTINCT(?uri), ?label, ?comment, ?overall_use_count \n' +
-        'WHERE { \n' +
-        '{ \n' +
-        '   SELECT DISTINCT(?uri), (count(?o) as ?overall_use_count) \n' +
-        '   FROM [0] \n' +
-        '   ' + fromString + ' \n' +
-        '   WHERE \n' +
-        '   { \n' +
-        '       ?s ?uri ?o \n' +
-        '   } \n' +
-        '   GROUP BY ?uri \n' +
-        '} . \n' +
-        'OPTIONAL {  \n' +
-        '   ?uri    rdfs:label  ?label . \n' +
-        '   FILTER (lang(?label) = "" || lang(?label) = "en")' +
-        '}. \n' +
-        'OPTIONAL {  \n' +
-        '   ?uri  rdfs:comment   ?comment.  \n ' +
-        '   FILTER (lang(?comment) = "" || lang(?comment) = "en")' +
-        '} . \n' +
-        '   ' + filterString + '\n' +
-        '   FILTER( (str(?label) != "") && ( str(?comment) != "") ). \n' +
-        '}' +
-        'ORDER BY DESC(?overall_use_count) \n' +
-        'LIMIT ' + maxResults;
+        "SELECT DISTINCT(?uri), ?label, ?comment, ?overall_use_count \n" +
+        "WHERE { \n" +
+        "{ \n" +
+        "   SELECT DISTINCT(?uri), (count(?o) as ?overall_use_count) \n" +
+        "   FROM [0] \n" +
+        "   " + fromString + " \n" +
+        "   WHERE \n" +
+        "   { \n" +
+        "       ?s ?uri ?o \n" +
+        "   } \n" +
+        "   GROUP BY ?uri \n" +
+        "} . \n" +
+        "OPTIONAL {  \n" +
+        "   ?uri    rdfs:label  ?label . \n" +
+        "   FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
+        "}. \n" +
+        "OPTIONAL {  \n" +
+        "   ?uri  rdfs:comment   ?comment.  \n " +
+        "   FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
+        "} . \n" +
+        "   " + filterString + "\n" +
+        "   FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
+        "}" +
+        "ORDER BY DESC(?overall_use_count) \n" +
+        "LIMIT " + maxResults;
 
     db.connection.executeViaJDBC(
         query,
@@ -1073,7 +1073,7 @@ Descriptor.mostUsedPublicDescriptors = function (maxResults, callback, allowedOn
 
                     if (result.overall_use_count <= 0)
                     {
-                        console.error('Descriptor ' + suggestion.uri + ' recommended for overall use with invalid number of usages : ' + result.recent_use_count);
+                        console.error("Descriptor " + suggestion.uri + " recommended for overall use with invalid number of usages : " + result.recent_use_count);
                     }
 
                     // set recommendation type
@@ -1101,8 +1101,8 @@ Descriptor.mostUsedPublicDescriptors = function (maxResults, callback, allowedOn
             }
             else
             {
-                const util = require('util');
-                console.error('Error fetching most used public descriptors: ' + descriptors);
+                const util = require("util");
+                console.error("Error fetching most used public descriptors: " + descriptors);
                 return callback(1, descriptors);
             }
         });
@@ -1127,27 +1127,27 @@ Descriptor.findByLabelOrComment = function (filterValue, maxResults, callback, a
         allowedOntologies = publicOntologies;
     }
 
-    let fromString = '';
+    let fromString = "";
 
     const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
     argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
     fromString = fromString + fromElements.fromString;
 
-    const filterString = DbConnection.buildFilterStringForOntologies(Ontology.getPublicOntologiesUris(), 'uri');
+    const filterString = DbConnection.buildFilterStringForOntologies(Ontology.getPublicOntologiesUris(), "uri");
 
     const query =
-        'SELECT DISTINCT(?uri)\n' +
-        'FROM [0] \n' +
-        fromString + ' \n' +
-        'WHERE { \n' +
-        '   ?uri rdfs:comment ?comment . \n' +
-        '   ?uri rdfs:label ?label . \n' +
-        '   FILTER NOT EXISTS { ?uri rdf:type owl:Class } \n' + // eliminate classes, as all descriptors are properties
-        '   FILTER (regex(?label, "' + filterValue + '", "i") || regex(?comment, "' + filterValue + '", "i" )). \n' +
-        '   FILTER( (str(?label) != "") && ( str(?comment) != "") ). \n' +
-        '   ' + filterString +
-        ' } \n' +
-        ' LIMIT  ' + maxResults;
+        "SELECT DISTINCT(?uri)\n" +
+        "FROM [0] \n" +
+        fromString + " \n" +
+        "WHERE { \n" +
+        "   ?uri rdfs:comment ?comment . \n" +
+        "   ?uri rdfs:label ?label . \n" +
+        "   FILTER NOT EXISTS { ?uri rdf:type owl:Class } \n" + // eliminate classes, as all descriptors are properties
+        "   FILTER (regex(?label, \"" + filterValue + "\", \"i\") || regex(?comment, \"" + filterValue + "\", \"i\" )). \n" +
+        "   FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
+        "   " + filterString +
+        " } \n" +
+        " LIMIT  " + maxResults;
 
     db.connection.executeViaJDBC(
         query,
@@ -1176,8 +1176,8 @@ Descriptor.findByLabelOrComment = function (filterValue, maxResults, callback, a
             }
             else
             {
-                const util = require('util');
-                console.error('Error fetching descriptors by label or comment ontology. Filter value: ' + filterValue + '. error reported: ' + descriptors);
+                const util = require("util");
+                console.error("Error fetching descriptors by label or comment ontology. Filter value: " + filterValue + ". error reported: " + descriptors);
                 return callback(1, descriptors);
             }
         });
@@ -1205,7 +1205,7 @@ Descriptor.validateDescriptorParametrization = function (callback)
                             {
                                 if (Config.debug.descriptors.log_missing_unknown_descriptors)
                                 {
-                                    console.error('Descriptor ' + JSON.stringify(descriptor) + ' has an unparametrized namespace ' + descriptor.prefix + ' . Check your elements.js file and ontology.js file');
+                                    console.error("Descriptor " + JSON.stringify(descriptor) + " has an unparametrized namespace " + descriptor.prefix + " . Check your elements.js file and ontology.js file");
                                 }
 
                                 error = 1;
@@ -1214,7 +1214,7 @@ Descriptor.validateDescriptorParametrization = function (callback)
                             {
                                 if (Config.debug.descriptors.log_missing_unknown_descriptors)
                                 {
-                                    console.error('Descriptor ' + descriptor.prefixedForm + ' is not present in the elements.js file!');
+                                    console.error("Descriptor " + descriptor.prefixedForm + " is not present in the elements.js file!");
                                 }
 
                                 error = 1;
@@ -1223,7 +1223,7 @@ Descriptor.validateDescriptorParametrization = function (callback)
                             {
                                 if (Config.debug.descriptors.log_missing_unknown_descriptors)
                                 {
-                                    console.error('Descriptor ' + descriptor.prefixedForm + ' is present in the elements.js file, but has no control type associated! Correct the error by setting the appropriate control type.');
+                                    console.error("Descriptor " + descriptor.prefixedForm + " is present in the elements.js file, but has no control type associated! Correct the error by setting the appropriate control type.");
                                 }
 
                                 error = 1;
@@ -1232,25 +1232,25 @@ Descriptor.validateDescriptorParametrization = function (callback)
                         catch (e)
                         {
                             console.error(e.stack);
-                            return callback(1, 'Exception occurred when checking descriptor configuration ' + JSON.stringify(e));
+                            return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }
 
                     if (error && Config.debug.descriptors.log_missing_unknown_descriptors)
                     {
-                        console.error('[WARNING] There are unparametrized descriptors in ontology ' + ontology);
+                        console.error("[WARNING] There are unparametrized descriptors in ontology " + ontology);
                     }
 
                     return callback(null);
                 }
-                return callback(1, 'Unable to fetch all descriptors from ontology ' + ontology);
+                return callback(1, "Unable to fetch all descriptors from ontology " + ontology);
             });
         },
         function (error, results)
         {
             if (error)
             {
-                return callback(1, 'Some descriptors found to be not parametrized. Check your elements.js file and correct accordingly.');
+                return callback(1, "Some descriptors found to be not parametrized. Check your elements.js file and correct accordingly.");
             }
 
             return callback(null);
@@ -1262,8 +1262,8 @@ Descriptor.getUriFromPrefixedForm = function (prefixedForm)
 {
     if (!isNull(prefixedForm))
     {
-        const indexOfColon = prefixedForm.indexOf(':');
-        const indexOfHash = prefixedForm.indexOf('#');
+        const indexOfColon = prefixedForm.indexOf(":");
+        const indexOfHash = prefixedForm.indexOf("#");
         let indexOfSeparator = -1;
 
         if (indexOfColon < 0 && indexOfHash > -1)
@@ -1283,11 +1283,11 @@ Descriptor.getUriFromPrefixedForm = function (prefixedForm)
             const valueAsFullUri = ontology + element;
             return valueAsFullUri;
         }
-        throw new Error('Value ' + prefixedForm + ' is not valid. It does not have either a : or a # in the prefixed form.');
+        throw new Error("Value " + prefixedForm + " is not valid. It does not have either a : or a # in the prefixed form.");
     }
     else
     {
-        throw new Error('Value ' + prefixedForm.value + ' is null!');
+        throw new Error("Value " + prefixedForm.value + " is null!");
     }
 };
 

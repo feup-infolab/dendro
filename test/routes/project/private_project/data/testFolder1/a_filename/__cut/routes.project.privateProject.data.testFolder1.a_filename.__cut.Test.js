@@ -1,36 +1,36 @@
-const chai = require('chai');
-const async = require('async');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const async = require("async");
+const chaiHttp = require("chai-http");
 const should = chai.should();
-const _ = require('underscore');
+const _ = require("underscore");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const itemUtils = require(Pathfinder.absPathInTestsFolder('utils/item/itemUtils.js'));
-const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
-const fileUtils = require(Pathfinder.absPathInTestsFolder('utils/file/fileUtils.js'));
-const folderUtils = require(Pathfinder.absPathInTestsFolder('utils/folder/folderUtils.js'));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1.js'));
-const demouser2 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser2.js'));
-const demouser3 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser3.js'));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const privateProject = require(Pathfinder.absPathInTestsFolder('mockdata/projects/private_project.js'));
+const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
-const testFolder1 = require(Pathfinder.absPathInTestsFolder('mockdata/folders/testFolder1.js'));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/files/createFiles.Unit.js'));
+const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
 const allFiles = createFilesUnit.allFiles;
 
-const cutFilesFolderName = 'cutFiles';
+const cutFilesFolderName = "cutFiles";
 const filesToMove = JSON.parse(JSON.stringify(allFiles)).pop();
 
-describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
+describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
 {
-    describe('[Invalid Cases] /project/' + privateProject.handle + '/data/cutFiles?cut', function ()
+    describe("[Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()
     {
         this.timeout(3 * Config.testsTimeOut);
 
@@ -53,7 +53,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
             });
         });
 
-        it('Should give an error if the request is of type HTML even if the user is logged in as demouser1 (the creator of the project)', function (done)
+        it("Should give an error if the request is of type HTML even if the user is logged in as demouser1 (the creator of the project)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -70,7 +70,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                         return file.uri;
                     });
 
-                    folderUtils.createFolderInProject(true, agent, '', cutFilesFolderName, privateProject.handle, function (err, res)
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         should.equal(err, null);
@@ -95,7 +95,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
             });
         });
 
-        it('Should give an error when the user is unauthenticated', function (done)
+        it("Should give an error when the user is unauthenticated", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -112,7 +112,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                         return file.uri;
                     });
 
-                    folderUtils.createFolderInProject(true, agent, '', cutFilesFolderName, privateProject.handle, function (err, res)
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         should.equal(err, null);
@@ -143,7 +143,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
             });
         });
 
-        it('Should give an error if any of the files that are supposed to be moved do not exist', function (done)
+        it("Should give an error if any of the files that are supposed to be moved do not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -160,7 +160,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                         return file.uri;
                     });
 
-                    folderUtils.createFolderInProject(true, agent, '', cutFilesFolderName, privateProject.handle, function (err, res)
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         should.equal(err, null);
@@ -175,13 +175,13 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                             JSON.parse(res.text).length.should.equal(0);
 
                             // here we introduce the error, an identifier that does not exist
-                            urisOfFilesToMove[0] = '/r/file/00000000-0000-0000-0000-000000000000';
+                            urisOfFilesToMove[0] = "/r/file/00000000-0000-0000-0000-000000000000";
 
                             folderUtils.moveFilesIntoFolder(true, agent, urisOfFilesToMove, destinationFolderUri, function (err, res)
                             {
                                 res.statusCode.should.equal(404);
-                                JSON.parse(res.text).message.should.equal('Some of the files that were asked to be moved do not exist.');
-                                JSON.parse(res.text).error[0].should.equal('Resource /r/file/00000000-0000-0000-0000-000000000000 does not exist.');
+                                JSON.parse(res.text).message.should.equal("Some of the files that were asked to be moved do not exist.");
+                                JSON.parse(res.text).error[0].should.equal("Resource /r/file/00000000-0000-0000-0000-000000000000 does not exist.");
                                 done();
                             });
                         });
@@ -190,7 +190,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
             });
         });
 
-        it('Should give an error if the destination folder of the operation does not exist', function (done)
+        it("Should give an error if the destination folder of the operation does not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -208,7 +208,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                     });
 
                     // here we introduce the error, an identifier that does not exist
-                    const nonExistentTargetFolder = '/r/folder/00000000-0000-0000-0000-000000000000';
+                    const nonExistentTargetFolder = "/r/folder/00000000-0000-0000-0000-000000000000";
                     folderUtils.moveFilesIntoFolder(true, agent, urisOfFilesToMove, nonExistentTargetFolder, function (err, res)
                     {
                         res.statusCode.should.equal(404);
@@ -218,7 +218,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
             });
         });
 
-        it('Should give an error if the user does not have permission to cut files into the destination folder (demouser3 is neither a creator nor a collaborator of its owner project', function (done)
+        it("Should give an error if the user does not have permission to cut files into the destination folder (demouser3 is neither a creator nor a collaborator of its owner project", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -235,7 +235,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                         return file.uri;
                     });
 
-                    folderUtils.createFolderInProject(true, agent, '', cutFilesFolderName, privateProject.handle, function (err, res)
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         should.equal(err, null);
@@ -271,7 +271,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
         });
 
         // TODO
-        it('Should give an error if the user does not have permission to cut a file (demouser3 is neither a creator nor a collaborator of the owner project of the file being cut, even though he is the creator of the project that contains the destination folder)', function (done)
+        it("Should give an error if the user does not have permission to cut a file (demouser3 is neither a creator nor a collaborator of the owner project of the file being cut, even though he is the creator of the project that contains the destination folder)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -288,7 +288,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                         return file.uri;
                     });
 
-                    folderUtils.createFolderInProject(true, agent, '', cutFilesFolderName, privateProject.handle, function (err, res)
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         should.equal(err, null);
@@ -322,7 +322,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
             });
         });
 
-        it('Should give an error if one tries to move a file to inside a file (the destination has to be a folder instead of a file, of course...)', function (done)
+        it("Should give an error if one tries to move a file to inside a file (the destination has to be a folder instead of a file, of course...)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -342,14 +342,14 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                     folderUtils.moveFilesIntoFolder(true, agent, [urisOfFilesToMove[0]], urisOfFilesToMove[1], function (err, res)
                     {
                         res.statusCode.should.equal(404);
-                        JSON.parse(res.text).message.should.include('Are you trying to copy or move files to inside a file instead of a folder?');
+                        JSON.parse(res.text).message.should.include("Are you trying to copy or move files to inside a file instead of a folder?");
                         done();
                     });
                 });
             });
         });
 
-        it('Should give an error if one tries to move a folder to inside itself', function (done)
+        it("Should give an error if one tries to move a folder to inside itself", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -366,7 +366,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                         return file.uri;
                     });
 
-                    folderUtils.createFolderInProject(true, agent, '', cutFilesFolderName, privateProject.handle, function (err, res)
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         should.equal(err, null);
@@ -390,7 +390,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                                 {
                                     res.statusCode.should.equal(400);
                                     JSON.parse(res.text).error.should.be.instanceof(Array);
-                                    JSON.parse(res.text).error[0].should.contain('Cannot move a folder or resource to inside itself');
+                                    JSON.parse(res.text).error[0].should.contain("Cannot move a folder or resource to inside itself");
                                     done();
                                 });
                             });
@@ -401,7 +401,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
         });
     });
 
-    describe('[Valid Cases] /project/' + privateProject.handle + '/data/testFolder1/:filename?cut', function ()
+    describe("[Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?cut", function ()
     {
         this.timeout(2 * Config.testsTimeout);
         beforeEach(function (done)
@@ -413,7 +413,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
             });
         });
 
-        it('Should cut files with success if the user is logged in as demouser1 (the creator of the project)', function (done)
+        it("Should cut files with success if the user is logged in as demouser1 (the creator of the project)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -430,7 +430,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                         return file.uri;
                     });
 
-                    folderUtils.createFolderInProject(true, agent, '', cutFilesFolderName, privateProject.handle, function (err, res)
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         should.equal(err, null);
@@ -473,7 +473,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
             });
         });
 
-        it('Should cut files with success if the user is logged in as demouser2(a collaborator of the project)', function (done)
+        it("Should cut files with success if the user is logged in as demouser2(a collaborator of the project)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -490,7 +490,7 @@ describe('[File Cut / Move] [Private project] cutFiles ?paste', function ()
                         return file.uri;
                     });
 
-                    folderUtils.createFolderInProject(true, agent, '', cutFilesFolderName, privateProject.handle, function (err, res)
+                    folderUtils.createFolderInProject(true, agent, "", cutFilesFolderName, privateProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         should.equal(err, null);

@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /*
      *  Window controller
      */
-    .controller('windowCtrl', function (
+    .controller("windowCtrl", function (
         $scope,
         $http,
         $filter,
@@ -21,24 +21,24 @@ angular.module('dendroApp.controllers')
     {
         $scope.get_current_url = function ()
         {
-            var newURL = window.location.protocol + '//' + window.location.host + window.location.pathname;
+            var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
             return newURL;
         };
 
         $scope.get_host = function ()
         {
-            var newURL = window.location.protocol + '//' + window.location.host;
+            var newURL = window.location.protocol + "//" + window.location.host;
             return newURL;
         };
 
         $scope.get_thumbnail_uri = function (uri)
         {
-            return uri + '?thumbnail&size=icon';
+            return uri + "?thumbnail&size=icon";
         };
 
         $scope.get_filename_icon = function (filename)
         {
-            var extension = filename.split('.').pop();
+            var extension = filename.split(".").pop();
             return $scope.get_extension_icon(extension);
         };
 
@@ -49,19 +49,19 @@ angular.module('dendroApp.controllers')
             if (length > maxLength)
             {
                 var trimmedFileName = filename.substring(0, maxLength);
-                return trimmedFileName + '...';
+                return trimmedFileName + "...";
             }
             return filename;
         };
 
         $scope.get_extension_icon = function (extension)
         {
-            return '/images/icons/extensions/file_extension_' + extension + '.png';
+            return "/images/icons/extensions/file_extension_" + extension + ".png";
         };
 
         $scope.get_last_section_of_url = function (url)
         {
-            return url.substr(url.lastIndexOf('/') + 1);
+            return url.substr(url.lastIndexOf("/") + 1);
         };
 
         $scope.show_popup = function (type, title, message, delay)
@@ -159,7 +159,7 @@ angular.module('dendroApp.controllers')
 
         $scope.valid_int = function (int)
         {
-            if (!int || int === '')
+            if (!int || int === "")
             {
                 return false;
             }

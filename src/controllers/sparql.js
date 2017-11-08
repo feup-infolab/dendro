@@ -1,12 +1,12 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
-const DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const db = Config.getDBByID();
 
 /*
@@ -16,7 +16,7 @@ const db = Config.getDBByID();
 exports.show = function (req, res)
 {
     let viewVars = {
-        title: 'Researchers in the knowledge base'
+        title: "Researchers in the knowledge base"
     };
 
     viewVars = DbConnection.paginate(req,
@@ -29,14 +29,14 @@ exports.show = function (req, res)
         {
             viewVars.users = users;
 
-            res.render('users/all',
+            res.render("users/all",
                 viewVars
             );
         }
         else
         {
             viewVars.error_messages = [users];
-            res.render('users/all',
+            res.render("users/all",
                 viewVars
             );
         }
@@ -51,21 +51,21 @@ exports.query = function (req, res)
     {
         if (isNull(err))
         {
-            res.render('users/show',
+            res.render("users/show",
                 {
-                    title: 'Viewing user ' + username,
+                    title: "Viewing user " + username,
                     user: user
                 }
             );
         }
         else
         {
-            res.render('users/all',
+            res.render("users/all",
                 {
-                    title: 'Researchers',
+                    title: "Researchers",
                     error_messages:
           [
-              'Unable to retrieve information for user ' + username,
+              "Unable to retrieve information for user " + username,
               err
           ]
                 }

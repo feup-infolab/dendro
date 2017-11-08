@@ -1,28 +1,28 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
-const _ = require('underscore');
-const chai = require('chai');
-const slug = require('slug');
+const _ = require("underscore");
+const chai = require("chai");
+const slug = require("slug");
 const should = chai.should();
 const Pathfinder = global.Pathfinder;
-const path = require('path');
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const async = require('async');
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder('utils/repository/repositoryUtils.js'));
-const projectUtils = require(Pathfinder.absPathInTestsFolder('utils/project/projectUtils.js'));
-const fileUtils = require(Pathfinder.absPathInTestsFolder('utils/file/fileUtils.js'));
-const ckanTestUtils = require(Pathfinder.absPathInTestsFolder('utils/repository/ckanTestUtils.js'));
-const CkanUtils = require(Pathfinder.absPathInSrcFolder('/utils/datasets/ckanUtils.js'));
-const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
+const path = require("path");
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const async = require("async");
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
+const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1'));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
-const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder('mockdata/folders/folderExportedCkanDendroDiffs.js'));
-const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder('mockdata/folders/folderExportedCkanCkanDiffs.js'));
+const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
+const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
 
-const uploadedDeletedFileDendroMockFile = require(Pathfinder.absPathInTestsFolder('mockdata/files/uploadedAndDeletedFileInDendro.js'));
-const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder('mockdata/files/uploadedFileToCkan.js'));
+const uploadedDeletedFileDendroMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedAndDeletedFileInDendro.js"));
+const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
 
 let ckanData;
 
@@ -34,7 +34,7 @@ function requireUncached (module)
 
 module.exports.setup = function (project, finish)
 {
-    const exportFoldersToCkanRepositoryUnit = requireUncached(Pathfinder.absPathInTestsFolder('units/repositories/exportFoldersToCkanRepository.Unit.js'));
+    const exportFoldersToCkanRepositoryUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 
     exportFoldersToCkanRepositoryUnit.setup(project, function (err, results)
     {
@@ -44,7 +44,7 @@ module.exports.setup = function (project, finish)
         }
         else
         {
-            console.log('---------- RUNNING UNIT addChangesToExportedCkanPackages for: ' + project.handle + ' ----------');
+            console.log("---------- RUNNING UNIT addChangesToExportedCkanPackages for: " + project.handle + " ----------");
             appUtils.registerStartTimeForUnit(path.basename(__filename));
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -60,7 +60,7 @@ module.exports.setup = function (project, finish)
                         res.body.length.should.equal(6);
                         ckanData = _.find(res.body, function (externalRepo)
                         {
-                            return externalRepo.dcterms.title === 'ckan2';
+                            return externalRepo.dcterms.title === "ckan2";
                         });
                         should.exist(ckanData);
 

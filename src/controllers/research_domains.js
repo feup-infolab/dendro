@@ -1,14 +1,14 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const ResearchDomain = require(Pathfinder.absPathInSrcFolder('/models/meta/research_domain.js')).ResearchDomain;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 exports.autocomplete = function (req, res)
 {
@@ -24,11 +24,11 @@ exports.autocomplete = function (req, res)
                 {
                     for (let i = 0; i < research_domains.length; i++)
                     {
-                        if (typeof research_domains[i].id === 'undefined')
+                        if (typeof research_domains[i].id === "undefined")
                         {
                             research_domains[i].id = i;
                         }
-                        if (typeof research_domains[i].dcterms.title !== 'undefined')
+                        if (typeof research_domains[i].dcterms.title !== "undefined")
                         {
                             research_domains[i].tag_face = research_domains[i].dcterms.title;
                         }
@@ -53,7 +53,7 @@ exports.autocomplete = function (req, res)
     {
         res.status(400).json(
             {
-                error_messages: ['You did not send the autocomplete query. The request should be something like /research_domains/autocomplete?query=blablabla.']
+                error_messages: ["You did not send the autocomplete query. The request should be something like /research_domains/autocomplete?query=blablabla."]
             }
         );
     }
@@ -79,17 +79,17 @@ exports.all = function (req, res)
                     if (isNull(err))
                     {
                         res.json({
-                            result: 'ok',
+                            result: "ok",
                             research_domains: researchDomains
                         });
                     }
                     else
                     {
-                        const msg = 'error fetching research domain information : ' + err;
+                        const msg = "error fetching research domain information : " + err;
                         console.error(msg);
 
                         res.json({
-                            result: 'error',
+                            result: "error",
                             message: msg
                         });
                     }
@@ -122,7 +122,7 @@ exports.edit = function (req, res)
                     {
                         if (err)
                         {
-                            const msg = 'Error saving research domain ' + JSON.stringify(domain) + ' because of error ' + JSON.stringify(result);
+                            const msg = "Error saving research domain " + JSON.stringify(domain) + " because of error " + JSON.stringify(result);
                             console.error(msg);
                         }
 
@@ -135,16 +135,16 @@ exports.edit = function (req, res)
                 if (isNull(err))
                 {
                     res.json({
-                        result: 'ok',
-                        message: 'All research domains saved successfully'
+                        result: "ok",
+                        message: "All research domains saved successfully"
                     }
                     );
                 }
                 else
                 {
                     res.status(500).json({
-                        result: 'error',
-                        message: 'Error updating research domains. Error reported ' + JSON.stringify(results)
+                        result: "error",
+                        message: "Error updating research domains. Error reported " + JSON.stringify(results)
                     }
                     );
                 }
@@ -162,23 +162,23 @@ exports.delete = function (req, res)
         {
             if (isNull(err))
             {
-                if (typeof research_domain !== 'undefined')
+                if (typeof research_domain !== "undefined")
                 {
                     research_domain.deleteAllMyTriples(function (err, result)
                     {
                         if (isNull(err))
                         {
                             res.json({
-                                result: 'ok',
-                                message: 'Research Domain ' + uriOfResearchDomainToDelete + ' deleted successfully.'
+                                result: "ok",
+                                message: "Research Domain " + uriOfResearchDomainToDelete + " deleted successfully."
                             }
                             );
                         }
                         else
                         {
                             res.status(500).json({
-                                result: 'error',
-                                message: 'Error deleting research domain. Error reported ' + JSON.stringify(results)
+                                result: "error",
+                                message: "Error deleting research domain. Error reported " + JSON.stringify(results)
                             }
                             );
                         }
@@ -187,8 +187,8 @@ exports.delete = function (req, res)
                 else
                 {
                     res.status(500).json({
-                        result: 'error',
-                        message: 'Unable to find research domain with URI ' + uriOfResearchDomainToDelete + ' . Error reported ' + JSON.stringify(results)
+                        result: "error",
+                        message: "Unable to find research domain with URI " + uriOfResearchDomainToDelete + " . Error reported " + JSON.stringify(results)
                     }
                     );
                 }
@@ -196,8 +196,8 @@ exports.delete = function (req, res)
             else
             {
                 res.status(500).json({
-                    result: 'error',
-                    message: 'Error retrieving research domain. Error reported ' + JSON.stringify(results)
+                    result: "error",
+                    message: "Error retrieving research domain. Error reported " + JSON.stringify(results)
                 }
                 );
             }
@@ -206,7 +206,7 @@ exports.delete = function (req, res)
     else
     {
         res.status(400).json({
-            result: 'error',
+            result: "error",
             message: "Invalid object sent in for deleting. The body of the request must contain the an 'uri' field, stating which research domain to delete"
         }
         );

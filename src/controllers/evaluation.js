@@ -1,35 +1,35 @@
-const path = require('path');
-const Pathfinder = global.Pathfinder; const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const path = require("path");
+const Pathfinder = global.Pathfinder; const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Project = require(Pathfinder.absPathInSrcFolder('/models//project.js')).Project;
-const RecommendationUtils = require(Pathfinder.absPathInSrcFolder('/utils/recommendation.js')).RecommendationUtils;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
+const RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 
 const recommendation_mode = RecommendationUtils.getActiveRecommender();
 let recommendation;
 
-if (recommendation_mode === 'dendro_recommender')
+if (recommendation_mode === "dendro_recommender")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder('/controllers/dr_recommendation.js')).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/dr_recommendation.js")).shared;
 }
-else if (recommendation_mode === 'standalone')
+else if (recommendation_mode === "standalone")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder('/controllers/standalone_recommendation.js')).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
 }
-else if (recommendation_mode === 'project_descriptors')
+else if (recommendation_mode === "project_descriptors")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder('/controllers/project_descriptors_recommendation.js')).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/project_descriptors_recommendation.js")).shared;
 }
-else if (recommendation_mode === 'none')
+else if (recommendation_mode === "none")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder('/controllers/no_recommendation.js')).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
 }
 
-const records = require(Pathfinder.absPathInSrcFolder('/controllers/records.js'));
-const InformationElement = require(Pathfinder.absPathInSrcFolder('/models/directory_structure/information_element.js')).InformationElement;
+const records = require(Pathfinder.absPathInSrcFolder("/controllers/records.js"));
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 
 exports.metadata_evaluation = function (req, res)
 {
@@ -42,7 +42,7 @@ exports.metadata_evaluation = function (req, res)
         else
         {
             res.status(500).json({
-                result: 'error',
+                result: "error",
                 message: evaluation
             });
         }
@@ -87,7 +87,7 @@ exports.shared.evaluate_metadata = function (req, callback)
                 {
                     return callback(null, descriptors);
                 }
-                return callback(1, 'Unable to retrieve metadata recommendations for uri: ' + requestedResource.uri + '. Error reported : ' + err + ' Full Error : ' + JSON.stringify(descriptors));
+                return callback(1, "Unable to retrieve metadata recommendations for uri: " + requestedResource.uri + ". Error reported : " + err + " Full Error : " + JSON.stringify(descriptors));
             },
             {
                 favorites: includeOnlyFavorites,
@@ -105,7 +105,7 @@ exports.shared.evaluate_metadata = function (req, callback)
             {
                 return callback(null, metadata);
             }
-            return callback(1, 'Error finding metadata from ' + requestedResource.uri + '. Error reported : ' + metadata);
+            return callback(1, "Error finding metadata from " + requestedResource.uri + ". Error reported : " + metadata);
         }, true);
     };
 
@@ -141,7 +141,7 @@ exports.shared.evaluate_metadata = function (req, callback)
                 metadata_score += element_evaluation.score;
             }
 
-            if (typeof element_evaluation.score !== 'undefined')
+            if (typeof element_evaluation.score !== "undefined")
             {
                 recommendations_score += element_evaluation.score;
             }
@@ -155,7 +155,7 @@ exports.shared.evaluate_metadata = function (req, callback)
         }
 
         const metadata_evaluation = {
-            result: 'ok',
+            result: "ok",
             evaluation: metadata_evaluation_value,
             missing_descriptors: not_completed_descriptors
         };
@@ -206,12 +206,12 @@ exports.shared.evaluate_metadata = function (req, callback)
             }
             else
             {
-                return callback(1, 'Unable to find resource with uri ' + requestedResourceURI + ' in this Dendro instance when retrieving metadata during metadata quality evaluation.');
+                return callback(1, "Unable to find resource with uri " + requestedResourceURI + " in this Dendro instance when retrieving metadata during metadata quality evaluation.");
             }
         }
         else
         {
-            return callback(1, 'Error ' + err + ' fetching metadata for resource ' + requestedResourceURI + ': ' + requestedResource);
+            return callback(1, "Error " + err + " fetching metadata for resource " + requestedResourceURI + ": " + requestedResource);
         }
     };
 
