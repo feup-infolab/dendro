@@ -21,16 +21,23 @@ angular.module('dendroApp.controllers')
             windowService,
             filesService
         ) {
-            let projectdata = 0;
+            let projectdata = 4;
+
+            $scope.labels = ["Download Sales", "In-Store Sales", "Numero de pastas"];
+            $scope.data = [1, 4, 3, projectdata];
+            $scope.colours = [ '#803690', '#00ADF9', '#17ed6d'];
+
+            $scope.updateData = function(){
+                $scope.data = [2, 5];
+                console.log($scope);
+            };
+
             $scope.get_project_stats = function()
             {
                 function getStats(uri)
                 {
                     filesService.get_stats(uri)
-                        .then(function(response)
-                        {
-                            projectdata = response.data;
-                        });
+                        .then($scope.updateData);
                 }
 
                 if($scope.showing_project_root())
@@ -53,8 +60,5 @@ angular.module('dendroApp.controllers')
                             windowService.show_popup("error", "Error", e.statusText);
                         });
                 }
-                $scope.labels = ["Download Sales", "In-Store Sales", "Numero de pastas"];
-                $scope.data = [1, 4, 3, projectdata.files_count];
-                $scope.colours = [ '#803690', '#00ADF9', '#17ed6d'];
             };
         });
