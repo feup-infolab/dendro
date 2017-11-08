@@ -71,7 +71,7 @@ var dendroApp = angular.module("dendroApp", [
             startTrackingWithGoogleAnalytics(dendroApp);
         }
     );
-}]).run(function ($http, $rootScope)
+}]).run(function ($http, $rootScope, $window)
 {
     $http.get("/shared/public_config.json")
         .then(function (response)
@@ -84,3 +84,4 @@ var dendroApp = angular.module("dendroApp", [
             console.log("Unable to load remote config");
         });
 });
+

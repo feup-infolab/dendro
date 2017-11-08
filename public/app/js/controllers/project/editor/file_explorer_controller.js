@@ -534,7 +534,7 @@ angular.module("dendroApp.controllers")
                         windowService.get_change_log();
                     }
                 }
-            });
+            }, $scope.dirty_metadata());
         };
 
         $scope.select_item_in_folder_browser = function (index)
@@ -579,7 +579,7 @@ angular.module("dendroApp.controllers")
                             }
                         );
                 }
-            });
+            }, $scope.dirty_metadata());
         };
 
         $scope.toggle_show_deleted_files = function ()
