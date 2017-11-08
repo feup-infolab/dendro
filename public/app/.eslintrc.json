@@ -1,0 +1,15 @@
+{
+  "extends": "strict-standard",
+
+  "rules": {
+    "semi": [2, "always"],
+    "brace-style":[2, "allman"],
+    "no-warning-comments": "warn",
+    "no-undef": "warn",
+    "camelcase": "off",
+    "no-eval": "off",
+    "indent": [2, 4],
+    "strict": "warn",
+    "no-shadow": "warn"
+  }
+}

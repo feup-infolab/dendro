@@ -1,58 +1,57 @@
-const fs = require("fs");
-const path = require("path");
-const _ = require("underscore");
+const fs = require('fs');
+const path = require('path');
+const _ = require('underscore');
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
 
 function PluginManager ()
 {
-    var self = this;
 }
 
-PluginManager.registerPlugins = function(app, callback)
+PluginManager.registerPlugins = function (app, callback)
 {
-    var pluginsFolderAbsPath = Pathfinder.getAbsolutePathToPluginsFolder();
+    const pluginsFolderAbsPath = Pathfinder.getAbsolutePathToPluginsFolder();
 
-    var files = fs.readdirSync(pluginsFolderAbsPath);
-
-    files = _.without(files, "conf");
-
-    for(var i = 0; i < files.length; i++)
+    const isHiddenFile = function (fileName)
     {
-        var fileName = files[i];
-
-        var isHiddenFile = function(fileName)
+        for (let i = 0; i < Config.systemOrHiddenFilesRegexes.length; i++)
         {
-            for(var i = 0; i < Config.systemOrHiddenFilesRegexes.length; i++)
-            {
-                var regex = new RegExp(Config.systemOrHiddenFilesRegexes[i]);
+            let regex = new RegExp(Config.systemOrHiddenFilesRegexes[i]);
 
-                if(fileName.match(regex))
-                {
-                    return true;
-                }
+            if (fileName.match(regex))
+            {
+                return true;
             }
+        }
 
-            return false;
-        };
+        return false;
+    };
 
-        if(!isHiddenFile(fileName))
+    let files = fs.readdirSync(pluginsFolderAbsPath);
+
+    files = _.without(files, 'conf');
+
+    for (let i = 0; i < files.length; i++)
+    {
+        let fileName = files[i];
+
+        if (!isHiddenFile(fileName))
         {
-            var pluginAbsolutePath = path.join(pluginsFolderAbsPath, fileName);
+            const pluginAbsolutePath = path.join(pluginsFolderAbsPath, fileName);
 
-            var stats = fs.statSync(pluginAbsolutePath);
+            let stats = fs.statSync(pluginAbsolutePath);
 
-            if(stats.isDirectory())
+            if (stats.isDirectory())
             {
-                var configFileLocation = pluginAbsolutePath + "/integration/config.json";
-                var PluginConfig = require(configFileLocation);
+                let configFileLocation = pluginAbsolutePath + '/integration/config.json';
+                let PluginConfig = require(configFileLocation);
 
-                var setupFileLocation = pluginAbsolutePath + "/integration/setup.js";
-                var PluginSetup = require(setupFileLocation).Setup;
+                let setupFileLocation = pluginAbsolutePath + '/integration/setup.js';
+                let PluginSetup = require(setupFileLocation).Setup;
 
-                console.log("[INFO] Registering routes for plugin " + PluginConfig.name);
+                console.log('[INFO] Registering routes for plugin ' + PluginConfig.name);
                 app = PluginSetup.registerRoutes(app);
             }
         }

@@ -1,10 +1,10 @@
 let sleep = require('sleep');
 
-const TestDelay = function()
+const TestDelay = function ()
 {
     TestDelay.testCount++;
 
-    if((TestDelay.testCount % TestDelay.batchSize ) === 0)
+    if ((TestDelay.testCount % TestDelay.batchSize) === 0)
     {
         TestDelay.testCount = 0;
         sleep.msleep(TestDelay.delay);

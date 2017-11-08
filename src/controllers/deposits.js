@@ -23,8 +23,6 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
 const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
 
-const db = Config.getDBByID();
-const gfs = Config.getGFSByID();
 
 const util = require('util');
 const async = require("async");
@@ -64,7 +62,7 @@ exports.public = function (req, callback) {
     const page = req.query.page;
     const offset = req.query.offset;
 
-    Deposit.public(depositType, page, offset, function(err, results){
+    Deposit.createQuery(depositType, function(err, results){
         callback(err, results);
     });
 };

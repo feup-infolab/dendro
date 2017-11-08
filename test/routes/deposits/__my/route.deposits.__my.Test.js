@@ -45,59 +45,60 @@ const params = {
 };
 
 describe("Deposits/latest", function (done) {
-    before(function (done) {
-        this.timeout(60000);
-        createFoldersUnit.setup(function (err, res) {
-            should.equal(err, null);
-            Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
-            User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-            done();
-        });
+  before(function (done) {
+    this.timeout(60000);
+    createFoldersUnit.setup(function (err, res) {
+      should.equal(err, null);
+      Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
+      User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+      done();
     });
-    describe('?my', function(){
+  });
+  describe('?my', function () {
 
-        it("should not show personal deposits to unauthenticated user", function (done) {
-            let app = global.tests.app;
-            let agent = chai.request.agent(app);
+    it("should not show personal deposits to unauthenticated user", function (done) {
+      let app = global.tests.app;
+      let agent = chai.request.agent(app);
 
-            depositUtils.sendDeposits(true, params, agent, function(err, res){
-                should.exist(err);
-                res.should.have.status(404);
-                done();
-            })
-        });
-
-        it("should not show deposits from other users", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-
-                depositUtils.sendDeposits(true, params, agent, function(err, res){
-                    should.exist(err);
-                    res.should.have.status(404);
-                    done();
-                });
-            });
-        });
-
-        it("should show my deposits", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //create deposit in a project
-
-                depositUtils.sendDeposits(true, params, agent, function(err, res){
-                    should.exist(err);
-                    res.should.have.status(404);
-                    done();
-                });
-            });
-
-        });
-
-        after(function (done) {
-            //destroy graphs
-            this.timeout(Config.testsTimeout);
-            db.deleteGraphs(function (err, data) {
-                should.equal(err, null);
-                GLOBAL.tests.server.close();
-                done();
-            });
+      depositUtils.sendDeposits(true, params, agent, function (err, res) {
+        should.exist(err);
+        res.should.have.status(404);
+        done();
+      })
     });
+
+    it("should not show deposits from other users", function (done) {
+      userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+
+        depositUtils.sendDeposits(true, params, agent, function (err, res) {
+          should.exist(err);
+          res.should.have.status(404);
+          done();
+        });
+      });
+    });
+
+    it("should show my deposits", function (done) {
+      userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+        //create deposit in a project
+
+        depositUtils.sendDeposits(true, params, agent, function (err, res) {
+          should.exist(err);
+          res.should.have.status(404);
+          done();
+        });
+      });
+
+    });
+
+    after(function (done) {
+      //destroy graphs
+      this.timeout(Config.testsTimeout);
+      db.deleteGraphs(function (err, data) {
+        should.equal(err, null);
+        GLOBAL.tests.server.close();
+        done();
+      });
+    });
+  });
 });

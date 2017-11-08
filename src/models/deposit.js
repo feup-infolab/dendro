@@ -20,8 +20,7 @@ const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Cl
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
-
+const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
@@ -80,7 +79,7 @@ Deposit.public = function(publicPrivacy, page, offset, callback){
         "LIMIT [2] \n" +
         "OFFSET [3]";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [   {
                 type : DbConnection.resourceNoEscape,
                 value : db.graphUri
@@ -144,7 +143,7 @@ Deposit.allowed = function(username, parameters, callback){
         "} \n" +
         "ORDER BY ?date ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [   {
             type : DbConnection.resourceNoEscape,
             value : db.graphUri
@@ -186,13 +185,15 @@ Deposit.createQuery = function(params, callback){
         "   ?projused dcterms:title ?projectTitle . \n" +
         "   ?projused ddr:privacyStatus ?privacy . \n" +
         "   { \n" +
-        "       ?uri ddr:privacyStatus [1] . \n" +
-        "       UNION " +
         "       { \n" +
-        "           ?uri ddr:privacyStatus [2] . \n" +
-        "           VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-        "           ?projused ?role ?worker . \n" +
-        "           ?worker ddr:username [3] \n" +
+        "         ?uri ddr:privacyStatus [1] . \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { \n" +
+        "         ?uri ddr:privacyStatus [2] . \n" +
+        "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+        "         ?projused ?role ?worker . \n" +
+        "         ?worker ddr:username [3] \n" +
         "       } \n" +
         "   } \n" +
         "   ?uri dcterms:creator ?user . \n" +
@@ -209,42 +210,42 @@ Deposit.createQuery = function(params, callback){
 
     let variables = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         },
         {
-            type : DbConnection.string,
+            type : Elements.types.string,
             value : "public"
         },
         {
-            type : DbConnection.string,
+            type : Elements.types.string,
             value : "private"
         },
         {
-            type : DbConnection.string,
+            type : Elements.types.string,
             value : params.username
         },];
 
     if(params.offset){
         variables.push({
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: params.offset
         });
     } else{
         variables.push({
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: "0"
         });
     }
 
     if(params.limit){
         variables.push({
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: params.limit
         });
     } else{
         variables.push({
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: "10"
         });
     }
@@ -253,27 +254,27 @@ Deposit.createQuery = function(params, callback){
     if(params.projId){
         query += "  ?uri ddr:exportedFromProject [" + i++ + "] \n";
         variables.push({
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: params.projId
         });
     }
     if(params.creator){
         query += "  ?uri dcterms:creator [" + i++ + "] \n";
         variables.push({
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: params.creator
         });
     }
     if(params.description){
         query += "  ?uri dcterms:description [" + i++ + "] \n";
         variables.push({
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: params.description
         });
     }
 
     query += ending;
-    db.connection.execute(query,variables, function (err, regs){
+    db.connection.executeViaJDBC(query,variables, function (err, regs){
             callback(err, regs);
         });
 };

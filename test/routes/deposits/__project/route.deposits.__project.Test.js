@@ -45,88 +45,89 @@ const params = {
 };
 
 describe("Deposits/latest", function (done) {
-    before(function (done) {
-        this.timeout(60000);
-        createFoldersUnit.setup(function (err, res) {
-            should.equal(err, null);
-            Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
-            User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-            done();
-        });
+  before(function (done) {
+    this.timeout(60000);
+    createFoldersUnit.setup(function (err, res) {
+      should.equal(err, null);
+      Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
+      User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+      done();
     });
-    describe('?project', function(){
+  });
+  describe('?project', function () {
 
-        it("should not show private deposits to unauthenticated user", function (done) {
-            let app = global.tests.app;
-            let agent = chai.request.agent(app);
+    it("should not show private deposits to unauthenticated user", function (done) {
+      let app = global.tests.app;
+      let agent = chai.request.agent(app);
 
-            depositUtils.sendDeposits(true, params, agent, function(err, res){
-                should.exist(err);
-                res.should.have.status(404);
-                done();
-            })
-        });
-
-        it("should not show private deposits to user without project permissions", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-
-                depositUtils.sendDeposits(true, params, agent, function(err, res){
-                    should.exist(err);
-                    res.should.have.status(404);
-                    done();
-                });
-            });
-        });
-
-        it("should not show deposits from other projects", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                //create deposit in another project
-
-                depositUtils.sendDeposits(true, params, agent, function(err, res){
-                    should.exist(err);
-                    res.should.have.status(404);
-                    done();
-                });
-            });
-
-        });
-
-        it("should show a private deposit to project contributor", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                //create deposit in project
-
-                depositUtils.sendDeposits(true, params, agent, function(err, res){
-                    should.exist(err);
-                    res.should.have.status(404);
-                    done();
-                });
-            });
-        });
-
-        it("should show a private deposit to project creator", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //create deposit in another project
-
-                depositUtils.sendDeposits(true, params, agent, function(err, res){
-                    should.exist(err);
-                    res.should.have.status(404);
-                    done();
-                });
-            });
-        });
-
-        it("should show a public deposit to unauthenticated user", function (done) {
-            done();
-
-        });
-
-        after(function (done) {
-            //destroy graphs
-            this.timeout(Config.testsTimeout);
-            db.deleteGraphs(function (err, data) {
-                should.equal(err, null);
-                GLOBAL.tests.server.close();
-                done();
-            });
+      depositUtils.sendDeposits(true, params, agent, function (err, res) {
+        should.exist(err);
+        res.should.have.status(404);
+        done();
+      })
     });
+
+    it("should not show private deposits to user without project permissions", function (done) {
+      userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+
+        depositUtils.sendDeposits(true, params, agent, function (err, res) {
+          should.exist(err);
+          res.should.have.status(404);
+          done();
+        });
+      });
+    });
+
+    it("should not show deposits from other projects", function (done) {
+      userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+        //create deposit in another project
+
+        depositUtils.sendDeposits(true, params, agent, function (err, res) {
+          should.exist(err);
+          res.should.have.status(404);
+          done();
+        });
+      });
+
+    });
+
+    it("should show a private deposit to project contributor", function (done) {
+      userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+        //create deposit in project
+
+        depositUtils.sendDeposits(true, params, agent, function (err, res) {
+          should.exist(err);
+          res.should.have.status(404);
+          done();
+        });
+      });
+    });
+
+    it("should show a private deposit to project creator", function (done) {
+      userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+        //create deposit in another project
+
+        depositUtils.sendDeposits(true, params, agent, function (err, res) {
+          should.exist(err);
+          res.should.have.status(404);
+          done();
+        });
+      });
+    });
+
+    it("should show a public deposit to unauthenticated user", function (done) {
+      done();
+
+    });
+
+    after(function (done) {
+      //destroy graphs
+      this.timeout(Config.testsTimeout);
+      db.deleteGraphs(function (err, data) {
+        should.equal(err, null);
+        GLOBAL.tests.server.close();
+        done();
+      });
+    });
+  });
 });

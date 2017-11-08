@@ -1,14 +1,15 @@
 const util = require('util');
-const path = require("path");
+const path = require('path');
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const colors = require("colors");
+const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const colors = require('colors');
 const MongoClient = require('mongodb').MongoClient;
 const slug = require('slug');
 
-function DataStoreConnection (options) {
+function DataStoreConnection (options)
+{
     const self = this;
 
     self.port = options.port;
@@ -19,142 +20,145 @@ function DataStoreConnection (options) {
     self.counter = 1;
 }
 
-DataStoreConnection.prototype.open = function(callback) {
+DataStoreConnection.prototype.open = function (callback)
+{
     const self = this;
 
-    if(!isNull(self.client))
+    if (!isNull(self.client))
     {
-        return callback(1, "DataStoreConnection connection is already open.");
+        return callback(1, 'DataStoreConnection connection is already open.');
     }
-    else
+    const url = 'mongodb://' + self.host + ':' + self.port + '/' + slug(self.database, '_');
+    MongoClient.connect(url, function (err, db)
     {
-        const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, '_');
-        MongoClient.connect(url, function(err, db) {
-            if(isNull(err))
-            {
-                self.client = db;
-                callback(null, self);
-            }
-            else
-            {
-                callback(err, db);
-            }
-        });
-    }
+        if (isNull(err))
+        {
+            self.client = db;
+            callback(null, self);
+        }
+        else
+        {
+            callback(err, db);
+        }
+    });
 };
-DataStoreConnection.prototype.close = function() {
+DataStoreConnection.prototype.close = function ()
+{
     const self = this;
     self.client.close();
 };
 
-DataStoreConnection.prototype.getSheets = function(callback) {
+DataStoreConnection.prototype.getSheets = function (callback)
+{
     const self = this;
     const queryObject = {
-        "resource": self.uri
+        resource: self.uri
     };
 
     const cursor = self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
-        .find(queryObject,   {"_id" : 0} )
-        .sort([["index", 1]]);
+        .find(queryObject, {_id: 0})
+        .sort([['index', 1]]);
 
-    cursor.toArray(function(err, results) {
+    cursor.toArray(function (err, results)
+    {
         callback(err, results);
         self.close();
     });
 };
 
-DataStoreConnection.prototype.createSheetRecord = function(sheetName, sheetIndex, sheetHeader, callback) {
+DataStoreConnection.prototype.createSheetRecord = function (sheetName, sheetIndex, sheetHeader, callback)
+{
     const self = this;
     const newSheetObject = {
-        "resource": self.resourceUri
+        resource: self.resourceUri
     };
 
-    if(!isNull(sheetIndex))
+    if (!isNull(sheetIndex))
     {
         newSheetObject.index = sheetIndex;
     }
 
-    if(!isNull(sheetName))
+    if (!isNull(sheetName))
     {
         newSheetObject.name = sheetName;
     }
 
-    if(!isNull(sheetHeader))
+    if (!isNull(sheetHeader))
     {
         newSheetObject.header = sheetHeader;
     }
 
-    //TODO limpar existente (resource e sheet index) e substituir!
+    // TODO limpar existente (resource e sheet index) e substituir!
     self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
-        .insert(newSheetObject, function(err, result){
+        .insert(newSheetObject, function (err, result)
+        {
             callback(err, result);
         });
 };
 
-DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip, limit, sheetIndex, outputFormat) {
+DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, skip, limit, sheetIndex, outputFormat)
+{
     const self = this;
-    let JSONStream = require("JSONStream");
-    if(!isNull(self.client))
+    let JSONStream = require('JSONStream');
+    if (!isNull(self.client))
     {
         const queryObject = {
-            "$and": []
+            $and: []
         };
 
-
-        if(!isNull(query) && JSON.stringify(query) !== "{}")
+        if (!isNull(query) && JSON.stringify(query) !== '{}')
         {
-            queryObject["$and"].push({
+            queryObject.$and.push({
                 data: query
             });
         }
 
-        if(isNull(skip) || isNaN(skip))
+        if (isNull(skip) || isNaN(skip))
         {
             skip = 0;
         }
 
-        if(isNull(limit) || isNaN(limit))
+        if (isNull(limit) || isNaN(limit))
         {
-            limit = 1000; //1000 rows by default
+            limit = 1000; // 1000 rows by default
         }
 
-        if(isNull(sheetIndex) || isNaN(sheetIndex))
+        if (isNull(sheetIndex) || isNaN(sheetIndex))
         {
             sheetIndex = 0;
         }
 
+        // pagination
+        queryObject.$and.push({row: { $gte: skip}});
+        queryObject.$and.push({row: { $lte: skip + Math.abs(limit)}});
 
-        //pagination
-        queryObject["$and"].push({row : { "$gte" : skip}});
-        queryObject["$and"].push({row : { "$lte" : skip + Math.abs(limit)}});
-
-        //sheet index
-        queryObject["$and"].push({sheet_index : sheetIndex});
+        // sheet index
+        queryObject.$and.push({sheet_index: sheetIndex});
 
         const cursor = self.client.collection(self.collection)
-            .find(queryObject,  { "sheet_index" : 0, "_id" : 0})
-            .sort([["row", 1]]);
+            .find(queryObject, { sheet_index: 0, _id: 0})
+            .sort([['row', 1]]);
 
-        if(outputFormat === "csv")
+        if (outputFormat === 'csv')
         {
-            const getRowInCSV = function(data)
+            const getRowInCSV = function (data)
             {
-                let row = "";
-                if(!isNull(data))
+                let row = '';
+                if (!isNull(data))
                 {
                     let keys = Object.keys(data);
 
-                    for(let i = 0; i < keys.length; i++)
+                    for (let i = 0; i < keys.length; i++)
                     {
                         let key = keys[i];
-                        if(data.hasOwnProperty(key))
+                        if (data.hasOwnProperty(key))
                         {
                             row += data[key];
                         }
 
-                        if(i < keys.length - 1)
+                        if (i < keys.length - 1)
                         {
-                            row += ",";
+                            row += ',';
                         }
                     }
                 }
@@ -162,15 +166,15 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
                 return row;
             };
 
-            const getHeader = function(callback)
+            const getHeader = function (callback)
             {
                 const getHeaderQueryObject = {
-                    "$and": [
+                    $and: [
                         {
-                            "resource": self.resourceUri
+                            resource: self.resourceUri
                         },
                         {
-                            "index": sheetIndex
+                            index: sheetIndex
                         }
                     ]
                 };
@@ -178,80 +182,83 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
                 const headerCursor = self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
                     .find(getHeaderQueryObject,
                         {
-                            "_id" : 0
+                            _id: 0
                         });
 
-                headerCursor.toArray(function(err, results) {
-                    if(isNull(err))
+                headerCursor.toArray(function (err, results)
+                {
+                    if (isNull(err))
                     {
                         if (!isNull(results) && results instanceof Array && results.length === 1)
                         {
-                            let headerRow = "";
+                            let headerRow = '';
                             let header = results[0].header;
-                            if(!isNull(header))
+                            if (!isNull(header))
                             {
-                                for(let i = 0; i < header.length; i++)
+                                for (let i = 0; i < header.length; i++)
                                 {
                                     let headerColumn = header[i];
-                                    headerRow+= "\"" + header[i] + "\"";
+                                    headerRow += '"' + header[i] + '"';
 
-                                    if(i < header.length - 1)
+                                    if (i < header.length - 1)
                                     {
-                                        headerRow += ",";
+                                        headerRow += ',';
                                     }
                                 }
 
                                 writeStream.write(headerRow);
-                                writeStream.write("\n");
+                                writeStream.write('\n');
 
                                 callback(null);
                             }
                             else
                             {
-                                callback(1, "Unable to fetch the header of resource " + self.resourceUri);
+                                callback(1, 'Unable to fetch the header of resource ' + self.resourceUri);
                             }
                         }
                         else
                         {
-                            callback(1, "Unable to fetch header of sheet " + sheetIndex + " of resource " + self.resourceUri + ": Sheet or resource does not exist in the sheet records collection!");
+                            callback(1, 'Unable to fetch header of sheet ' + sheetIndex + ' of resource ' + self.resourceUri + ': Sheet or resource does not exist in the sheet records collection!');
                         }
                     }
                     else
                     {
-                        callback(1, "unable to fetch header of sheet " + sheetIndex + " of resource " + self.resourceUri + ". Error reported: " + err);
+                        callback(1, 'unable to fetch header of sheet ' + sheetIndex + ' of resource ' + self.resourceUri + '. Error reported: ' + err);
                     }
                 });
-            }
+            };
 
-            const getData = function(callback)
+            const getData = function (callback)
             {
-                cursor.toArray(function(err, results) {
-                    if(isNull(err))
+                cursor.toArray(function (err, results)
+                {
+                    if (isNull(err))
                     {
-                        for(let i = 0; i < results.length; i++)
+                        for (let i = 0; i < results.length; i++)
                         {
                             let csvRow = getRowInCSV(results[i].data);
                             writeStream.write(csvRow);
 
-                            if(i < results.length - 1)
+                            if (i < results.length - 1)
                             {
-                                writeStream.write("\n");
+                                writeStream.write('\n');
                             }
                         }
                         callback(null);
                     }
                     else
                     {
-                        callback(err, results)
+                        callback(err, results);
                     }
                 });
-            }
+            };
 
-            const async = require("async");
+            const async = require('async');
             async.series([
                 getHeader,
                 getData
-            ], function(err, result){
+            ], function (err, result)
+            {
                 writeStream.end();
                 self.close();
             });
@@ -259,41 +266,47 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
         else
         {
             cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
-            cursor.on('end', function(){
+            cursor.on('end', function ()
+            {
                 self.close();
-            })
+            });
         }
     }
     else
     {
-        return callback(1, "Must open connection to MongoDB datastore "+JSON.stringify(self)+"first!");
+        return callback(1, 'Must open connection to MongoDB datastore ' + JSON.stringify(self) + 'first!');
     }
 };
-DataStoreConnection.prototype.getData = function(writeStream, callback, sheetName, outputFormat) {
+DataStoreConnection.prototype.getData = function (writeStream, callback, sheetName, outputFormat)
+{
     DataStoreConnection.prototype.getDataByQuery({}, writeStream, null, null, sheetName, callback, outputFormat);
 };
-DataStoreConnection.prototype.clearData = function(callback, sheetIndex) {
+DataStoreConnection.prototype.clearData = function (callback, sheetIndex)
+{
     const self = this;
-    if(!isNull(self.client))
+    if (!isNull(self.client))
     {
-        const clearDataRecords = function(callback)
+        const clearDataRecords = function (callback)
         {
             let deleteFilterObject = {};
-            if(!isNull(sheetIndex))
+            if (!isNull(sheetIndex))
             {
-                deleteFilterObject["sheet_index"] =  sheetIndex;
+                deleteFilterObject.sheet_index = sheetIndex;
             }
 
-            self.client.collection(self.collection).deleteMany(deleteFilterObject, function(err, result){
-                if(isNull(err))
+            self.client.collection(self.collection).deleteMany(deleteFilterObject, function (err, result)
+            {
+                if (isNull(err))
                 {
-                    self.client.collection(self.collection).count({}, function(err, result){
-                        if(isNull(err))
+                    self.client.collection(self.collection).count({}, function (err, result)
+                    {
+                        if (isNull(err))
                         {
-                            if(result === 0)
+                            if (result === 0)
                             {
-                                self.client.collection(self.collection).drop(function(err, result){
-                                    if(isNull(err) || err.errmsg === "ns not found")
+                                self.client.collection(self.collection).drop(function (err, result)
+                                {
+                                    if (isNull(err) || err.errmsg === 'ns not found')
                                     {
                                         callback(null);
                                     }
@@ -319,17 +332,20 @@ DataStoreConnection.prototype.clearData = function(callback, sheetIndex) {
                     callback(err, result);
                 }
             });
-        }
+        };
 
-        const clearSheetRecord = function(callback)
+        const clearSheetRecord = function (callback)
         {
-            let clearSheetQuery = {"resource" : self.resourceUri };
+            let clearSheetQuery = {resource: self.resourceUri };
 
-            if(!isNull(sheetIndex))
+            if (!isNull(sheetIndex))
+            {
                 clearSheetQuery.index = sheetIndex;
+            }
 
-            self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION).deleteMany(clearSheetQuery, function(err, result){
-                if(isNull(err) || err.errmsg === "ns not found")
+            self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION).deleteMany(clearSheetQuery, function (err, result)
+            {
+                if (isNull(err) || err.errmsg === 'ns not found')
                 {
                     callback(err, result);
                 }
@@ -337,36 +353,38 @@ DataStoreConnection.prototype.clearData = function(callback, sheetIndex) {
                 {
                     callback(err, result);
                 }
-
-            })
-        }
+            });
+        };
 
         const async = require('async');
         async.series([clearDataRecords, clearSheetRecord], callback);
     }
     else
     {
-        return callback(1, "Must open connection to MongoDB cache "+JSON.stringify(self)+"first!");
+        return callback(1, 'Must open connection to MongoDB cache ' + JSON.stringify(self) + 'first!');
     }
 };
 
-DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, callback, sheetName, sheetIndex) {
+DataStoreConnection.prototype.appendArrayOfObjects = function (arrayOfRecords, callback, sheetName, sheetIndex)
+{
     const self = this;
 
-    if(isNull(sheetIndex))
+    if (isNull(sheetIndex))
+    {
         sheetIndex = 0;
+    }
 
-    const createNewEntries = function(entries, callback) {
-        
+    const createNewEntries = function (entries, callback)
+    {
         let collection = self.client.collection(self.collection);
 
         let formattedEntries = [];
-        for(let i = 0; i < entries.length; i++)
+        for (let i = 0; i < entries.length; i++)
         {
             let obj = {};
-            obj["sheet_index"] = sheetIndex;
-            obj["row"] = self.counter;
-            obj["data"] = entries[i];
+            obj.sheet_index = sheetIndex;
+            obj.row = self.counter;
+            obj.data = entries[i];
 
             formattedEntries.push(obj);
             self.counter++;
@@ -375,102 +393,108 @@ DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, ca
         // Execute the operation
         collection.insertMany(
             formattedEntries,
-            function(err, result){
+            function (err, result)
+            {
                 callback(err, result);
             });
     };
 
-    if(!isNull(self.client))
+    if (!isNull(self.client))
     {
-        createNewEntries(arrayOfRecords, function(err, result){
+        createNewEntries(arrayOfRecords, function (err, result)
+        {
             callback(err, result);
         });
     }
     else
     {
-        return callback(1, "Open the connection to the DataStoreConnection first !");
+        return callback(1, 'Open the connection to the DataStoreConnection first !');
     }
 };
 
-DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfRecords, callback, sheetName, sheetIndex, sheetHeader) {
+DataStoreConnection.prototype.updateDataFromArrayOfObjects = function (arrayOfRecords, callback, sheetName, sheetIndex, sheetHeader)
+{
     const self = this;
 
-    if(!isNull(self.client))
+    if (!isNull(self.client))
     {
-        self.clearData(function(err, result){
-            if(isNull(err))
+        self.clearData(function (err, result)
+        {
+            if (isNull(err))
             {
-                self.createSheetRecord(sheetName, sheetIndex, sheetHeader, function(err, result){
-                    if(isNull(err))
+                self.createSheetRecord(sheetName, sheetIndex, sheetHeader, function (err, result)
+                {
+                    if (isNull(err))
                     {
                         self.appendArrayOfObjects(arrayOfRecords, callback, sheetName, sheetIndex);
                     }
                     else
                     {
-                        callback(1, "Unable to create Sheet Record for sheet "+sheetName+ ", with index " + sheetIndex + " of resource " + self.resourceUri);
+                        callback(1, 'Unable to create Sheet Record for sheet ' + sheetName + ', with index ' + sheetIndex + ' of resource ' + self.resourceUri);
                     }
                 });
             }
             else
             {
-                callback(1, "Unable to Delete existing records for sheet "+sheetName+ ", with index " + sheetIndex + " of resource " + self.resourceUri);
+                callback(1, 'Unable to Delete existing records for sheet ' + sheetName + ', with index ' + sheetIndex + ' of resource ' + self.resourceUri);
             }
         }, sheetIndex);
     }
     else
     {
-        return callback(1, "Open the connection to the DataStoreConnection first !");
+        return callback(1, 'Open the connection to the DataStoreConnection first !');
     }
 };
 
-DataStoreConnection.create = function(resourceUri, callback) {
+DataStoreConnection.create = function (resourceUri, callback)
+{
     const parameters = JSON.parse(JSON.stringify(Config.datastore));
     parameters.resourceUri = resourceUri;
 
     const newDataStore = new DataStoreConnection(parameters);
-    newDataStore.open(function(err, openDataStore){
+    newDataStore.open(function (err, openDataStore)
+    {
         callback(err, openDataStore);
     });
 };
-DataStoreConnection.deleteAllDataOfAllResources = function(callback) {
+DataStoreConnection.deleteAllDataOfAllResources = function (callback)
+{
     const self = this;
 
-    DataStoreConnection.create("NO_RES", function(err, openDataStore){
-        if(!err)
+    DataStoreConnection.create('NO_RES', function (err, openDataStore)
+    {
+        if (!err)
         {
-            if(!isNull(openDataStore))
+            if (!isNull(openDataStore))
             {
-                openDataStore.client.dropDatabase(function (err) {
-                    if (isNull(err) || err.message === "ns not found")
+                openDataStore.client.dropDatabase(function (err)
+                {
+                    if (isNull(err) || err.message === 'ns not found')
                     {
                         if (Config.debug.active && Config.datastore.log.log_datastore_ops)
                         {
-                            console.log("[DEBUG] Deleted ALL datastore records");
+                            console.log('[DEBUG] Deleted ALL datastore records');
                         }
 
                         return callback(null);
                     }
-                    else
-                    {
-                        const msg = "Unable to delete database " + self.database + " : " + JSON.stringify(err);
-                        console.log(msg);
-                        return callback(err, msg);
-                    }
+                    const msg = 'Unable to delete database ' + self.database + ' : ' + JSON.stringify(err);
+                    console.log(msg);
+                    return callback(err, msg);
                 });
             }
             else
             {
-                return callback(1, "Open the connection to the DataStoreConnection first !");
+                return callback(1, 'Open the connection to the DataStoreConnection first !');
             }
         }
         else
         {
-            return callback(err, "Unable to open the connection to the DataStoreConnection!");
+            return callback(err, 'Unable to open the connection to the DataStoreConnection!');
         }
     });
 };
 
-DataStoreConnection.SHEETS_CATALOG_COLLECTION = "sheets_catalog";
+DataStoreConnection.SHEETS_CATALOG_COLLECTION = 'sheets_catalog';
 
 module.exports.DataStoreConnection = DataStoreConnection;
-
