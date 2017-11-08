@@ -264,7 +264,7 @@
       "pipe_console_to_logfile": false,
       "format": "combined",
       "app_logs_folder": "logs/app",
-      "log_request_times": true,
+      "log_request_times": false,
       "request_times_log_folder": "logs/request_times",
       "log_requests_in_apache_format": false,
       "requests_in_apache_format_log_folder": "logs/requests_apache_format",
@@ -580,9 +580,9 @@
         "login_user": "demouser"
       },
       "files": {
-        "log_all_restore_operations": true,
-        "log_delete_operations": true,
-        "log_file_fetches": true,
+        "log_all_restore_operations": false,
+        "log_delete_operations": false,
+        "log_file_fetches": false,
         "delete_temp_folder_on_startup": true,
         "log_file_version_fetches": false
       },
@@ -966,9 +966,9 @@
         "login_user": "demouser"
       },
       "files": {
-        "log_all_restore_operations": true,
-        "log_delete_operations": true,
-        "log_file_fetches": true,
+        "log_all_restore_operations": false,
+        "log_delete_operations": false,
+        "log_file_fetches": false,
         "delete_temp_folder_on_startup": true,
         "log_file_version_fetches": false
       },
@@ -1019,7 +1019,7 @@
     },
     "startup": {
       "load_databases": true,
-      "reload_administrators_on_startup": true,
+      "reload_administrators_on_startup": false,
       "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": false,
       "clear_session_store": false,

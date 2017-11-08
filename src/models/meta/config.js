@@ -737,17 +737,18 @@ Config.public_ontologies = getConfigParameter("public_ontologies");
 Config.regex_routes = {
     project_root:
   {
-      restore: "\/project\/([^\/]+)[\/data]?$",
-      bagit: "\/project\/([^\/]+)[\/data]?$"
+      restore: new RegExp("/project/([^/]+)[/data]?$"),
+      bagit: new RegExp("/project/([^/]+)[/data]?$")
   },
     inside_projects:
   {
-      upload: "\/project\/([^\/]+)[\/data]?((?=(.*)\/upload\/?$).*)$",
-      restore: "\/project\/([^\/]+)[\/data]?((?=(.*)\/restore\/?$).*)$",
-      download: "\/project\/([^\/]+)[\/data]?((?=(.*)\/download\/?$).*)$"
+      upload: new RegExp("/project/([^/]+)[/data]?((?=(.*)/upload/?$).*)$"),
+      restore: new RegExp("/project/([^/]+)[/data]?((?=(.*)/restore/?$).*)$"),
+      download: new RegExp("/project/([^/]+)[/data]?((?=(.*)/download/?$).*)$")
   }
 };
 
 Config.authentication = getConfigParameter("authentication");
+Config.numCPUs = getConfigParameter("numCPUs");
 
 module.exports.Config = Config;

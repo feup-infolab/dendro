@@ -6,7 +6,7 @@ const numCPUs = Config.numCPUs;
 
 const startServer = function (app, server, callback)
 {
-    if (numCPUs)
+    if (numCPUs && numCPUs > 1)
     {
         if (cluster.isMaster)
         {
