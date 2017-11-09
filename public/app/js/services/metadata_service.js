@@ -128,9 +128,6 @@ angular.module("dendroApp.factories")
                 this.save_metadata = function (metadata_array, resource_uri)
                 {
                     var self = this;
-
-                    var deferred = $q.defer();
-
                     if (self.metadata_is_valid(metadata_array))
                     {
                         var metadataString = JSON.stringify(metadata_array);
@@ -145,16 +142,14 @@ angular.module("dendroApp.factories")
                         }).then(function (response)
                         {
                             var data = response.data;
-                            deferred.resolve(data);
+                            return data;
                         }
                         ).catch(function (error)
                         {
-                            deferred.reject(error);
+                            throw error.data.message;
                         }
                         );
                     }
-
-                    return deferred.promise;
                 };
 
                 this.save_as = function (format)

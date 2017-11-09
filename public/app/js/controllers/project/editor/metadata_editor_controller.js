@@ -154,7 +154,6 @@ angular.module("dendroApp.controllers")
                 {
                     console.log(fault);
                     windowService.show_popup("error", "Error", fault);
-                    deferred.reject(fault);
                 };
 
                 save_metadata()
@@ -163,7 +162,7 @@ angular.module("dendroApp.controllers")
                     .then(register_deleted)
                     .then(register_inherited)
                     .then(refetch_metadata)
-                    .then(function ()
+                    .then(function (data)
                     {
                         var msg = "Information was saved successfully";
                         windowService.show_popup("success", "OK", msg);

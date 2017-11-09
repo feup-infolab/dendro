@@ -1,5 +1,6 @@
 const path = require("path");
 const _ = require("underscore");
+const validUrl = require("valid-url");
 const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
 
@@ -36,6 +37,48 @@ Elements.types.long_string = 9;
 Elements.types.stringNoEscape = 10;
 
 Elements.ontologies = {};
+
+Elements.checkIfValidPrefixedResource = function (candidatePrefixedResource)
+{
+    return RegExp("^[a-zA-Z0-9]+:[a-zA-Z0-9]+$").exec(candidatePrefixedResource);
+};
+
+Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
+{
+    let errorMessagesForTypes = {};
+    const msgStart = "Error: The value type for the descriptor: " + currentDescriptor.prefixedForm + " should be ";
+    errorMessagesForTypes[Elements.types.resourceNoEscape] = msgStart + "an 'URI'";
+    errorMessagesForTypes[Elements.types.resource] = msgStart + "an 'URI'";
+    errorMessagesForTypes[Elements.types.property] = msgStart + "an 'URI'";
+    errorMessagesForTypes[Elements.types.string] = msgStart + "a 'String'";
+    errorMessagesForTypes[Elements.types.int] = msgStart + "an 'Integer'";
+    errorMessagesForTypes[Elements.types.double] = msgStart + "a 'Double'";
+    errorMessagesForTypes[Elements.types.boolean] = msgStart + "a 'Boolean'";
+    errorMessagesForTypes[Elements.types.prefixedResource] = msgStart + "a valid prefixed resource (ex: rdf:type)";
+    errorMessagesForTypes[Elements.types.date] = msgStart + "a valid date";
+    errorMessagesForTypes[Elements.types.long_string] = msgStart + "a 'String'";
+    errorMessagesForTypes[Elements.types.stringNoEscape] = msgStart + "a 'String'";
+
+    return errorMessagesForTypes[currentDescriptor.type];
+};
+
+Elements.validateDescriptorValueTypes = function (currentDescriptor)
+{
+    let typesValidators = {};
+    typesValidators[Elements.types.resourceNoEscape] = (typeof currentDescriptor.value === "string" && validUrl.is_uri(currentDescriptor.value));
+    typesValidators[Elements.types.resource] = (typeof currentDescriptor.value === "string" && validUrl.is_uri(currentDescriptor.value));
+    typesValidators[Elements.types.property] = (typeof currentDescriptor.value === "string" && validUrl.is_uri(currentDescriptor.value));
+    typesValidators[Elements.types.string] = (typeof currentDescriptor.value === "string" && currentDescriptor.value instanceof String);
+    typesValidators[Elements.types.int] = Number.isInteger(currentDescriptor.value);
+    typesValidators[Elements.types.double] = !isNaN(currentDescriptor.value);
+    typesValidators[Elements.types.boolean] = (currentDescriptor.value === "true" || currentDescriptor.value === "false" || currentDescriptor.value === true || currentDescriptor.value === false);
+    typesValidators[Elements.types.prefixedResource] = Elements.checkIfValidPrefixedResource(currentDescriptor.value);
+    typesValidators[Elements.types.date] = !isNaN(Date.parse(currentDescriptor.value));
+    typesValidators[Elements.types.long_string] = (typeof currentDescriptor.value === "string" && currentDescriptor.value instanceof String);
+    typesValidators[Elements.types.stringNoEscape] = (typeof currentDescriptor.value === "string" && currentDescriptor.value instanceof String);
+
+    return typesValidators[currentDescriptor.type];
+};
 
 /**
  * Elements of the schema.org Ontology

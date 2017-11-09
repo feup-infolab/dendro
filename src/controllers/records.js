@@ -314,7 +314,15 @@ exports.update = function (req, res)
                             prefixedForm: rawDescriptor.prefixedForm
                         });
 
-                        if (!(descriptor instanceof Descriptor) && !isNull(descriptor.error))
+                        if (!Elements.validateDescriptorValueTypes(descriptor))
+                        {
+                            const msg = Elements.getInvalidTypeErrorMessageForDescriptor(descriptor);
+                            return res.status(400).json({
+                                result: "error",
+                                message: msg
+                            });
+                        }
+                        else if (!(descriptor instanceof Descriptor) && !isNull(descriptor.error))
                         {
                             const msg = "Resource : " + req.params.requestedResourceUri + "Descriptor error : " + descriptor.error;
                             const newError = {
@@ -499,7 +507,7 @@ exports.update = function (req, res)
                             }
                             else
                             {
-                                const msg = "Unable to update metadata evaluation for resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(err);
+                                const msg = "Unable to update metadata evaluation for resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(result);
                                 const newError = {
                                     statusCode: 500,
                                     message: msg
@@ -510,12 +518,12 @@ exports.update = function (req, res)
                     }
                     else
                     {
-                        const msg = "Unable to re-calculate metadata evaluation for resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(err);
+                        const msg = "Unable to re-calculate metadata evaluation for resource uri: " + requestedResourceURI + ". Error reported : " + JSON.stringify(evaluation);
                         const newError = {
                             statusCode: 500,
                             message: msg
                         };
-                        callback(newError, result);
+                        callback(newError, evaluation);
                     }
                 });
             }

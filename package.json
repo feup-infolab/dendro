@@ -136,6 +136,7 @@
     "ui-router": "^1.0.0-alpha0",
     "underscore": "1.8.3",
     "uuid": "*",
+    "valid-url": "^1.0.9",
     "validate-node-version": "^1.1.1",
     "validator": "^9.1.1",
     "webworker-threads": "^0.7.13",
