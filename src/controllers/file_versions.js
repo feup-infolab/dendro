@@ -49,7 +49,7 @@ const getNumLikesForAFileVersion = function (fileVersionUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: fileVersionUri
             }
         ]),
@@ -86,11 +86,11 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: fileVersionUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.userWhoLiked.type,
                 value: currentUserUri
             }
         ]),
@@ -174,7 +174,7 @@ const getSharesForAFileVersion = function (fileVersionUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.fileVersionUri.type,
                 value: fileVersionUri
             }
         ]),

@@ -265,7 +265,7 @@ InformationElement.prototype.rename = function (newTitle, callback)
                 value: self.uri
             },
             {
-                type: Elements.types.string,
+                type: Elements.ontologies.nie.title.type,
                 value: newTitle
             }
         ],
@@ -320,15 +320,15 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.nie.hasLogicalPart.type,
                 value: oldParent
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.nie.hasLogicalPart.type,
                 value: self.uri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.nie.hasLogicalPart.type,
                 value: newParent
             }
         ],
@@ -606,11 +606,11 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
                     value: graphUri
                 },
                 {
-                    type: Elements.types.resourceNoEscape,
+                    type: Elements.ontologies.nie.isLogicalPartOf.type,
                     value: parentResource.uri
                 },
                 {
-                    type: Elements.types.resourceNoEscape,
+                    type: Elements.ontologies.nie.hasLogicalPart.type,
                     value: self.uri
                 }
             ],

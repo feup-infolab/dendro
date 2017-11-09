@@ -55,7 +55,7 @@ ExternalRepository.findByCreator = function (creatorUri, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.creator.type,
                 value: creatorUri
             }
         ],

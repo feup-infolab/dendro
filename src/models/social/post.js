@@ -55,7 +55,7 @@ Post.prototype.getComments = function (cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: self.uri
             }
         ]),
@@ -102,7 +102,7 @@ Post.prototype.getNumLikes = function (cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: self.uri
             }
         ]),
@@ -170,7 +170,7 @@ Post.prototype.getShares = function (cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: self.uri
             }
         ]),

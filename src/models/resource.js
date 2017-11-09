@@ -2957,7 +2957,7 @@ Resource.randomInstance = function (typeInPrefixedFormat, callback, customGraphU
                         value: graphUri
                     },
                     {
-                        type: Elements.types.prefixedResource,
+                        type: Elements.ontologies.rdf.type,
                         value: typeInPrefixedFormat
                     }
                 ],
@@ -2998,7 +2998,7 @@ Resource.randomInstance = function (typeInPrefixedFormat, callback, customGraphU
                         value: randomNumber
                     },
                     {
-                        type: Elements.types.prefixedResource,
+                        type: Elements.ontologies.rdf.type.type,
                         value: typeInPrefixedFormat
                     }
                 ],
@@ -3065,7 +3065,7 @@ Resource.deleteAll = function (callback, customGraphUri)
             argumentCount++;
 
             queryArguments.push({
-                type: Elements.types.prefixedResource,
+                type: Elements.ontologies.rdf.type.type,
                 value: self.prefixedRDFType[i]
             });
 
@@ -3410,7 +3410,7 @@ Resource.getCount = function (callback)
     {
         typeRestrictions = typeRestrictions + " ?uri rdf:type [" + argumentCount + "]";
         queryArguments.push({
-            type: Elements.types.prefixedResource,
+            type: Elements.ontologies.rdf.type.type,
             value: self.prefixedRDFType[i]
         });
 

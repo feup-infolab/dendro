@@ -891,7 +891,7 @@ Ontology.findByPrefix = function (prefix, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.string,
+                type: Elements.ontologies.ddr.hasPrefix.type,
                 value: prefix
             }
         ],

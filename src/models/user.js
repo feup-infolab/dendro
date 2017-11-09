@@ -163,7 +163,7 @@ User.autocomplete_search = function (value, maxResults, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.prefixedResource,
+                type: Elements.ontologies.rdf.type.type,
                 value: User.leafClass
             },
             {
@@ -353,7 +353,7 @@ User.prototype.getInteractions = function (callback)
             value: db.graphUri
         },
         {
-            type: Elements.types.resource,
+            type: Elements.ontologies.ddr.performedBy.type,
             value: self.uri
         }
     ], function (err, results)
@@ -449,15 +449,15 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
         },
         {
             value: self.uri,
-            type: Elements.types.resourceNoEscape
+            type: Elements.ontologies.ddr.performedBy.type
         },
         {
             value: Interaction.types.hide_descriptor_from_quick_list_for_user.key,
-            type: Elements.types.string
+            type: Elements.ontologies.ddr.interactionType.type
         },
         {
             value: Interaction.types.unhide_descriptor_from_quick_list_for_user.key,
-            type: Elements.types.string
+            type: Elements.ontologies.ddr.interactionType.type
         }
     ];
 
@@ -643,15 +643,15 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
         },
         {
             value: self.uri,
-            type: Elements.types.resourceNoEscape
+            type: Elements.ontologies.ddr.performedBy.type
         },
         {
             value: Interaction.types.favorite_descriptor_from_quick_list_for_user.key,
-            type: Elements.types.string
+            type: Elements.ontologies.ddr.interactionType.type
         },
         {
             value: Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key,
-            type: Elements.types.string
+            type: Elements.ontologies.ddr.interactionType.type
         }
     ];
 
@@ -791,11 +791,11 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxRe
         },
         {
             value: Interaction.types.accept_favorite_descriptor_in_metadata_editor.key,
-            type: Elements.types.string
+            type: Elements.ontologies.ddr.interactionType.type
         },
         {
             value: self.uri,
-            type: Elements.types.resourceNoEscape
+            type: Elements.ontologies.ddr.performedBy.type
         }
     ];
 
@@ -914,11 +914,12 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function (maxResul
         },
         {
             value: Interaction.types.accept_smart_descriptor_in_metadata_editor.key,
-            type: Elements.types.string
+            type: Elements.ontologies.ddr.interactionType.type
+
         },
         {
             value: self.uri,
-            type: Elements.types.resourceNoEscape
+            type: Elements.ontologies.ddr.performedBy.type
         }
     ];
 
@@ -1088,7 +1089,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function (maxResults, callback,
 
     argumentsArray = argumentsArray.concat([{
         value: self.uri,
-        type: Elements.types.resourceNoEscape
+        type: Elements.ontologies.ddr.performedBy.type
     }]);
 
     db.connection.executeViaJDBC(

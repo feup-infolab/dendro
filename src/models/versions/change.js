@@ -42,7 +42,7 @@ Change.findByAssociatedRevision = function (revisionUri, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.pertainsTo.type,
                 value: revisionUri
             }
         ],

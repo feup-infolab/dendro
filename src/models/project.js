@@ -167,7 +167,7 @@ Project.allNonPrivate = function (currentUser, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.string,
+                type: Elements.ontologies.ddr.privacyStatus.type,
                 value: "private"
             }
         ],
@@ -275,7 +275,7 @@ Project.findByHandle = function (handle, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.string,
+                type: Elements.ontologies.ddr.handle.type,
                 value: handle
             }
         ],
@@ -397,7 +397,7 @@ Project.findByContributor = function (contributor, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.contributor.type,
                 value: contributor
             }
         ],
@@ -447,7 +447,7 @@ Project.findByCreator = function (creator, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.creator.type,
                 value: creator
             }
         ],
@@ -501,7 +501,7 @@ Project.findByCreatorOrContributor = function (creatorOrContributor, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.contributor.type,
                 value: creatorOrContributor
             }
         ],
@@ -604,7 +604,7 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
         "   UNION \n" +
         "   { \n" +
         "       [1] rdf:type ddr:Project . \n" +
-        "       ?uri dcterms:contributor [2] \n" +
+        "       ?uri dcterms:contributor [3] \n" +
         "   } \n" +
         "} \n";
 
@@ -619,7 +619,11 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
                 value: self.uri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.creator.type,
+                value: userUri
+            },
+            {
+                type: Elements.ontologies.dcterms.contributor.type,
                 value: userUri
             }
         ],
@@ -721,12 +725,8 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             {
                 type: Elements.types.resourceNoEscape,
                 value: projectData
-            }/*,
-            {
-                type : Elements.types.date,
-                value: createdAfterDate
-            } */
-        ]), //, startingResultPosition, maxResults),
+            }
+        ]),
         function (err, itemsUri)
         {
             if (isNull(err))
@@ -1092,7 +1092,7 @@ Project.prototype.getFoldersCount = function (callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.nie.isLogicalPartOf.type,
                 value: self.uri
             }
         ],
@@ -1135,7 +1135,7 @@ Project.prototype.getRevisionsCount = function (callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.isLogicalPartOf.type,
                 value: self.uri
             }
         ],

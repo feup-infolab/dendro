@@ -49,7 +49,7 @@ exports.get_unread_user_notifications = function (req, res)
                         value: db_notifications.graphUri
                     },
                     {
-                        type: Elements.types.resourceNoEscape,
+                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
                         value: userUri
                     }
                 ]),
@@ -126,7 +126,7 @@ exports.get_notification_info = function (req, res)
                         value: notificationUri
                     },
                     {
-                        type: Elements.types.resourceNoEscape,
+                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
                         value: userUri
                     }
                 ]),
@@ -211,7 +211,7 @@ exports.delete = function (req, res)
                         value: notificationUri
                     },
                     {
-                        type: Elements.types.resourceNoEscape,
+                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
                         value: userUri
                     }
                 ]),

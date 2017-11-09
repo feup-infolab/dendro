@@ -83,7 +83,7 @@ Interaction.all = function (callback, streaming, customGraphUri)
 
     if (isNull(streaming) || !streaming)
     {
-        var query =
+        let query =
             "SELECT * " +
             "FROM [0] " +
             "WHERE " +

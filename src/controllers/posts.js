@@ -145,7 +145,7 @@ const getNumLikesForAPost = function (postID, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             }
         ]),
@@ -237,11 +237,11 @@ const userLikedAPost = function (postID, userUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.userWhoLiked.type,
                 value: userUri
             }
         ]),
@@ -285,11 +285,11 @@ const removeOrAddLike = function (postID, userUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.userWhoLiked.type,
                 value: userUri
             }
         ]),
@@ -383,7 +383,7 @@ const getCommentsForAPost = function (postID, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             }
         ]),
@@ -685,7 +685,7 @@ const getSharesForAPost = function (postID, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             }
         ]),
