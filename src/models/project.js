@@ -208,7 +208,7 @@ Project.allNonPrivateUnlessTheyBelongToMe = function (currentUser, callback)
         "    UNION\n" +
         "    {\n" +
         "        ?uri rdf:type ddr:Project .\n" +
-        "        ?uri dcterms:contributor  [2]\n" +
+        "        ?uri dcterms:contributor  [3]\n" +
         "    }\n" +
         "}\n";
 
@@ -219,11 +219,15 @@ Project.allNonPrivateUnlessTheyBelongToMe = function (currentUser, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.string,
+                type: Elements.ontologies.ddr.privacyStatus.type,
                 value: "private"
             },
             {
-                type: Elements.types.resourceNoEscape,
+                type: Elements.ontologies.dcterms.creator.type,
+                value: currentUser.uri
+            },
+            {
+                type: Elements.ontologies.dcterms.contributor.type,
                 value: currentUser.uri
             }
         ],

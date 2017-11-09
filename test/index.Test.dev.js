@@ -22,15 +22,3 @@ global.tests = {};
 
 require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 
-// Update metadata tests
-// PUBLIC PROJECT FOLDER LEVEL ?update_metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__update_metadata/routes.project.publicProject.data.testFolder1.__update_metadata.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__update_metadata/routes.project.publicProject.data.testFolder2.__update_metadata.Test"));
-
-// METADATA ONLY PROJECT FOLDER LEVEL ?update_metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__update_metadata/routes.project.metadataonlyProject.data.testFolder1.__update_metadata.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__update_metadata/routes.project.metadataonlyProject.data.testFolder2.__update_metadata.Test"));
-
-// PRIVATE PROJECT FOLDER LEVEL ?update_metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__update_metadata/routes.project.privateProject.data.testFolder1.__update_metadata.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__update_metadata/routes.project.privateProject.data.testFolder2.__update_metadata.Test"));
