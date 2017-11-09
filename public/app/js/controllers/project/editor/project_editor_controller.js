@@ -494,6 +494,7 @@ angular.module("dendroApp.controllers")
             $scope.shared.metadata = metadataService.deserialize_metadata(metadata.descriptors);
             $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
             $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata.descriptors);
+            $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
             $scope.shared.is_project_root = metadata.is_project_root;
             $scope.shared.is_a_file = metadata.is_a_file;
             $scope.shared.file_extension = metadata.file_extension;
@@ -526,6 +527,14 @@ angular.module("dendroApp.controllers")
             }
         };
 
+        $scope.dirty_metadata = function ()
+        {
+            return metadataService.dirty_metadata(
+                $scope.shared.initial_metadata,
+                $scope.shared.metadata
+            );
+        };
+
         // initialization
         $scope.init = function ()
         {
@@ -537,16 +546,44 @@ angular.module("dendroApp.controllers")
             $scope.recommendationService = recommendationService;
 
             // monitor url change events (ask to save if metadata changed)
-            $scope.$on("$routeChangeStart", function (next, current)
-            {
-                console.log("Changing location from " + current + " to " + next);
-                $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
-                $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
-                $scope.change_location(next,
-                    metadataService.dirty_metadata(
-                        $scope.shared.initial_metadata,
-                        $scope.shared.metadata
-                    ));
+
+            window.onbeforeunload = function (event) {
+                event.preventDefault();
+                if ($scope.dirty_metadata())
+                {
+                    $scope.confirm_change_of_resource_being_edited(function(confirmed)
+                    {
+                        if (confirmed)
+                        {
+                            $scope.change_location(next,
+                                metadataService.dirty_metadata(
+                                    $scope.shared.initial_metadata,
+                                    $scope.shared.metadata
+                                ));
+                        }
+                    }, $scope.dirty_metadata());
+                }
+            };
+
+            $scope.$on('$locationChangeStart', function(event, next, current) {
+                if ($scope.dirty_metadata())
+                {
+                    $scope.confirm_change_of_resource_being_edited(function(confirmed)
+                    {
+                        if (confirmed)
+                        {
+                            $scope.change_location(next,
+                                metadataService.dirty_metadata(
+                                    $scope.shared.initial_metadata,
+                                    $scope.shared.metadata
+                                ));
+                        }
+                        else
+                        {
+                            event.preventDefault();
+                        }
+                    }, $scope.dirty_metadata());
+                }
             });
 
             $scope.load_metadata().then(

@@ -3,9 +3,11 @@ properties(
         pipelineTriggers([cron('H 3 * * *')]),
     ]
 )
-    
+
 pipeline {
-    agent any
+    agent {
+        label "dendro"
+    }
     options {
         disableConcurrentBuilds()  //each branch has 1 job running at a time
     }

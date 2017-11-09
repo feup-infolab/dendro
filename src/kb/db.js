@@ -500,8 +500,8 @@ DbConnection.prototype.create = function (callback)
                             async.series([
                                 function (callback)
                                 {
+                                    // connection.conn.setAutoCommit(true, callback);
                                     callback(null);
-                                    //connection.conn.setAutoCommit(true, callback);
                                 }
                             ], function (err, results)
                             {

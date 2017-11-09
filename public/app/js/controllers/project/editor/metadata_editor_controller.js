@@ -229,14 +229,6 @@ angular.module("dendroApp.controllers")
             });
         };
 
-        $scope.dirty_metadata = function ()
-        {
-            return metadataService.dirty_metadata(
-                $scope.shared.initial_metadata,
-                $scope.shared.metadata
-            );
-        };
-
         $scope.inherit_metadata = function ()
         {
             var requestUri = $scope.get_calling_uri("?parent_metadata");
