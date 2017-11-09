@@ -65,17 +65,17 @@ Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
 Elements.validateDescriptorValueTypes = function (currentDescriptor)
 {
     let typesValidators = {};
-    typesValidators[Elements.types.resourceNoEscape] = (typeof currentDescriptor.value === "string" && validUrl.is_uri(currentDescriptor.value));
-    typesValidators[Elements.types.resource] = (typeof currentDescriptor.value === "string" && validUrl.is_uri(currentDescriptor.value));
-    typesValidators[Elements.types.property] = (typeof currentDescriptor.value === "string" && validUrl.is_uri(currentDescriptor.value));
-    typesValidators[Elements.types.string] = (typeof currentDescriptor.value === "string" && currentDescriptor.value instanceof String);
+    typesValidators[Elements.types.resourceNoEscape] = ((typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String) && validUrl.is_uri(currentDescriptor.value));
+    typesValidators[Elements.types.resource] = ((typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String) && validUrl.is_uri(currentDescriptor.value));
+    typesValidators[Elements.types.property] = ((typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String) && validUrl.is_uri(currentDescriptor.value));
+    typesValidators[Elements.types.string] = (typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String);
     typesValidators[Elements.types.int] = Number.isInteger(currentDescriptor.value);
     typesValidators[Elements.types.double] = !isNaN(currentDescriptor.value);
     typesValidators[Elements.types.boolean] = (currentDescriptor.value === "true" || currentDescriptor.value === "false" || currentDescriptor.value === true || currentDescriptor.value === false);
     typesValidators[Elements.types.prefixedResource] = Elements.checkIfValidPrefixedResource(currentDescriptor.value);
     typesValidators[Elements.types.date] = !isNaN(Date.parse(currentDescriptor.value));
-    typesValidators[Elements.types.long_string] = (typeof currentDescriptor.value === "string" && currentDescriptor.value instanceof String);
-    typesValidators[Elements.types.stringNoEscape] = (typeof currentDescriptor.value === "string" && currentDescriptor.value instanceof String);
+    typesValidators[Elements.types.long_string] = (typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String);
+    typesValidators[Elements.types.stringNoEscape] = (typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String);
 
     return typesValidators[currentDescriptor.type];
 };
@@ -188,7 +188,7 @@ Elements.ontologies.dcterms =
   },
     contributor:
   {
-      type: Elements.types.resource,
+      type: Elements.types.string,
       control: Controls.url_box,
       locked_for_projects: true
   },
@@ -204,7 +204,7 @@ Elements.ontologies.dcterms =
   },
     creator:
   {
-      type: Elements.types.resource,
+      type: Elements.types.string,
       control: Controls.url_box,
       locked_for_projects: true
   },
