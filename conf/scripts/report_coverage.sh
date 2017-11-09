@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 
-#report to code coverage services
-#if test; then
-#
-#fi
-#env COVERALLS_SERVICE_NAME="Jenkins"
-#env COVERALLS_REPO_TOKEN="$COVERALLS_REPO_TOKEN_DENDRO"
-#env     RUNNING_IN_JENKINS="1"
-#env     CODECLIMATE_REPO_TOKEN="$CODECLIMATE_REPO_TOKEN_DENDRO"
-#env     CODACY_PROJECT_TOKEN="$CODACY_PROJECT_TOKEN_DENDRO"
-    npm run report-coverage
+export COVERALLS_SERVICE_NAME="Jenkins"
+export CODECLIMATE_REPO_TOKEN="d35a03f94b5472b37f30f55a2689d730e6e3bd03563357af84123609dc62a220"
+export CODACY_PROJECT_TOKEN="83fab0f3e1af421dbc40f2e10ef24985"
+export COVERALLS_REPO_TOKEN="kVeT2pSFVWDEoZCC5xN6wCS1j8YRaiG5e"
+npm run report-coverage
+echo "Tests Reported"
