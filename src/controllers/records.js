@@ -317,6 +317,7 @@ exports.update = function (req, res)
                         if (!Elements.validateDescriptorValueTypes(descriptor))
                         {
                             const msg = Elements.getInvalidTypeErrorMessageForDescriptor(descriptor);
+                            console.error(msg);
                             return res.status(400).json({
                                 result: "error",
                                 message: msg
