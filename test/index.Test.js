@@ -17,7 +17,7 @@ else
     Config.testsTimeout = 600000;
 }
 
-console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
+console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + Pathfinder.appDir);
 
 global.Config = Config;
 
