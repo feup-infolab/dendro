@@ -2279,7 +2279,9 @@ exports.serve_static = function (req, res, pathOfIntendedFileRelativeToProjectRo
 {
     const fs = require("fs");
     const path = require("path");
-    appDir = path.dirname(require.main.filename);
+
+    const extension = path.extname(pathOfIntendedFileRelativeToProjectRoot).replace(".", "");
+    const mimeType = Config.mimeType(extension);
 
     if (isNull(statusCode))
     {
@@ -2310,8 +2312,6 @@ exports.serve_static = function (req, res, pathOfIntendedFileRelativeToProjectRo
     if (typeof pathOfIntendedFileRelativeToProjectRoot === "string")
     {
         const fileName = path.basename(pathOfIntendedFileRelativeToProjectRoot);
-        const extension = path.extname(pathOfIntendedFileRelativeToProjectRoot).replace(".", "");
-        var mimeType = Config.mimeType(extension);
         var absPathOfFileToServe = Pathfinder.absPathInPublicFolder(pathOfIntendedFileRelativeToProjectRoot);
 
         fs.exists(absPathOfFileToServe, function (exists)
