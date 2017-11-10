@@ -7,7 +7,7 @@ global.Pathfinder = Pathfinder;
 Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
-Config.testsTimeout = 120000;
+Config.testsTimeout = 1800000;
 console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
 
 global.Config = Config;

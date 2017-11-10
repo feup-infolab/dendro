@@ -32,7 +32,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
 {
     describe("[Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()
     {
-        this.timeout(3 * Config.testsTimeOut);
+        this.timeout(Config.testsTimeOut);
 
         beforeEach(function (done)
         {
@@ -403,7 +403,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
 
     describe("[Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?cut", function ()
     {
-        this.timeout(2 * Config.testsTimeout);
+        this.timeout(Config.testsTimeout);
         beforeEach(function (done)
         {
             createFilesUnit.setup(function (err, results)
