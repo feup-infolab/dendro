@@ -431,6 +431,7 @@ const importProjectHTMLPage = function (jsonOnly, agent, cb)
 
 const importProject = function (jsonOnly, agent, project, cb)
 {
+    console.log("Importing " + project.handle + " from zip file " + project.backup_path);
     // /projects/import
     const path = "/projects/import";
     if (jsonOnly)
@@ -810,10 +811,29 @@ const getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectH
         return obj;
     }
 
+    function ignoreTypes (obj)
+    {
+        if (obj.children instanceof Array)
+        {
+            _.map(obj.children, function (child)
+            {
+                ignoreTypes(child);
+            });
+        }
+
+        _.map(obj.metadata, function (descriptor)
+        {
+            descriptor.type = null;
+        });
+
+        return obj;
+    }
+
     metadataContents = replaceAllUrisWithTitles(metadataContents);
     metadataContents = replaceAllUrisWithDummyValue(metadataContents);
     metadataContents = sortChildrenByTitle(metadataContents);
     metadataContents = sortMetadataValuesAlphabetically(metadataContents);
+    metadataContents = ignoreTypes(metadataContents);
 
     return metadataContents;
 };

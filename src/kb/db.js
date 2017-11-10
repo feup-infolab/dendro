@@ -1,6 +1,8 @@
-const path = require("path");
 const util = require("util");
 const async = require("async");
+const fs = require("fs");
+const path = require("path");
+const mkdirp = require("mkdirp");
 
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -13,38 +15,8 @@ const uuid = require("uuid");
 const jinst = require("jdbc/lib/jinst");
 const Pool = require("jdbc/lib/pool");
 
-let profiling_logfile;
 let bootStartTimestamp = new Date().toISOString();
 const profilingLogFileSeparator = "@";
-
-function DbConnection (handle, host, port, port_isql, username, password, maxSimultaneousConnections, dbOperationsTimeout)
-{
-    let self = this;
-
-    if (!self.host || !self.port)
-    {
-        self.host = host;
-        self.port = port;
-        self.port_isql = port_isql;
-        self.username = username;
-        self.password = password;
-
-        if (isNull(maxSimultaneousConnections))
-        {
-            self.maxSimultaneousConnections = 1;
-        }
-        else
-        {
-            self.maxSimultaneousConnections = maxSimultaneousConnections;
-        }
-    }
-
-    self.handle = handle;
-    self.dbOperationTimeout = dbOperationsTimeout;
-    self.pendingRequests = {};
-    self.databaseName = "graph";
-    self.created_profiling_logfile = false;
-}
 
 const queryObjectToString = function (query, argumentsArray, callback)
 {
@@ -75,119 +47,120 @@ const queryObjectToString = function (query, argumentsArray, callback)
             {
                 // will allow people to use the same parameter several times in the query,
                 // for example [0]....[0]...[0] by replacing all occurrences of [0] in the query string
-                const pattern = new RegExp("\\\[" + i + "\\\]", "g"); // [] are reserved chars in regex!
+                // [] are reserved chars in regex!
+                const pattern = new RegExp("\\[" + i + "\\]", "g");
 
                 switch (currentArgument.type)
                 {
-                case Elements.types.resourceNoEscape:
-                    transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
-                    break;
-                case Elements.types.resource:
-                    transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
-                    break;
-                case Elements.types.property:
-                    transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
-                    break;
-                case Elements.types.string:
-                    transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
-                    break;
-                case Elements.types.int:
-                    transformedQuery = transformedQuery.replace(pattern, currentArgument.value);
-                    break;
-                case Elements.types.double:
-                    transformedQuery = transformedQuery.replace(pattern, currentArgument.value);
-                    break;
-                case Elements.types.boolean:
-                    let booleanForm;
-                    try
-                    {
-                        booleanForm = JSON.parse(currentArgument.value);
-                    }
-                    catch (e)
-                    {
-                        if (!(booleanForm === true || booleanForm === false))
-                        {
-                            const msg = "Unable to convert argument [" + i + "]: It is set as a bolean, but the value is not true or false, it is : " + currentArgument.value;
-                            console.error(msg);
-                            return callback(1, msg);
-                        }
-                    }
-
-                    transformedQuery = transformedQuery.replace(pattern, "\"" + booleanForm.toString() + "\"");
-
-                    break;
-                case Elements.types.prefixedResource:
-                    const validator = require("validator");
-                    if (validator.isURL(currentArgument.value))
-                    {
+                    case Elements.types.resourceNoEscape:
                         transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
-                    }
-                    else
-                    {
-                        if (!isNull(currentArgument.value))
+                        break;
+                    case Elements.types.resource:
+                        transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
+                        break;
+                    case Elements.types.property:
+                        transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
+                        break;
+                    case Elements.types.string:
+                        transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
+                        break;
+                    case Elements.types.int:
+                        transformedQuery = transformedQuery.replace(pattern, currentArgument.value);
+                        break;
+                    case Elements.types.double:
+                        transformedQuery = transformedQuery.replace(pattern, currentArgument.value);
+                        break;
+                    case Elements.types.boolean:
+                        let booleanForm;
+                        try
                         {
-                            const indexOfColon = currentArgument.value.indexOf(":");
-                            const indexOfHash = currentArgument.value.indexOf("#");
-                            let indexOfSeparator;
-
-                            if (indexOfColon < 0 && indexOfHash > -1)
+                            booleanForm = JSON.parse(currentArgument.value);
+                        }
+                        catch (e)
+                        {
+                            if (!(booleanForm === true || booleanForm === false))
                             {
-                                indexOfSeparator = indexOfHash;
+                                const msg = "Unable to convert argument [" + i + "]: It is set as a bolean, but the value is not true or false, it is : " + currentArgument.value;
+                                console.error(msg);
+                                return callback(1, msg);
                             }
-                            else if (indexOfColon > -1 && indexOfHash < 0)
-                            {
-                                indexOfSeparator = indexOfColon;
-                            }
+                        }
 
-                            if (indexOfSeparator > 0)
+                        transformedQuery = transformedQuery.replace(pattern, "\"" + booleanForm.toString() + "\"");
+
+                        break;
+                    case Elements.types.prefixedResource:
+                        const validator = require("validator");
+                        if (validator.isURL(currentArgument.value))
+                        {
+                            transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
+                        }
+                        else
+                        {
+                            if (!isNull(currentArgument.value))
                             {
-                                if (!isNull(currentArgument.value))
+                                const indexOfColon = currentArgument.value.indexOf(":");
+                                const indexOfHash = currentArgument.value.indexOf("#");
+                                let indexOfSeparator;
+
+                                if (indexOfColon < 0 && indexOfHash > -1)
                                 {
-                                    const prefix = currentArgument.value.substr(0, indexOfSeparator);
-                                    const element = currentArgument.value.substr(indexOfSeparator + 1);
+                                    indexOfSeparator = indexOfHash;
+                                }
+                                else if (indexOfColon > -1 && indexOfHash < 0)
+                                {
+                                    indexOfSeparator = indexOfColon;
+                                }
 
-                                    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-                                    const ontology = Ontology.allOntologies[prefix].uri;
-                                    const valueAsFullUri = ontology + element;
+                                if (indexOfSeparator > 0)
+                                {
+                                    if (!isNull(currentArgument.value))
+                                    {
+                                        const prefix = currentArgument.value.substr(0, indexOfSeparator);
+                                        const element = currentArgument.value.substr(indexOfSeparator + 1);
 
-                                    transformedQuery = transformedQuery.replace(pattern, "<" + valueAsFullUri + ">");
+                                        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+                                        const ontology = Ontology.allOntologies[prefix].uri;
+                                        const valueAsFullUri = ontology + element;
+
+                                        transformedQuery = transformedQuery.replace(pattern, "<" + valueAsFullUri + ">");
+                                    }
+                                    else
+                                    {
+                                        const error = "Value of argument " + currentArgument.value + " is null. Query supplied was :\n " + query + " \n " + JSON.stringify(arguments);
+                                        console.error(error);
+                                        return callback(1, error);
+                                    }
                                 }
                                 else
                                 {
-                                    const error = "Value of argument " + currentArgument.value + " is null. Query supplied was :\n " + query + " \n " + JSON.stringify(arguments);
+                                    const error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : \n" + query + " \n " + JSON.stringify(arguments);
                                     console.error(error);
                                     return callback(1, error);
                                 }
                             }
                             else
                             {
-                                const error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : \n" + query + " \n " + JSON.stringify(arguments);
+                                const error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was :\n " + query + " \n " + JSON.stringify(arguments);
                                 console.error(error);
                                 return callback(1, error);
                             }
                         }
-                        else
-                        {
-                            const error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was :\n " + query + " \n " + JSON.stringify(arguments);
-                            console.error(error);
-                            return callback(1, error);
-                        }
+                        break;
+                    case Elements.types.date:
+                        transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
+                        break;
+                    case Elements.types.long_string:
+                        transformedQuery = transformedQuery.replace(pattern, "'''" + currentArgument.value + "'''");
+                        break;
+                    case Elements.types.stringNoEscape:
+                        transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
+                        break;
+                    default: {
+                        const error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was \n: " + query + " \n " + JSON.stringify(arguments);
+                        console.error(error);
+                        return callback(1, error);
                     }
-                    break;
-                case Elements.types.date:
-                    transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
-                    break;
-                case Elements.types.long_string:
-                    transformedQuery = transformedQuery.replace(pattern, "'''" + currentArgument.value + "'''");
-                    break;
-                case Elements.types.stringNoEscape:
-                    transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
-                    break;
-                default: {
-                    const error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was \n: " + query + " \n " + JSON.stringify(arguments);
-                    console.error(error);
-                    return callback(1, error);
-                }
                 }
             }
             catch (e)
@@ -207,6 +180,251 @@ const queryObjectToString = function (query, argumentsArray, callback)
     }
 
     return callback(null, transformedQuery);
+};
+
+const recordQueryConclusionInLog = function (query, queryStartTime)
+{
+    const logParentFolder = Pathfinder.absPathInApp("profiling");
+    const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + bootStartTimestamp + ".csv");
+
+    if (Config.debug.database.log_query_times)
+    {
+        const msec = new Date().getTime() - queryStartTime.getTime();
+        let fd;
+
+        if (!fs.existsSync(logParentFolder))
+        {
+            mkdirp.sync(logParentFolder);
+            // truncate / create blank file
+            fd = fs.openSync(queryProfileLogFilePath, "a");
+            fs.appendFileSync(queryProfileLogFilePath, "query" + profilingLogFileSeparator + "time_msecs\n");
+            fs.closeSync(fd);
+        }
+
+        // truncate / create blank file
+        fd = fs.openSync(queryProfileLogFilePath, "a");
+        const cleanedQuery = query
+            .replace(/(?:\r\n|\r|\n)/g, "")
+            .replace(/\/r\/([a-z]|_|-|[0-9])+\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g, "an_uri");
+
+        fs.appendFileSync(
+            queryProfileLogFilePath,
+            cleanedQuery + profilingLogFileSeparator + msec + "\n");
+
+        fs.closeSync(fd);
+    }
+};
+
+let DbConnection = function (handle, host, port, portISQL, username, password, maxSimultaneousConnections, dbOperationsTimeout)
+{
+    let self = this;
+
+    if (!self.host || !self.port)
+    {
+        self.host = host;
+        self.port = port;
+        self.port_isql = portISQL;
+        self.username = username;
+        self.password = password;
+
+        if (isNull(maxSimultaneousConnections))
+        {
+            self.maxSimultaneousConnections = 1;
+        }
+        else
+        {
+            self.maxSimultaneousConnections = maxSimultaneousConnections;
+        }
+    }
+
+    self.handle = handle;
+    self.dbOperationTimeout = dbOperationsTimeout;
+    self.pendingRequests = {};
+    self.databaseName = "graph";
+    self.created_profiling_logfile = false;
+};
+
+DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, runAsUpdate)
+{
+    const self = this;
+    if (Config.debug.active && Config.debug.database.log_all_queries)
+    {
+        console.log("--EXECUTING QUERY (JDBC) : \n" + query);
+    }
+
+    const queryStartTime = new Date();
+
+    const reserveConnection = function (callback)
+    {
+        self.pool.reserve(function (err, connection)
+        {
+            if (isNull(err))
+            {
+                async.series([
+                    function (callback)
+                    {
+                        // connection.conn.setAutoCommit(true, callback);
+                        callback(null);
+                    }
+                ], function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        self.pendingRequests[queryId] = connection;
+                        callback(null, connection);
+                    }
+                    else
+                    {
+                        console.error("Error while setting connection settings for running queries");
+                        console.error(JSON.stringify(err));
+                        console.error(JSON.stringify(results));
+                        callback(null, connection);
+                    }
+                });
+            }
+            else
+            {
+                callback(err, connection);
+            }
+        });
+    };
+
+    const releaseConnection = function (connection, callback)
+    {
+        self.pool.release(connection, function (err, connection)
+        {
+            if (isNull(err))
+            {
+                delete self.pendingRequests[queryId];
+                delete self.pendingRequests[queryId];
+                callback(err);
+            }
+            else
+            {
+                console.error("Error releasing JDBC connection on pool of database " + self.id);
+                console.error(JSON.stringify(err));
+                console.error(JSON.stringify(connection));
+                callback(err, connection);
+            }
+        });
+    };
+
+    const executeQueryOrUpdate = function (connection, callback)
+    {
+        connection.conn.createStatement(function (err, statement)
+        {
+            if (isNull(err))
+            {
+                // difference between query and procedure (does not return anything. needed for deletes and inserts)
+                if (!isNull(runAsUpdate))
+                {
+                    statement.executeUpdate(query, function (err, results)
+                    {
+                        if(isNull(err))
+                        {
+                            if (Config.debug.active && Config.debug.database.log_all_queries)
+                            {
+                                console.log(JSON.stringify(results));
+                            }
+
+                            if (!isNull(err))
+                            {
+                                console.error("Error Running Update Statement \n" + query);
+                                console.error(JSON.stringify(err));
+                                console.error(err.stack);
+                                console.error(JSON.stringify(results));
+                            }
+
+                            statement.close(function (err, result)
+                            {
+                                if(!isNull(err))
+                                {
+                                    console.error("Error closing statement on update statement");
+                                    console.error(JSON.stringify(err));
+                                    console.error(JSON.stringify(result));
+                                }
+
+                                callback(err, results);
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    statement.executeQuery(query, function (err, resultset)
+                    {
+                        if (err)
+                        {
+                            callback(err);
+                        }
+                        else
+                        {
+                            // Convert the result set to an object array.
+                            resultset.toObjArray(function (err, results)
+                            {
+                                if (!isNull(err))
+                                {
+                                    console.error("Error Running Query \n" + query);
+                                    console.error(JSON.stringify(err));
+                                    console.error(JSON.stringify(err.stack));
+                                    console.error(JSON.stringify(results));
+                                }
+
+                                statement.close(function (err, result)
+                                {
+                                    if (!isNull(err))
+                                    {
+                                        console.error("Error closing statement on query statement");
+                                        console.error(JSON.stringify(err));
+                                        console.error(JSON.stringify(result));
+                                    }
+
+                                    callback(err, results);
+                                });
+                            });
+                        }
+                    });
+                }
+            }
+            else
+            {
+                callback(err);
+            }
+        });
+    };
+
+    reserveConnection(function (err, connection)
+    {
+        if (isNull(err))
+        {
+            executeQueryOrUpdate(connection, function (err, results)
+            {
+                if (!isNull(err))
+                {
+                    console.error("########################   Error executing query ########################   \n" + query + "\n########################   Via JDBC ON Virtuoso   ########################   ");
+                    console.error(JSON.stringify(err));
+                    console.error(JSON.stringify(err.cause));
+                    console.error(JSON.stringify(err.message));
+                    console.error(JSON.stringify(err.stack));
+                    console.error(JSON.stringify(results));
+                }
+
+                recordQueryConclusionInLog(query, queryStartTime);
+
+                releaseConnection(connection, function (err, result)
+                {
+                    callback(err, results);
+                });
+            });
+        }
+        else
+        {
+            const msg = "Error occurred while reserving connection from JDBC connection pool of database " + self.handle;
+            console.error(err.message);
+            console.error(err.stack);
+            console.error(msg);
+        }
+    });
 };
 
 DbConnection.addLimitsClauses = function (query, offset, maxResults)
@@ -269,7 +487,8 @@ DbConnection.paginate = function (req, viewVars)
         }
         else
         {
-            viewVars.currentPage = parseInt(req.query.currentPage); // avoid injections
+            // avoid injections
+            viewVars.currentPage = parseInt(req.query.currentPage);
         }
 
         if (!req.query.pageSize)
@@ -278,7 +497,8 @@ DbConnection.paginate = function (req, viewVars)
         }
         else
         {
-            viewVars.pageSize = parseInt(req.query.pageSize); // avoid injections
+            // avoid injections
+            viewVars.pageSize = parseInt(req.query.pageSize);
         }
     }
 
@@ -295,7 +515,8 @@ DbConnection.paginateQuery = function (req, query)
         }
         else
         {
-            req.query.currentPage = parseInt(req.query.currentPage); // avoid injections
+            // avoid injections
+            req.query.currentPage = parseInt(req.query.currentPage);
         }
 
         if (!req.query.pageSize)
@@ -304,7 +525,8 @@ DbConnection.paginateQuery = function (req, query)
         }
         else
         {
-            req.query.pageSize = parseInt(req.query.pageSize); // avoid injections
+            // avoid injections
+            req.query.pageSize = parseInt(req.query.pageSize);
         }
 
         const skip = req.query.pageSize * req.query.currentPage;
@@ -331,7 +553,8 @@ DbConnection.buildFromStringAndArgumentsArrayForOntologies = function (ontologyU
 
     for (i = 0; i < ontologyURIsArray.length; i++)
     {
-        const argIndex = i + startingArgumentCount; // arguments array starts with 2 fixed elements
+        // arguments array starts with 2 fixed elements
+        const argIndex = i + startingArgumentCount;
 
         fromString = fromString + " FROM [" + argIndex + "] \n";
 
@@ -447,232 +670,13 @@ DbConnection.prototype.create = function (callback)
 
     const setupQueryQueues = function (callback)
     {
-        const recordQueryConclusionInLog = function (queryObject)
-        {
-            const fs = require("fs");
-            const path = require("path");
-            const mkdirp = require("mkdirp");
-            const logParentFolder = Pathfinder.absPathInApp("profiling");
-            const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + bootStartTimestamp + ".csv");
-
-            if (Config.debug.database.log_query_times)
-            {
-                const msec = new Date().getTime() - queryObject.queryStartTime.getTime();
-                let fd;
-
-                if (!fs.existsSync(logParentFolder))
-                {
-                    mkdirp.sync(logParentFolder);
-                    // truncate / create blank file
-                    fd = fs.openSync(queryProfileLogFilePath, "a");
-                    fs.appendFileSync(queryProfileLogFilePath, "query" + profilingLogFileSeparator + "time_msecs\n");
-                    fs.closeSync(fd);
-                }
-
-                // truncate / create blank file
-                fd = fs.openSync(queryProfileLogFilePath, "a");
-                const cleanedQuery = queryObject.query
-                    .replace(/(?:\r\n|\r|\n)/g, "")
-                    .replace(/\/r\/([a-z]|_|-|[0-9])+\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g, "an_uri");
-
-                fs.appendFileSync(
-                    queryProfileLogFilePath,
-                    cleanedQuery + profilingLogFileSeparator + msec + "\n");
-
-                fs.closeSync(fd);
-            }
-        };
-
         self.queue_jdbc = new Queue(
             function (queryObject, popQueueCallback)
             {
-                if (Config.debug.active && Config.debug.database.log_all_queries)
-                {
-                    console.log("--EXECUTING QUERY (JDBC) : \n" + queryObject.query);
-                }
-
-                const reserveConnection = function (callback)
-                {
-                    self.pool.reserve(function (err, connection)
-                    {
-                        if (isNull(err))
-                        {
-                            async.series([
-                                function (callback)
-                                {
-                                    // connection.conn.setAutoCommit(true, callback);
-                                    callback(null);
-                                }
-                            ], function (err, results)
-                            {
-                                if (isNull(err))
-                                {
-                                    self.pendingRequests[queryObject.query_id] = queryObject.connection = connection;
-                                    callback(null, connection);
-                                }
-                                else
-                                {
-                                    console.error("Error while setting connection settings for running queries");
-                                    console.error(JSON.stringify(err));
-                                    console.error(JSON.stringify(results));
-                                    callback(null, connection);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            callback(err, connection);
-                        }
-                    });
-                };
-
-                const releaseConnection = function (queryObject, callback)
-                {
-                    self.pool.release(queryObject.connection, function (err, connection)
-                    {
-                        if (isNull(err))
-                        {
-                            delete self.pendingRequests[queryObject.query_id];
-                            delete self.pendingRequests[queryObject.query_id];
-                            callback(err);
-                        }
-                        else
-                        {
-                            console.error("Error releasing JDBC connection on pool of database " + self.id);
-                            console.error(JSON.stringify(err));
-                            console.error(JSON.stringify(connection));
-                            callback(err, connection);
-                        }
-                    });
-                };
-
-                const executeQueryOrUpdate = function (callback)
-                {
-                    queryObject.connection.conn.createStatement(function (err, statement)
-                    {
-                        if (isNull(err))
-                        {
-                            // difference between query and procedure (does not return anything. needed for deletes and inserts)
-                            if (!isNull(queryObject.runAsUpdate) && queryObject)
-                            {
-                                statement.executeUpdate(queryObject.query, function (err, results)
-                                {
-                                    if(isNull(err))
-                                    {
-                                        if (Config.debug.active && Config.debug.database.log_all_queries)
-                                        {
-                                            console.log(JSON.stringify(results));
-                                        }
-
-                                        if (!isNull(err))
-                                        {
-                                            console.error("Error Running Update Statement \n" + queryObject.query);
-                                            console.error(JSON.stringify(err));
-                                            console.error(err.stack);
-                                            console.error(JSON.stringify(results));
-                                        }
-                                        else
-                                        {
-                                            queryObject.result = results;
-                                        }
-
-                                        statement.close(function (err, result)
-                                        {
-                                            if(!isNull(err))
-                                            {
-                                                console.error("Error closing statement on update statement");
-                                                console.error(JSON.stringify(err));
-                                                console.error(JSON.stringify(result));
-                                            }
-
-                                            callback(err, results);
-                                        });
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                statement.executeQuery(queryObject.query, function (err, resultset)
-                                {
-                                    if (err)
-                                    {
-                                        callback(err);
-                                    }
-                                    else
-                                    {
-                                        // Convert the result set to an object array.
-                                        resultset.toObjArray(function (err, results)
-                                        {
-                                            if (!isNull(err))
-                                            {
-                                                console.error("Error Running Query \n" + queryObject.query);
-                                                console.error(JSON.stringify(err));
-                                                console.error(JSON.stringify(err.stack));
-                                                console.error(JSON.stringify(results));
-                                            }
-                                            else
-                                            {
-                                                queryObject.result = results;
-                                            }
-
-                                            statement.close(function (err, result)
-                                            {
-                                                if(!isNull(err))
-                                                {
-                                                    console.error("Error closing statement on query statement");
-                                                    console.error(JSON.stringify(err));
-                                                    console.error(JSON.stringify(result));
-                                                }
-
-                                                callback(err, results);
-                                            });
-                                        });
-                                    }
-                                });
-                            }
-                        }
-                        else
-                        {
-                            callback(err);
-                        }
-                    });
-                };
-
-                reserveConnection(function (err, connection)
-                {
-                    if (isNull(err))
-                    {
-                        executeQueryOrUpdate(function (err, results)
-                        {
-                            if (!isNull(err))
-                            {
-                                console.error("########################   Error executing query ########################   \n" + queryObject.query + "\n########################   Via JDBC ON Virtuoso   ########################   ");
-                                console.error(JSON.stringify(err));
-                                console.error(JSON.stringify(err.cause));
-                                console.error(JSON.stringify(err.message));
-                                console.error(JSON.stringify(err.stack));
-                                console.error(JSON.stringify(results));
-                            }
-
-                            recordQueryConclusionInLog(queryObject);
-
-                            releaseConnection(queryObject, function (err, result)
-                            {
-                                recordQueryConclusionInLog(queryObject);
-                                popQueueCallback();
-                                queryObject.callback(err, queryObject.result);
-                            });
-                        });
-                    }
-                    else
-                    {
-                        const msg = "Error occurred while reserving connection from JDBC connection pool of database " + self.handle;
-                        console.error(err.message);
-                        console.error(err.stack);
-                        console.error(msg);
-                        popQueueCallback(err, msg);
-                    }
-                });
+                self.sendQueryViaJDBC(queryObject.query, queryObject.query_id, function (err, results) {
+                    queryObject.callback(err, results);
+                    popQueueCallback();
+                }, queryObject.runAsUpdate);
             },
             {
                 concurrent: self.maxSimultaneousConnections,
@@ -923,7 +927,7 @@ DbConnection.prototype.close = function (callback)
 
     const closeClientConnection = function (callback)
     {
-        fullUrl = "http://" + self.host;
+        let fullUrl = "http://" + self.host;
         if (self.port)
         {
             fullUrl = fullUrl + ":" + self.port_isql;
@@ -979,12 +983,14 @@ DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argu
         {
             if (self.host && self.port)
             {
-                if (isNull(resultsFormat)) // by default, query format will be json
+                // by default, query format will be json
+                if (isNull(resultsFormat))
                 {
                     resultsFormat = "application/json";
                 }
 
-                if (isNull(maxRows)) // by default, query format will be json
+                // by default, query format will be json
+                if (isNull(maxRows))
                 {
                     maxRows = Config.limits.db.maxResults;
                 }
@@ -1045,16 +1051,29 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
             {
                 // Add SPARQL keyword at the start of the query
                 query = "SPARQL\n" + query;
-                self.queue_jdbc.push({
-                    queryStartTime: new Date(),
-                    query: query,
-                    query_id: uuid.v4(),
-                    runAsUpdate: runAsUpdate,
-                    callback: function (err, results)
+
+                // Uncomment to use JDBC-controlled query queuing
+                self.sendQueryViaJDBC(
+                    query,
+                    uuid.v4(),
+                    function (err, results)
                     {
                         callback(err, results);
-                    }
-                });
+                    },
+                    runAsUpdate
+                );
+
+                // Uncomment to use queues
+                // self.queue_jdbc.push({
+                //     queryStartTime: new Date(),
+                //     query: query,
+                //     query_id: uuid.v4(),
+                //     runAsUpdate: runAsUpdate,
+                //     callback: function (err, results)
+                //     {
+                //         callback(err, results);
+                //     }
+                // });
             }
             else
             {
@@ -1103,10 +1122,12 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
     // remove first and last " symbols, escape remaining special characters inside the text and re-add the "" for the query.
 
         let escapedObject = triple.object.substring(1);
-        escapedObject = escapedObject.substring(0, escapedObject.length - 4); // remove language and last quotes
+
+        // remove language and last quotes
+        escapedObject = escapedObject.substring(0, escapedObject.length - 4);
 
         // from http://stackoverflow.com/questions/7744912/making-a-javascript-string-sql-friendly
-        function mysql_real_escape_string (str)
+        function mySQLRealEscapeString (str)
         {
             return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char)
             {
@@ -1127,16 +1148,17 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
                 case "\"":
                     return "\\\"";
                 case "'":
-                    return "\\\'";
+                    return "\\'";
                 case "\\":
-//                            case "%":
-//                                return "\\"+char; // prepends a backslash to backslash, percent,
-//                            // and double/single quotes
+                    break;
+                default:
+                    return char;
                 }
+
             });
         }
 
-        escapedObject = mysql_real_escape_string(escapedObject);
+        escapedObject = mySQLRealEscapeString(escapedObject);
 
         query = query +
                     "\"" +
@@ -1170,7 +1192,14 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
         // Invalidate cache record for the updated resources
         Cache.getByGraphUri(graphUri).delete([triple.subject, triple.object], function (err, result)
         {
-            runQuery(callback);
+            if(isNull(err))
+            {
+                runQuery(callback);
+            }
+            else
+            {
+                callback(err, result);
+            }
         });
     }
     else

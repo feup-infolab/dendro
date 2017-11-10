@@ -28,7 +28,7 @@ let app;
 
 describe("Private Project delete", function (done)
 {
-    this.timeout(2 * Config.testsTimeOut);
+    this.timeout(Config.testsTimeOut);
     before(function (done)
     {
         createFilesUnit.setup(function (err, results)

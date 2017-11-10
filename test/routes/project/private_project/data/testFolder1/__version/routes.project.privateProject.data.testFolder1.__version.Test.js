@@ -30,7 +30,6 @@ describe("Private project testFolder1 level ?version", function ()
 
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         addMetadataToFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
