@@ -839,7 +839,15 @@ Descriptor.mergeDescriptors = function (descriptorsArray, callback)
         {
             if (descriptor.value instanceof Array)
             {
-                newDescriptors[descriptor.prefix][descriptor.shortName] = [descriptor.value].push(newDescriptors[descriptor.prefix][descriptor.shortName]);
+                let newValues = newDescriptors[descriptor.prefix][descriptor.shortName];
+                if (newValues instanceof Array)
+                {
+                    newDescriptors[descriptor.prefix][descriptor.shortName] = _.union(descriptor.value, newValues);
+                }
+                else
+                {
+                    newDescriptors[descriptor.prefix][descriptor.shortName] = _.union(descriptor.value, [newValues]);
+                }
             }
             else if (!isNull(descriptor.value))
             {
