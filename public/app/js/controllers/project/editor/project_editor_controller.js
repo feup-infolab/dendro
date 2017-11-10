@@ -35,6 +35,12 @@ angular.module("dendroApp.controllers")
             stats: null
         };
 
+        $scope.getTypeOfOfData = function (data)
+        {
+            let type = typeof data;
+            return type;
+        };
+
         $scope.get_currently_selected_resource = function ()
         {
             return window.location.pathname;

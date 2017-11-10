@@ -28,6 +28,10 @@
     <div class="controls col-xs-12">
         <div class="input-group col-lg-11">
             <div  class="control-value-read-only">
+                <p> TYPE is {{getTypeOfOfData(descriptor.value)}} </p>
+                <!--<div ng-if="getTypeOfOfData(descriptor.value) === 'object'">
+                    <p>IS AN OBJECT</p>
+                </div>-->
                 {{descriptor.value}}
             </div>
         </div>
