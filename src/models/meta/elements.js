@@ -1,8 +1,10 @@
 const path = require("path");
 const _ = require("underscore");
+const async = require("async");
 const validUrl = require("valid-url");
 const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 function Elements ()
 {}
@@ -46,7 +48,7 @@ Elements.checkIfValidPrefixedResource = function (candidatePrefixedResource)
 Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
 {
     let errorMessagesForTypes = {};
-    const msgStart = "Error: The value type for the descriptor: " + currentDescriptor.prefixedForm + " should be ";
+    const msgStart = "Error: The value type for the descriptor " + currentDescriptor.prefix + ":" + "(" + currentDescriptor.label + ")" + " should be ";
     errorMessagesForTypes[Elements.types.resourceNoEscape] = msgStart + "an 'URI'";
     errorMessagesForTypes[Elements.types.resource] = msgStart + "an 'URI'";
     errorMessagesForTypes[Elements.types.property] = msgStart + "an 'URI'";
@@ -64,20 +66,42 @@ Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
 
 Elements.validateDescriptorValueTypes = function (currentDescriptor)
 {
-    let typesValidators = {};
-    typesValidators[Elements.types.resourceNoEscape] = ((typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String) && validUrl.is_uri(currentDescriptor.value));
-    typesValidators[Elements.types.resource] = ((typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String) && validUrl.is_uri(currentDescriptor.value));
-    typesValidators[Elements.types.property] = ((typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String) && validUrl.is_uri(currentDescriptor.value));
-    typesValidators[Elements.types.string] = (typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String);
-    typesValidators[Elements.types.int] = Number.isInteger(currentDescriptor.value);
-    typesValidators[Elements.types.double] = !isNaN(currentDescriptor.value);
-    typesValidators[Elements.types.boolean] = (currentDescriptor.value === "true" || currentDescriptor.value === "false" || currentDescriptor.value === true || currentDescriptor.value === false);
-    typesValidators[Elements.types.prefixedResource] = Elements.checkIfValidPrefixedResource(currentDescriptor.value);
-    typesValidators[Elements.types.date] = !isNaN(Date.parse(currentDescriptor.value));
-    typesValidators[Elements.types.long_string] = (typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String);
-    typesValidators[Elements.types.stringNoEscape] = (typeof currentDescriptor.value === "string" || currentDescriptor.value instanceof String);
+    const validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue)
+    {
+        let typesValidators = {};
+        typesValidators[Elements.types.resourceNoEscape] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+        typesValidators[Elements.types.resource] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+        typesValidators[Elements.types.property] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+        typesValidators[Elements.types.string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+        typesValidators[Elements.types.int] = Number.isInteger(descriptorValue);
+        typesValidators[Elements.types.double] = !isNaN(descriptorValue);
+        typesValidators[Elements.types.boolean] = (descriptorValue === "true" || descriptorValue === "false" || descriptorValue === true || descriptorValue === false);
+        typesValidators[Elements.types.prefixedResource] = Elements.checkIfValidPrefixedResource(descriptorValue);
+        typesValidators[Elements.types.date] = !isNaN(Date.parse(descriptorValue));
+        typesValidators[Elements.types.long_string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+        typesValidators[Elements.types.stringNoEscape] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
 
-    return typesValidators[currentDescriptor.type];
+        return typesValidators[descriptorType];
+    };
+
+    // When there are various instances of a descriptor, for example: two dcterms:contributor
+    if (currentDescriptor.value instanceof Array)
+    {
+        for (let i = 0; i !== currentDescriptor.value.length; i++)
+        {
+            let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
+            if (resultOfValidation === false)
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        // When there is only one instance of a descriptor (for example only one dcterms:abstract)
+        return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
+    }
+    return true;
 };
 
 /**
