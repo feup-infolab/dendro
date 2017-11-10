@@ -30,10 +30,9 @@ const filesToMove = JSON.parse(JSON.stringify(allFiles)).pop();
 
 describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
 {
+    this.timeout(Config.testsTimeout);
     describe("[Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()
     {
-        this.timeout(Config.testsTimeOut);
-
         beforeEach(function (done)
         {
             createFilesUnit.setup(function (err, results)

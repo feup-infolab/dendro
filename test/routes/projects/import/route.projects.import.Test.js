@@ -31,7 +31,7 @@ const projectsData = createProjectsUnit.projectsData;
 
 describe("Import projects", function (done)
 {
-    this.timeout(5 * Config.testsTimeOut);
+    this.timeout(5 * Config.testsTimeout);
 
     before(function (done)
     {
