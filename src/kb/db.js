@@ -401,7 +401,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
             {
                 if (!isNull(err))
                 {
-                    console.error("########################   Error executing query ########################   \n" + queryObject.query + "\n########################   Via JDBC ON Virtuoso   ########################   ");
+                    console.error("########################   Error executing query ########################   \n" + query + "\n########################   Via JDBC ON Virtuoso   ########################   ");
                     console.error(JSON.stringify(err));
                     console.error(JSON.stringify(err.cause));
                     console.error(JSON.stringify(err.message));
