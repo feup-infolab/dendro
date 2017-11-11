@@ -46,39 +46,8 @@
             Got it!
         </button>
       </div>
-        <div ng-controller="depositCtrl" class="container" ng-init="init()" >
-            <div class="row">
 
-                <section class="content">
-                    <h3>Latest deposits</h3>
-                    <div class="col-sm-12">
-                        <div class="table-container deposits-table">
-                            <table class="table table-responsive table-striped table-bordered">
-                                <tbody ui-scroll-viewport="">
-                                <tr ui-scroll="deposit in deposits" buffer-size="20" >
-                                    <td>
-                                        <div class="media">
-                                            <div class="media-body">
-                                                <span class="media-meta pull-right">{{deposit.date}}</span>
-                                                <h4 class="title">
-                                                    <a href="{{deposit.creator}}">                                            {{deposit}}{{deposit.user}}</a> deposited the folder <a
-                                                            href="" class="foldersLabel">boom</a> from {{deposit.privacy}} project <a href="{{deposit.projused}}">{{deposit.title}}</a> in {{deposit.description}}
-                                                </h4>
-                                                <p class="summary">{{deposit.label}}</p>
-                                                <img src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="ckan">
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-            </div>
-        </div>
+        <%- include registry/deposits.ejs %>
     </div>
     <!-- /Services -->
 
