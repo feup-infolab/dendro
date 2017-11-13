@@ -18,7 +18,7 @@ global.tests = {};
 // require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 // ERROS
-require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
-
-//require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
-
+// Delete a project
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__delete/routes.project.publicProject.__delete.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__delete/routes.project.metadataOnlyProject.__delete.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js"));
