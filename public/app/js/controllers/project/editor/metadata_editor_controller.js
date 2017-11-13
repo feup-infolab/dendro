@@ -93,6 +93,16 @@ angular.module("dendroApp.controllers")
                 {
                     var descriptor_clone = $scope.shared.metadata[i];
                     descriptor_clone.recommendedFor = currentUri;
+                    // Removes the descriptor values that are marked as deleted
+                    if (descriptor_clone.value instanceof Array && descriptor_clone.valuesMarkedAsDeleted instanceof Object)
+                    {
+                        var descriptorValues = _.reject(descriptor_clone.value, function (value)
+                        {
+                            var result = descriptor_clone.valuesMarkedAsDeleted[value];
+                            return result;
+                        });
+                        descriptor_clone.value = descriptorValues;
+                    }
 
                     if (!descriptor_clone.just_deleted)
                     {
