@@ -223,7 +223,7 @@ Deposit.createQuery = function(params, callback){
         },
         {
             type : Elements.types.string,
-            value : params.username
+            value : params.self
         },];
 
     if(params.offset){
@@ -251,7 +251,7 @@ Deposit.createQuery = function(params, callback){
     }
 
     let i = 6;
-    if(params.projId){
+    if(params.project){
         query += "  ?uri ddr:exportedFromProject [" + i++ + "] \n";
         variables.push({
             type: Elements.types.resourceNoEscape,

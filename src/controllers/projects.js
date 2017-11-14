@@ -917,7 +917,8 @@ exports.new = function (req, res)
                                         creator: req.user.ddr.username,
                                     },
                                     ddr: {
-                                        exportedFromProject: result.uri
+                                        exportedFromProject: result.uri,
+                                        privacyStatus: "public",
                                     }
                                 };
                                 Deposit.createDepositRegistry(registryData, function(err, result){

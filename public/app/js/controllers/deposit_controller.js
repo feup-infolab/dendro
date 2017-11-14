@@ -24,29 +24,32 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
         $scope.offset = 0;
         $scope.page = 10;
 
+        $scope.search = {
+            name: "",
+            project: "",
+            dateFrom: "",
+            dateTo: "",
+            privateDeposit : false,
+            offset: 0,
+            limit: 10,
+        };
+
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
-
-
         $scope.init = function(){
 
-            $scope.getPublicRegistry();
+            $scope.getRegistry();
         };
 
-        $scope.getPublicRegistry = function(){
+        $scope.getRegistry = function(){
             let url = $scope.get_current_url();
             url += "deposits/latest";
-
-            let depositsInterval = {
-                offset: $scope.offset,
-                page: $scope.page
-            };
 
             $http({
                 method: "GET",
                 url: url,
-                params: depositsInterval,
+                params: $scope.search,
                 contentType: "application/json",
                 headers: {"Accept": "application/json"}
             }).then(function(response){
@@ -60,15 +63,13 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
                 for(let i = 0; i < deposits.length; i++){
                     deposits[i].date = moment(deposits[i].date).fromNow();
                 }
-                //$scope.deposits.push(deposits);
+                $scope.deposits.push(deposits);
             }).catch(function(error){
-
+                console.log(error);
             });
         };
 
         $scope.authorizedRegistry = {};
-
-        $scope.counter = 0;
 
         $scope.authorizedRegistry.get = function (index, count, success) {
             let deposits = [0,1,2,3,4,5,6,7,8,9];
@@ -77,7 +78,7 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
 
         };
 
-        $scope.deposits = $scope.authorizedRegistry;
+        $scope.deposits = [];
 
 
         $scope.get_project = function()

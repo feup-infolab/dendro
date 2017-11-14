@@ -68,8 +68,9 @@ exports.public = function (req, callback) {
 };
 
 exports.allowed = function (req, callback) {
-
-    Deposit.allowed(req, function(err, results){
+    let params = req.query;
+    params.self = req.user.ddr.username;
+    Deposit.createQuery(params, function(err, results){
         callback(err, results);
     });
 };

@@ -1190,6 +1190,12 @@ Elements.ontologies.ddr = {
       control: Controls.input_box,
       locked: true,
       api_readable: true
+  },
+    exportedFromProject:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box,
+      locked_for_projects: true
   }
 };
 

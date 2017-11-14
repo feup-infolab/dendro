@@ -1,0 +1,30 @@
+<form class="deposit-sidebar">
+    Search registry
+    <div class="form-group">
+        <label>
+            Username
+            <input ng-model="search.name" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="text">
+        </label>
+        <label>
+            Project
+            <input ng-model="search.project" ng-change="getRegistry()" ng-model-options="{debounce : 500}"type="text">
+        </label>
+        <label>
+            Date start
+            <input ng-model="search.dateFrom" ng-change="getRegistry()" type="date">
+        </label>
+        <label>
+            Date end
+            <input ng-model="search.dateTo" ng-change="getRegistry()" type="date">
+        </label> <br>
+        <label>
+            Include private deposits
+            <input ng-model="search.privateDeposit" ng-change="getRegistry()" type="checkbox">
+        </label>
+        <label> <br>
+            System used <br>
+            <input name="system" type="radio" ng-checked="search.system" checked> All <br>
+            <input name="system" type="radio" ng-checked="search.system"> Ckan <br>
+        </label>
+    </div>
+</form>
