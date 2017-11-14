@@ -259,13 +259,15 @@ angular.module("dendroApp.controllers")
 
             if (addToExistingDescriptor && addToExistingDescriptor.value)
             {
+                addToExistingDescriptor.just_added = true;
                 if (addToExistingDescriptor.value instanceof Array)
                 {
                     addToExistingDescriptor.value.push(descriptor.label);
                 }
                 else
                 {
-                    addToExistingDescriptor.value = [];
+                    var newValues = [addToExistingDescriptor.value];
+                    addToExistingDescriptor.value = newValues;
                     addToExistingDescriptor.value.push(descriptor.label);
                 }
             }
