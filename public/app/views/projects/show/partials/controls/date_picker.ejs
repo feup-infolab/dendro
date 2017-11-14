@@ -1,6 +1,7 @@
 <div class="row">
     <div class="controls col-xs-12">
         <div class="input-group col-xs-11 col-xs-offset-1">
+            descriptor value is: {{descriptor.value}}
             <div ng-switch="getTypeOfOfData(descriptor.value)">
                 <!--<div ng-switch-when='string'>
                     is date string
@@ -27,21 +28,21 @@
                     </p>
                 </div>-->
 
-                <div ng-switch-when='object'>
-                    is date object
+                <div ng-switch-when='object' ng-init="descriptorIndex = $index">
+                    is object
                     <div ng-repeat="descriptorValue in descriptor.value track by $index">
                         <p class="input-group">
                         <input  type="text"
                                 class="form-control"
                                 ng-model="descriptor.value[$index]"
-                                is-open="open_datepickers[descriptor.datepicker_uuid]"
+                                is-open="open_datepickers[descriptor.datepicker_uuids[$index]]"
                                 datepicker-options="datepickerOptions"
                                 uib-datepicker-popup="MM/dd/yyyy"
-                                name="{{descriptor.datepicker_uuid}}_{{descriptor.shortName}}_{{$index}}"
+                                name="{{descriptor.datepicker_uuids[$index]}}_{{descriptor.shortName}}_{{$index}}"
                         />
                         </input>
                         <span class="input-group-btn">
-                            <button type="button" class="btn btn-default" ng-click="toggle_datepicker($index)"><i class="glyphicon glyphicon-calendar"></i></button>
+                            <button type="button" class="btn btn-default" ng-click="toggle_datepicker(descriptorIndex, $index)"><i class="glyphicon glyphicon-calendar"></i></button>
                         </span>
 
                         <div class="alert alert-danger" role="alert" ng-show="!valid_date(descriptor)">
@@ -54,20 +55,20 @@
                 </div>
 
                 <div ng-switch-when='date'>
-                    is date object
+                    is date
                     <p class="input-group">
                         <input  type="text"
                                 class="form-control"
                                 ng-model="descriptor['value']"
-                                is-open="open_datepickers[descriptor.datepicker_uuid]"
+                                is-open="open_datepickers[descriptor.datepicker_uuids[0]]"
                                 datepicker-options="datepickerOptions"
                                 uib-datepicker-popup="MM/dd/yyyy"
-                                name="{{descriptor.datepicker_uuid}}"
+                                name="{{descriptor.datepicker_uuids[0]}}"
                         />
                         </input>
 
                         <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click="toggle_datepicker($index)"><i class="glyphicon glyphicon-calendar"></i></button>
+                        <button type="button" class="btn btn-default" ng-click="toggle_datepicker($index, 0)"><i class="glyphicon glyphicon-calendar"></i></button>
                     </span>
 
                     <div class="alert alert-danger" role="alert" ng-show="!valid_date(descriptor)">
@@ -84,15 +85,15 @@
                         <input  type="text"
                                 class="form-control"
                                 ng-model="descriptor['value']"
-                                is-open="open_datepickers[descriptor.datepicker_uuid]"
+                                is-open="open_datepickers[descriptor.datepicker_uuids[0]]"
                                 datepicker-options="datepickerOptions"
                                 uib-datepicker-popup="MM/dd/yyyy"
-                                name="{{descriptor.datepicker_uuid}}"
+                                name="{{descriptor.datepicker_uuids[0]}}"
                         />
                         </input>
 
                         <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click="toggle_datepicker($index)"><i class="glyphicon glyphicon-calendar"></i></button>
+                        <button type="button" class="btn btn-default" ng-click="toggle_datepicker($index, 0)"><i class="glyphicon glyphicon-calendar"></i></button>
                     </span>
 
                     <div class="alert alert-danger" role="alert" ng-show="!valid_date(descriptor)">

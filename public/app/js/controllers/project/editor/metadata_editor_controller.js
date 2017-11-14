@@ -329,7 +329,7 @@ angular.module("dendroApp.controllers")
 
         $scope.toggle_datepicker = function (descriptorIndex, valueIndex)
         {
-            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
+            /*if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
             {
                 if ($scope.shared.metadata[descriptorIndex].datepicker_uuid == null)
                 {
@@ -337,6 +337,35 @@ angular.module("dendroApp.controllers")
                 }
 
                 var datepickerUUID = $scope.shared.metadata[descriptorIndex].datepicker_uuid;
+
+                if ($scope.open_datepickers == null)
+                {
+                    $scope.open_datepickers = {};
+                }
+
+                if ($scope.open_datepickers[datepickerUUID])
+                {
+                    $scope.open_datepickers[datepickerUUID] = false;
+                }
+                else
+                {
+                    $scope.open_datepickers[datepickerUUID] = true;
+                }
+            }*/
+
+            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
+            {
+                if ($scope.shared.metadata[descriptorIndex].datepicker_uuids == null)
+                {
+                    $scope.shared.metadata[descriptorIndex].datepicker_uuids = [];
+                    $scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex] = UUIDjs.create().hex;
+                }
+                else if ($scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex] == null)
+                {
+                    $scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex] = UUIDjs.create().hex;
+                }
+
+                var datepickerUUID = $scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex];
 
                 if ($scope.open_datepickers == null)
                 {

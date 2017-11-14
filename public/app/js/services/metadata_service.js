@@ -21,7 +21,19 @@ angular.module("dendroApp.factories")
 
                             if (descriptor.control === "date_picker")
                             {
-                                descriptor.value = new Date(descriptor.value);
+                                if (typeof descriptor.value === "string" || descriptor.value instanceof String)
+                                {
+                                    descriptor.value = new Date(descriptor.value);
+                                }
+                                else if (descriptor.value instanceof Object)
+                                {
+                                    var arrayOfDates = [];
+                                    for (var j = 0; j !== Object.keys(descriptor.value).length; j++)
+                                    {
+                                        arrayOfDates.push(new Date(descriptor.value[j]));
+                                    }
+                                    descriptor.value = arrayOfDates;
+                                }
                             }
 
                             deserialized.push(descriptor);
