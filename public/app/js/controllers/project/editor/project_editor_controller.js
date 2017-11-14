@@ -37,7 +37,19 @@ angular.module("dendroApp.controllers")
 
         $scope.getTypeOfOfData = function (data)
         {
-            var type = typeof data;
+            var isDate = !isNaN(Date.parse(data));
+            var type;
+            if (isDate)
+            {
+                type = "date";
+            }
+            else
+            {
+                type = typeof data;
+                return type;
+            }
+            console.log("data is: " + data);
+            console.log("type is: " + type);
             return type;
         };
 
@@ -260,15 +272,22 @@ angular.module("dendroApp.controllers")
             if (addToExistingDescriptor && addToExistingDescriptor.value)
             {
                 addToExistingDescriptor.just_added = true;
+                var defaultValue = descriptor.label;
+
+                if (addToExistingDescriptor.control === "date_picker")
+                {
+                    defaultValue = new Date();
+                }
+
                 if (addToExistingDescriptor.value instanceof Array)
                 {
-                    addToExistingDescriptor.value.push(descriptor.label);
+                    addToExistingDescriptor.value.push(defaultValue);
                 }
                 else
                 {
                     var newValues = [addToExistingDescriptor.value];
                     addToExistingDescriptor.value = newValues;
-                    addToExistingDescriptor.value.push(descriptor.label);
+                    addToExistingDescriptor.value.push(defaultValue);
                 }
             }
             else

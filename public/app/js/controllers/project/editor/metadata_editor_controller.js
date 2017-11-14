@@ -327,7 +327,7 @@ angular.module("dendroApp.controllers")
             });
         };
 
-        $scope.toggle_datepicker = function (descriptorIndex)
+        $scope.toggle_datepicker = function (descriptorIndex, valueIndex)
         {
             if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
             {

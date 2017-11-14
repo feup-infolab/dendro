@@ -3,7 +3,6 @@
         <div class="input-group col-xs-11 col-xs-offset-1">
             <div ng-switch="getTypeOfOfData(descriptor.value)">
                 <div ng-switch-when='string'>
-                    <p>Type is string</p>
                     <input
                             type="text"
                             class="form-control urlbox"
@@ -23,7 +22,6 @@
                             focus-me="descriptor.focused">
                 </div>
                 <div ng-switch-when='object'>
-                    <p>Type is object</p>
                     <div ng-repeat="descriptorValue in descriptor.value track by $index">
                         <div>
                             <a href ng-click="remove_value_from_descriptor(descriptor, descriptorValue)" onclick="return false;">
@@ -51,7 +49,6 @@
                 </div>
                 <div ng-switch-default>
                     <!-- when the user is filling up a new descriptor value -->
-                    <p>Type is nor object or string</p>
                     <input
                             type="text"
                             class="form-control urlbox"
@@ -71,51 +68,6 @@
                             focus-me="descriptor.focused">
                 </div>
             </div>
-
-           <!-- <div ng-if="getTypeOfOfData(descriptor.value) === 'string'">
-                <p>Type is string</p>
-                <input
-                        type="text"
-                        class="form-control urlbox"
-                        id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                        name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                        placeholder="{{descriptor.label}}"
-                        value="{{descriptor.value}}"
-                        ng-model="descriptor.value"
-                        ng-class="{
-                        just_added: descriptor.just_added,
-                        just_deleted: descriptor.just_deleted,
-                        just_inherited : descriptor.just_inherited ,
-                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
-                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
-                    }"
-                        ng-enter="save_metadata()"
-                        focus-me="descriptor.focused">
-            </div>-->
-
-            <!--<div ng-if="getTypeOfOfData(descriptor.value) === 'object'">
-                <p>Type is object</p>
-                <div ng-repeat="descriptorValue in descriptor.value track by $index">
-                    <input
-                            type="text"
-                            class="form-control urlbox"
-                            id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                            name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                            placeholder="{{descriptor.label}}"
-                            value="descriptorValue"
-                            ng-model="descriptorValue"
-                            ng-class="{
-                        just_added: descriptor.just_added,
-                        just_deleted: descriptor.just_deleted,
-                        just_inherited : descriptor.just_inherited ,
-                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
-                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
-                    }"
-                            ng-enter="save_metadata()"
-                            focus-me="descriptor.focused">
-                </div>
-            </div>-->
-
         </div>
     </div>
 </div>
