@@ -435,9 +435,29 @@ angular.module("dendroApp.controllers")
             }
         };
 
-        $scope.get_map_src = function (descriptor, key)
+        $scope.get_map_src = function (descriptor, key, descriptorValueIndex)
         {
-            return "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value;
+            var mapSrc;
+            if (descriptor === null || descriptor.value === null)
+            {
+                throw new Error("Map source is required!!!");
+            }
+            else if (descriptor.value instanceof Array)
+            {
+                if (descriptorValueIndex !== null)
+                {
+                    mapSrc = "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value[descriptorValueIndex];
+                }
+                else
+                {
+                    throw new Error("Map value is an array, descriptorValueIndex is required for this case");
+                }
+            }
+            else if (typeof descriptor.value === "string" || descriptor.value instanceof String)
+            {
+                mapSrc = "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value;
+            }
+            return mapSrc;
         };
 
         $scope.shared.descriptor_is_filled_in = function (descriptor)

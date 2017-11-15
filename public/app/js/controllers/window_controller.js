@@ -74,8 +74,6 @@ angular.module("dendroApp.controllers")
             if (descriptor.value !== null && descriptor.value instanceof Object)
             {
                 var numberOfDates = Object.keys(descriptor.value).length;
-                console.log("Number of dates: " + numberOfDates);
-                console.log("dateValue", descriptor.value);
                 for (var i = 0; i !== numberOfDates; i++)
                 {
                     var result = windowService.valid_date(descriptor.value[i]);
@@ -85,7 +83,6 @@ angular.module("dendroApp.controllers")
                     }
                 }
                 return true;
-                // return windowService.valid_date(descriptor.value);
             }
             return false;
         };

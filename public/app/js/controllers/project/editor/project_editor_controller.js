@@ -48,8 +48,6 @@ angular.module("dendroApp.controllers")
                 type = typeof data;
                 return type;
             }
-            console.log("data is: " + data);
-            console.log("type is: " + type);
             return type;
         };
 
