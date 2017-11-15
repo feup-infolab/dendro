@@ -114,6 +114,10 @@ Config.mongoDbCollectionName = getConfigParameter("mongoDbCollectionName");
 Config.mongoDBSessionStoreCollection = getConfigParameter("mongoDBSessionStoreCollection");
 Config.mongoDbVersion = getConfigParameter("mongoDbVersion");
 Config.mongoDBAuth = getConfigParameter("mongoDBAuth");
+// storage default config
+Config.defaultStorageConfig = getConfigParameter("storageDefault");
+
+
 
 // mysql database for interaction
 
