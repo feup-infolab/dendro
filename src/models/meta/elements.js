@@ -692,102 +692,36 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
-    hasStorageConfig: {
-        type: Elements.types.resource,
-        locked : true,
-        api_readable :true,
-    },
-    host: {
-        type: Elements.types.string,
-        locked : true,
-        api_readable: true,
-    },
-    port: {
-        type: Elements.types.port,
-        locked: true,
-        api_readable: true,
-    },
-    hasStorageLimit :
+    hasStorageConfig:
         {
-            type : Elements.types.int,
-            control : Controls.input_box,
-            api_readable : true,
-            locked : true
-        },
-    requiresVerifiedUploads :
-        {
-            type : Elements.types.boolean,
-            control : Controls.input_box,
-            api_readable : true,
-            locked : true
-        },
-    created :
-        {
-            type : Elements.types.date,
-            control : Controls.date_picker,
-            api_readable : true,
+            type: Elements.types.resource,
             locked : true,
-            audit : true
+            api_readable :true,
         },
-    modified :
+    storageType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box,
-            private : true,
+            type: Elements.types.string,
             locked : true,
             api_readable : true,
-            audit : true
         },
-    humanReadableURI :  {
-        type : Elements.types.string,
-        control : Controls.input_box,
-        private : true,
-        locked : true,
-        api_readable : true,
-    },
-    hasStorageLimit:
+    host:
         {
-            type: Elements.types.int,
-            control: Controls.input_box,
+            type: Elements.types.string,
+            locked : true,
             api_readable: true,
-            locked: true
         },
-    requiresVerifiedUploads:
+    port:
         {
-            type: Elements.types.boolean,
-            control: Controls.input_box,
-            api_readable: true,
-            locked: true
-        },
-    created:
-        {
-            type: Elements.types.date,
-            control: Controls.date_picker,
-            api_readable: true,
+            type: Elements.types.port,
             locked: true,
-            audit: true
+            api_readable: true,
         },
-    modified:
+    handle:
         {
             type: Elements.types.string,
             control: Controls.input_box,
-            private: true,
-            locked: true,
-            api_readable: true,
-            audit: true
+            locked_for_projects: true
         },
-    humanReadableURI: {
-        type: Elements.types.string,
-        control: Controls.input_box,
-        private: true,
-        locked: true,
-        api_readable: true
-    },
-    handle: {
-        type: Elements.types.string,
-        control: Controls.input_box,
-        locked_for_projects: true
-    },
     password:
         {
             type: Elements.types.string,

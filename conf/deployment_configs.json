@@ -108,15 +108,12 @@
       "password": ""
     },
     "storageDefault" : {
-      "DBHost": "192.168.56.249",
-      "DBPort": "27017",
-      "DBCollectionName": "127.0.0.1:3002_files",
-      "DBSessionStoreCollection": "127.0.0.1:3002_sessions",
-      "DBVersion": "",
-      "Auth": {
-        "user": "",
-        "password": ""
-      }
+      "storageType" : "mongoDB",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "collectionName": "127.0.0.1:3001_files",
+      "username": "",
+      "password": ""
     },
     "mySQLHost": "192.168.56.249",
     "mySQLPort": "3306",
@@ -507,15 +504,12 @@
       "password": ""
     },
     "storageDefault" : {
-      "DBHost": "192.168.56.249",
-      "DBPort": "27017",
-      "DBCollectionName": "127.0.0.1:3002_files",
-      "DBSessionStoreCollection": "127.0.0.1:3002_sessions",
-      "DBVersion": "",
-      "Auth": {
-        "user": "",
-        "password": ""
-      }
+      "storageType" : "mongoDB",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "collectionName": "127.0.0.1:3002_files",
+      "username": "",
+      "password": ""
     },
     "mySQLHost": "192.168.56.249",
     "mySQLPort": "3306",
@@ -904,15 +898,12 @@
       "password": ""
     },
     "storageDefault" : {
-      "DBHost": "192.168.56.249",
-      "DBPort": "27017",
-      "DBCollectionName": "127.0.0.1:3002_files",
-      "DBSessionStoreCollection": "127.0.0.1:3002_sessions",
-      "DBVersion": "",
-      "Auth": {
-        "user": "",
-        "password": ""
-      }
+      "storageType" : "mongoDB",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "collectionName": "127.0.0.1:3001_files",
+      "username": "",
+      "password": ""
     },
     "mySQLHost": "127.0.0.1",
     "mySQLPort": "3306",
