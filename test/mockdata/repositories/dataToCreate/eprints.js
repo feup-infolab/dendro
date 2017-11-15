@@ -6,7 +6,7 @@
  This data is used to create a new export repository configuration
  Use this JSON to create a new export config
  */
-/*const newExportRepoData = {
+/* const newExportRepoData = {
     ddr: {
         hasExternalUrl: "http://demoprints.eprints.org",
         hasUsername: "nelsonpereira1991",
@@ -18,91 +18,91 @@
         }
     },
     dcterms: {title: "eprints export config 1"}
-};*/
+}; */
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const newExportRepoData = {
-    dcterms:{
-        title:"EPrints"
+    dcterms: {
+        title: "EPrints"
     },
-    ddr:{
-        hasExternalUrl:"http://demoprints.eprints.org",
+    ddr: {
+        hasExternalUrl: "http://demoprints.eprints.org",
         hasUsername: "nelsonpereira1991",
-        hasPlatform:{
-            uri:"/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a296",
-            foaf:{
-                homepage:"http://www.eprints.org/",
-                nick:"eprints"
+        hasPlatform: {
+            uri: "/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a296",
+            foaf: {
+                homepage: "http://www.eprints.org/",
+                nick: "eprints"
             },
-            dcterms:{
-                title:"EPRINTS"
+            dcterms: {
+                title: "EPRINTS"
             },
-            ddr:{
-                handle:"eprints",
-                created:"2017-10-02T12:17:04.105Z",
-                modified:"2017-10-02T12:17:04.106Z",
-                humanReadableURI:"http://" + Config.host +"/repository_platform/eprints"
+            ddr: {
+                handle: "eprints",
+                created: "2017-10-02T12:17:04.105Z",
+                modified: "2017-10-02T12:17:04.106Z",
+                humanReadableURI: "http://" + Config.host + "/repository_platform/eprints"
             },
-            rdf:{
-                type:[
+            rdf: {
+                type: [
                     "http://dendro.fe.up.pt/ontology/0.1/RepositoryPlatform",
                     "http://dendro.fe.up.pt/ontology/0.1/Resource"
                 ]
             },
-            types:{
+            types: {
 
             },
-            schema:{
+            schema: {
 
             },
-            nie:{
+            nie: {
 
             },
-            nfo:{
+            nfo: {
 
             },
-            research:{
+            research: {
 
             },
-            dcb:{
+            dcb: {
 
             },
-            achem:{
+            achem: {
 
             },
-            bdv:{
+            bdv: {
 
             },
-            tsim:{
+            tsim: {
 
             },
-            biocn:{
+            biocn: {
 
             },
-            grav:{
+            grav: {
 
             },
-            hdg:{
+            hdg: {
 
             },
-            cep:{
+            cep: {
 
             },
-            social:{
+            social: {
 
             },
-            cfd:{
+            cfd: {
 
             },
-            tvu:{
+            tvu: {
 
             },
-            po:{
+            po: {
 
             },
-            $$hashKey:"object:145"
+            $$hashKey: "object:145"
         }
     }
 };

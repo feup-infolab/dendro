@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -11,10 +11,13 @@ chai.use(chaiHttp);
 
 const should = chai.should();
 
-module.exports.deleteIndexes = function (finish) {
+module.exports.deleteIndexes = function (finish)
+{
     let indexConnection = new IndexConnection();
-    indexConnection.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro, function(index) {
-        index.delete_index(function (err, res) {
+    indexConnection.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro, function (index)
+    {
+        index.delete_index(function (err, res)
+        {
             should.equal(err, null);
             finish(err, res);
         });

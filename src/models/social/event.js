@@ -21,18 +21,15 @@ function Event (object)
     return self;
 }
 
-
-/*Event.prototype.save = function (callback) {
+/* Event.prototype.save = function (callback) {
  console.log('Event save');
  var self = this;
 
  self.baseConstructor.save(function (err, newEvent) {
  return callback(err, newEvent);
  });
- };*/
+ }; */
 
 Event = Class.extend(Event, Resource, "ddr:Event");
 
 module.exports.Event = Event;
-
-

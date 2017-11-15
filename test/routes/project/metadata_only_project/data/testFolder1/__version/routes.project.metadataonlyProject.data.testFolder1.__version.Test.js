@@ -24,43 +24,55 @@ const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/fol
 const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Metadata only project testFolder1 level ?version", function () {
+describe("Metadata only project testFolder1 level ?version", function ()
+{
     this.timeout(Config.testsTimeout);
 
-    before(function (done) {
-        addMetadataToFoldersUnit.setup(function (err, results) {
+    before(function (done)
+    {
+        addMetadataToFoldersUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             done();
         });
     });
 
-    describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataProject.handle  + "/data/foldername?version", function () {
-        //API ONLY
-        it("Should give an error if the request type for this route is HTML", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemVersion(false, agent, metadataProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
+    describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/foldername?version", function ()
+    {
+        // API ONLY
+        it("Should give an error if the request type for this route is HTML", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.getItemVersion(false, agent, metadataProject.handle, testFolder1.name, testFolder1.version, function (err, res)
+                {
                     res.statusCode.should.equal(400);
                     done();
                 });
             });
         });
 
-        it("Should an error if the user is unauthenticated", function (done) {
+        it("Should an error if the user is unauthenticated", function (done)
+        {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
 
-            itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
-                res.statusCode.should.equal(401);//because it is a metadata only project
+            itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder1.name, testFolder1.version, function (err, res)
+            {
+                res.statusCode.should.equal(401);// because it is a metadata only project
                 done();
             });
         });
 
-        it("Should give an error if the project does not exist", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, invalidProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
+        it("Should give an error if the project does not exist", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.getItemVersion(true, agent, invalidProject.handle, testFolder1.name, testFolder1.version, function (err, res)
+                {
                     res.statusCode.should.equal(404);
                     res.body.result.should.equal("not_found");
-                    res.body.message.should.be.an('array');
+                    res.body.message.should.be.an("array");
                     res.body.message.length.should.equal(1);
                     res.body.message[0].should.contain("Resource not found at uri ");
                     res.body.message[0].should.contain(testFolder1.name);
@@ -70,12 +82,15 @@ describe("Metadata only project testFolder1 level ?version", function () {
             });
         });
 
-        it("Should give an error if the folder identified by foldername does not exist", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, metadataProject.handle, notFoundFolder.name, notFoundFolder.version, function (err, res) {
+        it("Should give an error if the folder identified by foldername does not exist", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.getItemVersion(true, agent, metadataProject.handle, notFoundFolder.name, notFoundFolder.version, function (err, res)
+                {
                     res.statusCode.should.equal(404);
                     res.body.result.should.equal("not_found");
-                    res.body.message.should.be.an('array');
+                    res.body.message.should.be.an("array");
                     res.body.message.length.should.equal(1);
                     res.body.message[0].should.contain("Resource not found at uri ");
                     res.body.message[0].should.contain(notFoundFolder.name);
@@ -85,55 +100,69 @@ describe("Metadata only project testFolder1 level ?version", function () {
             });
         });
 
-        it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
-                    res.statusCode.should.equal(401);//because the project is of type metadata_only
+        it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder1.name, testFolder1.version, function (err, res)
+                {
+                    res.statusCode.should.equal(401);// because the project is of type metadata_only
                     done();
                 });
             });
         });
 
-        it("Should give the folder versions if the folder exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
+        it("Should give the folder versions if the folder exists and if the user is logged in as demouser1(the creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder1.name, testFolder1.version, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.body.uri.should.not.equal(null);
                     res.body.changes.should.be.instanceof(Array);
-                    res.body.changes.length.should.equal(3);//The abstract, title and creator descriptors
+                    res.body.changes.length.should.equal(3);// The abstract, title and creator descriptors
                     should.not.exist(res.body.ddr.versionCreator.ddr.password);
                     done();
                 });
             });
         });
 
-        it("Should give the folder versions if the folder exists and if the user is logged in as demouser2(a collaborator on the project)", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, metadataProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
+        it("Should give the folder versions if the folder exists and if the user is logged in as demouser2(a collaborator on the project)", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                itemUtils.getItemVersion(true, agent, metadataProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.body.uri.should.not.equal(null);
                     res.body.changes.should.be.instanceof(Array);
-                    res.body.changes.length.should.equal(3);//The abstract, title and creator descriptors
+                    res.body.changes.length.should.equal(3);// The abstract, title and creator descriptors
                     should.not.exist(res.body.ddr.versionCreator.ddr.password);
                     done();
                 });
             });
         });
 
-        it("Should give an error if no version is specified", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder1.name, null, function (err, res) {
+        it("Should give an error if no version is specified", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder1.name, null, function (err, res)
+                {
                     res.statusCode.should.equal(405);
                     done();
                 });
             });
-        })
+        });
     });
 
-    after(function (done) {
-        //destroy graphs
+    after(function (done)
+    {
+        // destroy graphs
 
-        appUtils.clearAppState(function (err, data) {
+        appUtils.clearAppState(function (err, data)
+        {
             should.equal(err, null);
             done(err);
         });

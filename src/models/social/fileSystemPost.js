@@ -9,18 +9,18 @@ var ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/a
 var InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 var Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var uuid = require('uuid');
+var uuid = require("uuid");
 
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 
 var gfs = Config.getGFSByID();
-var _ = require('underscore');
-var async = require('async');
+var _ = require("underscore");
+var async = require("async");
 
 function FileSystemPost (object)
 {
-    /*FileSystemPost.baseConstructor.call(this, object);
+    /* FileSystemPost.baseConstructor.call(this, object);
     var self = this;
 
     if(object.uri != null)
@@ -36,7 +36,7 @@ function FileSystemPost (object)
 
     self.rdf.type = "ddr:FileSystemPost";
 
-    return self;*/
+    return self; */
 
     const self = this;
     self.addURIAndRDFType(object, "post", FileSystemPost);
@@ -46,7 +46,7 @@ function FileSystemPost (object)
 
     const newId = uuid.v4();
 
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
         self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
     }
@@ -54,9 +54,11 @@ function FileSystemPost (object)
     return self;
 }
 
-FileSystemPost.buildFromRmdirOperation = function (userUri, project, folder, reallyDelete, callback) {
-    User.findByUri(userUri, function (err, creator) {
-        if(isNull(err))
+FileSystemPost.buildFromRmdirOperation = function (userUri, project, folder, reallyDelete, callback)
+{
+    User.findByUri(userUri, function (err, creator)
+    {
+        if (isNull(err))
         {
             let title = creator.ddr.username + " deleted folder " + folder.nie.title;
             let newPost = new FileSystemPost({
@@ -84,9 +86,11 @@ FileSystemPost.buildFromRmdirOperation = function (userUri, project, folder, rea
     });
 };
 
-FileSystemPost.buildFromMkdirOperation = function (userUri, project, folder, callback) {
-    User.findByUri(userUri, function (err, creator) {
-        if(isNull(err))
+FileSystemPost.buildFromMkdirOperation = function (userUri, project, folder, callback)
+{
+    User.findByUri(userUri, function (err, creator)
+    {
+        if (isNull(err))
         {
             let title = creator.ddr.username + " created folder " + folder.nie.title;
             let newPost = new FileSystemPost({
@@ -113,9 +117,11 @@ FileSystemPost.buildFromMkdirOperation = function (userUri, project, folder, cal
     });
 };
 
-FileSystemPost.buildFromUpload = function (userUri, project, file, callback) {
-    User.findByUri(userUri, function (err, creator) {
-        if(isNull(err))
+FileSystemPost.buildFromUpload = function (userUri, project, file, callback)
+{
+    User.findByUri(userUri, function (err, creator)
+    {
+        if (isNull(err))
         {
             let title = creator.ddr.username + " uploaded file " + file.nie.title;
             let newPost = new FileSystemPost({
@@ -142,11 +148,12 @@ FileSystemPost.buildFromUpload = function (userUri, project, file, callback) {
     });
 };
 
-
-FileSystemPost.buildFromDeleteFile = function (userUri, projectUri, file, callback) {
-    //introduzir really delete
-    User.findByUri(userUri, function (err, creator) {
-        if(isNull(err))
+FileSystemPost.buildFromDeleteFile = function (userUri, projectUri, file, callback)
+{
+    // introduzir really delete
+    User.findByUri(userUri, function (err, creator)
+    {
+        if (isNull(err))
         {
             let title = creator.ddr.username + " deleted file " + file.nie.title;
             let newPost = new FileSystemPost({
@@ -173,17 +180,18 @@ FileSystemPost.buildFromDeleteFile = function (userUri, projectUri, file, callba
     });
 };
 
-
-FileSystemPost.prototype.getResourceInfo = function (callback) {
+FileSystemPost.prototype.getResourceInfo = function (callback)
+{
     var self = this;
     let resourceUri = self.schema.sharedContent;
 
-    //InformationElement.findByUri(resourceUri, function (err, resource) {
-    //TODO para alguns casos, os ficheiros não estão a ser encontrados, só estão a ser encontrados txts
-    InformationElement.findByUri(resourceUri, function (err, resource) {
-        if(!err && resource)
+    // InformationElement.findByUri(resourceUri, function (err, resource) {
+    // TODO para alguns casos, os ficheiros não estão a ser encontrados, só estão a ser encontrados txts
+    InformationElement.findByUri(resourceUri, function (err, resource)
+    {
+        if (!err && resource)
         {
-            if(!resource.metadataQuality)
+            if (!resource.metadataQuality)
             {
                 resource.metadataQuality = 0;
             }
@@ -198,11 +206,7 @@ FileSystemPost.prototype.getResourceInfo = function (callback) {
     }, null, db.graphUri, false, null, null);
 };
 
-/*FileSystemPost = Class.extend(FileSystemPost, Post);*/
+/* FileSystemPost = Class.extend(FileSystemPost, Post); */
 FileSystemPost = Class.extend(FileSystemPost, Post, "ddr:FileSystemPost");
 
 module.exports.FileSystemPost = FileSystemPost;
-
-
-
-

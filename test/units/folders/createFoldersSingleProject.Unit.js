@@ -1,14 +1,14 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const chai = require("chai");
-chai.use(require('chai-http'));
+chai.use(require("chai-http"));
 const async = require("async");
 const should = chai.should();
-const path = require('path');
+const path = require("path");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -34,40 +34,48 @@ const folderMissingDescriptors = require(Pathfinder.absPathInTestsFolder("mockda
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2, folderExportCkan, folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs, folderExportedCkanCkanDiffs, folderMissingDescriptors];
 
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
+function requireUncached (module)
+{
+    delete require.cache[require.resolve(module)];
+    return require(module);
 }
 
-module.exports.setup = function(project, finish)
+module.exports.setup = function (project, finish)
 {
     let addContributorsToProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
-    addContributorsToProjectsUnit.setup(function (err, results) {
-        if(err)
+    addContributorsToProjectsUnit.setup(function (err, results)
+    {
+        if (err)
         {
             finish(err, results);
         }
         else
         {
             appUtils.registerStartTimeForUnit(path.basename(__filename));
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                if(err)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                if (err)
                 {
                     finish(err, agent);
                 }
                 else
                 {
-                    async.mapSeries(foldersData, function (folderData, cb) {
-                        itemUtils.createFolder(true, agent, project.handle, folderData.pathInProject, folderData.name, function (err, res) {
-                            if (!isNull(err)) {
+                    async.mapSeries(foldersData, function (folderData, cb)
+                    {
+                        itemUtils.createFolder(true, agent, project.handle, folderData.pathInProject, folderData.name, function (err, res)
+                        {
+                            if (!isNull(err))
+                            {
                                 cb(err, results);
                             }
-                            else {
+                            else
+                            {
                                 cb(null, results);
                             }
                         });
-                    }, function (err, results) {
+                    }, function (err, results)
+                    {
                         appUtils.registerStopTimeForUnit(path.basename(__filename));
                         finish(err, results);
                     });

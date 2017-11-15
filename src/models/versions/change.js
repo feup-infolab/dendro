@@ -25,7 +25,7 @@ function Change (object)
     return self;
 }
 
-Change.findByAssociatedRevision = function(revisionUri, callback)
+Change.findByAssociatedRevision = function (revisionUri, callback)
 {
     const query =
         "WITH [0] \n" +
@@ -38,37 +38,40 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
     db.connection.executeViaJDBC(query,
         [
             {
-                type : Elements.types.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : Elements.types.resource,
-                value : revisionUri
+                type: Elements.types.resource,
+                value: revisionUri
             }
         ],
-        function(err, results) {
-            if(isNull(err))
+        function (err, results)
+        {
+            if (isNull(err))
             {
-                const fetchFullChange = function (changeResultRow, cb) {
-                    Change.findByUri(changeResultRow.uri, function (err, change) {
-                        if (isNull(err)) {
+                const fetchFullChange = function (changeResultRow, cb)
+                {
+                    Change.findByUri(changeResultRow.uri, function (err, change)
+                    {
+                        if (isNull(err))
+                        {
                             cb(null, change);
                         }
-                        else {
+                        else
+                        {
                             cb(1, null);
                         }
                     });
                 };
 
-                async.mapSeries(results, fetchFullChange, function(err, fullChanges){
-                    if(isNull(err))
+                async.mapSeries(results, fetchFullChange, function (err, fullChanges)
+                {
+                    if (isNull(err))
                     {
                         return callback(null, fullChanges);
                     }
-                    else
-                    {
-                        return callback(1, "Error fetching full changes of the revision " + revisionUri);
-                    }
+                    return callback(1, "Error fetching full changes of the revision " + revisionUri);
                 });
             }
             else
@@ -78,7 +81,7 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
         });
 };
 
-/*Change.prototype.save = function(callback)
+/* Change.prototype.save = function(callback)
 {
     var self = this;
     var changedDescriptor = new Descriptor({
@@ -96,7 +99,7 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
         console.error("Attempt to record a change on a locked descriptor. debug please. ");
         return callback(null, null);
     }
-}*/
+} */
 
 Change = Class.extend(Change, Resource, "ddr:Change");
 

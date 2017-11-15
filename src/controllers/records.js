@@ -18,38 +18,42 @@ const db_social = Config.getDBByID("social");
 const _ = require("underscore");
 const request = require("request");
 
-exports.show_deep = function(req, res) {
+exports.show_deep = function (req, res)
+{
     const acceptsHTML = req.accepts("html");
     let acceptsJSON = req.accepts("json");
 
-    if(!acceptsJSON && acceptsHTML)
+    if (!acceptsJSON && acceptsHTML)
     {
         res.status(400).json({
             result: "error",
-            message : "HTML Request not valid for this route."
+            message: "HTML Request not valid for this route."
         });
     }
     else
     {
-        if(!req.params.showing_project_root)
+        if (!req.params.showing_project_root)
         {
-            InformationElement.findByUri(req.params.requestedResourceUri, function(err, resource){
-                if(!err)
+            InformationElement.findByUri(req.params.requestedResourceUri, function (err, resource)
+            {
+                if (!err)
                 {
-                    if(!isNull(resource))
+                    if (!isNull(resource))
                     {
-                        resource.findMetadataRecursive(function(err, result){
-                            if(isNull(err)){
-
-                                const accept = req.header('Accept');
+                        resource.findMetadataRecursive(function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                const accept = req.header("Accept");
                                 let serializer = null;
                                 let contentType = null;
-                                if(isNull(accept) || accept in Config.metadataSerializers === false)
+                                if (isNull(accept) || accept in Config.metadataSerializers === false)
                                 {
                                     serializer = Config.defaultMetadataSerializer;
                                     contentType = Config.defaultMetadataContentType;
                                 }
-                                else{
+                                else
+                                {
                                     serializer = Config.metadataSerializers[accept];
                                     contentType = Config.metadataContentTypes[accept];
                                 }
@@ -61,11 +65,11 @@ exports.show_deep = function(req, res) {
                                 res.set("Content-Type", contentType);
                                 res.set("Content-disposition", "attachment; filename=\"" + resource.nie.title + "\"");
                                 res.send(serializer(result));
-
                             }
-                            else{
+                            else
+                            {
                                 res.status(500).json({
-                                    error_messages : "Error finding metadata from " + req.params.requestedResourceUri + "\n" + result
+                                    error_messages: "Error finding metadata from " + req.params.requestedResourceUri + "\n" + result
                                 });
                             }
                         }, true);
@@ -74,8 +78,8 @@ exports.show_deep = function(req, res) {
                     {
                         res.status(404).json({
                             result: "error",
-                            message : "Resource " + req.params.requestedResourceUri + " not found.",
-                            error : resource
+                            message: "Resource " + req.params.requestedResourceUri + " not found.",
+                            error: resource
                         });
                     }
                 }
@@ -83,55 +87,58 @@ exports.show_deep = function(req, res) {
                 {
                     res.status(500).json({
                         result: "error",
-                        message : "Error fetching resource " + req.params.requestedResourceUri,
+                        message: "Error fetching resource " + req.params.requestedResourceUri,
                         error: resource
                     });
                 }
-
             });
         }
         else
         {
             res.status(400).json({
                 result: "error",
-                message : "This is not the root of a project"
+                message: "This is not the root of a project"
             });
         }
     }
 };
 
-exports.show = function(req, res) {
+exports.show = function (req, res)
+{
     const acceptsHTML = req.accepts("html");
     let acceptsJSON = req.accepts("json");
 
-    if(!acceptsJSON && acceptsHTML)
+    if (!acceptsJSON && acceptsHTML)
     {
         res.status(400).json({
             result: "error",
-            message : "HTML Request not valid for this route."
+            message: "HTML Request not valid for this route."
         });
     }
     else
     {
-        if(!req.params.showing_project_root)
+        if (!req.params.showing_project_root)
         {
-            InformationElement.findByUri(req.params.requestedResourceUri, function(err, requestedResource){
-                if(!err)
+            InformationElement.findByUri(req.params.requestedResourceUri, function (err, requestedResource)
+            {
+                if (!err)
                 {
-                    if(!isNull(requestedResource))
+                    if (!isNull(requestedResource))
                     {
-                        requestedResource.findMetadataRecursive(function(err, result){
-                            if(isNull(err))
+                        requestedResource.findMetadataRecursive(function (err, result)
+                        {
+                            if (isNull(err))
                             {
-                                const accept = req.header('Accept');
+                                const accept = req.header("Accept");
                                 let serializer = null;
                                 let contentType = null;
-                                if(isNull(accept) || accept in Config.metadataSerializers === false)
+                                if (isNull(accept) || accept in Config.metadataSerializers === false)
                                 {
                                     serializer = Config.defaultMetadataSerializer;
                                     contentType = Config.defaultMetadataContentType;
                                 }
-                                else{
+                                else
+                                {
                                     serializer = Config.metadataSerializers[accept];
                                     contentType = Config.metadataContentTypes[accept];
                                 }
@@ -141,13 +148,13 @@ exports.show = function(req, res) {
 
                                 res.set("Content-Type", contentType);
                                 res.set("Content-disposition", "attachment; filename=\"" + requestedResource.nie.title + "\"");
-                                
-                                res.send(serializer(result));
 
+                                res.send(serializer(result));
                             }
-                            else{
+                            else
+                            {
                                 res.status(500).json({
-                                    error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+                                    error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                                 });
                             }
                         }, true);
@@ -156,8 +163,8 @@ exports.show = function(req, res) {
                     {
                         res.status(404).json({
                             result: "error",
-                            message : "Resource " + req.params.requestedResourceUri + " not found.",
-                            error : requestedResource
+                            message: "Resource " + req.params.requestedResourceUri + " not found.",
+                            error: requestedResource
                         });
                     }
                 }
@@ -165,7 +172,7 @@ exports.show = function(req, res) {
                 {
                     res.status(400).json({
                         result: "error",
-                        message : "This is not the root of a project"
+                        message: "This is not the root of a project"
                     });
                 }
             });
@@ -173,60 +180,63 @@ exports.show = function(req, res) {
     }
 };
 
-exports.show_parent = function(req, res) {
+exports.show_parent = function (req, res)
+{
     const acceptsHTML = req.accepts("html");
     let acceptsJSON = req.accepts("json");
 
-    if(!acceptsJSON && acceptsHTML)
+    if (!acceptsJSON && acceptsHTML)
     {
         res.status(400).json({
             result: "error",
-            message : "HTML Request not valid for this route."
+            message: "HTML Request not valid for this route."
         });
     }
     else
     {
         const requestedResourceURI = req.params.requestedResourceUri;
-        InformationElement.findByUri(requestedResourceURI, function(err, ie){
-            if(isNull(err))
+        InformationElement.findByUri(requestedResourceURI, function (err, ie)
+        {
+            if (isNull(err))
             {
-                if(!isNull(ie))
+                if (!isNull(ie))
                 {
-                    ie.getParent(function(err, parent){
-                        if(isNull(err))
+                    ie.getParent(function (err, parent)
+                    {
+                        if (isNull(err))
                         {
-                            if(!isNull(parent) && parent instanceof Object)
+                            if (!isNull(parent) && parent instanceof Object)
                             {
                                 const descriptors = parent.getDescriptors([Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
 
-                                if(!isNull(descriptors) && descriptors instanceof Array)
+                                if (!isNull(descriptors) && descriptors instanceof Array)
                                 {
                                     res.json({
-                                        result : "ok",
-                                        descriptors : descriptors
+                                        result: "ok",
+                                        descriptors: descriptors
                                     });
                                 }
                                 else
                                 {
                                     res.status(500).json({
-                                        error_messages : [descriptors]
+                                        error_messages: [descriptors]
                                     });
                                 }
                             }
                             else
                             {
                                 res.status(404).json({
-                                    result : "error",
-                                    message : "Unable to retrieve parent of " + requestedResourceURI + " .",
-                                    error : parent
+                                    result: "error",
+                                    message: "Unable to retrieve parent of " + requestedResourceURI + " .",
+                                    error: parent
                                 });
                             }
                         }
                         else
                         {
                             res.status(500).json({
-                                result : "error",
-                                message : "Error retrieving resource " + requestedResourceURI + " . Error reported " + parent
+                                result: "error",
+                                message: "Error retrieving resource " + requestedResourceURI + " . Error reported " + parent
                             });
                         }
                     });
@@ -234,42 +244,44 @@ exports.show_parent = function(req, res) {
                 else
                 {
                     res.status(404).json({
-                        result : "error",
-                        message : "Unable to retrieve resource " + requestedResourceURI + " ."
+                        result: "error",
+                        message: "Unable to retrieve resource " + requestedResourceURI + " ."
                     });
                 }
             }
             else
             {
                 res.status(500).json({
-                    result : "error",
-                    message : "Unable to get metadata for " + requestedResourceURI
+                    result: "error",
+                    message: "Unable to get metadata for " + requestedResourceURI
                 });
             }
         });
     }
 };
 
-exports.update = function(req, res) {
+exports.update = function (req, res)
+{
     const acceptsHTML = req.accepts("html");
     let acceptsJSON = req.accepts("json");
 
-    if(!acceptsJSON && acceptsHTML)
+    if (!acceptsJSON && acceptsHTML)
     {
         res.status(400).json({
             result: "error",
-            message : "HTML Request not valid for this route."
+            message: "HTML Request not valid for this route."
         });
     }
     else
     {
         const requestedResourceURI = req.params.requestedResourceUri;
         async.waterfall([
-            function(callback) {
-                //Look for the InformationElement
-                InformationElement.findByUri(requestedResourceURI, function(err, resource)
+            function (callback)
+            {
+                // Look for the InformationElement
+                InformationElement.findByUri(requestedResourceURI, function (err, resource)
                 {
-                    if(isNull(err))
+                    if (isNull(err))
                     {
                         callback(err, resource);
                     }
@@ -284,10 +296,11 @@ exports.update = function(req, res) {
                     }
                 });
             },
-            function (resource, callback) {
+            function (resource, callback)
+            {
                 const descriptors = [];
 
-                if(req.body instanceof Array)
+                if (req.body instanceof Array)
                 {
                     for (let i = 0; i < req.body.length; i++)
                     {
@@ -312,7 +325,7 @@ exports.update = function(req, res) {
                         }
                         else
                         {
-                            //prevent changes on non-public/non-changeable descriptors
+                            // prevent changes on non-public/non-changeable descriptors
                             if (!descriptor.private && !descriptor.locked)
                             {
                                 descriptors.push(descriptor);
@@ -320,9 +333,9 @@ exports.update = function(req, res) {
                         }
                     }
 
-                    Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
+                    Descriptor.mergeDescriptors(descriptors, function (err, fusedDescriptors)
                     {
-                        if(isNull(err))
+                        if (isNull(err))
                         {
                             callback(null, resource, fusedDescriptors);
                         }
@@ -347,31 +360,31 @@ exports.update = function(req, res) {
                     callback(newError, resource);
                 }
             },
-            function(resource, fusedDescriptors, callback)
+            function (resource, fusedDescriptors, callback)
             {
                 let changeAuthor;
-                if(!isNull(req.user))
+                if (!isNull(req.user))
                 {
                     changeAuthor = req.user.uri;
                 }
 
                 resource.replaceDescriptors(fusedDescriptors, [Elements.access_types.locked, Elements.access_types.private], []);
 
-                resource.save(function(err, updatedResource)
+                resource.save(function (err, updatedResource)
                 {
-                    if(isNull(err))
+                    if (isNull(err))
                     {
-                        updatedResource.reindex(req.index, function(err, result)
+                        updatedResource.reindex(req.index, function (err, result)
                         {
-                            if(isNull(err))
+                            if (isNull(err))
                             {
                                 callback(err, resource);
                             }
                             else
                             {
                                 res.status(500).json({
-                                    result : "Error",
-                                    message : "Error updating resource : unable to reindex new values. Error reported : " + result
+                                    result: "Error",
+                                    message: "Error updating resource : unable to reindex new values. Error reported : " + result
                                 });
                             }
                         });
@@ -380,15 +393,17 @@ exports.update = function(req, res) {
                     {
                         res.status(500).json({
                             result: "Error saving new record",
-                            message : updatedResource
-                        })
+                            message: updatedResource
+                        });
                     }
                 }, true, changeAuthor, [Elements.access_types.locked], [], [Elements.access_types.audit]);
             },
-            function(resource, callback) {
-                //Look for the project
-                resource.getOwnerProject(function (err, project) {
-                    if(isNull(err))
+            function (resource, callback)
+            {
+                // Look for the project
+                resource.getOwnerProject(function (err, project)
+                {
+                    if (isNull(err))
                     {
                         callback(err, resource, project);
                     }
@@ -403,12 +418,13 @@ exports.update = function(req, res) {
                     }
                 });
             },
-            function (resource, project, callback) {
-                resource.getLatestArchivedVersion(function(err, latestArchivedVersion)
+            function (resource, project, callback)
+            {
+                resource.getLatestArchivedVersion(function (err, latestArchivedVersion)
                 {
-                    if(isNull(err))
+                    if (isNull(err))
                     {
-                        if(!isNull(latestArchivedVersion))
+                        if (!isNull(latestArchivedVersion))
                         {
                             callback(err, resource, project, latestArchivedVersion);
                         }
@@ -465,19 +481,19 @@ exports.update = function(req, res) {
                         };
                         callback(newError, post);
                     }
-                })
+                });
             },
-            function(resource, callback)
+            function (resource, callback)
             {
-                //Refresh metadata evaluation
-                require(Pathfinder.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
+                // Refresh metadata evaluation
+                require(Pathfinder.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function (err, evaluation)
                 {
-                    if(isNull(err))
+                    if (isNull(err))
                     {
                         resource.ddr.metadataQuality = evaluation.evaluation;
                         resource.save(function (err, result)
                         {
-                            if(isNull(err))
+                            if (isNull(err))
                             {
                                 callback(err, evaluation);
                             }
@@ -501,12 +517,11 @@ exports.update = function(req, res) {
                         };
                         callback(newError, result);
                     }
-
                 });
             }
-        ],function(err, evaluation)
+        ], function (err, evaluation)
         {
-            if(isNull(err))
+            if (isNull(err))
             {
                 res.json({
                     result: "OK",
@@ -517,13 +532,13 @@ exports.update = function(req, res) {
             else
             {
                 res.status(err.statusCode).json({
-                    result : "Error",
-                    message : err.message
+                    result: "Error",
+                    message: err.message
                 });
             }
         });
 
-        /*InformationElement.findByUri(requestedResourceURI, function(err, resource)
+    /* InformationElement.findByUri(requestedResourceURI, function(err, resource)
         {
             if(isNull(err))
             {
@@ -676,33 +691,34 @@ exports.update = function(req, res) {
                     message : error
                 });
             }
-        });*/
+        }); */
     }
 };
 
-exports.show_version = function(req, res) {
+exports.show_version = function (req, res)
+{
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    if(!acceptsJSON && acceptsHTML)
+    if (!acceptsJSON && acceptsHTML)
     {
         res.status(400).json({
             result: "error",
-            message : "HTML Request not valid for this route."
+            message: "HTML Request not valid for this route."
         });
     }
     else
     {
         const requestedResourceURI = req.params.requestedResourceUri;
 
-        const sendResponse  = function(version)
+        const sendResponse = function (version)
         {
             if (!isNull(version))
             {
                 version.getDetailedInformation(
-                    function(err, archivedVersionWithDetails)
+                    function (err, archivedVersionWithDetails)
                     {
-                        if(!err)
+                        if (!err)
                         {
                             res.json(archivedVersionWithDetails);
                         }
@@ -729,14 +745,14 @@ exports.show_version = function(req, res) {
             }
         };
 
-        if(isNull(req.query.version))
+        if (isNull(req.query.version))
         {
-            //console.log("TAS QUASE " + requestedResourceURI)
+            // console.log("TAS QUASE " + requestedResourceURI)
             ArchivedResource.findByUri(requestedResourceURI, function (err, version)
             {
                 if (isNull(err))
                 {
-                    //console.log("JA FOSTE " + requestedResourceURI)
+                    // console.log("JA FOSTE " + requestedResourceURI)
                     sendResponse(version);
                 }
                 else
@@ -753,9 +769,10 @@ exports.show_version = function(req, res) {
         else
         {
             let requestedVersion;
-            try{
+            try
+            {
                 requestedVersion = parseInt(req.query.version);
-                if(isNaN(requestedVersion))
+                if (isNaN(requestedVersion))
                 {
                     throw "Invalid Integer";
                 }
@@ -777,7 +794,7 @@ exports.show_version = function(req, res) {
                     }
                 });
             }
-            catch(e)
+            catch (e)
             {
                 return res.status(405).json({
                     result: "error",
@@ -788,40 +805,42 @@ exports.show_version = function(req, res) {
     }
 };
 
-exports.restore_metadata_version = function(req, res) {
+exports.restore_metadata_version = function (req, res)
+{
     const acceptsHTML = req.accepts("html");
     let acceptsJSON = req.accepts("json");
 
-    if(!acceptsJSON && acceptsHTML)
+    if (!acceptsJSON && acceptsHTML)
     {
         res.status(400).json({
             result: "error",
-            message : "HTML Request not valid for this route."
-        })
+            message: "HTML Request not valid for this route."
+        });
     }
     else
     {
         const requestedResourceURI = req.params.requestedResourceUri;
         const requestedVersion = req.body.version;
 
-        Resource.findByUri(requestedResourceURI, function(err, resource)
+        Resource.findByUri(requestedResourceURI, function (err, resource)
         {
-            if(isNull(err))
+            if (isNull(err))
             {
-                //if resource exists
-                if(!isNull(resource))
+                // if resource exists
+                if (!isNull(resource))
                 {
-                    if(!isNull(requestedVersion) && typeof requestedVersion === 'number' && requestedVersion%1 === 0)
+                    if (!isNull(requestedVersion) && typeof requestedVersion === "number" && requestedVersion % 1 === 0)
                     {
-                        ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
-                            if(isNull(err))
+                        ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function (err, version)
+                        {
+                            if (isNull(err))
                             {
-                                if(!isNull(version))
+                                if (!isNull(version))
                                 {
                                     const user = req.user;
                                     let userUri;
 
-                                    if(user)
+                                    if (user)
                                     {
                                         userUri = user.uri;
                                     }
@@ -830,12 +849,13 @@ exports.restore_metadata_version = function(req, res) {
                                         userUri = null;
                                     }
 
-                                    resource.restoreFromArchivedVersion(version, function(err, result){
-                                        if(isNull(err))
+                                    resource.restoreFromArchivedVersion(version, function (err, result)
+                                    {
+                                        if (isNull(err))
                                         {
                                             res.status(200).json({
-                                                result : "OK",
-                                                message : "Resource " + requestedResourceURI + " succesfully restored to version " + requestedVersion
+                                                result: "OK",
+                                                message: "Resource " + requestedResourceURI + " succesfully restored to version " + requestedVersion
                                             });
                                         }
                                         else
@@ -843,50 +863,50 @@ exports.restore_metadata_version = function(req, res) {
                                             const error = "Error restoring version  " + requestedVersion + "  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(result);
                                             console.error(error);
                                             res.status(500).json({
-                                                result : "Error",
-                                                message : error
+                                                result: "Error",
+                                                message: error
                                             });
                                         }
                                     }, userUri);
                                 }
                                 else
                                 {
-                                    const error = "Version  " + requestedVersion +"  of resource : " + requestedResourceURI + " does not exist.";
+                                    const error = "Version  " + requestedVersion + "  of resource : " + requestedResourceURI + " does not exist.";
                                     console.error(error);
                                     res.status(404).json({
-                                        result : "Not Found",
-                                        message : error
+                                        result: "Not Found",
+                                        message: error
                                     });
                                 }
                             }
                             else
                             {
-                                const error = "Unable to retrieve version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(resource);
+                                const error = "Unable to retrieve version  " + requestedVersion + "  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(resource);
                                 console.error(error);
                                 res.status(500).json({
-                                    result : "Error",
-                                    message : error
+                                    result: "Error",
+                                    message: error
                                 });
                             }
                         });
                     }
                     else
                     {
-                        const error = "Unable to retrieve version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". " + requestedVersion + " is not a valid integer and version number, which ranges from 0 to +inf";
+                        const error = "Unable to retrieve version  " + requestedVersion + "  of resource : " + requestedResourceURI + ". " + requestedVersion + " is not a valid integer and version number, which ranges from 0 to +inf";
                         console.error(error);
                         res.status(405).json({
-                            result : "Error",
-                            message : error
+                            result: "Error",
+                            message: error
                         });
                     }
                 }
                 else
                 {
-                    const error = "Unable to retrieve version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(resource);
+                    const error = "Unable to retrieve version  " + requestedVersion + "  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(resource);
                     console.error(error);
                     res.status(500).json({
-                        result : "Error",
-                        message : error
+                        result: "Error",
+                        message: error
                     });
                 }
             }
@@ -895,13 +915,10 @@ exports.restore_metadata_version = function(req, res) {
                 const error = "Unable to retrieve resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + resource;
                 console.error(error);
                 res.status(500).json({
-                    result : "Error",
-                    message : error
+                    result: "Error",
+                    message: error
                 });
             }
         });
     }
 };
-
-
-

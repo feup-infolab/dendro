@@ -12,19 +12,23 @@ const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendatio
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
 const async = require("async");
-const needle = require('needle');
+const needle = require("needle");
 const _ = require("underscore");
 
-const addOntologyToListOfActiveOntologiesInSession = function (ontology, req) {
-    if (isNull(req.user.recommendations)) {
+const addOntologyToListOfActiveOntologiesInSession = function (ontology, req)
+{
+    if (isNull(req.user.recommendations))
+    {
         req.user.recommendations = {};
     }
 
-    if (isNull(req.user.recommendations.ontologies)) {
+    if (isNull(req.user.recommendations.ontologies))
+    {
         req.user.recommendations.ontologies = {};
     }
 
-    if (isNull(req.user.recommendations.ontologies.accepted)) {
+    if (isNull(req.user.recommendations.ontologies.accepted))
+    {
         req.user.recommendations.ontologies.accepted = {};
     }
 
@@ -33,68 +37,86 @@ const addOntologyToListOfActiveOntologiesInSession = function (ontology, req) {
     return req;
 };
 
-
-//TODO resource has to be generic, and project has to be the project of the currently selected resource
-const recordInteractionOverAResource = function (user, resource, req, res) {
-    if (!isNull(user) && !isNull(resource.uri)) {
-        if (!isNull(resource.recommendedFor) && typeof resource.recommendedFor === "string") {
-            InformationElement.findByUri(resource.recommendedFor, function(err, ie){
-                if(!err)
+// TODO resource has to be generic, and project has to be the project of the currently selected resource
+const recordInteractionOverAResource = function (user, resource, req, res)
+{
+    if (!isNull(user) && !isNull(resource.uri))
+    {
+        if (!isNull(resource.recommendedFor) && typeof resource.recommendedFor === "string")
+        {
+            InformationElement.findByUri(resource.recommendedFor, function (err, ie)
+            {
+                if (!err)
                 {
-                    if(!isNull(ie))
+                    if (!isNull(ie))
                     {
-                        ie.getOwnerProject(function(err, project){
-                            if (isNull(err)) {
-                                if (!isNull(project)) {
-                                    project.getCreatorsAndContributors(function (err, contributors) {
-                                        if (isNull(err) && !isNull(contributors) && contributors instanceof Array) {
-                                            for (let i = 0; i < contributors.length; i++) {
-                                                if (contributors[i].uri === user.uri) {
-                                                    Interaction.create({
-                                                        ddr: {
-                                                            performedBy: user.uri,
-                                                            interactionType: req.body.interactionType,
-                                                            executedOver: resource.uri,
-                                                            originallyRecommendedFor: req.body.recommendedFor,
-                                                            rankingPosition: req.body.rankingPosition,
-                                                            pageNumber: req.body.pageNumber,
-                                                            recommendationCallId: req.body.recommendationCallId,
-                                                            recommendationCallTimeStamp: req.body.recommendationCallTimeStamp
-                                                        }
-                                                    }, function (err, interaction) {
-                                                        interaction.save(
-                                                            function (err, result) {
-                                                                if (isNull(err)) {
-                                                                    interaction.saveToMySQL(function (err, result) {
-                                                                        if (isNull(err)) {
-                                                                            const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
-                                                                            console.log(msg);
-                                                                            return res.json({
-                                                                                result: "OK",
-                                                                                message: msg
-                                                                            });
-                                                                        }
-                                                                        else {
-                                                                            const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
-                                                                            console.log(msg);
-                                                                            return res.json({
-                                                                                result: "OK",
-                                                                                message: msg
-                                                                            });
-                                                                        }
-                                                                    });
-                                                                }
-                                                                else {
-                                                                    const msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
-                                                                    console.error(msg);
-                                                                    return res.status(500).json({
-                                                                        result: "Error",
+                        ie.getOwnerProject(function (err, project)
+                        {
+                            if (isNull(err))
+                            {
+                                if (!isNull(project))
+                                {
+                                    project.getCreatorsAndContributors(function (err, contributors)
+                                    {
+                                        if (isNull(err) && !isNull(contributors) && contributors instanceof Array)
+                                        {
+                                            const createInteraction = function ()
+                                            {
+                                                Interaction.create({
+                                                    ddr: {
+                                                        performedBy: user.uri,
+                                                        interactionType: req.body.interactionType,
+                                                        executedOver: resource.uri,
+                                                        originallyRecommendedFor: req.body.recommendedFor,
+                                                        rankingPosition: req.body.rankingPosition,
+                                                        pageNumber: req.body.pageNumber,
+                                                        recommendationCallId: req.body.recommendationCallId,
+                                                        recommendationCallTimeStamp: req.body.recommendationCallTimeStamp
+                                                    }
+                                                }, function (err, interaction)
+                                                {
+                                                    interaction.save(
+                                                        function (err, result)
+                                                        {
+                                                            if (isNull(err))
+                                                            {
+                                                                interaction.saveToMySQL(function (err, result)
+                                                                {
+                                                                    if (isNull(err))
+                                                                    {
+                                                                        const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
+                                                                        console.log(msg);
+                                                                        return res.json({
+                                                                            result: "OK",
+                                                                            message: msg
+                                                                        });
+                                                                    }
+                                                                    const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
+                                                                    console.log(msg);
+                                                                    return res.json({
+                                                                        result: "OK",
                                                                         message: msg
                                                                     });
-                                                                }
-                                                            });
-                                                    });
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                const msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
+                                                                console.error(msg);
+                                                                return res.status(500).json({
+                                                                    result: "Error",
+                                                                    message: msg
+                                                                });
+                                                            }
+                                                        });
+                                                });
+                                            };
 
+                                            for (let i = 0; i < contributors.length; i++)
+                                            {
+                                                if (contributors[i].uri === user.uri)
+                                                {
+                                                    createInteraction();
                                                     return;
                                                 }
                                             }
@@ -106,7 +128,8 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                                                 message: msg
                                             });
                                         }
-                                        else {
+                                        else
+                                        {
                                             const msg = "Unable to retrieve creators and contributors of parent project " + project.uri + " of resource " + resource.uri;
                                             console.error(msg);
                                             res.status(500).json({
@@ -117,7 +140,8 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                                     });
                                 }
                             }
-                            else {
+                            else
+                            {
                                 const msg = "Unable to retrieve parent project of resource " + resource.uri;
                                 console.error(msg);
                                 res.status(404).json({
@@ -137,7 +161,6 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                             message: msg
                         });
                     }
-
                 }
                 else
                 {
@@ -151,7 +174,8 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                 }
             });
         }
-        else {
+        else
+        {
             const msg = "Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.";
             console.error(JSON.stringify(resource));
             console.error(msg);
@@ -161,7 +185,8 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
             });
         }
     }
-    else {
+    else
+    {
         const msg = "Error recording interaction over resource " + resource.uri + " : No user is currently authenticated!";
         console.error(msg);
         res.status(500).json({
@@ -171,16 +196,17 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
     }
 };
 
-exports.accept_descriptor_from_quick_list = function(req, res) {
-    if(req.body instanceof Object)
+exports.accept_descriptor_from_quick_list = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list.key)
+        if (req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -195,7 +221,7 @@ exports.accept_descriptor_from_quick_list = function(req, res) {
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -209,22 +235,23 @@ exports.accept_descriptor_from_quick_list = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_descriptor_from_manual_list = function(req, res) {
-    if(req.body instanceof Object)
+exports.accept_descriptor_from_manual_list = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list.key)
+        if (req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -239,7 +266,7 @@ exports.accept_descriptor_from_manual_list = function(req, res) {
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -253,22 +280,23 @@ exports.accept_descriptor_from_manual_list = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_descriptor_from_manual_list_while_it_was_a_project_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.accept_descriptor_from_manual_list_while_it_was_a_project_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_project_favorite.key)
+        if (req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_project_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -283,7 +311,7 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_project_favorite = fun
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -297,22 +325,23 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_project_favorite = fun
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_descriptor_from_manual_list_while_it_was_a_user_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.accept_descriptor_from_manual_list_while_it_was_a_user_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_user_favorite.key)
+        if (req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_user_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -327,7 +356,7 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_user_favorite = functi
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -341,22 +370,23 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_user_favorite = functi
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite.key)
+        if (req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -371,7 +401,7 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favor
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -385,22 +415,23 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favor
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_descriptor_from_quick_list_while_it_was_a_project_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.accept_descriptor_from_quick_list_while_it_was_a_project_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_project_favorite.key)
+        if (req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_project_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -415,7 +446,7 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_project_favorite = func
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -429,22 +460,23 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_project_favorite = func
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting descriptor from quick list while ie was a project favorite. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting descriptor from quick list while ie was a project favorite. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_descriptor_from_quick_list_while_it_was_a_user_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.accept_descriptor_from_quick_list_while_it_was_a_user_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_user_favorite.key)
+        if (req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_user_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -459,7 +491,7 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_user_favorite = functio
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -473,22 +505,23 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_user_favorite = functio
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting descriptor from quick list while ie was a user favorite. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting descriptor from quick list while ie was a user favorite. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite.key)
+        if (req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -503,7 +536,7 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favori
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -517,23 +550,23 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favori
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting descriptor from quick list while ie was a user and project favorite. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting descriptor from quick list while ie was a user and project favorite. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.hide_descriptor_from_quick_list_for_project = function(req, res) {
-    if(req.body instanceof Object)
+exports.hide_descriptor_from_quick_list_for_project = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.hide_descriptor_from_quick_list_for_project.key)
+        if (req.body.interactionType === Interaction.types.hide_descriptor_from_quick_list_for_project.key)
         {
-
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -542,7 +575,7 @@ exports.hide_descriptor_from_quick_list_for_project = function(req, res) {
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -556,23 +589,23 @@ exports.hide_descriptor_from_quick_list_for_project = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when hiding descriptor. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when hiding descriptor. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.unhide_descriptor_from_quick_list_for_project = function(req, res) {
-    if(req.body instanceof Object)
+exports.unhide_descriptor_from_quick_list_for_project = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.unhide_descriptor_from_quick_list_for_project.key)
+        if (req.body.interactionType === Interaction.types.unhide_descriptor_from_quick_list_for_project.key)
         {
-
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -581,7 +614,7 @@ exports.unhide_descriptor_from_quick_list_for_project = function(req, res) {
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -595,23 +628,23 @@ exports.unhide_descriptor_from_quick_list_for_project = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when unhiding descriptor. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when unhiding descriptor. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.hide_descriptor_from_quick_list_for_user = function(req, res) {
-    if(req.body instanceof Object)
+exports.hide_descriptor_from_quick_list_for_user = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.hide_descriptor_from_quick_list_for_user.key)
+        if (req.body.interactionType === Interaction.types.hide_descriptor_from_quick_list_for_user.key)
         {
-
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -620,7 +653,7 @@ exports.hide_descriptor_from_quick_list_for_user = function(req, res) {
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -634,23 +667,23 @@ exports.hide_descriptor_from_quick_list_for_user = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when hiding descriptor. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when hiding descriptor. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.unhide_descriptor_from_quick_list_for_user = function(req, res) {
-    if(req.body instanceof Object)
+exports.unhide_descriptor_from_quick_list_for_user = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.unhide_descriptor_from_quick_list_for_user.key)
+        if (req.body.interactionType === Interaction.types.unhide_descriptor_from_quick_list_for_user.key)
         {
-
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -659,7 +692,7 @@ exports.unhide_descriptor_from_quick_list_for_user = function(req, res) {
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -673,22 +706,23 @@ exports.unhide_descriptor_from_quick_list_for_user = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when unhiding descriptor. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when unhiding descriptor. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.favorite_descriptor_from_quick_list_for_project = function(req, res) {
-    if(req.body instanceof Object)
+exports.favorite_descriptor_from_quick_list_for_project = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.favorite_descriptor_from_quick_list_for_project.key)
+        if (req.body.interactionType === Interaction.types.favorite_descriptor_from_quick_list_for_project.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -711,22 +745,23 @@ exports.favorite_descriptor_from_quick_list_for_project = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.favorite_descriptor_from_quick_list_for_user = function(req, res) {
-    if(req.body instanceof Object)
+exports.favorite_descriptor_from_quick_list_for_user = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.favorite_descriptor_from_quick_list_for_user.key)
+        if (req.body.interactionType === Interaction.types.favorite_descriptor_from_quick_list_for_user.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -749,22 +784,23 @@ exports.favorite_descriptor_from_quick_list_for_user = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.unfavorite_descriptor_from_quick_list_for_project = function(req, res) {
-    if(req.body instanceof Object)
+exports.unfavorite_descriptor_from_quick_list_for_project = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key)
+        if (req.body.interactionType === Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -787,22 +823,23 @@ exports.unfavorite_descriptor_from_quick_list_for_project = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.unfavorite_descriptor_from_quick_list_for_user = function(req, res) {
-    if(req.body instanceof Object)
+exports.unfavorite_descriptor_from_quick_list_for_user = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key)
+        if (req.body.interactionType === Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -825,16 +862,17 @@ exports.unfavorite_descriptor_from_quick_list_for_user = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_descriptor_from_autocomplete = function(req, res) {
-    if(req.body instanceof Object)
+exports.accept_descriptor_from_autocomplete = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_descriptor_from_autocomplete.key)
+        if (req.body.interactionType === Interaction.types.accept_descriptor_from_autocomplete.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
@@ -869,29 +907,29 @@ exports.accept_descriptor_from_autocomplete = function(req, res) {
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_smart_descriptor_in_metadata_editor = function(req, res)
+exports.accept_smart_descriptor_in_metadata_editor = function (req, res)
 {
-    if(req.body instanceof Object)
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_smart_descriptor_in_metadata_editor.key)
+        if (req.body.interactionType === Interaction.types.accept_smart_descriptor_in_metadata_editor.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
                 });
 
-                //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
+                // req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -914,29 +952,29 @@ exports.accept_smart_descriptor_in_metadata_editor = function(req, res)
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting descriptor in metadata editor area. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting descriptor in metadata editor area. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.accept_favorite_descriptor_in_metadata_editor = function(req, res)
+exports.accept_favorite_descriptor_in_metadata_editor = function (req, res)
 {
-    if(req.body instanceof Object)
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.accept_favorite_descriptor_in_metadata_editor.key)
+        if (req.body.interactionType === Interaction.types.accept_favorite_descriptor_in_metadata_editor.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
                 });
 
-                //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
+                // req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -959,29 +997,29 @@ exports.accept_favorite_descriptor_in_metadata_editor = function(req, res)
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting favorite descriptor in metadata editor area. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting favorite descriptor in metadata editor area. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.delete_descriptor_in_metadata_editor = function(req, res)
+exports.delete_descriptor_in_metadata_editor = function (req, res)
 {
-    if(req.body instanceof Object)
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.delete_descriptor_in_metadata_editor.key)
+        if (req.body.interactionType === Interaction.types.delete_descriptor_in_metadata_editor.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
                 });
 
-                //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
+                // req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -1004,29 +1042,29 @@ exports.delete_descriptor_in_metadata_editor = function(req, res)
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when deleting descriptor in metadata editor area. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when deleting descriptor in metadata editor area. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.fill_in_descriptor_from_manual_list_in_metadata_editor = function(req, res)
+exports.fill_in_descriptor_from_manual_list_in_metadata_editor = function (req, res)
 {
-    if(req.body instanceof Object)
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_in_metadata_editor.key)
+        if (req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_in_metadata_editor.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
                 });
 
-                //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
+                // req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -1049,22 +1087,23 @@ exports.fill_in_descriptor_from_manual_list_in_metadata_editor = function(req, r
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when filling in descriptor from manual list in metadata editor area. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when filling in descriptor from manual list in metadata editor area. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite.key)
+        if (req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -1079,7 +1118,7 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite = fu
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -1093,22 +1132,23 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite = fu
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite.key)
+        if (req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -1123,7 +1163,7 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite = funct
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -1137,22 +1177,23 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite = funct
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite.key)
+        if (req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -1167,7 +1208,7 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favo
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -1181,28 +1222,29 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favo
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.fill_in_descriptor_from_quick_list_in_metadata_editor = function(req, res) {
-    if(req.body instanceof Object)
+exports.fill_in_descriptor_from_quick_list_in_metadata_editor = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_in_metadata_editor.key)
+        if (req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_in_metadata_editor.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
                 });
 
-                //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
+                // req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
                 recordInteractionOverAResource(req.user, req.body, req, res);
             }
@@ -1225,22 +1267,23 @@ exports.fill_in_descriptor_from_quick_list_in_metadata_editor = function(req, re
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when filling in descriptor from quick list metadata editor area. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when filling in descriptor from quick list metadata editor area. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite.key)
+        if (req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -1255,7 +1298,7 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite = fun
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -1269,22 +1312,23 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite = fun
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when filling in descriptor from quick list while it was a project favorite. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when filling in descriptor from quick list while it was a project favorite. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite.key)
+        if (req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -1299,7 +1343,7 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite = functi
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -1313,22 +1357,23 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite = functi
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when filling in descriptor from quick list while it was a user favorite. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when filling in descriptor from quick list while it was a user favorite. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite = function(req, res) {
-    if(req.body instanceof Object)
+exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite = function (req, res)
+{
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite.key)
+        if (req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite.key)
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
-            if(descriptor instanceof Descriptor)
+            if (descriptor instanceof Descriptor)
             {
                 const ontology = new Ontology({
                     uri: descriptor.ontology
@@ -1343,7 +1388,7 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favor
                 res.status(500).json({
                     result: "Error",
                     message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                })
+                });
             }
         }
         else
@@ -1357,19 +1402,19 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favor
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when filling in descriptor from quick list while it was a user and project favorite. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when filling in descriptor from quick list while it was a user and project favorite. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.select_ontology_manually = function(req, res)
+exports.select_ontology_manually = function (req, res)
 {
-    if(req.body instanceof Object)
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.select_ontology_manually.key)
+        if (req.body.interactionType === Interaction.types.select_ontology_manually.key)
         {
-            if(!isNull(req.user))
+            if (!isNull(req.user))
             {
                 const ontology = new Ontology({
                     uri: req.body.uri
@@ -1391,17 +1436,17 @@ exports.select_ontology_manually = function(req, res)
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.select_descriptor_manually = function(req, res)
+exports.select_descriptor_manually = function (req, res)
 {
-    if(req.body instanceof Object)
+    if (req.body instanceof Object)
     {
-        if(typeof req.body.interactionType === Interaction.types.select_descriptor_from_manual_list.key)
+        if (typeof req.body.interactionType === Interaction.types.select_descriptor_from_manual_list.key)
         {
             if (!isNull(req.user))
             {
@@ -1423,33 +1468,33 @@ exports.select_descriptor_manually = function(req, res)
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting a descriptor manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting a descriptor manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.reject_ontology_from_quick_list = function(req, res)
+exports.reject_ontology_from_quick_list = function (req, res)
 {
-    if(req.body instanceof Object)
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.reject_ontology_from_quick_list.key)
+        if (req.body.interactionType === Interaction.types.reject_ontology_from_quick_list.key)
         {
-            if(!isNull(req.user))
+            if (!isNull(req.user))
             {
                 const ontology = new Ontology({
                     uri: req.body.uri
                 });
 
-                if(!isNull(req.user.recommendations.ontologies.accepted))
+                if (!isNull(req.user.recommendations.ontologies.accepted))
                 {
                     delete req.user.recommendations.ontologies.accepted[ontology.prefix];
 
                     recordInteractionOverAResource(req.user, req.body, req, res);
 
                     res.json({
-                        result : "OK",
-                        message : "Ontology " + ontology.uri + " removed successfully"
+                        result: "OK",
+                        message: "Ontology " + ontology.uri + " removed successfully"
                     });
                 }
             }
@@ -1465,17 +1510,17 @@ exports.reject_ontology_from_quick_list = function(req, res)
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON"
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON"
         });
     }
 };
 
-exports.fill_in_inherited_descriptor = function(req, res)
+exports.fill_in_inherited_descriptor = function (req, res)
 {
-    if(req.body instanceof Object)
+    if (req.body instanceof Object)
     {
-        if(req.body.interactionType === Interaction.types.fill_in_inherited_descriptor.key)
+        if (req.body.interactionType === Interaction.types.fill_in_inherited_descriptor.key)
         {
             if (!isNull(req.user))
             {
@@ -1497,27 +1542,28 @@ exports.fill_in_inherited_descriptor = function(req, res)
     else
     {
         res.status(500).json({
-            result : "Error",
-            message : "Invalid request. Body contents is not a valid JSON when accepting a descriptor manually. Request body is : " + JSON.stringify(req.body)
+            result: "Error",
+            message: "Invalid request. Body contents is not a valid JSON when accepting a descriptor manually. Request body is : " + JSON.stringify(req.body)
         });
     }
 };
 
-exports.delete_all_interactions = function(req, res)
+exports.delete_all_interactions = function (req, res)
 {
-    Interaction.deleteAllOfMyTypeAndTheirOutgoingTriples(function(err, result){
-        if(isNull(err))
+    Interaction.deleteAllOfMyTypeAndTheirOutgoingTriples(function (err, result)
+    {
+        if (isNull(err))
         {
             res.json({
-                result : "OK",
-                message : "All interactions successfully deleted."
+                result: "OK",
+                message: "All interactions successfully deleted."
             });
         }
         else
         {
             res.status(500).json({
-                result : "Error",
-                message : "There was an error deleting all the interactions recorded by the system : " + result
+                result: "Error",
+                message: "There was an error deleting all the interactions recorded by the system : " + result
             });
         }
     });

@@ -4,4 +4,3 @@ const ckanOrganizationData = {
 };
 
 module.exports = ckanOrganizationData;
-

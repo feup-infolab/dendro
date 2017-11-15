@@ -1,6 +1,6 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
@@ -9,22 +9,25 @@ chai.use(chaiHttp);
 
 const should = chai.should();
 
-module.exports.deleteGraphs = function (finish) {
+module.exports.deleteGraphs = function (finish)
+{
     const graphs = Object.keys(Config.db);
     const conn = Config.db.default.connection;
 
-    async.mapSeries(graphs, function(graph, cb){
-
+    async.mapSeries(graphs, function (graph, cb)
+    {
         const graphUri = Config.db[graph].graphUri;
-        conn.deleteGraph(graphUri, function(err){
-            if(err)
+        conn.deleteGraph(graphUri, function (err)
+        {
+            if (err)
             {
                 cb(err, null);
             }
             else
             {
-                conn.graphExists(graphUri, function(err, exists){
-                    if(exists)
+                conn.graphExists(graphUri, function (err, exists)
+                {
+                    if (exists)
                     {
                         cb(err, exists);
                     }
@@ -35,7 +38,7 @@ module.exports.deleteGraphs = function (finish) {
                 });
             }
         });
-    }, function(err, res)
+    }, function (err, res)
     {
         should.equal(err, null);
         finish(err, res);

@@ -1,14 +1,14 @@
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
-const enableDestroy = require('server-destroy');
+const enableDestroy = require("server-destroy");
 
-const http = require('http');
+const http = require("http");
 
-const setupServer = function(app, callback)
+const setupServer = function (app, callback)
 {
     const server = http.createServer(function (req, res)
     {
-        /*const domain = require('domain');
+    /* const domain = require('domain');
         const reqd = domain.create();
         reqd.add(req);
         reqd.add(res);
@@ -25,9 +25,9 @@ const setupServer = function(app, callback)
             }
 
             reqd.dispose();
-        });*/
+        }); */
 
-        // Pass the request to express
+    // Pass the request to express
         app(req, res);
     });
 

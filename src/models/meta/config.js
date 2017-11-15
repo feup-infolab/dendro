@@ -2,24 +2,25 @@
  * Configuration parameters
  */
 
-function Config (){}
+function Config ()
+{}
 
 const fs = require("fs");
 const path = require("path");
 const isNull = require("../../utils/null.js").isNull;
 
 const Pathfinder = global.Pathfinder;
-const Elements = require('./elements.js').Elements;
+const Elements = require("./elements.js").Elements;
 
 const configs_file_path = Pathfinder.absPathInApp("conf/deployment_configs.json");
 const active_config_file_path = Pathfinder.absPathInApp("conf/active_deployment_config.json");
 
-const configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
+const configs = JSON.parse(fs.readFileSync(configs_file_path, "utf8"));
 
 let active_config_key;
-if(process.env.NODE_ENV === 'test')
+if (process.env.NODE_ENV === "test")
 {
-    if(process.env.RUNNING_IN_JENKINS)
+    if (process.env.RUNNING_IN_JENKINS)
     {
         active_config_key = "jenkins_buildserver_test";
         console.log("[INFO] Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
@@ -32,20 +33,26 @@ if(process.env.NODE_ENV === 'test')
 }
 else
 {
-    const argv = require('yargs').argv;
+    const argv = require("yargs").argv;
 
-    if (argv.config ) {
+    if (argv.config)
+    {
         active_config_key = argv.config;
-    } else {
-        active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
+    }
+    else
+    {
+        active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, "utf8")).key;
     }
 }
 
 const active_config = configs[active_config_key];
 
-const getConfigParameter = function (parameter, defaultValue) {
-    if (isNull(active_config[parameter])) {
-        if (!isNull(defaultValue)) {
+const getConfigParameter = function (parameter, defaultValue)
+{
+    if (isNull(active_config[parameter]))
+    {
+        if (!isNull(defaultValue))
+        {
             console.error("[WARNING] Using default value " + JSON.stringify(defaultValue) + " for parameter " + parameter + " !");
             Config[parameter] = defaultValue;
             return Config[parameter];
@@ -53,7 +60,8 @@ const getConfigParameter = function (parameter, defaultValue) {
 
         throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from \'" + active_config_key + "\' configuration. Please review the deployment_configs.json file.");
     }
-    else {
+    else
+    {
         return active_config[parameter];
     }
 };
@@ -68,63 +76,60 @@ Config.eudatCommunityId = getConfigParameter("eudatCommunityId");
 Config.sendGridUser = getConfigParameter("sendGridUser");
 Config.sendGridPassword = getConfigParameter("sendGridPassword");
 
-Config.elasticSearchHost =  getConfigParameter("elasticSearchHost");
-Config.elasticSearchPort =  getConfigParameter("elasticSearchPort");
+Config.elasticSearchHost = getConfigParameter("elasticSearchHost");
+Config.elasticSearchPort = getConfigParameter("elasticSearchPort");
 
-Config.cache =  getConfigParameter("cache");
-Config.datastore =  getConfigParameter("datastore");
-Config.ontologies_cache =  getConfigParameter("ontologies_cache");
+Config.cache = getConfigParameter("cache");
+Config.datastore = getConfigParameter("datastore");
+Config.ontologies_cache = getConfigParameter("ontologies_cache");
 
-Config.virtuosoHost =  getConfigParameter("virtuosoHost");
-Config.virtuosoPort =  getConfigParameter("virtuosoPort");
-Config.virtuosoISQLPort =  getConfigParameter("virtuosoISQLPort");
-Config.virtuosoSQLLogLevel =  getConfigParameter("virtuosoSQLLogLevel");
+Config.virtuosoHost = getConfigParameter("virtuosoHost");
+Config.virtuosoPort = getConfigParameter("virtuosoPort");
+Config.virtuosoISQLPort = getConfigParameter("virtuosoISQLPort");
+Config.virtuosoSQLLogLevel = getConfigParameter("virtuosoSQLLogLevel");
 
-Config.virtuosoConnector =  function()
+Config.virtuosoConnector = (function ()
 {
     const connectorType = getConfigParameter("virtuosoConnector");
 
-    if(connectorType === "jdbc" || connectorType === "http")
+    if (connectorType === "jdbc" || connectorType === "http")
     {
         return connectorType;
     }
-    else
-    {
-        throw "Invalid Virtuoso Server connector type " + connectorType;
-    }
-}();
+    throw "Invalid Virtuoso Server connector type " + connectorType;
+}());
 
 Config.virtuosoAuth = getConfigParameter("virtuosoAuth");
 
-//maps
-Config.maps =  getConfigParameter("maps");
+// maps
+Config.maps = getConfigParameter("maps");
 
-//change log config
-Config.change_log =  parseInt(getConfigParameter("change_log"));
+// change log config
+Config.change_log = parseInt(getConfigParameter("change_log"));
 
-//mongodb cluster used for file storage
-Config.mongoDBHost =  getConfigParameter("mongoDBHost");
-Config.mongoDbPort =  getConfigParameter("mongoDbPort");
-Config.mongoDbCollectionName =  getConfigParameter("mongoDbCollectionName");
-Config.mongoDBSessionStoreCollection =  getConfigParameter("mongoDBSessionStoreCollection");
-Config.mongoDbVersion =  getConfigParameter("mongoDbVersion");
+// mongodb cluster used for file storage
+Config.mongoDBHost = getConfigParameter("mongoDBHost");
+Config.mongoDbPort = getConfigParameter("mongoDbPort");
+Config.mongoDbCollectionName = getConfigParameter("mongoDbCollectionName");
+Config.mongoDBSessionStoreCollection = getConfigParameter("mongoDBSessionStoreCollection");
+Config.mongoDbVersion = getConfigParameter("mongoDbVersion");
 Config.mongoDBAuth = getConfigParameter("mongoDBAuth");
 
-//mysql database for interaction
+// mysql database for interaction
 
-Config.mySQLHost =  getConfigParameter("mySQLHost");
-Config.mySQLPort =  getConfigParameter("mySQLPort");
+Config.mySQLHost = getConfigParameter("mySQLHost");
+Config.mySQLPort = getConfigParameter("mySQLPort");
 Config.mySQLAuth = getConfigParameter("mySQLAuth");
 Config.mySQLDBName = getConfigParameter("mySQLDBName");
 
-//file uploads and downloads
+// file uploads and downloads
 
-Config.maxUploadSize = getConfigParameter("maxUploadSize");   //1000MB®
-Config.maxProjectSize = getConfigParameter("maxProjectSize");   //10000MB®
+Config.maxUploadSize = getConfigParameter("maxUploadSize"); // 1000MB®
+Config.maxProjectSize = getConfigParameter("maxProjectSize"); // 10000MB®
 Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
 Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
 
-if(path.isAbsolute(getConfigParameter("tempFilesDir")))
+if (path.isAbsolute(getConfigParameter("tempFilesDir")))
 {
     Config.tempFilesDir = getConfigParameter("tempFilesDir");
 }
@@ -133,7 +138,7 @@ else
     Config.tempFilesDir = Pathfinder.absPathInApp(getConfigParameter("tempFilesDir"));
 }
 
-if(path.isAbsolute(getConfigParameter("tempUploadsDir")))
+if (path.isAbsolute(getConfigParameter("tempUploadsDir")))
 {
     Config.tempUploadsDir = getConfigParameter("tempUploadsDir");
 }
@@ -152,24 +157,24 @@ Config.debug = getConfigParameter("debug");
 Config.startup = getConfigParameter("startup");
 Config.baselines = getConfigParameter("baselines");
 
-//load logger options
+// load logger options
 Config.logging = getConfigParameter("logging");
 
-//load version description
+// load version description
 Config.version = getConfigParameter("version");
 
-//secrets
+// secrets
 Config.crypto = getConfigParameter("crypto");
 
-//load recommendation settings
+// load recommendation settings
 Config.recommendation = getConfigParameter("recommendation");
-Config.recommendation.getTargetTable = function()
+Config.recommendation.getTargetTable = function ()
 {
-    if(Config.recommendation.modes.dendro_recommender.log_modes.phase_1.active)
+    if (Config.recommendation.modes.dendro_recommender.log_modes.phase_1.active)
     {
         return Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
     }
-    else if(Config.recommendation.modes.dendro_recommender.log_modes.phase_2.active)
+    else if (Config.recommendation.modes.dendro_recommender.log_modes.phase_2.active)
     {
         return Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
     }
@@ -177,24 +182,47 @@ Config.recommendation.getTargetTable = function()
 
 Config.exporting = getConfigParameter("exporting");
 
-Config.cache =  getConfigParameter("cache");
+Config.cache = getConfigParameter("cache");
 
 /**
  * Database connection (s).
  * @type {{default: {baseURI: string, graphName: string, graphUri: string}}}
  */
 
-Config.getDBByID = function(DBID)
+Config.getDBByID = function (DBID)
 {
-    if(!isNull(DBID))
+    if (!isNull(DBID))
     {
-        if(!isNull(Config.db[DBID]))
+        if (!isNull(Config.db[DBID]))
         {
-            return Config.db[DBID]
+            return Config.db[DBID];
         }
-        else
+        throw new Error("Invalid DB connection ID " + DBID);
+    }
+    else
+    {
+        return Config.db.default;
+    }
+};
+
+Config.getDBByGraphUri = function (graphUri)
+{
+    if (!isNull(graphUri))
+    {
+        if (!isNull(Config.db_by_uri[graphUri]))
         {
-            throw new Error("Invalid DB connection ID " + DBID);
+            return Config.db_by_uri[graphUri];
+        }
+        for (let dbKey in Config.db)
+        {
+            if (Config.db.hasOwnProperty(dbKey))
+            {
+                if (Config.db.graphUri[graphUri] === graphUri)
+                {
+                    Config.db_by_uri[graphUri] = Config.db[dbKey];
+                    return Config.db_by_uri[graphUri];
+                }
+            }
         }
     }
     else
@@ -203,47 +231,15 @@ Config.getDBByID = function(DBID)
     }
 };
 
-Config.getDBByGraphUri = function(graphUri)
+Config.getGFSByID = function (gfsID)
 {
-   if(!isNull(graphUri))
-   {
-       if(!isNull(Config.db_by_uri[graphUri]))
-       {
-           return Config.db_by_uri[graphUri]
-       }
-       else
-       {
-           for(let dbKey in Config.db)
-           {
-               if(Config.db.hasOwnProperty(dbKey))
-               {
-                   if(Config.db.graphUri[graphUri] === graphUri)
-                   {
-                       Config.db_by_uri[graphUri] = Config.db[dbKey];
-                       return Config.db_by_uri[graphUri];
-                   }
-               }
-           }
-       }
-   }
-   else
-   {
-       return Config.db.default;
-   }
-};
-
-Config.getGFSByID = function(gfsID)
-{
-    if(!isNull(gfsID))
+    if (!isNull(gfsID))
     {
-        if(!isNull(Config.gfs[gfsID]))
+        if (!isNull(Config.gfs[gfsID]))
         {
-            return Config.gfs[gfsID]
+            return Config.gfs[gfsID];
         }
-        else
-        {
-            throw new Error("Invalid GridFS connection ID " + gfsID);
-        }
+        throw new Error("Invalid GridFS connection ID " + gfsID);
     }
     else
     {
@@ -251,24 +247,21 @@ Config.getGFSByID = function(gfsID)
     }
 };
 
-Config.getMySQLByID = function(mySQLID) {
-    if(!isNull(mySQLID))
+Config.getMySQLByID = function (mySQLID)
+{
+    if (!isNull(mySQLID))
     {
-        if(!isNull(Config.mysql[mySQLID]))
+        if (!isNull(Config.mysql[mySQLID]))
         {
-            return Config.mysql[mySQLID]
+            return Config.mysql[mySQLID];
         }
-        else
-        {
-            throw new Error("Invalid MySQL connection ID " + mySQLID);
-        }
+        throw new Error("Invalid MySQL connection ID " + mySQLID);
     }
     else
     {
         return Config.mysql.default;
     }
 };
-
 
 Config.db_by_uri = {};
 Config.mysql_by_id = {};
@@ -279,27 +272,27 @@ Config.db = {
         baseURI: "http://" + Config.host,
         graphHandle: "dendro_graph",
         graphUri: "http://" + Config.host + "/dendro_graph",
-        cache : {
+        cache: {
             id: "default",
-            type : "mongodb"
+            type: "mongodb"
         }
     },
     social: {
         baseURI: "http://" + Config.host,
         graphHandle: "social_dendro",
         graphUri: "http://" + Config.host + "/social_dendro",
-        cache : {
+        cache: {
             id: "social",
-            type : "mongodb"
+            type: "mongodb"
         }
     },
     notifications: {
         baseURI: "http://" + Config.host,
         graphHandle: "notifications_dendro",
         graphUri: "http://" + Config.host + "/notifications_dendro",
-        cache : {
+        cache: {
             id: "notifications",
-            type : "mongodb"
+            type: "mongodb"
         }
     }
 };
@@ -488,7 +481,7 @@ Config.enabledOntologies = {
         domain: "Programmes",
         domain_specific: true
     },
-    schema : {
+    schema: {
         prefix: "schema",
         uri: "http://schema.org/",
         elements: Elements.ontologies.schema,
@@ -504,10 +497,10 @@ Config.enabledOntologies = {
  */
 
 Config.dataStoreCompatibleExtensions = {
-    "xls" : 1,
-    "xlsx" : 1,
-    "csv" : 1,
-    "ods" : 1
+    xls: 1,
+    xlsx: 1,
+    csv: 1,
+    ods: 1
 };
 
 /**
@@ -515,29 +508,29 @@ Config.dataStoreCompatibleExtensions = {
  *
  */
 Config.indexableFileExtensions = {
-    "pdf" : 1,
-    "doc": 1,
-    "docx" : 1
+    pdf: 1,
+    doc: 1,
+    docx: 1
 };
 
 Config.limits =
 {
-    index : {
-        maxResults : 100,
-        pageSize : 100
+    index: {
+        maxResults: 100,
+        pageSize: 100
     },
-    db : {
-        maxResults : 1000,
-        pageSize : 1000
+    db: {
+        maxResults: 1000,
+        pageSize: 1000
     }
 };
 
-Config.streaming  =
+Config.streaming =
 {
-    db :
-    {
-        page_size : 200
-    }
+    db:
+  {
+      page_size: 200
+  }
 };
 
 Config.useElasticSearchAuth = active_config.useElasticSearchAuth;
@@ -549,7 +542,7 @@ Config.elasticSearchAuthCredentials = active_config.elasticSearchAuthCredentials
  */
 
 Config.plugins = {
-    folderName : "plugins"
+    folderName: "plugins"
 };
 
 /*
@@ -557,19 +550,19 @@ Element / Ontology related configuration
  */
 
 Config.acl = {
-    actions : {
-        restore : "restore",
-        backup : "backup",
-        edit : "edit",
-        delete : "delete",
-        read : "read"
+    actions: {
+        restore: "restore",
+        backup: "backup",
+        edit: "edit",
+        delete: "delete",
+        read: "read"
     },
-    groups : {
-        creator : "creator",
-        admin : "admin"
+    groups: {
+        creator: "creator",
+        admin: "admin"
     },
-    allow : 1,
-    deny : 0
+    allow: 1,
+    deny: 0
 };
 
 /*
@@ -583,70 +576,70 @@ Config.systemOrHiddenFilesRegexes = getConfigParameter("systemOrHiddenFilesRegex
  * Thumbnail Generation
  */
 
-if(isNull(Config.thumbnailableExtensions))
+if (isNull(Config.thumbnailableExtensions))
 {
-    Config.thumbnailableExtensions = require(Pathfinder.absPathInPublicFolder("/shared/public_config.json"))["thumbnailable_file_extensions"];
+    Config.thumbnailableExtensions = require(Pathfinder.absPathInPublicFolder("/shared/public_config.json")).thumbnailable_file_extensions;
 }
 
-if(isNull(Config.iconableFileExtensions))
+if (isNull(Config.iconableFileExtensions))
 {
     Config.iconableFileExtensions = {};
     let extensions = fs.readdirSync(Pathfinder.absPathInPublicFolder("/images/icons/extensions"));
 
-    for(let i = 0; i < extensions.length; i++)
+    for (let i = 0; i < extensions.length; i++)
     {
-        if(extensions[i] !== "." && extensions[i] !== "..")
+        if (extensions[i] !== "." && extensions[i] !== "..")
         {
             let extensionOnly = extensions[i].match(/file_extension_(.+)\.png/)[1];
-            if(!isNull(extensionOnly))
+            if (!isNull(extensionOnly))
+            {
                 Config.iconableFileExtensions[extensionOnly] = true;
+            }
         }
     }
 }
 
 Config.thumbnails = {
-    thumbnail_format_extension : "gif",
-    //every attribute of the size_parameters must be listed here for iteration TODO fix later
-    sizes : ["big", "medium", "small", "icon"],
+    thumbnail_format_extension: "gif",
+    // every attribute of the size_parameters must be listed here for iteration TODO fix later
+    sizes: ["big", "medium", "small", "icon"],
     size_parameters:
-    {
-        big : {
-            description : "big",
-            width : 256,
-            height : 256
-        },
-        medium : {
-            description : "medium",
-            width : 128,
-            height : 128
-        },
-        small : {
-            description : "small",
-            width : 64,
-            height : 64
-        },
-        icon : {
-            description : "icon",
-            width : 32,
-            height : 32
-        }
-    }
+  {
+      big: {
+          description: "big",
+          width: 256,
+          height: 256
+      },
+      medium: {
+          description: "medium",
+          width: 128,
+          height: 128
+      },
+      small: {
+          description: "small",
+          width: 64,
+          height: 64
+      },
+      icon: {
+          description: "icon",
+          width: 32,
+          height: 32
+      }
+  }
 };
 
 /*
 MIME types
  */
 
-Config.mimeType = function(extension) {
-    const mime = require('mime-types');
-    if(isNull(mime.lookup(extension)))
+Config.mimeType = function (extension)
+{
+    const mime = require("mime-types");
+    if (isNull(mime.lookup(extension)))
     {
         return "application/octet-stream";
     }
-    else
-    {
-        return mime.lookup(extension);
-    }
+    return mime.lookup(extension);
 };
 
 Config.swordConnection = {
@@ -660,38 +653,39 @@ const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js
 Config.defaultMetadataSerializer = Serializers.dataToJSON;
 Config.defaultMetadataContentType = "text/json";
 
-Config.metadataSerializers ={
-    "application/text" : Serializers.metadataToText,
-    "application/txt" : Serializers.metadataToText,
-    "application/rdf" : Serializers.metadataToRDF,
-    "application/xml" : Serializers.metadataToRDF,
-    "application/json" : Serializers.dataToJSON
+Config.metadataSerializers = {
+    "application/text": Serializers.metadataToText,
+    "application/txt": Serializers.metadataToText,
+    "application/rdf": Serializers.metadataToRDF,
+    "application/xml": Serializers.metadataToRDF,
+    "application/json": Serializers.dataToJSON
 };
-Config.metadataContentTypes ={
-    "application/text" : "text/plain",
-    "application/txt" : "text/plain",
-    "application/rdf" : "text/xml",
-    "application/xml" : "text/xml",
-    "application/json" : "application/json"
+Config.metadataContentTypes = {
+    "application/text": "text/plain",
+    "application/txt": "text/plain",
+    "application/rdf": "text/xml",
+    "application/xml": "text/xml",
+    "application/json": "application/json"
 };
 
 Config.theme = getConfigParameter("theme");
 
 Config.demo_mode = getConfigParameter("demo_mode");
 
-
-if(Config.demo_mode.active)
+if (Config.demo_mode.active)
 {
     const exec = require("child_process").exec;
 
     Config.demo_mode.git_info = {};
 
-    exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"',
+    exec("git branch | grep \"^\* .*$\" | cut -c 3- | tr -d \"\n\"",
         {
             cwd: Config.appDir
         },
-        function(error, stdout, stderr) {
-            if (isNull(error)) {
+        function (error, stdout, stderr)
+        {
+            if (isNull(error))
+            {
                 console.log("Active branch : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.active_branch = stdout;
             }
@@ -701,33 +695,37 @@ if(Config.demo_mode.active)
             }
         });
 
-    exec('git log -1 | grep "commit.*" | cut -c 8- | tr -d "\n"',
+    exec("git log -1 | grep \"commit.*\" | cut -c 8- | tr -d \"\n\"",
         {
             cwd: Config.appDir
-        }, function (error, stdout, stderr) {
-        if (isNull(error)) {
-            console.log("Last commit hash : " + JSON.stringify(stdout));
-            Config.demo_mode.git_info.commit_hash = stdout;
-        }
-        else
+        }, function (error, stdout, stderr)
         {
-            console.error("Unable to get commit hash : " + JSON.stringify(error));
-        }
-    });
+            if (isNull(error))
+            {
+                console.log("Last commit hash : " + JSON.stringify(stdout));
+                Config.demo_mode.git_info.commit_hash = stdout;
+            }
+            else
+            {
+                console.error("Unable to get commit hash : " + JSON.stringify(error));
+            }
+        });
 
-    exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"',
+    exec("git log -1 | grep \"Date:.*\" | cut -c 9- | tr -d \"\n\"",
         {
             cwd: Config.appDir
-        }, function (error, stdout, stderr) {
-        if (isNull(error)) {
-            console.log("Last commit date : " + JSON.stringify(stdout));
-            Config.demo_mode.git_info.last_commit_date = stdout;
-        }
-        else
+        }, function (error, stdout, stderr)
         {
-            console.error("Unable to get last commit date : " + JSON.stringify(error));
-        }
-    });
+            if (isNull(error))
+            {
+                console.log("Last commit date : " + JSON.stringify(stdout));
+                Config.demo_mode.git_info.last_commit_date = stdout;
+            }
+            else
+            {
+                console.error("Unable to get last commit date : " + JSON.stringify(error));
+            }
+        });
 }
 
 Config.email = getConfigParameter("email");
@@ -738,18 +736,19 @@ Config.public_ontologies = getConfigParameter("public_ontologies");
 
 Config.regex_routes = {
     project_root:
-    {
-        restore : "\/project\/([^\/]+)[\/data]?$",
-        bagit : "\/project\/([^\/]+)[\/data]?$",
-    },
-    inside_projects :
-    {
-        upload : "\/project\/([^\/]+)[\/data]?((?=(.*)\/upload\/?$).*)$",
-        restore : "\/project\/([^\/]+)[\/data]?((?=(.*)\/restore\/?$).*)$",
-        download : "\/project\/([^\/]+)[\/data]?((?=(.*)\/download\/?$).*)$"
-    }
+  {
+      restore: new RegExp("/project/([^/]+)[/data]?$"),
+      bagit: new RegExp("/project/([^/]+)[/data]?$")
+  },
+    inside_projects:
+  {
+      upload: new RegExp("/project/([^/]+)[/data]?((?=(.*)/upload/?$).*)$"),
+      restore: new RegExp("/project/([^/]+)[/data]?((?=(.*)/restore/?$).*)$"),
+      download: new RegExp("/project/([^/]+)[/data]?((?=(.*)/download/?$).*)$")
+  }
 };
 
 Config.authentication = getConfigParameter("authentication");
+Config.numCPUs = getConfigParameter("numCPUs");
 
 module.exports.Config = Config;

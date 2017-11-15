@@ -1,21 +1,17 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const chai = require("chai");
-chai.use(require('chai-http'));
+chai.use(require("chai-http"));
 const async = require("async");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
 const csvMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/csvMockFile.js"));
 const docMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/docMockFile.js"));
@@ -37,36 +33,43 @@ let addMetadataToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("
 let createFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const foldersData = createFoldersUnit.foldersData;
 
-
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
+function requireUncached (module)
+{
+    delete require.cache[require.resolve(module)];
+    return require(module);
 }
 
-module.exports.setup = function(finish)
+module.exports.setup = function (finish)
 {
-    addMetadataToFoldersUnit.setup(function (err, results) {
-        if(err)
+    addMetadataToFoldersUnit.setup(function (err, results)
+    {
+        if (err)
         {
             finish(err, results);
         }
         else
         {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                if(err)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                if (err)
                 {
                     finish(err, agent);
                 }
                 else
                 {
-                    async.mapSeries(projectsData, function (projectData, cb) {
-                        async.mapSeries(foldersData, function (folderData, cb) {
-                            async.mapSeries(filesData, function (fileData, cb) {
-                                fileUtils.uploadFile(true, agent, projectData.handle, folderData.name,  fileData, function (err, res) {
-                                    if(isNull(err))
+                    async.mapSeries(projectsData, function (projectData, cb)
+                    {
+                        async.mapSeries(foldersData, function (folderData, cb)
+                        {
+                            async.mapSeries(filesData, function (fileData, cb)
+                            {
+                                fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, fileData, function (err, res)
+                                {
+                                    if (isNull(err))
                                     {
                                         const newFileUri = JSON.parse(res.text)[0].uri;
-                                        itemUtils.updateItemMetadataByUri(true, agent, newFileUri, fileData.metadata, function (err, res) {
+                                        itemUtils.updateItemMetadataByUri(true, agent, newFileUri, fileData.metadata, function (err, res)
+                                        {
                                             cb(err, res);
                                         });
                                     }
@@ -75,13 +78,16 @@ module.exports.setup = function(finish)
                                         cb(err, res);
                                     }
                                 });
-                            }, function (err, results) {
+                            }, function (err, results)
+                            {
                                 cb(err, results);
                             });
-                        }, function (err, results) {
+                        }, function (err, results)
+                        {
                             cb(err, results);
                         });
-                    }, function (err, results) {
+                    }, function (err, results)
+                    {
                         finish(err, results);
                     });
                 }

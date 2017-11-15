@@ -26,17 +26,16 @@ function User (object)
 
     self.copyOrInitDescriptors(object);
 
-
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.username;
+        self.ddr.humanReadableURI = db.baseURI + "/user/" + self.ddr.username;
     }
 
-    if(isNull(self.ddr.salt))
+    if (isNull(self.ddr.salt))
     {
-        const bcrypt = require('bcryptjs');
+        const bcrypt = require("bcryptjs");
 
-        if(process.env.NODE_ENV !== "test")
+        if (process.env.NODE_ENV !== "test")
         {
             self.ddr.salt = bcrypt.genSaltSync(10);
         }
@@ -49,110 +48,97 @@ function User (object)
     return self;
 }
 
-User.findByORCID = function(orcid, callback, removePrivateDescriptors)
+User.findByORCID = function (orcid, callback, removePrivateDescriptors)
 {
     User.findByPropertyValue(new Descriptor({
-        value : orcid,
-        prefixedForm : "ddr:orcid"
-    }), function(err, user){
-        if(isNull(err) && !isNull(user) && user instanceof User)
+        value: orcid,
+        prefixedForm: "ddr:orcid"
+    }), function (err, user)
+    {
+        if (isNull(err) && !isNull(user) && user instanceof User)
         {
-            if(removePrivateDescriptors)
+            if (removePrivateDescriptors)
             {
                 user.clearDescriptors([Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.public, Elements.access_types.api_readable]);
                 return callback(err, user);
             }
-            else
-            {
-                return callback(err, user);
-            }
-        }
-        else
-        {
             return callback(err, user);
         }
+        return callback(err, user);
     });
 };
 
-User.findByUsername = function(username, callback, removeSensitiveDescriptors)
+User.findByUsername = function (username, callback, removeSensitiveDescriptors)
 {
     const usernameDescriptor =
         new Descriptor(
-        {
-            value : username,
-            prefixedForm : "ddr:username"
-        });
-
-    User.findByPropertyValue(usernameDescriptor, function(err, user){
-        if(isNull(err))
-        {
-            if(!isNull(user) && user instanceof User)
             {
-                if(removeSensitiveDescriptors)
+                value: username,
+                prefixedForm: "ddr:username"
+            });
+
+    User.findByPropertyValue(usernameDescriptor, function (err, user)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(user) && user instanceof User)
+            {
+                if (removeSensitiveDescriptors)
                 {
                     user.clearDescriptors([Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.public, Elements.access_types.api_readable]);
                     return callback(err, user);
                 }
-                else
-                {
-                    return callback(err, user);
-                }
+                return callback(err, user);
             }
-            else
-            {
-                return callback(err, null);
+            return callback(err, null);
 
-                // User.findByPropertyValue(new Descriptor(
-                //     {
-                //         value : username,
-                //         prefixedForm : "ddr:username"
-                //     }), function(err, user){
-                //     if(isNull(err))
-                //     {
-                //         if(!isNull(user) && user instanceof User)
-                //         {
-                //             if(removeSensitiveDescriptors)
-                //             {
-                //                 console.log(user);
-                //             }
-                //             else
-                //             {
-                //                 console.log(user);
-                //             }
-                //         }
-                //         else
-                //         {
-                //             console.log(user);
-                //         }
-                //     }
-                //     else
-                //     {
-                //         console.log(user);
-                //     }
-                // });
-                //
-                // return;
-            }
+            // User.findByPropertyValue(new Descriptor(
+            //     {
+            //         value : username,
+            //         prefixedForm : "ddr:username"
+            //     }), function(err, user){
+            //     if(isNull(err))
+            //     {
+            //         if(!isNull(user) && user instanceof User)
+            //         {
+            //             if(removeSensitiveDescriptors)
+            //             {
+            //                 console.log(user);
+            //             }
+            //             else
+            //             {
+            //                 console.log(user);
+            //             }
+            //         }
+            //         else
+            //         {
+            //             console.log(user);
+            //         }
+            //     }
+            //     else
+            //     {
+            //         console.log(user);
+            //     }
+            // });
+            //
+            // return;
         }
-        else
-        {
-            return callback(err, user);
-        }
+        return callback(err, user);
     });
 };
 
-User.findByEmail = function(email, callback)
+User.findByEmail = function (email, callback)
 {
     User.findByPropertyValue(new Descriptor(
         {
-            value : email,
-            prefixedForm : "foaf:mbox"
+            value: email,
+            prefixedForm: "foaf:mbox"
         }), callback);
 };
 
-User.autocomplete_search = function(value, maxResults, callback) {
-
-    if(Config.debug.users.log_fetch_by_username)
+User.autocomplete_search = function (value, maxResults, callback)
+{
+    if (Config.debug.users.log_fetch_by_username)
     {
         console.log("finding by username " + username);
     }
@@ -170,78 +156,78 @@ User.autocomplete_search = function(value, maxResults, callback) {
         "} \n" +
         " LIMIT [4]";
 
-
     db.connection.executeViaJDBC(query,
         [
             {
-                type : Elements.types.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : Elements.types.prefixedResource,
-                value : User.leafClass
+                type: Elements.types.prefixedResource,
+                value: User.leafClass
             },
             {
-                type : Elements.types.string,
-                value : value
+                type: Elements.types.string,
+                value: value
             },
             {
-                type : Elements.types.string,
-                value : "i"
+                type: Elements.types.string,
+                value: "i"
             },
             {
-                type : Elements.types.int,
-                value : maxResults
+                type: Elements.types.int,
+                value: maxResults
             }
         ],
 
-        function(err, users) {
-            if(isNull(err) && users instanceof Array)
+        function (err, users)
+        {
+            if (isNull(err) && users instanceof Array)
             {
-                const getUserProperties = function (resultRow, cb) {
-                    User.findByUri(resultRow.uri, function (err, user) {
+                const getUserProperties = function (resultRow, cb)
+                {
+                    User.findByUri(resultRow.uri, function (err, user)
+                    {
                         cb(err, user);
                     });
                 };
 
-                async.mapSeries(users, getUserProperties, function(err, results){
+                async.mapSeries(users, getUserProperties, function (err, results)
+                {
                     return callback(err, results);
-                })
+                });
             }
             else
             {
-                return callback(err, user);
+                return callback(err, users);
             }
         });
 };
 
-User.createAndInsertFromObject = function(object, callback) {
+User.createAndInsertFromObject = function (object, callback)
+{
     const self = Object.create(this.prototype);
     self.constructor(object);
 
-    //encrypt password
-    const bcrypt = require('bcryptjs');
-    bcrypt.hash(self.ddr.password, self.ddr.salt, function(err, password){
-        if(isNull(err))
+    // encrypt password
+    const bcrypt = require("bcryptjs");
+    bcrypt.hash(self.ddr.password, self.ddr.salt, function (err, password)
+    {
+        if (isNull(err))
         {
             self.ddr.password = password;
 
-            self.save(function(err, newUser) {
-                if(isNull(err))
+            self.save(function (err, newUser)
+            {
+                if (isNull(err))
                 {
-                    if(newUser instanceof self.constructor)
+                    if (newUser instanceof self.constructor)
                     {
                         return callback(null, newUser);
                     }
-                    else
-                    {
-                        return callback(err, "The constructor should have returned an instance of User and returned something else: " + typeof newUser);
-                    }
+                    return callback(err, "The constructor should have returned an instance of User and returned something else: " + typeof newUser);
                 }
-                else
-                {
-                    return callback(err, newUser);
-                }
+                return callback(err, newUser);
             });
         }
         else
@@ -250,7 +236,6 @@ User.createAndInsertFromObject = function(object, callback) {
         }
     });
 };
-
 
 // User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 // {
@@ -262,7 +247,8 @@ User.createAndInsertFromObject = function(object, callback) {
 //     }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
 // };
 
-User.allInPage = function(page, pageSize, callback) {
+User.allInPage = function (page, pageSize, callback)
+{
     let query =
         "SELECT ?uri ?firstName ?surname ?username ?email\n" +
         "WHERE \n" +
@@ -276,35 +262,33 @@ User.allInPage = function(page, pageSize, callback) {
 
     const skip = pageSize * page;
 
-    if(req.query.pageSize > 0)
+    if (req.query.pageSize > 0)
     {
         query = query + " LIMIT " + pageSize;
     }
 
-    if(skip > 0)
+    if (skip > 0)
     {
         query = query + " OFFSET " + skip;
     }
 
     db.connection.executeViaJDBC(query,
         [],
-        function(err, users) {
-            if(isNull(err))
+        function (err, users)
+        {
+            if (isNull(err))
             {
-                if(users instanceof Array)
+                if (users instanceof Array)
                 {
-                    //get all the information about all the projects
+                    // get all the information about all the projects
                     // and return the array of projects, complete with that info
-                    async.mapSeries(users, User.findByUri, function(err, usersToReturn)
+                    async.mapSeries(users, User.findByUri, function (err, usersToReturn)
                     {
-                        if(isNull(err))
+                        if (isNull(err))
                         {
                             return callback(null, usersToReturn);
                         }
-                        else
-                        {
-                            return callback("error fetching user information : " + err, usersToReturn);
-                        }
+                        return callback("error fetching user information : " + err, usersToReturn);
                     });
                 }
             }
@@ -319,15 +303,15 @@ User.allInPage = function(page, pageSize, callback) {
  * Fetch ontology recommendations for this user
  * @param callback
  */
-User.prototype.loadOntologyRecommendations = function(callback)
+User.prototype.loadOntologyRecommendations = function (callback)
 {
     const self = this;
-    if(isNull(self.recommendations))
+    if (isNull(self.recommendations))
     {
         self.recommendations = {
-            ontologies : {
-                accepted : {},
-                rejected : {}
+            ontologies: {
+                accepted: {},
+                rejected: {}
             }
         };
     }
@@ -339,16 +323,16 @@ User.prototype.loadOntologyRecommendations = function(callback)
  * Save ontology recommendations for this user
  * @param callback
  */
-User.prototype.saveOntologyRecommendations = function(callback)
+User.prototype.saveOntologyRecommendations = function (callback)
 {
     return callback(null,
         {
-            accepted : {},
-            rejected : {}
+            accepted: {},
+            rejected: {}
         });
 };
 
-User.prototype.getInteractions = function(callback)
+User.prototype.getInteractions = function (callback)
 {
     const self = this;
     const query =
@@ -366,18 +350,20 @@ User.prototype.getInteractions = function(callback)
     db.connection.executeViaJDBC(query, [
         {
             type: Elements.types.resourceNoEscape,
-            value : db.graphUri
+            value: db.graphUri
         },
         {
-            type : Elements.types.resource,
-            value : self.uri
+            type: Elements.types.resource,
+            value: self.uri
         }
-    ], function(err, results) {
-        if(isNull(err))
+    ], function (err, results)
+    {
+        if (isNull(err))
         {
-            if(!isNull(results) && results instanceof Array)
+            if (!isNull(results) && results instanceof Array)
             {
-                const createInteraction = function (result, callback) {
+                const createInteraction = function (result, callback)
+                {
                     Interaction.create({
                         uri: result.interaction,
                         ddr: {
@@ -388,12 +374,13 @@ User.prototype.getInteractions = function(callback)
                         dcterms: {
                             created: result.created
                         }
-                    }, function (err, fullInteraction) {
+                    }, function (err, fullInteraction)
+                    {
                         return callback(err, fullInteraction);
                     });
                 };
 
-                async.mapSeries(results, createInteraction, function(err, fullInteractions)
+                async.mapSeries(results, createInteraction, function (err, fullInteractions)
                 {
                     return callback(err, fullInteractions);
                 });
@@ -406,75 +393,76 @@ User.prototype.getInteractions = function(callback)
     });
 };
 
-User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntologies)
+User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
 
-    //TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
+    // TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
 
-    const createDescriptorsList = function (descriptors, callback) {
-        const createDescriptor = function (result, callback) {
+    const createDescriptorsList = function (descriptors, callback)
+    {
+        const createDescriptor = function (result, callback)
+        {
             const suggestion = new Descriptor({
                 uri: result.descriptor,
                 label: result.label,
                 comment: result.comment
             });
 
-
-            //set recommendation type
+            // set recommendation type
             suggestion.recommendation_types = {};
 
-            //TODO JROCHA Figure out under which circumstances this is null
-            if (typeof Descriptor.recommendation_types !== "undefined") {
+            // TODO JROCHA Figure out under which circumstances this is null
+            if (typeof Descriptor.recommendation_types !== "undefined")
+            {
                 suggestion.recommendation_types[Descriptor.recommendation_types.user_hidden.key] = true;
             }
 
             suggestion.last_hidden = result.last_hidden;
             suggestion.last_unhidden = Date.parse(result.last_unhidden);
 
-            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
+            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked]))
+            {
                 return callback(null, suggestion);
             }
-            else {
-                return callback(null, null);
-            }
+            return callback(null, null);
         };
 
-        async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors) {
-            if (isNull(err)) {
-                /**remove nulls (that were unauthorized descriptors)**/
+        async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors)
+        {
+            if (isNull(err))
+            {
+                /** remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
                 return callback(null, fullDescriptors);
             }
-            else {
-                return callback(1, null);
-            }
+            return callback(1, null);
         });
     };
 
     let argumentsArray =
-        [
-            {
-                value: db.graphUri,
-                type: Elements.types.resourceNoEscape
-            },
-            {
-                value: self.uri,
-                type: Elements.types.resourceNoEscape
-            },
-            {
-                value: Interaction.types.hide_descriptor_from_quick_list_for_user.key,
-                type: Elements.types.string
-            },
-            {
-                value: Interaction.types.unhide_descriptor_from_quick_list_for_user.key,
-                type: Elements.types.string
-            }
-        ];
+    [
+        {
+            value: db.graphUri,
+            type: Elements.types.resourceNoEscape
+        },
+        {
+            value: self.uri,
+            type: Elements.types.resourceNoEscape
+        },
+        {
+            value: Interaction.types.hide_descriptor_from_quick_list_for_user.key,
+            type: Elements.types.string
+        },
+        {
+            value: Interaction.types.unhide_descriptor_from_quick_list_for_user.key,
+            type: Elements.types.string
+        }
+    ];
 
     const publicOntologies = Ontology.getPublicOntologiesUris();
-    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
+    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -580,10 +568,12 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         query,
         argumentsArray,
 
-        function(err, hidden) {
-            if(isNull(err))
+        function (err, hidden)
+        {
+            if (isNull(err))
             {
-                createDescriptorsList(hidden, function(err, fullDescriptors){
+                createDescriptorsList(hidden, function (err, fullDescriptors)
+                {
                     return callback(err, fullDescriptors);
                 });
             }
@@ -597,75 +587,76 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
     );
 };
 
-User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntologies)
+User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
 
-    //TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
+    // TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
 
-    const createDescriptorsList = function (descriptors, callback) {
-        const createDescriptor = function (result, callback) {
+    const createDescriptorsList = function (descriptors, callback)
+    {
+        const createDescriptor = function (result, callback)
+        {
             const suggestion = new Descriptor({
                 uri: result.descriptor,
                 label: result.label,
                 comment: result.comment
             });
 
-
-            //set recommendation type
+            // set recommendation type
             suggestion.recommendation_types = {};
 
-            //TODO JROCHA Figure out under which circumstances this is null
-            if (typeof Descriptor.recommendation_types !== "undefined") {
+            // TODO JROCHA Figure out under which circumstances this is null
+            if (typeof Descriptor.recommendation_types !== "undefined")
+            {
                 suggestion.recommendation_types[Descriptor.recommendation_types.user_favorite.key] = true;
             }
 
             suggestion.last_favorited = result.last_favorited;
             suggestion.last_unfavorited = Date.parse(result.last_unfavorited);
 
-            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
+            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked]))
+            {
                 return callback(null, suggestion);
             }
-            else {
-                return callback(null, null);
-            }
+            return callback(null, null);
         };
 
-        async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors) {
-            if (isNull(err)) {
-                /**remove nulls (that were unauthorized descriptors)**/
+        async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors)
+        {
+            if (isNull(err))
+            {
+                /** remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
                 return callback(null, fullDescriptors);
             }
-            else {
-                return callback(1, null);
-            }
+            return callback(1, null);
         });
     };
 
     let argumentsArray =
-        [
-            {
-                value: db.graphUri,
-                type: Elements.types.resourceNoEscape
-            },
-            {
-                value: self.uri,
-                type: Elements.types.resourceNoEscape
-            },
-            {
-                value: Interaction.types.favorite_descriptor_from_quick_list_for_user.key,
-                type: Elements.types.string
-            },
-            {
-                value: Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key,
-                type: Elements.types.string
-            }
+    [
+        {
+            value: db.graphUri,
+            type: Elements.types.resourceNoEscape
+        },
+        {
+            value: self.uri,
+            type: Elements.types.resourceNoEscape
+        },
+        {
+            value: Interaction.types.favorite_descriptor_from_quick_list_for_user.key,
+            type: Elements.types.string
+        },
+        {
+            value: Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key,
+            type: Elements.types.string
+        }
     ];
 
     const publicOntologies = Ontology.getPublicOntologiesUris();
-    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
+    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -771,10 +762,12 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         query,
         argumentsArray,
 
-        function(err, favorites) {
-            if(isNull(err))
+        function (err, favorites)
+        {
+            if (isNull(err))
             {
-                createDescriptorsList(favorites, function(err, fullDescriptors){
+                createDescriptorsList(favorites, function (err, fullDescriptors)
+                {
                     return callback(err, fullDescriptors);
                 });
             }
@@ -788,7 +781,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
     );
 };
 
-User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxResults, callback, allowedOntologies)
+User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
     let argumentsArray = [
@@ -807,7 +800,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
     ];
 
     const publicOntologies = Ontology.getPublicOntologiesUris();
-    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
+    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -855,64 +848,63 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
         query,
         argumentsArray,
 
-        function(err, descriptors) {
-            if(isNull(err))
+        function (err, descriptors)
+        {
+            if (isNull(err))
             {
-                const createDescriptor = function (result, callback) {
-
+                const createDescriptor = function (result, callback)
+                {
                     const suggestion = new Descriptor({
                         uri: result.accepted_descriptor,
                         label: result.label,
                         comment: result.comment
                     });
 
-                    //set recommendation type
+                    // set recommendation type
                     suggestion.recommendation_types = {};
 
-                    //TODO JROCHA Figure out under which circumstances this is null
-                    if (typeof Descriptor.recommendation_types !== "undefined") {
+                    // TODO JROCHA Figure out under which circumstances this is null
+                    if (typeof Descriptor.recommendation_types !== "undefined")
+                    {
                         suggestion.recommendation_types[Descriptor.recommendation_types.favorite_accepted_in_metadata_editor.key] = true;
                     }
 
-                    if (result.times_favorite_accepted_in_md_editor <= 0) {
+                    if (result.times_favorite_accepted_in_md_editor <= 0)
+                    {
                         console.error("Descriptor " + suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_favorite_accepted_in_md_editor);
                     }
 
                     suggestion.times_favorite_accepted_in_md_editor = parseInt(result.times_favorite_accepted_in_md_editor);
 
-                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked]))
+                    {
                         return callback(null, suggestion);
                     }
-                    else {
-                        return callback(null, null);
-                    }
+                    return callback(null, null);
                 };
 
-                async.mapSeries(descriptors, createDescriptor, function(err, fullDescriptors)
+                async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors)
                 {
-                    if(isNull(err))
+                    if (isNull(err))
                     {
-                        /**remove nulls (that were unauthorized descriptors)**/
+                        /** remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
 
                         return callback(null, fullDescriptors);
                     }
-                    else
-                    {
-                        return callback(1, null);
-                    }
+                    return callback(1, null);
                 });
             }
             else
             {
-                const util = require('util');
+                const util = require("util");
                 console.error("Error fetching most accepted favorite descriptors for user " + self.uri + " : " + descriptors);
                 return callback(1, descriptors);
             }
         });
 };
 
-User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResults, callback, allowedOntologies)
+User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
     let argumentsArray = [
@@ -931,7 +923,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
     ];
 
     const publicOntologies = Ontology.getPublicOntologiesUris();
-    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
+    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -979,64 +971,63 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
         query,
         argumentsArray,
 
-        function(err, descriptors) {
-            if(isNull(err))
+        function (err, descriptors)
+        {
+            if (isNull(err))
             {
-                const createDescriptor = function (result, callback) {
-
+                const createDescriptor = function (result, callback)
+                {
                     const suggestion = new Descriptor({
                         uri: result.accepted_descriptor,
                         label: result.label,
                         comment: result.comment
                     });
 
-                    //set recommendation type
+                    // set recommendation type
                     suggestion.recommendation_types = {};
 
-                    //TODO JROCHA Figure out under which circumstances this is null
-                    if (typeof Descriptor.recommendation_types !== "undefined") {
+                    // TODO JROCHA Figure out under which circumstances this is null
+                    if (typeof Descriptor.recommendation_types !== "undefined")
+                    {
                         suggestion.recommendation_types[Descriptor.recommendation_types.smart_accepted_in_metadata_editor.key] = true;
                     }
 
-                    if (result.times_smart_accepted_in_md_editor <= 0) {
+                    if (result.times_smart_accepted_in_md_editor <= 0)
+                    {
                         console.error("Descriptor " + suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_smart_accepted_in_md_editor);
                     }
 
                     suggestion.times_smart_accepted_in_md_editor = parseInt(result.times_smart_accepted_in_md_editor);
 
-                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked]))
+                    {
                         return callback(null, suggestion);
                     }
-                    else {
-                        return callback(null, null);
-                    }
+                    return callback(null, null);
                 };
 
-                async.mapSeries(descriptors, createDescriptor, function(err, fullDescriptors)
+                async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors)
                 {
-                    if(isNull(err))
+                    if (isNull(err))
                     {
-                        /**remove nulls (that were unauthorized descriptors)**/
+                        /** remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
 
                         return callback(null, fullDescriptors);
                     }
-                    else
-                    {
-                        return callback(1, null);
-                    }
+                    return callback(1, null);
                 });
             }
             else
             {
-                const util = require('util');
+                const util = require("util");
                 console.error("Error fetching most accepted smart descriptors for user " + self.uri + " : " + descriptors);
                 return callback(1, descriptors);
             }
         });
 };
 
-User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, allowedOntologies)
+User.prototype.mostRecentlyFilledInDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
     let argumentsArray = [
@@ -1047,7 +1038,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
     ];
 
     const publicOntologies = Ontology.getPublicOntologiesUris();
-    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
+    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -1096,99 +1087,96 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
     "} \n";
 
     argumentsArray = argumentsArray.concat([{
-        value : self.uri,
-        type : Elements.types.resourceNoEscape
+        value: self.uri,
+        type: Elements.types.resourceNoEscape
     }]);
 
     db.connection.executeViaJDBC(
         query,
         argumentsArray,
 
-        function(err, descriptors) {
-            if(isNull(err))
+        function (err, descriptors)
+        {
+            if (isNull(err))
             {
-                const createDescriptor = function (result, callback) {
-
+                const createDescriptor = function (result, callback)
+                {
                     const suggestion = new Descriptor({
                         uri: result.descriptor,
                         label: result.label,
                         comment: result.comment
                     });
 
-                    //set recommendation type
+                    // set recommendation type
                     suggestion.recommendation_types = {};
 
-                    //TODO JROCHA Figure out under which circumstances this is null
-                    if (typeof Descriptor.recommendation_types !== "undefined") {
+                    // TODO JROCHA Figure out under which circumstances this is null
+                    if (typeof Descriptor.recommendation_types !== "undefined")
+                    {
                         suggestion.recommendation_types[Descriptor.recommendation_types.recently_used.key] = true;
                     }
 
-                    if (result.recent_use_count <= 0) {
+                    if (result.recent_use_count <= 0)
+                    {
                         console.error("Descriptor " + suggestion.uri + " recommended for recent use with invalid number of usages : " + result.recent_use_count);
                     }
 
                     suggestion.recent_use_count = parseInt(result.recent_use_count);
                     suggestion.last_use = Date.parse(result.last_use);
 
-                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked])) {
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked]))
+                    {
                         return callback(null, suggestion);
                     }
-                    else {
-                        return callback(null, null);
-                    }
+                    return callback(null, null);
                 };
 
-                async.mapSeries(descriptors, createDescriptor, function(err, fullDescriptors)
+                async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors)
                 {
-                    if(isNull(err))
+                    if (isNull(err))
                     {
-                        /**remove nulls (that were unauthorized descriptors)**/
+                        /** remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
 
                         return callback(null, fullDescriptors);
                     }
-                    else
-                    {
-                        return callback(1, null);
-                    }
+                    return callback(1, null);
                 });
             }
             else
             {
-                const util = require('util');
+                const util = require("util");
                 console.error("Error fetching most recently filled in descriptors for user " + self.uri);
                 return callback(1, descriptors);
             }
         });
 };
 
-User.prototype.finishPasswordReset = function(newPassword, token, callback)
+User.prototype.finishPasswordReset = function (newPassword, token, callback)
 {
     const self = this;
 
-    self.checkIfHasPredicateValue("ddr:password_reset_token", token, function(err, tokenIsCorrect)
+    self.checkIfHasPredicateValue("ddr:password_reset_token", token, function (err, tokenIsCorrect)
     {
-        if(isNull(err))
+        if (isNull(err))
         {
-            if(tokenIsCorrect)
+            if (tokenIsCorrect)
             {
-                const crypto = require('crypto'), shasum = crypto.createHash('sha1');
+                const crypto = require("crypto"), shasum = crypto.createHash("sha1");
 
                 shasum.update(newPassword);
-                self.ddr.password = shasum.digest('hex');
+                self.ddr.password = shasum.digest("hex");
                 self.ddr.password_reset_token = null;
 
-                self.save(function(err, result){
-                    if(isNull(err))
+                self.save(function (err, result)
+                {
+                    if (isNull(err))
                     {
                         console.log("Successfully set new password for user : " + self.uri + ".");
                         return callback(err, result);
                     }
-                    else
-                    {
-                        console.error("Error setting new password for user : " + self.uri + ". Error reported: " + result);
-                        return callback(err, result);
-                    }
+                    console.error("Error setting new password for user : " + self.uri + ". Error reported: " + result);
+                    return callback(err, result);
                 });
             }
             else
@@ -1203,7 +1191,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
     });
 };
 
-User.prototype.startPasswordReset = function(callback)
+User.prototype.startPasswordReset = function (callback)
 {
     const self = this;
     const uuid = require("uuid");
@@ -1212,7 +1200,8 @@ User.prototype.startPasswordReset = function(callback)
 
     self.ddr.password_reset_token = token;
 
-    const sendConfirmationEmail = function (callback) {
+    const sendConfirmationEmail = function (callback)
+    {
         const nodemailer = require("nodemailer");
 
         // create reusable transporter object using the default SMTP transport
@@ -1220,30 +1209,29 @@ User.prototype.startPasswordReset = function(callback)
         const gmailUsername = Config.email.gmail.username;
         const gmailPassword = Config.email.gmail.password;
 
-        const ejs = require('ejs');
+        const ejs = require("ejs");
         const fs = require("fs");
-
 
         const appDir = path.dirname(require.main.filename);
 
-        const emailHTMLFilePath = Pathfinder.absPathInSrcFolder('views/users/password_reset_email.ejs');
-        const emailTXTFilePath = path.join(appDir, 'views/users/password_reset_email_txt.ejs');
+        const emailHTMLFilePath = Pathfinder.absPathInSrcFolder("views/users/password_reset_email.ejs");
+        const emailTXTFilePath = path.join(appDir, "views/users/password_reset_email_txt.ejs");
 
-        const file = fs.readFileSync(emailHTMLFilePath, 'ascii');
-        const fileTXT = fs.readFileSync(emailTXTFilePath, 'ascii');
+        const file = fs.readFileSync(emailHTMLFilePath, "ascii");
+        const fileTXT = fs.readFileSync(emailTXTFilePath, "ascii");
 
         const rendered = ejs.render(file, {
             locals: {
-                'user': self,
-                'url': Config.baseUri,
+                user: self,
+                url: Config.baseUri,
                 token: token,
                 email: self.foaf.mbox
             }
         });
         const renderedTXT = ejs.render(fileTXT, {
             locals: {
-                'user': self,
-                'url': Config.baseUri,
+                user: self,
+                url: Config.baseUri,
                 token: token,
                 email: self.foaf.mbox
             }
@@ -1268,12 +1256,15 @@ User.prototype.startPasswordReset = function(callback)
             html: rendered
         };
 
-        smtpTransport.sendMail(mail, function (error, response) {
-            if (error) {
+        smtpTransport.sendMail(mail, function (error, response)
+        {
+            if (error)
+            {
                 console.err(error);
             }
-            else {
-                console.log('Password reset sent to ' + self.foaf.mbox + 'Message sent: ' + JSON.stringify(response));
+            else
+            {
+                console.log("Password reset sent to " + self.foaf.mbox + "Message sent: " + JSON.stringify(response));
             }
 
             smtpTransport.close();
@@ -1281,10 +1272,11 @@ User.prototype.startPasswordReset = function(callback)
         });
     };
 
-    self.save(function(err, updatedUser){
-        if(isNull(err))
+    self.save(function (err, updatedUser)
+    {
+        if (isNull(err))
         {
-            sendConfirmationEmail(callback)
+            sendConfirmationEmail(callback);
         }
         else
         {
@@ -1294,26 +1286,26 @@ User.prototype.startPasswordReset = function(callback)
     });
 };
 
-User.prototype.getAvatarUri = function () {
+User.prototype.getAvatarUri = function ()
+{
     var self = this;
-    if(self.ddr.hasAvatar)
+    if (self.ddr.hasAvatar)
     {
         return self.ddr.hasAvatar;
     }
-    else
-    {
-        var msg = "User has no previously saved Avatar";
-        console.error(msg);
-        return null;
-    }
+    var msg = "User has no previously saved Avatar";
+    console.error(msg);
+    return null;
 };
 
-User.prototype.getAvatarFromGridFS = function (callback) {
+User.prototype.getAvatarFromGridFS = function (callback)
+{
     const self = this;
     const tmp = require("tmp");
     const fs = require("fs");
     let avatarUri = self.getAvatarUri();
-    if (avatarUri) {
+    if (avatarUri)
+    {
         let ext = avatarUri.split(".").pop();
 
         tmp.dir(
@@ -1321,29 +1313,37 @@ User.prototype.getAvatarFromGridFS = function (callback) {
                 mode: Config.tempFilesCreationMode,
                 dir: Config.tempFilesDir
             },
-            function (err, tempFolderPath) {
-                if (!err) {
+            function (err, tempFolderPath)
+            {
+                if (!err)
+                {
                     let avatarFilePath = path.join(tempFolderPath, self.ddr.username + "avatarOutput." + ext);
                     let writeStream = fs.createWriteStream(avatarFilePath);
 
-                    gfs.connection.get(avatarUri, writeStream, function (err, result) {
-                        if (!err) {
-                            writeStream.on('error', function (err) {
-                                //console.log("Deu error");
+                    gfs.connection.get(avatarUri, writeStream, function (err, result)
+                    {
+                        if (!err)
+                        {
+                            writeStream.on("error", function (err)
+                            {
+                                // console.log("Deu error");
                                 callback(err, result);
-                            }).on('finish', function () {
-                                //console.log("Deu finish");
+                            }).on("finish", function ()
+                            {
+                                // console.log("Deu finish");
                                 callback(null, avatarFilePath);
                             });
                         }
-                        else {
+                        else
+                        {
                             let msg = "Error getting the avatar file from GridFS for user " + self.uri;
                             console.error(msg);
                             return callback(err, msg);
                         }
                     });
                 }
-                else {
+                else
+                {
                     let msg = "Error when creating a temp dir when getting the avatar from GridFS for self " + self.uri;
                     console.error(msg);
                     return callback(err, msg);
@@ -1351,13 +1351,15 @@ User.prototype.getAvatarFromGridFS = function (callback) {
             }
         );
     }
-    else {
+    else
+    {
         let msg = "User has no avatar saved in gridFs";
         console.error(msg);
         return callback(true, msg);
     }
 };
-User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension, callback) {
+User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension, callback)
+{
     const self = this;
     const tmp = require("tmp");
     tmp.dir(
@@ -1365,28 +1367,33 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
             mode: Config.tempFilesCreationMode,
             dir: Config.tempFilesDir
         },
-        function (err, tempFolderPath) {
-            if (!err) {
+        function (err, tempFolderPath)
+        {
+            if (!err)
+            {
                 let path = require("path");
                 let fs = require("fs");
-                let avatarFilePath = path.join(tempFolderPath, 'avatar.png');
-                fs.writeFile(avatarFilePath, base64Data, 'base64', function (error) {
-                    if (!error) {
+                let avatarFilePath = path.join(tempFolderPath, "avatar.png");
+                fs.writeFile(avatarFilePath, base64Data, "base64", function (error)
+                {
+                    if (!error)
+                    {
                         let readStream = fs.createReadStream(avatarFilePath);
-                        readStream.on('open', function () {
-                            //console.log("readStream is ready");
+                        readStream.on("open", function ()
+                        {
+                            // console.log("readStream is ready");
                             gfs.connection.put(
                                 avatarUri,
                                 readStream,
-                                function (err, result) {
-                                    if (err) {
+                                function (err, result)
+                                {
+                                    if (err)
+                                    {
                                         let msg = "Error saving avatar file in GridFS :" + result + " for user " + self.uri;
                                         console.error(msg);
                                         return callback(err, msg);
                                     }
-                                    else {
-                                        return callback(null, result);
-                                    }
+                                    return callback(null, result);
                                 },
                                 {
                                     self: self.uri,
@@ -1397,20 +1404,23 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
                         });
 
                         // This catches any errors that happen while creating the readable stream (usually invalid names)
-                        readStream.on('error', function(err) {
+                        readStream.on("error", function (err)
+                        {
                             let msg = "Error creating readStream for avatar :" + err + " for self " + self.uri;
                             console.error(msg);
                             callback(err, msg);
                         });
                     }
-                    else {
+                    else
+                    {
                         let msg = "Error when creating a temp file for the avatar upload";
                         console.error(msg);
                         return callback(error, msg);
                     }
                 });
             }
-            else {
+            else
+            {
                 let msg = "Error when creating a temp dir for the avatar upload";
                 console.error(msg);
                 return callback(err, msg);
@@ -1418,46 +1428,61 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
         }
     );
 };
-User.prototype.saveAvatarInGridFS = function (avatar, extension, callback) {
+User.prototype.saveAvatarInGridFS = function (avatar, extension, callback)
+{
     const self = this;
     let avatarUri = "/avatar/" + self.ddr.username + "/avatar." + extension;
     let base64Data = avatar.replace(/^data:image\/png;base64,/, "");
 
     let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
 
-    mongoClient.connect(function (err, mongoDb) {
-        if (!err && !isNull(mongoDb)) {
-            mongoClient.findFileByFilenameOrderedByDate(mongoDb, avatarUri, function (err, files) {
-                if (!err) {
-                    if (files.length > 0) {
-                        async.mapSeries(files, function (file, callback) {
-                            gfs.connection.deleteAvatar(file._id, function (err, result) {
+    mongoClient.connect(function (err, mongoDb)
+    {
+        if (!err && !isNull(mongoDb))
+        {
+            mongoClient.findFileByFilenameOrderedByDate(mongoDb, avatarUri, function (err, files)
+            {
+                if (!err)
+                {
+                    if (files.length > 0)
+                    {
+                        async.mapSeries(files, function (file, callback)
+                        {
+                            gfs.connection.deleteAvatar(file._id, function (err, result)
+                            {
                                 callback(err, result);
                             });
-                        }, function (err, results) {
-                            if (err) {
+                        }, function (err, results)
+                        {
+                            if (err)
+                            {
                                 console.error("Error deleting one of the old avatars");
-                                //console.error(JSON.stringify(results));
+                                // console.error(JSON.stringify(results));
                             }
-                            self.uploadAvatarToGridFS(avatarUri, base64Data, extension, function (err, data) {
+                            self.uploadAvatarToGridFS(avatarUri, base64Data, extension, function (err, data)
+                            {
                                 callback(err, data);
                             });
                         });
                     }
-                    else {
-                        self.uploadAvatarToGridFS(avatarUri, base64Data, extension, function (err, data) {
+                    else
+                    {
+                        self.uploadAvatarToGridFS(avatarUri, base64Data, extension, function (err, data)
+                        {
                             callback(err, data);
                         });
                     }
                 }
-                else {
+                else
+                {
                     let msg = "Error when finding the latest file with uri : " + avatarUri + " in Mongo";
                     console.error(msg);
                     return callback(err, msg);
                 }
             });
         }
-        else {
+        else
+        {
             let msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
             console.error(msg);
             return callback(err, msg);
@@ -1465,25 +1490,22 @@ User.prototype.saveAvatarInGridFS = function (avatar, extension, callback) {
     });
 };
 
-User.removeAllAdmins = function(callback)
+User.removeAllAdmins = function (callback)
 {
     const adminDescriptor = new Descriptor({
         prefixedForm: "rdf:type",
         value: "ddr:Administrator"
     });
 
-    Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(adminDescriptor, function(err, results)
+    Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(adminDescriptor, function (err, results)
     {
         if (isNull(err))
         {
             return callback(null, results);
         }
-        else
-        {
-            const msg = "Error deleting all administrators: " + results;
-            console.error(msg);
-            return callback(1, msg);
-        }
+        const msg = "Error deleting all administrators: " + results;
+        console.error(msg);
+        return callback(1, msg);
     });
 };
 

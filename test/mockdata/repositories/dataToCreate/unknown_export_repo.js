@@ -7,7 +7,7 @@
     "foaf":{"nick":"b2share","homepage":"https://b2share.eudat.eu/"},
     "$$hashKey":"object:146"}},
     "dcterms":{"title":"b2share config 2"}
-}*/
+} */
 
 /*
     This data is used to create a new export repository configuration

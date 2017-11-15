@@ -21,10 +21,10 @@ const mechanicsFolder = require("../../mockdata/folders/mechanics_folder.js");
 
 const metadataOnlyProject = require("../../mockdata/projects/metadata_only_project.js");
 const publicProject = require("../../mockdata/projects/public_project.js");
-const privateProject= require("../../mockdata/projects/private_project.js");
+const privateProject = require("../../mockdata/projects/private_project.js");
 
-const fileUtils= require("../../utils/file/fileUtils.js");
-const folderUtils= require("../../utils/folder/folderUtils.js");
+const fileUtils = require("../../utils/file/fileUtils.js");
+const folderUtils = require("../../utils/folder/folderUtils.js");
 const userUtils = require("../../utils/user/userUtils.js");
 
 describe("/search", function ()
@@ -32,60 +32,69 @@ describe("/search", function ()
     /**
      * Search effectiveness (does it find the things it should, without considering permisions for now?)
      */
-    //TODO
-    it("[HTML] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done) {
+    // TODO
+    it("[HTML] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done)
+    {
         done();
     });
 
-    //TODO
-    it("[HTML] should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done) {
+    // TODO
+    it("[HTML] should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done)
+    {
         done();
     });
 
-    //TODO
-    it("[JSON] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done) {
+    // TODO
+    it("[JSON] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done)
+    {
         done();
     });
 
-    //TODO
-    it("[JSON] should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done) {
+    // TODO
+    it("[JSON] should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done)
+    {
         done();
     });
-
 
     /**
      * Permissions and project access levels (Does it filter the private and metadataonly projects and folders adequately?)
      */
 
-    //Folders inside different types of projects
-    //TODO
-    it("[HTML] should find a folder present in "+publicProject.handle+" project by searching for a term present in its description. Query : \"public project type\"", function (done) {
+    // Folders inside different types of projects
+    // TODO
+    it("[HTML] should find a folder present in " + publicProject.handle + " project by searching for a term present in its description. Query : \"public project type\"", function (done)
+    {
         done();
     });
 
-    //TODO
-    it("[HTML] should NOT find a folder present in the "+metadataOnlyProject.handle+" project by searching for a term present in its description", function (done) {
+    // TODO
+    it("[HTML] should NOT find a folder present in the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done)
+    {
         done();
     });
 
-    //TODO
-    it("[HTML] should NOT find a folder present in the "+privateProject.handle+" project by searching for a term present in its description", function (done) {
+    // TODO
+    it("[HTML] should NOT find a folder present in the " + privateProject.handle + " project by searching for a term present in its description", function (done)
+    {
         done();
     });
 
-    //Different types of projects
-    //TODO
-    it("[HTML] should find the " + publicProject.handle + " project by searching for a term present in its description", function (done) {
+    // Different types of projects
+    // TODO
+    it("[HTML] should find the " + publicProject.handle + " project by searching for a term present in its description", function (done)
+    {
         done();
     });
 
-    //TODO
-    it("[HTML] should find the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done) {
+    // TODO
+    it("[HTML] should find the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done)
+    {
         done();
     });
 
-    //TODO
-    it("[HTML] should not the " + privateProject.handle + " project by searching for a term present in its description", function (done) {
+    // TODO
+    it("[HTML] should not the " + privateProject.handle + " project by searching for a term present in its description", function (done)
+    {
         done();
     });
 });

@@ -15,12 +15,12 @@ const async = require("async");
 
 function Share (object)
 {
-    /*const self = this;
+    /* const self = this;
     self.addURIAndRDFType(object, "share", Share);
     Share.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-    
+
     let objectType;
     if(object.ddr.postURI)
     {
@@ -31,7 +31,6 @@ function Share (object)
         console.log('is fileVersionURI');
         objectType = "ddr:FileVersion";
     }
-
 
     const newId = uuid.v4();
 
@@ -59,7 +58,7 @@ function Share (object)
         return self;
     }, db_social.graphUri);
 
-    //return self;*/
+    //return self; */
 
     const self = this;
     self.addURIAndRDFType(object, "share", Share);
@@ -69,7 +68,7 @@ function Share (object)
 
     const newId = uuid.v4();
 
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
         self.ddr.humanReadableURI = Config.baseUri + "/shares/" + newId;
     }
@@ -77,7 +76,8 @@ function Share (object)
     return self;
 }
 
-Share.buildFromInfo = function (info, callback) {
+Share.buildFromInfo = function (info, callback)
+{
     let newShare = new this(info);
     callback(null, newShare);
 };

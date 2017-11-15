@@ -9,7 +9,7 @@ const Upload = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload.js"
 let UploadManager = function (tmp_files_dir)
 {
 
-}
+};
 
 if (typeof UploadManager.__uploads === "undefined")
 {
@@ -33,13 +33,9 @@ UploadManager.add_upload = function (username, filename, size, md5_checksum, par
                 UploadManager.__uploads[id] = upload;
                 return callback(null, upload);
             }
-            else
-            {
-                return callback(err, upload);
-            }
+            return callback(err, upload);
         });
 };
-
 
 UploadManager.get_upload_by_id = function (id)
 {
@@ -53,10 +49,7 @@ UploadManager.finished = function (id)
     {
         return null;
     }
-    else
-    {
-        return upload.finished();
-    }
+    return upload.finished();
 };
 
 UploadManager.setUploadExpectedBytes = function (id, bytes)

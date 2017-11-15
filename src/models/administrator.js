@@ -17,10 +17,9 @@ function Administrator (object)
 
     self.copyOrInitDescriptors(object);
 
-
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = db.baseURI+"/administrator/"+self.ddr.username;
+        self.ddr.humanReadableURI = db.baseURI + "/administrator/" + self.ddr.username;
     }
 
     return self;
@@ -28,4 +27,4 @@ function Administrator (object)
 
 Administrator = Class.extend(Administrator, User, "ddr:Administrator");
 
-module.exports.Administrator  = Administrator;
+module.exports.Administrator = Administrator;

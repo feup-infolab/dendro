@@ -27,11 +27,15 @@ let loadOntologies = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("/bo
 let initCache = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("/bootup/init/init_cache.js")).initCache;
 let initVirtuoso = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("/bootup/init/init_virtuoso.js")).initVirtuoso;
 
-describe("Loading ontologies cache only once...", function () {
-    it("Should load all ontologies into cache.", function (done) {
+describe("Loading ontologies cache only once...", function ()
+{
+    it("Should load all ontologies into cache.", function (done)
+    {
         this.timeout(Config.testsTimeout);
-        initVirtuoso(null, function(err, result){
-            initCache(null, function(err, result){
+        initVirtuoso(null, function (err, result)
+        {
+            initCache(null, function (err, result)
+            {
                 loadOntologies(null, done, true);
             });
         });

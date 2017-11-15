@@ -27,31 +27,39 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Social Dendro user timeline tests", function () {
-    before(function (done) {
+describe("Social Dendro user timeline tests", function ()
+{
+    before(function (done)
+    {
         this.timeout(Config.testsTimeout);
-        //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
+        // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
+        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             done();
         });
     });
 
-    describe("[GET] Gets the Social Dendro timeline for each user [Valid cases] /socialDendro/my", function () {
-
-        it("[For an unauthenticated user] Should give an unauthorized error", function (done) {
+    describe("[GET] Gets the Social Dendro timeline for each user [Valid cases] /socialDendro/my", function ()
+    {
+        it("[For an unauthenticated user] Should give an unauthorized error", function (done)
+        {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
-            socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res) {
+            socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res)
+            {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Action not permitted. You are not logged into the system.");
                 done();
             });
         });
 
-        it("[For demouser1, as the creator of all projects] Should init the timeline with an array of post URIs", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res) {
+        it("[For demouser1, as the creator of all projects] Should init the timeline with an array of post URIs", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.text.should.not.contain("initTimeline('[]')");
                     done();
@@ -59,9 +67,12 @@ describe("Social Dendro user timeline tests", function () {
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should init the timeline with an array of post URIs", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res) {
+        it("[For demouser2, a collaborator in all projects] Should init the timeline with an array of post URIs", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.text.should.not.contain("initTimeline('[]')");
                     done();
@@ -69,9 +80,12 @@ describe("Social Dendro user timeline tests", function () {
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should init the timeline with an EMPTY array of post URIs", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res) {
+        it("[For demouser3, is not a creator or collaborator in any projects] Should init the timeline with an EMPTY array of post URIs", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("initTimeline('[]')");
                     done();
@@ -80,13 +94,14 @@ describe("Social Dendro user timeline tests", function () {
         });
     });
 
-    after(function (done) {
-        //destroy graphs
+    after(function (done)
+    {
+        // destroy graphs
         this.timeout(Config.testsTimeout);
-        appUtils.clearAppState(function (err, data) {
+        appUtils.clearAppState(function (err, data)
+        {
             should.equal(err, null);
             done();
         });
     });
-
 });

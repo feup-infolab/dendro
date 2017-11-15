@@ -1,8 +1,10 @@
-[![Build Status](http://buildserver-rdm.up.pt:8111/job/FEUP%20Information%20Systems%20Laboratory/job/dendro/job/master/badge/icon)](http://buildserver-rdm.up.pt:8111/job/FEUP%20Information%20Systems%20Laboratory/job/dendro/job/master/)
+[![Build Status](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/master/badge/icon)](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/master/)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=feup-infolab/dendro&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&utm_medium=referral&utm_content=feup-infolab/dendro&utm_campaign=Badge_Coverage)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
 [![Code Climate](https://codeclimate.com/github/feup-infolab/dendro/badges/gpa.svg)](https://codeclimate.com/github/feup-infolab/dendro)
+[![Issue Count](https://codeclimate.com/github/feup-infolab/dendro/badges/issue_count.svg)](https://codeclimate.com/github/feup-infolab/dendro)
+[![Chat on gitter](https://img.shields.io/gitter/room/badges/shields.svg)](https://gitter.im/feup-infolab/dendro)
 
 #	Welcome to Dendro
 
@@ -20,14 +22,35 @@ If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro
 
 ## What is Dendro?
 
-The Dendro platform is a completely open-source platform designed to help researchers describe their datasets, fully build on Linked Open Data. It is designed to capture data and metadata during the research workflow. Whenever researchers want to publish a dataset, they can export to repositories such as [CKAN](http://ckan.org/), [DSpace](http://www.dspace.org/), [Invenio](http://invenio-software.org/), or [EUDAT's B2Share](https://www.eudat.eu/services/b2share). Any repository can be added by writing small plug-ins.
+Dendro is a collaborative file storage and description platform designed to support users in collecting and describing data, with its roots in research data management. It does not intend to replace existing research data repositories, because it is placed before the moment of deposit in a data repository. 
 
-It is under development at [Faculdade de Engenharia da Universidade do Porto](https://www.fe.up.pt/)'s [Infolab](http://infolab.fe.up.pt) since 2013. If you are interested in the academic foundations and innovations behind Dendro, please check out our **publications** at the [Dendro official website](http://dendro.fe.up.pt).
+It is designed to support the work of research groups with collaborative features such as: 
 
+ - File metadata versioning
+ - Permissions management
+ - Editing and rollback
+ - Public/Private/Metadata Only project visibility
 
-You are free to use Dendro to build any service for your research group or institution.
+You start by creating a “Project”, which is like a Dropbox shared folder. Projects can be private (completely invisible to non-colaborators), metadata-only (only metadata is visible but data is not), and public (everyone can read both data and metadata). Project members can then upload files and folders and describe those resources using domain-specific and generic metadata, so it can suit a broad spectrum of data description needs. The contents of some files that contain data (Excel, CSV, for example) is automatically extracted, as well as text from others (PDF, Word, TXT, etc) to assist discovery. 
 
-Pull requests are welcome!
+Dendro provides a flexible data description framework built on Linked Open Data at the core (triple store as), scalable file storage for handling big files, BagIt-represented backups, authentication with [ORCID](https://orcid.org/) and sharing to practically any repository platform. Currently we support the following repositories:
+
+ - [CKAN](http://ckan.org/)
+ - [DSpace](http://www.dspace.org/)
+ - [Invenio](http://invenio-software.org/)
+ - [EUDAT's B2Share](https://www.eudat.eu/services/b2share),
+ - [Figshare](https://figshare.com/). 
+ - Any repository can be added by writing small plug-ins.
+ 
+We are also implementing an altmetrics module and a soclal extension that can help project members keep track of the changes made in the project.
+
+The software will be a core component of the [UPorto](https://sigarra.up.pt/up/pt/web_base.gera_pagina?p_pagina=home) and [INESC-TEC](https://www.inesctec.pt/) Research Data Management workflow by 2018 as per the TAIL project, funded by the Portuguese FCT (Fundação para a Ciência e Tecnologia). As such, we are working hard to make it production-ready. This means writing extensive automatic tests which complement the existing usage tests with actual researchers. 
+
+The code is freely available online and we welcome more user testing scenarios, user feedback and development contributions. You are free to use Dendro to build any service for your research group or institution and pull requests are welcome.
+
+## Who is building Dendro?
+
+Dendro is being built by [Faculdade de Engenharia da Universidade do Porto](https://www.fe.up.pt/)'s [Infolab](http://infolab.fe.up.pt) since 2013. If you are interested in the academic foundations and innovations behind Dendro, please check out our **publications** at the [Dendro official website](http://dendro.fe.up.pt).
 
 ## Dependencies
 

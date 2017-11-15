@@ -8,18 +8,18 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 var ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var uuid = require('uuid');
+var uuid = require("uuid");
 
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 
 var gfs = Config.getGFSByID();
-var _ = require('underscore');
-var async = require('async');
+var _ = require("underscore");
+var async = require("async");
 
 function MetadataChangePost (object)
 {
-    /*MetadataChangePost.baseConstructor.call(this, object);
+    /* MetadataChangePost.baseConstructor.call(this, object);
     var self = this;
 
     if(object.uri != null)
@@ -35,7 +35,7 @@ function MetadataChangePost (object)
 
     self.rdf.type = "ddr:MetadataChangePost";
 
-    return self;*/
+    return self; */
 
     const self = this;
     self.addURIAndRDFType(object, "post", MetadataChangePost);
@@ -45,7 +45,7 @@ function MetadataChangePost (object)
 
     const newId = uuid.v4();
 
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
         self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
     }
@@ -53,12 +53,14 @@ function MetadataChangePost (object)
     return self;
 }
 
-MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project, callback) {
+MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project, callback)
+{
     var changeAuthor = archivedVersion.ddr.versionCreator;
-    User.findByUri(changeAuthor, function (err, fullVersionCreator) {
-        if(isNull(err))
+    User.findByUri(changeAuthor, function (err, fullVersionCreator)
+    {
+        if (isNull(err))
         {
-            var title = fullVersionCreator.ddr.username + " worked on "  + archivedVersion.changes.length +" metadata changes";
+            var title = fullVersionCreator.ddr.username + " worked on " + archivedVersion.changes.length + " metadata changes";
             var versionUri = archivedVersion.uri;
             var newMetadataChangePost = new MetadataChangePost({
                 ddr: {
@@ -83,13 +85,16 @@ MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project
     });
 };
 
-MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb) {
+MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb)
+{
     var self = this;
     let archivedVersionUri = self.schema.sharedContent;
 
-    const getDescriptorPrefixedForm = function (descriptorUri, callback) {
-        Descriptor.findByUri(descriptorUri, function (err, descriptor) {
-            if(isNull(err))
+    const getDescriptorPrefixedForm = function (descriptorUri, callback)
+    {
+        Descriptor.findByUri(descriptorUri, function (err, descriptor)
+        {
+            if (isNull(err))
             {
                 callback(err, descriptor.prefixedForm);
             }
@@ -102,23 +107,25 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb) {
         });
     };
 
-    ArchivedResource.findByUri(archivedVersionUri, function (err, archivedVersion) {
-        if(!err)
+    ArchivedResource.findByUri(archivedVersionUri, function (err, archivedVersion)
+    {
+        if (!err)
         {
-            /*let numberOfChanges = archivedVersion.changes.length;
+            /* let numberOfChanges = archivedVersion.changes.length;
             let changesSortedByType = _.groupBy(archivedVersion.changes, function(change){ return change.ddr.changeType;});
             let hasNumberOfDescriptorsAdded = changesSortedByType.add ? changesSortedByType.add.length : 0;
             let hasNumberOfDescriptorsEdited = changesSortedByType.edit ? changesSortedByType.edit.length : 0;
             let hasNumberOfDescriptorsDeleted = changesSortedByType.delete ? changesSortedByType.delete.length : 0;
             let editChanges, addChanges, deleteChanges;
-            let isVersionOf = archivedVersion.ddr.isVersionOf;*/
+            let isVersionOf = archivedVersion.ddr.isVersionOf; */
 
-
-            async.mapSeries(archivedVersion.changes, function (change, callback) {
-                getDescriptorPrefixedForm(change.ddr.changedDescriptor, function (err, prefixedForm) {
-                    if(isNull(err))
+            async.mapSeries(archivedVersion.changes, function (change, callback)
+            {
+                getDescriptorPrefixedForm(change.ddr.changedDescriptor, function (err, prefixedForm)
+                {
+                    if (isNull(err))
                     {
-                        if(!isNull(prefixedForm))
+                        if (!isNull(prefixedForm))
                         {
                             change.prefixedForm = prefixedForm;
                             callback(err, change);
@@ -133,46 +140,56 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb) {
                     {
                         callback(err, change);
                     }
-                })
-            }, function(err, result) {
-                if(isNull(err))
+                });
+            }, function (err, result)
+            {
+                if (isNull(err))
                 {
                     let numberOfChanges = archivedVersion.changes.length;
-                    let changesSortedByType = _.groupBy(archivedVersion.changes, function(change){ return change.ddr.changeType;});
+                    let changesSortedByType = _.groupBy(archivedVersion.changes, function (change)
+                    {
+                        return change.ddr.changeType;
+                    });
                     let hasNumberOfDescriptorsAdded = changesSortedByType.add ? changesSortedByType.add.length : 0;
                     let hasNumberOfDescriptorsEdited = changesSortedByType.edit ? changesSortedByType.edit.length : 0;
                     let hasNumberOfDescriptorsDeleted = changesSortedByType.delete ? changesSortedByType.delete.length : 0;
                     let editChanges, addChanges, deleteChanges;
                     let isVersionOf = archivedVersion.ddr.isVersionOf;
-                    Resource.findByUri(isVersionOf, function (err, resource) {
-                        if(isNull(err))
+                    Resource.findByUri(isVersionOf, function (err, resource)
+                    {
+                        if (isNull(err))
                         {
-                            if(!isNull(resource))
+                            if (!isNull(resource))
                             {
-                                try {
-                                    editChanges = hasNumberOfDescriptorsAdded + hasNumberOfDescriptorsDeleted  > 0 ? changesSortedByType.edit.splice(0, 1) : changesSortedByType.edit.splice(0, 3);
+                                try
+                                {
+                                    editChanges = hasNumberOfDescriptorsAdded + hasNumberOfDescriptorsDeleted > 0 ? changesSortedByType.edit.splice(0, 1) : changesSortedByType.edit.splice(0, 3);
                                 }
-                                catch(err) {
+                                catch (err)
+                                {
                                     editChanges = null;
                                 }
 
-                                try {
-                                    addChanges = hasNumberOfDescriptorsEdited + hasNumberOfDescriptorsDeleted  > 0 ? changesSortedByType.add.splice(0, 1) : changesSortedByType.add.splice(0, 3);
+                                try
+                                {
+                                    addChanges = hasNumberOfDescriptorsEdited + hasNumberOfDescriptorsDeleted > 0 ? changesSortedByType.add.splice(0, 1) : changesSortedByType.add.splice(0, 3);
                                 }
-                                catch(err) {
+                                catch (err)
+                                {
                                     addChanges = null;
                                 }
 
-                                try {
-                                    deleteChanges = hasNumberOfDescriptorsAdded + hasNumberOfDescriptorsEdited  > 0 ? changesSortedByType.delete.splice(0,1) : changesSortedByType.delete.splice(0,3)
+                                try
+                                {
+                                    deleteChanges = hasNumberOfDescriptorsAdded + hasNumberOfDescriptorsEdited > 0 ? changesSortedByType.delete.splice(0, 1) : changesSortedByType.delete.splice(0, 3);
                                 }
-                                catch(err) {
+                                catch (err)
+                                {
                                     deleteChanges = null;
                                 }
 
-
                                 let changesInfo = {
-                                    editChanges : editChanges,
+                                    editChanges: editChanges,
                                     addChanges: addChanges,
                                     deleteChanges: deleteChanges,
                                     numberOfChanges: numberOfChanges,
@@ -214,10 +231,7 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb) {
     });
 };
 
-/*MetadataChangePost = Class.extend(MetadataChangePost, Post);*/
+/* MetadataChangePost = Class.extend(MetadataChangePost, Post); */
 MetadataChangePost = Class.extend(MetadataChangePost, Post, "ddr:MetadataChangePost");
 
 module.exports.MetadataChangePost = MetadataChangePost;
-
-
-

@@ -31,28 +31,35 @@ const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncache
 const pageNumber = 1;
 let demouser1PostURIsArray;
 
-describe("Get comments for a specific post tests", function () {
-    before(function (done) {
+describe("Get comments for a specific post tests", function ()
+{
+    before(function (done)
+    {
         this.timeout(Config.testsTimeout);
-        //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
+        // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
+        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             done();
         });
     });
 
-    describe("[GET] Get comments for a specific post /posts/comments", function () {
-
-        it("[For an unauthenticated user] Should give an unauthorized error", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+    describe("[GET] Get comments for a specific post /posts/comments", function ()
+    {
+        it("[For an unauthenticated user] Should give an unauthorized error", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(5);
                     demouser1PostURIsArray = res.body;
-                    //Force logout
+                    // Force logout
                     const app = global.tests.app;
                     agent = chai.request.agent(app);
-                    socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri, function (err, res) {
+                    socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
+                    {
                         res.statusCode.should.equal(401);
                         res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to.");
                         done();
@@ -61,18 +68,24 @@ describe("Get comments for a specific post tests", function () {
             });
         });
 
-        it("[For demouser1, as the creator of all projects] Should respond with the comments made to an existing post(a post that has comments) in a project created by demouser1", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri, function (err, res) {
+        it("[For demouser1, as the creator of all projects] Should respond with the comments made to an existing post(a post that has comments) in a project created by demouser1", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(0);
-                    socialDendroUtils.commentAPost(true, agent, demouser1PostURIsArray[0].uri, commentMock.commentMsg, function (err, res) {
+                    socialDendroUtils.commentAPost(true, agent, demouser1PostURIsArray[0].uri, commentMock.commentMsg, function (err, res)
+                    {
                         res.statusCode.should.equal(200);
-                        socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri, function (err, res) {
+                        socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
+                        {
                             res.statusCode.should.equal(200);
                             res.body.length.should.equal(1);
                             res.body[0].ddr.commentMsg.should.equal(commentMock.commentMsg);
-                            userUtils.getUserInfo(demouser1.username, true, agent, function (err, response) {
+                            userUtils.getUserInfo(demouser1.username, true, agent, function (err, response)
+                            {
                                 response.statusCode.should.equal(200);
                                 res.body[0].ddr.userWhoCommented.should.equal(response.body.uri);
                                 done();
@@ -83,9 +96,12 @@ describe("Get comments for a specific post tests", function () {
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should respond with zero comments to an existing post(a post with no comments) in a project where demouser2 collaborates", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[2].uri, function (err, res) {
+        it("[For demouser2, a collaborator in all projects] Should respond with zero comments to an existing post(a post with no comments) in a project where demouser2 collaborates", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[2].uri, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(0);
                     done();
@@ -93,9 +109,12 @@ describe("Get comments for a specific post tests", function () {
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri, function (err, res) {
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to.");
                     done();
@@ -103,10 +122,13 @@ describe("Get comments for a specific post tests", function () {
             });
         });
 
-        //The case when the post does not exist
-        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post does not exist", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri + "-bugHere", function (err, res) {
+        // The case when the post does not exist
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post does not exist", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri + "-bugHere", function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to.");
                     done();
@@ -114,9 +136,12 @@ describe("Get comments for a specific post tests", function () {
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post does not exist", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri + "-bugHere", function (err, res) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post does not exist", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri + "-bugHere", function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to.");
                     done();
@@ -124,9 +149,12 @@ describe("Get comments for a specific post tests", function () {
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post does not exist", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri + "-bugHere", function (err, res) {
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post does not exist", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.getAPostCommentsInfo(true, agent, demouser1PostURIsArray[0].uri + "-bugHere", function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to.");
                     done();
@@ -134,10 +162,13 @@ describe("Get comments for a specific post tests", function () {
             });
         });
 
-        //The case where the post is null
-        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post is null", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.getAPostCommentsInfo(true, agent, null, function (err, res) {
+        // The case where the post is null
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error if the post is null", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.getAPostCommentsInfo(true, agent, null, function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to.");
                     done();
@@ -145,9 +176,12 @@ describe("Get comments for a specific post tests", function () {
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post is null", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.getAPostCommentsInfo(true, agent, null, function (err, res) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error if the post is null", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.getAPostCommentsInfo(true, agent, null, function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to.");
                     done();
@@ -155,9 +189,12 @@ describe("Get comments for a specific post tests", function () {
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post is null", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.getAPostCommentsInfo(true, agent, null, function (err, res) {
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error if the post is null", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.getAPostCommentsInfo(true, agent, null, function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the post you want to obtain comments information belongs to.");
                     done();
@@ -166,13 +203,14 @@ describe("Get comments for a specific post tests", function () {
         });
     });
 
-    after(function (done) {
-        //destroy graphs
+    after(function (done)
+    {
+        // destroy graphs
         this.timeout(Config.testsTimeout);
-        appUtils.clearAppState(function (err, data) {
+        appUtils.clearAppState(function (err, data)
+        {
             should.equal(err, null);
             done();
         });
     });
-
 });

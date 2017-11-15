@@ -4,34 +4,38 @@ const chaiHttp = require("chai-http");
 const CKAN = require("ckan");
 const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const async = require("async");
-const slug = require('slug');
+const slug = require("slug");
 chai.use(chaiHttp);
 
-const createCkanOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb) {
+const createCkanOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb)
+{
     const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUrl, ckanRepoData.ddr.hasAPIKey);
     client.action("organization_create",
         {
             name: organizationData.name,
             id: organizationData.id
         },
-        function (err, result) {
+        function (err, result)
+        {
             cb(err, result);
         });
 };
 
-const deleteCkanOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb) {
+const deleteCkanOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb)
+{
     const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUrl, ckanRepoData.ddr.hasAPIKey);
-    //organization_purge
-    //client.action("organization_delete",
+    // organization_purge
+    // client.action("organization_delete",
     client.action("organization_delete",
         {
             id: organizationData.id
         },
-        function (err, result) {
+        function (err, result)
+        {
             cb(err, result);
         });
 
-    /*client.action("organization_show",
+    /* client.action("organization_show",
      {
      id: organizationData.id
      },
@@ -40,7 +44,8 @@ const deleteCkanOrganization = function (jsonOnly, agent, ckanRepoData, organiza
      });*/
 };
 
-const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb) {
+const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb)
+{
     const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUrl, ckanRepoData.ddr.hasAPIKey);
 
     client.action("organization_show",
@@ -48,23 +53,29 @@ const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoDat
             id: organizationData.id,
             include_datasets: true
         },
-        function (err, result) {
-            if (err) {
+        function (err, result)
+        {
+            if (err)
+            {
                 cb(err, result);
             }
-            else {
-                if(result.result.packages.length > 0)
+            else
+            {
+                if (result.result.packages.length > 0)
                 {
-                    async.mapSeries(result.result.packages, function (package, cb) {
-                        /*client.action("package_delete",*/
+                    async.mapSeries(result.result.packages, function (package, cb)
+                    {
+                        /* client.action("package_delete",*/
                         client.action("dataset_purge",
                             {
                                 id: package.id
                             },
-                            function (err, result) {
+                            function (err, result)
+                            {
                                 cb(err, result);
                             });
-                    }, function (err, results) {
+                    }, function (err, results)
+                    {
                         cb(err, results);
                     });
                 }
@@ -75,7 +86,7 @@ const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoDat
             }
         });
 
-    /*client.action("package_list",
+    /* client.action("package_list",
         {},
         function (err, result) {
             if (err) {
@@ -103,9 +114,10 @@ const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoDat
                 }
             }
         });*/
-}
+};
 
-const uploadFileToCkanPackage = function (jsonOnly, agent, ckanRepoData, fileData, packageInfo, cb) {
+const uploadFileToCkanPackage = function (jsonOnly, agent, ckanRepoData, fileData, packageInfo, cb)
+{
     const client = new CKAN.Client(ckanRepoData.repository.ddr.hasExternalUri, ckanRepoData.repository.ddr.hasAPIKey);
     client.upload_file_into_package(
         fileData.location,
@@ -114,29 +126,32 @@ const uploadFileToCkanPackage = function (jsonOnly, agent, ckanRepoData, fileDat
         fileData.name,
         fileData.extension,
         fileData.extension.toUpperCase()
-        , function (err, info) {
+        , function (err, info)
+        {
             cb(err, info);
-    });
+        });
 };
 
-const getCkanFolderContents = function (jsonOnly, agent, ckanRepoData, folderData, cb) {
+const getCkanFolderContents = function (jsonOnly, agent, ckanRepoData, folderData, cb)
+{
     const client = new CKAN.Client(ckanRepoData.repository.ddr.hasExternalUri, ckanRepoData.repository.ddr.hasAPIKey);
     let packageId = CkanUtils.createPackageID(folderData.uri);
     client.action("package_show",
         {
             id: packageId
         },
-        function (err, result) {
-            if (result.success) {
-
+        function (err, result)
+        {
+            if (result.success)
+            {
                 cb(err, result.result.resources);
             }
-            else {
+            else
+            {
                 cb(err, result);
             }
         });
 };
-
 
 module.exports = {
     createCkanOrganization: createCkanOrganization,

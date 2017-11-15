@@ -3,5 +3,5 @@ const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pa
 const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
 module.exports = {
-    uri : "http://purl.org/dc/terms/abstract"
+    uri: "http://purl.org/dc/terms/abstract"
 };

@@ -16,8 +16,8 @@ function Comment (object)
     self.copyOrInitDescriptors(object);
 
     const newId = uuid.v4();
-    
-    if(isNull(self.ddr.humanReadableURI))
+
+    if (isNull(self.ddr.humanReadableURI))
     {
         self.ddr.humanReadableURI = Config.baseUri + "/comments/" + newId;
     }
@@ -28,5 +28,3 @@ function Comment (object)
 Comment = Class.extend(Comment, Event, "ddr:Comment");
 
 module.exports.Comment = Comment;
-
-

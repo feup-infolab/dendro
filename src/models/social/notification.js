@@ -17,7 +17,7 @@ function Notification (object)
 
     const newId = uuid.v4();
 
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
         self.ddr.humanReadableURI = Config.baseUri + "/notifications/" + newId;
     }
@@ -25,10 +25,10 @@ function Notification (object)
     return self;
 }
 
-//postURI/fileVersionUri
-//postUriAuthor/fileVersionUriAuthor
-//userWhoActed
-//actionType -> Like, Comment, Share
+// postURI/fileVersionUri
+// postUriAuthor/fileVersionUriAuthor
+// userWhoActed
+// actionType -> Like, Comment, Share
 
 Notification = Class.extend(Notification, Resource, "ddr:Notification");
 

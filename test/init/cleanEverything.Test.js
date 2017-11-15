@@ -26,20 +26,26 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
-describe("Initial clean-up...", function () {
-    before(function (done) {
+describe("Initial clean-up...", function ()
+{
+    before(function (done)
+    {
         this.timeout(Config.testsTimeout);
-        bootupUnit.setup(function (err, results) {
+        bootupUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             done();
         });
     });
 
-    describe("Clean everything", function () {
-        it("Should destroy all test graphs", function (done) {
-            //destroy graphs
+    describe("Clean everything", function ()
+    {
+        it("Should destroy all test graphs", function (done)
+        {
+            // destroy graphs
             this.timeout(Config.testsTimeout);
-            appUtils.clearAppState(function (err, data) {
+            appUtils.clearAppState(function (err, data)
+            {
                 should.equal(err, null);
                 done();
             });

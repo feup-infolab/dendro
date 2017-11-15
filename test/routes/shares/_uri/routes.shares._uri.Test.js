@@ -50,37 +50,48 @@ let fileMetadata = [{
 let publicProjectUri;
 let shareUriOfAManualPost;
 
-describe("Get a specific share information tests", function () {
-    before(function (done) {
+describe("Get a specific share information tests", function ()
+{
+    before(function (done)
+    {
         this.timeout(Config.testsTimeout);
-        //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
+        // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
+        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             done();
         });
     });
 
-    describe("[GET] Get a specific share information /shares/:uri", function () {
-
-        it("[For an unauthenticated user] Should give an unauthorized error", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.getProjectUriFromHandle(agent, publicProject.handle, function (err, res) {
+    describe("[GET] Get a specific share information /shares/:uri", function ()
+    {
+        it("[For an unauthenticated user] Should give an unauthorized error", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                projectUtils.getProjectUriFromHandle(agent, publicProject.handle, function (err, res)
+                {
                     publicProjectUri = res;
-                    socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res) {
+                    socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res)
+                    {
                         res.statusCode.should.equal(200);
-                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                        {
                             res.statusCode.should.equal(200);
-                            demouser1PostURIsArray = res.body;//first index is now a manualPost
+                            demouser1PostURIsArray = res.body;// first index is now a manualPost
                             demouser1PostURIsArray.length.should.equal(5);
-                            socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res) {
+                            socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res)
+                            {
                                 res.statusCode.should.equal(200);
-                                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                                {
                                     res.statusCode.should.equal(200);
-                                    demouser1PostURIsArray = res.body;//first index is now a share of a manualPost
-                                    //Force logout
+                                    demouser1PostURIsArray = res.body;// first index is now a share of a manualPost
+                                    // Force logout
                                     const app = global.tests.app;
                                     agent = chai.request.agent(app);
-                                    socialDendroUtils.getShareUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res) {
+                                    socialDendroUtils.getShareUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
+                                    {
                                         res.statusCode.should.equal(401);
                                         res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the Share you want to obtain information belongs to.");
                                         done();
@@ -93,23 +104,31 @@ describe("Get a specific share information tests", function () {
             });
         });
 
-        it("[For demouser1, as the creator of all projects] Should give the share information from a share of a ManualPost in a project created by demouser1", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res) {
+        it("[For demouser1, as the creator of all projects] Should give the share information from a share of a ManualPost in a project created by demouser1", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res)
+                {
                     res.statusCode.should.equal(200);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    {
                         res.statusCode.should.equal(200);
-                        demouser1PostURIsArray = res.body;//first index is now a manualPost
+                        demouser1PostURIsArray = res.body;// first index is now a manualPost
                         demouser1PostURIsArray.length.should.equal(5);
-                        socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res) {
+                        socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res)
+                        {
                             res.statusCode.should.equal(200);
-                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                            {
                                 res.statusCode.should.equal(200);
-                                demouser1PostURIsArray = res.body;//first index is now a share of manualPost
+                                demouser1PostURIsArray = res.body;// first index is now a share of manualPost
                                 shareUriOfAManualPost = demouser1PostURIsArray[0].uri;
-                                socialDendroUtils.getShareUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res) {
-                                    res.statusCode.should.equal(200);//should be a share of a manual Post
-                                    socialDendroUtils.getPostUriPage(true, agent, res.body.ddr.postURI, function (err, res) {
+                                socialDendroUtils.getShareUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
+                                {
+                                    res.statusCode.should.equal(200);// should be a share of a manual Post
+                                    socialDendroUtils.getPostUriPage(true, agent, res.body.ddr.postURI, function (err, res)
+                                    {
                                         res.statusCode.should.equal(200);
                                         expect(res.body.rdf.type).to.include("http://dendro.fe.up.pt/ontology/0.1/ManualPost");
                                         done();
@@ -122,22 +141,30 @@ describe("Get a specific share information tests", function () {
             });
         });
 
-        it("[For demouser1, as the creator of all projects] Should give the share information from a share of a FileSystemPost in a project created by demouser1", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.createFolder(true, agent, publicProject.handle, folderPathInProject, folderName, function (err, res) {
+        it("[For demouser1, as the creator of all projects] Should give the share information from a share of a FileSystemPost in a project created by demouser1", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, publicProject.handle, folderPathInProject, folderName, function (err, res)
+                {
                     res.statusCode.should.equal(200);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    {
                         res.statusCode.should.equal(200);
-                        demouser1PostURIsArray = res.body;//first index is now a FileSystemPost
+                        demouser1PostURIsArray = res.body;// first index is now a FileSystemPost
                         demouser1PostURIsArray.length.should.equal(5);
-                        socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res) {
+                        socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res)
+                        {
                             res.statusCode.should.equal(200);
-                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                            {
                                 res.statusCode.should.equal(200);
-                                demouser1PostURIsArray = res.body;//first index is now a share of FileSystemPost
-                                socialDendroUtils.getShareUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res) {
-                                    res.statusCode.should.equal(200);//should be a share of FileSystemPost
-                                    socialDendroUtils.getPostUriPage(true, agent, res.body.ddr.postURI, function (err, res) {
+                                demouser1PostURIsArray = res.body;// first index is now a share of FileSystemPost
+                                socialDendroUtils.getShareUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
+                                {
+                                    res.statusCode.should.equal(200);// should be a share of FileSystemPost
+                                    socialDendroUtils.getPostUriPage(true, agent, res.body.ddr.postURI, function (err, res)
+                                    {
                                         res.statusCode.should.equal(200);
                                         expect(res.body.rdf.type).to.include("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost");
                                         done();
@@ -150,22 +177,30 @@ describe("Get a specific share information tests", function () {
             });
         });
 
-        it("[For demouser1, as the creator of all projects] Should give the share information from a share of a MetadataChangePost in a project created by demouser1", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.updateItemMetadata(true, agent, publicProject.handle, folderName, folderMetadata, function (err, res) {
+        it("[For demouser1, as the creator of all projects] Should give the share information from a share of a MetadataChangePost in a project created by demouser1", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.updateItemMetadata(true, agent, publicProject.handle, folderName, folderMetadata, function (err, res)
+                {
                     res.statusCode.should.equal(200);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    {
                         res.statusCode.should.equal(200);
-                        demouser1PostURIsArray = res.body;//first index is now a MetadataChangePost
+                        demouser1PostURIsArray = res.body;// first index is now a MetadataChangePost
                         demouser1PostURIsArray.length.should.equal(5);
-                        socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res) {
+                        socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res)
+                        {
                             res.statusCode.should.equal(200);
-                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res) {
+                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                            {
                                 res.statusCode.should.equal(200);
-                                demouser1PostURIsArray = res.body;//first index is now a share of MetadataChangePost
-                                socialDendroUtils.getShareUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res) {
-                                    res.statusCode.should.equal(200);//should be a share of MetadataChangePost
-                                    socialDendroUtils.getPostUriPage(true, agent, res.body.ddr.postURI, function (err, res) {
+                                demouser1PostURIsArray = res.body;// first index is now a share of MetadataChangePost
+                                socialDendroUtils.getShareUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
+                                {
+                                    res.statusCode.should.equal(200);// should be a share of MetadataChangePost
+                                    socialDendroUtils.getPostUriPage(true, agent, res.body.ddr.postURI, function (err, res)
+                                    {
                                         res.statusCode.should.equal(200);
                                         expect(res.body.rdf.type).to.include("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost");
                                         done();
@@ -178,11 +213,15 @@ describe("Get a specific share information tests", function () {
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give the share information from a share of a ManualPost in a project where demouser2 collaborates)", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost, function (err, res) {
-                    res.statusCode.should.equal(200);//should be a share of ManualPost
-                    socialDendroUtils.getPostUriPage(true, agent, res.body.ddr.postURI, function (err, res) {
+        it("[For demouser2, a collaborator in all projects] Should give the share information from a share of a ManualPost in a project where demouser2 collaborates)", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost, function (err, res)
+                {
+                    res.statusCode.should.equal(200);// should be a share of ManualPost
+                    socialDendroUtils.getPostUriPage(true, agent, res.body.ddr.postURI, function (err, res)
+                    {
                         res.statusCode.should.equal(200);
                         expect(res.body.rdf.type).to.include("http://dendro.fe.up.pt/ontology/0.1/ManualPost");
                         done();
@@ -191,9 +230,12 @@ describe("Get a specific share information tests", function () {
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error on a share from a project where demouser3 is not a creator or collaborator", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost, function (err, res) {
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error on a share from a project where demouser3 is not a creator or collaborator", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost, function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the Share you want to obtain information belongs to.");
                     done();
@@ -201,10 +243,13 @@ describe("Get a specific share information tests", function () {
             });
         });
 
-        //the case where the share does not exist
-        it("[For demouser1, as the creator of all projects] Should give a not found error from a share that does not exist", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost + "-bugHere", function (err, res) {
+        // the case where the share does not exist
+        it("[For demouser1, as the creator of all projects] Should give a not found error from a share that does not exist", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost + "-bugHere", function (err, res)
+                {
                     res.statusCode.should.equal(404);
                     res.body.message.should.equal("Page not found");
                     done();
@@ -212,9 +257,12 @@ describe("Get a specific share information tests", function () {
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give a not found error from a share that does not exist", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost + "-bugHere", function (err, res) {
+        it("[For demouser2, a collaborator in all projects] Should give a not found error from a share that does not exist", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost + "-bugHere", function (err, res)
+                {
                     res.statusCode.should.equal(404);
                     res.body.message.should.equal("Page not found");
                     done();
@@ -222,9 +270,12 @@ describe("Get a specific share information tests", function () {
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give a not found error from a share that does not exist", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost + "-bugHere", function (err, res) {
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give a not found error from a share that does not exist", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.getShareUriPage(true, agent, shareUriOfAManualPost + "-bugHere", function (err, res)
+                {
                     res.statusCode.should.equal(404);
                     res.body.message.should.equal("Page not found");
                     done();
@@ -233,13 +284,14 @@ describe("Get a specific share information tests", function () {
         });
     });
 
-    after(function (done) {
-        //destroy graphs
+    after(function (done)
+    {
+        // destroy graphs
         this.timeout(Config.testsTimeout);
-        appUtils.clearAppState(function (err, data) {
+        appUtils.clearAppState(function (err, data)
+        {
             should.equal(err, null);
             done();
         });
     });
-
 });

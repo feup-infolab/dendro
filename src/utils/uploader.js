@@ -11,12 +11,12 @@ const md5File = require("md5-file");
 const multiparty = require("multiparty");
 const tmp = require("tmp");
 
-const Uploader = function()
+const Uploader = function ()
 {
 
 };
 
-Uploader.prototype.handleUpload = function(req, res, callback)
+Uploader.prototype.handleUpload = function (req, res, callback)
 {
     const restart = req.query.restart;
     const upload_id = req.query.upload_id;
@@ -25,12 +25,13 @@ Uploader.prototype.handleUpload = function(req, res, callback)
     const filename = req.query.filename;
     let size = req.query.size;
 
-    if(!isNull(size))
+    if (!isNull(size))
     {
-        try{
+        try
+        {
             size = parseInt(size);
         }
-        catch(e)
+        catch (e)
         {
             return res.status(400).json({
                 result: "error",
@@ -41,11 +42,11 @@ Uploader.prototype.handleUpload = function(req, res, callback)
 
     let md5_checksum = req.query.md5_checksum;
 
-    const processChunkedUpload = function(upload, callback) {
+    const processChunkedUpload = function (upload, callback)
+    {
+    // console.log("Recebi um chunk do ficheiro " + filename + " para o upload id " + upload_id);
 
-        //console.log("Recebi um chunk do ficheiro " + filename + " para o upload id " + upload_id);
-
-        if(isNull(username))
+        if (isNull(username))
         {
             return res.status(400).json({
                 result: "error",
@@ -53,7 +54,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
             });
         }
 
-        if(isNull(filename))
+        if (isNull(filename))
         {
             return res.status(400).json({
                 result: "error",
@@ -61,7 +62,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
             });
         }
 
-        if(isNull(size))
+        if (isNull(size))
         {
             return res.status(400).json({
                 result: "error",
@@ -69,8 +70,8 @@ Uploader.prototype.handleUpload = function(req, res, callback)
             });
         }
 
-        if(!isNull(upload)
-            && (
+        if (!isNull(upload) &&
+            (
                 upload.username !== username ||
                 upload.filename !== filename ||
                 upload.expected !== size ||
@@ -82,20 +83,19 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                 result: "error",
                 message: "Invalid request for appending data to upload : " + upload_id,
                 error: {
-                    invalid_username : !(upload.username === username),
-                    invalid_filename : !(upload.filename === filename),
-                    invalid_size : !(upload.expected === size),
-                    id : !(upload.id === upload_id),
+                    invalid_username: !(upload.username === username),
+                    invalid_filename: !(upload.filename === filename),
+                    invalid_size: !(upload.expected === size),
+                    id: !(upload.id === upload_id)
                 }
             });
         }
-
 
         if (!isNull(upload) && upload !== "")
         {
             const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
 
-            form.on('error', function (err)
+            form.on("error", function (err)
             {
                 UploadManager.destroy_upload(upload.id, function (err)
                 {
@@ -107,7 +107,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                 });
             });
 
-            form.on('aborted', function ()
+            form.on("aborted", function ()
             {
                 UploadManager.destroy_upload(upload.id, function (err)
                 {
@@ -119,26 +119,32 @@ Uploader.prototype.handleUpload = function(req, res, callback)
             });
 
             // Parts are emitted when parsing the form
-            form.on('part', function(part) {
-
-                if (!part.filename) {
+            form.on("part", function (part)
+            {
+                if (!part.filename)
+                {
                     part.resume();
                 }
 
-                if (part.filename) {
-                    upload.pipe(part, function(err){
-                        if(isNull(err))
+                if (part.filename)
+                {
+                    upload.pipe(part, function (err)
+                    {
+                        if (isNull(err))
                         {
-                            if(upload.is_finished())
+                            if (upload.is_finished())
                             {
                                 req.files = [{
                                     path: upload.temp_file,
                                     name: upload.filename
                                 }];
 
-                                md5File(upload.temp_file, function (err, hash) {
-                                    if (isNull(err)) {
-                                        if (md5_checksum !== hash) {
+                                md5File(upload.temp_file, function (err, hash)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        if (!isNull(hash) && hash !== md5_checksum)
+                                        {
                                             res.status(400).json({
                                                 result: "error",
                                                 message: "File was corrupted during transfer. Please repeat this upload.",
@@ -149,11 +155,12 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                                         }
                                         else
                                         {
-                                            //TODO replace with final processing of files (Saving + metadata)
+                                            // TODO replace with final processing of files (Saving + metadata)
                                             callback(null, req.files);
                                         }
                                     }
-                                    else {
+                                    else
+                                    {
                                         res.status(500).json({
                                             result: "error",
                                             message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
@@ -179,7 +186,8 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                     });
                 }
 
-                part.on('error', function(err) {
+                part.on("error", function (err)
+                {
                     // decide what to do
                 });
             });
@@ -196,61 +204,68 @@ Uploader.prototype.handleUpload = function(req, res, callback)
         }
     };
 
-    const processNormalUpload = function(callback) {
-        const readFilesFromRequestBody = function(callback) {
+    const processNormalUpload = function (callback)
+    {
+        const readFilesFromRequestBody = function (callback)
+        {
             let files = [],
                 filesCounter = 0,
                 allFinished = false,
                 fstream;
 
-            function allDone(filesCounter, finished)
+            function allDone (filesCounter, finished)
             {
-                if(finished)
+                if (finished)
                 {
                     allFinished = true;
                 }
 
-                if(filesCounter === 0 && allFinished)
+                if (filesCounter === 0 && allFinished)
                 {
                     callback(null, files);
                 }
             }
 
-            req.busboy.on('file', function (fieldname, file, filename) {
+            req.busboy.on("file", function (fieldname, file, filename)
+            {
                 ++filesCounter;
                 let fileSize = 0;
 
-                tmp.dir({dir : Config.tempFilesDir}, function _tempDirCreated(err, tempFolderPath) {
-                    if(isNull(err))
+                tmp.dir({dir: Config.tempFilesDir}, function _tempDirCreated (err, tempFolderPath)
+                {
+                    if (isNull(err))
                     {
                         let newFileLocalPath = path.join(tempFolderPath, filename);
                         fstream = fs.createWriteStream(newFileLocalPath);
 
-                        fstream.on('error', function () {
+                        fstream.on("error", function ()
+                        {
                             return callback(1, "Error saving file from request into temporary file");
                         });
 
-                        file.on('data', function (data) {
+                        file.on("data", function (data)
+                        {
                             fileSize += data.length;
                         });
 
-                        fstream.on('finish', function() {
+                        fstream.on("finish", function ()
+                        {
                             --filesCounter;
 
-                            if(fileSize === 0)
+                            if (fileSize === 0)
                             {
-                                //if the file is empty push it to the array but with an error message of
+                                // if the file is empty push it to the array but with an error message of
                                 files.push({
-                                    path : newFileLocalPath,
-                                    name : filename,
+                                    path: newFileLocalPath,
+                                    name: filename,
                                     error: "Invalid file size! You cannot upload empty files!"
                                 });
                             }
                             else
                             {
                                 files.push({
-                                    path : newFileLocalPath,
-                                    name : filename
+                                    path: newFileLocalPath,
+                                    name: filename
                                 });
                             }
                             allDone(filesCounter, false);
@@ -265,18 +280,20 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                 });
             });
 
-            req.busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
+            req.busboy.on("field", function (fieldname, val, fieldnameTruncated, valTruncated)
+            {
                 req.resume();
             });
 
-            req.busboy.on('finish', function() {
+            req.busboy.on("finish", function ()
+            {
                 allDone(filesCounter, true);
             });
 
             req.pipe(req.busboy);
         };
 
-        readFilesFromRequestBody(function(err, files)
+        readFilesFromRequestBody(function (err, files)
         {
             callback(err, files);
         });
@@ -296,11 +313,11 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                 {
                     if (upload.username === upload.username && !isNull(req.user) && req.user.ddr.username === username)
                     {
-                        if(restart)
+                        if (restart)
                         {
                             upload.restart(function (err, result)
                             {
-                                if(isNull(err))
+                                if (isNull(err))
                                 {
                                     res.json({
                                         size: upload.loaded
@@ -309,11 +326,10 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                                 else
                                 {
                                     res.status(400).json({
-                                        result : "result",
-                                        message : "Error resetting upload."
+                                        result: "result",
+                                        message: "Error resetting upload."
                                     });
                                 }
-
                             });
                         }
                         else
@@ -338,7 +354,6 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                         message: "The upload id is invalid."
                     });
                 }
-
             }
         }
         else
@@ -376,7 +391,6 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                                     error: err
                                 });
                             }
-
                         });
                 }
                 else
@@ -398,14 +412,15 @@ Uploader.prototype.handleUpload = function(req, res, callback)
     }
     else if (req.originalMethod === "POST")
     {
-        if(!isNull(username) && !isNull(filename) && !isNull(size) && !isNull(md5_checksum))
+        if (!isNull(username) && !isNull(filename) && !isNull(size) && !isNull(md5_checksum))
         {
-            if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
+            if (!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
             {
-                if(req.query.size && !isNaN(req.query.size) && req.query.size > 0)
+                if (req.query.size && !isNaN(req.query.size) && req.query.size > 0)
                 {
-                    processChunkedUpload(upload, function(err, result){
-                        if(isNull(err))
+                    processChunkedUpload(upload, function (err, result)
+                    {
+                        if (isNull(err))
                         {
                             console.log("Completed upload of file " + filename + " !! " + new Date().toISOString());
                             callback(err, result);
@@ -415,7 +430,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
                             res.status(err).json({
                                 result: "error",
                                 message: "There were errors processing your upload",
-                                error : result,
+                                error: result,
                                 files: fileNames
                             });
                         }
@@ -445,7 +460,7 @@ Uploader.prototype.handleUpload = function(req, res, callback)
     }
 };
 
-exports.resume = function(req, res)
+exports.resume = function (req, res)
 {
     let acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
@@ -456,9 +471,9 @@ exports.resume = function(req, res)
         const upload_id = req.query.upload_id;
         const username = req.query.username;
 
-        if(!isNull(resume))
+        if (!isNull(resume))
         {
-            if(typeof req.session.upload_manager !== "undefined")
+            if (typeof req.session.upload_manager !== "undefined")
             {
                 if (typeof upload_id !== "undefined")
                 {
@@ -509,12 +524,12 @@ exports.resume = function(req, res)
     }
     else
     {
-        if(acceptsJSON && !acceptsHTML)
+        if (acceptsJSON && !acceptsHTML)
         {
             const msg = "This is only accessible via GET method";
-            req.flash('error', "Invalid Request");
+            req.flash("error", "Invalid Request");
             console.log(msg);
-            res.status(400).render('',
+            res.status(400).render("",
                 {
                 }
             );
@@ -522,13 +537,11 @@ exports.resume = function(req, res)
         else
         {
             res.status(400).json({
-                result : "error",
-                msg : "This API functionality is only accessible via GET method."
+                result: "error",
+                msg: "This API functionality is only accessible via GET method."
             });
         }
-
     }
 };
 
 module.exports.Uploader = Uploader;
-

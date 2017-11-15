@@ -24,20 +24,18 @@ function Post (object)
 
     const newId = uuid.v4();
 
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
         self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
     }
-
-
-
 
     self.ddr.numLikes = 0;
 
     return self;
 }
 
-Post.prototype.getComments = function (cb) {
+Post.prototype.getComments = function (cb)
+{
     var self = this;
 
     var query =
@@ -53,24 +51,27 @@ Post.prototype.getComments = function (cb) {
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : Elements.types.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : Elements.types.resource,
-                value : self.uri
+                type: Elements.types.resource,
+                value: self.uri
             }
         ]),
-        function(err, results) {
-            if(!err)
+        function (err, results)
+        {
+            if (!err)
             {
-                async.mapSeries(results, function(commentInfo, callback){
-                    Comment.findByUri(commentInfo.commentURI, function(err, comment)
+                async.mapSeries(results, function (commentInfo, callback)
+                {
+                    Comment.findByUri(commentInfo.commentURI, function (err, comment)
                     {
-                        callback(err,comment);
-                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                        callback(err, comment);
+                        // }, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
-                }, function (err, comments) {
+                }, function (err, comments)
+                {
                     cb(err, comments);
                 });
             }
@@ -81,7 +82,8 @@ Post.prototype.getComments = function (cb) {
         });
 };
 
-Post.prototype.getNumLikes = function (cb) {
+Post.prototype.getNumLikes = function (cb)
+{
     var self = this;
 
     var query =
@@ -96,16 +98,17 @@ Post.prototype.getNumLikes = function (cb) {
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : Elements.types.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : Elements.types.resource,
-                value : self.uri
+                type: Elements.types.resource,
+                value: self.uri
             }
         ]),
-        function(err, results) {
-            if(isNull(err))
+        function (err, results)
+        {
+            if (isNull(err))
             {
                 cb(err, results);
             }
@@ -116,23 +119,25 @@ Post.prototype.getNumLikes = function (cb) {
         });
 };
 
-Post.prototype.getLikes = function (cb) {
+Post.prototype.getLikes = function (cb)
+{
     var self = this;
     let resultInfo;
 
-    self.getNumLikes(function (err, likesArray) {
-        if(!err)
+    self.getNumLikes(function (err, likesArray)
+    {
+        if (!err)
         {
-            if(likesArray.length)
+            if (likesArray.length)
             {
                 resultInfo = {
-                    postURI: self.uri, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
+                    postURI: self.uri, numLikes: likesArray.length, usersWhoLiked: _.pluck(likesArray, "userURI")
                 };
             }
             else
             {
                 resultInfo = {
-                    postURI: self.uri, numLikes : 0, usersWhoLiked : 'undefined'
+                    postURI: self.uri, numLikes: 0, usersWhoLiked: "undefined"
                 };
             }
             cb(null, resultInfo);
@@ -146,7 +151,8 @@ Post.prototype.getLikes = function (cb) {
     });
 };
 
-Post.prototype.getShares = function (cb) {
+Post.prototype.getShares = function (cb)
+{
     var self = this;
 
     var query =
@@ -160,27 +166,30 @@ Post.prototype.getShares = function (cb) {
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : Elements.types.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : Elements.types.resource,
-                value : self.uri
+                type: Elements.types.resource,
+                value: self.uri
             }
         ]),
-        function(err, results) {
-            if(!err)
+        function (err, results)
+        {
+            if (!err)
             {
-                async.mapSeries(results, function(shareObject, callback){
-                    //Share.findByUri(shareObject.shareURI, function(err, share)
+                async.mapSeries(results, function (shareObject, callback)
+                {
+                    // Share.findByUri(shareObject.shareURI, function(err, share)
                     const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-                    Resource.findByUri(shareObject.shareURI, function(err, share)
+                    Resource.findByUri(shareObject.shareURI, function (err, share)
                     {
-                        callback(false,share);
-                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
-                        //}, null, db_social.graphUri, null);
+                        callback(false, share);
+                        // }, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                        // }, null, db_social.graphUri, null);
                     }, null, db_social.graphUri, false, null, null);
-                }, function (err, shares) {
+                }, function (err, shares)
+                {
                     cb(false, shares);
                 });
             }
@@ -191,7 +200,7 @@ Post.prototype.getShares = function (cb) {
         });
 };
 
-Post.prototype.getOwnerProject = function(callback)
+Post.prototype.getOwnerProject = function (callback)
 {
     const self = this;
     const query =
@@ -219,14 +228,16 @@ Post.prototype.getOwnerProject = function(callback)
                 value: self.uri
             }
         ],
-        function(err, result) {
-            if(isNull(err))
+        function (err, result)
+        {
+            if (isNull(err))
             {
-                if(result instanceof Array && result.length === 1)
+                if (result instanceof Array && result.length === 1)
                 {
                     const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-                    Project.findByUri(result[0].uri, function(err, project){
-                        callback(err,project);
+                    Project.findByUri(result[0].uri, function (err, project)
+                    {
+                        callback(err, project);
                     });
                 }
                 else
@@ -245,5 +256,3 @@ Post.prototype.getOwnerProject = function(callback)
 Post = Class.extend(Post, Event, "ddr:Post");
 
 module.exports.Post = Post;
-
-

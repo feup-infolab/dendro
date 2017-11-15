@@ -6,10 +6,10 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const initMySQL = function(app, callback)
+const initMySQL = function (app, callback)
 {
     Logger.log_boot_message("info", "Setting up MySQL connection pool.");
-    const mysql = require('mysql');
+    const mysql = require("mysql");
     const pool = mysql.createPool({
         host: Config.mySQLHost,
         user: Config.mySQLAuth.user,
@@ -18,24 +18,32 @@ const initMySQL = function(app, callback)
         multipleStatements: true
     });
 
-    const poolOK = function (pool) {
-        Logger.log_boot_message("success","Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
+    const poolOK = function (pool)
+    {
+        Logger.log_boot_message("success", "Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
         Config.mysql.default.pool = pool;
         return callback(null);
     };
 
-    pool.getConnection(function (err, connection) {
+    pool.getConnection(function (err, connection)
+    {
         const freeConnectionsIndex = pool._freeConnections.indexOf(connection);
-        if (isNull(err)) {
-            const checkAndCreateTable = function (tablename, cb) {
-                connection.query("SHOW TABLES LIKE '" + tablename + "';", function (err, result, fields) {
-                    if (isNull(err)) {
-                        if (result.length > 0) {
-                            Logger.log_boot_message("info","Interactions table " + tablename + " exists in the MySQL database.");
+        if (isNull(err))
+        {
+            const checkAndCreateTable = function (tablename, cb)
+            {
+                connection.query("SHOW TABLES LIKE '" + tablename + "';", function (err, result, fields)
+                {
+                    if (isNull(err))
+                    {
+                        if (result.length > 0)
+                        {
+                            Logger.log_boot_message("info", "Interactions table " + tablename + " exists in the MySQL database.");
                             poolOK(pool);
                         }
-                        else {
-                            Logger.log_boot_message("info","Interactions table does not exists in the MySQL database. Attempting creation...");
+                        else
+                        {
+                            Logger.log_boot_message("info", "Interactions table does not exists in the MySQL database. Attempting creation...");
 
                             const createTableQuery = "CREATE TABLE `" + tablename + "` (\n" +
                                 "   `id` int(11) NOT NULL AUTO_INCREMENT, \n" +
@@ -59,30 +67,36 @@ const initMySQL = function(app, callback)
                                 "CREATE INDEX " + tablename + "_executedOver_text ON " + tablename + "(executedOver(255)); \n" +
                                 "CREATE INDEX " + tablename + "_originallyRecommendedFor_text ON " + tablename + "(originallyRecommendedFor(255)); \n";
 
-                            Logger.log_boot_message("info","Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
+                            Logger.log_boot_message("info", "Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
 
                             connection.query(
                                 createTableQuery,
-                                function (err, result, fields) {
-                                    if (isNull(err)) {
-                                        Logger.log_boot_message("info","Interactions table " + tablename + " succesfully created in the MySQL database.");
+                                function (err, result, fields)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log_boot_message("info", "Interactions table " + tablename + " succesfully created in the MySQL database.");
 
                                         connection.release();
-                                        if (isNull(err)) {
-                                            Logger.log_boot_message("info","Indexes on table  " + tablename + " succesfully created in the MySQL database.");
+                                        if (isNull(err))
+                                        {
+                                            Logger.log_boot_message("info", "Indexes on table  " + tablename + " succesfully created in the MySQL database.");
                                             poolOK(pool);
                                         }
-                                        else {
-                                            return callback("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + JSON.stringify(result, null, 4));
+                                        else
+                                        {
+                                            return callback("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createTableQuery + "\n . Result was: \n" + JSON.stringify(result, null, 4));
                                         }
                                     }
-                                    else {
+                                    else
+                                    {
                                         return callback("[ERROR] Unable to create the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                                     }
                                 });
                         }
                     }
-                    else {
+                    else
+                    {
                         return callback("[ERROR] Unable to query for the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                     }
                 });
@@ -90,19 +104,20 @@ const initMySQL = function(app, callback)
 
             const table_to_write_recommendations = Config.recommendation.getTargetTable();
 
-            checkAndCreateTable(table_to_write_recommendations, function (err, results) {
-                if (err) {
-                    return callback("Unable to create table "+table_to_write_recommendations+" in MySQL ");
+            checkAndCreateTable(table_to_write_recommendations, function (err, results)
+            {
+                if (err)
+                {
+                    return callback("Unable to create table " + table_to_write_recommendations + " in MySQL ");
                 }
-                else {
-                    poolOK(connection);
-                }
+                poolOK(connection);
             });
         }
-        else {
+        else
+        {
             return callback("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
         }
     });
-}
+};
 
 module.exports.initMySQL = initMySQL;

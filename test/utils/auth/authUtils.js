@@ -4,20 +4,22 @@ chai.use(chaiHttp);
 
 module.exports.getRegisterUser = function (jsonOnly, agent, cb)
 {
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
-            .get('/register')
+            .get("/register")
             .set("Accept", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
     else
     {
         agent
-            .get('/register')
-            .end(function (err, res) {
+            .get("/register")
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
@@ -25,24 +27,25 @@ module.exports.getRegisterUser = function (jsonOnly, agent, cb)
 
 module.exports.postRegisterUser = function (jsonOnly, agent, user, cb)
 {
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
-            .post('/register')
+            .post("/register")
             .set("Accept", "application/json")
             .send(user)
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
     else
     {
         agent
-            .post('/register')
+            .post("/register")
             .send(user)
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
-

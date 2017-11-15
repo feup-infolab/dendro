@@ -19,26 +19,27 @@ const _ = require("underscore");
 const db_social = Config.getDBByID("social");
 const db_notifications = Config.getDBByID("notifications");
 
-function Permissions (){}
+function Permissions ()
+{}
 
 Permissions.messages = {
-    generic : {
-        api : "Action not permitted. You are not logged into the system.",
-        user : "Please log into the system."
+    generic: {
+        api: "Action not permitted. You are not logged into the system.",
+        user: "Please log into the system."
     }
 };
 
-Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllowingOrDenying, errorMessage)
+Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAllowingOrDenying, errorMessage)
 {
     let acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    if(allow_access)
+    if (allow_access)
     {
-        if(Config.debug.permissions.log_authorizations)
+        if (Config.debug.permissions.log_authorizations)
         {
             let user = "-> NO USER AUTHENTICATED <-";
-            if(req.user)
+            if (req.user)
             {
                 user = req.user.uri;
             }
@@ -48,77 +49,71 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
 
         return next();
     }
-    else
+    let messageAPI = errorMessage;
+    let messageUser = errorMessage;
+
+    req.permissions_management = {
+        reasons_for_denying: reasonsForAllowingOrDenying
+    };
+
+    if (Config.debug.permissions.log_authorizations)
     {
-        let messageAPI = errorMessage;
-        let messageUser = errorMessage;
-
-        req.permissions_management = {
-            reasons_for_denying : reasonsForAllowingOrDenying
-        };
-
-        if(Config.debug.permissions.log_authorizations)
+        let user = "-> NO USER AUTHENTICATED <-";
+        if (!isNull(req.user))
         {
-            let user = "-> NO USER AUTHENTICATED <-";
-            if(!isNull(req.user))
-            {
-                user = req.user.uri;
-            }
-
-            console.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messageUser);
+            user = req.user.uri;
         }
 
-        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-        {
-            if(messageAPI === "" || isNull(messageAPI))
-            {
-                messageAPI = Permissions.messages.generic.api;
-            }
-
-            return res.status(401).json(
-                {
-                    result : "error",
-                    message : messageAPI
-                }
-            );
-        }
-        else
-        {
-            if(messageUser === "" || isNull(messageUser))
-            {
-                messageUser = Permissions.messages.generic.user;
-            }
-
-            req.flash('error', messageUser);
-
-            if(req.user)
-            {
-                return res.status(401).render('index',
-                    {
-                        error_messages : [messageUser]
-                    });
-            }
-            else
-            {
-                return res.status(401).render('auth/login', {
-                    error_messages : [messageUser],
-                    redirect : req.url
-                });
-            }
-        }
+        console.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messageUser);
     }
+
+    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+    {
+        if (messageAPI === "" || isNull(messageAPI))
+        {
+            messageAPI = Permissions.messages.generic.api;
+        }
+
+        return res.status(401).json(
+            {
+                result: "error",
+                message: messageAPI
+            }
+        );
+    }
+    if (messageUser === "" || isNull(messageUser))
+    {
+        messageUser = Permissions.messages.generic.user;
+    }
+
+    req.flash("error", messageUser);
+
+    if (req.user)
+    {
+        return res.status(401).render("index",
+            {
+                error_messages: [messageUser]
+            });
+    }
+    return res.status(401).render("auth/login", {
+        error_messages: [messageUser],
+        redirect: req.url
+    });
 };
 
-const getOwnerProject = function (requestedResource, callback) {
-    InformationElement.findByUri(requestedResource, function(err, resource){
-        if(isNull(err))
+const getOwnerProject = function (requestedResource, callback)
+{
+    InformationElement.findByUri(requestedResource, function (err, resource)
+    {
+        if (isNull(err))
         {
-            if(!isNull(resource))
+            if (!isNull(resource))
             {
-                if(resource instanceof InformationElement)
+                if (resource instanceof InformationElement)
                 {
-                    resource.getOwnerProject(function(err, project){
-                        if(!isNull(project) && project instanceof Project)
+                    resource.getOwnerProject(function (err, project)
+                    {
+                        if (!isNull(project) && project instanceof Project)
                         {
                             callback(null, project);
                         }
@@ -147,19 +142,25 @@ const getOwnerProject = function (requestedResource, callback) {
 
 /** Role-based validation **/
 
-const checkRoleInSystem = Permissions.checkRoleInSystem = function (req, user, role, callback) {
-    if (!isNull(user)) {
-        user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result) {
+const checkRoleInSystem = Permissions.checkRoleInSystem = function (req, user, role, callback)
+{
+    if (!isNull(user))
+    {
+        user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result)
+        {
             return callback(err, result);
         });
     }
-    else {
+    else
+    {
         callback(null, false);
     }
 };
 
-const checkUsersRoleInProject = function (req, user, role, project, callback) {
-    if (!isNull(user)) {
+const checkUsersRoleInProject = function (req, user, role, project, callback)
+{
+    if (!isNull(user))
+    {
         if (project instanceof Project)
         {
             project.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
@@ -167,7 +168,7 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
                 return callback(err, result);
             });
         }
-        else if(typeof project === "string")
+        else if (typeof project === "string")
         {
             Project.findByUri(project, function (err, project)
             {
@@ -189,22 +190,25 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
             return callback("Invalid project type supplied!", null);
         }
     }
-    else {
+    else
+    {
         return callback(null, false);
     }
 };
 
-
-const getPostsProject = function (postUri, callback) {
-    Post.findByUri(postUri, function(err, post){
-        if(isNull(err))
+const getPostsProject = function (postUri, callback)
+{
+    Post.findByUri(postUri, function (err, post)
+    {
+        if (isNull(err))
         {
-            if(!isNull(post))
+            if (!isNull(post))
             {
-                if(post instanceof Post)
+                if (post instanceof Post)
                 {
-                    post.getOwnerProject(function(err, project){
-                        if(!isNull(project) && project instanceof Project)
+                    post.getOwnerProject(function (err, project)
+                    {
+                        if (!isNull(project) && project instanceof Project)
                         {
                             callback(null, project);
                         }
@@ -231,11 +235,13 @@ const getPostsProject = function (postUri, callback) {
     }, null, db_social.graphUri, false, null, null);
 };
 
-const checkUsersRoleInNotification = function (req, user, role, notificationUri, callback) {
-    if(!isNull(user))
+const checkUsersRoleInNotification = function (req, user, role, notificationUri, callback)
+{
+    if (!isNull(user))
     {
-        Notification.findByUri(notificationUri, function (err, notification) {
-            if(isNull(err))
+        Notification.findByUri(notificationUri, function (err, notification)
+        {
+            if (isNull(err))
             {
                 if (notification instanceof Notification)
                 {
@@ -244,7 +250,8 @@ const checkUsersRoleInNotification = function (req, user, role, notificationUri,
                         return callback(err, result);
                     }, db_notifications.graphUri);
                 }
-                else {
+                else
+                {
                     return callback(null, false);
                 }
             }
@@ -260,18 +267,23 @@ const checkUsersRoleInNotification = function (req, user, role, notificationUri,
     }
 };
 
-const checkUsersRoleInPostsProject = function (req, user, role, postUri, callback) {
-    if(!isNull(user))
+const checkUsersRoleInPostsProject = function (req, user, role, postUri, callback)
+{
+    if (!isNull(user))
     {
-        getPostsProject(postUri, function (err, project) {
-            if(isNull(err))
+        getPostsProject(postUri, function (err, project)
+        {
+            if (isNull(err))
             {
-                if (project instanceof Project) {
-                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
+                if (project instanceof Project)
+                {
+                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
+                    {
                         return callback(err, hasRole);
                     });
                 }
-                else {
+                else
+                {
                     return callback(null, false);
                 }
             }
@@ -287,25 +299,27 @@ const checkUsersRoleInPostsProject = function (req, user, role, postUri, callbac
     }
 };
 
-const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPostsUris, callback) {
-    if(!isNull(user))
+const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPostsUris, callback)
+{
+    if (!isNull(user))
     {
-        async.mapSeries(arrayOfPostsUris, function (postUri, cb) {
-            getPostsProject(postUri, function (err, project) {
-                if(isNull(err))
+        async.mapSeries(arrayOfPostsUris, function (postUri, cb)
+        {
+            getPostsProject(postUri, function (err, project)
+            {
+                if (isNull(err))
                 {
-                    if (project instanceof Project) {
-                        checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
-                            if(isNull(err))
+                    if (project instanceof Project)
+                    {
+                        checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
+                        {
+                            if (isNull(err))
                             {
-                                if(hasRole === false)
+                                if (hasRole === false)
                                 {
                                     return callback(err, hasRole);
                                 }
-                                else
-                                {
-                                    cb(err, hasRole);
-                                }
+                                cb(err, hasRole);
                             }
                             else
                             {
@@ -313,7 +327,8 @@ const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPo
                             }
                         });
                     }
-                    else {
+                    else
+                    {
                         return callback(null, false);
                     }
                 }
@@ -322,7 +337,8 @@ const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPo
                     return callback(null, false);
                 }
             });
-        }, function (err, results) {
+        }, function (err, results)
+        {
             return callback(err, true);
         });
     }
@@ -332,111 +348,118 @@ const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPo
     }
 };
 
-const checkUsersRoleInParentProject = Permissions.checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
-    if (!isNull(user)) {
-        getOwnerProject(resource, function (err, project) {
-            if (isNull(err)) {
-                if (project instanceof Project) {
-                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
+const checkUsersRoleInParentProject = Permissions.checkUsersRoleInParentProject = function (req, user, role, resource, callback)
+{
+    if (!isNull(user))
+    {
+        getOwnerProject(resource, function (err, project)
+        {
+            if (isNull(err))
+            {
+                if (project instanceof Project)
+                {
+                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
+                    {
                         return callback(err, hasRole);
                     });
                 }
-                else {
+                else
+                {
                     return callback(null, false);
                 }
             }
-            else {
+            else
+            {
                 return callback(err, false);
             }
         });
     }
-    else {
+    else
+    {
         callback(null, false);
     }
 };
 
 /** "Privacy status"-based validation **/
 
-const checkPrivacyOfProject = function (req, permission, callback) {
-    Project.findByUri(req.params.requestedResourceUri, function (err, project) {
-        if (isNull(err)) {
-            if (!isNull(project) && project instanceof Project) {
+const checkPrivacyOfProject = function (req, permission, callback)
+{
+    Project.findByUri(req.params.requestedResourceUri, function (err, project)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(project) && project instanceof Project)
+            {
                 const privacy = project.ddr.privacyStatus;
 
-                if (!isNull(permission.object) && privacy === permission.object) {
+                if (!isNull(permission.object) && privacy === permission.object)
+                {
                     return callback(null, true);
                 }
-                else {
-                    return callback(null, false);
-                }
+                return callback(null, false);
             }
-            else {
-                return callback(null, true);
-            }
+            return callback(null, true);
         }
-        else {
-            return callback(err, true);
-        }
+        return callback(err, true);
     });
 };
 
-const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback) {
-    getOwnerProject(resource, function (err, project) {
-        if (isNull(err)) {
-            if (!isNull(project) && project instanceof Project) {
+const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback)
+{
+    getOwnerProject(resource, function (err, project)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(project) && project instanceof Project)
+            {
                 const privacy = project.ddr.privacyStatus;
 
-                if (!isNull(role.object) && privacy === role.object) {
+                if (!isNull(role.object) && privacy === role.object)
+                {
                     return callback(null, true);
                 }
-                else {
-                    return callback(null, false);
-                }
-            }
-            else {
                 return callback(null, false);
             }
+            return callback(null, false);
         }
-        else {
-            return callback(err, null);
-        }
+        return callback(err, null);
     });
 };
 
 /** Permission types **/
 
 Permissions.types = {
-    role_in_system : {
-        validator : checkRoleInSystem
+    role_in_system: {
+        validator: checkRoleInSystem
     },
-    role_in_project : {
-        validator : checkUsersRoleInProject
+    role_in_project: {
+        validator: checkUsersRoleInProject
     },
-    role_in_owner_project : {
-        validator : checkUsersRoleInParentProject
+    role_in_owner_project: {
+        validator: checkUsersRoleInParentProject
     },
-    role_in_post_s_project : {
-        validator : checkUsersRoleInPostsProject
+    role_in_post_s_project: {
+        validator: checkUsersRoleInPostsProject
     },
-    role_in_array_of_posts_project : {
-        validator : checkUsersRoleInArrayOfPostsProject
+    role_in_array_of_posts_project: {
+        validator: checkUsersRoleInArrayOfPostsProject
     },
-    role_in_notification_s_resource : {
-        validator : checkUsersRoleInNotification
+    role_in_notification_s_resource: {
+        validator: checkUsersRoleInNotification
     },
-    privacy_of_project : {
-        validator : checkPrivacyOfProject
+    privacy_of_project: {
+        validator: checkPrivacyOfProject
     },
-    privacy_of_owner_project : {
-        validator : checkPrivacyOfOwnerProject
+    privacy_of_owner_project: {
+        validator: checkPrivacyOfOwnerProject
     }
 };
 
 /** Permission parametrization **/
 
 Permissions.settings = {
-    role : {
-        in_system : {
+    role: {
+        in_system: {
             admin: {
                 type: Permissions.types.role_in_system,
                 predicate: "rdf:type",
@@ -452,7 +475,7 @@ Permissions.settings = {
                 error_message_api: "Error detected. You are not authorized to perform this operation. You must be signed into Dendro."
             }
         },
-        in_project : {
+        in_project: {
             creator: {
                 type: Permissions.types.role_in_project,
                 predicate: "dcterms:creator",
@@ -466,7 +489,7 @@ Permissions.settings = {
                 error_message_api: "Unauthorized access. Must be signed on as a contributor of this project."
             }
         },
-        in_owner_project : {
+        in_owner_project: {
             creator: {
                 type: Permissions.types.role_in_owner_project,
                 predicate: "dcterms:creator",
@@ -480,7 +503,7 @@ Permissions.settings = {
                 error_message_api: "Unauthorized access. Must be signed on as a contributor of the project the resource belongs to."
             }
         },
-        in_notification_s_resource : {
+        in_notification_s_resource: {
             author: {
                 type: Permissions.types.role_in_notification_s_resource,
                 predicate: "ddr:resourceAuthorUri",
@@ -488,7 +511,7 @@ Permissions.settings = {
                 error_message_api: "Unauthorized access. Must be signed on as the author of the resource that this notification points to."
             }
         },
-        in_post_s_project : {
+        in_post_s_project: {
             creator: {
                 type: Permissions.types.role_in_post_s_project,
                 predicate: "dcterms:creator",
@@ -517,31 +540,31 @@ Permissions.settings = {
             }
         }
     },
-    privacy : {
-        of_project : {
-            public : {
-                type : Permissions.types.privacy_of_project,
-                predicate : "ddr:privacyStatus",
-                object : "public",
-                error_message_user : "This is a public project.",
-                error_message_api : "This is a public project."
+    privacy: {
+        of_project: {
+            public: {
+                type: Permissions.types.privacy_of_project,
+                predicate: "ddr:privacyStatus",
+                object: "public",
+                error_message_user: "This is a public project.",
+                error_message_api: "This is a public project."
             },
-            private : {
-                type : Permissions.types.privacy_of_project,
-                predicate : "ddr:privacyStatus",
-                object : "private",
-                error_message_user : "This is a private project, and neither data nor metadata can be accessed.",
-                error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
+            private: {
+                type: Permissions.types.privacy_of_project,
+                predicate: "ddr:privacyStatus",
+                object: "private",
+                error_message_user: "This is a private project, and neither data nor metadata can be accessed.",
+                error_message_api: "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
             },
-            metadata_only :  {
-                type : Permissions.types.privacy_of_project,
-                predicate : "ddr:privacyStatus",
-                object : "metadata_only",
-                error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
-                error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
+            metadata_only: {
+                type: Permissions.types.privacy_of_project,
+                predicate: "ddr:privacyStatus",
+                object: "metadata_only",
+                error_message_user: "This is a project with only metadata access. Data metadata cannot be accessed.",
+                error_message_api: "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
             }
         },
-        of_owner_project : {
+        of_owner_project: {
             public: {
                 type: Permissions.types.privacy_of_owner_project,
                 predicate: "ddr:privacyStatus",
@@ -569,13 +592,14 @@ Permissions.settings = {
 
 /** Permissions checking logic **/
 
-Permissions.addToReasons = function(req, reason, authorizing) {
-    if(isNull(req.permissions_management))
+Permissions.addToReasons = function (req, reason, authorizing)
+{
+    if (isNull(req.permissions_management))
     {
         req.permissions_management = {};
     }
 
-    if(authorizing)
+    if (authorizing)
     {
         req.permissions_management.reasons_for_authorizing = _.compact(_.flatten([].concat(req.permissions_management.reasons_for_authorizing).concat([reason])));
     }
@@ -587,55 +611,69 @@ Permissions.addToReasons = function(req, reason, authorizing) {
     return req;
 };
 
-Permissions.check = function(permissionsRequired, req, callback) {
-    //Global Administrators are God, so they dont go through any checks
-    if(!req.session.isAdmin)
+Permissions.check = function (permissionsRequired, req, callback)
+{
+    // Global Administrators are God, so they dont go through any checks
+    if (!req.session.isAdmin)
     {
         const resource = req.params.requestedResourceUri;
         const user = req.user;
 
-        const checkPermission = function (req, user, resource, permission, cb) {
-            if (permission.type === Permissions.types.role_in_system) {
-                Permissions.types.role_in_system.validator(req, user, permission, function (err, result) {
+        const checkPermission = function (req, user, resource, permission, cb)
+        {
+            if (permission.type === Permissions.types.role_in_system)
+            {
+                Permissions.types.role_in_system.validator(req, user, permission, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if (permission.type === Permissions.types.role_in_project) {
-                Permissions.types.role_in_project.validator(req, user, permission, resource, function (err, result) {
+            else if (permission.type === Permissions.types.role_in_project)
+            {
+                Permissions.types.role_in_project.validator(req, user, permission, resource, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if (permission.type.validator.name === Permissions.types.role_in_owner_project.validator.name) {
-                Permissions.types.role_in_owner_project.validator(req, user, permission, resource, function (err, result) {
+            else if (permission.type.validator.name === Permissions.types.role_in_owner_project.validator.name)
+            {
+                Permissions.types.role_in_owner_project.validator(req, user, permission, resource, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if (permission.type === Permissions.types.privacy_of_project) {
-                Permissions.types.privacy_of_project.validator(req, permission, function (err, result) {
+            else if (permission.type === Permissions.types.privacy_of_project)
+            {
+                Permissions.types.privacy_of_project.validator(req, permission, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
                 });
             }
             else if (permission.type === Permissions.types.privacy_of_owner_project)
             {
-                Permissions.types.privacy_of_owner_project.validator(req, user, permission, resource, function (err, result) {
+                Permissions.types.privacy_of_owner_project.validator(req, user, permission, resource, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if(permission.type === Permissions.types.role_in_post_s_project)
+            else if (permission.type === Permissions.types.role_in_post_s_project)
             {
-                Permissions.types.role_in_post_s_project.validator(req, user, permission, resource, function (err, result) {
+                Permissions.types.role_in_post_s_project.validator(req, user, permission, resource, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if(permission.type === Permissions.types.role_in_array_of_posts_project)
+            else if (permission.type === Permissions.types.role_in_array_of_posts_project)
             {
-                Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result) {
+                Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if(permission.type === Permissions.types.role_in_notification_s_resource)
+            else if (permission.type === Permissions.types.role_in_notification_s_resource)
             {
-                Permissions.types.role_in_notification_s_resource.validator(req, user, permission, resource, function (err, result) {
+                Permissions.types.role_in_notification_s_resource.validator(req, user, permission, resource, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
                 });
             }
@@ -650,28 +688,28 @@ Permissions.check = function(permissionsRequired, req, callback) {
             }
         };
 
-        if(permissionsRequired instanceof Array && permissionsRequired.length > 0)
+        if (permissionsRequired instanceof Array && permissionsRequired.length > 0)
         {
             async.mapSeries(permissionsRequired,
                 async.apply(checkPermission, req, user, resource),
-                function(err, results)
+                function (err, results)
                 {
-                    const reasonsForDenying = _.filter(results, function (result) {
-                        if (!isNull(result)) {
-                            return !result.authorized
+                    const reasonsForDenying = _.filter(results, function (result)
+                    {
+                        if (!isNull(result))
+                        {
+                            return !result.authorized;
                         }
-                        else {
-                            return false;
-                        }
+                        return false;
                     });
 
-                    const reasonsForAuthorizing = _.filter(results, function (result) {
-                        if (!isNull(result)) {
-                            return result.authorized
+                    const reasonsForAuthorizing = _.filter(results, function (result)
+                    {
+                        if (!isNull(result))
+                        {
+                            return result.authorized;
                         }
-                        else {
-                            return false;
-                        }
+                        return false;
                     });
 
                     req = Permissions.addToReasons(req, reasonsForDenying, false);
@@ -691,7 +729,7 @@ Permissions.check = function(permissionsRequired, req, callback) {
 
             req = Permissions.addToReasons(req, reasonsForAllowing, true);
 
-            return callback(null, req , reasonsForAllowing);
+            return callback(null, req, reasonsForAllowing);
         }
     }
     else
@@ -703,14 +741,15 @@ Permissions.check = function(permissionsRequired, req, callback) {
 
         req = Permissions.addToReasons(req, reasonsForAllowing, true);
 
-        return callback(null, req , reasonsForAllowing);
+        return callback(null, req, reasonsForAllowing);
     }
 };
 
-Permissions.require = function(permissionsRequired, req, res, next) {
-    if(Config.debug.permissions.enable_permissions_system)
+Permissions.require = function (permissionsRequired, req, res, next)
+{
+    if (Config.debug.permissions.enable_permissions_system)
     {
-        if(Config.debug.active && Config.debug.permissions.log_requests_and_permissions)
+        if (Config.debug.active && Config.debug.permissions.log_requests_and_permissions)
         {
             console.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
             console.log(JSON.stringify(permissionsRequired, null, 2));
@@ -718,13 +757,14 @@ Permissions.require = function(permissionsRequired, req, res, next) {
 
         const async = require("async");
 
-        //Global Administrators are God, so they dont go through any checks
-        if(!req.session.isAdmin)
+        // Global Administrators are God, so they dont go through any checks
+        if (!req.session.isAdmin)
         {
-            Permissions.check(permissionsRequired, req, function(err, req){
-                if(req.permissions_management.reasons_for_authorizing.length > 0)
+            Permissions.check(permissionsRequired, req, function (err, req)
+            {
+                if (req.permissions_management.reasons_for_authorizing.length > 0)
                 {
-                    if(Config.debug.active && Config.debug.permissions.log_authorizations)
+                    if (Config.debug.active && Config.debug.permissions.log_authorizations)
                     {
                         console.log("[AUTHORIZED] : Checking for permissions on request " + req.originalUrl);
                         console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
@@ -732,7 +772,7 @@ Permissions.require = function(permissionsRequired, req, res, next) {
 
                     return Permissions.sendResponse(true, req, res, next, req.permissions_management.reasons_for_authorizing);
                 }
-                else if(req.permissions_management.reasons_for_denying.length > 0)
+                else if (req.permissions_management.reasons_for_denying.length > 0)
                 {
                     if (Config.debug.active && Config.debug.permissions.log_denials)
                     {
@@ -743,11 +783,8 @@ Permissions.require = function(permissionsRequired, req, res, next) {
 
                     return Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);
                 }
-                else
-                {
-                    //ommision case. No reasons to authorize nor to refuse access!
-                    return Permissions.sendResponse(true, req, res, next, []);
-                }
+                // ommision case. No reasons to authorize nor to refuse access!
+                return Permissions.sendResponse(true, req, res, next, []);
             });
         }
         else

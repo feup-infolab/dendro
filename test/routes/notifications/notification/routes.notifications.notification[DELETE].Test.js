@@ -35,29 +35,36 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 let notificationsDemouser1;
 let notificationToDelete;
 
-describe("Delete a specific notification tests", function () {
-    before(function (done) {
-        this.timeout(Config.testsTimeout);
-        //creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results) {
+describe("Delete a specific notification tests", function ()
+{
+    before(function (done)
+    {
+        this.timeout(3 * Config.testsTimeout);
+        // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
+        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             done();
         });
     });
 
-    describe("[DELETE] Delete a specific notification /notifications/notification", function () {
-
-        it("[For an unauthenticated user] Should give an unauthorized error", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res) {
+    describe("[DELETE] Delete a specific notification /notifications/notification", function ()
+    {
+        it("[For an unauthenticated user] Should give an unauthorized error", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     notificationsDemouser1 = res.body;
                     notificationsDemouser1.length.should.equal(3);
                     notificationToDelete = notificationsDemouser1[0].uri;
-                    //Force logout
+                    // Force logout
                     const app = global.tests.app;
                     agent = chai.request.agent(app);
-                    socialDendroUtils.deleteANotification(true, agent, notificationToDelete, function (err, res) {
+                    socialDendroUtils.deleteANotification(true, agent, notificationToDelete, function (err, res)
+                    {
                         res.statusCode.should.equal(401);
                         res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
                         done();
@@ -66,9 +73,12 @@ describe("Delete a specific notification tests", function () {
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error when trying to delete a notification about a post created by demouser1 or demouser1 activities", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.deleteANotification(true, agent, notificationToDelete, function (err, res) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error when trying to delete a notification about a post created by demouser1 or demouser1 activities", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.deleteANotification(true, agent, notificationToDelete, function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
                     done();
@@ -76,9 +86,12 @@ describe("Delete a specific notification tests", function () {
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error when trying to delete a notification about a post created by demouser1 or demouser1 activities", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.deleteANotification(true, agent, notificationToDelete, function (err, res) {
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error when trying to delete a notification about a post created by demouser1 or demouser1 activities", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.deleteANotification(true, agent, notificationToDelete, function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
                     done();
@@ -86,18 +99,23 @@ describe("Delete a specific notification tests", function () {
             });
         });
 
-        it("[For demouser1, as the creator of all projects] Should delete the notification about a post created by demouser1 or demouser1 activities", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //before deleting the notification, the request for the notification info should still show the notification info
-                socialDendroUtils.getANotificationInfo(true, agent, notificationToDelete, function (err, res) {
+        it("[For demouser1, as the creator of all projects] Should delete the notification about a post created by demouser1 or demouser1 activities", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                // before deleting the notification, the request for the notification info should still show the notification info
+                socialDendroUtils.getANotificationInfo(true, agent, notificationToDelete, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.body[0].actionType.should.equal("Comment");
-                    socialDendroUtils.deleteANotification(true, agent, notificationToDelete, function (err, res) {
+                    socialDendroUtils.deleteANotification(true, agent, notificationToDelete, function (err, res)
+                    {
                         res.statusCode.should.equal(200);
-                        //the notification was deleted, so when requesting the notification info of a notification that no longer exists -> should give a not found error
-                        socialDendroUtils.getANotificationInfo(true, agent, notificationToDelete, function (err, res) {
+                        // the notification was deleted, so when requesting the notification info of a notification that no longer exists -> should give a not found error
+                        socialDendroUtils.getANotificationInfo(true, agent, notificationToDelete, function (err, res)
+                        {
                             res.statusCode.should.equal(401);
-                            res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                            res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
                             done();
                         });
                     });
@@ -105,10 +123,13 @@ describe("Delete a specific notification tests", function () {
             });
         });
 
-        //the case where the notification does not exist
-        it("[For demouser1, as the creator of all projects] Should give an unauthorized error when trying to delete a notification that does not exist", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res) {
+        // the case where the notification does not exist
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error when trying to delete a notification that does not exist", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
                     done();
@@ -116,65 +137,81 @@ describe("Delete a specific notification tests", function () {
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error when trying to delete a notification that does not exist", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error when trying to delete a notification that does not exist", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res)
+                {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
                     done();
                 });
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error when trying to delete a notification that does not exist", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res) {
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error when trying to delete a notification that does not exist", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res)
+                {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
                     done();
                 });
             });
         });
 
-        //the case where the notificationUri is null
-        it("[For demouser1, as the creator of all projects] Should give an unauthorized error when trying to delete a notification uri that is null", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                socialDendroUtils.deleteANotification(true, agent, null, function (err, res) {
+        // the case where the notificationUri is null
+        it("[For demouser1, as the creator of all projects] Should give an unauthorized error when trying to delete a notification uri that is null", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.deleteANotification(true, agent, null, function (err, res)
+                {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error when trying to delete a notification uri that is null", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                socialDendroUtils.deleteANotification(true, agent, null, function (err, res) {
+        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error when trying to delete a notification uri that is null", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.deleteANotification(true, agent, null, function (err, res)
+                {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
                     done();
                 });
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error when trying to delete a notification uri that is null", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                socialDendroUtils.deleteANotification(true, agent, null, function (err, res) {
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error when trying to delete a notification uri that is null", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.deleteANotification(true, agent, null, function (err, res)
+                {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
                     done();
                 });
             });
         });
     });
 
-    after(function (done) {
-        //destroy graphs
+    after(function (done)
+    {
+        // destroy graphs
         this.timeout(Config.testsTimeout);
-        appUtils.clearAppState(function (err, data) {
+        appUtils.clearAppState(function (err, data)
+        {
             should.equal(err, null);
             done();
         });
     });
-
 });

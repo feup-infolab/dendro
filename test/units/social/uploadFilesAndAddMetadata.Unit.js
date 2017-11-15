@@ -1,10 +1,10 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const chai = require("chai");
-chai.use(require('chai-http'));
+chai.use(require("chai-http"));
 const async = require("async");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -19,12 +19,13 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 const filesData = [txtMockFile];
 
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
+function requireUncached (module)
+{
+    delete require.cache[require.resolve(module)];
+    return require(module);
 }
 
-module.exports.setup = function(finish)
+module.exports.setup = function (finish)
 {
     let createProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
     const projectsData = createProjectsUnit.projectsData;
@@ -33,27 +34,34 @@ module.exports.setup = function(finish)
     let createFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
     const foldersData = createFoldersUnit.foldersData;
 
-    addMetadataToFoldersUnit.setup(function (err, results) {
-        if(err)
+    addMetadataToFoldersUnit.setup(function (err, results)
+    {
+        if (err)
         {
             finish(err, results);
         }
         else
         {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                if(err)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                if (err)
                 {
                     finish(err, agent);
                 }
                 else
                 {
-                    async.mapSeries(projectsData, function (projectData, cb) {
-                        async.mapSeries(foldersData, function (folderData, cb) {
-                            async.mapSeries(filesData, function (fileData, cb) {
-                                fileUtils.uploadFile(true, agent, projectData.handle, folderData.name,  fileData, function (err, res) {
-                                    if(isNull(err))
+                    async.mapSeries(projectsData, function (projectData, cb)
+                    {
+                        async.mapSeries(foldersData, function (folderData, cb)
+                        {
+                            async.mapSeries(filesData, function (fileData, cb)
+                            {
+                                fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, fileData, function (err, res)
+                                {
+                                    if (isNull(err))
                                     {
-                                        itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, fileData.metadata, function (err, res) {
+                                        itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, fileData.metadata, function (err, res)
+                                        {
                                             cb(err, res);
                                         });
                                     }
@@ -62,13 +70,16 @@ module.exports.setup = function(finish)
                                         cb(err, res);
                                     }
                                 });
-                            }, function (err, results) {
+                            }, function (err, results)
+                            {
                                 cb(err, results);
                             });
-                        }, function (err, results) {
+                        }, function (err, results)
+                        {
                             cb(err, results);
                         });
-                    }, function (err, results) {
+                    }, function (err, results)
+                    {
                         finish(err, results);
                     });
                 }

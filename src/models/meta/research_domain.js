@@ -21,23 +21,23 @@ function ResearchDomain (object)
     return self;
 }
 
-ResearchDomain.create = function(object, callback)
+ResearchDomain.create = function (object, callback)
 {
     const self = new ResearchDomain(object);
 
-    if(!isNull(self.ddr) && isNull(self.ddr.humanReadableName))
+    if (!isNull(self.ddr) && isNull(self.ddr.humanReadableName))
     {
-        if(!isNull(object.ddr) && !isNull(object.ddr.humanReadableURI))
+        if (!isNull(object.ddr) && !isNull(object.ddr.humanReadableURI))
         {
             self.ddr.humanReadableURI = object.ddr.humanReadableURI;
         }
         else
         {
-            if(typeof self.dcterms.title === "string")
+            if (typeof self.dcterms.title === "string")
             {
-                const slug = require('slug');
+                const slug = require("slug");
                 const slugified_title = slug(self.dcterms.title);
-                self.ddr.humanReadableURI = Config.baseUri +"/research_domains/"+slugified_title;
+                self.ddr.humanReadableURI = Config.baseUri + "/research_domains/" + slugified_title;
             }
             else
             {
@@ -47,8 +47,8 @@ ResearchDomain.create = function(object, callback)
     }
 
     return callback(null, self);
-}
-ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results)
+};
+ResearchDomain.findByTitleOrDescription = function (query, callback, max_results)
 {
     var query =
         "WITH [0] \n" +
@@ -58,13 +58,13 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         "   {\n" +
         "      ?uri rdf:type ddr:ResearchDomain . \n" +
         "      ?uri dcterms:title ?title .\n" +
-        "      FILTER regex(?title, \"" + query +"\", \"i\")  \n" +
+        "      FILTER regex(?title, \"" + query + "\", \"i\")  \n" +
         "   }\n" +
         "   UNION \n" +
         "   {\n" +
         "       ?uri rdf:type ddr:ResearchDomain . \n" +
         "       ?uri dcterms:description ?description .\n" +
-        "       FILTER regex(?description, \"" + query +"\", \"i\")  \n" +
+        "       FILTER regex(?description, \"" + query + "\", \"i\")  \n" +
         "   } \n" +
         "} \n";
 
@@ -75,29 +75,32 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         }
     ];
 
-    if(typeof max_results !== "undefined" && typeof max_results === "number")
+    if (typeof max_results !== "undefined" && typeof max_results === "number")
     {
         query = query + "LIMIT [1]";
 
         queryArguments.push({
-            type : Elements.types.int,
-            value : max_results
-        })
+            type: Elements.types.int,
+            value: max_results
+        });
     }
 
     db.connection.executeViaJDBC(query,
         queryArguments,
-        function(err, results)
+        function (err, results)
         {
             if (isNull(err))
             {
-                const fetchResearchDomain = function (result, callback) {
-                    ResearchDomain.findByUri(result.uri, function (err, domain) {
+                const fetchResearchDomain = function (result, callback)
+                {
+                    ResearchDomain.findByUri(result.uri, function (err, domain)
+                    {
                         return callback(err, domain);
                     });
                 };
 
-                async.mapSeries(results, fetchResearchDomain, function(err, researchDomains){
+                async.mapSeries(results, fetchResearchDomain, function (err, researchDomains)
+                {
                     return callback(err, researchDomains);
                 });
             }

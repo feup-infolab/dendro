@@ -26,19 +26,26 @@ const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.
 
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
-describe("My Projects", function (done) {
+describe("My Projects", function (done)
+{
     this.timeout(Config.testsTimeout);
-    before(function (done) {
-        addContributorsToProjectsUnit.setup(function (err, results) {
+    before(function (done)
+    {
+        addContributorsToProjectsUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             done();
         });
     });
 
-    describe("[GET] /projects/my", function () {
-        it("[HTML] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.listAllMyProjects(false, agent, function (err, res) {
+    describe("[GET] /projects/my", function ()
+    {
+        it("[HTML] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                projectUtils.listAllMyProjects(false, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("metadataonlyprojectcreatedbydemouser1");
                     res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1");
@@ -53,9 +60,12 @@ describe("My Projects", function (done) {
             });
         });
 
-        it("[HTML] Should not show projects created by demouser1 and where demouser3 does not collaborate when logged in as demouser3", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                projectUtils.listAllMyProjects(false, agent, function (err, res) {
+        it("[HTML] Should not show projects created by demouser1 and where demouser3 does not collaborate when logged in as demouser3", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                projectUtils.listAllMyProjects(false, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.text.should.not.contain("metadataonlyprojectcreatedbydemouser1");
                     res.text.should.not.contain("metadataonlyhtmlprojectcreatedbydemouser1");
@@ -70,19 +80,24 @@ describe("My Projects", function (done) {
             });
         });
 
-        it("[HTML] Should give error when the user is not authenticated", function (done) {
+        it("[HTML] Should give error when the user is not authenticated", function (done)
+        {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
-            projectUtils.listAllMyProjects(false, agent, function (err, res) {
+            projectUtils.listAllMyProjects(false, agent, function (err, res)
+            {
                 res.statusCode.should.equal(401);
                 res.text.should.contain("<p>Please log into the system.</p>");
                 done();
             });
         });
 
-        it("[HTML] Should show all the projects where demouser2 collaborates when demouser2 is logged in", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                projectUtils.listAllMyProjects(false, agent, function (err, res) {
+        it("[HTML] Should show all the projects where demouser2 collaborates when demouser2 is logged in", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                projectUtils.listAllMyProjects(false, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("metadataonlyprojectcreatedbydemouser1");
                     res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1");
@@ -97,9 +112,12 @@ describe("My Projects", function (done) {
             });
         });
 
-        it("[JSON] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.listAllMyProjects(true, agent, function (err, res) {
+        it("[JSON] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                projectUtils.listAllMyProjects(true, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("metadataonlyprojectcreatedbydemouser1");
                     res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1");
@@ -114,9 +132,12 @@ describe("My Projects", function (done) {
             });
         });
 
-        it("[JSON] Should not show projects created by demouser1 and where demouser3 does not collaborate when logged in as demouser3", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                projectUtils.listAllMyProjects(true, agent, function (err, res) {
+        it("[JSON] Should not show projects created by demouser1 and where demouser3 does not collaborate when logged in as demouser3", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                projectUtils.listAllMyProjects(true, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.text.should.not.contain("metadataonlyprojectcreatedbydemouser1");
                     res.text.should.not.contain("metadataonlyhtmlprojectcreatedbydemouser1");
@@ -131,19 +152,24 @@ describe("My Projects", function (done) {
             });
         });
 
-        it("[JSON] Should give error when the user is not authenticated", function (done) {
+        it("[JSON] Should give error when the user is not authenticated", function (done)
+        {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
-            projectUtils.listAllMyProjects(true, agent, function (err, res) {
+            projectUtils.listAllMyProjects(true, agent, function (err, res)
+            {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Action not permitted. You are not logged into the system.");
                 done();
             });
         });
 
-        it("[JSON] Should show all the projects where demouser2 collaborates when demouser2 is logged in", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                projectUtils.listAllMyProjects(true, agent, function (err, res) {
+        it("[JSON] Should show all the projects where demouser2 collaborates when demouser2 is logged in", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                projectUtils.listAllMyProjects(true, agent, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("metadataonlyprojectcreatedbydemouser1");
                     res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1");
@@ -159,10 +185,12 @@ describe("My Projects", function (done) {
         });
     });
 
-    after(function (done) {
-        //destroy graphs
+    after(function (done)
+    {
+        // destroy graphs
 
-        appUtils.clearAppState(function (err, data) {
+        appUtils.clearAppState(function (err, data)
+        {
             should.equal(err, null);
             done(err);
         });

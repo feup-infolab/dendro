@@ -32,10 +32,13 @@ const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/fol
 const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Creation of archived versions", function () {
+describe("Creation of archived versions", function ()
+{
     this.timeout(Config.testsTimeout);
-    before(function (done) {
-        createFoldersUnit.setup(function (err, results) {
+    before(function (done)
+    {
+        createFoldersUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             done();
         });
@@ -54,24 +57,23 @@ describe("Creation of archived versions", function () {
     //     });
     // });
 
-    describe("[POST] [PRIVATE PROJECT] [Valid Cases] /r/archived_resource/{uuid}", function()
+    describe("[POST] [PRIVATE PROJECT] [Valid Cases] /r/archived_resource/{uuid}", function ()
     {
         it("Should update a folder's metadata and create the adequate archived versions", function (done)
         {
-            this.timeout(10000);
-
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                projectUtils.getProjectRootContent(true, agent, privateProject.handle, function(err, res){
+                projectUtils.getProjectRootContent(true, agent, privateProject.handle, function (err, res)
+                {
                     should.equal(err, null);
                     should.not.equal(res.body, null);
                     res.body.should.be.instanceof(Array);
 
-                    let buildUpdatedMetadata = function(newValue, change_type)
+                    let buildUpdatedMetadata = function (newValue, change_type)
                     {
                         let updateRequest = {};
                         updateRequest.changes = JSON.parse(JSON.stringify(testFolder1.metadata));
-                        for(let i = 0; i < updateRequest.changes.length; i++)
+                        for (let i = 0; i < updateRequest.changes.length; i++)
                         {
                             updateRequest.changes[i].value = newValue;
                         }
@@ -91,20 +93,22 @@ describe("Creation of archived versions", function () {
 
                     const allVersions = [firstVersion, secondVersion, thirdVersion, fourthVersion, fifthVersion, sixthVersion, seventhVersion];
 
-                    async.mapSeries(res.body, function(folder, callback)
+                    async.mapSeries(res.body, function (folder, callback)
                     {
                         should.not.equal(null, folder.uri);
 
                         const updateMetadata = function (updateRequest, folderUri, callback)
                         {
                             let metadata = updateRequest.changes;
-                            if(updateRequest.change_type === "delete")
+                            if (updateRequest.change_type === "delete")
+                            {
                                 metadata = [];
+                            }
 
                             itemUtils.updateItemMetadataByUri(true, agent, folderUri, metadata, function (err, res)
                             {
                                 res.statusCode.should.equal(200);
-                                //jsonOnly, agent, projectHandle, itemPath, cb
+                                // jsonOnly, agent, projectHandle, itemPath, cb
                                 itemUtils.getItemMetadataByUri(true, agent, folder.uri, function (error, response)
                                 {
                                     response.statusCode.should.equal(200);
@@ -112,7 +116,7 @@ describe("Creation of archived versions", function () {
                                     should.equal(containsAllMetadata, true);
                                     callback(error, response);
                                 });
-                            })
+                            });
                         };
 
                         const validateVersions = function (folderUri, callback)
@@ -123,8 +127,9 @@ describe("Creation of archived versions", function () {
                                 let versions = res.body;
                                 versions.should.be.instanceof(Array);
 
-                                versions = versions.sort(function(a, b){
-                                    return a.ddr.versionNumber - b.ddr.versionNumber
+                                versions = versions.sort(function (a, b)
+                                {
+                                    return a.ddr.versionNumber - b.ddr.versionNumber;
                                 });
 
                                 const wrapped = versions.map(function (value, index)
@@ -141,12 +146,11 @@ describe("Creation of archived versions", function () {
                                     {
                                         done(versionUtils.getVersionErrors(res.body, expectedVersion));
                                     });
-
                                 }, function (err, results)
                                 {
                                     callback(err, results);
                                 });
-                            })
+                            });
                         };
 
                         async.mapSeries(
@@ -160,10 +164,8 @@ describe("Creation of archived versions", function () {
                             }
                         );
                     });
-                })
+                });
             });
         });
-
-
-    })
-})
+    });
+});

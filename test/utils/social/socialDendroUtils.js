@@ -3,409 +3,487 @@ const chaiHttp = require("chai-http");
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-
-//true, agent, projectData, manualPostMockData, cb
-module.exports.createManualPostInProject = function (jsonOnly, agent, projectURI, manualPostData, cb) {
-    /*req.body.newPostContent req.body.newPostTitle req.body.newPostProjectUri*/
+// true, agent, projectData, manualPostMockData, cb
+module.exports.createManualPostInProject = function (jsonOnly, agent, projectURI, manualPostData, cb)
+{
+    /* req.body.newPostContent req.body.newPostTitle req.body.newPostProjectUri */
     const path = "/posts/new";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .post(path)
             .send({newPostContent: manualPostData.newPostContent, newPostTitle: manualPostData.newPostTitle, newPostProjectUri: projectURI})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .post(path)
             .send({newPostContent: manualPostData.newPostContent, newPostTitle: manualPostData.newPostTitle, newPostProjectUri: projectURI})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getPostsURIsForUser = function (jsonOnly, agent, pageNumber, cb) {
+module.exports.getPostsURIsForUser = function (jsonOnly, agent, pageNumber, cb)
+{
     const path = "/posts/all";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .query({currentPage: pageNumber})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
             .query({currentPage: pageNumber})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.shareAPost = function (jsonOnly, agent, postUriToshare, shareMsg, cb) {
+module.exports.shareAPost = function (jsonOnly, agent, postUriToshare, shareMsg, cb)
+{
     const path = "/posts/share";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .post(path)
             .send({shareMsg: shareMsg, postID: postUriToshare})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .post(path)
             .send({shareMsg: shareMsg, postID: postUriToshare})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-
-module.exports.likeAPost = function(jsonOnly, agent, postURIToLike, cb)
+module.exports.likeAPost = function (jsonOnly, agent, postURIToLike, cb)
 {
     const path = "/posts/like";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .post(path)
             .send({postID: postURIToLike})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .post(path)
             .send({postID: postURIToLike})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-
-module.exports.commentAPost = function (jsonOnly, agent, postURIToComment, commentMsg, cb) {
+module.exports.commentAPost = function (jsonOnly, agent, postURIToComment, commentMsg, cb)
+{
     const path = "/posts/comment";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .post(path)
             .send({commentMsg: commentMsg, postID: postURIToComment})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .post(path)
             .send({commentMsg: commentMsg, postID: postURIToComment})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getMySocialDendroTimeline = function (jsonOnly, agent, cb) {
+module.exports.getMySocialDendroTimeline = function (jsonOnly, agent, cb)
+{
     const path = "/socialDendro/my";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-
-module.exports.getAPostInfo = function (jsonOnly, agent, postUri, cb) {
+module.exports.getAPostInfo = function (jsonOnly, agent, postUri, cb)
+{
     const path = "/posts/post";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .query({postID: postUri})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
             .query({postID: postUri})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getPostsArrayInfo = function(jsonOnly, agent, postURIsArray, cb) {
+module.exports.getPostsArrayInfo = function (jsonOnly, agent, postURIsArray, cb)
+{
     const path = "/posts/posts";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .query({postsQueryInfo: postURIsArray})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
             .query({postsQueryInfo: postURIsArray})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getAPostLikesInfo = function (jsonOnly, agent, postURI, cb) {
+module.exports.getAPostLikesInfo = function (jsonOnly, agent, postURI, cb)
+{
     const path = "/posts/post/likes";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .query({postURI: postURI})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
             .query({postURI: postURI})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getAPostCommentsInfo = function (jsonOnly, agent, postID, cb) {
+module.exports.getAPostCommentsInfo = function (jsonOnly, agent, postID, cb)
+{
     const path = "/posts/comments";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .query({postID: postID})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
             .query({postID: postID})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getAPostSharesInfo = function (jsonOnly, agent, postID, cb) {
+module.exports.getAPostSharesInfo = function (jsonOnly, agent, postID, cb)
+{
     const path = "/posts/shares";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .query({postID: postID})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
             .query({postID: postID})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getTotalPostsForAUsersSocialDendroTimeline = function (jsonOnly, agent, cb) {
+module.exports.getTotalPostsForAUsersSocialDendroTimeline = function (jsonOnly, agent, cb)
+{
     const path = "/posts/count";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getPostUriPage = function (jsonOnly, agent, postURI, cb) {
+module.exports.getPostUriPage = function (jsonOnly, agent, postURI, cb)
+{
     const path = postURI;
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getShareUriPage = function (jsonOnly, agent, shareURI, cb) {
+module.exports.getShareUriPage = function (jsonOnly, agent, shareURI, cb)
+{
     const path = shareURI;
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.getAllUsersNotifications = function (jsonOnly, agent, cb) {
+module.exports.getAllUsersNotifications = function (jsonOnly, agent, cb)
+{
     const path = "/notifications/all";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-
-module.exports.getANotificationInfo = function (jsonOnly, agent, notificationURI, cb) {
+module.exports.getANotificationInfo = function (jsonOnly, agent, notificationURI, cb)
+{
     const path = "/notifications/notification";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .get(path)
             .query({notificationUri: notificationURI})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .get(path)
             .query({notificationUri: notificationURI})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
 
-module.exports.deleteANotification = function (jsonOnly, agent, notificationURI, cb) {
+module.exports.deleteANotification = function (jsonOnly, agent, notificationURI, cb)
+{
     const path = "/notifications/notification";
-    if (jsonOnly) {
+    if (jsonOnly)
+    {
         agent
             .del(path)
             .query({notificationUri: notificationURI})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
-    else {
+    else
+    {
         agent
             .del(path)
             .query({notificationUri: notificationURI})
-            .set('Accept', 'text/html')
+            .set("Accept", "text/html")
             .set("Content-Type", "application/json")
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
 };
-

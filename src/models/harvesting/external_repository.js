@@ -17,11 +17,11 @@ function ExternalRepository (object)
     self.addURIAndRDFType(object, "external_repository", ExternalRepository);
     ExternalRepository.baseConstructor.call(this, object);
 
-    const slug = require('slug');
+    const slug = require("slug");
 
-    if(isNull(self.ddr.humanReadableUri))
+    if (isNull(self.ddr.humanReadableUri))
     {
-        if(!isNull(object.dcterms.creator) && !isNull(self.dcterms.title))
+        if (!isNull(object.dcterms.creator) && !isNull(self.dcterms.title))
         {
             self.humanReadableURI = Config.baseUri + "/external_repository/" + object.dcterms.creator + "/" + slug(self.dcterms.title);
         }
@@ -29,14 +29,14 @@ function ExternalRepository (object)
         {
             const error = "Unable to create an external repository resource without specifying its creator and its dcterms:title";
             console.error(error);
-            return {error : error};
+            return {error: error};
         }
     }
 
     return self;
 }
 
-ExternalRepository.findByCreator = function(creatorUri, callback)
+ExternalRepository.findByCreator = function (creatorUri, callback)
 {
     const query =
         "SELECT ?uri \n" +
@@ -51,33 +51,36 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
     db.connection.executeViaJDBC(query,
         [
             {
-                type : Elements.types.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : Elements.types.resource,
-                value : creatorUri
+                type: Elements.types.resource,
+                value: creatorUri
             }
         ],
-        function(err, rows) {
-            if(isNull(err))
+        function (err, rows)
+        {
+            if (isNull(err))
             {
-                if(rows instanceof Array)
+                if (rows instanceof Array)
                 {
-                    const getExternalRepository = function (resultRow, cb) {
-                        ExternalRepository.findByUri(resultRow.uri, function (err, externalRepository) {
+                    const getExternalRepository = function (resultRow, cb)
+                    {
+                        ExternalRepository.findByUri(resultRow.uri, function (err, externalRepository)
+                        {
                             cb(err, externalRepository);
                         });
                     };
 
-                    async.mapSeries(rows, getExternalRepository, function(err, externalRepositories)
+                    async.mapSeries(rows, getExternalRepository, function (err, externalRepositories)
                     {
                         return callback(err, externalRepositories);
                     });
                 }
                 else
                 {
-                    //external repository does not exist, return null
+                    // external repository does not exist, return null
                     return callback(null, null);
                 }
             }
@@ -85,7 +88,7 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
             {
                 return callback(err, [rows]);
             }
-    });
+        });
 };
 
 ExternalRepository = Class.extend(ExternalRepository, Resource, "ddr:ExternalRepository");

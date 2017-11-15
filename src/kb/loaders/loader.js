@@ -9,19 +9,23 @@ function Loader ()
     const self = this;
 }
 
-Loader.prototype.destroyCurrentAndReload = function() {
+Loader.prototype.destroyCurrentAndReload = function ()
+{
 
 };
 
-Loader.prototype.clearDownloadedFiles = function() {
+Loader.prototype.clearDownloadedFiles = function ()
+{
 
 };
 
-Loader.prototype.downloadFiles = function() {
+Loader.prototype.downloadFiles = function ()
+{
 
 };
 
-Loader.prototype.loadFromDownloadedFiles = function() {
+Loader.prototype.loadFromDownloadedFiles = function ()
+{
 
 };
 

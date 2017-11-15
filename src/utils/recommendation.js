@@ -6,7 +6,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const RecommendationUtils = {};
 
-RecommendationUtils.getActiveRecommender = function()
+RecommendationUtils.getActiveRecommender = function ()
 {
     const recommendationModes = Object.keys(Config.recommendation.modes);
     let activeMode;
@@ -22,7 +22,7 @@ RecommendationUtils.getActiveRecommender = function()
             }
             else
             {
-                throw new Error("[FATAL ERROR] Two recommendation modes are active. Something is wrong with your conf/deployment_configs.json file.")
+                throw new Error("[FATAL ERROR] Two recommendation modes are active. Something is wrong with your conf/deployment_configs.json file.");
             }
         }
     }

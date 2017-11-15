@@ -15,7 +15,7 @@ function Notification (object)
 
     self.copyOrInitDescriptors(object);
 
-    if(isNull(self.ddr.humanReadableURI))
+    if (isNull(self.ddr.humanReadableURI))
     {
         self.ddr.humanReadableURI = Config.baseUri + "/notifications/" + uuid.v4();
     }
@@ -23,16 +23,16 @@ function Notification (object)
     return self;
 }
 
-//postURI/fileVersionUri
-//postUriAuthor/fileVersionUriAuthor
-//userWhoActed
-//actionType -> Like, Comment, Share
+// postURI/fileVersionUri
+// postUriAuthor/fileVersionUriAuthor
+// userWhoActed
+// actionType -> Like, Comment, Share
 
-//resourceTargetUri -> a post, fileVersion etc
-//resourceAuthorUri -> the author of the post etc
-//userWhoActed -> user who commmented/etc
-//actionType -> comment/like/share
-//status-> read/unread
+// resourceTargetUri -> a post, fileVersion etc
+// resourceAuthorUri -> the author of the post etc
+// userWhoActed -> user who commmented/etc
+// actionType -> comment/like/share
+// status-> read/unread
 
 Notification = Class.extend(Notification, Resource, "ddr:Notification");
 

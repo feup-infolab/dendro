@@ -6,8 +6,8 @@
  This data is used to create a new export repository configuration
  Use this JSON to create a new export config
  */
-//TODO this is not correct
-/*const newExportRepoData = {
+// TODO this is not correct
+/* const newExportRepoData = {
     ddr: {
         hasExternalUrl: "http://www.zenodo.org/",
         hasAccessToken: "dgOQrI0zzx5tZ1zSTSaBCtmik3SbJmxaJKW1GZV9ZUe7b7EV9Rr4XSTWMcTs",
@@ -19,91 +19,91 @@
         }
     },
     dcterms: {title: "zenodo export config 1"}
-};*/
+}; */
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const newExportRepoData = {
-    dcterms:{
-        title:"Zenodo"
+    dcterms: {
+        title: "Zenodo"
     },
-    ddr:{
-        hasExternalUrl:"http://www.zenodo.org/",
+    ddr: {
+        hasExternalUrl: "http://www.zenodo.org/",
         hasAccessToken: "dgOQrI0zzx5tZ1zSTSaBCtmik3SbJmxaJKW1GZV9ZUe7b7EV9Rr4XSTWMcTs",
-        hasPlatform:{
-            uri:"/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a295",
-            foaf:{
-                homepage:"http://www.zenodo.org/",
-                nick:"zenodo"
+        hasPlatform: {
+            uri: "/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a295",
+            foaf: {
+                homepage: "http://www.zenodo.org/",
+                nick: "zenodo"
             },
-            dcterms:{
-                title:"ZENODO"
+            dcterms: {
+                title: "ZENODO"
             },
-            ddr:{
-                handle:"zenodo",
-                created:"2017-10-02T12:17:04.105Z",
-                modified:"2017-10-02T12:17:04.106Z",
-                humanReadableURI:"http://" + Config.host +"/repository_platform/zenodo"
+            ddr: {
+                handle: "zenodo",
+                created: "2017-10-02T12:17:04.105Z",
+                modified: "2017-10-02T12:17:04.106Z",
+                humanReadableURI: "http://" + Config.host + "/repository_platform/zenodo"
             },
-            rdf:{
-                type:[
+            rdf: {
+                type: [
                     "http://dendro.fe.up.pt/ontology/0.1/RepositoryPlatform",
                     "http://dendro.fe.up.pt/ontology/0.1/Resource"
                 ]
             },
-            types:{
+            types: {
 
             },
-            schema:{
+            schema: {
 
             },
-            nie:{
+            nie: {
 
             },
-            nfo:{
+            nfo: {
 
             },
-            research:{
+            research: {
 
             },
-            dcb:{
+            dcb: {
 
             },
-            achem:{
+            achem: {
 
             },
-            bdv:{
+            bdv: {
 
             },
-            tsim:{
+            tsim: {
 
             },
-            biocn:{
+            biocn: {
 
             },
-            grav:{
+            grav: {
 
             },
-            hdg:{
+            hdg: {
 
             },
-            cep:{
+            cep: {
 
             },
-            social:{
+            social: {
 
             },
-            cfd:{
+            cfd: {
 
             },
-            tvu:{
+            tvu: {
 
             },
-            po:{
+            po: {
 
             },
-            $$hashKey:"object:149"
+            $$hashKey: "object:149"
         }
     }
 };

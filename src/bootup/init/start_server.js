@@ -4,28 +4,32 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const numCPUs = Config.numCPUs;
 
-const startServer = function(app, server, callback)
+const startServer = function (app, server, callback)
 {
-    if(numCPUs)
+    if (numCPUs && numCPUs > 1)
     {
-        if (cluster.isMaster) {
+        if (cluster.isMaster)
+        {
             // Fork workers.
-            for (let i = 0; i < numCPUs; i++) {
+            for (let i = 0; i < numCPUs; i++)
+            {
                 cluster.fork();
             }
         }
         else
         {
-            server.listen(app.get('port'), function () {
-                console.log('Express server listening on port ' + app.get('port'));
+            server.listen(app.get("port"), function ()
+            {
+                console.log("Express server listening on port " + app.get("port"));
                 callback(null);
             });
         }
     }
     else
     {
-        server.listen(app.get('port'), function () {
-            console.log('Express server listening on port ' + app.get('port'));
+        server.listen(app.get("port"), function ()
+        {
+            console.log("Express server listening on port " + app.get("port"));
             callback(null);
         });
     }

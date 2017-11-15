@@ -25,19 +25,26 @@ const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/fol
 const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Metadata only project testFolder2 level ?mkdir", function () {
-    before(function (done) {
+describe("Metadata only project testFolder2 level ?mkdir", function ()
+{
+    before(function (done)
+    {
         this.timeout(Config.testsTimeout);
-        createFoldersUnit.setup(function (err, results) {
+        createFoldersUnit.setup(function (err, results)
+        {
             should.equal(err, null);
             done();
         });
     });
 
-    describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/:foldername?mkdir", function () {
-        it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.createFolder(false, agent, metadataProject.handle, testFolder2.name, folder.name, function (err, res) {
+    describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/:foldername?mkdir", function ()
+    {
+        it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(false, agent, metadataProject.handle, testFolder2.name, folder.name, function (err, res)
+                {
                     res.statusCode.should.equal(400);
                     res.text.should.equal("HTML Request not valid for this route.");
                     done();
@@ -45,45 +52,59 @@ describe("Metadata only project testFolder2 level ?mkdir", function () {
             });
         });
 
-        it("Should give an error when the user is unauthenticated", function (done) {
+        it("Should give an error when the user is unauthenticated", function (done)
+        {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
-            itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, folder.name, function (err, res) {
+            itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, folder.name, function (err, res)
+            {
                 res.statusCode.should.equal(401);
                 done();
             });
         });
 
-        it("Should give an error when the user is logged in as demouser3(not a collaborador nor creator in a project by demouser1)", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, folder.name, function (err, res) {
+        it("Should give an error when the user is logged in as demouser3(not a collaborador nor creator in a project by demouser1)", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, folder.name, function (err, res)
+                {
                     res.statusCode.should.equal(401);
                     done();
                 });
             });
         });
 
-        it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, folder.name, function (err, res) {
+        it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, folder.name, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     done();
                 });
             });
         });
 
-        it("Should create the folder with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, folderForDemouser2.name, function (err, res) {
+        it("Should create the folder with success if the user is logged in as demouser2(a collaborator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, folderForDemouser2.name, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     done();
                 });
             });
         });
 
-        it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, "*aRandomFolder", function (err, res) {
+        it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, metadataProject.handle, testFolder2.name, "*aRandomFolder", function (err, res)
+                {
                     res.statusCode.should.equal(400);
                     res.body.message.should.equal("invalid file name specified");
                     done();
@@ -91,18 +112,24 @@ describe("Metadata only project testFolder2 level ?mkdir", function () {
             });
         });
 
-        it("Should give an error if an invalid folder parent is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.createFolder(true, agent, metadataProject.handle, "*invalidFolder", folder.name, function (err, res) {
+        it("Should give an error if an invalid folder parent is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, metadataProject.handle, "*invalidFolder", folder.name, function (err, res)
+                {
                     res.statusCode.should.equal(404);
                     done();
                 });
             });
         });
 
-        it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.createFolder(true, agent, "unKnownProjectHandle", testFolder2.name, folder.name, function (err, res) {
+        it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, "unKnownProjectHandle", testFolder2.name, folder.name, function (err, res)
+                {
                     res.statusCode.should.equal(404);
                     done();
                 });
@@ -110,10 +137,12 @@ describe("Metadata only project testFolder2 level ?mkdir", function () {
         });
     });
 
-    after(function (done) {
-        //destroy graphs
+    after(function (done)
+    {
+        // destroy graphs
 
-        appUtils.clearAppState(function (err, data) {
+        appUtils.clearAppState(function (err, data)
+        {
             should.equal(err, null);
             done(err);
         });
