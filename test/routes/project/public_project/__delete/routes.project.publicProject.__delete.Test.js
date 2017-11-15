@@ -131,6 +131,7 @@ describe("Public Project delete", function (done)
                 }, function (err, results)
                 {
                     should.equal(err, null);
+
                     projectUtils.deleteProject(false, agent, publicProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);

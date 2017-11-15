@@ -1758,19 +1758,14 @@ Project.prototype.delete = function (callback)
     const deleteProjectTriples = function (callback)
     {
         const deleteQuery =
-            "WITH [0] \n" +
-            "DELETE \n" +
+            "DELETE FROM [0]\n" +
             "{\n" +
             "    ?resource ?p ?o \n" +
             "} \n" +
             "WHERE \n" +
             "{ \n" +
-            "   SELECT ?resource ?p ?o \n" +
-            "   WHERE \n" +
-            "   { \n" +
-            "    [1] nie:hasLogicalPart* ?resource .\n" +
-            "    ?resource ?p ?o \n" +
-            "   } \n" +
+            "    ?resource ?p ?o .\n" +
+            "    [1] nie:hasLogicalPart* ?resource\n" +
             "} \n";
 
         db.connection.executeViaJDBC(deleteQuery,

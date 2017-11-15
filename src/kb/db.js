@@ -1053,27 +1053,27 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
                 query = "SPARQL\n" + query;
 
                 // Uncomment to use JDBC-controlled query queuing
-                self.sendQueryViaJDBC(
-                    query,
-                    uuid.v4(),
-                    function (err, results)
-                    {
-                        callback(err, results);
-                    },
-                    runAsUpdate
-                );
-
-                // Uncomment to use queues
-                // self.queue_jdbc.push({
-                //     queryStartTime: new Date(),
-                //     query: query,
-                //     query_id: uuid.v4(),
-                //     runAsUpdate: runAsUpdate,
-                //     callback: function (err, results)
+                // self.sendQueryViaJDBC(
+                //     query,
+                //     uuid.v4(),
+                //     function (err, results)
                 //     {
                 //         callback(err, results);
-                //     }
-                // });
+                //     },
+                //     runAsUpdate
+                // );
+
+                // Uncomment to use NodeJS Query queues for concurency control
+                self.queue_jdbc.push({
+                    queryStartTime: new Date(),
+                    query: query,
+                    query_id: uuid.v4(),
+                    runAsUpdate: runAsUpdate,
+                    callback: function (err, results)
+                    {
+                        callback(err, results);
+                    }
+                });
             }
             else
             {
