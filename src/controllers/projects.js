@@ -7,6 +7,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
@@ -880,39 +881,66 @@ exports.new = function (req, res)
                     {
                         // creator will be the currently logged in user
 
-                        const projectData = {
-                            dcterms: {
-                                creator: req.user.uri,
-                                title: req.body.title,
-                                description: req.body.description,
-                                publisher: req.body.publisher,
-                                language: req.body.language,
-                                coverage: req.body.coverage
-                            },
+                        //TODO
+                        const storageConfig = {
                             ddr: {
-                                handle: req.body.handle,
-                                privacyStatus: req.body.privacy
-                            },
-                            schema: {
-                                provider: req.body.contact_name,
-                                telephone: req.body.contact_phone,
-                                address: req.body.contact_address,
-                                email: req.body.contact_email,
-                                license: req.body.license
+                                storageType: Config.defaultStorageConfig.storageType,
+                                host: Config.defaultStorageConfig.host,
+                                port: Config.defaultStorageConfig.port,
+                                collectionName : Config.defaultStorageConfig.collectionName,
+                                username: Config.defaultStorageConfig.username,
+                                password: Config.defaultStorageConfig.password
                             }
                         };
 
-                        Project.createAndInsertFromObject(projectData, function (err, result)
-                        {
-                            if (isNull(err))
+                        const storageConf = new StorageConfig(storageConfig);
+
+                        StorageConf.save(function (err, newConfig) {
+                            if(isNull(err))
                             {
-                                req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
-                                res.redirect("/projects/my");
+                                if(newConfig instanceof StorageConfig){
+                                    const projectData = {
+                                        dcterms: {
+                                            creator: req.user.uri,
+                                            title: req.body.title,
+                                            description: req.body.description,
+                                            publisher: req.body.publisher,
+                                            language: req.body.language,
+                                            coverage: req.body.coverage
+                                        },
+                                        ddr: {
+                                            hasStorageConfig: storageConf,
+                                            handle: req.body.handle,
+                                            privacyStatus: req.body.privacy
+                                        },
+                                        schema: {
+                                            provider: req.body.contact_name,
+                                            telephone: req.body.contact_phone,
+                                            address: req.body.contact_address,
+                                            email: req.body.contact_email,
+                                            license: req.body.license
+                                        }
+                                    };
+
+                                    Project.createAndInsertFromObject(projectData, function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
+                                            res.redirect("/projects/my");
+                                        }
+                                        else
+                                        {
+                                            req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
+                                            throw err;
+                                        }
+                                    });
+                                }
                             }
                             else
-                            {
-                                req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
-                                throw err;
+                                {
+                                    req.flash("error", "Error creating storageConfig " + storageConfig.ddr.host);
+                                    throw err;
                             }
                         });
                     }

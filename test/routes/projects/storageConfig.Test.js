@@ -27,13 +27,15 @@ const metadataOnlyHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/
 const privateProjectHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+const projectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/createProjects.Unit.js"));
+
 
 describe("Project storageConfig tests", function (done) {
     before(function (done) {
         this.timeout(Config.testsTimeout);
-        bootup.setup(function (err, res) {
-            should.equal(err, null);
+            projectUnit.setup( function (err, res) {
+                should.equal(err,null);
+            });
             done();
         });
     });
@@ -42,8 +44,7 @@ describe("Project storageConfig tests", function (done) {
 
         it("Should create a project", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-               //Create Project
-                // Check Default Config
+
             });
         });
 
