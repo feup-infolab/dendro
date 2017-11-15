@@ -16,7 +16,7 @@
                                 datepicker-options="datepickerOptions"
                                 uib-datepicker-popup="MM/dd/yyyy"
                                 name="{{descriptor.datepicker_uuids[$index]}}_{{descriptor.shortName}}_{{$index}}"
-                                ng-class="{just_deleted: descriptor.valuesMarkedAsDeleted[descriptorValue]}"
+                                ng-class="{just_added: descriptor.just_added,just_deleted: descriptor.valuesMarkedAsDeleted[descriptorValue]}"
                         />
                         </input>
                         <span class="input-group-btn">
@@ -42,7 +42,7 @@
                                 datepicker-options="datepickerOptions"
                                 uib-datepicker-popup="MM/dd/yyyy"
                                 name="{{descriptor.datepicker_uuids[0]}}"
-                                ng-class="{just_deleted: descriptor.just_deleted}"
+                                ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted}"
                         />
                         </input>
 
@@ -68,7 +68,7 @@
                                 datepicker-options="datepickerOptions"
                                 uib-datepicker-popup="MM/dd/yyyy"
                                 name="{{descriptor.datepicker_uuids[0]}}"
-                                ng-class="{just_deleted: descriptor.just_deleted}"
+                                ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted}"
                         />
                         </input>
 
