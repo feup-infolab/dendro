@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@feup-infolab/node-b2share-v2": "^3.0.1",
+    "@feup-infolab/ontologies-database": "github:feup-infolab/ontologies-database",
     "JSONStream": "^1.3.1",
     "archiver": "^2.1.0",
     "async": "*",

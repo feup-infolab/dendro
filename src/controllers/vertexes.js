@@ -232,7 +232,7 @@ exports.search = function (req, res)
     }
     else
     {
-        res.render("vertexes/all", {
+        res.render("vertexes/search", {
             title: "No query specified",
             vertexes: []
         });

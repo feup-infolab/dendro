@@ -1352,7 +1352,7 @@ Resource.prototype.reindex = function (indexConnection, callback)
                         }
 
                         indexConnection.indexDocument(
-                            IndexConnection.indexTypes.resource,
+                            self.baseConstructor.targetIndex,
                             document,
                             function (err, result)
                             {
@@ -1407,7 +1407,8 @@ Resource.prototype.getTextuallySimilarResources = function (indexConnection, max
             if (!isNull(id))
             {
                 indexConnection.moreLikeThis(
-                    IndexConnection.indexTypes.resource, // search in all graphs for resources (generic type)
+                    // search in all graphs for resources (generic type)
+                    self.baseConstructor.targetIndex,
                     id,
                     function (err, results)
                     {
@@ -1452,6 +1453,7 @@ Resource.findResourcesByTextQuery = function (
     maxResultSize,
     callback)
 {
+    const self = this;
     const queryObject = {
         query: {
             match: {
@@ -1468,11 +1470,9 @@ Resource.findResourcesByTextQuery = function (
         version: true
     };
 
-    // var util = require('util');
-    // util.debug("Query in JSON : " + util.inspect(queryObject));
-
     indexConnection.search(
-        IndexConnection.indexTypes.resource, // search in all graphs for resources (generic type)
+        // search in all graphs for resources (generic type)
+        self.baseConstructor.targetIndex,
         queryObject,
         function (err, results)
         {
@@ -1533,7 +1533,8 @@ Resource.prototype.restoreFromIndexDocument = function (indexConnection, callbac
     };
 
     indexConnection.search(
-        IndexConnection.indexTypes.resource, // search in all graphs for resources (generic type)
+        // search in all graphs for resources (generic type)
+        self.baseConstructor.targetIndex,
         queryObject,
         function (err, hits)
         {
@@ -3449,6 +3450,8 @@ Resource.getCount = function (callback)
         }
     );
 };
+
+Resource.targetIndex = "resources";
 
 Resource = Class.extend(Resource, Class, "ddr:Resource");
 

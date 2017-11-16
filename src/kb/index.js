@@ -1,10 +1,8 @@
-const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const util = require("util");
 const db = Config.getDBByID();
 
 const es = require("elasticsearch");
@@ -16,7 +14,9 @@ const IndexConnection = function ()
 
 IndexConnection.indexTypes =
 {
-    resource: "resource"
+    resource: "resource",
+    ontology: "ontology",
+    descriptor: "descriptor"
 };
 
 // exclude a field from indexing : add "index" : "no".
@@ -32,17 +32,20 @@ IndexConnection.indexes = {
                 uri:
           {
               type: "string",
-              index: "not_analyzed" // we only want exact matches, disable term analysis
+              // we only want exact matches, disable term analysis
+              index: "not_analyzed"
           },
                 graph:
           {
               type: "string",
-              index: "not_analyzed" // we only want exact matches, disable term analysis
+              // we only want exact matches, disable term analysis
+              index: "not_analyzed"
           },
                 last_indexing_date:
           {
               type: "string",
-              index: "not_analyzed" // we only want exact matches, disable term analysis
+              // we only want exact matches, disable term analysis
+              index: "not_analyzed"
           },
                 descriptors:
           {
@@ -51,7 +54,8 @@ IndexConnection.indexes = {
                 predicate:
               {
                   type: "string",
-                  index: "not_analyzed" // we only want exact matches, disable term analysis
+                  // we only want exact matches, disable term analysis
+                  index: "not_analyzed"
               },
                 object:
               {
@@ -87,8 +91,6 @@ IndexConnection.prototype.open = function (host, port, index, callback)
     const self = this;
     if (!self.client)
     {
-        const util = require("util");
-
         self.client = {};
         self.host = host;
         self.port = port;
@@ -119,7 +121,7 @@ IndexConnection.prototype.open = function (host, port, index, callback)
     }
     else
     {
-	    return callback(self);
+        return callback(self);
     }
 };
 
@@ -349,7 +351,8 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 //	field : term
 // }
 
-IndexConnection.prototype.search = function (typeName,
+IndexConnection.prototype.search = function (
+    typeName,
     queryObject,
     callback)
 {

@@ -178,6 +178,27 @@ Ontology.initAllFromDatabase = function (callback)
             });
         };
 
+        const createOntologyRecordInElasticSearch = function (ontologyObject, callback)
+        {
+            const newOntology = new Ontology(ontologyObject);
+
+            newOntology.save(function (err, result)
+            {
+                if (isNull(err))
+                {
+                    Logger.log("info", "Loaded ontology with URI : " + ontologyObject.uri + ".");
+                }
+                else
+                {
+                    console.error("Error loading ontology with URI : " + ontologyObject.uri + ": ");
+                    console.error(JSON.stringify(err));
+                    console.error(JSON.stringify(result));
+                }
+
+                return callback(err, newOntology);
+            });
+        };
+
         async.mapSeries(ontologiesArray, function (ontologyObject, callback)
         {
             checkForOntology(ontologyObject, function (err, ontology)
@@ -925,6 +946,8 @@ Ontology.allOntologies = (function ()
     }
     return Ontology._allOntologies;
 }());
+
+Ontology.targetIndex = "ontologies";
 
 Ontology = Class.extend(Ontology, Resource, "ddr:Ontology");
 
