@@ -2,26 +2,78 @@
     <div class="controls col-lg-12">
         <div class="input-group col-lg-10 col-lg-offset-1">
 
-            <select name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                    id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                    placeholder="{{descriptor.label}}"
-                    ng-class="{
-                        just_added: descriptor.just_added,
-                        just_deleted: descriptor.just_deleted,
-                        just_inherited : descriptor.just_inherited ,
-                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
-                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
-                    }"
-                    class="form-control"
-                    ng-model="descriptor.value">
+            <div ng-switch="getTypeOfOfData(descriptor.value)">
+                <div ng-switch-when='string'>
+                    <select name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                            id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                            placeholder="{{descriptor.label}}"
+                            ng-class="{
+                                just_added: descriptor.just_added,
+                                just_deleted: descriptor.just_deleted,
+                                just_inherited : descriptor.just_inherited ,
+                                just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
+                                favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
+                            }"
+                            class="form-control"
+                            ng-model="descriptor.value">
                         <option value="">---No Value---</option>
                         <option ng-repeat="alternative in descriptor.hasAlternative"
                                 value="{{alternative}}"
                                 ng-selected="descriptor.value == alternative">
                                 {{alternative}}
                         </option>
-            </select>
+                    </select>
+                </div>
 
+                <div ng-switch-when='object'>
+                    <div ng-repeat="descriptorValue in descriptor.value track by $index">
+                        <a href ng-click="remove_value_from_descriptor(descriptor, descriptorValue)" onclick="return false;">
+                            <img src="/images/icons/delete.png">
+                        </a>
+                        <select name="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}"
+                                id="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}"
+                                placeholder="{{descriptor.label}}"
+                                ng-class="{
+                                    just_added: descriptor.just_added,
+                                    just_deleted: descriptor.valuesMarkedAsDeleted[descriptorValue],
+                                    just_inherited : descriptor.just_inherited ,
+                                    just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
+                                    favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
+                                }"
+                                class="form-control"
+                                ng-model="descriptor.value[$index]">
+                                <option value="">---No Value---</option>
+                                <option ng-repeat="alternative in descriptor.hasAlternative"
+                                        value="{{alternative}}"
+                                        ng-selected="descriptor.value[$index] == alternative">
+                                        {{alternative}}
+                                </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div ng-switch-default>
+                    <select name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                            id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                            placeholder="{{descriptor.label}}"
+                            ng-class="{
+                        just_added: descriptor.just_added,
+                        just_deleted: descriptor.just_deleted,
+                        just_inherited : descriptor.just_inherited ,
+                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
+                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
+                    }"
+                            class="form-control"
+                            ng-model="descriptor.value">
+                        <option value="">---No Value---</option>
+                        <option ng-repeat="alternative in descriptor.hasAlternative"
+                                value="{{alternative}}"
+                                ng-selected="descriptor.value == alternative">
+                                {{alternative}}
+                        </option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 </div>
