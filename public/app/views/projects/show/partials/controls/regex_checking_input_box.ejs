@@ -1,6 +1,98 @@
 <div class="row">
     <div class="controls col-lg-12">
-        <div class="input-group col-lg-10 col-lg-offset-1">
+        <div ng-switch="getTypeOfOfData(descriptor.value)">
+            <div ng-switch-when='string'>
+                <div class="input-group col-lg-10 col-lg-offset-1">
+                    <p> String regext_checking_input_box</p>
+                    <input
+                            type="text"
+                            class="form-control inputbox"
+                            id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                            name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                            placeholder="{{descriptor.label}}"
+                            value="{{descriptor.value}}"
+                            ng-model="descriptor.value"
+                            ng-class="{
+                        just_added: descriptor.just_added,
+                        just_deleted: descriptor.just_deleted,
+                        just_inherited : descriptor.just_inherited ,
+                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
+                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites),
+                        error : !descriptor_is_valid(descriptor)
+                    }"
+                            ng-enter="save_metadata()"
+                            focus-me="descriptor.focused">
+                </div>
+            </div>
+
+            <div ng-switch-when='object'>
+                <div ng-repeat="descriptorValue in descriptor.value track by $index">
+                    <div class="input-group col-lg-10 col-lg-offset-1">
+                        <p> Object regext_checking_input_box</p>
+                        <a href ng-click="remove_value_from_descriptor(descriptor, descriptorValue)" onclick="return false;">
+                            <img src="/images/icons/delete.png">
+                        </a>
+                        <input
+                                type="text"
+                                class="form-control inputbox"
+                                id="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}"
+                                name="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}"
+                                placeholder="{{descriptor.label}}"
+                                ng-model="descriptor.value[$index]"
+                                ng-class="{
+                        just_added: descriptor.just_added,
+                        just_deleted: descriptor.valuesMarkedAsDeleted[descriptorValue],
+                        just_inherited : descriptor.just_inherited ,
+                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
+                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites),
+                        error : !descriptor_is_valid(descriptor)
+                    }"
+                                ng-enter="save_metadata()"
+                                focus-me="descriptor.focused">
+                    </div>
+                </div>
+            </div>
+
+            <div ng-switch-default>
+                <div class="input-group col-lg-10 col-lg-offset-1">
+                    <p> At regext_checking_input_box</p>
+                    <input
+                            type="text"
+                            class="form-control inputbox"
+                            id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                            name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                            placeholder="{{descriptor.label}}"
+                            value="{{descriptor.value}}"
+                            ng-model="descriptor.value"
+                            ng-class="{
+                        just_added: descriptor.just_added,
+                        just_deleted: descriptor.just_deleted,
+                        just_inherited : descriptor.just_inherited ,
+                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
+                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites),
+                        error : !descriptor_is_valid(descriptor)
+                    }"
+                            ng-enter="save_metadata()"
+                            focus-me="descriptor.focused">
+                </div>
+            </div>
+
+            <div class="alert alert-danger"
+                 role="alert"
+                 ng-show="!descriptor_is_valid(descriptor)">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                <div ng-show="descriptor.hasErrorMessage == null">
+                    The entered value is invalid. It should conform to the regular expression {{descriptor.hasRegex}}.
+                    (No human-readable message available yet).
+                </div>
+                <div ng-show="descriptor.hasErrorMessage != null">
+                    The entered value is invalid. {{descriptor.hasErrorMessage}}
+                </div>
+            </div>
+
+        </div>
+        <!--<div class="input-group col-lg-10 col-lg-offset-1">
             <p> At regext_checking_input_box</p>
             <input
                     type="text"
@@ -34,7 +126,7 @@
             <div ng-show="descriptor.hasErrorMessage != null">
                 The entered value is invalid. {{descriptor.hasErrorMessage}}
             </div>
-        </div>
+        </div>-->
 
     </div>
 </div>

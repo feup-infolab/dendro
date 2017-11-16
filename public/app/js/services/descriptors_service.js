@@ -100,11 +100,25 @@ angular.module("dendroApp.services")
                 if (descriptor.hasRegex)
                 {
                     var regex = new RegExp(descriptor.hasRegex);
-                    if (!regex.match(descriptor.value))
+                    if (typeof descriptor.value === "string" || descriptor.value instanceof String)
                     {
-                        return false;
+                        if (!regex.exec(descriptor.value))
+                        {
+                            return false;
+                        }
+                        return true;
                     }
-                    return true;
+                    else if (descriptor.value instanceof Array)
+                    {
+                        for (var j = 0; j !== descriptor.value.length; j++)
+                        {
+                            if (!regex.exec(descriptor.value[j]))
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
                 }
                 if (descriptor.hasAlternative && descriptor.hasAlternative instanceof Array)
                 {
