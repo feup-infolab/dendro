@@ -38,7 +38,8 @@
                             <table class="explorer-table">
                                 <tr>
                                     <td ng-show="shared.multiple_selection_active">
-                                        <input  type="checkbox" ng-model="file.selected" multiple>
+                                        <img src="/images/icons/check_box_uncheck.png" ng-show="!file.selected">
+                                        <img src="/images/icons/check_box.png" ng-show="file.selected">
                                     </td>
                                     <td class="parent_stacked_image">
                                         <img class="image1_stacked_file_browser" ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" image-spinner/>
