@@ -1,7 +1,6 @@
 <div class="row">
     <div class="controls col-lg-12">
-        <div class="input-group col-lg-10 col-lg-offset-1">
-
+        <div class="col-lg-10 col-lg-offset-1">
             <div ng-switch="getTypeOfOfData(descriptor.value)">
                 <div ng-switch-when='string'>
                     <select name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
@@ -28,7 +27,7 @@
                 <div ng-switch-when='object'>
                     <div ng-repeat="descriptorValue in descriptor.value track by $index">
                         <a href ng-click="remove_value_from_descriptor(descriptor, descriptorValue)" onclick="return false;">
-                            <img src="/images/icons/delete.png">
+                            <img src="/images/icons/delete_small.png">
                         </a>
                         <select name="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}"
                                 id="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}"
