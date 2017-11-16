@@ -28,7 +28,23 @@
 <div class="row">
     <div class="controls col-xs-12">
         <div class="input-group col-lg-11">
-            <div class="control-value-read-only" ng-bind-html="descriptor.value | markdown">
+            <div ng-switch="getTypeOfOfData(descriptor.value)">
+                <div ng-switch-when='string'>
+                    <div class="control-value-read-only" ng-bind-html="descriptor.value | markdown">
+                    </div>
+                </div>
+
+                <div ng-switch-when='object'>
+                    <div ng-repeat="descriptorValue in descriptor.value track by $index">
+                        <div class="control-value-read-only" ng-bind-html="descriptorValue | markdown">
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-switch-default>
+                    <div class="control-value-read-only" ng-bind-html="descriptor.value | markdown">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
