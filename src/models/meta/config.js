@@ -67,10 +67,14 @@ const getConfigParameter = function (parameter, defaultValue)
     }
 };
 
+
+Config.activeConfiguration = activeConfigKey;
+
 // hostname for the machine in which this is running, configure when running on a production machine
 Config.port = getConfigParameter("port");
 Config.host = getConfigParameter("host");
 Config.baseUri = getConfigParameter("baseUri");
+Config.environment = getConfigParameter("environment");
 Config.eudatBaseUrl = getConfigParameter("eudatBaseUrl");
 Config.eudatToken = getConfigParameter("eudatToken");
 Config.eudatCommunityId = getConfigParameter("eudatCommunityId");

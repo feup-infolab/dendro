@@ -2,6 +2,7 @@ const path = require("path");
 const self = this;
 
 let appDir;
+
 if (process.env.NODE_ENV === "test")
 {
     appDir = path.resolve(path.dirname(require.main.filename), "../../..");
@@ -17,6 +18,8 @@ Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+
+process.env.NODE_ENV = Config.environment;
 
 if(global.app_startup_time)
 {
