@@ -3,7 +3,6 @@
         <div class="col-lg-10 col-lg-offset-1">
             <div ng-switch="getTypeOfOfData(descriptor.value)">
                 <div ng-switch-when='string'>
-                    descriptor.value: {{descriptor.value}}
                     <select name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
                             id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
                             placeholder="{{descriptor.label}}"
@@ -30,9 +29,8 @@
                         <a href ng-click="remove_value_from_descriptor(descriptor, descriptorValue)" onclick="return false;">
                             <img src="/images/icons/delete_small.png">
                         </a>
-                        descriptorvalue: {{descriptorValue}}
-                        <select name="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}"
-                                id="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}"
+                        <select name="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}_{{descriptorValue}}"
+                                id="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}_{{$index}}_{{descriptorValue}}"
                                 placeholder="{{descriptor.label}}"
                                 ng-class="{
                                     just_added: descriptor.just_added,
@@ -42,8 +40,8 @@
                                     favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
                                 }"
                                 class="form-control"
-                                ng-model="descriptorValue">
-                                <option value="">---No Value---</option>
+                                ng-model="descriptor.value[$index]">
+                                <option value="{{descriptor.label}}">---No Value---</option>
                                 <option ng-repeat="alternative in descriptor.hasAlternative"
                                         value="{{alternative}}"
                                         ng-selected="descriptorValue == alternative">
@@ -54,7 +52,6 @@
                 </div>
 
                 <div ng-switch-default>
-                    descriptor.value default: {{descriptor.value}}
                     <select name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
                             id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
                             placeholder="{{descriptor.label}}"

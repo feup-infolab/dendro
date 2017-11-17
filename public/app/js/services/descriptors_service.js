@@ -97,6 +97,25 @@ angular.module("dendroApp.services")
 
             this.descriptor_is_valid = function (descriptor)
             {
+                var checkIfValueIsInTheAlternatives = function (value, alternatives)
+                {
+                    if (!(alternatives instanceof Array))
+                    {
+                        return false;
+                    }
+                    else if (typeof value === "string" || value instanceof String)
+                    {
+                        for (var i = 0; i < alternatives.length; i++)
+                        {
+                            if (value === alternatives[i])
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+
                 if (descriptor.hasRegex)
                 {
                     var regex = new RegExp(descriptor.hasRegex);
@@ -119,17 +138,35 @@ angular.module("dendroApp.services")
                         }
                         return true;
                     }
+                    else
+                    {
+                        // the descriptor is invalid because it is neither a string nor an array
+                        return false;
+                    }
                 }
                 if (descriptor.hasAlternative && descriptor.hasAlternative instanceof Array)
                 {
-                    for (var i = 0; i < descriptor.hasAlternative.length; i++)
+                    if (typeof descriptor.value === "string" || descriptor.value instanceof String)
                     {
-                        if (descriptor.value === descriptor.hasAlternative[i])
+                        return checkIfValueIsInTheAlternatives(descriptor.value, descriptor.hasAlternative);
+                    }
+                    else if (descriptor.value instanceof Array)
+                    {
+                        var results = _.map(descriptor.value, function (descriptorValue)
+                        {
+                            return checkIfValueIsInTheAlternatives(descriptorValue, descriptor.hasAlternative);
+                        });
+
+                        var containsAFailedCheck = _.contains(results, false);
+                        if (containsAFailedCheck)
+                        {
+                            return false;
+                        }
+                        else
                         {
                             return true;
                         }
                     }
-
                     return false;
                 }
 

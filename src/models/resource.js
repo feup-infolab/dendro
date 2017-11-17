@@ -708,9 +708,9 @@ Resource.prototype.validateDescriptorValues = function (callback)
                     async.apply(descriptorValueIsWithinAlternatives, descriptor),
                     async.apply(descriptorValueConformsToRegex, descriptor)
                 ],
-                function (firstError)
+                function (error, info)
                 {
-                    return callback(firstError);
+                    return callback(error, info);
                 }
             );
         },
