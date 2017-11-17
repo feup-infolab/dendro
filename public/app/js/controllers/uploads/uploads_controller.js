@@ -250,7 +250,7 @@ angular.module("dendroApp.controllers")
                             file.error = true;
                             cleanUploadFilesListByPropertyAndValue("error", true, 3000);
                             // windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
-                            // Logger.log("error",error);
+                            // console.log("error",error);
                         });
 
                     return doUpload.promise;

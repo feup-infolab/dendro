@@ -98,7 +98,7 @@ angular.module("dendroApp.factories")
                     multi_view.visible = true;
                 }).fail(function (err)
                 {
-                    Logger.log(err);
+                    console.log(err);
                 });
             },
             load_text: function ($scope, fileExtension, fileUri)

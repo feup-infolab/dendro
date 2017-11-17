@@ -113,7 +113,7 @@ angular.module("dendroApp.controllers")
                     uri = $scope.get_current_url() + "?delete";
                 }
 
-                // Logger.log("deleting " + get_current_url() + " via url " + uri);
+                // console.log("deleting " + get_current_url() + " via url " + uri);
 
                 $http.post(uri)
                     .then(function (response)
@@ -144,6 +144,11 @@ angular.module("dendroApp.controllers")
         {
             $scope.get_contributors(contributors);
             $scope.active_tab = $localStorage.active_tab;
+
+            if(!$scope.active_tab)
+            {
+                $scope.clicked_information_tab();
+            }
             $scope.get_project();
         };
 

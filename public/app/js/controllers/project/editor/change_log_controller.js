@@ -54,8 +54,8 @@ angular.module("dendroApp.controllers")
                     })
                     .catch(function (e)
                     {
-                        Logger.log("error","Unable to fetch parent project of the currently selected file.");
-                        Logger.log("error",JSON.stringify(e));
+                        console.log("error","Unable to fetch parent project of the currently selected file.");
+                        console.log("error",JSON.stringify(e));
                         windowService.show_popup("error", "Error", e.statusText);
                     });
             }

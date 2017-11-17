@@ -4,6 +4,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
 const fs = require("fs");
 const slug = require("slug");
 const mkdirp = require("mkdirp");
+const path = require("path");
 const winston = require("winston");
 
 const Logger = function ()
@@ -13,6 +14,11 @@ const Logger = function ()
 
 Logger.init = function (startTime)
 {
+    if (isNull(startTime))
+    {
+        startTime = new Date();
+    }
+
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     // Setup logging
     if (!isNull(Config.logging))
@@ -57,8 +63,9 @@ Logger.init = function (startTime)
             {
                 if (Config.logging.pipe_console_to_logfile)
                 {
+                    mkdirp.sync(path.join(absPath, "development"));
                     const errorLogFile = new winston.transports.File({
-                        filename: `${absPath}/${slug(new Date().toISOString(), "_")}-error.log`,
+                        filename: `${absPath}/development/${slug(startTime.toISOString() + "_development_" + Config.activeConfiguration, "_")}-error.log`,
                         level: "error",
                         format: combine(
                             timestamp(),
@@ -88,53 +95,24 @@ Logger.init = function (startTime)
             {
                 if (Config.logging.pipe_console_to_logfile)
                 {
-                    let errorLogFile;
-                    if (!isNull(startTime))
-                    {
-                        errorLogFile = new winston.transports.File({
-                            filename: `${absPath}/${slug(startTime.toISOString(), "_")}-error.log`,
-                            level: "error",
-                            format: combine(
-                                timestamp(),
-                                jsonFormat
-                            )
-                        });
-                    }
-                    else
-                    {
-                        errorLogFile = new winston.transports.File({
-                            filename: `${absPath}/${slug(new Date().toISOString(), "_")}-error.log`,
-                            level: "error",
-                            format: combine(
-                                timestamp(),
-                                jsonFormat
-                            )
-                        });
-                    }
+                    mkdirp.sync(path.join(absPath, "test"));
+                    const errorLogFile = new winston.transports.File({
+                        filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-error.log`,
+                        level: "error",
+                        format: combine(
+                            timestamp(),
+                            jsonFormat
+                        )
+                    });
 
-                    let combinedErrorLog;
-                    if (!isNull(startTime))
-                    {
-                        combinedErrorLog = new winston.transports.File({
-                            filename: `${absPath}/${slug(startTime.toISOString(), "_")}-combined.log`,
-                            level: "info",
-                            format: combine(
-                                timestamp(),
-                                jsonFormat
-                            )
-                        });
-                    }
-                    else
-                    {
-                        combinedErrorLog = new winston.transports.File({
-                            filename: `${absPath}/${slug(new Date().toISOString(), "_")}-combined.log`,
-                            level: "info",
-                            format: combine(
-                                timestamp(),
-                                jsonFormat
-                            )
-                        });
-                    }
+                    const combinedErrorLog = new winston.transports.File({
+                        filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-combined.log`,
+                        level: "info",
+                        format: combine(
+                            timestamp(),
+                            jsonFormat
+                        )
+                    });
 
                     logger.add(errorLogFile);
                     logger.add(combinedErrorLog);
@@ -157,18 +135,20 @@ Logger.init = function (startTime)
             {
                 if (Config.logging.pipe_console_to_logfile)
                 {
+                    mkdirp.sync(path.join(absPath, "production"));
                     const rotator = require("stream-rotate");
-                    const logstream = rotator({
-                        path: absPath,
-                        name: "dendro",
+                    const logstreamInfo = rotator({
+                        path: path.join(absPath, "production"),
+                        name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_combined", "_"),
                         size: "5m",
                         retention: 2,
                         boundary: "daily"
                     });
 
-                    const rotatedLogFile = new winston.transports.File(
+                    const rotatedLogFileInfo = new winston.transports.File(
                         {
-                            stream: logstream,
+                            stream: logstreamInfo,
+                            level: "info",
                             timestamp: tsFormat,
                             format: combine(
                                 timestamp(),
@@ -176,7 +156,27 @@ Logger.init = function (startTime)
                             )
                         });
 
-                    logger.add(rotatedLogFile);
+                    const logstreamError = rotator({
+                        path: path.join(absPath, "production"),
+                        name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_error", "_"),
+                        size: "5m",
+                        retention: 2,
+                        boundary: "daily"
+                    });
+
+                    const rotatedLogFileError = new winston.transports.File(
+                        {
+                            stream: logstreamError,
+                            level: "error",
+                            timestamp: tsFormat,
+                            format: combine(
+                                timestamp(),
+                                jsonFormat
+                            )
+                        });
+
+                    logger.add(rotatedLogFileInfo);
+                    logger.add(rotatedLogFileError);
                 }
 
                 // do not colorize the output to the console

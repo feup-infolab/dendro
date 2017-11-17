@@ -162,7 +162,7 @@ angular.module("dendroApp.controllers")
 
                 var report_problems = function (fault)
                 {
-                    Logger.log(fault);
+                    console.log(fault);
                     windowService.show_popup("error", "Error", fault);
                 };
 
