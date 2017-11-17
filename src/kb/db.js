@@ -645,9 +645,9 @@ DbConnection.prototype.create = function (callback)
             // Required
             url: "jdbc:virtuoso://" + self.host + ":" + self.port_isql + "/UID=" + self.username + "/PWD=" + self.password + "/PWDTYPE=cleartext" + "/CHARSET=UTF-8",
             drivername: "virtuoso.jdbc4.Driver",
-            minpoolsize: 1,
+            minpoolsize: 0,
             maxpoolsize: self.maxSimultaneousConnections,
-
+            maxidle: 10000,
             properties: {}
         };
 
