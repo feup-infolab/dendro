@@ -13,6 +13,33 @@ module.exports.login = function (req, res, next)
 {
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
+    // prevent injections, test for alphanumeric and _ characters only in the username
+    const alphaNumericTest = new RegExp(/^[a-zA-Z0-9_]+$/);
+    const min8CharsPasswordTest = new RegExp(/^.{8,}$/);
+
+    const checkUsernameAndPasswordFields = function (req, callback)
+    {
+        if (isNull(req.body.username) && isNull(req.body.password))
+        {
+            callback(true, "Error: Please fill in the password and username fields when logging in!");
+        }
+        else if (isNull(req.body.password))
+        {
+            callback(true, "Error: Please fill in the password field when logging in!");
+        }
+        else if (isNull(req.body.username))
+        {
+            callback(true, "Error: Please fill in the username field when logging in!");
+        }
+        else if (!isNull(req.body.username) && alphaNumericTest.test(req.body.username) && !isNull(req.body.password) && min8CharsPasswordTest.test(req.body.password))
+        {
+            callback(null, null);
+        }
+        else
+        {
+            callback(true, "Usernames must be alphanumeric only and the password field should be at least 8 characters in length!");
+        }
+    };
 
     if (req.originalMethod === "GET")
     {
@@ -20,116 +47,120 @@ module.exports.login = function (req, res, next)
     }
     else if (req.originalMethod === "POST")
     {
-    // prevent injections, test for alphanumeric and _ characters only in the username
-        const alphaNumericTest = new RegExp(/^[a-zA-Z0-9_]+$/);
-        if (!isNull(req.body.username) && alphaNumericTest.test(req.body.username))
+        checkUsernameAndPasswordFields(req, function (err, result)
         {
-            req.passport.authenticate(
-                "local",
-                {
-                    failureRedirect: "/login",
-                    failureFlash: true
-                },
-                function (err, user, info)
-                {
-                    if (isNull(err))
+            if (isNull(err))
+            {
+                req.passport.authenticate(
+                    "local",
                     {
-                        req.logIn(user, function (err)
+                        failureRedirect: "/login",
+                        failureFlash: true
+                    },
+                    function (err, user, info)
+                    {
+                        if (isNull(err))
                         {
-                            if (isNull(err))
+                            req.logIn(user, function (err)
                             {
-                                req.session.isAdmin = info.isAdmin;
-                                req.session.upload_manager = new UploadManager(user.ddr.username);
-
-                                if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+                                if (isNull(err))
                                 {
-                                    res.json(
-                                        {
-                                            result: "ok",
-                                            message: "User " + user.ddr.username + " signed in."
-                                        }
-                                    );
-                                }
-                                else
-                                {
-                                    req.flash("success", "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
+                                    req.session.isAdmin = info.isAdmin;
+                                    req.session.upload_manager = new UploadManager(user.ddr.username);
 
-                                    if (Config.debug.permissions.log_authorizations)
+                                    // will be null if the client does not accept html
+                                    if (acceptsJSON && !acceptsHTML)
                                     {
-                                        console.log("User " + user.ddr.username + " signed in.");
-                                    }
-
-                                    if (req.body.redirect)
-                                    {
-                                        res.redirect(req.body.redirect);
+                                        res.json(
+                                            {
+                                                result: "ok",
+                                                message: "User " + user.ddr.username + " signed in."
+                                            }
+                                        );
                                     }
                                     else
                                     {
-                                        res.redirect("/projects/my");
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
-                                {
-                                    res.json(
+                                        req.flash("success", "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
+
+                                        if (Config.debug.permissions.log_authorizations)
                                         {
-                                            result: "error",
-                                            message: "Error signing in user",
-                                            error: err
+                                            console.log("User " + user.ddr.username + " signed in.");
                                         }
-                                    );
+
+                                        if (req.body.redirect)
+                                        {
+                                            res.redirect(req.body.redirect);
+                                        }
+                                        else
+                                        {
+                                            res.redirect("/projects/my");
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    req.flash("success", "There was an error signing you in.");
-                                    console.log("Error signing in user " + JSON.stringify(err));
-                                    throw err;
+                                    // will be null if the client does not accept html
+                                    if (acceptsJSON && !acceptsHTML)
+                                    {
+                                        res.json(
+                                            {
+                                                result: "error",
+                                                message: "Error signing in user",
+                                                error: err
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        req.flash("success", "There was an error signing you in.");
+                                        console.log("Error signing in user " + JSON.stringify(err));
+                                        throw err;
+                                    }
                                 }
-                            }
-                        });
-                    }
-                    else
-                    {
-                        if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
-                        {
-                            res.status(401).json(
-                                {
-                                    result: "error",
-                                    message: err
-                                }
-                            );
+                            });
                         }
                         else
                         {
-                            req.flash("error", err);
-
-                            if (req.body.redirect)
+                            // will be null if the client does not accept html
+                            if (acceptsJSON && !acceptsHTML)
                             {
-                                res.redirect("/login?redirect=" + req.body.redirect);
+                                res.status(401).json(
+                                    {
+                                        result: "error",
+                                        message: err
+                                    }
+                                );
                             }
                             else
                             {
-                                res.redirect("/login");
+                                req.flash("error", err);
+
+                                if (req.body.redirect)
+                                {
+                                    res.redirect("/login?redirect=" + req.body.redirect);
+                                }
+                                else
+                                {
+                                    res.redirect("/login");
+                                }
                             }
                         }
                     }
-                }
-            )(req, res, next);
-        }
-        else
-        {
-            res.render("auth/login",
-                {
-                    title: "Error Logging in",
-                    error_messages:
-          [
-              "Usernames must be alphanumeric only"
-          ]
-                }
-            );
-        }
+                )(req, res, next);
+            }
+            else
+            {
+                res.render("auth/login",
+                    {
+                        title: "Error Logging in",
+                        error_messages:
+                            [
+                                result
+                            ]
+                    }
+                );
+            }
+        });
     }
 };
 
@@ -159,7 +190,8 @@ module.exports.register = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+    // will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)
     {
         res.status(405).json(
             {
