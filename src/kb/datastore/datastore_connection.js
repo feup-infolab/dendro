@@ -2,6 +2,7 @@ const util = require("util");
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const colors = require("colors");
@@ -473,13 +474,13 @@ DataStoreConnection.deleteAllDataOfAllResources = function (callback)
                     {
                         if (Config.debug.active && Config.datastore.log.log_datastore_ops)
                         {
-                            console.log("[DEBUG] Deleted ALL datastore records");
+                            Logger.log("debug", "Deleted ALL datastore records");
                         }
 
                         return callback(null);
                     }
                     const msg = "Unable to delete database " + self.database + " : " + JSON.stringify(err);
-                    console.log(msg);
+                    Logger.log(msg);
                     return callback(err, msg);
                 });
             }

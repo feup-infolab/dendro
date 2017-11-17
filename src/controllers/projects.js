@@ -16,6 +16,7 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const nodemailer = require("nodemailer");
 const db = Config.getDBByID();
@@ -1066,14 +1067,14 @@ exports.administer = function (req, res)
                             {
                                 if (Config.logging.log_emails)
                                 {
-                                    console.log("[NODEMAILER] " + err);
+                                    Logger.log("[NODEMAILER] " + err);
                                 }
 
                                 flash("error", "Error sending request to user. Please try again later");
                             }
                             else
                             {
-                                console.log("[NODEMAILER] email sent: " + info);
+                                Logger.log("[NODEMAILER] email sent: " + info);
                                 flash("success", "Sent request to project's owner");
                             }
                         });
@@ -1116,8 +1117,8 @@ exports.administer = function (req, res)
                                     }
                                     else
                                     {
-                                        console.error(JSON.stringify(err));
-                                        console.error(JSON.stringify(user));
+                                        Logger.log("error", JSON.stringify(err));
+                                        Logger.log("error", JSON.stringify(user));
                                         return callback(true, "Unable to validate permissions of the currently logged user when updating the storage limit.");
                                     }
                                 });
@@ -1388,11 +1389,11 @@ exports.bagit = function (req, res)
                                 {
                                     if (err)
                                     {
-                                        console.error("Unable to delete " + parentFolderPath);
+                                        Logger.log("error", "Unable to delete " + parentFolderPath);
                                     }
                                     else
                                     {
-                                        console.log("Deleted " + parentFolderPath);
+                                        Logger.log("Deleted " + parentFolderPath);
                                     }
                                 });
                             });
@@ -1408,7 +1409,7 @@ exports.bagit = function (req, res)
                         else
                         {
                             const error = "There was an error attempting to backup project : " + requestedProjectURI;
-                            console.error(error);
+                            Logger.log("error", error);
                             res.status(500).write("Error : " + error + "\n");
                             res.end();
                         }
@@ -1666,7 +1667,7 @@ exports.interactions = function (req, res)
     {
         const msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
         req.flash("error", "Invalid Request");
-        console.log(msg);
+        Logger.log(msg);
         res.status(400).render("",
             {
             }
@@ -1710,7 +1711,7 @@ exports.requestAccess = function (req, res)
     else if (req.originalMethod === "POST")
     {
         const flash = require("connect-flash");
-        console.log(req.user);
+        Logger.log(req.user);
         Project.findByUri(req.params.requestedResourceUri, function (err, project)
         {
             if (isNull(err) && project instanceof Project)
@@ -1744,13 +1745,13 @@ exports.requestAccess = function (req, res)
                         {
                             if (err)
                             {
-                                console.log("[NODEMAILER] " + err);
+                                Logger.log("[NODEMAILER] " + err);
                                 flash("error", "Error sending request to user. Please try again later");
                                 res.redirect("/");
                             }
                             else
                             {
-                                console.log("[NODEMAILER] email sent: " + info);
+                                Logger.log("[NODEMAILER] email sent: " + info);
                                 flash("success", "Sent request to project's owner");
                                 res.redirect("/");
                             }
@@ -1928,7 +1929,7 @@ exports.import = function (req, res)
                                 {
                                     if (!isNull(err))
                                     {
-                                        console.error("Error occurred while deleting backup zip file at " + uploadedBackupAbsPath + " : " + JSON.stringify(result));
+                                        Logger.log("error", "Error occurred while deleting backup zip file at " + uploadedBackupAbsPath + " : " + JSON.stringify(result));
                                     }
                                 });
 
@@ -2025,7 +2026,7 @@ exports.import = function (req, res)
                                 else
                                 {
                                     const msg = "Error restoring zip file to folder : " + valid;
-                                    console.error(msg);
+                                    Logger.log("error", msg);
 
                                     callback(500, {
                                         result: "error",

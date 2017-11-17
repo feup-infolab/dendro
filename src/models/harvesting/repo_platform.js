@@ -29,7 +29,7 @@ function RepositoryPlatform (object)
                 else
                 {
                     const error = "Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title";
-                    console.error(error);
+                    Logger.log("error", error);
                     return {error: error};
                 }
             }

@@ -6,6 +6,7 @@ const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const CKAN = require("ckan");
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -259,7 +260,7 @@ const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResour
                     statusCode: 500
                 }
             };
-            console.error(JSON.stringify(errorInfo));
+            Logger.log("error", JSON.stringify(errorInfo));
             callback(err, errorInfo);
         }
         else if (isNull(folder))
@@ -270,7 +271,7 @@ const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResour
                     statusCode: 404
                 }
             };
-            console.error(JSON.stringify(errorInfo));
+            Logger.log("error", JSON.stringify(errorInfo));
             callback(true, errorInfo);
         }
         else
@@ -284,7 +285,7 @@ const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResour
                         statusCode: 400
                     }
                 };
-                console.error(JSON.stringify(errorInfo));
+                Logger.log("error", JSON.stringify(errorInfo));
                 callback(true, errorInfo);
             }
             else if (isNull(folder.dcterms.description))
@@ -295,7 +296,7 @@ const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResour
                         statusCode: 400
                     }
                 };
-                console.error(JSON.stringify(errorInfo));
+                Logger.log("error", JSON.stringify(errorInfo));
                 callback(true, errorInfo);
             }
             else
@@ -334,7 +335,7 @@ const getBothDendroDiffsAndCkanDiffs = function (requestedResourceUri, targetRep
                         if (!isNull(err) && isNull(result))
                         {
                             const message = "[ERROR] invalid ckan uri or api key";
-                            console.error(JSON.stringify(err));
+                            Logger.log("error", JSON.stringify(err));
                             let info = {
                                 error: {
                                     message,
@@ -370,7 +371,7 @@ const getBothDendroDiffsAndCkanDiffs = function (requestedResourceUri, targetRep
                                                     else
                                                     {
                                                         let message = "Error comparing a dendro package with a ckan package";
-                                                        console.error(message);
+                                                        Logger.log("error", message);
                                                         callback(err, diffs);
                                                     }
                                                 });
@@ -378,7 +379,7 @@ const getBothDendroDiffsAndCkanDiffs = function (requestedResourceUri, targetRep
                                             else
                                             {
                                                 let message = "Error getting changedResources from ckan repository";
-                                                console.error(message);
+                                                Logger.log("error", message);
                                                 callback(err, result);
                                             }
                                         });
@@ -386,7 +387,7 @@ const getBothDendroDiffsAndCkanDiffs = function (requestedResourceUri, targetRep
                                     else
                                     {
                                         let message = "Error getting the exportedAt property from ckan";
-                                        console.error(message);
+                                        Logger.log("error", message);
                                         callback(err, result);
                                     }
                                 });
@@ -394,7 +395,7 @@ const getBothDendroDiffsAndCkanDiffs = function (requestedResourceUri, targetRep
                             else
                             {
                                 let message = "The ckan package to export does not exist";
-                                console.log(message);
+                                Logger.log(message);
                                 callback(err, result);
                             }
                         }
@@ -403,14 +404,14 @@ const getBothDendroDiffsAndCkanDiffs = function (requestedResourceUri, targetRep
             else
             {
                 let message = "The folder to export to ckan does not exist";
-                console.error(message);
+                Logger.log("error", message);
                 callback(true, message);
             }
         }
         else
         {
             let message = "Error when looking for the folder to export to ckan";
-            console.error(message);
+            Logger.log("error", message);
             callback(true, message);
         }
     });
@@ -481,7 +482,7 @@ const calculateCkanRepositoryDiffs = function (requestedResourceUri, targetRepos
                         statusCode: statusCode
                     }
                 };
-                console.error(JSON.stringify(errorInfo));
+                Logger.log("error", JSON.stringify(errorInfo));
                 callback(true, errorInfo);
             }
         }
@@ -523,7 +524,7 @@ const validateChangesPermissions = function (checkPermissionsDictionary, permiss
                 message: JSON.stringify(results),
                 statusCode: 412
             };
-            console.error(JSON.stringify(errorInfo));
+            Logger.log("error", JSON.stringify(errorInfo));
             callback(err, null, errorInfo);
         }
     });
@@ -554,7 +555,7 @@ const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, clie
                 {
                     return extra.key === Elements.ontologies.ddr.exportedAt.uri;
                 });
-                console.log("The index is: " + resultIndex);
+                Logger.log("The index is: " + resultIndex);
 
                 if (isNull(date))
                 {
@@ -585,12 +586,12 @@ const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, clie
                     {
                         if (result.success)
                         {
-                            console.log("exportedAt was updated/created in ckan");
+                            Logger.log("exportedAt was updated/created in ckan");
                             callback(err, result);
                         }
                         else
                         {
-                            console.error("Error updating/creating exportedAt in ckan");
+                            Logger.log("error", "Error updating/creating exportedAt in ckan");
                             callback(err, result);
                         }
                     }
@@ -620,7 +621,7 @@ const deleteResourceInCkan = function (resourceID, packageID, client, callback)
         {
             if (result.success)
             {
-                console.log("The resource with id: " + resourceID + " was deleted");
+                Logger.log("The resource with id: " + resourceID + " was deleted");
                 callback(err, result);
             }
             else
@@ -955,7 +956,7 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
                         else
                         {
                             let message = "Error uploading files in the dataset to CKAN.";
-                            console.error(message);
+                            Logger.log("error", message);
                             callback(err, results, finalMsg);
                             generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                         }
@@ -964,7 +965,7 @@ const updatePackageInCkan = function (requestedResourceUri, targetRepository, pa
                 else
                 {
                     let message = "Error uploading files in the dataset to CKAN: " + JSON.stringify(response);
-                    console.error(message);
+                    Logger.log("error", message);
                     callback(err, response, message);
                     generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                 }
@@ -1050,7 +1051,7 @@ const checkIfFolderAndTargetRepositoryHaveRequiredMetadata = function (requested
                 message: "Error fetching " + requestedResourceUri + " from the Dendro platform. Error reported : " + folder,
                 statusCode: 500
             };
-            console.error(JSON.stringify(errorInfo));
+            Logger.log("error", JSON.stringify(errorInfo));
             callback(err, folder, errorInfo);
         }
         else if (isNull(folder))
@@ -1059,7 +1060,7 @@ const checkIfFolderAndTargetRepositoryHaveRequiredMetadata = function (requested
                 message: requestedResourceUri + " does not exist in Dendro or is not a folder. You cannot export an entire project to an external repository.",
                 statusCode: 400
             };
-            console.error(JSON.stringify(errorInfo));
+            Logger.log("error", JSON.stringify(errorInfo));
             callback(true, folder, errorInfo);
         }
         else
@@ -1072,7 +1073,7 @@ const checkIfFolderAndTargetRepositoryHaveRequiredMetadata = function (requested
                     statusCode: 400
                 };
 
-                console.error(JSON.stringify(errorInfo));
+                Logger.log("error", JSON.stringify(errorInfo));
                 callback(true, folder, errorInfo);
             }
             else if (isNull(folder.dcterms.description))
@@ -1082,7 +1083,7 @@ const checkIfFolderAndTargetRepositoryHaveRequiredMetadata = function (requested
                     statusCode: 400
                 };
 
-                console.error(JSON.stringify(errorInfo));
+                Logger.log("error", JSON.stringify(errorInfo));
                 callback(true, folder, errorInfo);
             }
             else if (isNull(targetRepository.ddr.hasExternalUri))
@@ -1092,7 +1093,7 @@ const checkIfFolderAndTargetRepositoryHaveRequiredMetadata = function (requested
                     statusCode: 500
                 };
 
-                console.error(JSON.stringify(errorInfo));
+                Logger.log("error", JSON.stringify(errorInfo));
                 callback(true, folder, errorInfo);
             }
             else
@@ -1187,7 +1188,7 @@ const buildPackageForCkanExport = function (client, organization, targetReposito
                                     statusCode: 500
                                 };
 
-                                console.error(JSON.stringify(errorInfo));
+                                Logger.log("error", JSON.stringify(errorInfo));
                                 callback(true, folder, errorInfo);
                             }
                         }, datasetFolderMetadata);
@@ -1198,7 +1199,7 @@ const buildPackageForCkanExport = function (client, organization, targetReposito
                             message: "Error creating temporary folder for export folder " + folder.nie.title + " from the Dendro platform.",
                             statusCode: 500
                         };
-                        console.error(JSON.stringify(errorInfo));
+                        Logger.log("error", JSON.stringify(errorInfo));
                         callback(true, folder, errorInfo);
                     }
                 });
@@ -1216,7 +1217,7 @@ const buildPackageForCkanExport = function (client, organization, targetReposito
                     message: message,
                     statusCode: 401
                 };
-                console.error(JSON.stringify(errorInfo));
+                Logger.log("error", JSON.stringify(errorInfo));
                 callback(true, folder, errorInfo);
             }
         });
@@ -1284,7 +1285,7 @@ const exportPackageToCkan = function (overwrite, requestedResourceUri, targetRep
                                 message: message,
                                 statusCode: 500
                             };
-                            console.error(JSON.stringify(errorInfo));
+                            Logger.log("error", JSON.stringify(errorInfo));
                             callback(true, packageId, errorInfo);
                         }, lastExportedAt);
                     }
@@ -1297,7 +1298,7 @@ const exportPackageToCkan = function (overwrite, requestedResourceUri, targetRep
                     message: message,
                     statusCode: 500
                 };
-                console.error(JSON.stringify(errorInfo));
+                Logger.log("error", JSON.stringify(errorInfo));
                 callback(true, packageId, errorInfo);
             }
         });
@@ -1342,7 +1343,7 @@ const exportPackageToCkan = function (overwrite, requestedResourceUri, targetRep
                         message: message,
                         statusCode: 500
                     };
-                    console.error(JSON.stringify(errorInfo));
+                    Logger.log("error", JSON.stringify(errorInfo));
                     callback(true, packageId, errorInfo);
                 });
             }
@@ -1353,12 +1354,12 @@ const exportPackageToCkan = function (overwrite, requestedResourceUri, targetRep
     {
         generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
         const message = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " + resultFromPackageExists;
-        console.error(message);
+        Logger.log("error", message);
         let errorInfo = {
             message: message,
             statusCode: 500
         };
-        console.error(JSON.stringify(errorInfo));
+        Logger.log("error", JSON.stringify(errorInfo));
         callback(true, folder, errorInfo);
     }
     else
@@ -1368,7 +1369,7 @@ const exportPackageToCkan = function (overwrite, requestedResourceUri, targetRep
             message: message,
             statusCode: 401
         };
-        console.error(JSON.stringify(errorInfo));
+        Logger.log("error", JSON.stringify(errorInfo));
         callback(true, folder, errorInfo);
     }
 };

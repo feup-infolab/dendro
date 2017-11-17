@@ -38,7 +38,7 @@ const sendAnyResponse = function (data, options, req, res, next)
             result = "invalid_request";
             break;
         default:
-            console.error("Unknown status code : " + options.code);
+            Logger.log("error", "Unknown status code : " + options.code);
             result = "other";
             break;
         }

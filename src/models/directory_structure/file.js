@@ -11,6 +11,7 @@ const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
@@ -68,11 +69,11 @@ File.estimateUnzippedSize = function (pathOfZipFile, callback)
             let size = stdout.replace(regex, "");
             size = size.replace(/ /g, "");
             size = size.replace(/\n/g, "");
-            console.log("Estimated unzipped file size is " + size);
+            Logger.log("Estimated unzipped file size is " + size);
             return callback(null, Number.parseInt(size));
         }
         const errorMessage = "[INFO] There was an error estimating unzipped file size with command " + command + ". Code Returned by Zip Command " + JSON.stringify(error);
-        console.error(errorMessage);
+        Logger.log("error", errorMessage);
         return callback(1, errorMessage);
     });
 };
@@ -102,18 +103,18 @@ File.unzip = function (pathOfFile, callback)
                 {
                     if (isNull(error))
                     {
-                        console.log("Contents are in folder " + tmpFolderPath);
+                        Logger.log("Contents are in folder " + tmpFolderPath);
                         return callback(null, tmpFolderPath);
                     }
                     const errorMessage = "[INFO] There was an error unzipping file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(error);
-                    console.error(errorMessage);
+                    Logger.log("error", errorMessage);
                     return callback(1, tmpFolderPath);
                 });
             }
             else
             {
                 const errorMessage = "Error unzipping the backup file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(tmpFolderPath);
-                console.error(errorMessage);
+                Logger.log("error", errorMessage);
                 return callback(1, errorMessage);
             }
         }
@@ -136,11 +137,11 @@ File.createBlankTempFile = function (fileName, callback)
 
             if (isNull(err))
             {
-                console.log("Temp File Created! Location: " + tempFilePath);
+                Logger.log("Temp File Created! Location: " + tempFilePath);
             }
             else
             {
-                console.error("Error creating temp file : " + tempFolderAbsPath);
+                Logger.log("error", "Error creating temp file : " + tempFolderAbsPath);
             }
 
             return callback(err, tempFilePath);
@@ -178,7 +179,7 @@ File.createBlankFileRelativeToAppRoot = function (relativePathToFile, callback)
                     // handle error
                     fs.close(fd, function (err)
                     {
-                        console.log("Directory structure " + parentFolder + " created. File " + absPathToFile + " also created.");
+                        Logger.log("Directory structure " + parentFolder + " created. File " + absPathToFile + " also created.");
                         return callback(null, absPathToFile, parentFolder);
                     });
                 });
@@ -330,13 +331,13 @@ File.prototype.save = function (callback, rename)
                             {
                                 return callback(null, self);
                             }
-                            console.error("Error adding child file descriptors : " + result);
+                            Logger.log("error", "Error adding child file descriptors : " + result);
                             return callback(1, "Error adding child file descriptors : " + result);
                         });
                     }
                     else
                     {
-                        console.error("Error adding parent file descriptors : " + result);
+                        Logger.log("error", "Error adding parent file descriptors : " + result);
                         return callback(1, "Error adding parent file descriptors: " + result);
                     }
                 }
@@ -400,7 +401,7 @@ File.prototype.deleteThumbnails = function ()
                 {
                     if (err)
                     {
-                        console.error("Error deleting thumbnail " + self.uri + "?thumbnail&size=" + dimension);
+                        Logger.log("error", "Error deleting thumbnail " + self.uri + "?thumbnail&size=" + dimension);
                     }
                 });
             }
@@ -562,7 +563,7 @@ File.prototype.writeToTempFile = function (callback)
 
                 if (Config.debug.log_temp_file_writes)
                 {
-                    console.log("Temp file location: " + tempFilePath);
+                    Logger.log("Temp file location: " + tempFilePath);
                 }
 
                 const fs = require("fs");
@@ -635,7 +636,7 @@ File.prototype.getThumbnail = function (size, callback)
                 }
                 else if (isNull(err))
                 {
-                    console.log("Thumbnail temp file location: " + tempFilePath);
+                    Logger.log("Thumbnail temp file location: " + tempFilePath);
                     return callback(null, tempFilePath);
                 }
                 else
@@ -668,7 +669,7 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
                         return callback(null, self);
                     }
 
-                    console.log("Error [" + err + "] saving file in GridFS :" + result);
+                    Logger.log("Error [" + err + "] saving file in GridFS :" + result);
                     return callback(err, result);
                 },
                 {
@@ -892,8 +893,8 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
                 {
                     if (!isNull(err))
                     {
-                        console.error("Error occurred while recording header of sheet " + 0 + " of resource " + self.uri);
-                        console.error(err.stack);
+                        Logger.log("error", "Error occurred while recording header of sheet " + 0 + " of resource " + self.uri);
+                        Logger.log("error", err.stack);
                     }
                 });
             }
@@ -1084,7 +1085,7 @@ File.prototype.extractTextAndSaveIntoGraph = function (callback)
                 {
                     if (err)
                     {
-                        console.log("Error deleting file " + locationOfTempFile);
+                        Logger.log("Error deleting file " + locationOfTempFile);
                     }
                 });
 
@@ -1102,8 +1103,8 @@ File.prototype.extractTextAndSaveIntoGraph = function (callback)
                 }
                 else
                 {
-                    console.error("Error extracting text from " + locationOfTempFile + " : ");
-                    console.error(err);
+                    Logger.log("error", "Error extracting text from " + locationOfTempFile + " : ");
+                    Logger.log("error", err);
                     return callback(1, err);
                 }
             });
@@ -1162,7 +1163,7 @@ File.prototype.connectToMongo = function (callback)
     {
         if (isNull(err))
         {
-            console.log("Connected successfully to MongoDB");
+            Logger.log("Connected successfully to MongoDB");
             return callback(null, db);
         }
         const msg = "Error connecting to MongoDB";
@@ -1177,8 +1178,8 @@ File.prototype.findFileInMongo = function (db, callback)
     {
         if (Config.debug.files.log_file_version_fetches)
         {
-            console.log("Found the following Files");
-            console.log(files);
+            Logger.log("Found the following Files");
+            Logger.log(files);
         }
 
         if (isNull(err))
@@ -1248,7 +1249,7 @@ File.prototype.generateThumbnails = function (callback)
                 y: 0
             }).then(function (image)
         {
-            console.log("Resized and cropped: " + image.width + " x " + image.height);
+            Logger.log("Resized and cropped: " + image.width + " x " + image.height);
 
             // TODO
             gfs.connection.put(
@@ -1259,7 +1260,7 @@ File.prototype.generateThumbnails = function (callback)
                     if (!isNull(err))
                     {
                         const msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
-                        console.error(msg);
+                        Logger.log("error", msg);
                         cb(err, msg);
                     }
                     else

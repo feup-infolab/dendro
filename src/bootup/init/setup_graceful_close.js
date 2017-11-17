@@ -45,7 +45,7 @@ const setupGracefulClose = function (app, server, callback)
             {
                 if (!exited)
                 {
-                    console.error("[TIMEOUT] Virtuoso did not close all connections in time!");
+                    Logger.log("error", "[TIMEOUT] Virtuoso did not close all connections in time!");
                     cb(null);
                 }
             }, Config.dbOperationTimeout);
@@ -59,7 +59,7 @@ const setupGracefulClose = function (app, server, callback)
                     dbConfig.connection.close(function (err, result)
                     {
                         exited = true;
-                        console.log("[OK] Virtuoso connections closed gracefully.");
+                        Logger.log("info", "Virtuoso connections closed gracefully.");
                         if (isNull(err))
                         {
                             cb(null, result);
@@ -87,7 +87,7 @@ const setupGracefulClose = function (app, server, callback)
             {
                 if (!err)
                 {
-                    Logger.log_boot_message("success", "Closed all cache connections");
+                    Logger.log_boot_message("Closed all cache connections");
                 }
                 else
                 {
@@ -109,7 +109,7 @@ const setupGracefulClose = function (app, server, callback)
             {
                 if (!err)
                 {
-                    Logger.log_boot_message("success", "Closed all GridFS connections");
+                    Logger.log_boot_message("Closed all GridFS connections");
                 }
                 else
                 {
@@ -131,7 +131,7 @@ const setupGracefulClose = function (app, server, callback)
 
                 if (!err)
                 {
-                    Logger.log_boot_message("success", "Closed MySQL connection pool");
+                    Logger.log_boot_message("Closed MySQL connection pool");
                 }
                 else
                 {
@@ -144,7 +144,7 @@ const setupGracefulClose = function (app, server, callback)
 
         const haltHTTPServer = function (cb)
         {
-            Logger.log_boot_message("info", "Halting server...");
+            Logger.log_boot_message("Halting server...");
             server.close();
             server.destroy();
             cb(null);
@@ -161,15 +161,15 @@ const setupGracefulClose = function (app, server, callback)
 
         const removePIDFile = function (cb)
         {
-            Logger.log_boot_message("info", "Removing PID file...");
+            Logger.log_boot_message("Removing PID file...");
             if (process.env.NODE_ENV !== "test")
             {
                 app.pid.remove();
-                Logger.log_boot_message("success", "Removed PID");
+                Logger.log_boot_message("Removed PID");
             }
             else
             {
-                Logger.log_boot_message("info", "No need to remove PID, because this Dendro is running in TEST Mode");
+                Logger.log_boot_message("No need to remove PID, because this Dendro is running in TEST Mode");
             }
 
             cb(null);
@@ -198,7 +198,7 @@ const setupGracefulClose = function (app, server, callback)
             {
                 setTimeout(function ()
                 {
-                    Logger.log_boot_message("info", "Graceful close timed out. Forcing server closing!");
+                    Logger.log_boot_message("Graceful close timed out. Forcing server closing!");
                     process.kill(process.pid);
                 }, Config.dbOperationTimeout);
             };
@@ -211,16 +211,16 @@ const setupGracefulClose = function (app, server, callback)
                 {
                     if (!err)
                     {
-                        Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server now.");
+                        Logger.log_boot_message("Freed all resources. Halting Dendro Server now.");
                     }
                     else
                     {
                         Logger.log_boot_message("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
                     }
 
-                    Logger.log_boot_message("success", "No need to remove PID, because this Dendro is running in TEST Mode");
+                    Logger.log_boot_message("No need to remove PID, because this Dendro is running in TEST Mode");
                     nodeCleanup.uninstall(); // don't call cleanup handler again
-                    Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
+                    Logger.log_boot_message("Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
                     process.kill(process.pid, signal);
                 });
 
@@ -240,8 +240,8 @@ const setupGracefulClose = function (app, server, callback)
         {
             process.on("unhandledRejection", function (rejection)
             {
-                console.error("Unknown error occurred!");
-                console.error(rejection.stack);
+                Logger.log("error", "Unknown error occurred!");
+                Logger.log("error", rejection.stack);
 
                 // we send SIGINT (like Ctrl+c) so that the graceful
                 // cleanup process function can be called (see setup_graceful_close.js)

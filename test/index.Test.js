@@ -1,5 +1,7 @@
 process.env.NODE_ENV = "test";
 
+global.app_startup_time = new Date();
+
 const path = require("path");
 const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
 const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;

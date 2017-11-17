@@ -11,6 +11,7 @@ const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConne
 const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const db = Config.getDBByID();
 
@@ -471,7 +472,7 @@ InformationElement.isSafePath = function (absPath, callback)
             }
         }
 
-        console.error("Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
+        Logger.log("error", "Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
         return callback(null, false);
     });
 };
@@ -562,7 +563,7 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
             else
             {
                 const msg = self.uri + " does not exist in Dendro.";
-                console.error(msg);
+                Logger.log("error", msg);
 
                 return callback(true, msg);
             }
@@ -570,7 +571,7 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
         else
         {
             const msg = "Error fetching " + self.uri + " from the Dendro platform.";
-            console.error(msg);
+            Logger.log("error", msg);
 
             return callback(true, msg);
         }
@@ -632,7 +633,7 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
                 }
 
                 const msg = "Error checking if resource " + self.uri + " is contained in " + anotherResourceUri;
-                console.error(msg);
+                Logger.log("error", msg);
                 return callback(err, msg);
             });
     }

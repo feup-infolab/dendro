@@ -2,6 +2,7 @@ const cluster = require("cluster");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const numCPUs = Config.numCPUs;
 
 const startServer = function (app, server, callback)
@@ -20,7 +21,7 @@ const startServer = function (app, server, callback)
         {
             server.listen(app.get("port"), function ()
             {
-                console.log("Express server listening on port " + app.get("port"));
+                Logger.log("Express server listening on port " + app.get("port"));
                 callback(null);
             });
         }
@@ -29,7 +30,7 @@ const startServer = function (app, server, callback)
     {
         server.listen(app.get("port"), function ()
         {
-            console.log("Express server listening on port " + app.get("port"));
+            Logger.log("Express server listening on port " + app.get("port"));
             callback(null);
         });
     }

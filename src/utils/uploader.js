@@ -44,7 +44,7 @@ Uploader.prototype.handleUpload = function (req, res, callback)
 
     const processChunkedUpload = function (upload, callback)
     {
-    // console.log("Recebi um chunk do ficheiro " + filename + " para o upload id " + upload_id);
+    // Logger.log("Recebi um chunk do ficheiro " + filename + " para o upload id " + upload_id);
 
         if (isNull(username))
         {
@@ -101,8 +101,8 @@ Uploader.prototype.handleUpload = function (req, res, callback)
                 {
                     if (err)
                     {
-                        console.error("Error destroying upload " + upload.id);
-                        console.error(err);
+                        Logger.log("error", "Error destroying upload " + upload.id);
+                        Logger.log("error", err);
                     }
                 });
             });
@@ -113,7 +113,7 @@ Uploader.prototype.handleUpload = function (req, res, callback)
                 {
                     if (err)
                     {
-                        console.log("Error destroying upload " + upload.id);
+                        Logger.log("Error destroying upload " + upload.id);
                     }
                 });
             });
@@ -422,7 +422,7 @@ Uploader.prototype.handleUpload = function (req, res, callback)
                     {
                         if (isNull(err))
                         {
-                            console.log("Completed upload of file " + filename + " !! " + new Date().toISOString());
+                            Logger.log("Completed upload of file " + filename + " !! " + new Date().toISOString());
                             callback(err, result);
                         }
                         else
@@ -488,7 +488,7 @@ exports.resume = function (req, res)
                     else
                     {
                         const msg = "The upload does not belong to the user currently trying to resume.";
-                        console.error(msg);
+                        Logger.log("error", msg);
                         res.status(400).json({
                             result: "error",
                             msg: msg
@@ -505,7 +505,7 @@ exports.resume = function (req, res)
             else
             {
                 const msg = "The user does not have a session initiated.";
-                console.error(msg);
+                Logger.log("error", msg);
                 res.status(400).json({
                     result: "error",
                     msg: msg
@@ -515,7 +515,7 @@ exports.resume = function (req, res)
         else
         {
             const msg = "Invalid Request, does not contain the 'resume' query parameter.";
-            console.error(msg);
+            Logger.log("error", msg);
             res.status(400).json({
                 result: "error",
                 msg: msg
@@ -528,7 +528,7 @@ exports.resume = function (req, res)
         {
             const msg = "This is only accessible via GET method";
             req.flash("error", "Invalid Request");
-            console.log(msg);
+            Logger.log(msg);
             res.status(400).render("",
                 {
                 }

@@ -13,6 +13,7 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const File = require(Pathfinder.absPathInSrcFolder("models/directory_structure/file.js")).File;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const binaryParser = function (res, cb)
@@ -909,7 +910,7 @@ const metadataMatchesBackup = function (project, bodyBuffer, callback)
 
                             if (!bagitMetadataIsValid)
                             {
-                                console.error(JSON.stringify(returnedBagitMetadata, null, 4));
+                                console.log("error",JSON.stringify(returnedBagitMetadata, null, 4));
                             }
 
                             const returnedProjectTreeMetadata = results[0].projectTreeMetadata;
@@ -923,7 +924,7 @@ const metadataMatchesBackup = function (project, bodyBuffer, callback)
 
                             if (!fileTreeMetadataIsValid)
                             {
-                                console.error(JSON.stringify(fileTreeMetadataDiffs, null, 4));
+                                console.log("error",JSON.stringify(fileTreeMetadataDiffs, null, 4));
                             }
 
                             callback(null, bagitMetadataIsValid && fileTreeMetadataIsValid);
@@ -969,8 +970,8 @@ const contentsMatchBackup = function (project, bodyBuffer, callback)
                         {
                             if (result1 !== result2)
                             {
-                                console.error(result1);
-                                console.error(result2);
+                                console.log("error",result1);
+                                console.log("error",result2);
                             }
 
                             callback(null, result1 === result2);
@@ -1070,13 +1071,13 @@ const countProjectFilesInGridFS = function (projectUri, callback, customBucket)
                         }
                         return callback(null, 0);
                     }
-                    console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                    console.log("error","* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                     return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                 });
         }
         else
         {
-            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+            console.log("error","* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
             return callback(1, "Error retrieving files collection : " + collection);
         }
     });

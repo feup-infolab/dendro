@@ -47,7 +47,7 @@ angular.module("dendroApp.controllers")
 
         $scope.get_research_domains_by_text_search = function (typed)
         {
-            // console.log("Typed : " + typed);
+            // Logger.log("Typed : " + typed);
 
             if (typeof typed !== "undefined")
             {
@@ -93,7 +93,7 @@ angular.module("dendroApp.controllers")
                     if (confirmed)
                     {
                         var url = "/research_domains/" + encodeURIComponent(research_domain.uri);
-                        // console.log("Sending DELETE to url " + url);
+                        // Logger.log("Sending DELETE to url " + url);
                         $http({
                             method: "DELETE",
                             url: url,
@@ -130,7 +130,7 @@ angular.module("dendroApp.controllers")
 
         $scope.update_research_domains = function ()
         {
-            // console.log("updating research domains with " + JSON.stringify($scope.research_domains));
+            // Logger.log("updating research domains with " + JSON.stringify($scope.research_domains));
             $http({
                 method: "POST",
                 url: "/research_domains",

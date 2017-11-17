@@ -33,15 +33,15 @@ B2Share.prototype.createDeposition = function (callback)
     {
         if (error)
         {
-            console.log("[B2SHARE] Deposition Error: " + error);
+            Logger.log("[B2SHARE] Deposition Error: " + error);
             return callback(true);
         }
         if (result.statusCode !== 201)
         {
-            console.log("[B2SHARE] Deposition Error: " + JSON.stringify(result));
+            Logger.log("[B2SHARE] Deposition Error: " + JSON.stringify(result));
             return callback(true);
         }
-        console.log("[B2SHARE] Deposition Created");
+        Logger.log("[B2SHARE] Deposition Created");
         return callback(null, deposition);
     });
 };
@@ -57,15 +57,15 @@ B2Share.prototype.uploadFileToDeposition = function (depositionID, file, callbac
     {
         if (error)
         {
-            console.log("[B2SHARE] File Upload error: " + error);
+            Logger.log("[B2SHARE] File Upload error: " + error);
             return callback(true);
         }
         if (result.statusCode !== 200)
         {
-            console.log("[B2SHARE] File Upload error:" + JSON.stringify(result));
+            Logger.log("[B2SHARE] File Upload error:" + JSON.stringify(result));
             return callback(true);
         }
-        console.log("[B2SHARE] Success Uploading File");
+        Logger.log("[B2SHARE] Success Uploading File");
         return callback(false);
     });
 
@@ -109,15 +109,15 @@ B2Share.prototype.depositionPublish = function (depositionID, metadata, callback
     {
         if (error)
         {
-            console.log("[B2SHARE] Error Publishing Dataset: " + error);
+            Logger.log("[B2SHARE] Error Publishing Dataset: " + error);
             return callback(true);
         }
         if (result.statusCode !== 201)
         {
-            console.log("[B2SHARE] Error Publishing Dataset:" + JSON.stringify(result));
+            Logger.log("[B2SHARE] Error Publishing Dataset:" + JSON.stringify(result));
             return callback(true);
         }
-        console.log("[B2SHARE] Success Committing Deposit: " + JSON.stringify(result));
+        Logger.log("[B2SHARE] Success Committing Deposit: " + JSON.stringify(result));
         return callback(null, result);
     });
 };

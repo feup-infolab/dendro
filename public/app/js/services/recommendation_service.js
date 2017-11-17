@@ -68,7 +68,7 @@ angular.module("dendroApp.services")
 
                 if (descriptor_filter instanceof Object && descriptor_filter.key != self.descriptor_filters[0].key)
                 {
-                    // console.log("Getting recommendations with descriptor filter " + descriptor_filter.key);
+                    // Logger.log("Getting recommendations with descriptor filter " + descriptor_filter.key);
                     params.recommendations_mode = descriptor_filter.key;
                 }
                 else if (!(descriptor_filter instanceof Object))

@@ -6,6 +6,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const async = require("async");
 const _ = require("underscore");
@@ -86,7 +87,7 @@ exports.all = function (req, res)
                     else
                     {
                         const msg = "error fetching research domain information : " + err;
-                        console.error(msg);
+                        Logger.log("error", msg);
 
                         res.json({
                             result: "error",
@@ -123,7 +124,7 @@ exports.edit = function (req, res)
                         if (err)
                         {
                             const msg = "Error saving research domain " + JSON.stringify(domain) + " because of error " + JSON.stringify(result);
-                            console.error(msg);
+                            Logger.log("error", msg);
                         }
 
                         return callback(err, result);

@@ -11,7 +11,7 @@ const loadAdmins = function (app, callback)
 {
     if (Config.startup.load_databases && Config.startup.reload_administrators_on_startup)
     {
-        Logger.log_boot_message("info", "Loading default administrators.");
+        Logger.log_boot_message("Loading default administrators.");
         async.series([
             function (callback)
             {
@@ -33,7 +33,7 @@ const loadAdmins = function (app, callback)
                         {
                             return callback(err, administrator);
                         }
-                        Logger.log_boot_message("info", "Non-existent administrator " + username + ". Creating new admin...");
+                        Logger.log_boot_message("Non-existent administrator " + username + ". Creating new admin...");
 
                         Administrator.createAndInsertFromObject({
                             foaf: {
@@ -54,7 +54,7 @@ const loadAdmins = function (app, callback)
                             }
 
                             const msg = "Error creating new Administrator" + JSON.stringify(newUser);
-                            console.error(msg);
+                            Logger.log("error", msg);
                             return callback(err, msg);
                         });
                     });
@@ -64,11 +64,11 @@ const loadAdmins = function (app, callback)
                 {
                     if (isNull(err))
                     {
-                        Logger.log_boot_message("success", "Admins successfully loaded.");
+                        Logger.log_boot_message("Admins successfully loaded.");
                     }
                     else
                     {
-                        console.error("[ERROR] Unable to load admins. Error : " + err);
+                        Logger.log("error", "[ERROR] Unable to load admins. Error : " + err);
                     }
 
                     return callback(err);

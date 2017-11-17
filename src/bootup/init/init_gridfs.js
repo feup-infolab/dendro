@@ -7,7 +7,7 @@ let GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js")).G
 
 const initGridFS = function (app, callback)
 {
-    Logger.log_boot_message("info", "Connecting to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
+    Logger.log_boot_message("Connecting to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
     const gfs = new GridFSConnection(
         Config.mongoDBHost,
         Config.mongoDbPort,
@@ -22,7 +22,7 @@ const initGridFS = function (app, callback)
         {
             return callback("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);
         }
-        Logger.log_boot_message("ok", "Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
+        Logger.log_boot_message("Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
         Config.gfs.default.connection = gfs;
         return callback(null);
     });

@@ -132,7 +132,7 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
             }
             else
             {
-                console.error("Matching route is not a function!");
+                Logger.log("error", "Matching route is not a function!");
                 next();
             }
         }
