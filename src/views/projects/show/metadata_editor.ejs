@@ -118,6 +118,7 @@
             <div ng-repeat="descriptor in shared.metadata | filter: only_editable_metadata_descriptors track by $index">
                 <ng-include src="'/app/views/projects/show/partials/controls/descriptor_toolbar.html'"></ng-include>
                 <div ng-switch="descriptor.control">
+                    descriptor.control is: {{descriptor.control}}
                     <div ng-switch-when="combo_box">
                         <ng-include src="'/app/views/projects/show/partials/controls/combo_box.html'"></ng-include>
                     </div>
