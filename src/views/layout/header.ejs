@@ -86,11 +86,11 @@
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown">
+                        <!--<li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins<b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <% if(locals.user != null && locals.session != null && locals.session.isAdmin)
-                                {
+                                <%
+                                //if(locals.user != null && locals.session != null && locals.session.isAdmin) {
                                 %>
                                     <li role="presentation" class="dropdown-header">Dendro Recommender</li>
                                     <li>
@@ -101,10 +101,10 @@
                                         <a href="/src/plugins/dendro_interaction2csv">Export interactions</a>
                                     </li>
                                 <%
-                                }
+                                //}
                                 %>
                             </ul>
-                        </li>
+                        </li> -->
 
                         <form class="navbar-form navbar-left" role="search" action="/search" method="get">
                             <div class="form-group">
