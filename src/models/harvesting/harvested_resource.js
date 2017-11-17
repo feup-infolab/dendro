@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
@@ -145,7 +146,7 @@ HarvestedResource.prototype.save = function (indexConnection, callback)
                         return callback(null, "Metadata successfully inserted for resource : " + self.uri + " Virtuoso error : " + result);
                     }
                     const error = "Error indexing harvested resource with uri " + self.uri + ". Error reported: " + result;
-                    console.error(error);
+                    Logger.log("error", error);
                     return callback(1, error);
                 });
             }

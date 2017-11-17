@@ -2,6 +2,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -13,6 +14,7 @@ module.exports.login = function (req, res, next)
 {
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
+
     // prevent injections, test for alphanumeric and _ characters only in the username
     const alphaNumericTest = new RegExp(/^[a-zA-Z0-9_]+$/);
     const min8CharsPasswordTest = new RegExp(/^.{8,}$/);
@@ -84,7 +86,7 @@ module.exports.login = function (req, res, next)
 
                                         if (Config.debug.permissions.log_authorizations)
                                         {
-                                            console.log("User " + user.ddr.username + " signed in.");
+                                            Logger.log("User " + user.ddr.username + " signed in.");
                                         }
 
                                         if (req.body.redirect)
@@ -113,7 +115,7 @@ module.exports.login = function (req, res, next)
                                     else
                                     {
                                         req.flash("success", "There was an error signing you in.");
-                                        console.log("Error signing in user " + JSON.stringify(err));
+                                        Logger.log("Error signing in user " + JSON.stringify(err));
                                         throw err;
                                     }
                                 }
@@ -190,8 +192,7 @@ module.exports.register = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    // will be null if the client does not accept html
-    if (acceptsJSON && !acceptsHTML)
+    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
         res.status(405).json(
             {
@@ -438,7 +439,7 @@ module.exports.register = function (req, res)
                     else
                     {
                         req.flash("error", "Error registering a new user");
-                        console.error("Error registering a new user: " + JSON.stringify(err));
+                        Logger.log("error", "Error registering a new user: " + JSON.stringify(err));
                         res.redirect("/register");
                     }
                 });

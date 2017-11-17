@@ -24,7 +24,7 @@ angular.module("dendroApp.controllers")
         {
             let debug = resourceTargetUri.split("/")[2];
             return $scope.resourceTypeDictionary[resourceTargetUri.split("/")[2]];
-            console.log("debug");
+            Logger.log("debug");
         };
 
         $scope.parseActionType = function (notification)
@@ -108,7 +108,7 @@ angular.module("dendroApp.controllers")
                     })
                     .catch(function (error)
                     {
-                        console.error("Error getting unread notifications" + JSON.stringify(error));
+                        Logger.log("error","Error getting unread notifications" + JSON.stringify(error));
                         $scope.awaitingResponse = false;
                     });
             }
@@ -133,7 +133,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    console.error("Error getting Notification Info" + JSON.stringify(error));
+                    Logger.log("error","Error getting Notification Info" + JSON.stringify(error));
                 });
         };
 
@@ -146,7 +146,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    console.error("Error deleting a notification" + JSON.stringify(error));
+                    Logger.log("error","Error deleting a notification" + JSON.stringify(error));
                 });
         };
     });

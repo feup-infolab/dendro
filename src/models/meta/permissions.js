@@ -44,7 +44,7 @@ Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAll
                 user = req.user.uri;
             }
 
-            console.log("[ALLOW-ACCESS] User " + user + " granted access to " + req.originalUrl + " .");
+            Logger.log("[ALLOW-ACCESS] User " + user + " granted access to " + req.originalUrl + " .");
         }
 
         return next();
@@ -64,7 +64,7 @@ Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAll
             user = req.user.uri;
         }
 
-        console.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messageUser);
+        Logger.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messageUser);
     }
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
@@ -751,8 +751,8 @@ Permissions.require = function (permissionsRequired, req, res, next)
     {
         if (Config.debug.active && Config.debug.permissions.log_requests_and_permissions)
         {
-            console.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
-            console.log(JSON.stringify(permissionsRequired, null, 2));
+            Logger.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
+            Logger.log(JSON.stringify(permissionsRequired, null, 2));
         }
 
         const async = require("async");
@@ -766,8 +766,8 @@ Permissions.require = function (permissionsRequired, req, res, next)
                 {
                     if (Config.debug.active && Config.debug.permissions.log_authorizations)
                     {
-                        console.log("[AUTHORIZED] : Checking for permissions on request " + req.originalUrl);
-                        console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
+                        Logger.log("[AUTHORIZED] : Checking for permissions on request " + req.originalUrl);
+                        Logger.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
                     }
 
                     return Permissions.sendResponse(true, req, res, next, req.permissions_management.reasons_for_authorizing);
@@ -776,9 +776,9 @@ Permissions.require = function (permissionsRequired, req, res, next)
                 {
                     if (Config.debug.active && Config.debug.permissions.log_denials)
                     {
-                        console.log("[DENIED] : Checking for permissions on request " + req.originalUrl);
-                        console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
-                        console.log(JSON.stringify(req.permissions_management.reasons_for_denying, null, 2));
+                        Logger.log("[DENIED] : Checking for permissions on request " + req.originalUrl);
+                        Logger.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
+                        Logger.log(JSON.stringify(req.permissions_management.reasons_for_denying, null, 2));
                     }
 
                     return Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);

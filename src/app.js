@@ -5,12 +5,10 @@ let appDir;
 if (process.env.NODE_ENV === "test")
 {
     appDir = path.resolve(path.dirname(require.main.filename), "../../..");
-    console.log("Running in test mode and the app directory is : " + appDir);
 }
 else
 {
     appDir = path.resolve(path.dirname(require.main.filename), "../");
-    console.log("Running in production / dev mode and the app directory is : " + appDir);
 }
 
 const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
@@ -19,9 +17,26 @@ Pathfinder.appDir = appDir;
 
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-Logger.log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
+if(global.app_startup_time)
+{
+    Logger.init(global.app_startup_time);
+}
+else
+{
+    Logger.init(new Date());
+}
+
+if (process.env.NODE_ENV === "test")
+{
+    Logger.log_boot_message("Running in test mode and the app directory is : " + appDir);
+}
+else
+{
+    Logger.log_boot_message("Running in production / dev mode and the app directory is : " + appDir);
+}
+
+Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
 
 const validatenv = require("validate-node-version")();
 
@@ -29,14 +44,15 @@ if (!validatenv.satisfies)
 {
     throw new Error(validatenv.message);
 }
-Logger.log_boot_message("info", "Starting Dendro support services...");
+
+Logger.log_boot_message("Starting Dendro support services...");
 
 /**
  * Module dependencies.
  */
 
-let express = require("express"),
-    Q = require("q");
+let express = require("express");
+let Q = require("q");
 
 /**
  * Promise for reporting the bootup operation.
@@ -165,8 +181,8 @@ const prepareEnvironment = function (callback)
     {
         if (!isNull(err))
         {
-            console.error("There was an error performing preliminary setup operations during Dendro bootup!");
-            console.error(JSON.stringify(err));
+            Logger.log("error", "There was an error performing preliminary setup operations during Dendro bootup!");
+            Logger.log("error", JSON.stringify(err));
         }
         return callback(err, results);
     });

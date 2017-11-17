@@ -22,7 +22,7 @@ function Event (object)
 }
 
 /* Event.prototype.save = function (callback) {
- console.log('Event save');
+ Logger.log('Event save');
  var self = this;
 
  self.baseConstructor.save(function (err, newEvent) {

@@ -11,6 +11,7 @@ const Comment = require(Pathfinder.absPathInSrcFolder("/models/social/comment.js
 const uuid = require("uuid");
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 
@@ -144,8 +145,8 @@ Post.prototype.getLikes = function (cb)
         }
         else
         {
-            console.error("Error getting likesInfo from a post");
-            console.error(err);
+            Logger.log("error", "Error getting likesInfo from a post");
+            Logger.log("error", err);
             cb(true, "Error getting likesInfo from a post");
         }
     });

@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
 const uuid = require("uuid");
@@ -24,11 +25,11 @@ function Share (object)
     let objectType;
     if(object.ddr.postURI)
     {
-        console.log('is postURI');
+        Logger.log('is postURI');
         objectType = "ddr:Post";
     }
     else if(object.ddr.fileVersionUri){
-        console.log('is fileVersionURI');
+        Logger.log('is fileVersionURI');
         objectType = "ddr:FileVersion";
     }
 
@@ -53,8 +54,8 @@ function Share (object)
      });*!/
     self.insertDescriptors([descriptor], function(err, result){
         //return callback(err, newShare);
-        console.log('result:', result);
-        console.log('self here is:', self);
+        Logger.log('result:', result);
+        Logger.log('self here is:', self);
         return self;
     }, db_social.graphUri);
 

@@ -30,7 +30,7 @@ angular.module("dendroApp.controllers")
                 var data = response.data;
                 if (data != null && data instanceof Array)
                 {
-                    // console.log(JSON.stringify(data));
+                    // Logger.log(JSON.stringify(data));
                     var ontologies = data;
 
                     for (var i = 0; i < ontologies.length; i++)
@@ -91,7 +91,7 @@ angular.module("dendroApp.controllers")
 
         $scope.get_ontologies_by_text_search = function (typed)
         {
-            // console.log("Typed : " + typed);
+            // Logger.log("Typed : " + typed);
 
             ontologiesService.get_ontologies_by_text_search(function (ontologies)
             {
@@ -108,7 +108,7 @@ angular.module("dendroApp.controllers")
 
         $scope.get_research_domains_by_text_search = function (typed)
         {
-            // console.log("Typed : " + typed);
+            // Logger.log("Typed : " + typed);
 
             if (typeof typed !== "undefined")
             {
@@ -120,7 +120,7 @@ angular.module("dendroApp.controllers")
 
         $scope.update_ontologies = function (ontology)
         {
-            // console.log(ontology);
+            // Logger.log(ontology);
             $http({
                 method: "POST",
                 url: "/ontologies/edit",

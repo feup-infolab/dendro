@@ -185,7 +185,7 @@ exports.shared.evaluate_metadata = function (req, callback)
                     if (err)
                     {
                         const error = results;
-                        console.log(error);
+                        Logger.log(error);
                         return callback(1, error);
                     }
                     const recommendations = results[0];

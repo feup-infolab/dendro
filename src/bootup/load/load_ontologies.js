@@ -22,27 +22,27 @@ const loadOntologies = function (app, callback, forceLoadForTests)
                 {
                     if (isNull(err))
                     {
-                        Logger.log_boot_message("success", "Ontology information successfully loaded from database.");
+                        Logger.log_boot_message("Ontology information successfully loaded from database.");
 
                         ontologiesCache.putElements(elements, function (err, result)
                         {
                             if (isNull(err))
                             {
-                                Logger.log_boot_message("success", "Elements information successfully loaded from database.");
+                                Logger.log_boot_message("Elements information successfully loaded from database.");
                                 ontologiesCache.close();
                                 return callback(null);
                             }
                             Logger.log_boot_message("error", "Unable to save elements into cache!");
-                            console.error(JSON.stringify(err));
-                            console.error(JSON.stringify(result));
+                            Logger.log("error", JSON.stringify(err));
+                            Logger.log("error", JSON.stringify(result));
                             return callback(err, result);
                         });
                     }
                     else
                     {
                         Logger.log_boot_message("error", "Unable to save ontologies into cache!");
-                        console.error(JSON.stringify(err));
-                        console.error(JSON.stringify(result));
+                        Logger.log("error", JSON.stringify(err));
+                        Logger.log("error", JSON.stringify(result));
                         return callback(err, result);
                     }
                 });
@@ -56,7 +56,7 @@ const loadOntologies = function (app, callback, forceLoadForTests)
 
     if (Config.startup.load_databases && Config.startup.reload_ontologies_on_startup || forceLoadForTests)
     {
-        Logger.log_boot_message("info", "Loading ontology parametrization from database... ");
+        Logger.log_boot_message("Loading ontology parametrization from database... ");
 
         loadOntologiesFromDatabaseIntoCache(callback);
     }
@@ -68,7 +68,7 @@ const loadOntologies = function (app, callback, forceLoadForTests)
             {
                 if (JSON.stringify(ontologies) === JSON.stringify({}))
                 {
-                    Logger.log_boot_message("info", "Forcing the loading of ontologies from database because the cache is not initialized!");
+                    Logger.log_boot_message("Forcing the loading of ontologies from database because the cache is not initialized!");
                     loadOntologiesFromDatabaseIntoCache(callback);
                 }
                 else
@@ -77,7 +77,7 @@ const loadOntologies = function (app, callback, forceLoadForTests)
                     {
                         if (isNull(err))
                         {
-                            Logger.log_boot_message("success", "Ontology information successfully loaded from cache.");
+                            Logger.log_boot_message("Ontology information successfully loaded from cache.");
                             Ontology.setAllOntologies(ontologies);
                             Elements.setAllElements(elements);
                             ontologiesCache.close();

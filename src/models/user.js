@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
@@ -103,21 +104,21 @@ User.findByUsername = function (username, callback, removeSensitiveDescriptors)
             //         {
             //             if(removeSensitiveDescriptors)
             //             {
-            //                 console.log(user);
+            //                 Logger.log(user);
             //             }
             //             else
             //             {
-            //                 console.log(user);
+            //                 Logger.log(user);
             //             }
             //         }
             //         else
             //         {
-            //             console.log(user);
+            //             Logger.log(user);
             //         }
             //     }
             //     else
             //     {
-            //         console.log(user);
+            //         Logger.log(user);
             //     }
             // });
             //
@@ -140,7 +141,7 @@ User.autocomplete_search = function (value, maxResults, callback)
 {
     if (Config.debug.users.log_fetch_by_username)
     {
-        console.log("finding by username " + username);
+        Logger.log("finding by username " + username);
     }
 
     const query =
@@ -580,7 +581,7 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
             else
             {
                 const msg = "Unable to fetch hidden descriptors of the user " + self.uri + ". Error reported: " + hidden;
-                console.log(msg);
+                Logger.log(msg);
                 return callback(err, hidden);
             }
         }
@@ -774,7 +775,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
             else
             {
                 const msg = "Unable to fetch favorite descriptors of the user " + self.uri + ". Error reported: " + favorites;
-                console.log(msg);
+                Logger.log(msg);
                 return callback(err, favorites);
             }
         }
@@ -871,7 +872,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxRe
 
                     if (result.times_favorite_accepted_in_md_editor <= 0)
                     {
-                        console.error("Descriptor " + suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_favorite_accepted_in_md_editor);
+                        Logger.log("error", "Descriptor " + suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_favorite_accepted_in_md_editor);
                     }
 
                     suggestion.times_favorite_accepted_in_md_editor = parseInt(result.times_favorite_accepted_in_md_editor);
@@ -898,7 +899,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxRe
             else
             {
                 const util = require("util");
-                console.error("Error fetching most accepted favorite descriptors for user " + self.uri + " : " + descriptors);
+                Logger.log("error", "Error fetching most accepted favorite descriptors for user " + self.uri + " : " + descriptors);
                 return callback(1, descriptors);
             }
         });
@@ -995,7 +996,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function (maxResul
 
                     if (result.times_smart_accepted_in_md_editor <= 0)
                     {
-                        console.error("Descriptor " + suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_smart_accepted_in_md_editor);
+                        Logger.log("error", "Descriptor " + suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_smart_accepted_in_md_editor);
                     }
 
                     suggestion.times_smart_accepted_in_md_editor = parseInt(result.times_smart_accepted_in_md_editor);
@@ -1022,7 +1023,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function (maxResul
             else
             {
                 const util = require("util");
-                console.error("Error fetching most accepted smart descriptors for user " + self.uri + " : " + descriptors);
+                Logger.log("error", "Error fetching most accepted smart descriptors for user " + self.uri + " : " + descriptors);
                 return callback(1, descriptors);
             }
         });
@@ -1119,7 +1120,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function (maxResults, callback,
 
                     if (result.recent_use_count <= 0)
                     {
-                        console.error("Descriptor " + suggestion.uri + " recommended for recent use with invalid number of usages : " + result.recent_use_count);
+                        Logger.log("error", "Descriptor " + suggestion.uri + " recommended for recent use with invalid number of usages : " + result.recent_use_count);
                     }
 
                     suggestion.recent_use_count = parseInt(result.recent_use_count);
@@ -1147,7 +1148,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function (maxResults, callback,
             else
             {
                 const util = require("util");
-                console.error("Error fetching most recently filled in descriptors for user " + self.uri);
+                Logger.log("error", "Error fetching most recently filled in descriptors for user " + self.uri);
                 return callback(1, descriptors);
             }
         });
@@ -1173,10 +1174,10 @@ User.prototype.finishPasswordReset = function (newPassword, token, callback)
                 {
                     if (isNull(err))
                     {
-                        console.log("Successfully set new password for user : " + self.uri + ".");
+                        Logger.log("Successfully set new password for user : " + self.uri + ".");
                         return callback(err, result);
                     }
-                    console.error("Error setting new password for user : " + self.uri + ". Error reported: " + result);
+                    Logger.log("error", "Error setting new password for user : " + self.uri + ". Error reported: " + result);
                     return callback(err, result);
                 });
             }
@@ -1265,7 +1266,7 @@ User.prototype.startPasswordReset = function (callback)
             }
             else
             {
-                console.log("Password reset sent to " + self.foaf.mbox + "Message sent: " + JSON.stringify(response));
+                Logger.log("Password reset sent to " + self.foaf.mbox + "Message sent: " + JSON.stringify(response));
             }
 
             smtpTransport.close();
@@ -1281,7 +1282,7 @@ User.prototype.startPasswordReset = function (callback)
         }
         else
         {
-            console.error("Unable to set password reset token for user " + self.uri);
+            Logger.log("error", "Unable to set password reset token for user " + self.uri);
             return callback(err, updatedUser);
         }
     });
@@ -1295,7 +1296,7 @@ User.prototype.getAvatarUri = function ()
         return self.ddr.hasAvatar;
     }
     var msg = "User has no previously saved Avatar";
-    console.error(msg);
+    Logger.log("error", msg);
     return null;
 };
 
@@ -1327,18 +1328,18 @@ User.prototype.getAvatarFromGridFS = function (callback)
                         {
                             writeStream.on("error", function (err)
                             {
-                                // console.log("Deu error");
+                                // Logger.log("Deu error");
                                 callback(err, result);
                             }).on("finish", function ()
                             {
-                                // console.log("Deu finish");
+                                // Logger.log("Deu finish");
                                 callback(null, avatarFilePath);
                             });
                         }
                         else
                         {
                             let msg = "Error getting the avatar file from GridFS for user " + self.uri;
-                            console.error(msg);
+                            Logger.log("error", msg);
                             return callback(err, msg);
                         }
                     });
@@ -1346,7 +1347,7 @@ User.prototype.getAvatarFromGridFS = function (callback)
                 else
                 {
                     let msg = "Error when creating a temp dir when getting the avatar from GridFS for self " + self.uri;
-                    console.error(msg);
+                    Logger.log("error", msg);
                     return callback(err, msg);
                 }
             }
@@ -1355,7 +1356,7 @@ User.prototype.getAvatarFromGridFS = function (callback)
     else
     {
         let msg = "User has no avatar saved in gridFs";
-        console.error(msg);
+        Logger.log("error", msg);
         return callback(true, msg);
     }
 };
@@ -1382,7 +1383,7 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
                         let readStream = fs.createReadStream(avatarFilePath);
                         readStream.on("open", function ()
                         {
-                            // console.log("readStream is ready");
+                            // Logger.log("readStream is ready");
                             gfs.connection.put(
                                 avatarUri,
                                 readStream,
@@ -1391,7 +1392,7 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
                                     if (err)
                                     {
                                         let msg = "Error saving avatar file in GridFS :" + result + " for user " + self.uri;
-                                        console.error(msg);
+                                        Logger.log("error", msg);
                                         return callback(err, msg);
                                     }
                                     return callback(null, result);
@@ -1408,14 +1409,14 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
                         readStream.on("error", function (err)
                         {
                             let msg = "Error creating readStream for avatar :" + err + " for self " + self.uri;
-                            console.error(msg);
+                            Logger.log("error", msg);
                             callback(err, msg);
                         });
                     }
                     else
                     {
                         let msg = "Error when creating a temp file for the avatar upload";
-                        console.error(msg);
+                        Logger.log("error", msg);
                         return callback(error, msg);
                     }
                 });
@@ -1423,7 +1424,7 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
             else
             {
                 let msg = "Error when creating a temp dir for the avatar upload";
-                console.error(msg);
+                Logger.log("error", msg);
                 return callback(err, msg);
             }
         }
@@ -1457,8 +1458,8 @@ User.prototype.saveAvatarInGridFS = function (avatar, extension, callback)
                         {
                             if (err)
                             {
-                                console.error("Error deleting one of the old avatars");
-                                // console.error(JSON.stringify(results));
+                                Logger.log("error", "Error deleting one of the old avatars");
+                                // Logger.log("error",JSON.stringify(results));
                             }
                             self.uploadAvatarToGridFS(avatarUri, base64Data, extension, function (err, data)
                             {
@@ -1477,7 +1478,7 @@ User.prototype.saveAvatarInGridFS = function (avatar, extension, callback)
                 else
                 {
                     let msg = "Error when finding the latest file with uri : " + avatarUri + " in Mongo";
-                    console.error(msg);
+                    Logger.log("error", msg);
                     return callback(err, msg);
                 }
             });
@@ -1485,7 +1486,7 @@ User.prototype.saveAvatarInGridFS = function (avatar, extension, callback)
         else
         {
             let msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
-            console.error(msg);
+            Logger.log("error", msg);
             return callback(err, msg);
         }
     });
@@ -1505,7 +1506,7 @@ User.removeAllAdmins = function (callback)
             return callback(null, results);
         }
         const msg = "Error deleting all administrators: " + results;
-        console.error(msg);
+        Logger.log("error", msg);
         return callback(1, msg);
     });
 };

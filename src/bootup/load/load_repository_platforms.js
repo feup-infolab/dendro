@@ -20,12 +20,12 @@ const loadRepositoryPlatforms = function (app, callback)
         if (process.env.RUNNING_IN_JENKINS === "1")
         {
             active_config_key = "jenkins_buildserver_test";
-            console.log("[INFO] Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
+            Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
         }
         else
         {
             active_config_key = "test";
-            console.log("[INFO] Running in test environment detected");
+            Logger.log("info", "Running in test environment detected");
         }
     }
     else
@@ -37,8 +37,8 @@ const loadRepositoryPlatforms = function (app, callback)
 
     if (isNull(active_config_for_repositoryPlatforms))
     {
-        console.log("Invalid active repository platforms configuration key " + active_config_key + ". It is not parametrized in the " + active_config_file_path + " file. Please review the configuration.");
-        console.log("Using default configuration for repository platforms...");
+        Logger.log("Invalid active repository platforms configuration key " + active_config_key + ". It is not parametrized in the " + active_config_file_path + " file. Please review the configuration.");
+        Logger.log("Using default configuration for repository platforms...");
         active_config_for_repositoryPlatforms = repositoryPlatformConfigs.default;
     }
 
@@ -51,7 +51,7 @@ const loadRepositoryPlatforms = function (app, callback)
                 return platform.foaf.nick;
             });
 
-            Logger.log_boot_message("info", "Platforms parametrized in " + repository_platform_configs_file_path + JSON.stringify(platformNicks));
+            Logger.log_boot_message("Platforms parametrized in " + repository_platform_configs_file_path + JSON.stringify(platformNicks));
             async.mapSeries(active_config_for_repositoryPlatforms, function (aMissingPlatform, callback)
             {
                 let found = _.filter(repPlatforms, function (repPlatform)
@@ -60,7 +60,7 @@ const loadRepositoryPlatforms = function (app, callback)
                 });
                 if (found.length <= 0)
                 {
-                    Logger.log_boot_message("info", "Platform " + aMissingPlatform.foaf.nick + " missing in database record. Recreating...");
+                    Logger.log_boot_message("Platform " + aMissingPlatform.foaf.nick + " missing in database record. Recreating...");
                     const newRepPlatform = new RepositoryPlatform({
                         ddr: {
                             handle: aMissingPlatform.foaf.nick
@@ -88,14 +88,14 @@ const loadRepositoryPlatforms = function (app, callback)
                 }
                 else
                 {
-                    Logger.log_boot_message("info", "Platform " + aMissingPlatform.foaf.nick + " already exists in database. Continuing...");
+                    Logger.log_boot_message("Platform " + aMissingPlatform.foaf.nick + " already exists in database. Continuing...");
                     callback(null);
                 }
             }, function (err, results)
             {
                 if (isNull(err))
                 {
-                    Logger.log_boot_message("success", "Repository platforms information successfully loaded from database.");
+                    Logger.log_boot_message("Repository platforms information successfully loaded from database.");
                     return callback(null);
                 }
                 return callback(true, "[ERROR] Unable to load repository platforms: " + JSON.stringify(results));

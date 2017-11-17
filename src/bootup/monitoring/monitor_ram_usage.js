@@ -11,7 +11,7 @@ const monitorRAMUsage = function (app, callback)
         setInterval(function ()
         {
             const pretty = require("prettysize");
-            console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss)); // log memory usage
+            Logger.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss)); // log memory usage
             if (typeof gc === "function")
             {
                 gc();

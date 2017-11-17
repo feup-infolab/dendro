@@ -155,7 +155,7 @@ const loadRoutes = function (app, callback)
                                                 isAdmin: false
                                             });
                                     }
-                                    console.error(err.stack);
+                                    Logger.log("error", err.stack);
                                     return done("Unable to check for admin user when authenticating with username " + username + " calculating password hash.", null);
                                 });
                             }
@@ -172,7 +172,7 @@ const loadRoutes = function (app, callback)
                 }
                 else
                 {
-                    console.error(err.stack);
+                    Logger.log("error", err.stack);
                     return done("Unknown error during authentication, fetching user with username " + username, null);
                 }
             });

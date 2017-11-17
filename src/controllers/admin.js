@@ -5,7 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const db = Config.getDBByGraphUri();
 
@@ -148,10 +148,10 @@ module.exports.reindex = function (req, res)
                     {
                         if (isNull(err) && result)
                         {
-                            console.log("Index " + indexConnection.index.short_name + " recreated .");
+                            Logger.log("Index " + indexConnection.index.short_name + " recreated .");
                             return callback(null);
                         }
-                        console.log("Error recreating index " + indexConnection.index.short_name + " . " + result);
+                        Logger.log("Error recreating index " + indexConnection.index.short_name + " . " + result);
                         return callback(1); // delete success, move on
                     });
                 },
@@ -163,13 +163,13 @@ module.exports.reindex = function (req, res)
                         {
                             async.map(resources, function (resource, callback)
                             {
-                                console.log("Resource " + resource.uri + " now being reindexed.");
+                                Logger.log("Resource " + resource.uri + " now being reindexed.");
 
                                 resource.reindex(indexConnection, function (err, results)
                                 {
                                     if (err)
                                     {
-                                        console.error("Error indexing Resource " + resource.uri + " : " + results);
+                                        Logger.log("error", "Error indexing Resource " + resource.uri + " : " + results);
                                     }
                                     callback(err, results);
                                 });
@@ -177,7 +177,7 @@ module.exports.reindex = function (req, res)
                             {
                                 if (err)
                                 {
-                                    console.error("Errors occurred indexing all Resources : " + results);
+                                    Logger.log("error", "Errors occurred indexing all Resources : " + results);
                                 }
 
                                 return callback(null, null);

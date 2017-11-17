@@ -51,7 +51,7 @@ PluginManager.registerPlugins = function (app, callback)
                 let setupFileLocation = pluginAbsolutePath + "/integration/setup.js";
                 let PluginSetup = require(setupFileLocation).Setup;
 
-                console.log("[INFO] Registering routes for plugin " + PluginConfig.name);
+                Logger.log("info", "Registering routes for plugin " + PluginConfig.name);
                 app = PluginSetup.registerRoutes(app);
             }
         }

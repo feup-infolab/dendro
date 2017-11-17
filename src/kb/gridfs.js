@@ -112,14 +112,14 @@ GridFSConnection.prototype.put = function (fileUri, inputStream, callback, metad
         uploadStream.on("error", function (err)
         {
             hasError = true;
-            console.log("An error occurred saving the file to the database!", err);
+            Logger.log("An error occurred saving the file to the database!", err);
             return callback(1, err);
         });
 
         // callback on complete
         uploadStream.once("finish", function (file)
         {
-            // console.log('GridFS: Write stream closed for file with uri :'+fileUri);
+            // Logger.log('GridFS: Write stream closed for file with uri :'+fileUri);
 
             if (!hasError)
             {
@@ -168,7 +168,7 @@ GridFSConnection.prototype.get = function (fileUri, outputStream, callback, cust
             if (Config.debug.log_temp_file_reads)
             {
                 const msg = "EOF of file";
-                console.log(msg);
+                Logger.log(msg);
             }
         });
 
@@ -178,7 +178,7 @@ GridFSConnection.prototype.get = function (fileUri, outputStream, callback, cust
 
             if (Config.debug.log_temp_file_reads)
             {
-                console.log(msg);
+                Logger.log(msg);
             }
 
             return callback(null, msg);
@@ -300,7 +300,7 @@ GridFSConnection.prototype.deleteByQuery = function (query, callback, customBuck
                     // assign a callback
                     q.drain = function ()
                     {
-                        // console.log("All files deleted in query " + JSON.stringify(query));
+                        // Logger.log("All files deleted in query " + JSON.stringify(query));
                         if (cursor.isClosed())
                         {
                             collection.find(query).count(function (err, count)

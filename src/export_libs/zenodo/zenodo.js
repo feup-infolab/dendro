@@ -38,7 +38,7 @@ Zenodo.prototype.getDeposition = function (depositionID, callback)
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(null, data);
@@ -54,7 +54,7 @@ Zenodo.prototype.getDepositionsList = function (callback)
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(null, depositions);
@@ -82,7 +82,7 @@ Zenodo.prototype.createDeposition = function (data, callback)
     {
         if (r.statusCode !== "201")
         {
-            console.error(depostition.message);
+            Logger.log("error", depostition.message);
             return callback(true, depostition);
         }
         return callback(false, depostition);
@@ -100,7 +100,7 @@ Zenodo.prototype.uploadFileToDeposition = function (depositionID, file, callback
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(false);
@@ -142,7 +142,7 @@ Zenodo.prototype.depositionEdit = function (depositionID, callback)
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(false, data);
@@ -158,7 +158,7 @@ Zenodo.prototype.depositionPublish = function (depositionID, callback)
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(false, data);
