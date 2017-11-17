@@ -172,7 +172,8 @@ exports.all = function (req, res)
 
 exports.show = function (req, res)
 {
-    const prefix = req.params.prefix;
+    const prefix = req.query.prefix;
+    const uri = req.query.uri;
 
     Ontology.findByPrefix(prefix, function (err, ontology)
     {
@@ -191,10 +192,10 @@ exports.show = function (req, res)
                 {
                     title: "Ontologies",
                     error_messages:
-          [
-              "Unable to retrieve ontology with prefix " + prefix,
-              err
-          ]
+                      [
+                          "Unable to retrieve ontology with prefix " + prefix,
+                          err
+                      ]
                 }
             );
         }
