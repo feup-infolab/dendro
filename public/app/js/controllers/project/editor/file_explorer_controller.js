@@ -76,7 +76,7 @@ angular.module("dendroApp.controllers")
                             })
                                 .catch(function (e)
                                 {
-                                    Logger.log("error","Unable to delete " + selectedFile.uri + JSON.stringify(e));
+                                    console.log("error","Unable to delete " + selectedFile.uri + JSON.stringify(e));
                                     windowService.show_popup("error", "Error", e.statusText);
                                     callback(1, "Unable to delete " + selectedFile.uri);
                                 });
@@ -127,7 +127,7 @@ angular.module("dendroApp.controllers")
                             })
                                 .catch(function (e)
                                 {
-                                    Logger.log("error","Unable to delete " + selectedFile.uri + JSON.stringify(e));
+                                    console.log("error","Unable to delete " + selectedFile.uri + JSON.stringify(e));
                                     windowService.show_popup("error", "Error", e.statusText);
                                 });
                         }, function (err, results)
@@ -181,7 +181,7 @@ angular.module("dendroApp.controllers")
                                 $scope.load_folder_contents();
                             }).catch(function (error)
                             {
-                                Logger.log("error","Unable to create new folder " + JSON.stringify(error));
+                                console.log("error","Unable to create new folder " + JSON.stringify(error));
                                 windowService.show_popup("error", " There was an error creating the new folder", "Server returned status code " + status + " and message :\n" + error);
                             });
                         }
@@ -216,7 +216,7 @@ angular.module("dendroApp.controllers")
                                     windowService.show_popup("success", "OK", "Rename successful");
                                 }).catch(function (error)
                                 {
-                                    Logger.log("error","Unable to rename resource: " + JSON.stringify(error));
+                                    console.log("error","Unable to rename resource: " + JSON.stringify(error));
                                     windowService.show_popup("error", "There was an error renaming the resource", "Server returned status code " + status + " and message :\n" + error);
                                 });
                             }
@@ -304,7 +304,7 @@ angular.module("dendroApp.controllers")
                     })
                     .catch(function (error)
                     {
-                        Logger.log("error",JSON.stringify(error));
+                        console.log("error",JSON.stringify(error));
                         windowService.show_popup("error", "Error moving files.", error.data.message, 5000);
                     });
             }
@@ -319,7 +319,7 @@ angular.module("dendroApp.controllers")
                     })
                     .catch(function (error)
                     {
-                        Logger.log("error",JSON.stringify(error));
+                        console.log("error",JSON.stringify(error));
                         windowService.show_popup("error", "Error copying files", JSON.stringify(error.message), 5000);
                     });
             }

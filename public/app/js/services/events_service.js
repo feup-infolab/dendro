@@ -13,7 +13,7 @@ angular.module("dendroApp.services")
             var self = this;
             if (self.debug_mode)
             {
-                Logger.log("Sending event " + event_name);
+                console.log("Sending event " + event_name);
             }
 
             scope.$emit(event_name, arguments);
@@ -24,7 +24,7 @@ angular.module("dendroApp.services")
             var self = this;
             if (self.debug_mode)
             {
-                Logger.log("Sending event " + event_name);
+                console.log("Sending event " + event_name);
             }
 
             scope.$broadcast(event_name, arguments);
@@ -39,14 +39,14 @@ angular.module("dendroApp.services")
                 {
                     if (self.debug_mode)
                     {
-                        Logger.log("Received event " + event_object.name + ". Calling handler");
+                        console.log("Received event " + event_object.name + ". Calling handler");
                     }
 
                     handler(event, arguments_for_handler);
                 }
                 else
                 {
-                    Logger.log("error","No handler registered for event " + event_object);
+                    console.log("error","No handler registered for event " + event_object);
                 }
             }
 
@@ -65,12 +65,12 @@ angular.module("dendroApp.services")
                 }
                 else
                 {
-                    Logger.log("There is already a handler registered for event " + event_name + "!!");
+                    console.log("There is already a handler registered for event " + event_name + "!!");
                 }
             }
             else
             {
-                Logger.log(String("Trying to register an event " + event_name) +
+                console.log(String("Trying to register an event " + event_name) +
                     "  that is not parametrized. " +
                     "Possible events are " + Object.keys(this.events));
             }

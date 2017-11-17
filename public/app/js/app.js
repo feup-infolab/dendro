@@ -81,7 +81,7 @@ var dendroApp = angular.module("dendroApp", [
         .catch(function (error)
         {
             // log error
-            Logger.log("Unable to load remote config");
+            console.log("Unable to load remote config");
         });
 });
 

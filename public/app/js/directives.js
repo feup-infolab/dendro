@@ -122,16 +122,16 @@ angular.module("dendroApp.directives", [])
                 // so that element properties reflect content size.
                 $timeout(function ()
                 {
-                    Logger.log("element[0].scrollHeight:", element[0].scrollHeight);
-                    Logger.log("element[0].offsetHeight", element[0].offsetHeight);
+                    console.log("element[0].scrollHeight:", element[0].scrollHeight);
+                    console.log("element[0].offsetHeight", element[0].offsetHeight);
                     if (element[0].scrollHeight > element[0].offsetHeight)
                     {
-                        Logger.log("Is overflown");
+                        console.log("Is overflown");
                         $scope.overflowsOriginally = true;
                     }
                     else
                     {
-                        Logger.log("Is not overflown");
+                        console.log("Is not overflown");
                         $scope.overflowsOriginally = false;
                     }
                 }, 200); // $timeout

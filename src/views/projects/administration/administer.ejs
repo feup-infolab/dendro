@@ -242,6 +242,9 @@
                     <h4>
                         Creator
                     </h4>
+
+                    <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
+
                     <a href="<%=locals.project.dcterms.creator%>">
                         <%= locals.project.dcterms.creator %>
                     </a>

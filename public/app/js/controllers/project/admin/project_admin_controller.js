@@ -113,7 +113,7 @@ angular.module("dendroApp.controllers")
                     uri = $scope.get_current_url() + "?delete";
                 }
 
-                // Logger.log("deleting " + get_current_url() + " via url " + uri);
+                // console.log("deleting " + get_current_url() + " via url " + uri);
 
                 $http.post(uri)
                     .then(function (response)

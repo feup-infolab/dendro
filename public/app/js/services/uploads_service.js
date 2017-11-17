@@ -34,7 +34,7 @@ angular.module("dendroApp.services")
 
                     file.upload.progress(function (evt)
                     {
-                        Logger.log(evt.loaded);
+                        console.log(evt.loaded);
                         file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
                     });
 
@@ -97,12 +97,12 @@ angular.module("dendroApp.services")
                         {
                             file.sent_to_server = true;
                         }
-                        // Logger.log(file.upload_id + " : " + file.progress);
+                        // console.log(file.upload_id + " : " + file.progress);
                     });
 
                     file.upload.xhr(function (xhr)
                     {
-                        // xhr.upload.addEventListener('abort', function(){Logger.log('abort complete')}, false);
+                        // xhr.upload.addEventListener('abort', function(){console.log('abort complete')}, false);
                     });
 
                     return deferred.promise;

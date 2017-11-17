@@ -36,7 +36,7 @@ angular.module("dendroApp.controllers")
         };
 
         /* $('#myModal').on('hidden.bs.modal', function (e) {
-            Logger.log("Modal hidden");
+            console.log("Modal hidden");
             $("#choosingProject").html("projects");
             $("#newPostTitle").html("titleLindo");
             $("#newPostContent").html("contentLindo");
@@ -66,7 +66,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error getting User Projects " + JSON.stringify(error));
+                    console.log("error","Error getting User Projects " + JSON.stringify(error));
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
                 });
@@ -91,7 +91,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error getting posts " + JSON.stringify(error));
+                    console.log("error","Error getting posts " + JSON.stringify(error));
                     $scope.getting_posts = false;
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
@@ -109,7 +109,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error liking a post" + JSON.stringify(error));
+                    console.log("error","Error liking a post" + JSON.stringify(error));
                     $scope.doing_likePost = false;
                     Utils.show_popup("error", "Error liking post", JSON.stringify(error));
                 });
@@ -135,7 +135,7 @@ angular.module("dendroApp.controllers")
                 // return response.data;
             }).catch(function (error)
             {
-                Logger.log("error","Error at timeline_controller postLikesInfo" + JSON.stringify(error));
+                console.log("error","Error at timeline_controller postLikesInfo" + JSON.stringify(error));
                 $scope.doing_postLikesInfo = false;
                 if (showSpinner)
                 {
@@ -161,7 +161,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error getting logged in user" + JSON.stringify(error));
+                    console.log("error","Error getting logged in user" + JSON.stringify(error));
                     $scope.doing_get_logged_user = false;
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
@@ -197,7 +197,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error getting a post" + JSON.stringify(error));
+                    console.log("error","Error getting a post" + JSON.stringify(error));
                     $scope.doing_getPost = false;
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
@@ -221,7 +221,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error at getPosts: " + JSON.stringify(error));
+                    console.log("error","Error at getPosts: " + JSON.stringify(error));
                     $scope.doing_getPosts = false;
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
@@ -240,7 +240,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error commenting a post" + JSON.stringify(error));
+                    console.log("error","Error commenting a post" + JSON.stringify(error));
                     Utils.show_popup("error", "Error commenting a post", JSON.stringify(error));
                     $scope.doing_commentPost = false;
                 });
@@ -261,7 +261,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error sharing a post" + JSON.stringify(error));
+                    console.log("error","Error sharing a post" + JSON.stringify(error));
                     Utils.show_popup("error", "Error sharing a post", JSON.stringify(error));
                     $scope.doing_sharePost = false;
                 });
@@ -283,7 +283,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error getting shares from a post" + JSON.stringify(error));
+                    console.log("error","Error getting shares from a post" + JSON.stringify(error));
                     $scope.doing_getSharesFromPost = false;
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
@@ -313,7 +313,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error getting comments from a post" + JSON.stringify(error));
+                    console.log("error","Error getting comments from a post" + JSON.stringify(error));
                     $scope.doing_getCommentsFromPost = false;
                     if (showSpinner)
                     {
@@ -370,7 +370,7 @@ angular.module("dendroApp.controllers")
             })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error initSinglePost" + JSON.stringify(error));
+                    console.log("error","Error initSinglePost" + JSON.stringify(error));
                     $scope.doing_getPost = false;
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
@@ -399,7 +399,7 @@ angular.module("dendroApp.controllers")
                 });
             }).catch(function (error)
             {
-                Logger.log("error","Error initSinglePost" + JSON.stringify(error));
+                console.log("error","Error initSinglePost" + JSON.stringify(error));
                 $scope.doing_getPost = false;
                 $scope.doingARequest = false;
                 usSpinnerService.stop("social-dendro-spinner");
@@ -451,12 +451,12 @@ angular.module("dendroApp.controllers")
 
         $scope.waitForPostInfo = function (postURI)
         {
-            Logger.log("in waitForPostInfo");
+            console.log("in waitForPostInfo");
             /* var socket = io('http://127.0.0.1:3001');
             socket.on('postURI:'+ postURI, function (postData) {
-                Logger.log('session for: ', postURI);
-                Logger.log('this was the data:');
-                Logger.log(postData);
+                console.log('session for: ', postURI);
+                console.log('this was the data:');
+                console.log(postData);
             }); */
         };
 
@@ -473,7 +473,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error number of posts" + JSON.stringify(error));
+                    console.log("error","Error number of posts" + JSON.stringify(error));
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
                 });
@@ -481,7 +481,7 @@ angular.module("dendroApp.controllers")
 
         $scope.pageChangeHandler = function (num)
         {
-            Logger.log("Im here going to page: ", num);
+            console.log("Im here going to page: ", num);
             $scope.countNumPosts();
             $scope.get_all_posts(num);
             $window.scrollTo(0, 0);// to scroll up to the top on page change
@@ -496,8 +496,8 @@ angular.module("dendroApp.controllers")
             timelineService.newPost($scope.newPostTitle, $scope.newPostContent, $scope.projectChosen.value)
                 .then(function (response)
                 {
-                    Logger.log("before newPostTitle: " + $scope.newPostTitle);
-                    Logger.log("before newPostContent: " + $scope.newPostContent);
+                    console.log("before newPostTitle: " + $scope.newPostTitle);
+                    console.log("before newPostContent: " + $scope.newPostContent);
 
                     $scope.newPostTitle = "";
                     $scope.newPostContent = "";
@@ -513,7 +513,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Logger.log("error","Error createNewManualPost" + JSON.stringify(error));
+                    console.log("error","Error createNewManualPost" + JSON.stringify(error));
                     $scope.newPostTitle = "";
                     $scope.newPostContent = "";
                     $scope.projectChosen = $scope.userProjects[0];
