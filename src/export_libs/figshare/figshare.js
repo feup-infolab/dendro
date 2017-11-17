@@ -42,7 +42,7 @@ FigShare.prototype.getArticles = function (callback)
     {
         if (e)
         {
-            console.log(e);
+            Logger.log(e);
             return callback(true);
         }
         return callback(false);
@@ -64,7 +64,7 @@ FigShare.prototype.createArticle = function (article_data, callback)
     {
         if (e)
         {
-            console.log(e);
+            Logger.log(e);
             return callback(true);
         }
         return callback(false, article);
@@ -81,7 +81,7 @@ FigShare.prototype.deleteArticle = function (articleID, callback)
     {
         if (e)
         {
-            console.log(e);
+            Logger.log(e);
             return callback(true);
         }
         return callback(false);
@@ -99,7 +99,7 @@ FigShare.prototype.addFileToArticle = function (articleID, file, callback)
     {
         if (e)
         {
-            console.log(e);
+            Logger.log(e);
             return callback(true);
         }
         return callback(false);

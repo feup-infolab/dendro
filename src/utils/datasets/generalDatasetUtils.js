@@ -85,7 +85,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                     {
                         if (isNull(err))
                         {
-                            console.log("The file " + outputFilenameRDF + " was saved!");
+                            Logger.log("The file " + outputFilenameRDF + " was saved!");
                             filesToIncludeInPackage.push(outputFilenameRDF);
                             extraFiles.push(outputFilenameRDF);
                             // add the metadata rdf file to the zip folder
@@ -95,7 +95,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                             {
                                 if (isNull(err))
                                 {
-                                    console.log("The file " + outputFilenameTXT + " was saved!");
+                                    Logger.log("The file " + outputFilenameTXT + " was saved!");
                                     filesToIncludeInPackage.push(outputFilenameTXT);
                                     extraFiles.push(outputFilenameTXT);
                                     // add the metadata txt file to the zip folder
@@ -105,7 +105,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                                     {
                                         if (isNull(err))
                                         {
-                                            console.log("The file " + outputFilenameJSON + " was saved!");
+                                            Logger.log("The file " + outputFilenameJSON + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameJSON);
                                             extraFiles.push(outputFilenameJSON);
                                             // add the metadata JSON file to the zip folder
@@ -121,27 +121,27 @@ const createPackage = function (parentFolderPath, folder, callback)
                                             });
                                             output.on("close", function ()
                                             {
-                                                console.log("Done with the zip", folderToZip);
+                                                Logger.log("Done with the zip", folderToZip);
                                                 cb(null, null);
                                             });
                                         }
                                         else
                                         {
-                                            console.log(err);
+                                            Logger.log(err);
                                             cb(true, null);
                                         }
                                     });
                                 }
                                 else
                                 {
-                                    console.log(err);
+                                    Logger.log(err);
                                     cb(true, null);
                                 }
                             });
                         }
                         else
                         {
-                            console.log(err);
+                            Logger.log(err);
                             cb(true, null);
                         }
                     });
@@ -149,7 +149,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                 else
                 {
                     const msg = "Error finding metadata in " + folder.uri;
-                    console.error(msg);
+                    Logger.log("error", msg);
                     cb(true, null);
                 }
             });

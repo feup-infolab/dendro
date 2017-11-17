@@ -11,6 +11,7 @@ const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConne
 const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -67,7 +68,7 @@ Project.prototype.backup = function (callback)
         {
             if (!isNull(self.ddr.rootFolder))
             {
-                console.log("Started backup of project " + self.uri);
+                Logger.log("Started backup of project " + self.uri);
                 Folder.findByUri(self.ddr.rootFolder, function (err, folder)
                 {
                     if (isNull(err) && folder instanceof Folder)
@@ -288,7 +289,7 @@ Project.findByHandle = function (handle, callback)
                 {
                     if (project.length > 1)
                     {
-                        console.log("Duplicate projects found!! Project handle : " + handle);
+                        Logger.log("Duplicate projects found!! Project handle : " + handle);
                     }
                     else
                     {
@@ -573,7 +574,7 @@ Project.createAndInsertFromObject = function (object, callback)
                     }
                     else
                     {
-                        console.error("There was an error saving the root folder of project " + newProject.ddr.humanReadableURI + ": " + JSON.stringify(result));
+                        Logger.log("error", "There was an error saving the root folder of project " + newProject.ddr.humanReadableURI + ": " + JSON.stringify(result));
                         return callback(err, result);
                     }
                 });
@@ -632,7 +633,7 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
             if (!isNull(err))
             {
                 const errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
-                console.error(errorMsg);
+                Logger.log("error", errorMsg);
             }
 
             if (properties.length > 0)
@@ -688,8 +689,8 @@ Project.prototype.getFirstLevelDirectoryContents = function (callback)
 Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 {
     const self = this;
-    console.log("In getProjectWideFolderFileCreationEvents");
-    console.log("the projectUri is:");
+    Logger.log("In getProjectWideFolderFileCreationEvents");
+    Logger.log("the projectUri is:");
     // <http://127.0.0.1:3001/project/testproject3/data>
     // var projectData = projectUri + '/data'; //TODO this is probably wrong
     const projectData = self.uri + "/data"; // TODO this is probably wrong
@@ -731,13 +732,13 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
         {
             if (isNull(err))
             {
-                console.log("itemsUri: ", itemsUri);
+                Logger.log("itemsUri: ", itemsUri);
 
                 async.mapSeries(itemsUri, function (itemUri, cb1)
                 {
                     Resource.findByUri(itemUri.dataUri, function (error, item)
                     {
-                        console.log(item);
+                        Logger.log(item);
                         // item.get
                         // TODO get author
                     });
@@ -775,7 +776,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             else
             {
                 const msg = "Error fetching file/folder change data";
-                console.log(msg);
+                Logger.log(msg);
                 return callback(1, msg);
             }
         });
@@ -784,9 +785,9 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 Project.prototype.getRecentProjectWideChangesSocial = function (callback, startingResultPosition, maxResults, createdAfterDate)
 {
     const self = this;
-    console.log("createdAfterDate:", createdAfterDate);
-    console.log("startingResultPosition: ", startingResultPosition);
-    console.log("maxResults: ", maxResults);
+    Logger.log("createdAfterDate:", createdAfterDate);
+    Logger.log("startingResultPosition: ", startingResultPosition);
+    Logger.log("maxResults: ", maxResults);
 
     let query =
         "WITH [0] \n" +
@@ -960,13 +961,13 @@ Project.prototype.getStorageSize = function (callback, customBucket)
                     }
                     return callback(null, 0);
                 }
-                console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                 return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
             });
         }
         else
         {
-            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(collection));
+            Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(collection));
             return callback(1, "Error retrieving files collection : " + collection);
         }
     });
@@ -1649,7 +1650,7 @@ Project.prototype.restoreFromFolder = function (
                             {
                                 if (err)
                                 {
-                                    console.log("Error: " + err);
+                                    Logger.log("Error: " + err);
                                     return;
                                 }
 

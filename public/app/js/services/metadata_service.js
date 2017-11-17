@@ -29,7 +29,7 @@ angular.module("dendroApp.factories")
                     }
                     else
                     {
-                        console.error("Error deserializing metadata. Argument should be an array of descriptors");
+                        Logger.log("error","Error deserializing metadata. Argument should be an array of descriptors");
                     }
 
                     return deserialized;

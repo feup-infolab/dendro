@@ -11,24 +11,25 @@ const isNull = require("../../utils/null.js").isNull;
 
 const Pathfinder = global.Pathfinder;
 const Elements = require("./elements.js").Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const configs_file_path = Pathfinder.absPathInApp("conf/deployment_configs.json");
-const active_config_file_path = Pathfinder.absPathInApp("conf/active_deployment_config.json");
+const configsFilePath = Pathfinder.absPathInApp("conf/deployment_configs.json");
+const activeConfigFilePath = Pathfinder.absPathInApp("conf/active_deployment_config.json");
 
-const configs = JSON.parse(fs.readFileSync(configs_file_path, "utf8"));
+const configs = JSON.parse(fs.readFileSync(configsFilePath, "utf8"));
 
-let active_config_key;
+let activeConfigKey;
 if (process.env.NODE_ENV === "test")
 {
     if (process.env.RUNNING_IN_JENKINS)
     {
-        active_config_key = "jenkins_buildserver_test";
-        console.log("[INFO] Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
+        activeConfigKey = "jenkins_buildserver_test";
+        Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
     }
     else
     {
-        active_config_key = "test";
-        console.log("[INFO] Running in test environment detected");
+        activeConfigKey = "test";
+        Logger.log("info", "Running in test environment detected");
     }
 }
 else
@@ -37,32 +38,32 @@ else
 
     if (argv.config)
     {
-        active_config_key = argv.config;
+        activeConfigKey = argv.config;
     }
     else
     {
-        active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, "utf8")).key;
+        activeConfigKey = JSON.parse(fs.readFileSync(activeConfigFilePath, "utf8")).key;
     }
 }
 
-const active_config = configs[active_config_key];
+const activeConfig = configs[activeConfigKey];
 
 const getConfigParameter = function (parameter, defaultValue)
 {
-    if (isNull(active_config[parameter]))
+    if (isNull(activeConfig[parameter]))
     {
         if (!isNull(defaultValue))
         {
-            console.error("[WARNING] Using default value " + JSON.stringify(defaultValue) + " for parameter " + parameter + " !");
+            Logger.log("error", "[WARNING] Using default value " + JSON.stringify(defaultValue) + " for parameter " + parameter + " !");
             Config[parameter] = defaultValue;
             return Config[parameter];
         }
 
-        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from \'" + active_config_key + "\' configuration. Please review the deployment_configs.json file.");
+        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from '" + activeConfigKey + "' configuration. Please review the deployment_configs.json file.");
     }
     else
     {
-        return active_config[parameter];
+        return activeConfig[parameter];
     }
 };
 
@@ -96,7 +97,7 @@ Config.virtuosoConnector = (function ()
     {
         return connectorType;
     }
-    throw "Invalid Virtuoso Server connector type " + connectorType;
+    throw new Error("Invalid Virtuoso Server connector type " + connectorType);
 }());
 
 Config.virtuosoAuth = getConfigParameter("virtuosoAuth");
@@ -124,8 +125,10 @@ Config.mySQLDBName = getConfigParameter("mySQLDBName");
 
 // file uploads and downloads
 
-Config.maxUploadSize = getConfigParameter("maxUploadSize"); // 1000MB®
-Config.maxProjectSize = getConfigParameter("maxProjectSize"); // 10000MB®
+// 1000MB®
+Config.maxUploadSize = getConfigParameter("maxUploadSize");
+// 10000MB®
+Config.maxProjectSize = getConfigParameter("maxProjectSize");
 Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
 Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
 
@@ -533,9 +536,9 @@ Config.streaming =
   }
 };
 
-Config.useElasticSearchAuth = active_config.useElasticSearchAuth;
+Config.useElasticSearchAuth = activeConfig.useElasticSearchAuth;
 
-Config.elasticSearchAuthCredentials = active_config.elasticSearchAuthCredentials;
+Config.elasticSearchAuthCredentials = activeConfig.elasticSearchAuthCredentials;
 
 /**
  * Plugins
@@ -678,7 +681,7 @@ if (Config.demo_mode.active)
 
     Config.demo_mode.git_info = {};
 
-    exec("git branch | grep \"^\* .*$\" | cut -c 3- | tr -d \"\n\"",
+    exec("git branch | grep \"^* .*$\" | cut -c 3- | tr -d \"\n\"",
         {
             cwd: Config.appDir
         },
@@ -686,12 +689,12 @@ if (Config.demo_mode.active)
         {
             if (isNull(error))
             {
-                console.log("Active branch : " + JSON.stringify(stdout));
+                Logger.log("Active branch : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.active_branch = stdout;
             }
             else
             {
-                console.error("Unable to get active branch : " + JSON.stringify(error));
+                Logger.log("error", "Unable to get active branch : " + JSON.stringify(error));
             }
         });
 
@@ -702,12 +705,12 @@ if (Config.demo_mode.active)
         {
             if (isNull(error))
             {
-                console.log("Last commit hash : " + JSON.stringify(stdout));
+                Logger.log("Last commit hash : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.commit_hash = stdout;
             }
             else
             {
-                console.error("Unable to get commit hash : " + JSON.stringify(error));
+                Logger.log("error", "Unable to get commit hash : " + JSON.stringify(error));
             }
         });
 
@@ -718,12 +721,12 @@ if (Config.demo_mode.active)
         {
             if (isNull(error))
             {
-                console.log("Last commit date : " + JSON.stringify(stdout));
+                Logger.log("Last commit date : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.last_commit_date = stdout;
             }
             else
             {
-                console.error("Unable to get last commit date : " + JSON.stringify(error));
+                Logger.log("error", "Unable to get last commit date : " + JSON.stringify(error));
             }
         });
 }

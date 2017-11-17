@@ -24,7 +24,7 @@ angular.module("dendroApp.services")
                         })
                         .catch(function (error)
                         {
-                            console.error(error);
+                            Logger.log("error",error);
                             throw error;
                         });
                 }

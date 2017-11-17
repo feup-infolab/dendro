@@ -6,6 +6,7 @@
       "secret": "THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzH"
     },
     "baseUri": "http://127.0.0.1:3001",
+    "environment" : "test",
     "eudatBaseUrl": "https://trng-b2share.eudat.eu",
     "eudatToken": "__FIXME",
     "eudatCommunityId": "e9b9792e-79fb-4b07-b6b4-b9c2bd06d095",
@@ -261,15 +262,14 @@
     "baselines": {
     },
     "logging": {
-      "pipe_console_to_logfile": false,
+      "level": "debug",
+      "pipe_console_to_logfile": true,
       "format": "combined",
       "app_logs_folder": "logs/app",
       "log_request_times": false,
       "request_times_log_folder": "logs/request_times",
       "log_requests_in_apache_format": false,
       "requests_in_apache_format_log_folder": "logs/requests_apache_format",
-      "suppress_all_logs": false,
-      "suppress_all_errors": false,
       "log_all_requests": false,
       "log_emailing": false
     },
@@ -394,6 +394,7 @@
       "secret": "THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzH"
     },
     "baseUri": "http://127.0.0.1:3002",
+    "environment" : "test",
     "eudatBaseUrl": "https://trng-b2share.eudat.eu",
     "eudatCommunityId": "e9b9792e-79fb-4b07-b6b4-b9c2bd06d095",
     "eudatToken": "__FIXME",
@@ -646,15 +647,14 @@
     "baselines": {
     },
     "logging": {
-      "pipe_console_to_logfile": false,
+      "level": "debug",
+      "pipe_console_to_logfile": true,
       "format": "combined",
       "app_logs_folder": "logs/app",
       "log_request_times": false,
       "request_times_log_folder": "logs/request_times",
       "log_requests_in_apache_format": false,
       "requests_in_apache_format_log_folder": "logs/requests_apache_format",
-      "suppress_all_logs": false,
-      "suppress_all_errors": false,
       "log_all_requests": false,
       "log_emailing": false,
       "custom_exception_logging": false
@@ -780,6 +780,7 @@
       "secret": "adasdasTHF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzH"
     },
     "baseUri": "http://127.0.0.1:3001",
+    "environment" : "test",
     "eudatBaseUrl": "https://trng-b2share.eudat.eu",
     "eudatCommunityId": "e9b9792e-79fb-4b07-b6b4-b9c2bd06d095",
     "eudatToken": "__FIXME",
@@ -1032,15 +1033,14 @@
     "baselines": {
     },
     "logging": {
-      "pipe_console_to_logfile": false,
+      "level": "debug",
       "format": "combined",
+      "pipe_console_to_logfile": true,
       "app_logs_folder": "logs/app",
       "log_request_times": false,
       "request_times_log_folder": "logs/request_times",
       "log_requests_in_apache_format": false,
       "requests_in_apache_format_log_folder": "logs/requests_apache_format",
-      "suppress_all_logs": false,
-      "suppress_all_errors": false,
       "log_all_requests": false,
       "log_emailing": false,
       "custom_exception_logging": false

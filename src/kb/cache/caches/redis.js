@@ -40,7 +40,7 @@ RedisCache.prototype.open = function (callback)
             self.client.on("error", function (err)
             {
                 const msg = "Error connecting to Redis client " + JSON.stringify(err);
-                console.error(msg);
+                Logger.log("error", msg);
                 return callback(err, msg);
             });
         };
@@ -50,7 +50,7 @@ RedisCache.prototype.open = function (callback)
             registerConnectionCallbacks();
             self.client.select(self.databaseNumber, function ()
             {
-                console.log("Redis client switched to database number " + self.databaseNumber);
+                Logger.log("Redis client switched to database number " + self.databaseNumber);
             });
         }
         else
@@ -87,7 +87,7 @@ RedisCache.prototype.put = function (resourceUri, object, callback)
                     {
                         if (Config.debug.active && Config.debug.cache.log_cache_writes)
                         {
-                            console.log("[DEBUG] Saved cache record for " + resourceUri);
+                            Logger.log("debug", "Saved cache record for " + resourceUri);
                         }
 
                         return callback(null);
@@ -129,11 +129,11 @@ RedisCache.prototype.get = function (resourceUri, callback)
                         {
                             if (!isNull(cachedJSON))
                             {
-                                console.log("Cache HIT on " + resourceUri);
+                                Logger.log("Cache HIT on " + resourceUri);
                             }
                             else
                             {
-                                console.log("Cache MISS on " + resourceUri);
+                                Logger.log("Cache MISS on " + resourceUri);
                             }
                         }
 
@@ -174,13 +174,13 @@ RedisCache.prototype.delete = function (resourceUriOrArrayOfResourceUris, callba
                     {
                         if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                         {
-                            console.log("[DEBUG] Deleted redis cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                            Logger.log("debug", "Deleted redis cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
                         }
 
                         return callback(null, null);
                     }
                     const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from redis cache. " + err;
-                    console.log(msg);
+                    Logger.log(msg);
                     return callback(err, msg);
                 });
             }
@@ -214,13 +214,13 @@ RedisCache.prototype.deleteAll = function (callback)
                 {
                     if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                     {
-                        console.log("[DEBUG] Deleted ALL cache records");
+                        Logger.log("debug", "Deleted ALL cache records");
                     }
 
                     return callback(null);
                 }
                 const msg = "Unable to delete database number " + self.databaseNumber + " : " + JSON.stringify(err);
-                console.log(msg);
+                Logger.log(msg);
                 return callback(err, msg);
             });
         }

@@ -73,7 +73,7 @@ angular.module("dendroApp.services")
                     )
                         .catch(function (error)
                         {
-                            console.error("Unable to record the acceptance of recommended descriptors in the metadata editor. " +
+                            Logger.log("error","Unable to record the acceptance of recommended descriptors in the metadata editor. " +
                             "Please contact your system administrator. Error reported: " + JSON.stringify(error));
                         });
                 };
@@ -95,7 +95,7 @@ angular.module("dendroApp.services")
                     )
                         .catch(function (error)
                         {
-                            console.error("Unable to record the filling in of descriptors in the metadata editor. Please contact your system administrator. Error reported: " + JSON.stringify(error));
+                            Logger.log("error","Unable to record the filling in of descriptors in the metadata editor. Please contact your system administrator. Error reported: " + JSON.stringify(error));
                         });
                 };
 
@@ -109,7 +109,7 @@ angular.module("dendroApp.services")
                     )
                         .catch(function (error)
                         {
-                            console.error("Unable to record the deletion of descriptors in the metadata editor. Please contact your system administrator. Error reported: " + JSON.stringify(error));
+                            Logger.log("error","Unable to record the deletion of descriptors in the metadata editor. Please contact your system administrator. Error reported: " + JSON.stringify(error));
                         });
                 };
 
@@ -123,7 +123,7 @@ angular.module("dendroApp.services")
                     )
                         .catch(function (error)
                         {
-                            console.error("Unable to record the inheritance of descriptors in the metadata editor. Please contact your system administrator. Error reported: " + JSON.stringify(error));
+                            Logger.log("error","Unable to record the inheritance of descriptors in the metadata editor. Please contact your system administrator. Error reported: " + JSON.stringify(error));
                         });
                 };
 

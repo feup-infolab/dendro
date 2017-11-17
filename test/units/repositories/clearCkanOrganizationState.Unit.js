@@ -39,7 +39,7 @@ module.exports.setup = function (project, finish)
             {
                 if (err)
                 {
-                    console.error("Error deleting all packages from ckan organization");
+                    console.log("error","Error deleting all packages from ckan organization");
                     finish(err, data);
                 }
                 else

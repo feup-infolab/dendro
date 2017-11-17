@@ -19,11 +19,11 @@ const initTempUploadsFolder = function (app, callback)
     }
     catch (e)
     {
-        Logger.log_boot_message("info", "Temp folder for uploads " + tempUploadsFolder + " does not exist. Creating...");
+        Logger.log_boot_message("Temp folder for uploads " + tempUploadsFolder + " does not exist. Creating...");
         try
         {
             mkdirp.sync(tempUploadsFolder);
-            Logger.log_boot_message("success", "Temp folder for uploads " + tempUploadsFolder + " created.");
+            Logger.log_boot_message("Temp folder for uploads " + tempUploadsFolder + " created.");
         }
         catch (e)
         {

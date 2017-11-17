@@ -2,6 +2,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -45,7 +46,7 @@ module.exports.login = function (req, res, next)
                     const util = require("util");
                     const error = "ORCID server returned error: \n " + util.inspect(err);
                     console.trace(err);
-                    console.error(error);
+                    Logger.log("error", error);
                     res.render(
                         "/login",
                         {

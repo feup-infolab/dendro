@@ -12,6 +12,7 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const FileSystemPost = require(Pathfinder.absPathInSrcFolder("/models/social/fileSystemPost.js")).FileSystemPost;
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const async = require("async");
 
@@ -95,11 +96,11 @@ exports.download = function (req, res)
                                 {
                                     if (err)
                                     {
-                                        console.error("Unable to delete " + writtenFilePath);
+                                        Logger.log("error", "Unable to delete " + writtenFilePath);
                                     }
                                     else
                                     {
-                                        console.log("Deleted " + writtenFilePath);
+                                        Logger.log("Deleted " + writtenFilePath);
                                     }
                                 });
                             });
@@ -109,7 +110,7 @@ exports.download = function (req, res)
                         else
                         {
                             const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
-                            console.error(error);
+                            Logger.log("error", error);
                             res.status(500).write("Error : " + error + "\n");
                             res.end();
                         }
@@ -119,13 +120,13 @@ exports.download = function (req, res)
                         if (err === 404)
                         {
                             const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                            console.error(error);
+                            Logger.log("error", error);
                             res.writeHead(404, error);
                             res.end();
                         }
                         else
                         {
-                            console.error("Unable to produce temporary file to download " + self.uri + " Error returned : " + JSON.stringify(results));
+                            Logger.log("error", "Unable to produce temporary file to download " + self.uri + " Error returned : " + JSON.stringify(results));
                         }
                     }
                 });
@@ -133,7 +134,7 @@ exports.download = function (req, res)
             else
             {
                 const error = "Non-existent folder. Is this a file instead of a folder? : " + requestedResourceURI;
-                console.error(error);
+                Logger.log("error", error);
                 res.writeHead(404, error);
                 res.end();
             }
@@ -167,11 +168,11 @@ exports.download = function (req, res)
                                 {
                                     if (err)
                                     {
-                                        console.error("Unable to delete " + writtenFilePath);
+                                        Logger.log("error", "Unable to delete " + writtenFilePath);
                                     }
                                     else
                                     {
-                                        console.log("Deleted " + writtenFilePath);
+                                        Logger.log("Deleted " + writtenFilePath);
                                     }
                                 });
                             });
@@ -181,7 +182,7 @@ exports.download = function (req, res)
                         else
                         {
                             const error = "There was an error streaming the requested resource : " + requestedResourceURI;
-                            console.error(error);
+                            Logger.log("error", error);
                             res.writeHead(500, error);
                             res.end();
                         }
@@ -191,14 +192,14 @@ exports.download = function (req, res)
                         if (err === 404)
                         {
                             const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                            console.error(error);
+                            Logger.log("error", error);
                             res.writeHead(404, error);
                             res.end();
                         }
                         else
                         {
                             const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
-                            console.error(error);
+                            Logger.log("error", error);
                             res.writeHead(500, error);
                             res.end();
                         }
@@ -208,7 +209,7 @@ exports.download = function (req, res)
             else
             {
                 const error = "Non-existent file : " + requestedResourceURI;
-                console.error(error);
+                Logger.log("error", error);
                 res.writeHead(404, error);
                 res.end();
             }
@@ -235,7 +236,7 @@ exports.download = function (req, res)
                             else
                             {
                                 const error = "Unable to determine the root folder of project : " + requestedResourceURI;
-                                console.error(error);
+                                Logger.log("error", error);
                                 res.status(500).write("Error : " + error + "\n");
                                 res.end();
                             }
@@ -245,7 +246,7 @@ exports.download = function (req, res)
                 else
                 {
                     const error = "Non-existent project : " + requestedResourceURI;
-                    console.error(error);
+                    Logger.log("error", error);
                     res.status(404).write("Error : " + error + "\n");
                     res.end();
                 }
@@ -253,7 +254,7 @@ exports.download = function (req, res)
             else
             {
                 const error = "Error occurred while retrieving project : " + requestedResourceURI;
-                console.error(error);
+                Logger.log("error", error);
                 res.status(500).write("Error : " + error + "\n");
                 res.end();
             }
@@ -279,7 +280,7 @@ exports.download = function (req, res)
                     else
                     {
                         const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
-                        console.error(error);
+                        Logger.log("error", error);
                         res.status(500).write("Error : " + error + "\n");
                         res.end();
                     }
@@ -287,7 +288,7 @@ exports.download = function (req, res)
                 else
                 {
                     const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
-                    console.error(error);
+                    Logger.log("error", error);
                     res.status(404).write("error");
                     res.end();
                 }
@@ -295,7 +296,7 @@ exports.download = function (req, res)
             else
             {
                 const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
-                console.error(error);
+                Logger.log("error", error);
                 res.status(500).write("Error : " + error + "\n");
                 res.end();
             }
@@ -345,11 +346,11 @@ exports.serve = function (req, res)
                                     {
                                         if (err)
                                         {
-                                            console.error("Unable to delete " + writtenFilePath);
+                                            Logger.log("error", "Unable to delete " + writtenFilePath);
                                         }
                                         else
                                         {
-                                            console.log("Deleted " + writtenFilePath);
+                                            Logger.log("Deleted " + writtenFilePath);
                                         }
                                     });
                                 });
@@ -359,7 +360,7 @@ exports.serve = function (req, res)
                             else
                             {
                                 const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
-                                console.error(error);
+                                Logger.log("error", error);
                                 res.status(500).write("Error : " + error + "\n");
                                 res.end();
                             }
@@ -369,7 +370,7 @@ exports.serve = function (req, res)
                             if (err === 404)
                             {
                                 const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                                console.error(error);
+                                Logger.log("error", error);
                                 res.status(404).json({
                                     result: "error",
                                     message: error
@@ -378,7 +379,7 @@ exports.serve = function (req, res)
                             else
                             {
                                 const error = "Unable to produce temporary file to download " + self.uri + " Error returned : " + writtenFilePath;
-                                console.error(error);
+                                Logger.log("error", error);
                                 res.status(500).json({
                                     result: "error",
                                     message: error
@@ -390,7 +391,7 @@ exports.serve = function (req, res)
                 else
                 {
                     const error = "Non-existent folder. Is this a file instead of a folder? : " + requestedResourceURI;
-                    console.error(error);
+                    Logger.log("error", error);
                     res.status(404).json({
                         result: "error",
                         message: error
@@ -400,7 +401,7 @@ exports.serve = function (req, res)
             else
             {
                 const error = "Error fetching folder" + requestedResourceURI;
-                console.error(error);
+                Logger.log("error", error);
                 res.status(500).json({
                     result: "error",
                     message: error
@@ -451,11 +452,11 @@ exports.serve = function (req, res)
                                                 {
                                                     if (err)
                                                     {
-                                                        console.error("Unable to delete " + parentFolderPath);
+                                                        Logger.log("error", "Unable to delete " + parentFolderPath);
                                                     }
                                                     else
                                                     {
-                                                        console.log("Deleted " + parentFolderPath);
+                                                        Logger.log("Deleted " + parentFolderPath);
                                                     }
                                                 });
                                             });
@@ -465,7 +466,7 @@ exports.serve = function (req, res)
                                         else
                                         {
                                             const error = "There was an error streaming the requested resource : " + requestedResourceURI;
-                                            console.error(error);
+                                            Logger.log("error", error);
                                             res.writeHead(500, error);
                                             res.end();
                                         }
@@ -475,14 +476,14 @@ exports.serve = function (req, res)
                                         if (err === 404)
                                         {
                                             const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                                            console.error(error);
+                                            Logger.log("error", error);
                                             res.writeHead(404, error);
                                             res.end();
                                         }
                                         else
                                         {
                                             const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
-                                            console.error(error);
+                                            Logger.log("error", error);
                                             res.writeHead(500, error);
                                             res.end();
                                         }
@@ -492,7 +493,7 @@ exports.serve = function (req, res)
                             else
                             {
                                 const error = "Non-existent file : " + requestedResourceURI;
-                                console.error(error);
+                                Logger.log("error", error);
                                 res.writeHead(404, error);
                                 res.end();
                             }
@@ -505,7 +506,7 @@ exports.serve = function (req, res)
                     else
                     {
                         const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
-                        console.error(error);
+                        Logger.log("error", error);
                         res.status(500).write("Error : " + error + "\n");
                         res.end();
                     }
@@ -513,7 +514,7 @@ exports.serve = function (req, res)
                 else
                 {
                     const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
-                    console.error(error);
+                    Logger.log("error", error);
                     res.status(500).write("Error : " + error + "\n");
                     res.end();
                 }
@@ -549,14 +550,14 @@ exports.serve_base64 = function (req, res)
 
                                         res.on("end", function ()
                                         {
-                                            console.log("close");
+                                            Logger.log("close");
                                             File.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
                                             {
                                                 if (!isNull(err))
                                                 {
-                                                    console.error(err);
-                                                    console.error(stdout);
-                                                    console.error(stderr);
+                                                    Logger.log("error", err);
+                                                    Logger.log("error", stdout);
+                                                    Logger.log("error", stderr);
                                                 }
                                             });
                                         });
@@ -568,11 +569,11 @@ exports.serve_base64 = function (req, res)
                                             {
                                                 if (err)
                                                 {
-                                                    console.error("Unable to delete " + writtenFilePath);
+                                                    Logger.log("error", "Unable to delete " + writtenFilePath);
                                                 }
                                                 else
                                                 {
-                                                    console.log("Deleted " + writtenFilePath);
+                                                    Logger.log("Deleted " + writtenFilePath);
                                                 }
                                             });
                                         });
@@ -582,7 +583,7 @@ exports.serve_base64 = function (req, res)
                                     else
                                     {
                                         const error = "There was an error streaming the requested resource : " + requestedResourceURI;
-                                        console.error(error);
+                                        Logger.log("error", error);
                                         res.writeHead(500, error);
                                         res.end();
                                     }
@@ -592,14 +593,14 @@ exports.serve_base64 = function (req, res)
                                     if (err === 404)
                                     {
                                         const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                                        console.error(error);
+                                        Logger.log("error", error);
                                         res.writeHead(404, error);
                                         res.end();
                                     }
                                     else
                                     {
                                         const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
-                                        console.error(error);
+                                        Logger.log("error", error);
                                         res.writeHead(500, error);
                                         res.end();
                                     }
@@ -609,7 +610,7 @@ exports.serve_base64 = function (req, res)
                         else
                         {
                             const error = "Non-existent file : " + requestedResourceURI;
-                            console.error(error);
+                            Logger.log("error", error);
                             res.writeHead(404, error);
                             res.end();
                         }
@@ -618,14 +619,14 @@ exports.serve_base64 = function (req, res)
                 else if (ie.isA(Folder))
                 {
                     const error = "Resource : " + requestedResourceURI + " is a folder and cannot be represented in Base64";
-                    console.error(error);
+                    Logger.log("error", error);
                     res.status(500).write("Error : " + error + "\n");
                     res.end();
                 }
                 else
                 {
                     const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
-                    console.error(error);
+                    Logger.log("error", error);
                     res.status(500).write("Error : " + error + "\n");
                     res.end();
                 }
@@ -633,7 +634,7 @@ exports.serve_base64 = function (req, res)
             else
             {
                 const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
-                console.error(error);
+                Logger.log("error", error);
                 res.status(404).write("error");
                 res.end();
             }
@@ -641,7 +642,7 @@ exports.serve_base64 = function (req, res)
         else
         {
             const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
-            console.error(error);
+            Logger.log("error", error);
             res.status(500).write("Error : " + error + "\n");
             res.end();
         }
@@ -697,7 +698,7 @@ exports.get_thumbnail = function (req, res)
                                             else
                                             {
                                                 const error = "There was an error streaming the requested resource : " + requestedResourceURI;
-                                                console.error(error);
+                                                Logger.log("error", error);
                                                 res.writeHead(500, error);
                                                 res.end();
                                             }
@@ -707,7 +708,7 @@ exports.get_thumbnail = function (req, res)
                                             if (err === 404)
                                             {
                                                 const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                                                console.error(error);
+                                                Logger.log("error", error);
                                                 res.writeHead(404, error);
                                                 res.end();
                                             }
@@ -720,7 +721,7 @@ exports.get_thumbnail = function (req, res)
                                                 const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
                                                 res.writeHead(404, error);
                                                 res.end();
-                                                console.error(error);
+                                                Logger.log("error", error);
                                             }
                                         }
                                     });
@@ -739,7 +740,7 @@ exports.get_thumbnail = function (req, res)
                             else
                             {
                                 const error = "Non-existent file : " + requestedResourceURI;
-                                console.error(error);
+                                Logger.log("error", error);
                                 res.writeHead(404, error);
                                 res.end();
                             }
@@ -747,7 +748,7 @@ exports.get_thumbnail = function (req, res)
                         else
                         {
                             const error = "Error fetching thumbnail for file " + requestedResourceURI;
-                            console.error(error);
+                            Logger.log("error", error);
                             res.writeHead(500, error);
                             res.end();
                         }
@@ -1199,7 +1200,7 @@ exports.restore = function (req, res)
                                         if (isNull(err))
                                         {
                                             const msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + result;
-                                            console.log(msg);
+                                            Logger.log(msg);
 
                                             res.status(200).json(
                                                 {
@@ -1211,7 +1212,7 @@ exports.restore = function (req, res)
                                         else
                                         {
                                             const msg = "Error restoring zip file to folder " + requestedResourceUri + " : " + result;
-                                            console.log(msg);
+                                            Logger.log(msg);
 
                                             res.status(500).json(
                                                 {
@@ -1501,7 +1502,7 @@ exports.rm = function (req, res)
                             else if (err === 404)
                             {
                                 const msg = "There was already a prior attempt to delete this file file or folder. The file or folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceToDelete;
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 res.writeHead(404, msg);
                                 res.end();
                                 return callback(err, msg);
@@ -2487,7 +2488,7 @@ exports.sheets = function (req, res)
                         else
                         {
                             const error = "Error occurred while fetching sheets for " + resourceURI;
-                            console.error(error);
+                            Logger.log("error", error);
                             res.status(500).json({
                                 result: "error",
                                 message: error,
@@ -2499,7 +2500,7 @@ exports.sheets = function (req, res)
                 else
                 {
                     const error = resourceURI + " does not exist or is not a file.";
-                    console.error(error);
+                    Logger.log("error", error);
                     res.status(404).json({
                         result: "error",
                         message: error
@@ -2592,7 +2593,7 @@ exports.data = function (req, res)
                                 }
                                 else
                                 {
-                                    console.error(result);
+                                    Logger.log("error", result);
                                     res.status(500).json({
                                         result: "error",
                                         message: result
@@ -2603,7 +2604,7 @@ exports.data = function (req, res)
                         else
                         {
                             const error = resourceURI + " has no data.";
-                            console.error(error);
+                            Logger.log("error", error);
                             res.status(400).json({
                                 result: "error",
                                 message: error
@@ -2614,7 +2615,7 @@ exports.data = function (req, res)
                 else
                 {
                     const error = "Non-existent file : " + resourceURI;
-                    console.error(error);
+                    Logger.log("error", error);
                     res.writeHead(404, error);
                     res.end();
                 }
@@ -2622,7 +2623,7 @@ exports.data = function (req, res)
             else
             {
                 const error = "Error retrieving file : " + resourceURI;
-                console.error(error);
+                Logger.log("error", error);
                 res.writeHead(500, error);
                 res.end();
             }
@@ -2659,7 +2660,7 @@ exports.owner_project = function (req, res)
                         else
                         {
                             const error = "Resource : " + resourceURI + " does not have an owner project.";
-                            console.error(error);
+                            Logger.log("error", error);
                             res.status(404).json({
                                 result: "error",
                                 message: error
@@ -2669,7 +2670,7 @@ exports.owner_project = function (req, res)
                     else
                     {
                         const error = "Error fetching owner project of resource : " + resourceURI + ":" + ownerProject;
-                        console.error(error);
+                        Logger.log("error", error);
                         res.status(500).json({
                             result: "error",
                             message: error
@@ -2680,7 +2681,7 @@ exports.owner_project = function (req, res)
             else
             {
                 const error = "Non-existent resource : " + resourceURI;
-                console.error(error);
+                Logger.log("error", error);
                 res.status(404).json({
                     result: "error",
                     message: error
@@ -2690,7 +2691,7 @@ exports.owner_project = function (req, res)
         else
         {
             const error = "Error accessing resource : " + resourceURI + ":" + ie;
-            console.error(error);
+            Logger.log("error", error);
             res.status(500).json({
                 result: "error",
                 message: error
@@ -2731,7 +2732,7 @@ exports.rename = function (req, res)
                             else
                             {
                                 const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(result);
-                                console.error(error);
+                                Logger.log("error", error);
                                 res.status(500).json({
                                     result: "error",
                                     message: error
@@ -2742,7 +2743,7 @@ exports.rename = function (req, res)
                     else
                     {
                         const error = "Non-existent resource : " + resourceURI;
-                        console.error(error);
+                        Logger.log("error", error);
                         res.status(404).json({
                             result: "error",
                             message: error
@@ -2752,7 +2753,7 @@ exports.rename = function (req, res)
                 else
                 {
                     const error = "Error accessing resource : " + resourceURI + ":" + ie;
-                    console.error(error);
+                    Logger.log("error", error);
                     res.status(500).json({
                         result: "error",
                         message: error
@@ -3027,7 +3028,7 @@ exports.cut = function (req, res)
             else
             {
                 const error = "The 'files' parameter is not a valid array of files and folders";
-                console.error(error);
+                Logger.log("error", error);
                 return res.status(400).json({
                     result: "error",
                     message: error
@@ -3037,7 +3038,7 @@ exports.cut = function (req, res)
         else
         {
             const error = "Missing 'files' parameter; Unable to determine which files to move!";
-            console.error(error);
+            Logger.log("error", error);
             return res.status(400).json({
                 result: "error",
                 message: error

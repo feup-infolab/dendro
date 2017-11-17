@@ -47,13 +47,13 @@ exports.sendFiles = function (options, callback)
     {
         var message = "[sword-connection] Wrong arguments for function sendFile";
         return callback(true, message, null);
-        console.error(message);
+        Logger.log("error", message);
     }
     if (options.files.length === 0)
     {
         var message = "[sword-connection] Is necessary to indicate files to send to repository";
         return callback(true, message, null);
-        console.error(message);
+        Logger.log("error", message);
     }
 
     const sword = lib.SwordConnection(options.user, options.password, options.serviceDocRef);
@@ -80,12 +80,12 @@ exports.sendFiles = function (options, callback)
                     {
                         message = "[sword-connection] Error sending file to repository.";
                     }
-                    console.error(message);
+                    Logger.log("error", message);
                     cb(err);
                 }
                 else
                 {
-                    console.log(message);
+                    Logger.log(message);
                     cb(null);// response variable has list of available collections
                 }
             });

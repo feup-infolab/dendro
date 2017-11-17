@@ -143,7 +143,7 @@ Utils.isCyclic = function (obj) {
       seenObjects.push(obj)
       for (var key in obj) {
         if (obj.hasOwnProperty(key) && detect(obj[key])) {
-          console.log(obj, 'cycle at ' + key)
+          Logger.log(obj, 'cycle at ' + key)
           return true
         }
       }

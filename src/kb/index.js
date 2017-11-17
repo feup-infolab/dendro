@@ -141,7 +141,7 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
             {
                 return callback(null, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
-            console.error(err.stack);
+            Logger.log("error", err.stack);
             return callback(1, "Unable to RE index document " + JSON.stringify(document));
         });
     }
@@ -157,7 +157,7 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
             {
                 return callback(null, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
-            console.error(err.stack);
+            Logger.log("error", err.stack);
             return callback(1, "Unable to index document " + JSON.stringify(document));
         });
     }
@@ -181,7 +181,7 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
         })
         .on("data", function (data)
         {
-            console.log("Deleting document... data received : " + data);
+            Logger.log("Deleting document... data received : " + data);
         })
         .on("done", function (data)
         {
@@ -216,7 +216,7 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                                 {
                                     return callback();
                                 }
-                                console.error("Unable do delete index " + self.index.short_name + " Error returned  : " + err);
+                                Logger.log("error", "Unable do delete index " + self.index.short_name + " Error returned  : " + err);
                                 return callback(1);
                             });
                         }
@@ -261,14 +261,14 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                     else
                     {
                         const error = "Error creating index : " + JSON.stringify(data);
-                        console.error(error);
+                        Logger.log("error", error);
                         endCallback(err, error);
                     }
                 }
                 else
                 {
                     const error = "Error creating index : " + data;
-                    console.error(error);
+                    Logger.log("error", error);
                     endCallback(1, error);
                 }
             });
@@ -290,7 +290,7 @@ IndexConnection.prototype.delete_index = function (callback)
                 return callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
             }
             const error = "Error deleting index : " + data.error;
-            console.error(error);
+            Logger.log("error", error);
             return callback(error, data.error);
         });
 };
@@ -367,7 +367,7 @@ IndexConnection.prototype.search = function (typeName,
         }, function (error)
         {
             error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
-            console.error(error);
+            Logger.log("error", error);
             return callback(1, error);
         });
 };
@@ -402,14 +402,14 @@ IndexConnection.prototype.moreLikeThis = function (typeName,
             }, function (error)
             {
                 error = "Error fetching documents similar to document with ID : " + documentId + ". Reported error : " + JSON.stringify(error);
-                console.error(error);
+                Logger.log("error", error);
                 return callback(1, error);
             });
     }
     else
     {
         const error = "No documentId Specified for similarity calculation";
-        console.error(error);
+        Logger.log("error", error);
         return callback(1, error);
     }
 };

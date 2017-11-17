@@ -169,7 +169,7 @@ exports.from_ontology = function (req, res)
     {
         const msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
         req.flash("error", "Invalid Request");
-        console.log(msg);
+        Logger.log(msg);
         res.status(405).render("",
             {
             }
@@ -211,14 +211,14 @@ exports.from_ontology_in_project = function (req, res)
                                 else
                                 {
                                     const msg = "Result is not a project while getting parent project of information element with uri " + req.params.requestedResourceUri + " when fetching descriptors from ontology in project.";
-                                    console.error(msg);
+                                    Logger.log("error", msg);
                                     callback(1, msg);
                                 }
                             }
                             else
                             {
                                 const msg = "Error while getting parent project of information element with uri " + req.params.requestedResourceUri + " when fetching descriptors from ontology in project.";
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 callback(1, msg);
                             }
                         });
@@ -226,14 +226,14 @@ exports.from_ontology_in_project = function (req, res)
                     else
                     {
                         const msg = "Unable to retrieve information element with uri " + req.params.requestedResourceUri + " when fetching descriptors from ontology in project.";
-                        console.error(msg);
+                        Logger.log("error", msg);
                         callback(1, msg);
                     }
                 }
                 else
                 {
                     const msg = "Error while retrieving information element with uri " + req.params.requestedResourceUri + " when fetching descriptors from ontology in project.";
-                    console.error(msg);
+                    Logger.log("error", msg);
                     callback(1, msg);
                 }
             });
@@ -292,7 +292,7 @@ exports.from_ontology_in_project = function (req, res)
                                         else
                                         {
                                             const error = "Error fetching user : " + user + " : " + err;
-                                            console.error(error);
+                                            Logger.log("error", error);
                                             return callback(1, error);
                                         }
                                     });
@@ -316,7 +316,7 @@ exports.from_ontology_in_project = function (req, res)
                                         else
                                         {
                                             const error = "Error fetching project : " + project + " : " + err;
-                                            console.error(error);
+                                            Logger.log("error", error);
                                             return callback(1, error);
                                         }
                                     });
@@ -340,7 +340,7 @@ exports.from_ontology_in_project = function (req, res)
                                         else
                                         {
                                             const error = "Error fetching user : " + user + " : " + err;
-                                            console.error(error);
+                                            Logger.log("error", error);
                                             return callback(1, error);
                                         }
                                     });
@@ -360,7 +360,7 @@ exports.from_ontology_in_project = function (req, res)
                                         else
                                         {
                                             const error = "Error fetching project : " + project + " : " + err;
-                                            console.error(error);
+                                            Logger.log("error", error);
                                             return callback(1, error);
                                         }
                                     });
@@ -375,7 +375,7 @@ exports.from_ontology_in_project = function (req, res)
                                             return callback(error, dcElementsDescriptors);
                                         }
 
-                                        console.error("Error fetching DC Elements Descriptors : " + err);
+                                        Logger.log("error", "Error fetching DC Elements Descriptors : " + err);
                                         return callback(1, error);
                                     });
                                 };
@@ -586,7 +586,7 @@ exports.from_ontology_in_project = function (req, res)
     {
         const msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
         req.flash("error", "Invalid Request");
-        console.log(msg);
+        Logger.log(msg);
         res.status(405).render("",
             {
             }

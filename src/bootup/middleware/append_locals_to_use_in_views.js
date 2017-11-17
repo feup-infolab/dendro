@@ -82,7 +82,7 @@ const appendLocalsToUseInViews = function (app, callback)
 
                         if (err)
                         {
-                            console.error("Error checking for admin status of user " + req.user.uri + " !!");
+                            Logger.log("error", "Error checking for admin status of user " + req.user.uri + " !!");
                         }
                     });
                 }

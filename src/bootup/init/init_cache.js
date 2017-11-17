@@ -17,7 +17,7 @@ const initCache = function (app, callback)
     }
     else
     {
-        Logger.log_boot_message("info", "Cache not active in deployment configuration. Continuing Dendro startup without connecting to any cache servers.");
+        Logger.log_boot_message("Cache not active in deployment configuration. Continuing Dendro startup without connecting to any cache servers.");
         return callback(null);
     }
 };

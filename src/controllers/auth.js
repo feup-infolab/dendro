@@ -2,6 +2,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -56,7 +57,7 @@ module.exports.login = function (req, res, next)
 
                                     if (Config.debug.permissions.log_authorizations)
                                     {
-                                        console.log("User " + user.ddr.username + " signed in.");
+                                        Logger.log("User " + user.ddr.username + " signed in.");
                                     }
 
                                     if (req.body.redirect)
@@ -84,7 +85,7 @@ module.exports.login = function (req, res, next)
                                 else
                                 {
                                     req.flash("success", "There was an error signing you in.");
-                                    console.log("Error signing in user " + JSON.stringify(err));
+                                    Logger.log("Error signing in user " + JSON.stringify(err));
                                     throw err;
                                 }
                             }
@@ -406,7 +407,7 @@ module.exports.register = function (req, res)
                     else
                     {
                         req.flash("error", "Error registering a new user");
-                        console.error("Error registering a new user: " + JSON.stringify(err));
+                        Logger.log("error", "Error registering a new user: " + JSON.stringify(err));
                         res.redirect("/register");
                     }
                 });

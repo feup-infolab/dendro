@@ -4,10 +4,10 @@ const Controls = require(Pathfinder.absPathInSrcFolder("models/meta/controls.js"
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const db = Config.getDBByID();
 
@@ -129,7 +129,7 @@ Ontology.setAllOntologies = function (ontologies)
 
 Ontology.initAllFromDatabase = function (callback)
 {
-    console.log("(Re) Loading ontology configurations from database...");
+    Logger.log("(Re) Loading ontology configurations from database...");
 
     const recreateOntologiesInDatabase = function (ontologiesArray, callback)
     {
@@ -139,7 +139,7 @@ Ontology.initAllFromDatabase = function (callback)
             {
                 if (err)
                 {
-                    console.log("Error occurred when searching for ontology with URI : " + ontologyObject.uri + ". Error description : " + JSON.stringify(ontology));
+                    Logger.log("Error occurred when searching for ontology with URI : " + ontologyObject.uri + ". Error description : " + JSON.stringify(ontology));
                 }
                 else
                 {
@@ -169,9 +169,9 @@ Ontology.initAllFromDatabase = function (callback)
                 }
                 else
                 {
-                    console.error("Error loading ontology with URI : " + ontologyObject.uri + ": ");
-                    console.error(JSON.stringify(err));
-                    console.error(JSON.stringify(result));
+                    Logger.log("error", "Error loading ontology with URI : " + ontologyObject.uri + ": ");
+                    Logger.log("error", JSON.stringify(err));
+                    Logger.log("error", JSON.stringify(result));
                 }
 
                 return callback(err, newOntology);
@@ -299,7 +299,7 @@ Ontology.initAllFromDatabase = function (callback)
                             return callback(null, results);
                         }
 
-                        console.error("Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
+                        Logger.log("error", "Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
                         return callback(null, null);
                     }
                 );
@@ -330,7 +330,7 @@ Ontology.initAllFromDatabase = function (callback)
                         {
                             if (regex.length > 1)
                             {
-                                console.error("There are two different Regular Expressions for validating element " + elementUri + "! Please review the ontology with URI " + ontologyUri + " and delete hasRegex annotation properties until there is only one.");
+                                Logger.log("error", "There are two different Regular Expressions for validating element " + elementUri + "! Please review the ontology with URI " + ontologyUri + " and delete hasRegex annotation properties until there is only one.");
                                 return callback(1, null);
                             }
 
@@ -342,7 +342,7 @@ Ontology.initAllFromDatabase = function (callback)
                             return callback(null, null);
                         }
 
-                        console.error("Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
+                        Logger.log("error", "Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
                         return callback(null, null);
                     }
                 );
@@ -435,7 +435,7 @@ Ontology.initAllFromDatabase = function (callback)
                             {
                                 if (isNull(err))
                                 {
-                                    console.log("[INFO] Finished loading descriptor information from database");
+                                    Logger.log("info", "Finished loading descriptor information from database");
                                 }
 
                                 return callback(err, loadedOntologies);
@@ -447,7 +447,7 @@ Ontology.initAllFromDatabase = function (callback)
                             {
                                 if (isNull(err))
                                 {
-                                    console.log("[INFO] Finished loading research domain configurations for descriptors from database");
+                                    Logger.log("info", "Finished loading research domain configurations for descriptors from database");
                                 }
 
                                 return callback(err, loadedOntologies);
@@ -459,7 +459,7 @@ Ontology.initAllFromDatabase = function (callback)
                             {
                                 if (isNull(err))
                                 {
-                                    console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
+                                    Logger.log("info", "Finished loading validation information (Regex + alternatives) for the descriptors in the database");
                                 }
 
                                 return callback(err, loadedOntologies);
@@ -480,7 +480,7 @@ Ontology.initAllFromDatabase = function (callback)
             else
             {
                 const msg = "[ERROR] Error loading ontology configurations from database: Unable to fetch all resources from the graph";
-                console.log(msg);
+                Logger.log(msg);
                 return callback(1, msg);
             }
         });
@@ -739,7 +739,7 @@ Ontology.findByResearchDomainPrefixOrComment = function (query, maxNumberOfResul
             {
                 if (Config.debug.active && Config.debug.log_autocomplete_requests)
                 {
-                    console.log("Ontology " + ontology.uri + " CONTAINS THE TERM " + query + " !!!!!!!!!!!!!!!!!!!");
+                    Logger.log("Ontology " + ontology.uri + " CONTAINS THE TERM " + query + " !!!!!!!!!!!!!!!!!!!");
                 }
 
                 results.push(ontology);
@@ -748,7 +748,7 @@ Ontology.findByResearchDomainPrefixOrComment = function (query, maxNumberOfResul
             {
                 if (Config.debug.active && Config.debug.log_autocomplete_requests)
                 {
-                    console.log("Ontology " + ontology.uri + " does not contain the term " + query);
+                    Logger.log("Ontology " + ontology.uri + " does not contain the term " + query);
                 }
             }
         }
@@ -756,7 +756,7 @@ Ontology.findByResearchDomainPrefixOrComment = function (query, maxNumberOfResul
 
     if (Config.debug.active && Config.debug.log_autocomplete_requests && results.length > 0)
     {
-        console.log(JSON.stringify(results));
+        Logger.log(JSON.stringify(results));
     }
 
     return callback(null, results);
@@ -815,7 +815,7 @@ Ontology.prototype.save = function (callback)
             return callback(err, result);
         }
         const msg = "Unable to SAVE ontology with uri : " + uri + " because of error: " + result;
-        console.error(msg);
+        Logger.log("error", msg);
         return callback(err, msg);
     });
 };
@@ -902,7 +902,7 @@ Ontology.findByPrefix = function (prefix, callback)
                 if (results.length > 1)
                 {
                     const msg = "[FATAL ERROR] More than one ontology registered for the same prefix in Dendro! There must be only one ontology with a given prefix! Prefix that has more than one ontology associated is : " + prefix;
-                    console.error(msg);
+                    Logger.log("error", msg);
                     return callback(1, msg);
                 }
                 else if (results.length === 1)
