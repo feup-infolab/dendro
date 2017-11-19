@@ -3,24 +3,17 @@
  */
 const request = require("request");
 
-const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-
-Zenodo.apiURL = "https://zenodo.org/api";
-Zenodo.depositionsURL = Zenodo.apiURL + "/deposit/depositions/";
-Zenodo.depositionFilesPath = "/files";
-Zenodo.actionsEditPath = "/actions/edit";
-Zenodo.actionsPublishPath = "/actions/publish";
 
 function Zenodo (accessToken)
 {
     this.oauth = {};
     if (isNull(accessToken))
     {
-        throw "Undefined access token";
+        throw new Error("Undefined access token");
     }
     else
     {
@@ -28,6 +21,13 @@ function Zenodo (accessToken)
         this.accessTokenURL = "?access_token=" + accessToken;
     }
 }
+
+Zenodo.apiURL = "https://zenodo.org/api";
+Zenodo.depositionsURL = Zenodo.apiURL + "/deposit/depositions/";
+Zenodo.depositionFilesPath = "/files";
+Zenodo.actionsEditPath = "/actions/edit";
+Zenodo.actionsPublishPath = "/actions/publish";
+
 Zenodo.prototype.getDeposition = function (depositionID, callback)
 {
     request.get({

@@ -90,7 +90,7 @@
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins<b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <%
-                                //if(locals.user != null && locals.session != null && locals.session.isAdmin) {
+                                if(locals.user != null && locals.session != null && locals.session.isAdmin) {
                                 %>
                                     <li role="presentation" class="dropdown-header">Dendro Recommender</li>
                                     <li>
@@ -101,7 +101,7 @@
                                         <a href="/src/plugins/dendro_interaction2csv">Export interactions</a>
                                     </li>
                                 <%
-                                //}
+                                }
                                 %>
                             </ul>
                         </li> -->

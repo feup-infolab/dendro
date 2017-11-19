@@ -3,6 +3,7 @@ const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const destroyAllGraphs = function (app, callback)
 {

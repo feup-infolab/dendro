@@ -3,6 +3,7 @@ const async = require("async");
 const path = require("path");
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const colors = require("colors");

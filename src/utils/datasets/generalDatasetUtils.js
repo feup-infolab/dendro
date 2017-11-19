@@ -4,6 +4,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const deleteFolderRecursive = function (path)
 {
@@ -15,11 +16,13 @@ const deleteFolderRecursive = function (path)
         {
             const curPath = path + "/" + file;
             if (fs.lstatSync(curPath).isDirectory())
-            { // recurse
+            {
+                // recurse
                 deleteFolderRecursive(curPath);
             }
             else
-            { // delete file
+            {
+                // delete file
                 fs.unlinkSync(curPath);
             }
         });
@@ -72,7 +75,8 @@ const createPackage = function (parentFolderPath, folder, callback)
             const archiver = require("archiver");
             const output = fs.createWriteStream(outputFilenameZip);
             const zipArchive = archiver("zip", {
-                zlib: {level: 9} // Sets the compression level.
+                // Sets the compression level.
+                zlib: {level: 9}
             });
             filesToIncludeInPackage.push(outputFilenameZip);
             extraFiles.push(outputFilenameZip);

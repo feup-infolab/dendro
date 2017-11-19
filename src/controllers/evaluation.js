@@ -4,6 +4,7 @@ const Pathfinder = global.Pathfinder; const Config = require(Pathfinder.absPathI
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
 const RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const _ = require("underscore");
 const async = require("async");
