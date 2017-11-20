@@ -3,6 +3,7 @@ const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
 const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;

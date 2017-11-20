@@ -10,6 +10,7 @@ var InformationElement = require(Pathfinder.absPathInSrcFolder("/models/director
 var Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var uuid = require("uuid");
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");

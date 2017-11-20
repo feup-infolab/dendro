@@ -6,8 +6,8 @@ const request = require("request");
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 FigShare.apiURL = "http://api.figshare.com";
 FigShare.requestTokenURL = FigShare.apiURL + "/v1/pbl/oauth/request_token";

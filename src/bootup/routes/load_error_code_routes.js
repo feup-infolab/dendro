@@ -1,3 +1,6 @@
+const Pathfinder = global.Pathfinder;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+
 const loadRoutes = function (app, callback)
 {
     // Handle 404

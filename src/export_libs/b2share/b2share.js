@@ -1,8 +1,7 @@
-const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 B2Share.apiURL = Config.eudatBaseUrl + "/api";
 B2Share.depositionURL = B2Share.apiURL + "/deposition/";

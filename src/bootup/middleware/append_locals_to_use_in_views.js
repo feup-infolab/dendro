@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const Pathfinder = global.Pathfinder;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const appendLocalsToUseInViews = function (app, callback)
 {
