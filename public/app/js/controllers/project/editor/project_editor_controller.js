@@ -21,7 +21,8 @@ angular.module("dendroApp.controllers")
         ontologiesService,
         storageService,
         recommendationService,
-        projectsService
+        projectsService,
+        moment
     )
     {
         $scope.shared = {
@@ -37,16 +38,32 @@ angular.module("dendroApp.controllers")
 
         $scope.getTypeOfOfData = function (data)
         {
-            var isDate = !isNaN(Date.parse(data));
             var type;
-            if (isDate)
+            var dateFormats = [
+                moment.ISO_8601
+            ];
+            if (data instanceof Date)
             {
+                // is a date object
+                // returns the 'date' type
                 type = "date";
             }
             else
             {
-                type = typeof data;
-                return type;
+                // tests only objects that are not of the "Date" type
+                // it may still be a date but as a string and not as an object
+                var possibleDate = new Date(data);
+                var momentDate = moment(possibleDate, dateFormats, true);
+                var isDate = momentDate.isValid();
+                if (isDate)
+                {
+                    // is a valid date
+                    type = "date";
+                }
+                else
+                {
+                    type = typeof data;
+                }
             }
             return type;
         };

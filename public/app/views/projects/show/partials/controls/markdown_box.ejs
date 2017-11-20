@@ -2,23 +2,9 @@
 <link rel='stylesheet'  href='/bower_components/bootstrap-markdown/css/bootstrap-markdown.min.css'/>
 
 <div class="row">
-    <div class="controls col-xs-12">
-        <div class="input-group col-xs-11 col-xs-offset-1">
+    <div class="controls col-lg-12">
+        <div class="col-lg-10 col-lg-offset-1">
             <div ng-switch="getTypeOfOfData(descriptor.value)">
-                <div ng-switch-when='string'>
-                    <textarea type="text"
-                              markdownedit
-                              class="form-control markdownbox"
-                              id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                              name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                              ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted}"
-                              placeholder="{{descriptor.label}}"
-                              rows="10"
-                              ng-model="descriptor.value"
-                              focus-me="descriptor.focused">{{descriptor.value}}
-                    </textarea>
-                </div>
-
                 <div ng-switch-when='object'>
                     <div ng-repeat="descriptorValue in descriptor.value track by $index">
                         <a href ng-click="remove_value_from_descriptor(descriptor, descriptorValue)" onclick="return false;">
@@ -48,7 +34,7 @@
                               rows="10"
                               ng-model="descriptor.value"
                               ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted}"
-                              focus-me="descriptor.focused">{{descriptor.value}}
+                              focus-me="descriptor.focused || descriptor.just_added">{{descriptor.value}}
                     </textarea>
                 </div>
             </div>

@@ -2,25 +2,6 @@
     <div class="controls col-lg-12">
         <div class="col-lg-10 col-lg-offset-1">
             <div ng-switch="getTypeOfOfData(descriptor.value)">
-                <div ng-switch-when='string'>
-                    <input
-                            type="text"
-                            class="form-control urlbox"
-                            id="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}"
-                            name="descriptors_{{descriptor.prefix}}_{{descriptor.shortName}}"
-                            placeholder="{{descriptor.label}}"
-                            value="{{descriptor.value}}"
-                            ng-model="descriptor.value"
-                            ng-class="{
-                        just_added: descriptor.just_added,
-                        just_deleted: descriptor.just_deleted,
-                        just_inherited : descriptor.just_inherited ,
-                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
-                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
-                    }"
-                            ng-enter="save_metadata()"
-                            focus-me="descriptor.focused">
-                </div>
                 <div ng-switch-when='object'>
                     <div ng-repeat="descriptorValue in descriptor.value track by $index">
                         <div>
@@ -65,7 +46,7 @@
                         favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
                     }"
                             ng-enter="save_metadata()"
-                            focus-me="descriptor.focused">
+                            focus-me="descriptor.focused || descriptor.just_added">
                 </div>
             </div>
         </div>

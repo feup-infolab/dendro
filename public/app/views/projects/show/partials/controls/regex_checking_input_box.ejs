@@ -1,34 +1,10 @@
 <div class="row">
     <div class="controls col-lg-12">
         <div ng-switch="getTypeOfOfData(descriptor.value)">
-            <div ng-switch-when='string'>
-                <div class="input-group col-lg-10 col-lg-offset-1">
-                    <p> String regext_checking_input_box</p>
-                    <input
-                            type="text"
-                            class="form-control inputbox"
-                            id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                            name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
-                            placeholder="{{descriptor.label}}"
-                            value="{{descriptor.value}}"
-                            ng-model="descriptor.value"
-                            ng-class="{
-                        just_added: descriptor.just_added,
-                        just_deleted: descriptor.just_deleted,
-                        just_inherited : descriptor.just_inherited ,
-                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
-                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites),
-                        error : !descriptor_is_valid(descriptor)
-                    }"
-                            ng-enter="save_metadata()"
-                            focus-me="descriptor.focused">
-                </div>
-            </div>
-
             <div ng-switch-when='object'>
                 <div ng-repeat="descriptorValue in descriptor.value track by $index">
-                    <div class="input-group col-lg-10 col-lg-offset-1">
-                        <p> Object regext_checking_input_box</p>
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <!--value is an object-->
                         <a href ng-click="remove_value_from_descriptor(descriptor, descriptorValue)" onclick="return false;">
                             <img src="/images/icons/delete_small.png">
                         </a>
@@ -54,8 +30,8 @@
             </div>
 
             <div ng-switch-default>
-                <div class="input-group col-lg-10 col-lg-offset-1">
-                    <p> At regext_checking_input_box</p>
+                <div class="col-lg-10 col-lg-offset-1">
+                    <!--The default value-->
                     <input
                             type="text"
                             class="form-control inputbox"
@@ -73,7 +49,7 @@
                         error : !descriptor_is_valid(descriptor)
                     }"
                             ng-enter="save_metadata()"
-                            focus-me="descriptor.focused">
+                            focus-me="descriptor.focused || descriptor.just_added">
                 </div>
             </div>
 
