@@ -1,13 +1,33 @@
 <form class="deposit-sidebar">
     Search registry
-    <div class="form-group">
+    <div class="form-group" ng-repeat="item in search track by $index">
+        <label>
+            {{item.label}}
+            <div ng-if="item.list" ng-repeat="iterator in item.value track by $index">
+                <label>
+                    {{iterator.name}}
+                    <input ng-model="iterator.value" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="{{item.type}}">
+                </label>
+            </div>
+
+            <input ng-if="!item.list" ng-model="item.value" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="{{item.type}}">
+
+        </label>
+    </div>
+    <!--<div>
         <label>
             Username
-            <input ng-model="search.name" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="text">
+            <input ng-model="search.creator" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="text">
         </label>
         <label>
             Project
-            <input ng-model="search.project" ng-change="getRegistry()" ng-model-options="{debounce : 500}"type="text">
+            <input ng-model="search.project" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="text">
+        </label>
+        <label>
+            System Used
+            <p ng-repeat="(system,value) in search.system track by $index">
+                <input ng-model="value" type="checkbox"> {{system}}
+            </p>
         </label>
         <label>
             Date start
@@ -26,5 +46,5 @@
             <input name="system" type="radio" ng-checked="search.system" checked> All <br>
             <input name="system" type="radio" ng-checked="search.system"> Ckan <br>
         </label>
-    </div>
+    </div>-->
 </form>

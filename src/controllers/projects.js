@@ -918,7 +918,7 @@ exports.new = function (req, res)
                                     },
                                     ddr: {
                                         exportedFromProject: result.uri,
-                                        privacyStatus: "public",
+                                        privacyStatus: "private",
                                     }
                                 };
                                 Deposit.createDepositRegistry(registryData, function(err, result){

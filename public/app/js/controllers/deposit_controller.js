@@ -25,15 +25,61 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
         $scope.page = 10;
 
         $scope.search = {
-            name: "",
-            project: "",
-            dateFrom: "",
-            dateTo: "",
-            privateDeposit : false,
-            offset: 0,
-            limit: 10,
-        };
+            creator: {
+              type: "text",
+              label: "Username",
+              key: "creator",
+              value: "",
+            },
+            project: {
+              type: "text",
+              label: "Project",
+              key: "project",
+              value: "",
+            },
+            dateFrom: {
+              type: "date",
+              label: "Date Start",
+              key: "dateFrom",
+              value: "",
+            },
+            dateTo: {
+              type: "date",
+              label: "Date End",
+              key: "dateTo",
+              value: "",
+            },
+            privateDeposit: {
+              type: "checkbox",
+              label: "Private Deposits",
+              key: "private",
+              value: false,
+            },
+            system: {
+              type: "checkbox",
+              list: true,
+              label: "System Used",
+              key:"systems",
+              value: [
+                {
+                  name: "ckan",
+                  value: false,
+                },
+                {
+                  name: "b2Drop",
+                  value: true,
+                }
+              ]
+            }
 
+            /*offset: 0,
+            limit: 10,
+            system: {
+              ckan: true,
+              b2drop: false,
+              all: true,
+            }*/
+        };
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
@@ -45,11 +91,12 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
         $scope.getRegistry = function(){
             let url = $scope.get_current_url();
             url += "deposits/latest";
+            const params = $scope.parseFilter();
 
             $http({
                 method: "GET",
                 url: url,
-                params: $scope.search,
+                params: params,
                 contentType: "application/json",
                 headers: {"Accept": "application/json"}
             }).then(function(response){
@@ -63,19 +110,19 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
                 for(let i = 0; i < deposits.length; i++){
                     deposits[i].date = moment(deposits[i].date).fromNow();
                 }
-                $scope.deposits.push(deposits);
+                $scope.deposits = deposits;
             }).catch(function(error){
                 console.log(error);
             });
         };
 
-        $scope.authorizedRegistry = {};
-
-        $scope.authorizedRegistry.get = function (index, count, success) {
-            let deposits = [0,1,2,3,4,5,6,7,8,9];
-            //$scope.deposits.length = [];
-            success(deposits);
-
+        $scope.parseFilter = function(){
+            let search = {};
+            for(item in $scope.search){
+              if($scope.search[item].value !== null && $scope.search[item].value !== "")
+              search[$scope.search[item].key] = $scope.search[item].value;
+            }
+            return search;
         };
 
         $scope.deposits = [];

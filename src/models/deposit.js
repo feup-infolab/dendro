@@ -204,7 +204,7 @@ Deposit.createQuery = function(params, callback){
 
     let ending =
         "} \n" +
-        "ORDER BY ?date \n" +
+        "ORDER BY DESC(?date) \n" +
         "OFFSET [4] \n" +
         "LIMIT [5]";
 
@@ -252,10 +252,10 @@ Deposit.createQuery = function(params, callback){
 
     let i = 6;
     if(params.project){
-        query += "  ?uri ddr:exportedFromProject [" + i++ + "] \n";
+        query += "  ?projused dcterms:title [" + i++ + "] \n";
         variables.push({
-            type: Elements.types.resourceNoEscape,
-            value: params.projId
+            type: Elements.types.string,
+            value: params.project
         });
     }
     if(params.creator){
@@ -270,6 +270,20 @@ Deposit.createQuery = function(params, callback){
         variables.push({
             type: Elements.types.resourceNoEscape,
             value: params.description
+        });
+    }
+    if(params.dateFrom){
+        query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.dateFrom,
+        });
+    }
+    if(params.dateTo){
+        query += "  FILTER ([" + i++ + "]^^xsd:dateTime > ?date )\n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.dateTo,
         });
     }
 
