@@ -25,6 +25,12 @@
                             <div ng-switch-when="url_box">
                                 <ng-include src="'/app/views/projects/show/partials/controls_read_only/url_box.html'"></ng-include>
                             </div>
+                            <div ng-switch-when="combo_box">
+                                <ng-include src="'/app/views/projects/show/partials/controls_read_only/combo_box.html'"></ng-include>
+                            </div>
+                            <div ng-switch-when="regex_checking_input_box">
+                                <ng-include src="'/app/views/projects/show/partials/controls_read_only/regex_checking_input_box.html'"></ng-include>
+                            </div>
                         </div>
                     </div>
                 </form>
