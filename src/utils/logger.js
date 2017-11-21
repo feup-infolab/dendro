@@ -6,7 +6,7 @@ const slug = require("slug");
 const mkdirp = require("mkdirp");
 const path = require("path");
 const winston = require("winston");
-
+    
 const Logger = function ()
 {
 
@@ -220,7 +220,25 @@ Logger.log = function (type, message)
     {
         if (!isNull(Logger.logger))
         {
-            Logger.logger[type](message);
+            if (isNull(Logger.logger[type]))
+            {
+                Logger.logger[type](message);
+            }
+            else
+            {
+                const levels = {
+                    emerg: 0,
+                    alert: 1,
+                    crit: 2,
+                    error: 3,
+                    warning: 4,
+                    notice: 5,
+                    info: 6,
+                    debug: 7
+                };
+
+                throw new Error(type + " is not a valid log type! Valid log types are : " + JSON.stringify(levels));
+            }
         }
         else
         {
