@@ -1,29 +1,89 @@
 <div class="row">
-    <div class="controls col-xs-12">
-        <div class="input-group col-xs-11 col-xs-offset-1">
-            <p class="input-group">
-                <input  type="text"
-                        class="form-control"
-                        ng-model="descriptor['value']"
-                        is-open="open_datepickers[descriptor.datepicker_uuid]"
-                        datepicker-options="datepickerOptions"
-                        uib-datepicker-popup="MM/dd/yyyy"
-                        name="{{descriptor.datepicker_uuid}}"
-                />
+    <div class="controls col-lg-12">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div ng-switch="getTypeOfOfData(descriptor.value)">
+                <div ng-switch-when='object' ng-init="descriptorIndex = $index">
+                    <!--is object-->
+                    <div ng-repeat="descriptorValue in descriptor.value track by $index">
+                        <a href ng-click="remove_value_from_descriptor(descriptor, descriptorValue)" onclick="return false;">
+                            <img src="/images/icons/delete_small.png">
+                        </a>
+                        <p class="input-group">
+                        <input  type="text"
+                                class="form-control"
+                                ng-model="descriptor.value[$index]"
+                                is-open="open_datepickers[descriptor.datepicker_uuids[$index]]"
+                                datepicker-options="datepickerOptions"
+                                uib-datepicker-popup="MM/dd/yyyy"
+                                name="{{descriptor.datepicker_uuids[$index]}}_{{descriptor.shortName}}_{{$index}}"
+                                ng-class="{just_added: descriptor.just_added,just_deleted: descriptor.valuesMarkedAsDeleted[descriptorValue]}"
+                        />
+                        </input>
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="toggle_datepicker(descriptorIndex, $index)"><i class="glyphicon glyphicon-calendar"></i></button>
+                        </span>
 
-
-                </input>
-
-                <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" ng-click="toggle_datepicker($index)"><i class="glyphicon glyphicon-calendar"></i></button>
-                </span>
-
-                <div class="alert alert-danger" role="alert" ng-show="!valid_date(descriptor)">
-                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                    <span class="sr-only">Error:</span>
-                    Please enter a valid date. Saving a bad date will remove this field!
+                        <div class="alert alert-danger" role="alert" ng-show="!valid_date(descriptor)">
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                            <span class="sr-only">Error:</span>
+                            Please enter a valid date. Saving a bad date will remove this field!
+                        </div>
+                        </p>
+                    </div>
                 </div>
-            </p>
+
+                <div ng-switch-when='date'>
+                    <!--is a date-->
+                    <p class="input-group">
+                        <input  type="text"
+                                class="form-control"
+                                ng-model="descriptor['value']"
+                                is-open="open_datepickers[descriptor.datepicker_uuids[0]]"
+                                datepicker-options="datepickerOptions"
+                                uib-datepicker-popup="MM/dd/yyyy"
+                                name="{{descriptor.datepicker_uuids[0]}}"
+                                ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted}"
+                        />
+                        </input>
+
+                        <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="toggle_datepicker($index, 0)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+
+                    <div class="alert alert-danger" role="alert" ng-show="!valid_date(descriptor)">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span class="sr-only">Error:</span>
+                        Please enter a valid date. Saving a bad date will remove this field!
+                    </div>
+                    </p>
+                </div>
+
+                <div ng-switch-default>
+                    <!--is date default-->
+                    <p class="input-group">
+                        <input  type="text"
+                                class="form-control"
+                                ng-model="descriptor['value']"
+                                is-open="open_datepickers[descriptor.datepicker_uuids[0]]"
+                                datepicker-options="datepickerOptions"
+                                uib-datepicker-popup="MM/dd/yyyy"
+                                name="{{descriptor.datepicker_uuids[0]}}"
+                                ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted}"
+                        />
+                        </input>
+
+                        <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="toggle_datepicker($index, 0)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+
+                    <div class="alert alert-danger" role="alert" ng-show="!valid_date(descriptor)">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span class="sr-only">Error:</span>
+                        Please enter a valid date. Saving a bad date will remove this field!
+                    </div>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

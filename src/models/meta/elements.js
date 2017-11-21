@@ -90,7 +90,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
         for (let i = 0; i !== currentDescriptor.value.length; i++)
         {
             let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
-            if (resultOfValidation === false)
+            if (isNull(resultOfValidation) || resultOfValidation === false)
             {
                 return false;
             }
@@ -187,8 +187,8 @@ Elements.ontologies.dcterms =
   },
     alternative:
   {
-      type: Elements.types.resource,
-      control: Controls.url_box
+      type: Elements.types.string,
+      control: Controls.input_box
   },
     audience:
   {

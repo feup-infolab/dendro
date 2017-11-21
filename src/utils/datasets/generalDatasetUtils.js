@@ -89,7 +89,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                     {
                         if (isNull(err))
                         {
-                            Logger.log("The file " + outputFilenameRDF + " was saved!");
+                            Logger.log("info", "The file " + outputFilenameRDF + " was saved!");
                             filesToIncludeInPackage.push(outputFilenameRDF);
                             extraFiles.push(outputFilenameRDF);
                             // add the metadata rdf file to the zip folder
@@ -99,7 +99,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                             {
                                 if (isNull(err))
                                 {
-                                    Logger.log("The file " + outputFilenameTXT + " was saved!");
+                                    Logger.log("info", "The file " + outputFilenameTXT + " was saved!");
                                     filesToIncludeInPackage.push(outputFilenameTXT);
                                     extraFiles.push(outputFilenameTXT);
                                     // add the metadata txt file to the zip folder
@@ -109,7 +109,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                                     {
                                         if (isNull(err))
                                         {
-                                            Logger.log("The file " + outputFilenameJSON + " was saved!");
+                                            Logger.log("info", "The file " + outputFilenameJSON + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameJSON);
                                             extraFiles.push(outputFilenameJSON);
                                             // add the metadata JSON file to the zip folder
@@ -125,27 +125,27 @@ const createPackage = function (parentFolderPath, folder, callback)
                                             });
                                             output.on("close", function ()
                                             {
-                                                Logger.log("Done with the zip", folderToZip);
+                                                Logger.log("info", "Done with the zip" + folderToZip);
                                                 cb(null, null);
                                             });
                                         }
                                         else
                                         {
-                                            Logger.log(err);
+                                            Logger.log("error", err);
                                             cb(true, null);
                                         }
                                     });
                                 }
                                 else
                                 {
-                                    Logger.log(err);
+                                    Logger.log("error", err);
                                     cb(true, null);
                                 }
                             });
                         }
                         else
                         {
-                            Logger.log(err);
+                            Logger.log("error", err);
                             cb(true, null);
                         }
                     });

@@ -6,7 +6,7 @@ const slug = require("slug");
 const mkdirp = require("mkdirp");
 const path = require("path");
 const winston = require("winston");
-
+    
 const Logger = function ()
 {
 
