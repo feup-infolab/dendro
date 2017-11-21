@@ -220,7 +220,14 @@ Logger.log = function (type, message)
     {
         if (!isNull(Logger.logger))
         {
-            Logger.logger[type](message);
+            if (!isNull(Logger.logger.levels[type]))
+            {
+                Logger.logger[type](message);
+            }
+            else
+            {
+                throw new Error(type + " is not a valid log type! Valid log types are : " + JSON.stringify(Logger.logger.levels));
+            }
         }
         else
         {
@@ -245,7 +252,6 @@ Logger.log = function (type, message)
         {
             console.log(message);
         }
-
     }
 };
 

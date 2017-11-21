@@ -38,7 +38,8 @@ var dendroApp = angular.module("dendroApp", [
     "ngImageCompress",
     "ngSanitize",
     "ui.select",
-    "angularSpinner"
+    "angularSpinner",
+    "ui.bootstrap.contextMenu"
 ]).filter("trustAsResourceUrl", ["$sce", function ($sce)
 {
     return function (val)

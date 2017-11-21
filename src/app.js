@@ -21,7 +21,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 process.env.NODE_ENV = Config.environment;
 
-if(global.app_startup_time)
+if (global.app_startup_time)
 {
     Logger.init(global.app_startup_time);
 }

@@ -294,8 +294,9 @@ File.prototype.save = function (callback, rename)
                     !isNull(childrenWithTheSameName) && childrenWithTheSameName instanceof Object
                 )
                 {
+                    const slug = require("slug");
                     let fileNameData = self.nie.title.split(".");
-                    self.nie.title = fileNameData[0] + "_Copy_created_" + Date.now() + "." + fileNameData[1];
+                    self.nie.title = fileNameData[0] + "_Copy_created_" + slug(Date.now(), "_") + "." + fileNameData[1];
                 }
 
                 callback(null);

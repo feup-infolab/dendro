@@ -180,17 +180,39 @@ angular.module("dendroApp.controllers")
 
         $scope.showing_a_file = function ()
         {
-            if ($scope.shared.selected_file != null)
+            if (!$scope.shared.multiple_selection_active)
             {
-                if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, "nie:File"))
+                if ($scope.shared.selected_file != null)
                 {
-                    return true;
+                    if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject"))
+                    {
+                        return true;
+                    }
+
+                    return false;
                 }
-            }
-            else
-            {
+
                 return $scope.shared.is_a_file;
             }
+
+            if ($scope.get_selected_files() != null)
+            {
+                var files = $scope.get_selected_files();
+
+                if (files.length === 1)
+                {
+                    if (files[0].ddr.fileExtension != "folder")
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                return false;
+            }
+
+            return false;
         };
 
         $scope.showing_descriptor_selection_area = function ()
@@ -308,11 +330,14 @@ angular.module("dendroApp.controllers")
         {
             var selected_files = [];
 
-            for (var i = 0; i < $scope.shared.folder_contents.length; i++)
+            if ($scope.shared.folder_contents)
             {
-                if ($scope.shared.folder_contents[i].selected)
+                for (var i = 0; i < $scope.shared.folder_contents.length; i++)
                 {
-                    selected_files.push($scope.shared.folder_contents[i]);
+                    if ($scope.shared.folder_contents[i].selected)
+                    {
+                        selected_files.push($scope.shared.folder_contents[i]);
+                    }
                 }
             }
 
@@ -547,11 +572,12 @@ angular.module("dendroApp.controllers")
 
             // monitor url change events (ask to save if metadata changed)
 
-            window.onbeforeunload = function (event) {
+            window.onbeforeunload = function (event)
+            {
                 event.preventDefault();
                 if ($scope.dirty_metadata())
                 {
-                    $scope.confirm_change_of_resource_being_edited(function(confirmed)
+                    $scope.confirm_change_of_resource_being_edited(function (confirmed)
                     {
                         if (confirmed)
                         {
@@ -565,10 +591,11 @@ angular.module("dendroApp.controllers")
                 }
             };
 
-            $scope.$on('$locationChangeStart', function(event, next, current) {
+            $scope.$on("$locationChangeStart", function (event, next, current)
+            {
                 if ($scope.dirty_metadata())
                 {
-                    $scope.confirm_change_of_resource_being_edited(function(confirmed)
+                    $scope.confirm_change_of_resource_being_edited(function (confirmed)
                     {
                         if (confirmed)
                         {

@@ -1136,7 +1136,7 @@ Project.prototype.getRevisionsCount = function (callback)
                 value: db.graphUri
             },
             {
-                type: Elements.ontologies.ddr.isLogicalPartOf.type,
+                type: Elements.ontologies.nie.isLogicalPartOf.type,
                 value: self.uri
             }
         ],

@@ -27,11 +27,12 @@
 
         <a ng-repeat="file in shared.folder_contents"
            ng-show="shared.folder_contents != null && (!file.ddr.deleted || shared.showing_deleted_files)"
-           class="list-group-item ng-hide"
            ng-click="clicked_file_explorer_node($index)"
            nc-blur="clear_selected_files()"
            ng-class="{active: file.selected}"
-           href="#">
+           context-menu="menuOptions(file)"
+           href="#"
+           class="list-group-item ng-hide">
                 <div class="row">
                     <div class="col-lg-12">
                         <h7 class="list-group-item-heading">

@@ -67,7 +67,6 @@ const getConfigParameter = function (parameter, defaultValue)
     }
 };
 
-
 Config.activeConfiguration = activeConfigKey;
 
 // hostname for the machine in which this is running, configure when running on a production machine

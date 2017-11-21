@@ -50,13 +50,13 @@ angular.module("dendroApp.services")
                     {
                         if (file.hasOwnProperty(key))
                         {
-                            url.addSearch(key, encodeURIComponent(file[key]));
+                            url.addSearch(key, file[key]);
                         }
                     }
 
-                    url.addSearch("size", encodeURIComponent(file.size))
-                        .addSearch("filename", encodeURIComponent(file.name))
-                        .addSearch("md5_checksum", encodeURIComponent(file.md5));
+                    url.addSearch("size", file.size)
+                        .addSearch("filename", file.name)
+                        .addSearch("md5_checksum", file.md5);
 
                     url = url.toString();
 
@@ -166,9 +166,9 @@ angular.module("dendroApp.services")
                             try
                             {
                                 var uploadUri = URI(upload_url)
-                                    .addQuery("filename", encodeURIComponent(file.name))
-                                    .addQuery("size", encodeURIComponent(file.size))
-                                    .addQuery("md5_checksum", encodeURIComponent(file.md5))
+                                    .addQuery("filename", file.name)
+                                    .addQuery("size", file.size)
+                                    .addQuery("md5_checksum", file.md5)
                                     .addQuery("username", response.ddr.username);
 
                                 $http({
