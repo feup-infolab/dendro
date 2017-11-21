@@ -220,24 +220,13 @@ Logger.log = function (type, message)
     {
         if (!isNull(Logger.logger))
         {
-            if (isNull(Logger.logger[type]))
+            if (!isNull(Logger.logger.levels[type]))
             {
                 Logger.logger[type](message);
             }
             else
             {
-                const levels = {
-                    emerg: 0,
-                    alert: 1,
-                    crit: 2,
-                    error: 3,
-                    warning: 4,
-                    notice: 5,
-                    info: 6,
-                    debug: 7
-                };
-
-                throw new Error(type + " is not a valid log type! Valid log types are : " + JSON.stringify(levels));
+                throw new Error(type + " is not a valid log type! Valid log types are : " + JSON.stringify(Logger.logger.levels));
             }
         }
         else
