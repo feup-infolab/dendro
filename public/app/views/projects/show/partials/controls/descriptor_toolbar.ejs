@@ -37,9 +37,14 @@
             </span>
         </h4>
     </div>
+    <div class="col-xs-1">
+        <a href ng-click="remove_descriptor($index)" onclick="return false;">
+            <img src="/images/icons/delete_small.png">
+        </a>
+    </div>
     <div class="col-xs-1" ng-show="hovered_descriptor_index == $index && (descriptor.favorite || descriptor.just_recommended)">
 
-    <!-- not favorite in project -->
+        <!-- not favorite in project -->
 
         <!-- not user's favorite -->
         <button class="btn btn-sm fa fa-star favorite-recommendation-for-project"
@@ -61,7 +66,7 @@
                 onmouseout="$(this).toggleClass('fa-heart btn-success fa-undo');">
         </button>
 
-    <!-- favorite in project -->
+        <!-- favorite in project -->
 
         <!-- user's favorite -->
         <button class="btn btn-sm fa fa-star btn-info unfavorite-recommendation-for-project"
@@ -83,7 +88,7 @@
                 onmouseout="$(this).toggleClass('fa-star fa-heart btn-success btn-info');">
         </button>
 
-    <!-- not hidden in project -->
+        <!-- not hidden in project -->
 
         <!-- user's hidden -->
 
@@ -107,7 +112,7 @@
                 onmouseout="$(this).toggleClass('btn-warning');">
         </button>
 
-    <!-- hidden in project -->
+        <!-- hidden in project -->
 
         <!-- user's hidden -->
 
@@ -130,11 +135,6 @@
                 onmouseover="$(this).toggleClass('btn-danger btn-warning fa-eye-slash fa-eye');"
                 onmouseout="$(this).toggleClass('btn-danger btn-warning fa-eye-slash fa-eye');">
         </button>
-    </div>
-    <div class="col-xs-1">
-        <a href ng-click="remove_descriptor($index)" onclick="return false;">
-            <img src="/images/icons/delete.png">
-        </a>
     </div>
 </div>
 

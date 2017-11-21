@@ -71,9 +71,18 @@ angular.module("dendroApp.controllers")
 
         $scope.valid_date = function (descriptor)
         {
-            if (descriptor.value != null)
+            if (descriptor.value !== null && descriptor.value instanceof Object)
             {
-                return windowService.valid_date(descriptor.value);
+                var numberOfDates = Object.keys(descriptor.value).length;
+                for (var i = 0; i !== numberOfDates; i++)
+                {
+                    var result = windowService.valid_date(descriptor.value[i]);
+                    if (result === false)
+                    {
+                        return false;
+                    }
+                }
+                return true;
             }
             return false;
         };

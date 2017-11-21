@@ -97,25 +97,76 @@ angular.module("dendroApp.services")
 
             this.descriptor_is_valid = function (descriptor)
             {
-                if (descriptor.hasRegex)
+                var checkIfValueIsInTheAlternatives = function (value, alternatives)
                 {
-                    var regex = new RegExp(descriptor.hasRegex);
-                    if (!regex.match(descriptor.value))
+                    if (!(alternatives instanceof Array))
                     {
                         return false;
                     }
-                    return true;
+                    else if (typeof value === "string" || value instanceof String)
+                    {
+                        for (var i = 0; i < alternatives.length; i++)
+                        {
+                            if (value === alternatives[i])
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+
+                if (descriptor.hasRegex)
+                {
+                    var regex = new RegExp(descriptor.hasRegex);
+                    if (typeof descriptor.value === "string" || descriptor.value instanceof String)
+                    {
+                        if (!regex.exec(descriptor.value))
+                        {
+                            return false;
+                        }
+                        return true;
+                    }
+                    else if (descriptor.value instanceof Array)
+                    {
+                        for (var j = 0; j !== descriptor.value.length; j++)
+                        {
+                            if (!regex.exec(descriptor.value[j]))
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        // the descriptor is invalid because it is neither a string nor an array
+                        return false;
+                    }
                 }
                 if (descriptor.hasAlternative && descriptor.hasAlternative instanceof Array)
                 {
-                    for (var i = 0; i < descriptor.hasAlternative.length; i++)
+                    if (typeof descriptor.value === "string" || descriptor.value instanceof String)
                     {
-                        if (descriptor.value === descriptor.hasAlternative[i])
+                        return checkIfValueIsInTheAlternatives(descriptor.value, descriptor.hasAlternative);
+                    }
+                    else if (descriptor.value instanceof Array)
+                    {
+                        var results = _.map(descriptor.value, function (descriptorValue)
+                        {
+                            return checkIfValueIsInTheAlternatives(descriptorValue, descriptor.hasAlternative);
+                        });
+
+                        var containsAFailedCheck = _.contains(results, false);
+                        if (containsAFailedCheck)
+                        {
+                            return false;
+                        }
+                        else
                         {
                             return true;
                         }
                     }
-
                     return false;
                 }
 

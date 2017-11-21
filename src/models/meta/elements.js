@@ -90,7 +90,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
         for (let i = 0; i !== currentDescriptor.value.length; i++)
         {
             let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
-            if (resultOfValidation === false)
+            if (isNull(resultOfValidation) || resultOfValidation === false)
             {
                 return false;
             }
