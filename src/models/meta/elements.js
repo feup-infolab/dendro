@@ -187,8 +187,8 @@ Elements.ontologies.dcterms =
   },
     alternative:
   {
-      type: Elements.types.resource,
-      control: Controls.url_box
+      type: Elements.types.string,
+      control: Controls.input_box
   },
     audience:
   {
