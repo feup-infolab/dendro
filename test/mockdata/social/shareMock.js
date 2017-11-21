@@ -1,3 +1,3 @@
 module.exports = {
-    shareMsg: 'This is a share message'
+    shareMsg: "This is a share message"
 };

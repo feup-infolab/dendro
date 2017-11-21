@@ -1,23 +1,24 @@
-const path = require('path');
-const async = require('async');
-const _ = require('underscore');
+const path = require("path");
+const async = require("async");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-const Event = require(Pathfinder.absPathInSrcFolder('/models/social/event.js')).Event;
-const Comment = require(Pathfinder.absPathInSrcFolder('/models/social/comment.js')).Comment;
-const uuid = require('uuid');
-const DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Event = require(Pathfinder.absPathInSrcFolder("/models/social/event.js")).Event;
+const Comment = require(Pathfinder.absPathInSrcFolder("/models/social/comment.js")).Comment;
+const uuid = require("uuid");
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const db = Config.getDBByID();
-const db_social = Config.getDBByID('social');
+const db_social = Config.getDBByID("social");
 
 function Post (object)
 {
     const self = this;
-    self.addURIAndRDFType(object, 'post', Post);
+    self.addURIAndRDFType(object, "post", Post);
     Post.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
@@ -26,7 +27,7 @@ function Post (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + '/posts/' + newId;
+        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
     }
 
     self.ddr.numLikes = 0;
@@ -39,14 +40,14 @@ Post.prototype.getComments = function (cb)
     var self = this;
 
     var query =
-        'SELECT ?commentURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?commentURI rdf:type ddr:Comment. \n' +
-        '?commentURI ddr:postURI [1]. \n' +
-        '?commentURI ddr:modified ?date. \n ' +
-        '} \n' +
-        'ORDER BY ASC(?date) \n';
+        "SELECT ?commentURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?commentURI rdf:type ddr:Comment. \n" +
+        "?commentURI ddr:postURI [1]. \n" +
+        "?commentURI ddr:modified ?date. \n " +
+        "} \n" +
+        "ORDER BY ASC(?date) \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -55,7 +56,7 @@ Post.prototype.getComments = function (cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: self.uri
             }
         ]),
@@ -77,7 +78,7 @@ Post.prototype.getComments = function (cb)
             }
             else
             {
-                cb(true, 'Error fetching children of project root folder');
+                cb(true, "Error fetching children of project root folder");
             }
         });
 };
@@ -87,13 +88,13 @@ Post.prototype.getNumLikes = function (cb)
     var self = this;
 
     var query =
-        'SELECT ?likeURI ?userURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?likeURI rdf:type ddr:Like. \n' +
-        '?likeURI ddr:postURI [1]. \n' +
-        '?likeURI ddr:userWhoLiked ?userURI . \n' +
-        '} \n';
+        "SELECT ?likeURI ?userURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -102,7 +103,7 @@ Post.prototype.getNumLikes = function (cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: self.uri
             }
         ]),
@@ -114,7 +115,7 @@ Post.prototype.getNumLikes = function (cb)
             }
             else
             {
-                cb(err, 'Error fetching children of project root folder');
+                cb(err, "Error fetching children of project root folder");
             }
         });
 };
@@ -131,22 +132,22 @@ Post.prototype.getLikes = function (cb)
             if (likesArray.length)
             {
                 resultInfo = {
-                    postURI: self.uri, numLikes: likesArray.length, usersWhoLiked: _.pluck(likesArray, 'userURI')
+                    postURI: self.uri, numLikes: likesArray.length, usersWhoLiked: _.pluck(likesArray, "userURI")
                 };
             }
             else
             {
                 resultInfo = {
-                    postURI: self.uri, numLikes: 0, usersWhoLiked: 'undefined'
+                    postURI: self.uri, numLikes: 0, usersWhoLiked: "undefined"
                 };
             }
             cb(null, resultInfo);
         }
         else
         {
-            console.error('Error getting likesInfo from a post');
-            console.error(err);
-            cb(true, 'Error getting likesInfo from a post');
+            Logger.log("error", "Error getting likesInfo from a post");
+            Logger.log("error", err);
+            cb(true, "Error getting likesInfo from a post");
         }
     });
 };
@@ -156,12 +157,12 @@ Post.prototype.getShares = function (cb)
     var self = this;
 
     var query =
-        'SELECT ?shareURI \n' +
-        'FROM [0] \n' +
-        'WHERE { \n' +
-        '?shareURI rdf:type ddr:Share. \n' +
-        '?shareURI ddr:postURI [1]. \n' +
-        '} \n';
+        "SELECT ?shareURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?shareURI rdf:type ddr:Share. \n" +
+        "?shareURI ddr:postURI [1]. \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -170,7 +171,7 @@ Post.prototype.getShares = function (cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: self.uri
             }
         ]),
@@ -181,7 +182,7 @@ Post.prototype.getShares = function (cb)
                 async.mapSeries(results, function (shareObject, callback)
                 {
                     // Share.findByUri(shareObject.shareURI, function(err, share)
-                    const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
+                    const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
                     Resource.findByUri(shareObject.shareURI, function (err, share)
                     {
                         callback(false, share);
@@ -195,7 +196,7 @@ Post.prototype.getShares = function (cb)
             }
             else
             {
-                cb(true, 'Error shares for a post');
+                cb(true, "Error shares for a post");
             }
         });
 };
@@ -204,14 +205,14 @@ Post.prototype.getOwnerProject = function (callback)
 {
     const self = this;
     const query =
-        'SELECT ?uri \n' +
-        'FROM [0] \n' +
-        'FROM [1] \n' +
-        'WHERE \n' +
-        '{ \n' +
-        '   [2] ddr:projectUri ?uri. \n' +
-        '   ?uri rdf:type ddr:Project \n' +
-        '} ';
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "FROM [1] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [2] ddr:projectUri ?uri. \n" +
+        "   ?uri rdf:type ddr:Project \n" +
+        "} ";
 
     db.connection.executeViaJDBC(query,
         [
@@ -234,7 +235,7 @@ Post.prototype.getOwnerProject = function (callback)
             {
                 if (result instanceof Array && result.length === 1)
                 {
-                    const Project = require(Pathfinder.absPathInSrcFolder('/models/project.js')).Project;
+                    const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
                     Project.findByUri(result[0].uri, function (err, project)
                     {
                         callback(err, project);
@@ -242,17 +243,17 @@ Post.prototype.getOwnerProject = function (callback)
                 }
                 else
                 {
-                    return callback(1, 'Invalid result set or no parent PROJECT found when querying for the parent project of' + self.uri);
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
                 }
             }
             else
             {
-                return callback(1, 'Error reported when querying for the parent PROJECT of' + self.uri + ' . Error was ->' + result);
+                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
             }
         }
     );
 };
 
-Post = Class.extend(Post, Event, 'ddr:Post');
+Post = Class.extend(Post, Event, "ddr:Post");
 
 module.exports.Post = Post;

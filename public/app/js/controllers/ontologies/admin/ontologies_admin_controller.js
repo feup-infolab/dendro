@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
      *  Ontologies administration controller
      */
-    .controller('ontologiesCtrl', function ($scope, $http, $filter)
+    .controller("ontologiesCtrl", function ($scope, $http, $filter)
     {
         $scope.get_public_ontologies = function ()
         {
@@ -16,15 +16,15 @@ angular.module('dendroApp.controllers')
 
         $scope.get_ontologies = function (public_only)
         {
-            var url = '/ontologies/public';
+            var url = "/ontologies/public";
             $scope.getting_ontologies = true;
 
             $http({
-                method: 'GET',
+                method: "GET",
                 url: url,
                 data: JSON.stringify({}),
-                contentType: 'application/json',
-                headers: {Accept: 'application/json'}
+                contentType: "application/json",
+                headers: {Accept: "application/json"}
             }).then(function (response)
             {
                 var data = response.data;
@@ -41,7 +41,7 @@ angular.module('dendroApp.controllers')
 
                         if (researchDomains != null)
                         {
-                            if (typeof researchDomains === 'string')
+                            if (typeof researchDomains === "string")
                             {
                                 researchDomains = [researchDomains];
                             }
@@ -60,7 +60,7 @@ angular.module('dendroApp.controllers')
                             }
                             else
                             {
-                                Utils.show_popup('error', 'Invalid response', 'Research domains received are invalid.');
+                                Utils.show_popup("error", "Invalid response", "Research domains received are invalid.");
                                 ontologies = false;
                             }
                         }
@@ -79,12 +79,12 @@ angular.module('dendroApp.controllers')
                 }
                 else
                 {
-                    Utils.show_popup('error', 'Invalid response', 'Server sent an invalid response when fetching list of ontologies');
+                    Utils.show_popup("error", "Invalid response", "Server sent an invalid response when fetching list of ontologies");
                 }
             })
                 .catch(function (data)
                 {
-                    Utils.show_popup('error', data.title, data.message);
+                    Utils.show_popup("error", data.title, data.message);
                     $scope.getting_ontologies = false;
                 });
         };
@@ -110,9 +110,9 @@ angular.module('dendroApp.controllers')
         {
             // console.log("Typed : " + typed);
 
-            if (typeof typed !== 'undefined')
+            if (typeof typed !== "undefined")
             {
-                var requestUri = '/research_domains/autocomplete?query=' + typed;
+                var requestUri = "/research_domains/autocomplete?query=" + typed;
 
                 $http.get(requestUri);
             }
@@ -122,19 +122,19 @@ angular.module('dendroApp.controllers')
         {
             // console.log(ontology);
             $http({
-                method: 'POST',
-                url: '/ontologies/edit',
+                method: "POST",
+                url: "/ontologies/edit",
                 data: ontology
             }).then(function (response)
             {
                 var data = response.data;
-                if (data.result == 'error' && data.message != null)
+                if (data.result == "error" && data.message != null)
                 {
-                    Utils.show_popup('error', 'Error', data.message);
+                    Utils.show_popup("error", "Error", data.message);
                 }
                 else
                 {
-                    Utils.show_popup('ok', 'Success', data.message);
+                    Utils.show_popup("ok", "Success", data.message);
                 }
 
                 $scope.get_ontologies();
@@ -142,7 +142,7 @@ angular.module('dendroApp.controllers')
             {
                 if (error.message != null)
                 {
-                    Utils.show_popup('error', 'Error', error.message);
+                    Utils.show_popup("error", "Error", error.message);
                 }
             });
         };

@@ -1,19 +1,19 @@
-angular.module('dendroApp.services')
-    .service('descriptorsService', ['$http',
+angular.module("dendroApp.services")
+    .service("descriptorsService", ["$http",
         function ($http)
         {
             this.get_descriptors_by_text_search = function (current_resource_uri, typed)
             {
-                if (typeof typed !== 'undefined')
+                if (typeof typed !== "undefined")
                 {
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         params: {
                             descriptor_autocomplete: typed
                         },
                         url: current_resource_uri,
-                        responseType: 'json',
-                        headers: {Accept: 'application/json'}
+                        responseType: "json",
+                        headers: {Accept: "application/json"}
                     })
                         .then(function (response)
                         {
@@ -24,7 +24,7 @@ angular.module('dendroApp.services')
                         })
                         .catch(function (error)
                         {
-                            console.error(error);
+                            console.log("error", error);
                             throw error;
                         });
                 }
@@ -35,20 +35,20 @@ angular.module('dendroApp.services')
                 if (ontologyUri != null)
                 {
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         params: {
                             from_ontology: ontologyUri
                         },
-                        url: '/descriptors',
-                        responseType: 'json',
-                        headers: {Accept: 'application/json'}
+                        url: "/descriptors",
+                        responseType: "json",
+                        headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
                         return response.data.descriptors;
                     }
                     ).catch(function (error)
                     {
-                        throw 'Error fetching ontologies from ontology ' + ontologyUri + ' : ' + JSON.stringify(error);
+                        throw "Error fetching ontologies from ontology " + ontologyUri + " : " + JSON.stringify(error);
                     });
                 }
             };
@@ -60,62 +60,113 @@ angular.module('dendroApp.services')
                     if (resourceUri != null)
                     {
                         return $http({
-                            method: 'GET',
+                            method: "GET",
                             params: {
                                 descriptors_from_ontology: ontologyUri
                             },
                             url: resourceUri,
-                            responseType: 'json',
-                            headers: {Accept: 'application/json'}
+                            responseType: "json",
+                            headers: {Accept: "application/json"}
                         }).then(function (response)
                         {
                             return response.data.descriptors;
                         }
                         ).catch(function (error)
                         {
-                            throw 'Error fetching ontologies from ontology ' + ontologyUri + ' in the context of resource ' + resourceUri + ': ' + JSON.stringify(error);
+                            throw "Error fetching ontologies from ontology " + ontologyUri + " in the context of resource " + resourceUri + ": " + JSON.stringify(error);
                         });
                     }
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         params: {
                             from_ontology: ontologyUri
                         },
-                        url: '/descriptors',
-                        responseType: 'json',
-                        headers: {Accept: 'application/json'}
+                        url: "/descriptors",
+                        responseType: "json",
+                        headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
                         return response.data.descriptors;
                     }
                     ).catch(function (error)
                     {
-                        throw 'Error fetching ontologies from ontology ' + ontologyUri + ' : ' + JSON.stringify(error);
+                        throw "Error fetching ontologies from ontology " + ontologyUri + " : " + JSON.stringify(error);
                     });
                 }
             };
 
             this.descriptor_is_valid = function (descriptor)
             {
-                if (descriptor.hasRegex)
+                var checkIfValueIsInTheAlternatives = function (value, alternatives)
                 {
-                    var regex = new RegExp(descriptor.hasRegex);
-                    if (!regex.match(descriptor.value))
+                    if (!(alternatives instanceof Array))
                     {
                         return false;
                     }
-                    return true;
+                    else if (typeof value === "string" || value instanceof String)
+                    {
+                        for (var i = 0; i < alternatives.length; i++)
+                        {
+                            if (value === alternatives[i])
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+
+                if (descriptor.hasRegex)
+                {
+                    var regex = new RegExp(descriptor.hasRegex);
+                    if (typeof descriptor.value === "string" || descriptor.value instanceof String)
+                    {
+                        if (!regex.exec(descriptor.value))
+                        {
+                            return false;
+                        }
+                        return true;
+                    }
+                    else if (descriptor.value instanceof Array)
+                    {
+                        for (var j = 0; j !== descriptor.value.length; j++)
+                        {
+                            if (!regex.exec(descriptor.value[j]))
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        // the descriptor is invalid because it is neither a string nor an array
+                        return false;
+                    }
                 }
                 if (descriptor.hasAlternative && descriptor.hasAlternative instanceof Array)
                 {
-                    for (var i = 0; i < descriptor.hasAlternative.length; i++)
+                    if (typeof descriptor.value === "string" || descriptor.value instanceof String)
                     {
-                        if (descriptor.value === descriptor.hasAlternative[i])
+                        return checkIfValueIsInTheAlternatives(descriptor.value, descriptor.hasAlternative);
+                    }
+                    else if (descriptor.value instanceof Array)
+                    {
+                        var results = _.map(descriptor.value, function (descriptorValue)
+                        {
+                            return checkIfValueIsInTheAlternatives(descriptorValue, descriptor.hasAlternative);
+                        });
+
+                        var containsAFailedCheck = _.contains(results, false);
+                        if (containsAFailedCheck)
+                        {
+                            return false;
+                        }
+                        else
                         {
                             return true;
                         }
                     }
-
                     return false;
                 }
 

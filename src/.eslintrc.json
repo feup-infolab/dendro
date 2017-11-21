@@ -8,6 +8,7 @@
     "no-console": "warn",
     "no-shadow": "warn",
     "indent": [2, 4],
-    "strict": "warn"
+    "strict": "warn",
+    "quotes": ["error", "double", { "allowTemplateLiterals": true }]
   }
 }

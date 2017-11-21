@@ -1,8 +1,9 @@
 const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder('utils/null.js')).isNull;
-const enableDestroy = require('server-destroy');
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
+const enableDestroy = require("server-destroy");
 
-const http = require('http');
+const http = require("http");
 
 const setupServer = function (app, callback)
 {
@@ -16,12 +17,12 @@ const setupServer = function (app, callback)
         // On error dispose of the domain
         reqd.on('error', function (error)
         {
-            console.error('Error!\n' + "Code: \n" + error.code + " \nMessage: \n" + error.message + "Request URL: \n" + req.originalRequestUrl);
+            Logger.log("error",'Error!\n' + "Code: \n" + error.code + " \nMessage: \n" + error.message + "Request URL: \n" + req.originalRequestUrl);
 
             if (!isNull(error.stack))
             {
                 const util = require('util');
-                console.error('Stack Trace : ' + util.format(error.stack));
+                Logger.log("error",'Stack Trace : ' + util.format(error.stack));
             }
 
             reqd.dispose();

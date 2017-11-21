@@ -1,30 +1,30 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 const should = chai.should();
-const _ = require('underscore');
+const _ = require("underscore");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const itemUtils = require(Pathfinder.absPathInTestsFolder('utils/item/itemUtils.js'));
-const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder('utils/descriptor/descriptorUtils.js'));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1.js'));
-const demouser2 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser2.js'));
-const demouser3 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser3.js'));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Pathfinder.absPathInTestsFolder('mockdata/projects/public_project.js'));
-const invalidProject = require(Pathfinder.absPathInTestsFolder('mockdata/projects/invalidProject.js'));
+const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const testFolder1 = require(Pathfinder.absPathInTestsFolder('mockdata/folders/testFolder1.js'));
-const notFoundFolder = require(Pathfinder.absPathInTestsFolder('mockdata/folders/notFoundFolder.js'));
-const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder('mockdata/folders/folderDemoUser2'));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/folders/createFolders.Unit.js'));
+const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
+const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
+const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 
-describe('Public project testFolder1 level update_metadata', function ()
+describe("Public project testFolder1 level update_metadata", function ()
 {
     before(function (done)
     {
@@ -36,11 +36,11 @@ describe('Public project testFolder1 level update_metadata', function ()
         });
     });
 
-    describe('[POST] [PUBLIC PROJECT] /project/' + publicProject.handle + '/data/:foldername?update_metadata', function ()
+    describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?update_metadata", function ()
     {
         // API ONLY
 
-        it('Should give an error if the request type for this route is HTML', function (done)
+        it("Should give an error if the request type for this route is HTML", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -52,7 +52,7 @@ describe('Public project testFolder1 level update_metadata', function ()
             });
         });
 
-        it('Should give an error message when a project does not exist', function (done)
+        it("Should give an error message when a project does not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -69,7 +69,7 @@ describe('Public project testFolder1 level update_metadata', function ()
             });
         });
 
-        it('Should give an error message when the folder does not exist', function (done)
+        it("Should give an error message when the folder does not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -86,7 +86,7 @@ describe('Public project testFolder1 level update_metadata', function ()
             });
         });
 
-        it('Should give an error when the user is not authenticated', function (done)
+        it("Should give an error when the user is not authenticated", function (done)
         {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
@@ -103,7 +103,7 @@ describe('Public project testFolder1 level update_metadata', function ()
             });
         });
 
-        it('Should give an error when an invalid descriptor is used to update the metadata of a folder', function (done)
+        it("Should give an error when an invalid descriptor is used to update the metadata of a folder", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -120,7 +120,7 @@ describe('Public project testFolder1 level update_metadata', function ()
             });
         });
 
-        it('Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to update a metadata of a folder with a valid descriptor', function (done)
+        it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to update a metadata of a folder with a valid descriptor", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -139,7 +139,7 @@ describe('Public project testFolder1 level update_metadata', function ()
             });
         });
 
-        it('Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to update a metadata of a folder with a valid descriptor', function (done)
+        it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to update a metadata of a folder with a valid descriptor", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -157,7 +157,7 @@ describe('Public project testFolder1 level update_metadata', function ()
             });
         });
 
-        it('Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to update a metadata of a folder with a valid descriptor', function (done)
+        it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to update a metadata of a folder with a valid descriptor", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {

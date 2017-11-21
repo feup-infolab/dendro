@@ -1,83 +1,258 @@
 const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder('utils/null.js')).isNull;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
 
-function Logger ()
+const fs = require("fs");
+const slug = require("slug");
+const mkdirp = require("mkdirp");
+const path = require("path");
+const winston = require("winston");
+    
+const Logger = function ()
 {
 
-}
-
-Logger.override_console = function (window, morgan)
-{
-    const oldConsole = window.console;
-    // define a new console
-    const console = (function (oldCons)
-    {
-        return {
-            log: function (text)
-            {
-                oldCons.log(text);
-            },
-            info: function (text)
-            {
-                oldCons.info(text);
-                // Your code
-            },
-            warn: function (text)
-            {
-                oldCons.warn(text);
-                // Your code
-            },
-            error: function (text)
-            {
-                oldCons.error(text);
-                // Your code
-            }
-        };
-    }(window.console));
-
-    // Then redefine the old console
-    window.console = console;
 };
 
-Logger.log_boot_message = function (type, message)
+Logger.init = function (startTime)
 {
-    const path = require('path');
-    const colors = require('colors');
-    let intro = '[MISC]'.cyan;
+    if (isNull(startTime))
+    {
+        startTime = new Date();
+    }
+
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+    // Setup logging
+    if (!isNull(Config.logging))
+    {
+        if (!isNull(Config.logging.app_logs_folder))
+        {
+            const absPath = Pathfinder.absPathInApp(Config.logging.app_logs_folder);
+
+            const exists = fs.existsSync(absPath);
+            if (!exists)
+            {
+                try
+                {
+                    mkdirp.sync(absPath);
+                }
+                catch (e)
+                {
+                    const msg = "[FATAL] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(e);
+                    throw new Error(msg);
+                }
+            }
+
+            const logger = winston.createLogger({
+                level: Config.logging.level
+            });
+
+            const { format } = require("winston");
+            const { combine, timestamp, printf } = format;
+            const consoleFormat = printf(info =>
+                `${info.timestamp} ${info.level}: ${info.message}`);
+
+            const jsonFormat = printf(info =>
+                JSON.stringify({
+                    timestamp: info.timestamp,
+                    level: info.level,
+                    message: info.message
+                }));
+
+            const tsFormat = () => (new Date()).toLocaleTimeString();
+
+            if (process.env.NODE_ENV === "development")
+            {
+                if (Config.logging.pipe_console_to_logfile)
+                {
+                    mkdirp.sync(path.join(absPath, "development"));
+                    const errorLogFile = new winston.transports.File({
+                        filename: `${absPath}/development/${slug(startTime.toISOString() + "_development_" + Config.activeConfiguration, "_")}-error.log`,
+                        level: "error",
+                        format: combine(
+                            timestamp(),
+                            jsonFormat
+                        )
+                    });
+                    const combinedErrorLog = new winston.transports.File({filename: "combined.log"});
+
+                    logger.add(errorLogFile);
+                    logger.add(combinedErrorLog);
+                }
+
+                // colorize the output to the console
+                const coloredConsoleOutput = new (winston.transports.Console)(
+                    {
+                        timestamp: tsFormat,
+                        colorize: true,
+                        format: combine(
+                            timestamp(),
+                            consoleFormat
+                        )
+                    });
+
+                logger.add(coloredConsoleOutput);
+            }
+            else if (process.env.NODE_ENV === "test")
+            {
+                if (Config.logging.pipe_console_to_logfile)
+                {
+                    mkdirp.sync(path.join(absPath, "test"));
+                    const errorLogFile = new winston.transports.File({
+                        filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-error.log`,
+                        level: "error",
+                        format: combine(
+                            timestamp(),
+                            jsonFormat
+                        )
+                    });
+
+                    const combinedErrorLog = new winston.transports.File({
+                        filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-combined.log`,
+                        level: "info",
+                        format: combine(
+                            timestamp(),
+                            jsonFormat
+                        )
+                    });
+
+                    logger.add(errorLogFile);
+                    logger.add(combinedErrorLog);
+                }
+
+                // colorize the output to the console
+                const coloredConsoleOutput = new (winston.transports.Console)(
+                    {
+                        timestamp: tsFormat,
+                        colorize: true,
+                        format: combine(
+                            timestamp(),
+                            consoleFormat
+                        )
+                    });
+
+                logger.add(coloredConsoleOutput);
+            }
+            else if (process.env.NODE_ENV === "production")
+            {
+                if (Config.logging.pipe_console_to_logfile)
+                {
+                    mkdirp.sync(path.join(absPath, "production"));
+                    const rotator = require("stream-rotate");
+                    const logstreamInfo = rotator({
+                        path: path.join(absPath, "production"),
+                        name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_combined", "_"),
+                        size: "5m",
+                        retention: 2,
+                        boundary: "daily"
+                    });
+
+                    const rotatedLogFileInfo = new winston.transports.File(
+                        {
+                            stream: logstreamInfo,
+                            level: "info",
+                            timestamp: tsFormat,
+                            format: combine(
+                                timestamp(),
+                                jsonFormat
+                            )
+                        });
+
+                    const logstreamError = rotator({
+                        path: path.join(absPath, "production"),
+                        name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_error", "_"),
+                        size: "5m",
+                        retention: 2,
+                        boundary: "daily"
+                    });
+
+                    const rotatedLogFileError = new winston.transports.File(
+                        {
+                            stream: logstreamError,
+                            level: "error",
+                            timestamp: tsFormat,
+                            format: combine(
+                                timestamp(),
+                                jsonFormat
+                            )
+                        });
+
+                    logger.add(rotatedLogFileInfo);
+                    logger.add(rotatedLogFileError);
+                }
+
+                // do not colorize the output to the console
+                const nonColoredConsoleOutput = new (winston.transports.Console)(
+                    {
+                        timestamp: tsFormat,
+                        format: combine(
+                            timestamp(),
+                            consoleFormat
+                        )
+                    });
+
+                logger.add(nonColoredConsoleOutput);
+            }
+
+            Logger.logger = logger;
+        }
+        else
+        {
+            throw new Error("Logs folder location not setup!");
+        }
+    }
+    else
+    {
+        throw new Error("Logger configuration not setup!");
+    }
+};
+
+Logger.log_boot_message = function (message)
+{
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     if (Config.startup.log_bootup_actions)
     {
-        if (type === 'info')
-        {
-            intro = '[INFO]'.blue;
-        }
-        else if (type === 'success')
-        {
-            intro = '[OK]'.green;
-        }
-
-        console.log(intro + ' ' + message);
+        Logger.logger.info(message);
     }
 };
 
 Logger.log = function (type, message)
 {
-    const colors = require('colors');
-    let intro = '[MISC]'.cyan;
-    if (type === 'info')
+    if (typeof type === "string" && !isNull(message))
     {
-        intro = '[INFO]'.blue;
+        if (!isNull(Logger.logger))
+        {
+            if (!isNull(Logger.logger.levels[type]))
+            {
+                Logger.logger[type](message);
+            }
+            else
+            {
+                throw new Error(type + " is not a valid log type! Valid log types are : " + JSON.stringify(Logger.logger.levels));
+            }
+        }
+        else
+        {
+            if (type === "error")
+            {
+                console.error(message);
+            }
+            else
+            {
+                console.log(message);
+            }
+        }
     }
-    else if (type === 'success')
+    else if (!isNull(type) && typeof type === "string" && isNull(message))
     {
-        intro = '[OK]'.green;
+        message = type;
+        if (!isNull(Logger.logger))
+        {
+            Logger.logger.info(message);
+        }
+        else
+        {
+            console.log(message);
+        }
     }
-    else if (type === 'error')
-    {
-        intro = '[OK]'.red;
-    }
-
-    console.log(intro + ' ' + message);
 };
 
 module.exports.Logger = Logger;

@@ -1,4 +1,4 @@
-let sleep = require('sleep');
+let sleep = require("sleep");
 
 const TestDelay = function ()
 {

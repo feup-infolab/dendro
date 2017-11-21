@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-angular.module('dendroApp.services')
-    .service('projectsService',
-        ['$q', '$http', 'windowService', '$location',
+angular.module("dendroApp.services")
+    .service("projectsService",
+        ["$q", "$http", "windowService", "$location",
             function ($q, $http, windowService, $location)
             {
                 this.create_new_project = function (new_project)
@@ -21,14 +21,14 @@ angular.module('dendroApp.services')
                     var URL = windowService.get_current_url();
 
                     $http({
-                        method: 'POST',
+                        method: "POST",
                         url: URL,
                         data: JSON.stringify(requestPayload),
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
-                        $location.url('/');
+                        $location.url("/");
                         var data = response.data;
                         deferred.resolve(data);
                     }
@@ -51,17 +51,17 @@ angular.module('dendroApp.services')
                     };
 
                     var URL = windowService.get_current_url();
-                    URL += '?administer';
+                    URL += "?administer";
 
                     $http({
-                        method: 'POST',
+                        method: "POST",
                         url: URL,
                         data: requestPayload,
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
-                        $location.url('/');
+                        $location.url("/");
                         var data = response.data;
                         deferred.resolve(data);
                     }
@@ -82,14 +82,14 @@ angular.module('dendroApp.services')
                     var payload = JSON.stringify(contributors);
 
                     var URL = windowService.get_current_url();
-                    URL += '?get_contributors';
+                    URL += "?get_contributors";
 
                     $http({
-                        method: 'GET',
+                        method: "GET",
                         url: URL,
                         data: payload,
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
                         var data = response.data;
@@ -112,16 +112,16 @@ angular.module('dendroApp.services')
                         uri = windowService.get_current_url();
                     }
 
-                    var requestUri = uri + '?owner_project';
+                    var requestUri = uri + "?owner_project";
 
                     var deserialize = $q.defer();
 
                     $http({
-                        method: 'GET',
+                        method: "GET",
                         url: requestUri,
                         data: JSON.stringify({}),
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(
                         function (response)
                         {
@@ -156,14 +156,14 @@ angular.module('dendroApp.services')
                     };
 
                     var URL = windowService.get_current_url();
-                    URL += '?administer';
+                    URL += "?administer";
 
                     $http({
-                        method: 'POST',
+                        method: "POST",
                         url: URL,
                         data: requestPayload,
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
                         // $location.url('/');
@@ -182,13 +182,13 @@ angular.module('dendroApp.services')
 
                 this.getUserProjects = function ()
                 {
-                    var requestUri = '/projects/my';
+                    var requestUri = "/projects/my";
 
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         url: requestUri,
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     });
                 };
 
@@ -197,10 +197,10 @@ angular.module('dendroApp.services')
                     var requestUri = projectUri;
 
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         url: requestUri,
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     });
                 };
 
@@ -209,17 +209,17 @@ angular.module('dendroApp.services')
                     var deferred = $q.defer();
 
                     var URL = windowService.get_current_url();
-                    URL += '?administer&settings';
+                    URL += "?administer&settings";
 
                     $http({
-                        method: 'POST',
+                        method: "POST",
                         url: URL,
                         data: {
                             storage_limit: project.ddr.hasStorageLimit,
                             verified_uploads: project.ddr.requiresVerifiedUploads
                         },
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
                         var data = response.data;

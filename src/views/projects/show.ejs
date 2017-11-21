@@ -85,12 +85,14 @@
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
+
                         <ul class="dropdown-menu">
-                            <li ng-click="mkdir()" ng-hide="showing_a_file()"><a href="#"><img class="icon16" id="new_folder_button" data-loading-text="Creating folder..." src="/images/icons/folder_add.png">Add folder</a></li>
+                            <li ng-click="mkdir()" ><a href="#"><img class="icon16" id="new_folder_button" data-loading-text="Creating folder..." src="/images/icons/folder_add.png">Add folder</a></li>
                             <li role="separator" class="divider"></li>
-                            <li ng-click="copy()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li>
+                            <!--<li ng-click="copy()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li> -->
                             <li ng-click="cut()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="cut_button"  src="/images/icons/cut.png">Cut</a></li>
                             <li ng-click="rename()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="rename_button" src="/images/icons/textfield_rename.png">Rename</a></li>
+                            <li ng-click="delete_file_or_folder()" ><a href="#" ng-show="(get_selected_files() && get_selected_files().length > 0)"><img class="icon16" id="delete_button" data-loading-text="Preparing Package..." src="/images/icons/cross.png">Delete</a></li>
                             <li role="separator" class="divider" ng-hide="showing_project_root()"></li>
                             <li ng-click="download_folder()"><a href="#"><img class="icon16" id="download_folder_button" data-loading-text="Preparing Package..." src="/images/icons/arrow_down.png">Download</a></li>
                             <li ng-click="backup_folder()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="backup_button" data-loading-text="Preparing Package..." src="/images/icons/folder_vertical_zipper.png">Backup</a></li>
@@ -99,9 +101,9 @@
                         </ul>
                     </div>
 
-                    <a href="#" ng-hide="showing_a_file()"><img id="show_deleted_files_button" ng-class="{active: shared.showing_deleted_files, 'btn-info': shared.showing_deleted_files}" data-loading-text="Restoring..." ng-click="toggle_show_deleted_files()" src="/images/icons/bin_recycle.png"></a>
-                    <a href="#" ng-hide="showing_a_file()"><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
-                    <a href="#" ng-hide="showing_a_file()"><img id="toggle_select_all" ng-click="toggle_select_all_files()"  src="/images/icons/check_boxes_series.png"></a>
+                    <a href="#"><img id="show_deleted_files_button" ng-class="{active: shared.showing_deleted_files, 'btn-info': shared.showing_deleted_files}" data-loading-text="Restoring..." ng-click="toggle_show_deleted_files()" src="/images/icons/bin_recycle.png"></a>
+                    <a href="#"><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
+                    <a href="#"><img id="toggle_select_all" ng-click="toggle_select_all_files()"  src="/images/icons/check_boxes_series.png"></a>
 
                     <div class="ng-hide"
                          id="file_upload_area">
@@ -134,56 +136,56 @@
                 $('#toggle_select_all').tooltip({title : "<h4>Select all</h4>Select all files", html:true});
             </script>
 
-            <div>
-                <h4>Selection</h4>
-                <div class="row" readonly="true">
-                    <div class="col-xs-12">
-                        <button ng-show="shared.multiple_selection_active && file_explorer_selected_something()" id="clear_selection_button" class="btn btn-sm fa fa-ban" ng-click="clear_selection_and_get_parent_metadata()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                        <button ng-disabled="!file_explorer_selected_something()"
-                                id="download_selection_button"
-                                class="btn btn-sm fa fa-download"
-                                ng-click="download_selected_items()"
-                                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                        <button ng-disabled="!file_explorer_selected_something()"
-                                id="backup_selection_button"
-                                class="btn btn-sm fa fa-archive"
-                                ng-click="backup_selected_items()"
-                                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+            <!--<div>-->
+                <!--<h4>Selection</h4>-->
+                <!--<div class="row" readonly="true">-->
+                    <!--<div class="col-xs-12">-->
+                        <!--<button ng-show="shared.multiple_selection_active && file_explorer_selected_something()" id="clear_selection_button" class="btn btn-sm fa fa-ban" ng-click="clear_selection_and_get_parent_metadata()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>-->
+                        <!--<button ng-disabled="!file_explorer_selected_something()"-->
+                                <!--id="download_selection_button"-->
+                                <!--class="btn btn-sm fa fa-download"-->
+                                <!--ng-click="download_selected_items()"-->
+                                <!--onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>-->
+                        <!--<button ng-disabled="!file_explorer_selected_something()"-->
+                                <!--id="backup_selection_button"-->
+                                <!--class="btn btn-sm fa fa-archive"-->
+                                <!--ng-click="backup_selected_items()"-->
+                                <!--onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>-->
 
-                        <button id="delete_selection_button"
-                                ng-show="file_explorer_selected_something() && file_explorer_selected_contains_not_deleted()"
-                                class="pull-right btn  btn-sm fa fa-eraser"
-                                ng-click="delete_file_or_folder()"
-                                onmouseover="$(this).toggleClass('btn-danger');" onmouseout="$(this).toggleClass('btn-danger');">
-                        </button>
+                        <!--<button id="delete_selection_button"-->
+                                <!--ng-show="file_explorer_selected_something() && file_explorer_selected_contains_not_deleted()"-->
+                                <!--class="pull-right btn  btn-sm fa fa-eraser"-->
+                                <!--ng-click="delete_file_or_folder()"-->
+                                <!--onmouseover="$(this).toggleClass('btn-danger');" onmouseout="$(this).toggleClass('btn-danger');">-->
+                        <!--</button>-->
 
-                        <button id="undelete_selection_button"
-                                ng-show="file_explorer_selected_something() && file_explorer_selected_contains_deleted()"
-                                class="pull-right btn  btn-sm fa fa-undo"
-                                ng-click="undelete_file_or_folder()"
-                                onmouseover="$(this).toggleClass('btn-success');" onmouseout="$(this).toggleClass('btn-success');">
-                        </button>
+                        <!--<button id="undelete_selection_button"-->
+                                <!--ng-show="file_explorer_selected_something() && file_explorer_selected_contains_deleted()"-->
+                                <!--class="pull-right btn  btn-sm fa fa-undo"-->
+                                <!--ng-click="undelete_file_or_folder()"-->
+                                <!--onmouseover="$(this).toggleClass('btn-success');" onmouseout="$(this).toggleClass('btn-success');">-->
+                        <!--</button>-->
 
-                        <button id="really_delete_selection_button"
-                                ng-show="file_explorer_selected_something() && file_explorer_selected_contains_deleted()"
-                                class="pull-right btn btn-sm fa fa-trash-o"
-                                ng-click="delete_file_or_folder()"
-                                onmouseover="$(this).toggleClass('btn-danger');" onmouseout="$(this).toggleClass('btn-danger');">
-                        </button>
-                    </div>
-                </div>
+                        <!--<button id="really_delete_selection_button"-->
+                                <!--ng-show="file_explorer_selected_something() && file_explorer_selected_contains_deleted()"-->
+                                <!--class="pull-right btn btn-sm fa fa-trash-o"-->
+                                <!--ng-click="delete_file_or_folder()"-->
+                                <!--onmouseover="$(this).toggleClass('btn-danger');" onmouseout="$(this).toggleClass('btn-danger');">-->
+                        <!--</button>-->
+                    <!--</div>-->
+                <!--</div>-->
 
-                <br/>
+                <!--<br/>-->
 
-                <script type="text/javascript">
-                    $('#clear_selection_button').tooltip({title : "<h1>Deselect</h1>Deselect items", html:true});
-                    $('#delete_selection_button').tooltip({title : "<h1>Delete</h1>Delete the selected items" , html: true});
-                    $('#download_selection_button').tooltip({title : "<h1>Download</h1>Download the selected items" , html: true});
-                    $('#backup_selection_button').tooltip({title : "<h1>Backup</h1>Backup the selected items" , html: true});
-                    $('#undelete_selection_button').tooltip({title : "<h1>Undelete</h1>Undelete the selected items" , html: true});
-                    $('#really_delete_selection_button').tooltip({title : "<h1>Really delete</h1>Delete FOREVER" , html: true});
-                </script>
-            </div>
+                <!--<script type="text/javascript">-->
+                    <!--$('#clear_selection_button').tooltip({title : "<h1>Deselect</h1>Deselect items", html:true});-->
+                    <!--$('#delete_selection_button').tooltip({title : "<h1>Delete</h1>Delete the selected items" , html: true});-->
+                    <!--$('#download_selection_button').tooltip({title : "<h1>Download</h1>Download the selected items" , html: true});-->
+                    <!--$('#backup_selection_button').tooltip({title : "<h1>Backup</h1>Backup the selected items" , html: true});-->
+                    <!--$('#undelete_selection_button').tooltip({title : "<h1>Undelete</h1>Undelete the selected items" , html: true});-->
+                    <!--$('#really_delete_selection_button').tooltip({title : "<h1>Really delete</h1>Delete FOREVER" , html: true});-->
+                <!--</script>-->
+            <!--</div>-->
 
             <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible && still_uploading_files()" ng-controller="uploadsCtrl" ng-init="init(get_calling_uri)">
                 <div class="col-xs-12 ng-hide">

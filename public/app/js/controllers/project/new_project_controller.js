@@ -1,9 +1,9 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 
 /**
      * new project controller
      */
-    .controller('projCtrl',
+    .controller("projCtrl",
 
         function (
 
@@ -15,7 +15,7 @@ angular.module('dendroApp.controllers')
         )
         {
             $scope.new_project = {
-                privacy: 'private'
+                privacy: "private"
             };
 
             $scope.create_project = function (new_project)
@@ -25,13 +25,13 @@ angular.module('dendroApp.controllers')
                 projectsService.create_new_project(new_project)
                     .then(function (result)
                     {
-                        var newURL = $scope.get_host() + '/projects/my';
+                        var newURL = $scope.get_host() + "/projects/my";
                         window.location.href = newURL;
-                        $scope.show_popup('success', 'Success', 'Project created');
+                        $scope.show_popup("success", "Success", "Project created");
                     })
                     .catch(function (error)
                     {
-                        $scope.show_popup('error', 'Error', error.message);
+                        $scope.show_popup("error", "Error", error.message);
                     });
             };
 
@@ -42,7 +42,7 @@ angular.module('dendroApp.controllers')
                     {
                         $scope.new_project.license = _.find(licenses, function (license)
                         {
-                            return license.id === 'CC-BY-4.0';
+                            return license.id === "CC-BY-4.0";
                         });
                     });
 
@@ -51,7 +51,7 @@ angular.module('dendroApp.controllers')
                     {
                         $scope.new_project.language = _.find(languages, function (language)
                         {
-                            return language.alpha2 === 'en';
+                            return language.alpha2 === "en";
                         });
                     });
             };
