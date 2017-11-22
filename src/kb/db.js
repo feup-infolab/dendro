@@ -63,8 +63,6 @@ const queryObjectToString = function (query, argumentsArray, callback)
                     transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
                     break;
                 case Elements.types.string:
-                    // transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
-                    // transformedQuery = transformedQuery.replace(pattern, "'''" + currentArgument.value + "'''");
                     transformedQuery = transformedQuery.replace(pattern, "'''" + currentArgument.value + "'''");
                     break;
                 case Elements.types.int:
