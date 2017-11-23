@@ -4,6 +4,7 @@ const _ = require("underscore");
 const chai = require("chai");
 const should = chai.should();
 const Pathfinder = global.Pathfinder;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const path = require("path");
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const async = require("async");
@@ -98,6 +99,7 @@ module.exports.setup = function (project, finish)
                                     {
                                         repositoryUtils.exportFolderByUriToRepository(true, folder.uri, agent, {repository: ckanData}, function (err, res)
                                         {
+                                            Logger.log("info", "exportFolderByUriToRepository res is: " + JSON.stringify(res));
                                             res.statusCode.should.equal(200);
                                             cb(err, res);
                                         });
