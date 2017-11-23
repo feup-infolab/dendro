@@ -3001,10 +3001,10 @@ exports.cut = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    checkIfDestinationIsNotContainedByAnySource(filesToBeMoved, targetFolder, function (err, result)
-                                    {
-                                        checkIfDestinationIsNotTheSameAsMovedFilesParents(filesToBeMoved, targetFolder, function(err, result){
-                                            if (isNull(err))
+                                    checkIfDestinationIsNotTheSameAsMovedFilesParents(filesToBeMoved, targetFolder, function(err, result){
+                                        if (isNull(err))
+                                        {
+                                            checkIfDestinationIsNotContainedByAnySource(filesToBeMoved, targetFolder, function (err, result)
                                             {
                                                 if (isNull(err))
                                                 {
@@ -3046,16 +3046,16 @@ exports.cut = function (req, res)
                                                         error: result
                                                     });
                                                 }
-                                            }
-                                            else
-                                            {
-                                                return res.status(400).json({
-                                                    result: "error",
-                                                    message: "Cannot move a resource to the same folder where it already is.",
-                                                    error: result
-                                                });
-                                            }
-                                        });
+                                            });
+                                        }
+                                        else
+                                        {
+                                            return res.status(400).json({
+                                                result: "error",
+                                                message: "Cannot move a resource to the same folder where it already is.",
+                                                error: result
+                                            });
+                                        }
                                     });
                                 }
                                 else
@@ -3070,7 +3070,11 @@ exports.cut = function (req, res)
                         }
                         else
                         {
-
+                            return res.status(404).json({
+                                result: "error",
+                                error: err,
+                                message: "Unable to find target tolder!"
+                            });
                         }
                     }
                     else

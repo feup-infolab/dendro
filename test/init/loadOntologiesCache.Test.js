@@ -13,10 +13,6 @@ const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.
 const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
-
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));

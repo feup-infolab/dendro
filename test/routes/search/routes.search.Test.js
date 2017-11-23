@@ -1,41 +1,56 @@
-"use strict";
-
-process.env.NODE_ENV = "test";
-
-let chai = require("chai");
-let chaiHttp = require("chai-http");
-const md5 = require("md5");
+const path = require("path");
+const async = require("async");
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const should = chai.should();
+const _ = require("underscore");
 chai.use(chaiHttp);
 
-const should = chai.should();
+const Pathfinder = global.Pathfinder;
 
-let agent = null;
-
-const demouser1 = require("../../mockdata/users/demouser1.js");
-const demouser2 = require("../../mockdata/users/demouser1.js");
-const demouser3 = require("../../mockdata/users/demouser1.js");
-
-const folder = require("../../mockdata/folders/folder.js");
-const ecologyFolder = require("../../mockdata/folders/ecology_folder.js");
-const mechanicsFolder = require("../../mockdata/folders/mechanics_folder.js");
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const metadataOnlyProject = require("../../mockdata/projects/metadata_only_project.js");
 const publicProject = require("../../mockdata/projects/public_project.js");
 const privateProject = require("../../mockdata/projects/private_project.js");
 
-const fileUtils = require("../../utils/file/fileUtils.js");
-const folderUtils = require("../../utils/folder/folderUtils.js");
-const userUtils = require("../../utils/user/userUtils.js");
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const searchUtils = require(Pathfinder.absPathInTestsFolder("utils/search/searchUtils.js"));
+
+const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const foldersData = createFoldersUnit.foldersData;
 
 describe("/search", function ()
 {
+    this.timeout(Config.testsTimeout);
+    before(function (done)
+    {
+        this.timeout(Config.testsTimeout);
+        addMetadataToFoldersUnit.setup(function (err, results)
+        {
+            should.not.exist(err);
+            done();
+        });
+    });
+
     /**
      * Search effectiveness (does it find the things it should, without considering permisions for now?)
      */
     // TODO
-    it("[HTML] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done)
+    it("[HTML] should search and find a folder by searching for a term present in its search term", function (done)
     {
-        done();
+        async.map(foldersData, function(folder){
+            searchUtils.search(folder.searchTerms, function(err, res){
+                should.not.exist(err);
+                res.status.should.equal(200);
+                callback(err, res);
+            });
+        }, function(err, results){
+            done();
+        });
     });
 
     // TODO
@@ -45,7 +60,7 @@ describe("/search", function ()
     });
 
     // TODO
-    it("[JSON] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done)
+    it("[JSON] should search and find a folder by searching for a term present in its abstract", function (done)
     {
         done();
     });

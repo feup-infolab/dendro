@@ -7,7 +7,7 @@ let folderData = {
     pathInProject: "",
     download_md5: "",
     backup_md5: "",
-    search_terms: "testFolder2",
+    searchTerms: "testFolder2",
     files: [
         require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js")),
         require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
