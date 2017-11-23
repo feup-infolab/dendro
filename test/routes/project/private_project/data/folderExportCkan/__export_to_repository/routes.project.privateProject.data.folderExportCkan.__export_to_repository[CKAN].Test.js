@@ -53,10 +53,10 @@ let ckanData;
 
 describe("Export private project folderExportCkan level to ckan tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        this.timeout(Config.testsTimeout);
         addChangesToExportedCkanPackagesUnit.setup(privateProject, function (err, results)
         {
             should.equal(err, null);
@@ -95,7 +95,7 @@ describe("Export private project folderExportCkan level to ckan tests", function
 
     describe("[POST] [CKAN] /project/:handle/data/:foldername?export_to_repository", function ()
     {
-        this.timeout(Config.testsTimeout);
+
         it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -591,7 +591,7 @@ describe("Export private project folderExportCkan level to ckan tests", function
     after(function (done)
     {
         // destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

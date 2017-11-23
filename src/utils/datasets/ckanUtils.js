@@ -556,7 +556,7 @@ const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, clie
                     // the new exportedAt date is going to be the new date at which the package was updated in ckan(metadata_modified plus 3 milliseconds-> so that the automated tests work) after the latest export from dendro. Using simply "new Date()" was causing bugs because there are time differences between ckan and dendro even if the update exported at is called at the correct time
                     let dateObject = new Date(result.result.metadata_modified);
                     // This is very ugly but necessary for the automated tests to work. In the webapp this is not needed. Only the automated tests require this hack
-                    dateObject.setMilliseconds(dateObject.getMilliseconds() + 3000);
+                    // dateObject.setMilliseconds(dateObject.getMilliseconds() + 3000);
                     let newExportedAt = dateObject.toISOString();
                     let resultIndex = _.findIndex(result.result.extras, function (extra)
                     {
@@ -609,7 +609,7 @@ const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, clie
                     callback(err, result);
                 }
             });
-    }, 3000);
+    }, 10000);
 };
 
 /**
