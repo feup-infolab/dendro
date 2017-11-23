@@ -665,10 +665,13 @@ const checkResourceTypeAndChildren = function (resourceUri, callback)
                 {
                     if (isNull(err))
                     {
+                        Logger.log("info", "The children are: " + JSON.stringify(children));
                         if (isNull(children) || children.length <= 0)
                         {
+                            const errorMessage = "Error, you cannot export an empty folder to Ckan";
+                            Logger.log("error", errorMessage);
                             let errorInfo = {
-                                message: "Error, you cannot export an empty folder to Ckan",
+                                message: errorMessage,
                                 statusCode: 412
                             };
                             callback(true, null, errorInfo);
