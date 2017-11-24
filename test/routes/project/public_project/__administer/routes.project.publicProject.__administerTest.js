@@ -49,6 +49,7 @@ describe("Administer projects", function (done)
             try
             {
                 should.equal(err, null);
+                done();
             }
             catch (e)
             {
