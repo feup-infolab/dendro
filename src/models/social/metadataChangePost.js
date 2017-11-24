@@ -1,21 +1,22 @@
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-var Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-var Descriptor = require(Pathfinder.absPathInSrcFolder('/models/meta/descriptor.js')).Descriptor;
-var Post = require(Pathfinder.absPathInSrcFolder('/models/social/post.js')).Post;
-const User = require(Pathfinder.absPathInSrcFolder('/models/user.js')).User;
-const Resource = require(Pathfinder.absPathInSrcFolder('/models/resource.js')).Resource;
-var ArchivedResource = require(Pathfinder.absPathInSrcFolder('/models/versions/archived_resource.js')).ArchivedResource;
-var DbConnection = require(Pathfinder.absPathInSrcFolder('/kb/db.js')).DbConnection;
-var uuid = require('uuid');
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+var Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+var ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var uuid = require("uuid");
 
 const db = Config.getDBByID();
-const db_social = Config.getDBByID('social');
+const db_social = Config.getDBByID("social");
 
 var gfs = Config.getGFSByID();
-var _ = require('underscore');
-var async = require('async');
+var _ = require("underscore");
+var async = require("async");
 
 function MetadataChangePost (object)
 {
@@ -38,7 +39,7 @@ function MetadataChangePost (object)
     return self; */
 
     const self = this;
-    self.addURIAndRDFType(object, 'post', MetadataChangePost);
+    self.addURIAndRDFType(object, "post", MetadataChangePost);
     MetadataChangePost.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
@@ -47,7 +48,7 @@ function MetadataChangePost (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + '/posts/' + newId;
+        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
     }
 
     return self;
@@ -60,7 +61,7 @@ MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project
     {
         if (isNull(err))
         {
-            var title = fullVersionCreator.ddr.username + ' worked on ' + archivedVersion.changes.length + ' metadata changes';
+            var title = fullVersionCreator.ddr.username + " worked on " + archivedVersion.changes.length + " metadata changes";
             var versionUri = archivedVersion.uri;
             var newMetadataChangePost = new MetadataChangePost({
                 ddr: {
@@ -78,8 +79,8 @@ MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project
         }
         else
         {
-            const msg = 'Error building a MetadataChangePost from an ArchivedVersion: ' + JSON.stringify(fullVersionCreator);
-            console.error(msg);
+            const msg = "Error building a MetadataChangePost from an ArchivedVersion: " + JSON.stringify(fullVersionCreator);
+            Logger.log("error", msg);
             callback(err, fullVersionCreator);
         }
     });
@@ -100,8 +101,8 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb)
             }
             else
             {
-                const msg = 'Error getting the prefixedForm for descriptor: ' + descriptorUri;
-                console.error(msg);
+                const msg = "Error getting the prefixedForm for descriptor: " + descriptorUri;
+                Logger.log("error", msg);
                 callback(err, descriptor);
             }
         });
@@ -132,7 +133,7 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb)
                         }
                         else
                         {
-                            const msg = '[Error] could not find prefixed form for descriptor : ' + change.ddr.changedDescriptor;
+                            const msg = "[Error] could not find prefixed form for descriptor : " + change.ddr.changedDescriptor;
                             callback(true, msg);
                         }
                     }
@@ -203,35 +204,35 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb)
                             }
                             else
                             {
-                                const msg = 'Resource at getChangesFromMetadataChangePost resource does not exist';
-                                console.error(msg);
+                                const msg = "Resource at getChangesFromMetadataChangePost resource does not exist";
+                                Logger.log("error", msg);
                                 cb(true, msg);
                             }
                         }
                         else
                         {
-                            console.error('Error Looking for the resource at getChangesFromMetadataChangePost Error: ' + JSON.stringify(resource));
+                            Logger.log("error", "Error Looking for the resource at getChangesFromMetadataChangePost Error: " + JSON.stringify(resource));
                             cb(err, archivedVersion);
                         }
                     });
                 }
                 else
                 {
-                    console.error('Error Looking for prefixedResource at getChangesFromMetadataChangePost Error: ' + result);
+                    Logger.log("error", "Error Looking for prefixedResource at getChangesFromMetadataChangePost Error: " + result);
                     cb(err, result);
                 }
             });
         }
         else
         {
-            console.error('Error at getChangesFromMetadataChangePost:');
-            console.error(err);
+            Logger.log("error", "Error at getChangesFromMetadataChangePost:");
+            Logger.log("error", err);
             cb(err, archivedVersion);
         }
     });
 };
 
 /* MetadataChangePost = Class.extend(MetadataChangePost, Post); */
-MetadataChangePost = Class.extend(MetadataChangePost, Post, 'ddr:MetadataChangePost');
+MetadataChangePost = Class.extend(MetadataChangePost, Post, "ddr:MetadataChangePost");
 
 module.exports.MetadataChangePost = MetadataChangePost;

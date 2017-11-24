@@ -1,6 +1,6 @@
-const XMLWriter = require('xml-writer');
+const XMLWriter = require("xml-writer");
 const self = this;
-const isNull = require('../utils/null.js').isNull;
+const isNull = require("../utils/null.js").isNull;
 
 module.exports.dataToJSON = function (data)
 {
@@ -9,16 +9,16 @@ module.exports.dataToJSON = function (data)
 module.exports.metadataToRDF = function (metadata)
 {
     const xw = new XMLWriter();
-    xw.startDocument('1.0', 'UTF-8');
-    xw.startElementNS('rdf', 'RDF');
-    xw.writeAttributeNS('xmlns', 'rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
+    xw.startDocument("1.0", "UTF-8");
+    xw.startElementNS("rdf", "RDF");
+    xw.writeAttributeNS("xmlns", "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
     const namespaces = {};
     const tempXML = self.metadataToRDFRec(metadata, namespaces);
 
     for (let prop in namespaces)
     {
-        xw.writeAttributeNS('xmlns', prop, namespaces[prop]);
+        xw.writeAttributeNS("xmlns", prop, namespaces[prop]);
     }
     xw.writeRaw(tempXML);
 
@@ -32,11 +32,11 @@ exports.metadataToRDFRec = function (metadata, namespaces)
 
     if (!isNull(metadata.title))
     {
-        xw.startElementNS('rdf', 'Description').writeAttributeNS('rdf', 'about', metadata.title.toString());
+        xw.startElementNS("rdf", "Description").writeAttributeNS("rdf", "about", metadata.title.toString());
     }
     else
     {
-        xw.startElementNS('rdf', 'Description');
+        xw.startElementNS("rdf", "Description");
     }
 
     if (!isNull(metadata.descriptors))
@@ -52,10 +52,10 @@ exports.metadataToRDFRec = function (metadata, namespaces)
 
     if (!isNull(metadata.hasLogicalParts) && metadata.hasLogicalParts.length > 0)
     {
-        namespaces.nie = 'http://www.semanticdesktop.org/ontologies/2007/01/19/nie#';
+        namespaces.nie = "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#";
 
-        xw.startElementNS('nie', 'hasLogicalPart', 'http://www.semanticdesktop.org/ontologies/2007/01/19/nie#')
-            .writeAttributeNS('rdf', 'parseType', 'Collection');
+        xw.startElementNS("nie", "hasLogicalPart", "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#")
+            .writeAttributeNS("rdf", "parseType", "Collection");
 
         metadata.hasLogicalParts.forEach(function (logicalPart)
         {
@@ -74,62 +74,62 @@ module.exports.metadataToText = function (metadata)
     const comments = {};
     const tempText = self.metadataToTextRec(metadata, level, namespaces, comments);
 
-    let namespacesText = '';
+    let namespacesText = "";
     for (var prefix in namespaces)
     {
-        namespacesText += prefix + ':' + namespaces[prefix] + '\n';
+        namespacesText += prefix + ":" + namespaces[prefix] + "\n";
     }
 
-    let commentsText = '';
+    let commentsText = "";
     for (var prefix in comments)
     {
-        commentsText += prefix + ':' + '\n';
+        commentsText += prefix + ":" + "\n";
         for (let shortName in comments[prefix])
         {
             if (comments[prefix].hasOwnProperty(shortName))
             {
-                commentsText += ' ' + comments[prefix][shortName].label + '(' + shortName + ')' + ': ' + comments[prefix][shortName].comment + '\n';
+                commentsText += " " + comments[prefix][shortName].label + "(" + shortName + ")" + ": " + comments[prefix][shortName].comment + "\n";
             }
         }
     }
 
-    return namespacesText + '\n' + tempText + '\n' + commentsText;
+    return namespacesText + "\n" + tempText + "\n" + commentsText;
 };
 exports.metadataToTextRec = function (metadata, level, namespaces, comments)
 {
-    let text = '';
+    let text = "";
 
     for (let i = 0; i < level - 1; i++)
     {
-        text += ' ' + ' ' + ' ';
+        text += " " + " " + " ";
     }
-    if (level > 0) text += '|' + '-' + '-';
+    if (level > 0) text += "|" + "-" + "-";
 
-    if (typeof metadata.file_extension !== 'undefined')
+    if (typeof metadata.file_extension !== "undefined")
     {
-        if (metadata.file_extension === 'folder')
+        if (metadata.file_extension === "folder")
         {
-            text += './';
+            text += "./";
         }
         else
         {
-            text += '.';
+            text += ".";
         }
     }
     else
     {
-        text += './';
+        text += "./";
     }
 
     if (metadata.title !== null)
     {
-        text += metadata.title + '\n';
+        text += metadata.title + "\n";
     }
     else
     {
-        text += '\n';
+        text += "\n";
     }
-    if (typeof metadata.descriptors !== 'undefined')
+    if (typeof metadata.descriptors !== "undefined")
     {
         metadata.descriptors.forEach(function (descriptor)
         {
@@ -147,12 +147,12 @@ exports.metadataToTextRec = function (metadata, level, namespaces, comments)
             comments[descriptor.prefix][descriptor.shortName].comment = descriptor.comment;
             comments[descriptor.prefix][descriptor.shortName].label = descriptor.label;
 
-            for (let j = 0; j < level - 1; j++) text += ' ' + ' ' + ' ';
+            for (let j = 0; j < level - 1; j++) text += " " + " " + " ";
             if (level > 0)
             {
-                text += ' ' + ' ' + ' ';
+                text += " " + " " + " ";
             }
-            text += '|' + ' ' + '+' + descriptor.label + '(' + descriptor.prefixedForm + ')' + ' : ' + descriptor.value.toString() + '\n';
+            text += "|" + " " + "+" + descriptor.label + "(" + descriptor.prefixedForm + ")" + " : " + descriptor.value.toString() + "\n";
         });
 
         if (!isNull(metadata.hasLogicalParts) && metadata.hasLogicalParts.length > 0)

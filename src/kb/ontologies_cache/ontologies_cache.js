@@ -1,13 +1,14 @@
-const util = require('util');
-const async = require('async');
-const path = require('path');
-const _ = require('underscore');
+const util = require("util");
+const async = require("async");
+const path = require("path");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const colors = require('colors');
-const MongoClient = require('mongodb').MongoClient;
-const slug = require('slug');
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const colors = require("colors");
+const MongoClient = require("mongodb").MongoClient;
+const slug = require("slug");
 
 const OntologiesCache = function (options)
 {
@@ -16,8 +17,8 @@ const OntologiesCache = function (options)
     self.port = options.port;
     self.host = options.host;
     self.database = options.database;
-    self.ontologies_collection = (options.ontologies_collection) ? options.ontologies_collection : 'ontologies';
-    self.elements_collection = (options.elements_collection) ? options.elements_collection : 'elements';
+    self.ontologies_collection = (options.ontologies_collection) ? options.ontologies_collection : "ontologies";
+    self.elements_collection = (options.elements_collection) ? options.elements_collection : "elements";
 };
 
 OntologiesCache.prototype.open = function (callback)
@@ -27,7 +28,7 @@ OntologiesCache.prototype.open = function (callback)
     {
         return callback(null, self.client);
     }
-    const url = 'mongodb://' + self.host + ':' + self.port + '/' + slug(self.database, '_');
+    const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, "_");
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))
@@ -79,8 +80,8 @@ OntologiesCache.prototype._putObjects = function (newObjects, collectionName, ca
         }
         else
         {
-            console.error('Error while connecting to mongodb database ' + self.host + ' ' + self.port + ' ' + self.collection);
-            console.error(JSON.stringify(err));
+            Logger.log("error", "Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
+            Logger.log("error", JSON.stringify(err));
             callback(err);
         }
     });
@@ -112,8 +113,8 @@ OntologiesCache.prototype.getOntologies = function (callback)
         }
         else
         {
-            console.error('Error while connecting to mongodb database ' + self.host + ' ' + self.port + ' ' + self.collection);
-            console.error(JSON.stringify(err));
+            Logger.log("error", "Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
+            Logger.log("error", JSON.stringify(err));
             callback(err);
         }
     });
@@ -153,8 +154,8 @@ OntologiesCache.prototype.getElements = function (callback)
         }
         else
         {
-            console.error('Error while connecting to mongodb database ' + self.host + ' ' + self.port + ' ' + self.collection);
-            console.error(JSON.stringify(err));
+            Logger.log("error", "Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
+            Logger.log("error", JSON.stringify(err));
             callback(err);
         }
     });

@@ -1,17 +1,17 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 const exportToRepository = function (jsonOnly, projectHandle, agent, exportData, cb)
 {
     // TODO /project/:handle?export_to_repository
     // TODO this is not implemented i think
-    const path = '/project/' + projectHandle + '?export_to_repository';
+    const path = "/project/" + projectHandle + "?export_to_repository";
     if (jsonOnly)
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(exportData)
             .end(function (err, res)
             {
@@ -32,12 +32,12 @@ const exportToRepository = function (jsonOnly, projectHandle, agent, exportData,
 
 const calculate_ckan_repository_diffs = function (jsonOnly, resourceUri, agent, exportData, cb)
 {
-    const path = resourceUri + '?calculate_ckan_repository_diffs';
+    const path = resourceUri + "?calculate_ckan_repository_diffs";
     if (jsonOnly)
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(exportData)
             .end(function (err, res)
             {
@@ -63,12 +63,12 @@ const exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, 
     exportData.propagateDendroChangesIntoCkan = propagateDendroChangesIntoCkan;
     exportData.deleteChangesOriginatedFromCkan = deleteChangesOriginatedFromCkan;
 
-    const path = '/project/' + projectHandle + '/data/' + folderPath + '?export_to_repository';
+    const path = "/project/" + projectHandle + "/data/" + folderPath + "?export_to_repository";
     if (jsonOnly)
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(exportData)
             .end(function (err, res)
             {
@@ -93,12 +93,12 @@ const exportFolderByUriToRepository = function (jsonOnly, folderUri, agent, expo
     exportData.propagateDendroChangesIntoCkan = propagateDendroChangesIntoCkan;
     exportData.deleteChangesOriginatedFromCkan = deleteChangesOriginatedFromCkan;
 
-    const path = folderUri + '?export_to_repository';
+    const path = folderUri + "?export_to_repository";
     if (jsonOnly)
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(exportData)
             .end(function (err, res)
             {
@@ -119,12 +119,12 @@ const exportFolderByUriToRepository = function (jsonOnly, folderUri, agent, expo
 
 const createExportConfig = function (jsonOnly, agent, externalRepositoryData, cb)
 {
-    const path = '/external_repositories/new';
+    const path = "/external_repositories/new";
     if (jsonOnly)
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(externalRepositoryData)
             .end(function (err, res)
             {
@@ -146,13 +146,13 @@ const createExportConfig = function (jsonOnly, agent, externalRepositoryData, cb
 const getMyExternalRepositories = function (jsonOnly, agent, cb)
 {
     // http://127.0.0.1:3001/external_repositories/my
-    const path = '/external_repositories/my';
+    const path = "/external_repositories/my";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -162,7 +162,7 @@ const getMyExternalRepositories = function (jsonOnly, agent, cb)
     {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -173,13 +173,13 @@ const getMyExternalRepositories = function (jsonOnly, agent, cb)
 const getAllExternalRepositories = function (jsonOnly, agent, cb)
 {
     // http://127.0.0.1:3001/external_repositories/
-    const path = '/external_repositories';
+    const path = "/external_repositories";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -189,8 +189,8 @@ const getAllExternalRepositories = function (jsonOnly, agent, cb)
     {
         agent
             .get(path)
-            .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);

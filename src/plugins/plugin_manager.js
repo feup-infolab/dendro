@@ -1,10 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-const _ = require('underscore');
+const fs = require("fs");
+const path = require("path");
+const _ = require("underscore");
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 function PluginManager ()
 {
@@ -31,7 +32,7 @@ PluginManager.registerPlugins = function (app, callback)
 
     let files = fs.readdirSync(pluginsFolderAbsPath);
 
-    files = _.without(files, 'conf');
+    files = _.without(files, "conf");
 
     for (let i = 0; i < files.length; i++)
     {
@@ -45,13 +46,13 @@ PluginManager.registerPlugins = function (app, callback)
 
             if (stats.isDirectory())
             {
-                let configFileLocation = pluginAbsolutePath + '/integration/config.json';
+                let configFileLocation = pluginAbsolutePath + "/integration/config.json";
                 let PluginConfig = require(configFileLocation);
 
-                let setupFileLocation = pluginAbsolutePath + '/integration/setup.js';
+                let setupFileLocation = pluginAbsolutePath + "/integration/setup.js";
                 let PluginSetup = require(setupFileLocation).Setup;
 
-                console.log('[INFO] Registering routes for plugin ' + PluginConfig.name);
+                Logger.log("info", "Registering routes for plugin " + PluginConfig.name);
                 app = PluginSetup.registerRoutes(app);
             }
         }

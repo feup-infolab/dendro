@@ -1,16 +1,16 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const _ = require('underscore');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const _ = require("underscore");
 chai.use(chaiHttp);
 
 exports.publicDisplay = function (jsonOnly, agent, cb)
 {
-    const path = '/ontologies/public';
+    const path = "/ontologies/public";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -29,12 +29,12 @@ exports.publicDisplay = function (jsonOnly, agent, cb)
 
 exports.allDisplay = function (jsonOnly, agent, cb)
 {
-    const path = '/ontologies/all';
+    const path = "/ontologies/all";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);
@@ -53,7 +53,7 @@ exports.allDisplay = function (jsonOnly, agent, cb)
 
 exports.autocomplete = function (agent, query, cb)
 {
-    let path = '/ontologies/autocomplete';
+    let path = "/ontologies/autocomplete";
     path += query;
     agent
         .get(path)
@@ -65,7 +65,7 @@ exports.autocomplete = function (agent, query, cb)
 
 exports.showPrefix = function (agent, prefix, cb)
 {
-    const path = '/ontologies/show/' + prefix;
+    const path = "/ontologies/show/" + prefix;
     agent
         .get(path)
         .end(function (err, res)
@@ -77,7 +77,7 @@ exports.showPrefix = function (agent, prefix, cb)
 exports.editOntologies = function (agent, description, domain, prefix, cb)
 {
     agent
-        .post('/ontologies/edit')
+        .post("/ontologies/edit")
         .send({description: description, domain: domain, prefix: prefix})
         .end(function (err, res)
         {

@@ -1,32 +1,32 @@
-'use strict';
+"use strict";
 
-angular.module('dendroApp.services')
-    .service('filesService',
-        ['$http', '$rootScope', 'windowService',
+angular.module("dendroApp.services")
+    .service("filesService",
+        ["$http", "$rootScope", "windowService",
             function ($http, $rootScope, windowService)
             {
                 this.get_folder_contents = function (uri, including_deleted_files)
                 {
                     if (uri == null)
                     {
-                        uri = windowService.get_current_url() + '?ls';
+                        uri = windowService.get_current_url() + "?ls";
                     }
                     else
                     {
-                        uri = uri + '?ls';
+                        uri = uri + "?ls";
                     }
 
                     if (including_deleted_files)
                     {
-                        uri = uri + '&show_deleted=1';
+                        uri = uri + "&show_deleted=1";
                     }
 
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         url: uri,
                         data: JSON.stringify({}),
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
                         if (response.data != null && response.data instanceof Object)
@@ -42,19 +42,19 @@ angular.module('dendroApp.services')
                 {
                     if (uri == null)
                     {
-                        uri = windowService.get_current_url() + '?stats';
+                        uri = windowService.get_current_url() + "?stats";
                     }
                     else
                     {
-                        uri = uri + '?stats';
+                        uri = uri + "?stats";
                     }
 
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         url: uri,
                         data: JSON.stringify({}),
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
                         if (response.data != null && response.data instanceof Object)
@@ -70,14 +70,14 @@ angular.module('dendroApp.services')
                 {
                     if (newFolderName != null)
                     {
-                        var mkdirUrl = parentFolderUri + '?mkdir=' + newFolderName;
+                        var mkdirUrl = parentFolderUri + "?mkdir=" + newFolderName;
 
                         return $http({
-                            method: 'POST',
+                            method: "POST",
                             url: mkdirUrl,
                             data: JSON.stringify({}),
-                            contentType: 'application/json',
-                            headers: {Accept: 'application/json'}
+                            contentType: "application/json",
+                            headers: {Accept: "application/json"}
                         });
                     }
                 };
@@ -86,14 +86,14 @@ angular.module('dendroApp.services')
                 {
                     if (newName != null)
                     {
-                        var renameUrl = resourceUri + '?rename=' + newName;
+                        var renameUrl = resourceUri + "?rename=" + newName;
 
                         return $http({
-                            method: 'POST',
+                            method: "POST",
                             url: renameUrl,
                             data: JSON.stringify({}),
-                            contentType: 'application/json',
-                            headers: {Accept: 'application/json'}
+                            contentType: "application/json",
+                            headers: {Accept: "application/json"}
                         });
                     }
                 };
@@ -106,13 +106,13 @@ angular.module('dendroApp.services')
                     });
 
                     return $http({
-                        method: 'POST',
-                        url: targetFolderUri + '?cut',
+                        method: "POST",
+                        url: targetFolderUri + "?cut",
                         data: JSON.stringify({
                             files: resourcesToCutUris
                         }),
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     });
                 };
 
@@ -124,13 +124,13 @@ angular.module('dendroApp.services')
                     });
 
                     return $http({
-                        method: 'POST',
-                        url: targetFolderUri + '?copy',
+                        method: "POST",
+                        url: targetFolderUri + "?copy",
                         data: JSON.stringify({
                             files: resourcesToCopyUris
                         }),
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     });
                 };
 
@@ -140,26 +140,26 @@ angular.module('dendroApp.services')
 
                     if (forever)
                     {
-                        uri = uri + '?really_delete=true';
+                        uri = uri + "?really_delete=true";
                     }
 
                     return $http({
-                        method: 'DELETE',
+                        method: "DELETE",
                         url: uri,
                         data: JSON.stringify({}),
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     });
                 };
 
                 this.undelete = function (fileOrFolder)
                 {
                     return $http({
-                        method: 'POST',
-                        url: fileOrFolder.uri + '?undelete',
+                        method: "POST",
+                        url: fileOrFolder.uri + "?undelete",
                         data: JSON.stringify({}),
-                        contentType: 'application/json',
-                        headers: {Accept: 'application/json'}
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
                     });
                 };
             }]);

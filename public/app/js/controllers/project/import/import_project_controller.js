@@ -1,19 +1,19 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
      *  Descriptors List controller
      */
-    .controller('importProjectCtrl',
+    .controller("importProjectCtrl",
         [
-            '$scope',
-            '$http',
-            '$filter',
-            '$q',
-            '$log',
-            '$localStorage',
-            '$timeout',
-            'uploadsService',
-            'windowService',
-            'jsonPath',
+            "$scope",
+            "$http",
+            "$filter",
+            "$q",
+            "$log",
+            "$localStorage",
+            "$timeout",
+            "uploadsService",
+            "windowService",
+            "jsonPath",
             function (
                 $scope,
                 $http,
@@ -47,7 +47,7 @@ angular.module('dendroApp.controllers')
 
                 $scope.get_upload_url = function ()
                 {
-                    return '/projects/import';
+                    return "/projects/import";
                 };
 
                 $scope.import_project = function (file, imported_project_handle, imported_project_title)
@@ -55,7 +55,7 @@ angular.module('dendroApp.controllers')
                     file.imported_project_handle = imported_project_handle;
                     file.imported_project_title = imported_project_title;
                     $scope.$broadcast(
-                        'new_files_to_upload',
+                        "new_files_to_upload",
                         [file]
                     );
                 };

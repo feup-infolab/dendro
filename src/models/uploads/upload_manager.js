@@ -1,17 +1,17 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder('/utils/null.js')).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder('/models/meta/class.js')).Class;
-const Upload = require(Pathfinder.absPathInSrcFolder('/models/uploads/upload.js')).Upload;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Upload = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload.js")).Upload;
 
 let UploadManager = function (tmp_files_dir)
 {
 
 };
 
-if (typeof UploadManager.__uploads === 'undefined')
+if (typeof UploadManager.__uploads === "undefined")
 {
     UploadManager.__uploads = {};
 }
@@ -62,7 +62,7 @@ UploadManager.setUploadExpectedBytes = function (id, bytes)
     }
     else
     {
-        throw 'Upload with id ' + id + ' not found';
+        throw "Upload with id " + id + " not found";
     }
 };
 
@@ -76,7 +76,7 @@ UploadManager.writeBytesToUpload = function (id, buffer, callback)
     }
     else
     {
-        return callback(1, 'Upload with id ' + id + ' not found');
+        return callback(1, "Upload with id " + id + " not found");
     }
 };
 
@@ -90,7 +90,7 @@ UploadManager.destroy_upload = function (id, callback)
     }
     else
     {
-        return callback(1, 'Upload with id ' + id + ' not found');
+        return callback(1, "Upload with id " + id + " not found");
     }
 };
 

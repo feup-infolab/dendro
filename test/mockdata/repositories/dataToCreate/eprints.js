@@ -21,34 +21,34 @@
 }; */
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const newExportRepoData = {
     dcterms: {
-        title: 'EPrints'
+        title: "EPrints"
     },
     ddr: {
-        hasExternalUrl: 'http://demoprints.eprints.org',
-        hasUsername: 'nelsonpereira1991',
+        hasExternalUrl: "http://demoprints.eprints.org",
+        hasUsername: "nelsonpereira1991",
         hasPlatform: {
-            uri: '/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a296',
+            uri: "/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a296",
             foaf: {
-                homepage: 'http://www.eprints.org/',
-                nick: 'eprints'
+                homepage: "http://www.eprints.org/",
+                nick: "eprints"
             },
             dcterms: {
-                title: 'EPRINTS'
+                title: "EPRINTS"
             },
             ddr: {
-                handle: 'eprints',
-                created: '2017-10-02T12:17:04.105Z',
-                modified: '2017-10-02T12:17:04.106Z',
-                humanReadableURI: 'http://' + Config.host + '/repository_platform/eprints'
+                handle: "eprints",
+                created: "2017-10-02T12:17:04.105Z",
+                modified: "2017-10-02T12:17:04.106Z",
+                humanReadableURI: "http://" + Config.host + "/repository_platform/eprints"
             },
             rdf: {
                 type: [
-                    'http://dendro.fe.up.pt/ontology/0.1/RepositoryPlatform',
-                    'http://dendro.fe.up.pt/ontology/0.1/Resource'
+                    "http://dendro.fe.up.pt/ontology/0.1/RepositoryPlatform",
+                    "http://dendro.fe.up.pt/ontology/0.1/Resource"
                 ]
             },
             types: {
@@ -102,7 +102,7 @@ const newExportRepoData = {
             po: {
 
             },
-            $$hashKey: 'object:145'
+            $$hashKey: "object:145"
         }
     }
 };

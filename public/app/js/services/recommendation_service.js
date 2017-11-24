@@ -1,32 +1,32 @@
-'use strict';
+"use strict";
 
-angular.module('dendroApp.services')
-    .service('recommendationService', ['$http', 'filesService',
+angular.module("dendroApp.services")
+    .service("recommendationService", ["$http", "filesService",
         function ($http, filesService)
         {
             this.editor_recommendation_modes = {
-                smart: 'smart',
-                favorites: 'favorites'
+                smart: "smart",
+                favorites: "favorites"
             };
 
             this.descriptor_selection_modes = {
-                manual: 'manual',
-                recommendation: 'recommendation',
-                favorites: 'favorites'
+                manual: "manual",
+                recommendation: "recommendation",
+                favorites: "favorites"
             };
 
             this.descriptor_filters = [
                 {
-                    label: 'All',
-                    key: 'all'
+                    label: "All",
+                    key: "all"
                 },
                 {
-                    label: 'Favorites',
-                    key: 'favorites'
+                    label: "Favorites",
+                    key: "favorites"
                 },
                 {
-                    label: 'Hidden',
-                    key: 'hidden'
+                    label: "Hidden",
+                    key: "hidden"
                 }
             ];
 
@@ -44,7 +44,7 @@ angular.module('dendroApp.services')
             )
             {
                 var self = this;
-                var requestUri = resource_uri + '?metadata_recommendations';
+                var requestUri = resource_uri + "?metadata_recommendations";
 
                 var params = {
                     page: recommendations_page,
@@ -77,12 +77,12 @@ angular.module('dendroApp.services')
                     {
                         params.recommendations_mode = self.descriptor_filter.key;
                     }
-                    else if (typeof self.descriptor_filter === 'string')
+                    else if (typeof self.descriptor_filter === "string")
                     {
                         params.recommendations_mode = self.descriptor_filter;
                     }
                 }
-                else if (descriptor_filter != null && typeof descriptor_filter === 'string')
+                else if (descriptor_filter != null && typeof descriptor_filter === "string")
                 {
                     var filterObject = get_descriptor_filter_object(descriptor_filter);
 
@@ -92,7 +92,7 @@ angular.module('dendroApp.services')
                     }
                     else
                     {
-                        Utils.show_popup('error', 'Error', 'Unable to change recommendation mode to ' + descriptor_filter + ' as it is not a valid mode');
+                        Utils.show_popup("error", "Error", "Unable to change recommendation mode to " + descriptor_filter + " as it is not a valid mode");
                     }
                 }
 
@@ -105,7 +105,7 @@ angular.module('dendroApp.services')
                     return response.data.descriptors;
                 }).catch(function (e)
                 {
-                    var msg = 'Unable to fetch recommendations ';
+                    var msg = "Unable to fetch recommendations ";
                     throw msg + JSON.stringify(e);
                 });
             };
@@ -113,7 +113,7 @@ angular.module('dendroApp.services')
             this.get_recommendation_ontologies = function (resource_uri)
             {
                 var self = this;
-                var url = resource_uri + '?recommendation_ontologies';
+                var url = resource_uri + "?recommendation_ontologies";
 
                 return $http.get(url)
                     .then(function (response)

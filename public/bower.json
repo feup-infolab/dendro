@@ -81,7 +81,8 @@
     "angular-ui-select": "^0.19.8",
     "angular-ui-scroll": "^1.6.3",
     "humanize-plus": "^1.8.2",
-    "angular-spinner": "^1.0.1"
+    "angular-spinner": "^1.0.1",
+    "angular-bootstrap-contextmenu": "^1.1.0"
   },
   "resolutions": {
     "bootstrap": "~3",

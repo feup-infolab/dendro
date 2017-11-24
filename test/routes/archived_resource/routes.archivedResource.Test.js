@@ -1,38 +1,38 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 const should = chai.should();
-const _ = require('underscore');
-const md5 = require('md5');
-const fs = require('fs');
-const path = require('path');
-const async = require('async');
+const _ = require("underscore");
+const md5 = require("md5");
+const fs = require("fs");
+const path = require("path");
+const async = require("async");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const fileUtils = require(Pathfinder.absPathInTestsFolder('utils/file/fileUtils.js'));
-const itemUtils = require(Pathfinder.absPathInTestsFolder('utils/item/itemUtils.js'));
-const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
-const projectUtils = require(Pathfinder.absPathInTestsFolder('utils/project/projectUtils.js'));
-const versionUtils = require(Pathfinder.absPathInTestsFolder('utils/versions/versionUtils.js'));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder('utils/descriptor/descriptorUtils.js'));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const versionUtils = require(Pathfinder.absPathInTestsFolder("utils/versions/versionUtils.js"));
+const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1.js'));
-const demouser2 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser2.js'));
-const demouser3 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser3.js'));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const privateProject = require(Pathfinder.absPathInTestsFolder('mockdata/projects/private_project.js'));
-const invalidProject = require(Pathfinder.absPathInTestsFolder('mockdata/projects/invalidProject.js'));
+const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const testFolder1 = require(Pathfinder.absPathInTestsFolder('mockdata/folders/testFolder1.js'));
-const notFoundFolder = require(Pathfinder.absPathInTestsFolder('mockdata/folders/notFoundFolder.js'));
-const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder('mockdata/folders/folderDemoUser2'));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/folders/createFolders.Unit.js'));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('utils/db/db.Test.js'));
+const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
+const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
+const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe('Creation of archived versions', function ()
+describe("Creation of archived versions", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
@@ -57,7 +57,7 @@ describe('Creation of archived versions', function ()
     //     });
     // });
 
-    describe('[POST] [PRIVATE PROJECT] [Valid Cases] /r/archived_resource/{uuid}', function ()
+    describe("[POST] [PRIVATE PROJECT] [Valid Cases] /r/archived_resource/{uuid}", function ()
     {
         it("Should update a folder's metadata and create the adequate archived versions", function (done)
         {
@@ -83,13 +83,13 @@ describe('Creation of archived versions', function ()
                         return updateRequest;
                     };
 
-                    let firstVersion = buildUpdatedMetadata('ALKAL', 'add');
-                    let secondVersion = buildUpdatedMetadata('LUX', 'update');
-                    let thirdVersion = buildUpdatedMetadata('MALM', 'update');
-                    let fourthVersion = buildUpdatedMetadata('BESTA', 'update');
-                    let fifthVersion = buildUpdatedMetadata('BILLY', 'update');
-                    let sixthVersion = buildUpdatedMetadata('KALLAX', 'update');
-                    let seventhVersion = buildUpdatedMetadata(null, 'delete');
+                    let firstVersion = buildUpdatedMetadata("ALKAL", "add");
+                    let secondVersion = buildUpdatedMetadata("LUX", "update");
+                    let thirdVersion = buildUpdatedMetadata("MALM", "update");
+                    let fourthVersion = buildUpdatedMetadata("BESTA", "update");
+                    let fifthVersion = buildUpdatedMetadata("BILLY", "update");
+                    let sixthVersion = buildUpdatedMetadata("KALLAX", "update");
+                    let seventhVersion = buildUpdatedMetadata(null, "delete");
 
                     const allVersions = [firstVersion, secondVersion, thirdVersion, fourthVersion, fifthVersion, sixthVersion, seventhVersion];
 
@@ -100,7 +100,7 @@ describe('Creation of archived versions', function ()
                         const updateMetadata = function (updateRequest, folderUri, callback)
                         {
                             let metadata = updateRequest.changes;
-                            if (updateRequest.change_type === 'delete')
+                            if (updateRequest.change_type === "delete")
                             {
                                 metadata = [];
                             }

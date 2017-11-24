@@ -1,37 +1,37 @@
-const chai = require('chai');
-const async = require('async');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const async = require("async");
+const chaiHttp = require("chai-http");
 const should = chai.should();
-const _ = require('underscore');
+const _ = require("underscore");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder('utils/user/userUtils.js'));
-const itemUtils = require(Pathfinder.absPathInTestsFolder('utils/item/itemUtils.js'));
-const appUtils = require(Pathfinder.absPathInTestsFolder('utils/app/appUtils.js'));
-const fileUtils = require(Pathfinder.absPathInTestsFolder('utils/file/fileUtils.js'));
-const folderUtils = require(Pathfinder.absPathInTestsFolder('utils/folder/folderUtils.js'));
-const projectUtils = require(Pathfinder.absPathInTestsFolder('utils/project/projectUtils.js'));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser1.js'));
-const demouser2 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser2.js'));
-const demouser3 = require(Pathfinder.absPathInTestsFolder('mockdata/users/demouser3.js'));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const privateProject = require(Pathfinder.absPathInTestsFolder('mockdata/projects/private_project.js'));
+const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
-const testFolder1 = require(Pathfinder.absPathInTestsFolder('mockdata/folders/testFolder1.js'));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder('units/files/createFiles.Unit.js'));
+const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
-const txtMockFile = require(Pathfinder.absPathInTestsFolder('mockdata/files/txtMockFile.js'));
+const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
 const allFiles = createFilesUnit.filesData;
 
-describe('Private project testFolder1 ?rename', function ()
+describe("Private project testFolder1 ?rename", function ()
 {
     this.timeout(Config.testsTimeout);
-    describe('[POST] [FOLDER] [PRIVATE PROJECT] [Invalid Cases] /project/' + privateProject.handle + '/data/:foldername?rename', function ()
+    describe("[POST] [FOLDER] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?rename", function ()
     {
         before(function (done)
         {
@@ -42,7 +42,7 @@ describe('Private project testFolder1 ?rename', function ()
             });
         });
 
-        it('Should give an error when the user is unauthenticated', function (done)
+        it("Should give an error when the user is unauthenticated", function (done)
         {
             // in this test, first we get the contents of a project with the proper authentication,
             // then we try to rename it after logging out
@@ -60,14 +60,14 @@ describe('Private project testFolder1 ?rename', function ()
                         return folder.nie.title === testFolder1.name;
                     });
 
-                    should.not.equal(typeof folder, 'undefined');
+                    should.not.equal(typeof folder, "undefined");
                     should.equal(folder.nie.title, testFolder1.name);
 
                     userUtils.logoutUser(agent, function (err, agent)
                     {
                         res.statusCode.should.equal(200);
 
-                        const newName = 'RenamedFolder';
+                        const newName = "RenamedFolder";
                         folderUtils.renameFolderByUri(true, agent, folder.uri, newName, function (err, res)
                         {
                             res.statusCode.should.equal(401);
@@ -78,7 +78,7 @@ describe('Private project testFolder1 ?rename', function ()
             });
         });
 
-        it('Should give an error when the user is logged in as demouser3 and tries to rename a folder in the root of the project (not a collaborator nor creator in a project created by demouser1)', function (done)
+        it("Should give an error when the user is logged in as demouser3 and tries to rename a folder in the root of the project (not a collaborator nor creator in a project created by demouser1)", function (done)
         {
             // in this test, first we get the contents of a project with the proper authentication,
             // then we try to rename it with the unauthorized user
@@ -95,7 +95,7 @@ describe('Private project testFolder1 ?rename', function ()
                         return folder.nie.title === testFolder1.name;
                     });
 
-                    should.not.equal(typeof folder, 'undefined');
+                    should.not.equal(typeof folder, "undefined");
                     should.equal(folder.nie.title, testFolder1.name);
 
                     userUtils.logoutUser(agent, function (err, agent)
@@ -104,7 +104,7 @@ describe('Private project testFolder1 ?rename', function ()
                         {
                             res.statusCode.should.equal(200);
 
-                            const newName = 'RenamedFolder';
+                            const newName = "RenamedFolder";
                             folderUtils.renameFolderByUri(true, agent, folder.uri, newName, function (err, res)
                             {
                                 res.statusCode.should.equal(401);
@@ -116,13 +116,13 @@ describe('Private project testFolder1 ?rename', function ()
             });
         });
 
-        it('Should give an error if an invalid name is specified for the file, even if the user is logged in as a creator or collaborator on the project', function (done)
+        it("Should give an error if an invalid name is specified for the file, even if the user is logged in as a creator or collaborator on the project", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 async.mapSeries(allFiles, function (file, callback)
                 {
-                    const newName = '123987621873512)(/&(/#%#(/)=)()/&%$#';
+                    const newName = "123987621873512)(/&(/#%#(/)=)()/&%$#";
                     fileUtils.renameFile(agent, privateProject.handle, testFolder1.name, file.name, newName, function (err, res)
                     {
                         res.statusCode.should.equal(400);
@@ -135,24 +135,24 @@ describe('Private project testFolder1 ?rename', function ()
             });
         });
 
-        it('Should be unable to find the file if we try to rename a file that does not exist, even if the user is logged in as a creator or collaborator on the project', function (done)
+        it("Should be unable to find the file if we try to rename a file that does not exist, even if the user is logged in as a creator or collaborator on the project", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 async.mapSeries(allFiles, function (file, callback)
                 {
-                    const newName = 'RenamedFile';
-                    const inexistentFileName = 'A_FILE_THAT_DOES_NOT_EXIST';
+                    const newName = "RenamedFile";
+                    const inexistentFileName = "A_FILE_THAT_DOES_NOT_EXIST";
                     fileUtils.renameFile(agent, privateProject.handle, testFolder1.name, inexistentFileName, newName, function (err, res)
                     {
                         res.statusCode.should.equal(200);
-                        should.equal(err, 'File with name ' + inexistentFileName + ' not found in ' + testFolder1.name);
+                        should.equal(err, "File with name " + inexistentFileName + " not found in " + testFolder1.name);
                         const contents = JSON.parse(res.text);
                         const file = _.find(contents, function (file)
                         {
                             return file.nie.title === inexistentFileName;
                         });
-                        should.equal(typeof file, 'undefined');
+                        should.equal(typeof file, "undefined");
                         callback(null, res);
                     });
                 }, function (err, result)
@@ -162,13 +162,13 @@ describe('Private project testFolder1 ?rename', function ()
             });
         });
 
-        it('Should give an error if we try to rename a project instead of a file, even if the user is logged in as a creator or collaborator on the project', function (done)
+        it("Should give an error if we try to rename a project instead of a file, even if the user is logged in as a creator or collaborator on the project", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 async.mapSeries(allFiles, function (file, callback)
                 {
-                    const newName = 'RenamedFile';
+                    const newName = "RenamedFile";
                     fileUtils.renameProject(true, agent, privateProject.handle, newName, function (err, res)
                     {
                         res.statusCode.should.equal(404);
@@ -193,7 +193,7 @@ describe('Private project testFolder1 ?rename', function ()
         });
     });
 
-    describe('[POST] [FILE] [PRIVATE PROJECT] [Valid Cases] /project/' + privateProject.handle + '/data/testFolder1/:filename?rename', function ()
+    describe("[POST] [FILE] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?rename", function ()
     {
         beforeEach(function (done)
         {
@@ -205,13 +205,13 @@ describe('Private project testFolder1 ?rename', function ()
             });
         });
 
-        it('Should rename files with success if the user is logged in as demouser1(the creator of the project)', function (done)
+        it("Should rename files with success if the user is logged in as demouser1(the creator of the project)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 async.mapSeries(allFiles, function (file, callback)
                 {
-                    const newName = 'RenamedFile';
+                    const newName = "RenamedFile";
                     fileUtils.renameFile(agent, privateProject.handle, testFolder1.name, file.name, newName, function (err, res)
                     {
                         res.statusCode.should.equal(200);
@@ -224,11 +224,11 @@ describe('Private project testFolder1 ?rename', function ()
             });
         });
 
-        it('Should rename ' + txtMockFile.name + ' with success if the user is logged in as demouser2(a collaborator of the project)', function (done)
+        it("Should rename " + txtMockFile.name + " with success if the user is logged in as demouser2(a collaborator of the project)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                const newName = 'RenamedFile';
+                const newName = "RenamedFile";
 
                 folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
                 {
@@ -238,7 +238,7 @@ describe('Private project testFolder1 ?rename', function ()
                         return file.nie.title === txtMockFile.name;
                     });
 
-                    should.not.equal(typeof oldFile, 'undefined');
+                    should.not.equal(typeof oldFile, "undefined");
                     should.equal(oldFile.nie.title, txtMockFile.name);
 
                     fileUtils.renameFileByUri(true, agent, oldFile.uri, newName, function (err, res)
@@ -251,11 +251,11 @@ describe('Private project testFolder1 ?rename', function ()
 
                             const newFile = _.find(JSON.parse(res.text), function (file)
                             {
-                                return file.nie.title === newName + '.txt';
+                                return file.nie.title === newName + ".txt";
                             });
 
-                            should.not.equal(typeof newFile, 'undefined');
-                            should.equal(newFile.nie.title, newName + '.txt');
+                            should.not.equal(typeof newFile, "undefined");
+                            should.equal(newFile.nie.title, newName + ".txt");
                             should.equal(newFile.uri, oldFile.uri);
                             done();
                         });
@@ -264,14 +264,14 @@ describe('Private project testFolder1 ?rename', function ()
             });
         });
 
-        it('Should rename all files with success if the user is logged in as demouser2(a collaborator of the project)', function (done)
+        it("Should rename all files with success if the user is logged in as demouser2(a collaborator of the project)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 async.mapSeries(allFiles, function (file, callback)
                 {
-                    const newName = 'RenamedFile';
-                    const newNameWithExtension = newName + '.' + file.extension;
+                    const newName = "RenamedFile";
+                    const newNameWithExtension = newName + "." + file.extension;
 
                     folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
                     {
@@ -281,7 +281,7 @@ describe('Private project testFolder1 ?rename', function ()
                             return file.nie.title === txtMockFile.name;
                         });
 
-                        should.not.equal(typeof oldFile, 'undefined');
+                        should.not.equal(typeof oldFile, "undefined");
                         should.equal(oldFile.nie.title, txtMockFile.name);
 
                         fileUtils.renameFileByUri(true, agent, oldFile.uri, newName, function (err, res)
@@ -297,7 +297,7 @@ describe('Private project testFolder1 ?rename', function ()
                                     return file.nie.title === newNameWithExtension;
                                 });
 
-                                should.not.equal(typeof newFile, 'undefined');
+                                should.not.equal(typeof newFile, "undefined");
                                 should.equal(newFile.nie.title, newNameWithExtension);
                                 should.equal(newFile.uri, oldFile.uri);
                                 done();

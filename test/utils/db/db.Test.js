@@ -1,10 +1,10 @@
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder('models/meta/config.js')).Config;
-process.env.NODE_ENV = 'test';
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+process.env.NODE_ENV = "test";
 
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const async = require('async');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const async = require("async");
 chai.use(chaiHttp);
 
 const should = chai.should();

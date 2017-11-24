@@ -1,5 +1,5 @@
-angular.module('dendroApp.controllers')
-    .controller('projectTreeViewerCtrl', function ($scope)
+angular.module("dendroApp.controllers")
+    .controller("projectTreeViewerCtrl", function ($scope)
     {
         $scope.toggle = function (scope)
         {
@@ -8,11 +8,11 @@ angular.module('dendroApp.controllers')
 
         $scope.collapseAll = function ()
         {
-            $scope.$broadcast('collapseAll');
+            $scope.$broadcast("collapseAll");
         };
 
         $scope.expandAll = function ()
         {
-            $scope.$broadcast('expandAll');
+            $scope.$broadcast("expandAll");
         };
     });

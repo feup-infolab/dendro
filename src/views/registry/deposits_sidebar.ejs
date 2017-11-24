@@ -1,6 +1,6 @@
 <form class="deposit-sidebar">
     Search registry
-    <div class="form-group" ng-repeat="item in search track by $index">
+    <!--<div class="form-group" ng-repeat="item in search track by $index">
         <label>
             {{item.label}}
             <div ng-if="item.list" ng-repeat="iterator in item.value track by $index">
@@ -14,6 +14,8 @@
 
         </label>
     </div>
+-->
+    <div search-bar></div>
     <!--<div>
         <label>
             Username
@@ -22,7 +24,7 @@
         <label>
             Project
             <input ng-model="search.project" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="text">
-        </label>
+        </label>routes.S
         <label>
             System Used
             <p ng-repeat="(system,value) in search.system track by $index">

@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
  *  Metadata editor controller
  */
-    .controller('metadataEditorCtrl', function (
+    .controller("metadataEditorCtrl", function (
         $scope,
         $http,
         $filter,
@@ -25,7 +25,7 @@ angular.module('dendroApp.controllers')
     {
         $scope.recover_metadata = function ()
         {
-            bootbox.confirm('Undo all changes to the metadata?', function (confirmed)
+            bootbox.confirm("Undo all changes to the metadata?", function (confirmed)
             {
                 if (confirmed)
                 {
@@ -93,6 +93,16 @@ angular.module('dendroApp.controllers')
                 {
                     var descriptor_clone = $scope.shared.metadata[i];
                     descriptor_clone.recommendedFor = currentUri;
+                    // Removes the descriptor values that are marked as deleted
+                    if (descriptor_clone.value instanceof Array && descriptor_clone.valuesMarkedAsDeleted instanceof Object)
+                    {
+                        var descriptorValues = _.reject(descriptor_clone.value, function (value)
+                        {
+                            var result = descriptor_clone.valuesMarkedAsDeleted[value];
+                            return result;
+                        });
+                        descriptor_clone.value = descriptorValues;
+                    }
 
                     if (!descriptor_clone.just_deleted)
                     {
@@ -153,8 +163,7 @@ angular.module('dendroApp.controllers')
                 var report_problems = function (fault)
                 {
                     console.log(fault);
-                    windowService.show_popup('error', 'Error', fault);
-                    deferred.reject(fault);
+                    windowService.show_popup("error", "Error", fault);
                 };
 
                 save_metadata()
@@ -163,18 +172,18 @@ angular.module('dendroApp.controllers')
                     .then(register_deleted)
                     .then(register_inherited)
                     .then(refetch_metadata)
-                    .then(function ()
+                    .then(function (data)
                     {
-                        var msg = 'Information was saved successfully';
-                        windowService.show_popup('success', 'OK', msg);
+                        var msg = "Information was saved successfully";
+                        windowService.show_popup("success", "OK", msg);
                     })
                     .catch(report_problems);
             }
             else
             {
-                var msg = 'There are still errors in your metadata. Please go over each descriptor and check for any warnings before trying to save again.';
-                windowService.show_popup('warning',
-                    'Warning',
+                var msg = "There are still errors in your metadata. Please go over each descriptor and check for any warnings before trying to save again.";
+                windowService.show_popup("warning",
+                    "Warning",
                     msg
                 );
 
@@ -220,7 +229,7 @@ angular.module('dendroApp.controllers')
 
         $scope.clear_metadata = function ()
         {
-            bootbox.confirm('Clear metadata?', function (confirmed)
+            bootbox.confirm("Clear metadata?", function (confirmed)
             {
                 if (confirmed)
                 {
@@ -230,17 +239,9 @@ angular.module('dendroApp.controllers')
             });
         };
 
-        $scope.dirty_metadata = function ()
-        {
-            return metadataService.dirty_metadata(
-                $scope.shared.initial_metadata,
-                $scope.shared.metadata
-            );
-        };
-
         $scope.inherit_metadata = function ()
         {
-            var requestUri = $scope.get_calling_uri('?parent_metadata');
+            var requestUri = $scope.get_calling_uri("?parent_metadata");
 
             return $http
                 .get(requestUri)
@@ -255,11 +256,11 @@ angular.module('dendroApp.controllers')
 
                         $scope.add_all_descriptors(data.descriptors);
 
-                        windowService.show_popup('success', 'Completed', 'Copied ' + data.descriptors.length + ' descriptors from parent folder.');
+                        windowService.show_popup("success", "Completed", "Copied " + data.descriptors.length + " descriptors from parent folder.");
 
                         return $scope.shared.metadata;
                     }
-                    windowService.show_popup('info', 'No descriptors', 'Parent has no descriptors to copy.');
+                    windowService.show_popup("info", "No descriptors", "Parent has no descriptors to copy.");
                 });
         };
 
@@ -317,7 +318,7 @@ angular.module('dendroApp.controllers')
 
         $scope.save_descriptor_on_enter = function ()
         {
-            bootbox.confirm('Save changes to the annotations?', function (confirmed)
+            bootbox.confirm("Save changes to the annotations?", function (confirmed)
             {
                 if (confirmed)
                 {
@@ -326,9 +327,9 @@ angular.module('dendroApp.controllers')
             });
         };
 
-        $scope.toggle_datepicker = function (descriptorIndex)
+        $scope.toggle_datepicker = function (descriptorIndex, valueIndex)
         {
-            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
+            /*if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
             {
                 if ($scope.shared.metadata[descriptorIndex].datepicker_uuid == null)
                 {
@@ -336,6 +337,35 @@ angular.module('dendroApp.controllers')
                 }
 
                 var datepickerUUID = $scope.shared.metadata[descriptorIndex].datepicker_uuid;
+
+                if ($scope.open_datepickers == null)
+                {
+                    $scope.open_datepickers = {};
+                }
+
+                if ($scope.open_datepickers[datepickerUUID])
+                {
+                    $scope.open_datepickers[datepickerUUID] = false;
+                }
+                else
+                {
+                    $scope.open_datepickers[datepickerUUID] = true;
+                }
+            }*/
+
+            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
+            {
+                if ($scope.shared.metadata[descriptorIndex].datepicker_uuids == null)
+                {
+                    $scope.shared.metadata[descriptorIndex].datepicker_uuids = [];
+                    $scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex] = UUIDjs.create().hex;
+                }
+                else if ($scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex] == null)
+                {
+                    $scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex] = UUIDjs.create().hex;
+                }
+
+                var datepickerUUID = $scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex];
 
                 if ($scope.open_datepickers == null)
                 {
@@ -405,9 +435,29 @@ angular.module('dendroApp.controllers')
             }
         };
 
-        $scope.get_map_src = function (descriptor, key)
+        $scope.get_map_src = function (descriptor, key, descriptorValueIndex)
         {
-            return 'https://www.google.com/maps/embed/v1/place?key=' + key + '&q=' + descriptor.value;
+            var mapSrc;
+            if (descriptor === null || descriptor.value === null)
+            {
+                throw new Error("Map source is required!!!");
+            }
+            else if (descriptor.value instanceof Array)
+            {
+                if (descriptorValueIndex !== null)
+                {
+                    mapSrc = "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value[descriptorValueIndex];
+                }
+                else
+                {
+                    throw new Error("Map value is an array, descriptorValueIndex is required for this case");
+                }
+            }
+            else if (typeof descriptor.value === "string" || descriptor.value instanceof String)
+            {
+                mapSrc = "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value;
+            }
+            return mapSrc;
         };
 
         $scope.shared.descriptor_is_filled_in = function (descriptor)

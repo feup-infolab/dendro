@@ -24,61 +24,62 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
         $scope.offset = 0;
         $scope.page = 10;
 
-        $scope.search = {
-            creator: {
-              type: "text",
-              label: "Username",
-              key: "creator",
-              value: "",
-            },
-            project: {
-              type: "text",
-              label: "Project",
-              key: "project",
-              value: "",
-            },
-            dateFrom: {
-              type: "date",
-              label: "Date Start",
-              key: "dateFrom",
-              value: "",
-            },
-            dateTo: {
-              type: "date",
-              label: "Date End",
-              key: "dateTo",
-              value: "",
-            },
-            privateDeposit: {
-              type: "checkbox",
-              label: "Private Deposits",
-              key: "private",
-              value: false,
-            },
-            system: {
-              type: "checkbox",
-              list: true,
-              label: "System Used",
-              key:"systems",
-              value: [
-                {
-                  name: "ckan",
+        $scope.search =  {
+                creator: {
+                  type: "text",
+                  label: "Username",
+                  key: "creator",
+                  value: "",
+                },
+                project: {
+                  type: "text",
+                  label: "Project",
+                  key: "project",
+                  value: "",
+                },
+                dateFrom: {
+                  type: "date",
+                  label: "Date Start",
+                  key: "dateFrom",
+                  value: "",
+                },
+                dateTo: {
+                  type: "date",
+                  label: "Date End",
+                  key: "dateTo",
+                  value: "",
+                },
+                privateDeposit: {
+                  type: "checkbox",
+                  label: "Private Deposits",
+                  key: "private",
                   value: false,
                 },
-                {
-                  name: "b2Drop",
-                  value: true,
+                system: {
+                  type: "checkbox",
+                  list: true,
+                  label: "System Used",
+                  key: "systems",
+                  value: [
+                    {
+                      name: "ckan",
+                      value: false,
+                    },
+                    {
+                      name: "b2Drop",
+                      value: true,
+                    }
+                  ]
                 }
-              ]
-            }
 
-            /*offset: 0,
-            limit: 10,
-            system: {
-              ckan: true,
-              b2drop: false,
-              all: true,
-            }*/
+                /*offset: 0,
+                limit: 10,
+                system: {
+                  ckan: true,
+                  b2drop: false,
+                  all: true,
+                }*/
+
         };
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
@@ -164,40 +165,12 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
         };
 
 
+    })
+    .directive("searchBar", function (
 
-
-        $scope.get_contributors = function(contributors){
-            if(contributors != "") {
-                var names = contributors.split(",");
-                projectsService.get_contributors(names)
-                    .then(function(response){
-                        var users = response.contributors;
-                        $scope.contributors = [];
-                        for (var i in users) {
-                            $scope.contributors.push({"info": users[i], "remove": false});
-                        }
-                    });
-
-            }
-        };
-
-
-
-        $scope.clicked_information_tab = function()
-        {
-            $scope.active_tab = 'information';
-            $localStorage.active_tab = $scope.active_tab;
-        };
-
-        $scope.clicked_metadataquality_tab = function()
-        {
-            $scope.active_tab = 'metadataquality';
-            $localStorage.active_tab = $scope.active_tab;
-        };
-
-        $scope.clicked_people_tab = function()
-        {
-            $scope.active_tab = 'people';
-            $localStorage.active_tab = $scope.active_tab;
-        };
+    ) {
+        //let searchParameters = $scope.search();
+        return {
+          template: "{{search.creator.label}} <br/><input type='{{search.creator.type}}' > "
+        }
     });
