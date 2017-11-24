@@ -46,8 +46,13 @@ describe("Administer projects", function (done)
     {
         createProjectsUnit.setup(function (err, res)
         {
-            should.equal(err, null);
-            done();
+            try{
+                should.equal(err, null);
+            }
+            catch(e)
+            {
+                done(err);
+            }
         });
     });
     describe("project/" + publicProject.handle + "?administer", function ()
