@@ -515,7 +515,23 @@ Ontology.initAllFromDatabase = function (callback)
             {
                 let ontology = ontologies[i];
                 allOntologies[ontology.prefix] = ontologies[i];
-                allElements[ontology.prefix] = descriptors[i];
+                // Looks for the correct descriptorsIndex corresponding to each ontology
+                let correctDescriptorsIndex = _.findIndex(descriptors, function (ontologyDescriptors)
+                {
+                    return _.find(ontologyDescriptors, function (descriptor)
+                    {
+                        return descriptor.prefix === ontology.prefix;
+                    });
+                });
+                // It is only going to be saved in allElements if the index is an integer and above or equal to zero
+                if (!isNull(correctDescriptorsIndex) && Number.isInteger(correctDescriptorsIndex) && correctDescriptorsIndex >= 0)
+                {
+                    allElements[ontology.prefix] = descriptors[correctDescriptorsIndex];
+                }
+                else
+                {
+                    Logger.log("error", "Error: Ontology has its descriptors incorrectly parametrized");
+                }
             }
 
             return callback(err, allOntologies, allElements);
