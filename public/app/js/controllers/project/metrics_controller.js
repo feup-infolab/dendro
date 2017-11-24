@@ -21,44 +21,40 @@ angular.module('dendroApp.controllers')
             windowService,
             filesService
         ) {
-            let projectdata = 4;
-
-            $scope.labels = ["Download Sales", "In-Store Sales", "Numero de pastas"];
-            $scope.data = [1, 4, 3, projectdata];
-            $scope.colours = [ '#803690', '#00ADF9', '#17ed6d'];
-
-            $scope.updateData = function(){
-                $scope.data = [2, 5];
-                console.log($scope);
+            $scope.loadData = function () {
+                console.log("hello");
             };
 
-            $scope.get_project_stats = function()
-            {
-                function getStats(uri)
-                {
-                    filesService.get_stats(uri)
-                        .then($scope.updateData);
+            $scope.labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+            $scope.data = [
+                [65, 59, 80, 81, 56, 55, 40],
+                [28, 48, 40, 19, 86, 27, 90]
+            ];
+            $scope.colors = [
+                { // grey
+                    backgroundColor: 'rgba(148,159,177,0.2)',
+                    pointBackgroundColor: 'rgba(148,159,177,1)',
+                    pointHoverBackgroundColor: 'rgba(148,159,177,1)',
+                    borderColor: 'rgba(148,159,177,1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+                },
+                { // dark grey
+                    backgroundColor: 'rgba(77,83,96,0.2)',
+                    pointBackgroundColor: 'rgba(77,83,96,1)',
+                    pointHoverBackgroundColor: 'rgba(77,83,96,1)',
+                    borderColor: 'rgba(77,83,96,1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBorderColor: 'rgba(77,83,96,0.8)'
                 }
+            ];
 
-                if($scope.showing_project_root())
-                {
-                    getStats($scope.get_calling_uri());
-                }
-                else
-                {
-                    $scope.get_owner_project()
-                        .then(function(ownerProject)
-                        {
-                            if(ownerProject != null)
-                            {
-                                getStats(ownerProject.uri);
-                            }
-                        })
-                        .catch(function(e){
-                            console.error("Unable to fetch parent project of the currently selected file.");
-                            console.error(JSON.stringify(e));
-                            windowService.show_popup("error", "Error", e.statusText);
-                        });
-                }
+            $scope.randomize = function () {
+                $scope.data = $scope.data.map(function (data) {
+                    return data.map(function (y) {
+                        y = y + Math.random() * 10 - 5;
+                        return parseInt(y < 0 ? 0 : y > 100 ? 100 : y);
+                    });
+                });
             };
         });
