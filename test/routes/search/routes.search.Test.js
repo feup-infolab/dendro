@@ -27,15 +27,27 @@ const fileUtils = require("../../utils/file/fileUtils.js");
 const folderUtils = require("../../utils/folder/folderUtils.js");
 const userUtils = require("../../utils/user/userUtils.js");
 
+const searchUtils = require('../../utils/search/searchUtils.js');
+
 describe("/search", function ()
 {
     /**
      * Search effectiveness (does it find the things it should, without considering permisions for now?)
      */
-    // TODO
-    it("[HTML] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done)
-    {
-        done();
+    //TODO
+    it("[HTML] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done) {
+        let app = GLOBAL.tests.app;
+        agent = chai.request.agent(app);
+        searchUtils.search(false, agent, ecologyFolder.search_terms, function (err, res) {
+            if (err) {
+                done(err);
+            }
+            else {
+                res.should.have.status(200);
+                res.text.should.contain(ecologyFolder.metadata.dcterms.abstract);
+                done();
+            }
+        });
     });
 
     // TODO

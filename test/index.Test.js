@@ -19,6 +19,15 @@ global.Config = Config;
 
 global.tests = {};
 
+require(Pathfinder.absPathInTestsFolder("/routes/deposits/__project/route.deposits.__project.Test.js"));
+
+return;
+
+require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
+
+//administer projects
+require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
+require(Pathfinder.absPathInTestsFolder('/init/loadOntologiesCache.Test.js'));
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 // PUBLIC PROJECT FOLDER LEVEL CALCULATE CKAN REPOSITORY DIFFS
@@ -46,6 +55,13 @@ require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__adminis
 require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));
 
+//EDIT USERS
+require(Pathfinder.absPathInTestsFolder("/routes/user/edit/routes.user.edit.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
 // USER
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/route.user.demouser2.Test.js"));
@@ -68,6 +84,21 @@ require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.T
 require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
 
 /* require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js")); */
+
+//PUBLIC PROJECT
+/*require(Pathfinder.absPathInTestsFolder("/routes/projects/public_project/request_access/route.projects.publicProject.requestAccess.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/projects/public_project/delete/route.projects.publicProject.delete.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/projects/public_project/undelete/route.projects.publicProject.undelete.Test.js"));
+
+//METADATA PROJECT
+/*require(Pathfinder.absPathInTestsFolder("/routes/projects/metadataonly_project/request_access/route.projects.metadataonlyProject.requestAccess.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/projects/metadataonly_project/delete/route.projects.metadataonlyProject.delete.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/projects/metadataonly_project/undelete/route.projects.metadataonlyProject.undelete.Test.js"));
+
+//PRIVATE PROJECT
+/*require(Pathfinder.absPathInTestsFolder("/routes/projects/private_project/request_access/route.projects.privateProject.requestAccess.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/projects/private_project/delete/route.projects.privateProject.delete.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/projects/private_project/undelete/route.projects.privateProject.undelete.Test.js"));
 
 // PUBLIC PROJECT
 /* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/request_access/route.projects.publicProject.__request_access.Test.js")); */

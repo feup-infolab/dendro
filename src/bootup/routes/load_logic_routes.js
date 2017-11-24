@@ -30,6 +30,7 @@ const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"))
 const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
 const timeline = require(Pathfinder.absPathInSrcFolder("/controllers/timeline"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
+const deposits = require(Pathfinder.absPathInSrcFolder("/controllers/deposits"));
 
 let recommendation;
 
@@ -1395,7 +1396,19 @@ const loadRoutes = function (app, callback)
 
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
-    // serve angular JS ejs-generated html partials
+    app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
+
+    //TODO William
+    app.get("/deposits/latest", deposits.getDeposits);
+
+    /*app.get([
+            getNonHumanReadableRouteRegex("deposit")
+        ],
+        extractUriFromRequest,
+        async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions););
+        */
+
+    //serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);
 
     // serve angular JS ejs-generated html partials

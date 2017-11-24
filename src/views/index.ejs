@@ -4,11 +4,10 @@
 
     <!-- Services -->
     <div id="services" class="services">
-      <div class="container">
+      <div class="jumbotron container">
         <div class="row">
           <div class="col-md-4 col-md-offset-4 text-center">
             <h2>Welcome to Dendro Beta</h2>
-              <%- include layout/demo_notice.ejs %>
           </div>
         </div>
         <div class="row">
@@ -20,30 +19,35 @@
         <div class="row">
           <div class="col-md-3 col-md-offset-2 text-center">
             <div class="service-item">
-              <i class="service-icon fa fa-file-text"></i>
-              <h2>Read papers<!--<a href="/papers/all">papers</a>--></h2>
+              <i class="fa fa-file-text fa-6" aria-hidden="true"></i>
+              <h3>Read papers<!--<a href="/papers/all">papers</a>--></h3>
               <!--<h4><span class="label label-primary">18917827</span> and counting</h4>-->
               <p>Find relevant bibliography by searching on high-quality metadata. The papers and other documents are contributed by researchers like yourself. </p>
             </div>
           </div>
           <div class="col-md-3 text-center">
             <div class="service-item">
-                <i class="service-icon fa fa-archive"></i>
-                <h2>Browse datasets<!--<a href="/datasets/all">Datasets</a>--></h2>
+                <i class="fa fa-archive fa-3"></i>
+                <h3>Browse datasets<!--<a href="/datasets/all">Datasets</a>--></h3>
                 <!--<h4><span class="label label-primary">18917827</span> and counting</h4>-->
                 <p>Find high-quality, community-managed datasets, including domain-specific descriptions</p>
             </div>
           </div>
           <div class="col-md-3 text-center">
             <div class="service-item">
-              <i class="service-icon fa fa-user"></i>
-              <h2>Contact researchers<!--<a href="/researchers/all">Researchers</a>--></h2>
+              <i class="fa fa-user"></i>
+              <h3>Contact researchers<!--<a href="/researchers/all">Researchers</a>--></h3>
               <!--<h4><span class="label label-primary">19811</span> and counting</h4>-->
               <p>Contact researchers who shared <!--<a href="/datasets/all">data</a>--> data on this Dendro</p>
             </div>
           </div>
         </div>
+        <button class="col-sm-12 col-xs-12 col-md-4 col-md-offset-4 text-center btn btn-primary btn-xs-block" onclick="console.log(this);this.parentElement.remove()">
+            Got it!
+        </button>
       </div>
+
+        <%- include registry/deposits.ejs %>
     </div>
     <!-- /Services -->
 

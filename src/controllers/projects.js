@@ -1,6 +1,7 @@
 const path = require("path");
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
+
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -907,6 +908,23 @@ exports.new = function (req, res)
                         {
                             if (isNull(err))
                             {
+                                req.flash('success', 'New project ' + projectData.dcterms.title + ' with handle ' + projectData.ddr.handle + ' created successfully');
+                                res.redirect('/projects/my');
+
+                                const registryData = {
+                                    dcterms: {
+                                        title: "new project",
+                                        description: "ckan",
+                                        creator: req.user.ddr.username,
+                                    },
+                                    ddr: {
+                                        exportedFromProject: result.uri,
+                                        privacyStatus: "private",
+                                    }
+                                };
+                                Deposit.createDepositRegistry(registryData, function(err, result){
+                                    console.log(result);
+                                });
                                 req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
                                 res.redirect("/projects/my");
                             }

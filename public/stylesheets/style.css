@@ -163,3 +163,9 @@ footer .container-fluid {
   top: 30px;
   left: 70px;
 }
+.deposit-sidebar {
+  background-color: #aba;
+  -webkit-border-radius: 20pt;
+  -moz-border-radius: 20pt;
+  border-radius: 20pt;
+}

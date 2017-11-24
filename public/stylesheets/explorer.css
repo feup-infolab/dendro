@@ -180,6 +180,14 @@ Animations (uncomment to have animations)
 .file_explorer_icon {
   text-shadow: 1px 1px 1px #ccc;
 }
+.foldersLabel {
+  display: inline-block;
+  width: 100px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
 .social-dendro-btn {
   font-size: 10px;
 }
