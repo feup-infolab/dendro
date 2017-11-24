@@ -19,16 +19,27 @@ angular.module('dendroApp.controllers')
             $timeout,
             metadataService,
             windowService,
-            filesService
+            filesService,
+            metricsService
         ) {
-            $scope.loadData = function () {
-                console.log("hello");
+
+            $scope.init = function () {
+                $scope.loadData();
             };
+
+            $scope.loadData = function () {
+                metricsService.get_stats().
+                then(function (response)
+                {
+                    let statsData = response.data;
+                    $scope.data[0].push(statsData.folders_count);
+                });
+            };
+
 
             $scope.labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
             $scope.data = [
-                [65, 59, 80, 81, 56, 55, 40],
-                [28, 48, 40, 19, 86, 27, 90]
+                [65, 1, 1, 1, 1, 1]
             ];
             $scope.colors = [
                 { // grey
