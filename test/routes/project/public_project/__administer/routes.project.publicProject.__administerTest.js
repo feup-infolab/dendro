@@ -46,10 +46,11 @@ describe("Administer projects", function (done)
     {
         createProjectsUnit.setup(function (err, res)
         {
-            try{
+            try
+            {
                 should.equal(err, null);
             }
-            catch(e)
+            catch (e)
             {
                 done(err);
             }
