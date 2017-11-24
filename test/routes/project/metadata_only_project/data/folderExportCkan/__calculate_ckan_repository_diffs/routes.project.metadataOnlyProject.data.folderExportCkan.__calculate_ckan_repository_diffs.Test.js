@@ -106,7 +106,6 @@ describe("Calculate metadata only project folderExportCkan level ckan respositor
 
     describe("[POST] [CKAN] First time being exported /project/:handle/data/:foldername?export_to_repository", function ()
     {
-
         it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -226,7 +225,6 @@ describe("Calculate metadata only project folderExportCkan level ckan respositor
 
     describe("[POST] [CKAN] Second time being exported but no diffs exist /project/:handle/data/:foldername?export_to_repository", function ()
     {
-
         // A case where there is no previously version exported to ckan
         it("Should give a success message with information that no diffs exist", function (done)
         {
@@ -245,7 +243,6 @@ describe("Calculate metadata only project folderExportCkan level ckan respositor
 
     describe("[POST] [CKAN] Second time being exported but ckan diffs exist /project/:handle/data/:foldername?export_to_repository", function ()
     {
-
         // A case where a folder was exported to ckan and then files were uploaded on the ckan app
         it("Should give a success message with information that ckan diffs exist", function (done)
         {
@@ -271,7 +268,6 @@ describe("Calculate metadata only project folderExportCkan level ckan respositor
 
     describe("[POST] [CKAN] Second time being exported but dendro diffs exist /project/:handle/data/:foldername?export_to_repository", function ()
     {
-
         // A case where a folder was exported to ckan and then files were uploaded on the dendro app
         it("Should give a success message with information that dendro diffs exist", function (done)
         {

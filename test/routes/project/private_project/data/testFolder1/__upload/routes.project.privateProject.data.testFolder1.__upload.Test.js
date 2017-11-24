@@ -52,7 +52,6 @@ describe("Upload files into testFolder1 of Private project", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);

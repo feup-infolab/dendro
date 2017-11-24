@@ -16,9 +16,9 @@ const md5 = require("md5");
 
 describe("[POST] /user_avatar", function (done)
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createUserUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -108,7 +108,6 @@ describe("[POST] /user_avatar", function (done)
 
     after(function (done)
     {
-        this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

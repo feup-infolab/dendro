@@ -28,7 +28,6 @@ describe("/search", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         addMetadataToFoldersUnit.setup(function (err, results)
         {
             should.not.exist(err);
@@ -42,13 +41,16 @@ describe("/search", function ()
     // TODO
     it("[HTML] should search and find a folder by searching for a term present in its search term", function (done)
     {
-        async.map(foldersData, function(folder){
-            searchUtils.search(folder.searchTerms, function(err, res){
+        async.map(foldersData, function (folder)
+        {
+            searchUtils.search(folder.searchTerms, function (err, res)
+            {
                 should.not.exist(err);
                 res.status.should.equal(200);
                 callback(err, res);
             });
-        }, function(err, results){
+        }, function (err, results)
+        {
             done();
         });
     });

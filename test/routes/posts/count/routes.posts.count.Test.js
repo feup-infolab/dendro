@@ -31,9 +31,9 @@ let numberOfPostsForDemouser1Timeline;
 
 describe("Get the number of posts of a specific user timeline tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
         {
@@ -102,7 +102,7 @@ describe("Get the number of posts of a specific user timeline tests", function (
     after(function (done)
     {
         // destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

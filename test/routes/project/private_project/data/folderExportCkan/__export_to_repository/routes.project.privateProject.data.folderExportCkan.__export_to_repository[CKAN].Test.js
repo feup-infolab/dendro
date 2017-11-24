@@ -95,7 +95,6 @@ describe("Export private project folderExportCkan level to ckan tests", function
 
     describe("[POST] [CKAN] /project/:handle/data/:foldername?export_to_repository", function ()
     {
-
         it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

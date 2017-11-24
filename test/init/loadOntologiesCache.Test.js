@@ -25,9 +25,9 @@ let initVirtuoso = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("/boot
 
 describe("Loading ontologies cache only once...", function ()
 {
+    this.timeout(Config.testsTimeout);
     it("Should load all ontologies into cache.", function (done)
     {
-        this.timeout(Config.testsTimeout);
         initVirtuoso(null, function (err, result)
         {
             initCache(null, function (err, result)

@@ -27,9 +27,9 @@ const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFol
 
 describe("Request access to private project", function (done)
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createProjectsUnit.setup(function (err, results)
         {
             should.equal(err, null);

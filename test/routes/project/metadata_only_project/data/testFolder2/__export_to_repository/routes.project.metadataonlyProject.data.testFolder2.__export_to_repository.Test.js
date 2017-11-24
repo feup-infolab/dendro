@@ -37,9 +37,9 @@ let b2shareData, ckanData, zenodoData, dspaceData, eprintsData, figshareData;
 
 describe("Export metadata only project testFolder2 level to repositories tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createExportToRepositoriesConfig.setup(function (err, results)
         {
             should.equal(err, null);

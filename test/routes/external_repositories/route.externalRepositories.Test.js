@@ -22,9 +22,9 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("List all external repository tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createExportToRepositoriesConfigsUnit.setup(function (err, results)
         {
             should.equal(err, null);
