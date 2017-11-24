@@ -46,8 +46,14 @@ describe("Administer projects", function (done)
     {
         createProjectsUnit.setup(function (err, res)
         {
-            should.equal(err, null);
-            done();
+            try
+            {
+                should.equal(err, null);
+            }
+            catch (e)
+            {
+                done(err);
+            }
         });
     });
     describe("project/" + publicProject.handle + "?administer", function ()
@@ -274,7 +280,7 @@ describe("Administer projects", function (done)
     after(function (done)
     {
     // destroy graphs
-        this.timeout(Config.testsTimeout);
+
         db.deleteGraphs(function (err, data)
         {
             should.equal(err, null);

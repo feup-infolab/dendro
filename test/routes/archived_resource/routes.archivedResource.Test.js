@@ -34,7 +34,6 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Creation of archived versions", function ()
 {
-    this.timeout(Config.testsTimeout);
     before(function (done)
     {
         createFoldersUnit.setup(function (err, results)

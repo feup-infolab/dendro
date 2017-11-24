@@ -329,7 +329,7 @@ angular.module("dendroApp.controllers")
 
         $scope.toggle_datepicker = function (descriptorIndex, valueIndex)
         {
-            /*if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
+            /* if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
             {
                 if ($scope.shared.metadata[descriptorIndex].datepicker_uuid == null)
                 {

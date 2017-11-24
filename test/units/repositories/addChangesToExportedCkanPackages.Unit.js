@@ -56,13 +56,10 @@ module.exports.setup = function (project, finish)
                 {
                     repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)
                     {
-                        res.statusCode.should.equal(200);
-                        res.body.length.should.equal(6);
                         ckanData = _.find(res.body, function (externalRepo)
                         {
                             return externalRepo.dcterms.title === "ckan2";
                         });
-                        should.exist(ckanData);
 
                         // fazer export de apenas algumas pastas, e de seguida adicionar alterações ckandiffs e dendro diffs a algumas delas(de acordo com os nomes)
                         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -76,7 +73,6 @@ module.exports.setup = function (project, finish)
                                 // export folders folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs folderExportedCkanCkanDiffs
                                 projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res)
                                 {
-                                    res.statusCode.should.equal(200);
                                     let folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData)
                                     {
                                         return folderData.nie.title === folderExportedCkanDendroDiffs.name;
@@ -85,13 +81,10 @@ module.exports.setup = function (project, finish)
                                     {
                                         return folderData.nie.title === folderExportedCkanCkanDiffs.name;
                                     });
-                                    should.exist(folderExportedCkanDendroDiffsData);
-                                    should.exist(folderExportedCkanCkanDiffsData);
 
                                     // UPLOAD A FILE TO DENDRO SO THAT THERE EXISTS DENDROCHANGES
                                     fileUtils.uploadFile(true, agent, project.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedDeletedFileDendroMockFile, function (err, res)
                                     {
-                                        res.statusCode.should.equal(200);
                                         let packageId = CkanUtils.createPackageID(folderExportedCkanCkanDiffsData.uri);
                                         let packageInfo = {
                                             id: packageId
@@ -101,7 +94,6 @@ module.exports.setup = function (project, finish)
                                         {
                                             repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res)
                                             {
-                                                res.statusCode.should.equal(200);
                                                 /* cb(err, res); */
                                                 appUtils.registerStopTimeForUnit(path.basename(__filename));
                                                 finish(err, res);

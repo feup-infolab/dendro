@@ -59,7 +59,6 @@ module.exports.setup = function (finish)
 
     createUsersUnit.setup(function (err, results)
     {
-        // should.equal(err, null);
         if (err)
         {
             end();
@@ -88,7 +87,6 @@ module.exports.setup = function (finish)
                 });
             }, function (err, results)
             {
-                // should.equal(err, null);
                 appUtils.registerStopTimeForUnit(path.basename(__filename));
                 finish(err, results);
             });

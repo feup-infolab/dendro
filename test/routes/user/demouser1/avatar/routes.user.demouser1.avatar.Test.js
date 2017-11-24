@@ -16,9 +16,9 @@ const md5 = require("md5");
 
 describe("[GET] /user/demouser1?avatar", function (done)
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createAvatarsForUsersUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -120,7 +120,6 @@ describe("[GET] /user/demouser1?avatar", function (done)
 
     after(function (done)
     {
-        this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

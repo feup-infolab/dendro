@@ -31,9 +31,9 @@ const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/b
 
 describe("New project tests", function (done)
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         bootup.setup(function (err, res)
         {
             should.equal(err, null);

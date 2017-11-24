@@ -32,9 +32,9 @@ function requireUncached (module)
 // THIS TEST SHOULD BE DELETED BECAUSE THIS FEATURE DOES NOT EXIST
 describe("Public project ?version tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         addMetadataToFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);

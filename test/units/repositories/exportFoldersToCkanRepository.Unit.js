@@ -53,13 +53,10 @@ module.exports.setup = function (project, finish)
                 {
                     repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)
                     {
-                        res.statusCode.should.equal(200);
-                        res.body.length.should.equal(6);
                         ckanData = _.find(res.body, function (externalRepo)
                         {
                             return externalRepo.dcterms.title === "ckan2";
                         });
-                        should.exist(ckanData);
 
                         // fazer export de apenas algumas pastas, e de seguida adicionar alterações ckandiffs e dendro diffs a algumas delas(de acordo com os nomes)
                         /* async.mapSeries(projects, function (project, cb) { */
@@ -74,7 +71,6 @@ module.exports.setup = function (project, finish)
                                 // export folders folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs folderExportedCkanCkanDiffs
                                 projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res)
                                 {
-                                    res.statusCode.should.equal(200);
                                     let folderExportedCkanNoDiffsData = _.find(res.body, function (folderData)
                                     {
                                         return folderData.nie.title === folderExportedCkanNoDiffs.name;
@@ -87,9 +83,6 @@ module.exports.setup = function (project, finish)
                                     {
                                         return folderData.nie.title === folderExportedCkanCkanDiffs.name;
                                     });
-                                    should.exist(folderExportedCkanNoDiffsData);
-                                    should.exist(folderExportedCkanDendroDiffsData);
-                                    should.exist(folderExportedCkanCkanDiffsData);
 
                                     foldersToExport.push(folderExportedCkanNoDiffsData);
                                     foldersToExport.push(folderExportedCkanDendroDiffsData);
@@ -100,7 +93,6 @@ module.exports.setup = function (project, finish)
                                         repositoryUtils.exportFolderByUriToRepository(true, folder.uri, agent, {repository: ckanData}, function (err, res)
                                         {
                                             Logger.log("info", "exportFolderByUriToRepository res is: " + JSON.stringify(res));
-                                            res.statusCode.should.equal(200);
                                             cb(err, res);
                                         });
                                     }, function (err, results)
