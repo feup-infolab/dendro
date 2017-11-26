@@ -681,7 +681,8 @@ angular.module("dendroApp.controllers")
 
             // monitor url change events (ask to save if metadata changed)
 
-            function isChrome() {
+            function isChrome ()
+            {
                 var isChromium = window.chrome,
                     winNav = window.navigator,
                     vendorName = winNav.vendor,
@@ -689,19 +690,21 @@ angular.module("dendroApp.controllers")
                     isIEedge = winNav.userAgent.indexOf("Edge") > -1,
                     isIOSChrome = winNav.userAgent.match("CriOS");
 
-                if (isIOSChrome) {
+                if (isIOSChrome)
+                {
                     return true;
-                } else if (
+                }
+                else if (
                     isChromium !== null &&
                     typeof isChromium !== "undefined" &&
                     vendorName === "Google Inc." &&
                     isOpera === false &&
                     isIEedge === false
-                ) {
+                )
+                {
                     return true;
-                } else {
-                    return false;
                 }
+                return false;
             }
 
             if (isChrome())

@@ -2,7 +2,10 @@ process.env.NODE_ENV = "test";
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
+const checkChai = require("check-chai");
 chai.use(chaiHttp);
+chai.use(checkChai);
+
 const fs = require("fs");
 const path = require("path");
 const async = require("async");
@@ -46,14 +49,10 @@ describe("Administer projects", function (done)
     {
         createProjectsUnit.setup(function (err, res)
         {
-            try
+            chai.check(done, function ()
             {
                 should.equal(err, null);
-            }
-            catch (e)
-            {
-                done(err);
-            }
+            });
         });
     });
     describe("project/" + publicProject.handle + "?administer", function ()
@@ -64,10 +63,12 @@ describe("Administer projects", function (done)
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, false, {}, publicProject.handle, function (err, res)
             {
-                /* res.should.have.status(200); */
-                res.should.have.status(401);
-                res.text.should.contain("Permission denied : cannot access the administration area of the project because you are not its creator.");
-                done();
+                chai.check(done, function ()
+                {
+                    res.should.have.status(401);
+                    res.text.should.contain("Permission denied : cannot access the administration area of the project because you are not its creator.");
+                    done();
+                });
             });
         });
 

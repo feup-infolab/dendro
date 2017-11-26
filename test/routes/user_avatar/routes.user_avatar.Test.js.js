@@ -64,7 +64,7 @@ describe("[POST] /user_avatar", function (done)
         userUtils.uploadAvatar(false, agent, avatar, function (err, res)
         {
             res.should.have.status(401);
-            res.text.should.contain("Please log into the system.");
+            res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
             done();
         });
     });

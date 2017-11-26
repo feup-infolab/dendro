@@ -25,17 +25,17 @@ function Permissions ()
 
 Permissions.messages = {
     generic: {
-        api: "Action not permitted. You are not logged into the system.",
-        user: "Please log into the system."
+        api: "Generic authentication error, Error detected. You are not authorized to perform this operation. You must be signed into Dendro.",
+        user: "Generic authentication error, are you logged in? Please log into the system."
     }
 };
 
-Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAllowingOrDenying, errorMessage)
+Permissions.sendResponse = function (allowAccess, req, res, next, reasonsForAllowingOrDenying, errorMessage)
 {
     let acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    if (allow_access)
+    if (allowAccess)
     {
         if (Config.debug.permissions.log_authorizations)
         {
@@ -50,8 +50,51 @@ Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAll
 
         return next();
     }
-    let messageAPI = errorMessage;
-    let messageUser = errorMessage;
+
+    let messageAPI;
+    let messageUser;
+
+    if (!isNull(errorMessage) && errorMessage !== "")
+    {
+        messageAPI = errorMessage;
+        messageUser = errorMessage;
+    }
+    else
+    {
+        messageAPI = "";
+        messageUser = "";
+
+        _.map(reasonsForAllowingOrDenying, function (reason)
+        {
+            if (messageAPI !== "")
+            {
+                messageAPI = reason.role.error_message_api + "\n" + messageAPI;
+            }
+            else
+            {
+                messageAPI = reason.role.error_message_api;
+            }
+
+            if (messageUser !== "")
+            {
+                messageUser = reason.role.error_message_user + "\n" + messageUser;
+            }
+            else
+            {
+                messageUser = reason.role.error_message_user;
+            }
+        });
+    }
+
+    if (messageUser === "" || isNull(messageUser))
+    {
+        messageUser = Permissions.messages.generic.user;
+    }
+
+    if (messageAPI === "" || isNull(messageAPI))
+    {
+        messageAPI = Permissions.messages.generic.api;
+    }
 
     req.permissions_management = {
         reasons_for_denying: reasonsForAllowingOrDenying
@@ -68,23 +111,15 @@ Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAll
         Logger.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messageUser);
     }
 
-    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+    // will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)
     {
-        if (messageAPI === "" || isNull(messageAPI))
-        {
-            messageAPI = Permissions.messages.generic.api;
-        }
-
         return res.status(401).json(
             {
                 result: "error",
                 message: messageAPI
             }
         );
-    }
-    if (messageUser === "" || isNull(messageUser))
-    {
-        messageUser = Permissions.messages.generic.user;
     }
 
     req.flash("error", messageUser);

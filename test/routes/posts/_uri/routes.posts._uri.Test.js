@@ -72,7 +72,7 @@ describe("Get a specific post information tests", function ()
                     {
                         res.statusCode.should.equal(401);
                         res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the Share you want to obtain information belongs to.");
-                        // res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                        // res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
                         done();
                     });
                 });

@@ -40,7 +40,7 @@ describe("List all external repository tests", function ()
             {
                 repositoryUtils.getAllExternalRepositories(false, agent, function (err, res)
                 {
-                    res.text.should.contain("Please log into the system.");
+                    res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
                     done();
                 });
             });
@@ -52,7 +52,7 @@ describe("List all external repository tests", function ()
             const agent = chai.request.agent(app);
             repositoryUtils.getAllExternalRepositories(false, agent, function (err, res)
             {
-                res.text.should.contain("Please log into the system.");
+                res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });

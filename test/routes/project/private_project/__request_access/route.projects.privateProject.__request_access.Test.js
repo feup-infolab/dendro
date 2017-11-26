@@ -105,7 +105,7 @@ describe("Request access to private project", function (done)
             projectUtils.requestAccessToProject(false, agent, privateProject.handle, function (err, res)
             {
                 res.statusCode.should.equal(200);
-                res.text.should.contain("<p>Please log into the system.</p>");
+                res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });

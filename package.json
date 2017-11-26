@@ -41,6 +41,7 @@
     "bower": "^1.8.2",
     "bulk-mongo": "^0.1.0",
     "chai-dom": "^1.6.0",
+    "check-chai": "0.0.1",
     "ckan": "git+https://github.com/feup-infolab-rdm/ckan.js.git",
     "codacy-coverage": "^2.0.3",
     "colors": "^1.1.2",

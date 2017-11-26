@@ -51,7 +51,7 @@ describe("Get the number of posts of a specific user timeline tests", function (
             socialDendroUtils.getTotalPostsForAUsersSocialDendroTimeline(true, agent, function (err, res)
             {
                 res.statusCode.should.equal(401);
-                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });

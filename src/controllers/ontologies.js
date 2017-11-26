@@ -84,7 +84,7 @@ exports.get_recommendation_ontologies = function (req, res)
             {
                 res.status(401).json({
                     result: "Error",
-                    message: "Action not permitted. You are not logged into the system."
+                    message: "Error detected. You are not authorized to perform this operation. You must be signed into Dendro."
                 });
             }
         }

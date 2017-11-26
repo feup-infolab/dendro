@@ -28,7 +28,7 @@
         {
             var project = locals.projects[i];
         %>
-        <%if(!project.ddr.deleted == 1 || (locals.user != null)) { %>
+        <%if(project && (!project.ddr.deleted == 1 || (locals.user != null))) { %>
         <tr
                 <%if(project.ddr.deleted == 1) {%>
                 class="warning"
@@ -88,12 +88,6 @@
                 <%
                 }
                 %>
-
-                <b>
-
-
-                    </a>
-                </b>
             </td>
             <td>
 

@@ -78,7 +78,7 @@ describe("[POST] /user/edit", function (done)
         userUtils.editUser(true, agent, correctDataToEdit, function (err, res)
         {
             res.should.have.status(401);
-            res.text.should.contain("You are not logged into the system.");
+            res.text.should.contain("Error detected. You are not authorized to perform this operation. You must be signed into Dendro");
             done();
         });
     });
