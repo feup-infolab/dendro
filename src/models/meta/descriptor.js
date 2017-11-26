@@ -181,10 +181,8 @@ function Descriptor (object, typeConfigsToRetain)
         else
         {
             self.type = Elements.types.string;
-            if (Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
-            {
-                Logger.log("error", "Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
-            }
+            Logger.log("error", "Descriptor " + self.uri + " is missing in the elements.js file");
+            Logger.log("error", "Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
         }
 
         return self;
