@@ -24,7 +24,7 @@ exports.search = function (req, res)
     const acceptsJSON = req.accepts("json");
     const query = req.query.q;
 
-    if (query)
+    if (!isNull(query) && query !== "")
     {
         if (!req.query.currentPage)
         {
@@ -49,13 +49,15 @@ exports.search = function (req, res)
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function (err, similarResources)
                     {
                         resource.recommendations = similarResources;
-                        return callback(err, resource); // null as 1st argument === no error
+                        // null as 1st argument === no error
+                        return callback(err, resource);
                     });
                 };
 
                 async.mapSeries(results, getSimilarResources, function (err, resultsWithSimilarOnes)
                 {
-                    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+                    // will be null if the client does not accept html
+                    if (acceptsJSON && !acceptsHTML)
                     {
                         res.json({
                             result: "ok",
@@ -70,25 +72,26 @@ exports.search = function (req, res)
 
                         if (!isNull(results) && results.length > 0)
                         {
-                            renderParameters.vertexes = resultsWithSimilarOnes;
+                            renderParameters.results = resultsWithSimilarOnes;
                             renderParameters.currentPage = req.query.currentPage;
                             renderParameters.pageSize = req.query.pageSize;
                         }
                         else
                         {
-                            renderParameters.vertexes = [];
+                            renderParameters.results = [];
                             renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
                         }
-                        res.render("vertexes/search", renderParameters);
+                        res.render("search/search", renderParameters);
                     }
                 });
             });
     }
     else
     {
-        res.render("vertexes/all", {
-            title: "No query specified",
-            vertexes: []
+        res.render("search/search", {
+            "title": "No query specified",
+            "info_messages" : ["No query specified"],
+            "results": []
         });
     }
 };

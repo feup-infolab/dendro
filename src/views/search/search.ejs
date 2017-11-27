@@ -1,26 +1,29 @@
 <%- include ../layout/header.ejs %>
 
-<h1 class="page-header">
-    Search results
-</h1>
+<%
+if(results.length > 0)
+{
+%>
+    <h1 class="page-header">
+        Search results
+    </h1>
+    <form action="" method="get">
 
-<form action="" method="get">
-
-<%if(typeof locals.currentPage != "undefined" && typeof locals.pageSizes != "undefined") { %>
-    <div class="input-append">
-        <input type="hidden" id="currentPage" value="<%= currentPage %>"/>
+        <%if(typeof locals.currentPage != "undefined" && typeof locals.pageSizes != "undefined") { %>
+        <div class="input-append">
+            <input type="hidden" id="currentPage" value="<%= currentPage %>"/>
 
             Results per page :
             <select name="pageSize" id="pageSizeComboBox">
 
-                    <% var pageSizes = [20, 50, 200]; %>
-                    <% for (var i = 0; i < pageSizes.length; i++) { %>
+                <% var pageSizes = [20, 50, 200]; %>
+                <% for (var i = 0; i < pageSizes.length; i++) { %>
 
-                    <option value="<%= pageSizes[i] %>"
-                    <% if(pageSizes[i] == locals.pageSize) { %>
-                    selected="true"
-                    <% } %>
-                    >
+                <option value="<%= pageSizes[i] %>"
+                        <% if(pageSizes[i] == locals.pageSize) { %>
+                        selected="true"
+                        <% } %>
+                >
                     <%= pageSizes[i] %></option>
 
                 <% } %>
@@ -31,36 +34,36 @@
                 <option value="0">ALL</option>
             </select>
 
-        <input type=submit value="Update" class="btn"/>
-    </div>
+            <input type=submit value="Update" class="btn"/>
+        </div>
 
-<% } %>
-    <% for(var i=0;i < results.length; i++) {
+        <% } %>
+        <% for(var i = 0; i < results.length; i++) {
 
-        var vertex = results[i];
-    %>
+            var result = results[i];
+        %>
         <div class="well">
             <div class="row">
                 <div class="col-lg-12">
-                    <b><a href="<%=vertex.uri%>"><%=vertex.uri %></a></b>
+                    <b><a href="<%=result.uri%>"><%=result.uri %></a></b>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-9">
                     <%
-                    for (var j = 0; j < vertex.indexData.descriptors.length; j++)
+                    for (var j = 0; j < result.indexData.descriptors.length; j++)
                     {
-                        var descriptor = vertex.indexData.descriptors[j];
+                        var descriptor = result.indexData.descriptors[j];
                     %>
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <%= descriptor.predicate %>
-                            </div>
-
-                            <div class="col-lg-6">
-                                <%= descriptor.object %>
-                            </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <%= descriptor.predicate %>
                         </div>
+
+                        <div class="col-lg-6">
+                            <%= descriptor.object %>
+                        </div>
+                    </div>
                     <%
                     }
                     %>
@@ -68,9 +71,9 @@
                 <div class="col-lg-3">
                     <b>Similar resources</b>
                     <%
-                    for (var j = 0; j < vertex.recommendations.length; j++)
+                    for (var j = 0; j < result.recommendations.length; j++)
                     {
-                        var recommendation = vertex.recommendations[j];
+                        var recommendation = result.recommendations[j];
                     %>
                     <div class="row">
                         <div class="col-lg-12">
@@ -84,9 +87,9 @@
             </div>
         </div>
         <% } %>
-</form>
+    </form>
 
-<%if(typeof currentPage != "undefined" && typeof pageSizes != "undefined") { %>
+    <%if(typeof currentPage != "undefined" && typeof pageSizes != "undefined") { %>
 
     <% if( locals.currentPage > 0 ) {%>
     <a href="?pageSize=&currentPage=<%= currentPage-1%>"> << Previous Page </a>
@@ -94,6 +97,15 @@
 
     <a href="?pageSize=<%= pageSize%>&currentPage=<%= currentPage+1%>"> Next Page >> </a>
 
-<% } %>
+    <% } %>
+<%
+} else {
+%>
+
+<h1 class="page-header">
+    No search results
+</h1>
+
+<%}%>
 
 <%- include ../layout/footer.ejs %>
