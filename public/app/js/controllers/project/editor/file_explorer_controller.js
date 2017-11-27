@@ -335,7 +335,8 @@ angular.module("dendroApp.controllers")
 
         $scope.rename = function ()
         {
-            if ($scope.get_selected_files().length === 1)
+            var selectedFiles = $scope.get_selected_files();
+            if (selectedFiles.length === 1)
             {
                 bootbox.prompt("Please enter the new name", function (newName)
                 {
@@ -352,7 +353,7 @@ angular.module("dendroApp.controllers")
                             if (newName != null)
                             {
                                 filesService.rename(newName,
-                                    $scope.get_calling_uri()
+                                    selectedFiles[0].uri
                                 ).then(function (result)
                                 {
                                     $scope.load_folder_contents();
@@ -360,7 +361,7 @@ angular.module("dendroApp.controllers")
                                 }).catch(function (error)
                                 {
                                     console.log("error", "Unable to rename resource: " + JSON.stringify(error));
-                                    windowService.show_popup("error", "There was an error renaming the resource", "Server returned status code " + status + " and message :\n" + error);
+                                    windowService.show_popup("error", "There was an error renaming the resource", error.data.message);
                                 });
                             }
                         }

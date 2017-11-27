@@ -1517,6 +1517,14 @@ Folder.prototype.undelete = function (callback, uriOfUserUnDeletingTheFolder, no
     }
 };
 
+Folder.prototype.autorename = function ()
+{
+    const self = this;
+    const slug = require("slug");
+    self.nie.title = self.nie.title + "_Copy_created_" + slug(Date.now(), "_");
+    return self.nie.title;
+};
+
 Folder.deleteOnLocalFileSystem = function (absPath, callback)
 {
     const isWin = /^win/.test(process.platform);

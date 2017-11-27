@@ -219,6 +219,15 @@ File.deleteOnLocalFileSystem = function (absPathToFile, callback)
     });
 };
 
+File.prototype.autorename = function ()
+{
+    const self = this;
+    const slug = require("slug");
+    let fileNameData = self.nie.title.split(".");
+    self.nie.title = fileNameData[0] + "_Copy_created_" + slug(Date.now(), "_") + "." + fileNameData[1];
+    return self.nie.title;
+};
+
 File.prototype.save = function (callback, rename)
 {
     const self = this;
@@ -230,94 +239,46 @@ File.prototype.save = function (callback, rename)
         })
     ];
 
-    const renameIfFileNameExists = function (callback)
+    //tirar isto daqui e passar
+    //self.baseConstrusctor.save -± salta para a funcao save do infroatuobnELemente
+    //depois no save do informatuon element faço autorename
+    /* self.baseConstructor.save(function (err, newInformationElement)
     {
-        if (rename)
-        {
-            const getParent = function (callback)
+        db.connection.insertDescriptorsForSubject(
+            newInformationElement.nie.isLogicalPartOf,
+            newDescriptorsOfParent,
+            db.graphUri,
+            function (err, result)
             {
-                let parentUri = self.nie.isLogicalPartOf;
-                const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-
-                Folder.findByUri(parentUri, function (err, parentFolder)
+                if (isNull(err))
                 {
-                    if (isNull(err))
+                    newInformationElement.baseConstructor.prototype.save.call(self, function (err, result)
                     {
-                        if (parentFolder instanceof Folder)
+                        if (isNull(err))
                         {
-                            callback(err, parentFolder);
+                            return callback(null, self);
                         }
-                        else
-                        {
-                            Project.findByUri(parentUri, function (err, parentProject)
-                            {
-                                if (isNull(err))
-                                {
-                                    if (parentProject instanceof Project)
-                                    {
-                                        callback(err, parentProject);
-                                    }
-                                    else
-                                    {
-                                        callback(true, "Error: Parent of :  " + self.uri + " is neither a folder nor project");
-                                    }
-                                }
-                                else
-                                {
-                                    callback(err, parentProject);
-                                }
-                            });
-                        }
-                    }
-                    else
-                    {
-                        callback(err, parentFolder);
-                    }
-                });
-            };
-
-            const getChildrenOfParent = function (parent, callback)
-            {
-                parent.getLogicalParts(callback);
-            };
-
-            const renameIfChildExistsWithSameName = function (children, callback)
-            {
-                const childrenWithTheSameName = _.find(children, function (child)
-                {
-                    return child.nie.title === self.nie.title && child.uri !== self.uri && child.ddr.deleted !== true;
-                });
-
-                if (
-                    !isNull(childrenWithTheSameName) && Array.isArray(childrenWithTheSameName) && childrenWithTheSameName.length > 0 ||
-                    !isNull(childrenWithTheSameName) && childrenWithTheSameName instanceof Object
-                )
-                {
-                    const slug = require("slug");
-                    let fileNameData = self.nie.title.split(".");
-                    self.nie.title = fileNameData[0] + "_Copy_created_" + slug(Date.now(), "_") + "." + fileNameData[1];
+                        Logger.log("error", "Error adding child file descriptors : " + result);
+                        return callback(1, "Error adding child file descriptors : " + result);
+                    });
                 }
+                else
+                {
+                    Logger.log("error", "Error adding parent file descriptors : " + result);
+                    return callback(1, "Error adding parent file descriptors: " + result);
+                }
+            }
+        );
+    });*/
 
-                callback(null);
-            };
-
-            async.waterfall([
-                getParent,
-                getChildrenOfParent,
-                renameIfChildExistsWithSameName
-            ], callback);
-        }
-        else
-        {
-            callback(null);
-        }
-    };
-
-    renameIfFileNameExists(function (err, result)
+    self.needsRenaming(function (err, needsRenaming)
     {
         if (isNull(err))
         {
+            if (needsRenaming === true)
+            {
+                self.autorename();
+            }
             db.connection.insertDescriptorsForSubject(
                 self.nie.isLogicalPartOf,
                 newDescriptorsOfParent,
@@ -346,7 +307,9 @@ File.prototype.save = function (callback, rename)
         }
         else
         {
-            callback(1, "There is a file with the same name " + self.nie.title + " in this folder and there was an error renaming the new duplicate.");
+            let errorMessage = "Error checking if a file needs renaming during an upload : " + JSON.stringify(needsRenaming);
+            Logger.log("error", errorMessage);
+            return callback(1, errorMessage);
         }
     });
 };
