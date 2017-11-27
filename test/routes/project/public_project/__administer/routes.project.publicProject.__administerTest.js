@@ -2,8 +2,8 @@ process.env.NODE_ENV = "test";
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const checkChai = require("check-chai");
 chai.use(chaiHttp);
+const checkChai = require("check-chai");
 chai.use(checkChai);
 
 const fs = require("fs");
