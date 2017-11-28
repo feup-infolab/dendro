@@ -133,23 +133,23 @@ Ontology.initAllFromDatabase = function (callback)
 
     const recreateOntologiesInDatabase = function (ontologiesArray, callback)
     {
-        const checkForOntology = function (ontologyObject, callback)
+        const checkForOntology = function (ontologyUri, callback)
         {
-            Ontology.findByUri(ontologyObject.uri, function (err, ontology)
+            Ontology.findByUri(ontologyUri, function (err, ontology)
             {
                 if (err)
                 {
-                    Logger.log("Error occurred when searching for ontology with URI : " + ontologyObject.uri + ". Error description : " + JSON.stringify(ontology));
+                    Logger.log("Error occurred when searching for ontology with URI : " + ontologyUri + ". Error description : " + JSON.stringify(ontology));
                 }
                 else
                 {
                     if (isNull(ontology))
                     {
-                        Logger.log("info", "Ontology : " + ontologyObject.uri + " not found. Will have to be recorded in database.");
+                        Logger.log("info", "Ontology : " + ontologyUri + " not found. Will have to be recorded in database.");
                     }
                     else
                     {
-                        Logger.log("info", "Ontology : " + ontologyObject.uri + " exists. Reading from database...");
+                        Logger.log("info", "Ontology : " + ontologyUri + " exists. Reading from database...");
                     }
                 }
 
@@ -180,7 +180,7 @@ Ontology.initAllFromDatabase = function (callback)
 
         async.mapSeries(ontologiesArray, function (ontologyObject, callback)
         {
-            checkForOntology(ontologyObject, function (err, ontology)
+            checkForOntology(ontologyObject.uri, function (err, ontology)
             {
                 if (isNull(ontology))
                 {

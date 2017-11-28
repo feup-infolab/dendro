@@ -772,7 +772,7 @@ Permissions.check = function (permissionsRequired, req, callback)
     {
         const reasonsForAllowing = [{
             authorized: true,
-            role: Permissions.role.in_system.admin
+            role: Permissions.types.role_in_system.admin
         }];
 
         req = Permissions.addToReasons(req, reasonsForAllowing, true);
@@ -825,7 +825,7 @@ Permissions.require = function (permissionsRequired, req, res, next)
         }
         else
         {
-            return Permissions.sendResponse(true, req, res, next, [Permissions.role.in_system.admin]);
+            return Permissions.sendResponse(true, req, res, next, [Permissions.settings.role.in_system.admin]);
         }
     }
     else
