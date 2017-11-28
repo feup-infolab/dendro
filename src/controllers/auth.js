@@ -49,6 +49,8 @@ module.exports.login = function (req, res, next)
     }
     else if (req.originalMethod === "POST")
     {
+        // trims the username field
+        req.body.username = req.body.username.trim();
         checkUsernameAndPasswordFields(req, function (err, result)
         {
             if (isNull(err))
