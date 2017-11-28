@@ -15,7 +15,7 @@
     <div class="container well well-main">
             <div class="row-fluid">
                 <div class="row">
-                    <form action="/login" method="POST">
+                    <form action="/login" method="POST" data-parsley-validate="">
                         <div class="col-xs-12">
                             <h1>Login</h1>
                             <div class="form-group text-center">
@@ -43,7 +43,10 @@
                                            class="form-control"
                                            id="password"
                                            placeholder="Password"
-                                           name="password">
+                                           name="password"
+                                           data-parsley-trigger="change"
+                                           required=""
+                                           data-parsley-minlength="8">
                                     <p class="help-block">Your password</p>
                                 </div>
                             </div>
