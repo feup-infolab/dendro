@@ -321,11 +321,6 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
     ], callback);
 };
 
-InformationElement.prototype.save(callback)
-{
-
-};
-
 InformationElement.prototype.rename = function (newTitle, callback)
 {
     const self = this;

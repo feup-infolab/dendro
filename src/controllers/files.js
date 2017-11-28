@@ -2775,26 +2775,6 @@ exports.rename = function (req, res)
                                 });
                             }
                         });
-
-                        /* ie.save(function (err, result)
-                        {
-                            if (isNull(err))
-                            {
-                                res.json({
-                                    result: "ok",
-                                    message: "File successfully renamed."
-                                });
-                            }
-                            else
-                            {
-                                const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(result);
-                                Logger.log("error", error);
-                                res.status(500).json({
-                                    result: "error",
-                                    message: error
-                                });
-                            }
-                        });*/
                     }
                     else
                     {

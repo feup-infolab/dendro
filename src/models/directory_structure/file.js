@@ -238,39 +238,6 @@ File.prototype.save = function (callback, rename)
             value: self.uri
         })
     ];
-
-    //tirar isto daqui e passar
-    //self.baseConstrusctor.save -± salta para a funcao save do infroatuobnELemente
-    //depois no save do informatuon element faço autorename
-    /* self.baseConstructor.save(function (err, newInformationElement)
-    {
-        db.connection.insertDescriptorsForSubject(
-            newInformationElement.nie.isLogicalPartOf,
-            newDescriptorsOfParent,
-            db.graphUri,
-            function (err, result)
-            {
-                if (isNull(err))
-                {
-                    newInformationElement.baseConstructor.prototype.save.call(self, function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            return callback(null, self);
-                        }
-                        Logger.log("error", "Error adding child file descriptors : " + result);
-                        return callback(1, "Error adding child file descriptors : " + result);
-                    });
-                }
-                else
-                {
-                    Logger.log("error", "Error adding parent file descriptors : " + result);
-                    return callback(1, "Error adding parent file descriptors: " + result);
-                }
-            }
-        );
-    });*/
-
     self.needsRenaming(function (err, needsRenaming)
     {
         if (isNull(err))
