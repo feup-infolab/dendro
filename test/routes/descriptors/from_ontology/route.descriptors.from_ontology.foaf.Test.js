@@ -30,9 +30,9 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Descriptors from foaf ontology", function (done)
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         addContributorsToProjectsUnit.setup(function (err, results)
         {
             should.equal(err, null);

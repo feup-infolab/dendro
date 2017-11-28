@@ -292,7 +292,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
 
     const releaseConnection = function (connection, callback)
     {
-        if(!isNull(self.pool))
+        if (!isNull(self.pool))
         {
             self.pool.release(connection, function (err, connection)
             {
@@ -974,7 +974,7 @@ DbConnection.prototype.close = function (callback)
     {
         async.mapSeries(self.queue_jdbc, function (queryObject, callback)
         {
-            if(!isNull(queryObject))
+            if (!isNull(queryObject))
             {
                 if (!isNull(queryObject.connection))
                 {

@@ -138,11 +138,9 @@ angular.module("dendroApp.services")
                         }
                         return true;
                     }
-                    else
-                    {
-                        // the descriptor is invalid because it is neither a string nor an array
-                        return false;
-                    }
+
+                    // the descriptor is invalid because it is neither a string nor an array
+                    return false;
                 }
                 if (descriptor.hasAlternative && descriptor.hasAlternative instanceof Array)
                 {
@@ -162,10 +160,8 @@ angular.module("dendroApp.services")
                         {
                             return false;
                         }
-                        else
-                        {
-                            return true;
-                        }
+
+                        return true;
                     }
                     return false;
                 }

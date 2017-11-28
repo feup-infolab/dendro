@@ -301,7 +301,7 @@ exports.show = function (req, res)
             return _.isEqual(reason, Permissions.settings.role.in_owner_project.creator) || _.isEqual(reason, Permissions.settings.role.in_owner_project.contributor) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
         });
 
-        if (isEditor.length > 0)
+        if (isEditor.length > 0 || req.session.isAdmin)
         {
             if (askedForHtml(req, res))
             {

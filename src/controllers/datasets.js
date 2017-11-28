@@ -192,6 +192,7 @@ exports.calculate_ckan_repository_diffs = function (req, res)
             }
             else
             {
+                Logger.log("error", "calculate_ckan_repository_diffs error: " + diffs.error.message);
                 res.status(diffs.error.statusCode).json(
                     {
                         result: "error",
@@ -297,6 +298,7 @@ export_to_repository_ckan = function (req, res)
             {
                 if (!isNull(err))
                 {
+                    Logger.log("error", "export_to_repository_ckan error: " + resultInfo.message);
                     res.status(resultInfo.statusCode).json({
                         result: "error",
                         message: resultInfo.message

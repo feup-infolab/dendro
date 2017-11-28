@@ -26,9 +26,9 @@ const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFold
 
 describe("Public project testFolder1 level update_metadata", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);

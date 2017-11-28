@@ -2906,9 +2906,9 @@ const checkIfDestinationIsNotTheSameAsMovedFilesParents = function (filesToMove,
         {
             if (isNull(err))
             {
-                if(!isNull(parent) && parent instanceof Folder)
+                if (!isNull(parent) && parent instanceof Folder)
                 {
-                    if(parent.uri !== targetFolder.uri)
+                    if (parent.uri !== targetFolder.uri)
                     {
                         callback(null);
                     }
@@ -2924,14 +2924,14 @@ const checkIfDestinationIsNotTheSameAsMovedFilesParents = function (filesToMove,
             }
             else
             {
-                return callback(2, "Unable to determine the parent of resource " + filesToMove.uri+ " when validating if it is already inside the destination folder.");
+                return callback(2, "Unable to determine the parent of resource " + filesToMove.uri + " when validating if it is already inside the destination folder.");
             }
         });
     }, function (err, results)
     {
         callback(err, results);
     });
-}
+};
 
 const checkIfDestinationIsNotContainedByAnySource = function (filesToMove, targetFolder, callback)
 {
@@ -3001,10 +3001,11 @@ exports.cut = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    checkIfDestinationIsNotContainedByAnySource(filesToBeMoved, targetFolder, function (err, result)
+                                    checkIfDestinationIsNotTheSameAsMovedFilesParents(filesToBeMoved, targetFolder, function (err, result)
                                     {
-                                        checkIfDestinationIsNotTheSameAsMovedFilesParents(filesToBeMoved, targetFolder, function(err, result){
-                                            if (isNull(err))
+                                        if (isNull(err))
+                                        {
+                                            checkIfDestinationIsNotContainedByAnySource(filesToBeMoved, targetFolder, function (err, result)
                                             {
                                                 if (isNull(err))
                                                 {
@@ -3046,16 +3047,16 @@ exports.cut = function (req, res)
                                                         error: result
                                                     });
                                                 }
-                                            }
-                                            else
-                                            {
-                                                return res.status(400).json({
-                                                    result: "error",
-                                                    message: "Cannot move a resource to the same folder where it already is.",
-                                                    error: result
-                                                });
-                                            }
-                                        });
+                                            });
+                                        }
+                                        else
+                                        {
+                                            return res.status(400).json({
+                                                result: "error",
+                                                message: "Cannot move a resource to the same folder where it already is.",
+                                                error: result
+                                            });
+                                        }
                                     });
                                 }
                                 else
@@ -3070,7 +3071,11 @@ exports.cut = function (req, res)
                         }
                         else
                         {
-
+                            return res.status(404).json({
+                                result: "error",
+                                error: err,
+                                message: "Unable to find target tolder!"
+                            });
                         }
                     }
                     else

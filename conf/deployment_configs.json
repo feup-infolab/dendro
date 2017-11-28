@@ -970,7 +970,7 @@
         "log_all_restore_operations": false,
         "log_delete_operations": false,
         "log_file_fetches": false,
-        "delete_temp_folder_on_startup": true,
+        "delete_temp_folder_on_startup": false,
         "log_file_version_fetches": false
       },
       "resources": {

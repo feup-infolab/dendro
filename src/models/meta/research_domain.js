@@ -1,6 +1,5 @@
 const async = require("async");
 
-const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -10,7 +9,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = Config.getGFSByID();
+const db = Config.getDBByID();
 
 function ResearchDomain (object)
 {
@@ -37,8 +36,8 @@ ResearchDomain.create = function (object, callback)
             if (typeof self.dcterms.title === "string")
             {
                 const slug = require("slug");
-                const slugified_title = slug(self.dcterms.title);
-                self.ddr.humanReadableURI = Config.baseUri + "/research_domains/" + slugified_title;
+                const slugifiedTitle = slug(self.dcterms.title);
+                self.ddr.humanReadableURI = Config.baseUri + "/research_domains/" + slugifiedTitle;
             }
             else
             {
@@ -49,7 +48,7 @@ ResearchDomain.create = function (object, callback)
 
     return callback(null, self);
 };
-ResearchDomain.findByTitleOrDescription = function (query, callback, max_results)
+ResearchDomain.findByTitleOrDescription = function (query, callback, maxResults)
 {
     var query =
         "WITH [0] \n" +
@@ -76,13 +75,13 @@ ResearchDomain.findByTitleOrDescription = function (query, callback, max_results
         }
     ];
 
-    if (typeof max_results !== "undefined" && typeof max_results === "number")
+    if (typeof maxResults !== "undefined" && typeof maxResults === "number")
     {
         query = query + "LIMIT [1]";
 
         queryArguments.push({
             type: Elements.types.int,
-            value: max_results
+            value: maxResults
         });
     }
 

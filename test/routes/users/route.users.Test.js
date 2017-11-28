@@ -20,9 +20,9 @@ const createUserUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder(
 
 describe("/users", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createUserUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -124,7 +124,6 @@ describe("/users", function ()
 
     after(function (done)
     {
-        this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

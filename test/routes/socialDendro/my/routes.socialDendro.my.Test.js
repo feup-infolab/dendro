@@ -29,9 +29,9 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Social Dendro user timeline tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
         {
@@ -49,7 +49,7 @@ describe("Social Dendro user timeline tests", function ()
             socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res)
             {
                 res.statusCode.should.equal(401);
-                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });
@@ -97,7 +97,7 @@ describe("Social Dendro user timeline tests", function ()
     after(function (done)
     {
         // destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

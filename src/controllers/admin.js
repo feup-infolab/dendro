@@ -7,8 +7,6 @@ const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).I
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const db = Config.getDBByGraphUri();
-
 module.exports.home = function (req, res)
 {
     res.render("admin/home",
@@ -18,102 +16,102 @@ module.exports.home = function (req, res)
     );
 };
 
-module.exports.reload = function (req, res)
-{
-    const graphNames = req.query.graphs;
-    const graphsToDelete = req.query.graphs_to_delete;
-    const async = require("async");
-
-    const renderResponse = function (err, messages)
-    {
-        if (isNull(err))
-        {
-            const util = require("util");
-            // noinspection ES6ConvertVarToLetConst
-            let messages = "All resources successfully loaded in graph(s) : ";
-
-            for (let i = 0; i < graphNames.length; i++)
-            {
-                messages = messages + " " + graphNames[i];
-
-                if (i < graphNames.length - 1)
-                {
-                    messages = messages + ", ";
-                }
-            }
-
-            res.render("admin/home",
-                {
-                    title: "List of available administration operations",
-                    info_messages: [messages]
-                }
-            );
-        }
-        else
-        {
-            res.render("admin/home",
-                {
-                    title: "List of available administration operations",
-                    error_messages: messages
-                }
-            );
-        }
-    };
-
-    const deleteGraph = function (graphUri, callback)
-    {
-        db.deleteGraph(graphUri, callback);
-    };
-
-    for (let graph in graphNames)
-    {
-    /* if(graphNames[i] === "dbpedia")
-        {
-            if(graphsToDelete[i])
-            {
-                async.waterfall(
-                    [
-                        function(callback)
-                        {
-                            deleteGraph("http://dbpedia.org",
-                                function(err, resultOrErrorMessage)
-                                {
-                                    return callback(err, [resultOrErrorMessage]);
-                                });
-                        },
-                        function(callback, result)
-                        {
-                            var path = require('path');
-                            var DBPediaLoader = require("../kb/loaders/dbpedia/loader").DBPediaLoader;
-                            var dbpediaLoader = new DBPediaLoader(db);
-                            dbpediaLoader.load_dbpedia(renderResponse);
-                        }
-                    ],
-                    renderResponse
-                );
-            }
-            else
-            {
-                var path = require('path');
-                var DBPediaLoader = require("../kb/loaders/dbpedia/loader").DBPediaLoader;
-                var dbpediaLoader = new DBPediaLoader(db);
-                dbpediaLoader.load_dbpedia(renderResponse);
-            }
-        } */
-        if (graph === "dryad")
-        {
-            const dryadLoader = new DryadLoader();
-            dryadLoader.loadFromDownloadedFiles(req.index);
-        }
-    }
-
-    res.render("admin/home",
-        {
-            title: "List of available administration operations",
-            info_messages: [JSON.stringify(graphNames) + " loading in the background"]
-        }
-    );
-};
+// module.exports.reload = function (req, res)
+// {
+//     const graphNames = req.query.graphs;
+//     const graphsToDelete = req.query.graphs_to_delete;
+//     const async = require("async");
+//
+//     const renderResponse = function (err, messages)
+//     {
+//         if (isNull(err))
+//         {
+//             const util = require("util");
+//             // noinspection ES6ConvertVarToLetConst
+//             let messages = "All resources successfully loaded in graph(s) : ";
+//
+//             for (let i = 0; i < graphNames.length; i++)
+//             {
+//                 messages = messages + " " + graphNames[i];
+//
+//                 if (i < graphNames.length - 1)
+//                 {
+//                     messages = messages + ", ";
+//                 }
+//             }
+//
+//             res.render("admin/home",
+//                 {
+//                     title: "List of available administration operations",
+//                     info_messages: [messages]
+//                 }
+//             );
+//         }
+//         else
+//         {
+//             res.render("admin/home",
+//                 {
+//                     title: "List of available administration operations",
+//                     error_messages: messages
+//                 }
+//             );
+//         }
+//     };
+//
+//     const deleteGraph = function (graphUri, callback)
+//     {
+//         db.deleteGraph(graphUri, callback);
+//     };
+//
+//     for (let graph in graphNames)
+//     {
+//     /* if(graphNames[i] === "dbpedia")
+//         {
+//             if(graphsToDelete[i])
+//             {
+//                 async.waterfall(
+//                     [
+//                         function(callback)
+//                         {
+//                             deleteGraph("http://dbpedia.org",
+//                                 function(err, resultOrErrorMessage)
+//                                 {
+//                                     return callback(err, [resultOrErrorMessage]);
+//                                 });
+//                         },
+//                         function(callback, result)
+//                         {
+//                             var path = require('path');
+//                             var DBPediaLoader = require("../kb/loaders/dbpedia/loader").DBPediaLoader;
+//                             var dbpediaLoader = new DBPediaLoader(db);
+//                             dbpediaLoader.load_dbpedia(renderResponse);
+//                         }
+//                     ],
+//                     renderResponse
+//                 );
+//             }
+//             else
+//             {
+//                 var path = require('path');
+//                 var DBPediaLoader = require("../kb/loaders/dbpedia/loader").DBPediaLoader;
+//                 var dbpediaLoader = new DBPediaLoader(db);
+//                 dbpediaLoader.load_dbpedia(renderResponse);
+//             }
+//         } */
+//         if (graph === "dryad")
+//         {
+//             const dryadLoader = new DryadLoader();
+//             dryadLoader.loadFromDownloadedFiles(req.index);
+//         }
+//     }
+//
+//     res.render("admin/home",
+//         {
+//             title: "List of available administration operations",
+//             info_messages: [JSON.stringify(graphNames) + " loading in the background"]
+//         }
+//     );
+// };
 
 module.exports.reindex = function (req, res)
 {
@@ -121,11 +119,8 @@ module.exports.reindex = function (req, res)
     const graphsToBeIndexed = req.query.graphs;
     const graphsToDelete = req.query.graphs_to_delete;
 
-    const async = require("async");
-
     const rebuildIndex = function (indexConnection, graphShortName, deleteBeforeReindexing, callback)
     {
-        const self = this;
         let index = null;
 
         for (let graph in IndexConnection.indexes)

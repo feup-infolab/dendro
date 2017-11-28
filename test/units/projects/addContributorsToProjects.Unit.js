@@ -6,8 +6,6 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const should = chai.should();
-const colors = require("colors");
 const path = require("path");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
@@ -82,7 +80,6 @@ module.exports.setup = function (finish)
                 });
             }, function (err, results)
             {
-                // should.equal(err, null);
                 appUtils.registerStopTimeForUnit(path.basename(__filename));
                 finish(err, results);
                 end();

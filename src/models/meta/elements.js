@@ -367,6 +367,11 @@ Elements.ontologies.dcterms =
       type: Elements.types.string,
       control: Controls.input_box
   },
+    SizeOrDuration:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
     tableOfContents:
   {
       type: Elements.types.string,
@@ -385,11 +390,6 @@ Elements.ontologies.dcterms =
     title:
   {
       type: Elements.types.string,
-      control: Controls.input_box
-  },
-    socialUpdatedAt:
-  {
-      type: Elements.types.date,
       control: Controls.input_box
   },
     hasVersion:
@@ -2086,6 +2086,11 @@ Elements.ontologies.bdv = {
       type: Elements.types.string,
       control: Controls.input_box
   },
+    conditionApplyingToAccessAndUse:
+  {
+      type: Elements.types.resource,
+      control: Controls.input_box
+  },
     conformityDate:
   {
       type: Elements.types.date,
@@ -2177,6 +2182,11 @@ Elements.ontologies.bdv = {
       control: Controls.input_box
   },
     linkage:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    limitationOnPublicAccess:
   {
       type: Elements.types.string,
       control: Controls.input_box
@@ -2569,6 +2579,11 @@ Elements.ontologies.hdg = {
       control: Controls.input_box
   },
     catalyst:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    Exemplo_data:
   {
       type: Elements.types.string,
       control: Controls.input_box

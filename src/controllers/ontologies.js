@@ -8,13 +8,13 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
-const async = require("async");
+const _ = require("underscore");
 
 exports.recommend = function (req, res)
 {
     if (!isNull(req.params.requestedResourceUri))
     {
-        Ontology.previouslyUsed(req.user, function (error, previouslyUsedOntologies)
+        Ontology.previouslyUsed(req.user, function (err, previouslyUsedOntologies)
         {
             if (isNull(err))
             {
@@ -62,12 +62,8 @@ exports.get_recommendation_ontologies = function (req, res)
 
                             /** hide elements**/
                             delete ontologyToReturn.elements;
-
-                            const label = Elements.ontologies[prefix].label;
-                            const description = Elements.ontologies[prefix].description;
-
-                            ontologyToReturn.label = label;
-                            ontologyToReturn.description = description;
+                            ontologyToReturn.dcterms.title = Elements.ontologies[prefix].label;
+                            ontologyToReturn.dcterms.description = Elements.ontologies[prefix].description;
 
                             ontologiesToReturn.push(ontologyToReturn);
                         }
@@ -84,7 +80,7 @@ exports.get_recommendation_ontologies = function (req, res)
             {
                 res.status(401).json({
                     result: "Error",
-                    message: "Action not permitted. You are not logged into the system."
+                    message: "Error detected. You are not authorized to perform this operation. You must be signed into Dendro."
                 });
             }
         }
@@ -135,6 +131,27 @@ exports.ontologies_autocomplete = function (req, res)
     }
 };
 
+const addTitlesAndDescriptions = function(ontologies)
+{
+    _.map(ontologies, function(ontology){
+        let prefix = ontology.prefix;
+        if(!isNull(ontology.dcterms))
+        {
+            if(isNull(ontology.dcterms.title))
+            {
+                ontology.dcterms.title = Elements.ontologies[prefix].label;
+            }
+
+            if(isNull(ontology.dcterms.description))
+            {
+                ontology.dcterms.description = Elements.ontologies[prefix].description;
+            }
+        }
+    });
+
+    return ontologies;
+}
+
 exports.public = function (req, res)
 {
     let acceptsHTML = req.accepts("html");
@@ -142,7 +159,9 @@ exports.public = function (req, res)
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
-        const publicOntologies = Ontology.getPublicOntologies();
+        let publicOntologies = Ontology.getPublicOntologies();
+        publicOntologies = addTitlesAndDescriptions(publicOntologies);
+
         res.json(publicOntologies);
     }
     else
@@ -161,9 +180,22 @@ exports.all = function (req, res)
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
-        const allOntologies = Ontology.getAllOntologiesArray();
-
-        res.json(allOntologies);
+        Ontology.all(function(err, ontologies)
+        {
+            if (isNull(err))
+            {
+                ontologies = addTitlesAndDescriptions(ontologies);
+                res.json(ontologies);
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "error",
+                    message: "Error retrieving all ontologies from the system.",
+                    error: ontologies
+                });
+            }
+        });
     }
     else
     {
@@ -208,35 +240,61 @@ exports.edit = function (req, res)
 
     if (newOntologyData instanceof Object)
     {
-        const newOntology = new Ontology(newOntologyData);
-
-        newOntology.save(function (err, result)
+        Ontology.findByUri(newOntologyData.uri, function(err, ontologyBeingEdited)
         {
-            if (isNull(err))
+            if(isNull(err))
             {
-                Ontology.initAllFromDatabase(function (err, result)
+                if(!isNull(ontologyBeingEdited))
                 {
-                    if (isNull(err))
+                    ontologyBeingEdited.ddr.hasResearchDomain = newOntologyData.ddr.hasResearchDomain;
+                    ontologyBeingEdited.dcterms.description = newOntologyData.description;
+
+                    ontologyBeingEdited.save(function (err, result)
                     {
-                        res.json({
-                            result: "ok",
-                            ontologies: Ontology.publicOntologies
-                        });
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result: "error",
-                            message: "Error reloading ontologies after updating : " + JSON.stringify(result)
-                        });
-                    }
-                });
+                        if (isNull(err))
+                        {
+                            Ontology.initAllFromDatabase(function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    res.json({
+                                        result: "ok",
+                                        ontologies: Ontology.publicOntologies
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result: "error",
+                                        message: "Error reloading ontologies after updating : " + JSON.stringify(result)
+                                    });
+                                }
+                            });
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result: "error",
+                                message: "Error editing ontologies : " + JSON.stringify(result)
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    res.status(404).json({
+                        result: "error",
+                        message: "Ontology " + newOntologyData.uri + " does not exist while trying to edit ontology.",
+                        error: err
+                    });
+                }
             }
             else
             {
                 res.status(500).json({
                     result: "error",
-                    message: "Error editing ontologies : " + JSON.stringify(result)
+                    message: "Error fetching ontology " + newOntologyData.uri,
+                    error: err
                 });
             }
         });

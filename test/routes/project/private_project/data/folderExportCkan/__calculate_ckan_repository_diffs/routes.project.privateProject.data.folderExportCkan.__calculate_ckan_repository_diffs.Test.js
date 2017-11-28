@@ -6,6 +6,7 @@ const should = chai.should();
 const slug = require("slug");
 const _ = require("underscore");
 chai.use(chaiHttp);
+it.optional = require("it-optional");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -53,10 +54,10 @@ let folderExportCkanData, folderExportedCkanNoDiffsData, folderExportedCkanDendr
 
 describe("Calculate private project folderExportCkan level ckan respository diffs tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        this.timeout(Config.testsTimeout);
         exportFoldersToCkanRepositoryUnit.setup(privateProject, function (err, results)
         {
             should.equal(err, null);
@@ -106,8 +107,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
 
     describe("[POST] [CKAN] First time being exported /project/:handle/data/:foldername?export_to_repository", function ()
     {
-        this.timeout(Config.testsTimeout);
-        it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done)
+        it.optional("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -121,7 +121,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
             });
         });
 
-        it("Should give an error when the user is unauthenticated", function (done)
+        it.optional("Should give an error when the user is unauthenticated", function (done)
         {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
@@ -133,7 +133,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
             });
         });
 
-        it("Should give an error message when the user is logged in as demouser3(not a creator or collaborator of the project)", function (done)
+        it.optional("Should give an error message when the user is logged in as demouser3(not a creator or collaborator of the project)", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -145,7 +145,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
             });
         });
 
-        it("Should give a success message when the user is logged in as demouser2(a collaborator of the project)", function (done)
+        it.optional("Should give a success message when the user is logged in as demouser2(a collaborator of the project)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -157,7 +157,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
             });
         });
 
-        it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done)
+        it.optional("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -171,7 +171,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
             });
         });
 
-        it("Should give an error when there is an invalid external url for deposit although a creator or collaborator is logged in", function (done)
+        it.optional("Should give an error when there is an invalid external url for deposit although a creator or collaborator is logged in", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -184,7 +184,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
             });
         });
 
-        it("Should give an error when the folder to export does not exist although a creator or collaborator is logged in", function (done)
+        it.optional("Should give an error when the folder to export does not exist although a creator or collaborator is logged in", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -196,7 +196,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
             });
         });
 
-        it("Should give an error when the folder to export does not have the required descriptors(dcterms.title, dcterms.description, dcterms.creator) although all the other required steps check out", function (done)
+        it.optional("Should give an error when the folder to export does not have the required descriptors(dcterms.title, dcterms.description, dcterms.creator) although all the other required steps check out", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -210,7 +210,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
         });
 
         // A case where there is no previously version exported to ckan
-        it("Should give a success message when the folder to export exists and a creator or collaborator is logged in", function (done)
+        it.optional("Should give a success message when the folder to export exists and a creator or collaborator is logged in", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -226,9 +226,8 @@ describe("Calculate private project folderExportCkan level ckan respository diff
 
     describe("[POST] [CKAN] Second time being exported but no diffs exist /project/:handle/data/:foldername?export_to_repository", function ()
     {
-        this.timeout(Config.testsTimeout);
         // A case where there is no previously version exported to ckan
-        it("Should give a success message with information that no diffs exist", function (done)
+        it.optional("Should give a success message with information that no diffs exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -245,9 +244,8 @@ describe("Calculate private project folderExportCkan level ckan respository diff
 
     describe("[POST] [CKAN] Second time being exported but ckan diffs exist /project/:handle/data/:foldername?export_to_repository", function ()
     {
-        this.timeout(Config.testsTimeout);
         // A case where a folder was exported to ckan and then files were uploaded on the ckan app
-        it("Should give a success message with information that ckan diffs exist", function (done)
+        it.optional("Should give a success message with information that ckan diffs exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -271,9 +269,8 @@ describe("Calculate private project folderExportCkan level ckan respository diff
 
     describe("[POST] [CKAN] Second time being exported but dendro diffs exist /project/:handle/data/:foldername?export_to_repository", function ()
     {
-        this.timeout(Config.testsTimeout);
         // A case where a folder was exported to ckan and then files were uploaded on the dendro app
-        it("Should give a success message with information that dendro diffs exist", function (done)
+        it.optional("Should give a success message with information that dendro diffs exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -295,7 +292,7 @@ describe("Calculate private project folderExportCkan level ckan respository diff
     after(function (done)
     {
         // destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);
