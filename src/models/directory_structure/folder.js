@@ -1517,6 +1517,45 @@ Folder.prototype.undelete = function (callback, uriOfUserUnDeletingTheFolder, no
     }
 };
 
+Folder.prototype.autorename = function ()
+{
+    const self = this;
+    const slug = require("slug");
+    self.nie.title = self.nie.title + "_Copy_created_" + slug(Date.now(), "_");
+    return self.nie.title;
+};
+
+Folder.prototype.save = function (callback)
+{
+    const self = this;
+    self.needsRenaming(function (err, needsRenaming)
+    {
+        if (isNull(err))
+        {
+            if (needsRenaming === true)
+            {
+                self.autorename();
+            }
+            self.baseConstructor.prototype.save.call(self, function (err, result)
+            {
+                if (isNull(err))
+                {
+                    return callback(null, self);
+                }
+                let errorMessage = "Error saving a folder: " + JSON.stringify(result);
+                Logger.log("error", errorMessage);
+                return callback(1, errorMessage);
+            });
+        }
+        else
+        {
+            let errorMessage = "Error checking if a folder needs renaming: " + JSON.stringify(needsRenaming);
+            Logger.log("error", errorMessage);
+            return callback(1, errorMessage);
+        }
+    });
+};
+
 Folder.deleteOnLocalFileSystem = function (absPath, callback)
 {
     const isWin = /^win/.test(process.platform);

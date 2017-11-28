@@ -2730,18 +2730,44 @@ exports.rename = function (req, res)
 
                         ie.nie.title = newName + parsed.ext;
 
-                        ie.save(function (err, result)
+                        ie.needsRenaming(function (err, shouldRename)
                         {
                             if (isNull(err))
                             {
-                                res.json({
-                                    result: "ok",
-                                    message: "File successfully renamed."
-                                });
+                                if (shouldRename === false)
+                                {
+                                    ie.save(function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            res.json({
+                                                result: "ok",
+                                                message: "File successfully renamed."
+                                            });
+                                        }
+                                        else
+                                        {
+                                            const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(result);
+                                            Logger.log("error", error);
+                                            res.status(500).json({
+                                                result: "error",
+                                                message: error
+                                            });
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    let errorMessage = "There already exists a resource with the name " + ie.nie.title + " in this location" + ", please try another name!";
+                                    res.status(412).json({
+                                        result: "error",
+                                        message: errorMessage
+                                    });
+                                }
                             }
                             else
                             {
-                                const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(result);
+                                const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(shouldRename);
                                 Logger.log("error", error);
                                 res.status(500).json({
                                     result: "error",

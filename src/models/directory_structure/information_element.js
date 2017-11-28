@@ -2,6 +2,7 @@
 
 const path = require("path");
 const async = require("async");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -234,10 +235,95 @@ InformationElement.prototype.getOwnerProject = function (callback)
     );
 };
 
+InformationElement.prototype.needsRenaming = function (callback, newTitle, parentUri)
+{
+    const self = this;
+    const getParent = function (callback)
+    {
+        if (isNull(parentUri))
+        {
+            parentUri = self.nie.isLogicalPartOf;
+        }
+        const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+
+        Folder.findByUri(parentUri, function (err, parentFolder)
+        {
+            if (isNull(err))
+            {
+                if (parentFolder instanceof Folder)
+                {
+                    callback(err, parentFolder);
+                }
+                else
+                {
+                    Project.findByUri(parentUri, function (err, parentProject)
+                    {
+                        if (isNull(err))
+                        {
+                            if (parentProject instanceof Project)
+                            {
+                                callback(err, parentProject);
+                            }
+                            else
+                            {
+                                callback(true, "Error: Parent of :  " + self.uri + " is neither a folder nor project");
+                            }
+                        }
+                        else
+                        {
+                            callback(err, parentProject);
+                        }
+                    });
+                }
+            }
+            else
+            {
+                callback(err, parentFolder);
+            }
+        });
+    };
+
+    const getChildrenOfParent = function (parent, callback)
+    {
+        parent.getLogicalParts(callback);
+    };
+
+    const renameIfChildExistsWithSameName = function (children, callback)
+    {
+        let shouldRename = false;
+        if (isNull(newTitle))
+        {
+            newTitle = self.nie.title;
+        }
+
+        const childrenWithTheSameName = _.find(children, function (child)
+        {
+            // return child.nie.title === self.nie.title && child.uri !== self.uri && child.ddr.deleted !== true;
+            return child.nie.title === newTitle && child.uri !== self.uri && child.ddr.deleted !== true;
+        });
+
+        if (
+            !isNull(childrenWithTheSameName) && Array.isArray(childrenWithTheSameName) && childrenWithTheSameName.length > 0 ||
+            !isNull(childrenWithTheSameName) && childrenWithTheSameName instanceof Object
+        )
+        {
+            shouldRename = true;
+        }
+
+        callback(null, shouldRename);
+    };
+
+    async.waterfall([
+        getParent,
+        getChildrenOfParent,
+        renameIfChildExistsWithSameName
+    ], callback);
+};
+
 InformationElement.prototype.rename = function (newTitle, callback)
 {
     const self = this;
-
     const query =
         "DELETE DATA \n" +
         "{ \n" +
