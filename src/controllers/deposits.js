@@ -5,6 +5,7 @@
 
 const path = require("path");
 const moment = require("moment");
+const dateFormat = require("dateformat");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -69,7 +70,16 @@ exports.public = function (req, callback) {
 
 exports.allowed = function (req, callback) {
     let params = req.query;
-    params.self = req.user.ddr.username;
+    params.self = req.user.uri;
+    if(!isNull(params.dateFrom))
+        params.dateFrom = dateFormat(params.dateFrom, "isoDateTime");
+    if(!isNull(params.dateTo)){
+        let nextDay = new Date(params.dateTo);
+        //params.dateTo = dateFormat(params.dateTo, "isoDate") + "T23:59:99.999Z";
+
+        //sparql is stupid does not
+        params.dateTo = dateFormat(params.dateTo, "isoDateTime");
+    }
     Deposit.createQuery(params, function(err, results){
         callback(err, results);
     });

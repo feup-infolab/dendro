@@ -192,8 +192,7 @@ Deposit.createQuery = function(params, callback){
         "       { \n" +
         "         ?uri ddr:privacyStatus [2] . \n" +
         "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-        "         ?projused ?role ?worker . \n" +
-        "         ?worker ddr:username [3] \n" +
+        "         ?projused ?role [3] . \n" +
         "       } \n" +
         "   } \n" +
         "   ?uri dcterms:creator ?user . \n" +
@@ -214,15 +213,15 @@ Deposit.createQuery = function(params, callback){
             value: db.graphUri
         },
         {
-            type : Elements.types.string,
+            type : Elements.ontologies.ddr.privacyStatus.type,
             value : "public"
         },
         {
-            type : Elements.types.string,
+            type : Elements.ontologies.ddr.privacyStatus.type,
             value : "private"
         },
         {
-            type : Elements.types.string,
+            type : Elements.ontologies.dcterms.creator.type,
             value : params.self
         },];
 
@@ -254,21 +253,21 @@ Deposit.createQuery = function(params, callback){
     if(params.project){
         query += "  ?projused dcterms:title [" + i++ + "] \n";
         variables.push({
-            type: Elements.types.string,
+            type: Elements.ontologies.dcterms.title.type,
             value: params.project
         });
     }
     if(params.creator){
         query += "  ?uri dcterms:creator [" + i++ + "] \n";
         variables.push({
-            type: Elements.types.resourceNoEscape,
+            type: Elements.ontologies.dcterms.creator.type,
             value: params.creator
         });
     }
     if(params.description){
         query += "  ?uri dcterms:description [" + i++ + "] \n";
         variables.push({
-            type: Elements.types.resourceNoEscape,
+            type: Elements.ontologies.dcterms.description.type,
             value: params.description
         });
     }
@@ -280,7 +279,7 @@ Deposit.createQuery = function(params, callback){
         });
     }
     if(params.dateTo){
-        query += "  FILTER ([" + i++ + "]^^xsd:dateTime > ?date )\n";
+        query += "  FILTER ([" + i + "]^^xsd:dateTime > ?date )\n";
         variables.push({
             type: Elements.types.string,
             value: params.dateTo,
