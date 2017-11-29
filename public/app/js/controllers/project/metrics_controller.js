@@ -19,8 +19,16 @@ angular.module('dendroApp.controllers')
                   windowService,
                   metricsService) {
 
+            $scope.projectfilter = {
+                type: "text",
+                label: "Project",
+                key: "project",
+                value: "",
+            };
+
             $scope.init = function () {
                 $scope.loadData();
+                $scope.loadDeposits();
             };
 
             $scope.loadData = function () {
@@ -66,6 +74,54 @@ angular.module('dendroApp.controllers')
                 return $scope.shared.is_project_root;
             };
 
+
+            $scope.updateData = function () {
+                $scope.data = $scope.data.map(function (data) {
+                    return data.map(function (y) {
+                        y = y + Math.random() * 10 - 5;
+                        return parseInt(y < 0 ? 0 : y > 100 ? 100 : y);
+                    });
+                });
+            };
+
+
+
+            $scope.loadDeposits = function () {
+                function getDeposits (uri)
+                {
+                    metricsService.get_deposits(uri)
+                        .then(function (response)
+                        {
+                            let deposistsData = response.data;
+                        });
+                }
+                if ($scope.check_project_root())
+                {
+                    getDeposits($scope.get_calling_uri());
+                }
+                else
+                {
+                    $scope.get_owner_project()
+                        .then(function (ownerProject)
+                        {
+                            if (ownerProject != null)
+                            {
+                                getDeposits(ownerProject.uri);
+                            }
+                        })
+                        .catch(function (e)
+                        {
+                            console.log("error", "Unable to fetch parent project of the currently selected file.");
+                            console.log("error", JSON.stringify(e));
+                            windowService.show_popup("error", "Error", e.statusText);
+                        });
+                }
+
+            };
+
+
+
+            //Chart Block
             $scope.labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
             $scope.data = [
                 [1, 4, 3]
@@ -88,13 +144,4 @@ angular.module('dendroApp.controllers')
                     pointHoverBorderColor: 'rgba(77,83,96,0.8)'
                 }
             ];
-
-            $scope.updateData = function () {
-                $scope.data = $scope.data.map(function (data) {
-                    return data.map(function (y) {
-                        y = y + Math.random() * 10 - 5;
-                        return parseInt(y < 0 ? 0 : y > 100 ? 100 : y);
-                    });
-                });
-            };
         });

@@ -192,8 +192,7 @@ Deposit.createQuery = function(params, callback){
         "       { \n" +
         "         ?uri ddr:privacyStatus [2] . \n" +
         "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-        "         ?projused ?role ?worker . \n" +
-        "         ?worker ddr:username [3] \n" +
+        "         ?projused ?role [3] . \n" +
         "       } \n" +
         "   } \n" +
         "   ?uri dcterms:creator ?user . \n" +

@@ -32,4 +32,29 @@ angular.module("dendroApp.services")
                         }
                     );
                 };
+
+                this.get_deposits = function (uri)
+                {
+                    let url = $scope.get_current_url();
+                    url += "deposits/latest";
+                    const params = $scope.projectfilter;
+
+                    return $http({
+                        method: "GET",
+                        url: url,
+                        params: params,
+                        contentType: "application/json",
+                        headers: {"Accept": "application/json"}
+                    }).then(function (response)
+                        {
+                            if (response.data != null && response.data instanceof Object)
+                            {
+                                return response;
+                            }
+                            return {};
+                        }
+                    );
+                };
+
+
             }]);
