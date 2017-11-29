@@ -365,7 +365,8 @@
       "foaf",
       "dcterms",
       "bdv",
-      "research"
+      "research",
+      "hdg"
     ],
     "authentication": {
       "default": {
