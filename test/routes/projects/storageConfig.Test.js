@@ -28,69 +28,89 @@ const privateProjectHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdat
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const projectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
-describe("Project storageConfig tests", function (done) {
-    before(function (done) {
-        this.timeout(Config.testsTimeout);
-            projectUnit.setup( function (err, res) {
-                should.equal(err,null);
-            });
+describe("Project storageConfig tests", function (done)
+{
+    this.timeout(Config.testsTimeout);
+    before(function (done)
+    {
+        projectUnit.setup(function (err, results)
+        {
+            should.equal(err, null);
             done();
+        });
     });
 
-    describe("Create Project with storage Config", function () {
-
-        it("Should create a project public project with storage config", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.getProjectMetadata(true,agent, publicProject.handle, function (err, res){
-                        should.not.exist(err);
+    describe("Create Project with storage Config", function ()
+    {
+        it("Should create a project public project with storage config", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res)
+                {
+                    should.not.exist(err);
+                    done();
                 });
             });
         });
 
-        it("Should edit storage config and give a valid access", function () {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //Get initial project storage config
-                //Edit project storage config
-                //should give OK status
+        it("Should edit storage config and give a valid access", function ()
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                // Get initial project storage config
+                // Edit project storage config
+                // should give OK status
+                done();
             });
         });
 
-        it("Should edit storage config and give error", function () {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //Get initial project storage config
-                //Edit project storage config
-                //should give !OK status
+        it("Should edit storage config and give error", function ()
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                // Get initial project storage config
+                // Edit project storage config
+                // should give !OK status
+                done();
             });
         });
 
-        it("Should  create a new storage config and initiate the new storage", function () {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //Get initial project storage config
-                //Export project to no storage
-                //Check storage config  == new
-                //Check project exported correctly
-                //should give OK status
+        it("Should  create a new storage config and initiate the new storage", function ()
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                // Get initial project storage config
+                // Export project to no storage
+                // Check storage config  == new
+                // Check project exported correctly
+                // should give OK status
+                done();
             });
         });
 
-        it("Should edit storage config and fail to initiate the new storage", function () {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //Get initial project storage config
-                //Export project to no storage Should fail
-                //Check storage config  == old
-                //Check project should remain equal
-                //should give !OK status
+        it("Should edit storage config and fail to initiate the new storage", function ()
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                // Get initial project storage config
+                // Export project to no storage Should fail
+                // Check storage config  == old
+                // Check project should remain equal
+                // should give !OK status
+                done();
             });
-        })
-
-
+        });
     });
 
-    after(function (done) {
-        //destroy graphs
+    after(function (done)
+    {
+        // destroy graphs
 
-        appUtils.clearAppState(function (err, data) {
+        appUtils.clearAppState(function (err, data)
+        {
             should.equal(err, null);
             done(err);
         });
