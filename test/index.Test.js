@@ -43,6 +43,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/user_avatar/routes.user_avatar.
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
+/*
 
 require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 
