@@ -24,30 +24,46 @@ angular.module('dendroApp.controllers')
             };
 
             $scope.loadData = function () {
-                function getStats(uri) {
+                function getStats (uri)
+                {
                     metricsService.get_stats(uri)
-                        .then(function (response) {
+                        .then(function (response)
+                        {
                             let statsData = response.data;
                             $scope.data[0].push(statsData.folders_count);
                         });
                 }
-
-                if ($scope.showing_project_root()) {
-                    getStats();
+                if ($scope.check_project_root())
+                {
+                    getStats($scope.get_calling_uri());
                 }
-                else {
+                else
+                {
                     $scope.get_owner_project()
-                        .then(function (ownerProject) {
-                            if (ownerProject != null) {
+                        .then(function (ownerProject)
+                        {
+                            if (ownerProject != null)
+                            {
                                 getStats(ownerProject.uri);
                             }
                         })
-                        .catch(function (e) {
+                        .catch(function (e)
+                        {
                             console.log("error", "Unable to fetch parent project of the currently selected file.");
                             console.log("error", JSON.stringify(e));
                             windowService.show_popup("error", "Error", e.statusText);
                         });
                 }
+
+            };
+
+            $scope.check_project_root = function ()
+            {
+                if ($scope.shared.selected_file != null)
+                {
+                    return false;
+                }
+                return $scope.shared.is_project_root;
             };
 
             $scope.labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
@@ -81,12 +97,4 @@ angular.module('dendroApp.controllers')
                     });
                 });
             };
-
-            /*            $scope.labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                        $scope.series = ['Folders', 'Files'];
-
-                        $scope.data = [
-                            [0,1],
-                            [1,1]
-                        ];*/
         });
