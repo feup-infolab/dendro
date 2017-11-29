@@ -28,7 +28,7 @@ angular.module('dendroApp.controllers')
 
             $scope.init = function () {
                 $scope.loadData();
-                $scope.loadDeposits();
+               // $scope.loadDeposits();
             };
 
             $scope.loadData = function () {
@@ -65,6 +65,7 @@ angular.module('dendroApp.controllers')
 
             };
 
+
             $scope.check_project_root = function ()
             {
                 if ($scope.shared.selected_file != null)
@@ -73,6 +74,7 @@ angular.module('dendroApp.controllers')
                 }
                 return $scope.shared.is_project_root;
             };
+
 
 
             $scope.updateData = function () {
