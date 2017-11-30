@@ -771,7 +771,15 @@ angular.module("dendroApp.controllers")
 
         $scope.backup_folder = function ()
         {
-            windowService.download_url($scope.get_current_url(), "?backup");
+            var selectedFiles = $scope.get_selected_files();
+            if (selectedFiles.length && selectedFiles.length > 0)
+            {
+                $scope.backup_selected_items();
+            }
+            else
+            {
+                windowService.download_url($scope.get_current_url(), "?backup");
+            }
         };
 
         $scope.init = function ()
