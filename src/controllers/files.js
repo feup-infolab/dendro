@@ -1137,44 +1137,17 @@ exports.upload = function (req, res)
 
 exports.restore = function (req, res)
 {
-    if (req.originalMethod === "GET")
+    const performRestore = function (err, restoreInfo)
     {
-        res.render("files/restore",
+        if (isNull(err))
+        {
+            const requestedResourceUri = req.params.requestedResourceUri;
+            if (!isNull(restoreInfo) && restoreInfo instanceof Array && restoreInfo.length === 1)
             {
-
-            }
-        );
-    }
-    else if (req.originalMethod === "POST")
-    {
-        const requestedResourceUri = req.params.requestedResourceUri;
-
-        req.form.on("error", function (err)
-        {
-            res.status(500).json(
-                {
-                    result: "error",
-                    message: "an error occurred on file upload"
-                });
-        });
-
-        req.form.on("aborted", function ()
-        {
-            res.status(500).json(
-                {
-                    result: "aborted",
-                    message: "request aborted by user"
-                });
-        });
-
-        req.form.on("end", function ()
-        {
-            if (!isNull(req.files) && req.files.files instanceof Array && req.files.files.length === 1)
-            {
-                const tempFilePath = req.files.files[0].path;
+                const tempFilePath = restoreInfo[0].path;
                 const file = new File({
                     nie: {
-                        title: req.files.files[0].name
+                        title: restoreInfo[0].name
                     }
                 });
 
@@ -1225,7 +1198,7 @@ exports.restore = function (req, res)
                                 }
                                 else
                                 {
-                                    const msg = "Error fetching currently logged in user during restore operation of zip file to folder " + requestedResourceUri + " : " + result;
+                                    const msg = "Error fetching currently logged in user during restore operation of zip file to folder " + requestedResourceUri + " : " + user;
                                     res.status(500).json(
                                         {
                                             result: "error",
@@ -1265,6 +1238,42 @@ exports.restore = function (req, res)
                     }
                 );
             }
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error",
+                    message: "Error  performing the restore of folder: " + req.params.requestedResourceUri + "with error: " + restoreInfo
+                }
+            );
+        }
+    };
+
+    if (!isNull(req.params.requestedResourceUri))
+    {
+        const uploader = new Uploader();
+        uploader.handleUpload(req, res, function (err, result)
+        {
+            if (isNull(err))
+            {
+                performRestore(err, result);
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "error",
+                    message: "Unable to perform the folder restore",
+                    error: "error"
+                });
+            }
+        });
+    }
+    else
+    {
+        res.status.json(400, {
+            result: "error",
+            message: "Unable to determine the folder to be restored"
         });
     }
 };

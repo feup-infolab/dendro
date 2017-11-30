@@ -24,7 +24,7 @@ exports.autocomplete = function (req, res)
             {
                 if (isNull(err))
                 {
-                    _.map(researchDomains, function(researchDomain)
+                    _.map(researchDomains, function (researchDomain)
                     {
                         Descriptor.removeUnauthorizedFromObject(researchDomain, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_accessible]);
                     });

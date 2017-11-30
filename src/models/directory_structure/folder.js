@@ -1291,7 +1291,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
         {
             return callback(err, result);
         }
-    }, runningOnRoot);
+    }, runningOnRoot, entityLoadingTheMetadata);
 };
 
 Folder.prototype.setDescriptorsRecursively = function (descriptors, callback, uriOfUserDeletingTheFolder)

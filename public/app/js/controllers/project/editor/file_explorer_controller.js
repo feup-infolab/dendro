@@ -296,7 +296,7 @@ angular.module("dendroApp.controllers")
 
         $scope.toggle_restore_area = function ()
         {
-            angular.element("#upload_droparea_button").triggerHandler("click");
+            angular.element("#upload_restore_droparea_button").triggerHandler("click");
             // $scope.upload_area_visible = false;
             // $scope.restore_area_visible = !$scope.restore_area_visible;
         };
@@ -780,6 +780,23 @@ angular.module("dendroApp.controllers")
             {
                 windowService.download_url($scope.get_current_url(), "?backup");
             }
+        };
+
+        $scope.get_restore_url = function ()
+        {
+            return URI($scope.get_calling_uri()).addSearch("restore").toString();
+        };
+        $scope.get_upload_url = function ()
+        {
+            return URI($scope.get_calling_uri()).addSearch("upload").toString();
+        };
+        $scope.get_resume_url = function ()
+        {
+            return URI($scope.get_calling_uri()).addSearch("resume").toString();
+        };
+        $scope.get_restart_url = function ()
+        {
+            return URI($scope.get_calling_uri()).addSearch("restart").toString();
         };
 
         $scope.init = function ()
