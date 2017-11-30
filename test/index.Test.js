@@ -435,6 +435,9 @@ require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archiv
 // Import projects tests
 require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
+// Dendro Administration page
+require(Pathfinder.absPathInTestsFolder("/routes/admin/routes.admin.Test.js"));
+
 /*
  require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
  */

@@ -59,7 +59,7 @@ describe("Administer projects", function (done)
     {
         it("[HTML] should not access project without logging in GET", function (done)
         {
-            var app = GLOBAL.tests.app;
+            var app = global.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, false, {}, publicProject.handle, function (err, res)
             {
@@ -137,7 +137,7 @@ describe("Administer projects", function (done)
 
         it("[HTML] should not modify project without logging in POST", function (done)
         {
-            var app = GLOBAL.tests.app;
+            var app = global.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, true, {}, publicProject.handle, function (err, res)
             {
@@ -285,7 +285,7 @@ describe("Administer projects", function (done)
         db.deleteGraphs(function (err, data)
         {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
+            global.tests.server.close();
             done();
         });
     });

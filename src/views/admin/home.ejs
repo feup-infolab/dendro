@@ -1,5 +1,9 @@
 <%- include ../layout/header.ejs %>
 
+<h1 class="page-header">
+    System administration page
+</h1>
+
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
     <li class="active">
@@ -23,6 +27,9 @@
     <div class="tab-pane active" id="ontologies" ng-controller="ontologiesCtrl" ng-init="init()">
         <div class="row">
             <div class="col-lg-12">
+                <h4 class="page-header">
+                    Editing ontologies
+                </h4>
                 <%- include ../ontologies/edit.ejs %>
             </div>
         </div>
@@ -38,6 +45,9 @@
     <div class="tab-pane" id="research_domains" ng-controller="researchDomainsCtrl">
         <div class="row">
             <div class="col-lg-12">
+                <h4 class="page-header">
+                    Editing research domains
+                </h4>
                 <%- include ../research_domains/edit.ejs %>
             </div>
         </div>
@@ -45,9 +55,9 @@
     <div class="tab-pane" id="actions">
         <div class="row">
             <div class="col-lg-12">
-                <h1 class="page-header">
+                <h4 class="page-header">
                     Actions
-                </h1>
+                </h4>
             </div>
         </div>
         <div class="tab-pane" id="actions">
@@ -101,17 +111,24 @@
 
             <h3>Reindex all resources from a graph</h3>
             <div class="help-block">if your search box is not working properly, reindex the resources in the database.</div>
-            <form action="/admin/reindex" method="get">
-                <h4>Dendro graph</h4>
+            <form action="/admin/reindex" method="post">
+                <%
+                    var keys = Object.keys(db);
+                    for (var i = 0; i < keys.length; i++) {
 
-                <div class="row">
-                    <div class="col-lg-12">
-                        <input type="checkbox" id="reindex_dendro_graph_checkbox" name="graphs[dendro]" value="dendro" checked>Delete (Working Graph)</input>
+                    var graph = db[keys[i]];
+
+                %>
+                    <div class="row">
+                        <h4>Graph <%=graph.graphHandle%></h4>
+                        <div class="col-lg-12">
+                            <input type="checkbox" id="reindex_<%=graph.graphHandle%>_graph_checkbox" name="graphs[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>Delete (Working Graph)</input>
+                        </div>
+                        <div class="col-lg-12">
+                            <input type="checkbox" name="graphs_to_delete[<%=graph.graphHandle%>]" value="1" checked>Delete existing index (will not delete base data)</input>
+                        </div>
                     </div>
-                    <div class="col-lg-12">
-                        <input type="checkbox" name="graphs_to_delete[dendro]" value="1" checked>Delete existing index (will not delete base data)</input>
-                    </div>
-                </div>
+                <% } %>
                 <input type="submit" value="Reindex" class="btn btn-primary">
 
                 <p class="help-block">Select the graphs you want to reindex</p>
