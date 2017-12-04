@@ -26,7 +26,7 @@ const restoreFolderWithOnlyOneFileInside = require(Pathfinder.absPathInTestsFold
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-const createFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersSingleProject.Unit.js"));
+const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Public project testFolder1 level restore folder tests", function ()
@@ -37,7 +37,7 @@ describe("Public project testFolder1 level restore folder tests", function ()
     let restoredFolderName = "folderDebug";
     before(function (done)
     {
-        createFoldersSingleProjectUnit.setup(publicProject, function (err, results)
+        addMetadataToFoldersSingleProjectUnit.setup(publicProject, function (err, results)
         {
             try
             {

@@ -1180,7 +1180,7 @@ Folder.prototype.loadMetadata = function (
                         return descriptor.prefixedForm === "nie:title";
                     });
 
-                    if (node.resource === self.uri)
+                    if (node.resource === existingFolder.uri)
                     {
                         existingFolder.loadMetadata(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
                     }
