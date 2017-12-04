@@ -10,7 +10,7 @@ const initElasticSearch = function (app, callback)
     Logger.log_boot_message("Connecting to ElasticSearch Cluster...");
     const index = new IndexConnection();
 
-    index.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro, function (index)
+    index.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro_graph, function (index)
     {
         if (index.client)
         {
@@ -18,7 +18,7 @@ const initElasticSearch = function (app, callback)
         }
         else
         {
-            return callback("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro.short_name, app, index);
+            return callback("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro_graph.short_name, app, index);
         }
         return callback(null, app, index);
     });

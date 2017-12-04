@@ -11,6 +11,7 @@ module.exports.home = function (req, res)
 {
     res.render("admin/home",
         {
+            db: Config.db,
             title: "List of available administration operations"
         }
     );
@@ -116,8 +117,8 @@ module.exports.home = function (req, res)
 module.exports.reindex = function (req, res)
 {
     const indexConnection = req.index;
-    const graphsToBeIndexed = req.query.graphs;
-    const graphsToDelete = req.query.graphs_to_delete;
+    const graphsToBeIndexed = req.body.graphs;
+    const graphsToDelete = req.body.graphs_to_delete;
 
     const rebuildIndex = function (indexConnection, graphShortName, deleteBeforeReindexing, callback)
     {
@@ -200,7 +201,7 @@ module.exports.reindex = function (req, res)
         }
     };
 
-    for (graph in graphsToBeIndexed)
+    for (let graph in graphsToBeIndexed)
     {
         if (graphsToBeIndexed.hasOwnProperty(graph))
         {

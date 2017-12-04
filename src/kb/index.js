@@ -23,7 +23,7 @@ IndexConnection.indexTypes =
 // exclude a field from indexing : add "index" : "no".
 
 IndexConnection.indexes = {
-    dendro: {
+    dendro_graph: {
         short_name: slug(db.graphUri),
         uri: db.graphUri,
         elasticsearch_mappings:
