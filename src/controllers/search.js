@@ -89,9 +89,9 @@ exports.search = function (req, res)
     else
     {
         res.render("search/search", {
-            "title": "No query specified",
-            "info_messages" : ["No query specified"],
-            "results": []
+            title: "No query specified",
+            info_messages: ["No query specified"],
+            results: []
         });
     }
 };

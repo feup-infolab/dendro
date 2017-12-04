@@ -196,6 +196,146 @@ Resource.exists = function (uri, callback, customGraphUri)
         });
 };
 
+Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+{
+    const self = this;
+    const type = self.prefixedRDFType;
+
+    const dummyRec = {
+        query: {
+            page_number: 0,
+            page_size: 10000
+        }
+    };
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const queryArguments = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: graphUri
+        }
+    ];
+
+    let query =
+        "SELECT DISTINCT ?uri \n" +
+        "FROM [0]\n" +
+        "WHERE \n" +
+        "{ \n";
+
+    if (!isNull(type))
+    {
+        let rdfTypes;
+
+        if (!(self.prefixedRDFType instanceof Array))
+        {
+            rdfTypes = [self.prefixedRDFType];
+        }
+        else
+        {
+            rdfTypes = self.prefixedRDFType;
+        }
+
+        let argumentCount = 1;
+        let typeRestrictions = "";
+        for (let i = 0; i < rdfTypes.length; i++)
+        {
+            typeRestrictions = typeRestrictions + " ?uri rdf:type [" + argumentCount + "]";
+            argumentCount++;
+
+            queryArguments.push({
+                type: Elements.types.prefixedResource,
+                value: rdfTypes[i]
+            });
+
+            if (i < rdfTypes.length - 1)
+            {
+                typeRestrictions += ".\n";
+            }
+            else
+            {
+                typeRestrictions += "\n";
+            }
+        }
+
+        query = query + typeRestrictions;
+    }
+    else
+    {
+        query = query + " ?uri ?p ?o\n";
+    }
+
+    query = query + "} \n";
+
+    query = DbConnection.paginateQuery(
+        dummyRec,
+        query
+    );
+
+    let resultsSize;
+    async.until(
+        function ()
+        {
+            if (!isNull(resultsSize) && resultsSize > 0)
+            {
+                if (!isNull(checkFunction))
+                {
+                    if (checkFunction())
+                    {
+                        return false;
+                    }
+
+                    // check function failed, stop querying!
+                    finalCallback(1, "Validation condition not met when fetching resources with pagination. Aborting paginated querying...");
+                    return true;
+                }
+            }
+            else
+            {
+                finalCallback(null, "All resources of type " + self.prefixedForm + " retrieved via pagination query.");
+                return true;
+            }
+        },
+        function (callback)
+        {
+            db.connection.executeViaJDBC(
+                query,
+                queryArguments,
+                function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        dummyRec.query.page_number++;
+                        async.mapSeries(results,
+                            function (result, cb)
+                            {
+                                const aResource = new self.prototype.constructor(result);
+                                self.findByUri(aResource.uri, function (err, completeResource)
+                                {
+                                    if (!isNull(descriptorTypesToRemove) && descriptorTypesToRemove instanceof Array)
+                                    {
+                                        completeResource.clearDescriptors(descriptorTypesToExemptFromRemoval, descriptorTypesToRemove);
+                                    }
+
+                                    cb(err, completeResource);
+                                });
+                            },
+                            function (err, results)
+                            {
+                                resultsSize = results.length;
+                                return resourcePageCallback(err, results);
+                            });
+                    }
+                    else
+                    {
+                        return callback(1, "Unable to fetch all resources from the graph, on page " + req.query.page_number);
+                    }
+                }
+            );
+        }
+    );
+};
+
 Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 {
     const self = this;
@@ -238,7 +378,7 @@ Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove,
 
             queryArguments.push({
                 type: Elements.types.prefixedResource,
-                value: self.prefixedRDFType[i]
+                value: rdfTypes[i]
             });
 
             if (i < rdfTypes.length - 1)
@@ -252,6 +392,10 @@ Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove,
         }
 
         query = query + typeRestrictions;
+    }
+    else
+    {
+        query = query + " ?uri ?p ?o";
     }
 
     query = query + "} \n";

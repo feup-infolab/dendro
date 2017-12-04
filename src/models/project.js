@@ -41,7 +41,7 @@ function Project (object)
 
     if (isNull(object.ddr != null))
     {
-        if(object.ddr.hasStorageLimit)
+        if (object.ddr.hasStorageLimit)
         {
             self.ddr.hasStorageLimit = Config.maxProjectSize;
         }

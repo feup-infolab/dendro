@@ -3,272 +3,94 @@ process.env.NODE_ENV = "test";
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
-const checkChai = require("check-chai");
-chai.use(checkChai);
 
-const fs = require("fs");
-const path = require("path");
-const async = require("async");
 const Config = global.Config;
 
 const should = chai.should();
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const administerUtils = require(Pathfinder.absPathInTestsFolder("utils/administer/administerUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
-const demouser4 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser4"));
-const demouser5 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser5"));
+const admin = require(Pathfinder.absPathInTestsFolder("mockdata/users/admin"));
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
+const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
-const Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+let app;
+let agent;
 
-describe("Reindex resources tests", function (done)
+describe("Resource re-indexing page ( /admin/reindex )", function (done)
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.setup(function (err, res)
-        {
-            chai.check(done, function ()
-            {
-                should.equal(err, null);
-            });
-        });
-    });
-    describe("/reindex", function ()
-    {
-        it("Should not access reindex operation without being logged in", function (done)
-        {
-            var app = global.tests.app;
-            var agent = chai.request.agent(app);
-            projectUtils.administer(agent, false, {}, publicProject.handle, function (err, res)
-            {
-                chai.check(done, function ()
-                {
-                    res.should.have.status(401);
-                    res.text.should.contain("Permission denied : cannot access the administration area of the project because you are not its creator.");
-                    done();
-                });
-            });
-        });
-
-        it("Should not access reindex operation without being logged in as an administrator", function (done)
-        {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
-            {
-                projectUtils.administer(agent, false, {}, publicProject.handle, function (err, res)
-                {
-                    /* res.should.have.status(200); */
-                    res.should.have.status(401);
-                    res.text.should.contain("Permission denied : cannot access the administration area of the project because you are not its creator.");
-                    done();
-                });
-            });
-        });
-
-        it("Should give an error when trying to reindex a non-existent graph", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                projectUtils.administer(agent, false, {}, publicProject.handle, function (err, res)
-                {
-                    res.should.have.status(200);
-                    res.text.should.contain("Editing project \"" + publicProject.title + "\"");
-                    done();
-                });
-            });
-        });
-
-        it("[HTML] should not access admin in folder GET", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                projectUtils.administer(agent, false, {}, privateProject.handle + "/data/pastinhaLinda", function (err, res)
-                {
-                    res.should.have.status(404);
-                    should.exist(err);
-                    err.message.should.equal("Not Found");
-                    done();
-                });
-            });
-        });
-
-        it("[HTML] should not access admin in folder POST", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                projectUtils.administer(agent, true, {}, privateProject.handle + "/data/pastinhaLinda", function (err, res)
-                {
-                    res.should.have.status(404);
-                    should.exist(err);
-                    err.message.should.equal("Not Found");
-                    done();
-                });
-            });
-        });
-
-        it("[HTML] should not modify project without logging in POST", function (done)
-        {
-            var app = global.tests.app;
-            var agent = chai.request.agent(app);
-            projectUtils.administer(agent, true, {}, publicProject.handle, function (err, res)
-            {
-                /* res.should.have.status(200); */
-                res.should.have.status(401);
-                res.text.should.contain("Permission denied : cannot access the administration area of the project because you are not its creator.");
-                done();
-            });
-        });
-
-        it("[HTML] should not modify project without admin rights POST", function (done)
-        {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
-            {
-                projectUtils.administer(agent, true, {}, publicProject.handle, function (err, res)
-                {
-                    /* res.should.have.status(200); */
-                    res.should.have.status(401);
-                    res.text.should.contain("Permission denied : cannot access the administration area of the project because you are not its creator.");
-                    done();
-                });
-            });
-        });
-
-        it("[HTML] should change project's privacy status, title and description", function (done)
-        {
-            var metadata = "metadata_only";
-            var title = "mockTitle";
-            var description = "this is a testing description with no other purposes";
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                projectUtils.administer(agent, true, {privacy: metadata, title: title, description: description}, publicProject.handle, function (err, res)
-                {
-                    res.should.have.status(200);
-                    Project.findByHandle(publicProject.handle, function (err, project)
-                    {
-                        project.ddr.privacyStatus.should.equal(metadata);
-                        project.dcterms.title.should.equal(title);
-                        project.dcterms.description.should.equal(description);
-                        done();
-                    });
-                });
-            });
-        });
-
-        it("[HTML] add non-existent contributors", function (done)
-        {
-            var invalidUsername = "nonexistinguser";
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                projectUtils.administer(agent, true, {contributors: [invalidUsername]}, publicProject.handle, function (err, res)
-                {
-                    /* res.should.have.status(200); */
-                    res.should.have.status(400);
-                    res.text.should.contain("error_messages");
-                    res.text.should.contain(invalidUsername);
-                    done();
-                });
-            });
-        });
-
-        it("[HTML] add contributors", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                User.findByUsername(demouser3.username, function (err, demouser3object)
-                {
-                    Project.findByHandle(publicProject.handle, function (err, project)
-                    {
-                        should.not.exist(project.dcterms.contributor);
-                        projectUtils.administer(agent, true, {contributors: [demouser3object.uri, demouser4.username, demouser5.username ]}, publicProject.handle, function (err, res)
-                        {
-                            should.equal(err, null);
-                            res.should.have.status(200);
-                            Project.findByHandle(publicProject.handle, function (err, project)
-                            {
-                                var contributors = project.dcterms.contributor;
-                                contributors.length.should.equal(3);
-
-                                async.mapSeries([demouser3.username, demouser4.username, demouser5.username], function (username, callback)
-                                {
-                                    User.findByUsername(username, callback);
-                                }, function (err, users)
-                                {
-                                    should.not.exist(err);
-
-                                    const demouser3uri = users[0].uri;
-                                    const demouser4uri = users[1].uri;
-                                    const demouser5uri = users[2].uri;
-
-                                    contributors.should.contain(demouser3uri);
-                                    contributors.should.contain(demouser4uri);
-                                    contributors.should.contain(demouser5uri);
-                                    done();
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-
-        it("[HTML] remove contributors", function (done)
-        {
-            User.findByUsername(demouser2.username, function (err, user)
-            {
-                should.not.exist(err);
-
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-                {
-                    Project.findByHandle(publicProject.handle, function (err, project)
-                    {
-                        project.dcterms.contributor.should.be.instanceof(Array);
-                        project.dcterms.contributor.length.should.equal(3);
-                        projectUtils.administer(agent, true, {contributors: [demouser2.username, demouser3.username]}, publicProject.handle, function (err, res)
-                        {
-                            Project.findByHandle(publicProject.handle, function (err, project)
-                            {
-                                should.not.exist(err);
-                                project.dcterms.contributor.should.be.instanceof(Array);
-                                project.dcterms.contributor.length.should.equal(2);
-
-                                projectUtils.administer(agent, true, {contributors: [demouser2.username]}, publicProject.handle, function (err, res)
-                                {
-                                    should.not.exist(err);
-                                    Project.findByHandle(publicProject.handle, function (err, project)
-                                    {
-                                        should.not.exist(err);
-                                        project.dcterms.contributor.should.equal(user.uri);
-                                        done();
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    });
-
-    after(function (done)
-    {
-        // destroy graphs
-
-        db.deleteGraphs(function (err, data)
+        addMetadataToFoldersSingleProjectUnit.setup(publicProject, function (err, res)
         {
             should.equal(err, null);
-            global.tests.server.close();
+            app = global.tests.app;
+            agent = chai.request.agent(app);
             done();
+        });
+    });
+    describe("Invalid cases", function ()
+    {
+        it("Should not allow reindexing operation without being logged in", function (done)
+        {
+            administerUtils.reindexGraphs(agent,
+                {
+                    graphs_to_reindex: ["dendro_graph", "social_dendro", "notifications_dendro"],
+                    graphs_to_delete: ["dendro_graph", "social_dendro", "notifications_dendro"]
+                },
+                function (err, res)
+                {
+                    res.should.have.status(401);
+                    res.text.should.contain("You are not authorized to perform this operation. You must be a Dendro administrator.");
+                    res.text.should.not.contain("System administration page");
+                    done();
+                });
+        });
+
+        it("Should not allow reindexing operation without being logged in as an administrator", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                administerUtils.reindexGraphs(agent,
+                    {
+                        graphs_to_reindex: ["dendro_graph", "social_dendro", "notifications_dendro"],
+                        graphs_to_delete: ["dendro_graph", "social_dendro", "notifications_dendro"]
+                    },
+                    function (err, res)
+                    {
+                        res.should.have.status(401);
+                        res.text.should.contain("You are not authorized to perform this operation. You must be a Dendro administrator.");
+                        res.text.should.not.contain("System administration page");
+                        done();
+                    });
+            });
+        });
+    });
+
+    describe("Valid cases", function ()
+    {
+        it("Should reindex the graphs if the user is an administrator", function (done)
+        {
+            userUtils.loginUser(admin.username, admin.password, function (err, agent)
+            {
+                administerUtils.reindexGraphs(
+                    agent,
+                    {
+                        graphs_to_reindex: ["dendro_graph", "social_dendro", "notifications_dendro"],
+                        graphs_to_delete: ["dendro_graph", "social_dendro", "notifications_dendro"]
+                    },
+                    function (err, res)
+                    {
+                        res.should.have.status(200);
+                        res.text.should.contain("System administration page");
+                        done();
+                    });
+            });
         });
     });
 });

@@ -77,16 +77,4 @@ describe("Administration panel tests ( /admin )", function (done)
             });
         });
     });
-
-    after(function (done)
-    {
-        // destroy graphs
-
-        db.deleteGraphs(function (err, data)
-        {
-            should.equal(err, null);
-            global.tests.server.close();
-            done();
-        });
-    });
 });
