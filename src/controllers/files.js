@@ -1172,7 +1172,7 @@ exports.restore = function (req, res)
                                     {
                                         if (isNull(err))
                                         {
-                                            const msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + result;
+                                            const msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + JSON.stringify(result);
                                             Logger.log(msg);
 
                                             res.status(200).json(

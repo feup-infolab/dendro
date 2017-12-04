@@ -757,18 +757,6 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     else
                     {
                         const childFolderObject = new Folder(childFolder);
-
-                        if (childFolderObject.nie.isLogicalPartOf instanceof Array)
-                        {
-                            childFolderObject.nie.isLogicalPartOf.push(self.uri);
-                        }
-                        else if (typeof childFolderObject.nie.isLogicalPartOf === "string")
-                        {
-                            childFolderObject.nie.isLogicalPartOf = [childFolderObject.nie.isLogicalPartOf, self.uri];
-                        }
-
-                        childFolderObject.nie.title = folderName;
-
                         childFolderObject.save(function (err, result)
                         {
                             cb(err, childFolderObject);
