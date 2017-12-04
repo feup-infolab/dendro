@@ -25,4 +25,15 @@ exports.getAdministerPage = function (agent, jsonOnly, cb)
     }
 };
 
+exports.reindexGraphs = function (agent, graphs, cb)
+{
+    agent
+        .post("/admin/reindex")
+        .send(graphs)
+        .end(function (err, res)
+        {
+            cb(err, res);
+        });
+};
+
 module.exports = exports;

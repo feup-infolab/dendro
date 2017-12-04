@@ -67,7 +67,6 @@ describe("Administer projects", function (done)
                 {
                     res.should.have.status(401);
                     res.text.should.contain("Permission denied : cannot access the administration area of the project because you are not its creator.");
-                    done();
                 });
             });
         });

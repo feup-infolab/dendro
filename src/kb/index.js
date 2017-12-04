@@ -7,6 +7,8 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const util = require("util");
 const db = Config.getDBByID();
+const db_social = Config.getDBByID("social");
+const db_notifications = Config.getDBByID("notifications");
 
 const es = require("elasticsearch");
 const slug = require("slug");
@@ -23,64 +25,75 @@ IndexConnection.indexTypes =
 // exclude a field from indexing : add "index" : "no".
 
 IndexConnection.indexes = {
-    dendro_graph: {
+    dendro_graph:
+    {
         short_name: slug(db.graphUri),
         uri: db.graphUri,
         elasticsearch_mappings:
-    {
-        resource: {
-            properties: {
-                uri:
-          {
-              type: "string",
-              index: "not_analyzed" // we only want exact matches, disable term analysis
-          },
-                graph:
-          {
-              type: "string",
-              index: "not_analyzed" // we only want exact matches, disable term analysis
-          },
-                last_indexing_date:
-          {
-              type: "string",
-              index: "not_analyzed" // we only want exact matches, disable term analysis
-          },
-                descriptors:
-          {
-              properties:
-            {
-                predicate:
+        {
+            resource: {
+                properties: {
+                    uri:
               {
                   type: "string",
                   index: "not_analyzed" // we only want exact matches, disable term analysis
               },
-                object:
+                    graph:
               {
                   type: "string",
-                  index_options: "offsets",
-                  analyzer: "standard"
+                  index: "not_analyzed" // we only want exact matches, disable term analysis
+              },
+                    last_indexing_date:
+              {
+                  type: "string",
+                  index: "not_analyzed" // we only want exact matches, disable term analysis
+              },
+                    descriptors:
+              {
+                  properties:
+                {
+                    predicate:
+                  {
+                      type: "string",
+                      index: "not_analyzed" // we only want exact matches, disable term analysis
+                  },
+                    object:
+                  {
+                      type: "string",
+                      index_options: "offsets",
+                      analyzer: "standard"
+                  }
+                }
               }
-            }
-          }
+                }
             }
         }
-    }
+    },
+    social_dendro:
+    {
+        short_name: slug(db_social.graphUri),
+        uri: db_social.graphUri
+    },
+    notifications_dendro:
+    {
+        short_name: slug(db_notifications.graphUri),
+        uri: db_notifications.graphUri
     },
     dbpedia:
-  {
-      short_name: slug("http://dbpedia.org"),
-      uri: "http://dbpedia.org"
-  },
+    {
+        short_name: slug("http://dbpedia.org"),
+        uri: "http://dbpedia.org"
+    },
     dryad:
-  {
-      short_name: slug("http://dryad.org"),
-      uri: "http://dryad.org"
-  },
+    {
+        short_name: slug("http://dryad.org"),
+        uri: "http://dryad.org"
+    },
     freebase:
-  {
-      short_name: slug("http://freebase.org"),
-      uri: "http://freebase.org"
-  }
+    {
+        short_name: slug("http://freebase.org"),
+        uri: "http://freebase.org"
+    }
 };
 
 IndexConnection.prototype.open = function (host, port, index, callback)
@@ -197,7 +210,6 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
 IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfReplicas, deleteIfExists, callback)
 {
     let self = this;
-    let endCallback = callback;
     let async = require("async");
     let indexName = self.index.short_name;
 
@@ -215,15 +227,16 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                             {
                                 if (isNull(err))
                                 {
-                                    return callback();
+                                    return callback(null);
                                 }
+
                                 Logger.log("error", "Unable do delete index " + self.index.short_name + " Error returned  : " + err);
                                 return callback(1);
                             });
                         }
                         else
                         {
-                            endCallback(null, true);
+                            return callback(null);
                         }
                     }
                     else
@@ -234,47 +247,62 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
         },
         function (callback)
         {
-            const settings = {
-                body: {}
-            };
-
-            if (numberOfShards)
-            {
-                settings.number_of_shards = numberOfShards;
-            }
-
-            if (numberOfReplicas)
-            {
-                settings.number_of_replicas = numberOfReplicas;
-            }
-
-            settings.body.mappings = self.index.elasticsearch_mappings;
-            settings.index = indexName;
-
-            self.client.indices.create(settings, function (err, data)
-            {
-                if (isNull(err))
+            self.check_if_index_exists(
+                function (indexAlreadyExists)
                 {
-                    if (isNull(data.error) && data.acknowledged === true)
+                    if (indexAlreadyExists)
                     {
-                        endCallback(null, "Index with name " + indexName + " successfully created.");
+                        // nothing to do, index is already created
+                        callback(null);
                     }
                     else
                     {
-                        const error = "Error creating index : " + JSON.stringify(data);
-                        Logger.log("error", error);
-                        endCallback(err, error);
+                        const settings = {
+                            body: {}
+                        };
+
+                        if (numberOfShards)
+                        {
+                            settings.number_of_shards = numberOfShards;
+                        }
+
+                        if (numberOfReplicas)
+                        {
+                            settings.number_of_replicas = numberOfReplicas;
+                        }
+
+                        settings.body.mappings = self.index.elasticsearch_mappings;
+                        settings.index = indexName;
+
+                        self.client.indices.create(settings, function (err, data)
+                        {
+                            if (isNull(err))
+                            {
+                                if (isNull(data.error) && data.acknowledged === true)
+                                {
+                                    Logger.log("info", "Index with name " + indexName + " successfully created.");
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Error creating index : " + JSON.stringify(data));
+                                    callback(err);
+                                }
+                            }
+                            else
+                            {
+                                Logger.log("error", "Error creating index : " + JSON.stringify(data));
+                                callback(1);
+                            }
+                        });
                     }
                 }
-                else
-                {
-                    const error = "Error creating index : " + data;
-                    Logger.log("error", error);
-                    endCallback(1, error);
-                }
-            });
+            );
         }
-    ]);
+    ], function (err, results)
+    {
+        callback(err, results);
+    });
 };
 
 IndexConnection.prototype.delete_index = function (callback)
@@ -290,7 +318,8 @@ IndexConnection.prototype.delete_index = function (callback)
             {
                 return callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
             }
-            const error = "Error deleting index : " + data.error;
+
+            const error = "Error deleting index : " + JSON.stringify(data);
             Logger.log("error", error);
             return callback(error, data.error);
         });
@@ -328,6 +357,7 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
                 {
                     return callback(true);
                 }
+
                 return callback(false);
             }
         }
@@ -373,7 +403,8 @@ IndexConnection.prototype.search = function (typeName,
         });
 };
 
-IndexConnection.prototype.moreLikeThis = function (typeName,
+IndexConnection.prototype.moreLikeThis = function (
+    typeName,
     documentId,
     callback)
 {

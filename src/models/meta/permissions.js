@@ -131,6 +131,7 @@ Permissions.sendResponse = function (allowAccess, req, res, next, reasonsForAllo
                 error_messages: [messageUser]
             });
     }
+
     return res.status(401).render("auth/login", {
         error_messages: [messageUser],
         redirect: req.url
@@ -790,9 +791,6 @@ Permissions.require = function (permissionsRequired, req, res, next)
             Logger.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
             Logger.log(JSON.stringify(permissionsRequired, null, 2));
         }
-
-        const async = require("async");
-
         // Global Administrators are God, so they dont go through any checks
         if (!req.session.isAdmin)
         {

@@ -48,8 +48,12 @@ exports.search = function (req, res)
                 {
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function (err, similarResources)
                     {
-                        resource.recommendations = similarResources;
-                        // null as 1st argument === no error
+                        if (!isNull(resource.indexData))
+                        {
+                            resource.indexData = {};
+                        }
+
+                        resource.indexData.recommendations = similarResources;
                         return callback(err, resource);
                     });
                 };

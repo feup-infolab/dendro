@@ -21,6 +21,12 @@ global.tests = {};
 
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
+// Indexing
+require(Pathfinder.absPathInTestsFolder("/routes/admin/reindex/routes.admin.reindex.Test.js"));
+
+// Search
+require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
+
 // TODO
 // THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
 // // PUBLIC PROJECT FOLDER LEVEL CALCULATE CKAN REPOSITORY DIFFS
@@ -438,6 +444,3 @@ require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.
 // Dendro Administration page
 require(Pathfinder.absPathInTestsFolder("/routes/admin/routes.admin.Test.js"));
 
-/*
- require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
- */

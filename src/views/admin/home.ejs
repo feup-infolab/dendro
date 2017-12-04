@@ -111,28 +111,36 @@
 
             <h3>Reindex all resources from a graph</h3>
             <div class="help-block">if your search box is not working properly, reindex the resources in the database.</div>
-            <form action="/admin/reindex" method="post">
-                <%
-                    var keys = Object.keys(db);
-                    for (var i = 0; i < keys.length; i++) {
+            <div class="form-group">
+                <form action="/admin/reindex" method="post">
+                    <%
+                        var keys = Object.keys(db);
+                        for (var i = 0; i < keys.length; i++) {
 
-                    var graph = db[keys[i]];
+                        var graph = db[keys[i]];
 
-                %>
-                    <div class="row">
-                        <h4>Graph <%=graph.graphHandle%></h4>
-                        <div class="col-lg-12">
-                            <input type="checkbox" id="reindex_<%=graph.graphHandle%>_graph_checkbox" name="graphs[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>Delete (Working Graph)</input>
+                    %>
+                        <div class="row">
+                            <div class="col-xs-12" class="form-control">
+                                <strong>Graph <%=graph.graphHandle%></strong>
+                            </div>
+                            <div class="col-xs-12" class="form-control">
+                                <label for="reindex_<%=graph.graphHandle%>_graph_checkbox">Reindex</label>
+                                <input type="checkbox" id="reindex_<%=graph.graphHandle%>_graph_checkbox" name="graphs_to_reindex[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>
+                            </div>
                         </div>
-                        <div class="col-lg-12">
-                            <input type="checkbox" name="graphs_to_delete[<%=graph.graphHandle%>]" value="1" checked>Delete existing index (will not delete base data)</input>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label for="reindex_<%=graph.graphHandle%>_graph_checkbox">Force delete index before reindexing</label>
+                                <input type="checkbox" id="delete_<%=graph.graphHandle%>_checkbox" name="graphs_to_delete[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>
+                            </div>
                         </div>
-                    </div>
-                <% } %>
-                <input type="submit" value="Reindex" class="btn btn-primary">
+                    <% } %>
+                    <input type="submit" value="Reindex" class="btn btn-primary">
 
-                <p class="help-block">Select the graphs you want to reindex</p>
-            </form>
+                    <p class="help-block">Select the graphs you want to reindex</p>
+                </form>
+            </div>
         </div>
     </div>
 </div>

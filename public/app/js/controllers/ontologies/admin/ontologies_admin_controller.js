@@ -9,9 +9,9 @@ angular.module("dendroApp.controllers")
             $filter,
             ontologiesService)
         {
-            $scope.get_ontologies = function()
+            $scope.get_ontologies = function ()
             {
-                if($scope.public_ontologies_only)
+                if ($scope.public_ontologies_only)
                 {
                     $scope.get_public_ontologies();
                 }
@@ -19,7 +19,7 @@ angular.module("dendroApp.controllers")
                 {
                     $scope.get_all_ontologies();
                 }
-            }
+            };
 
             $scope.processOntologiesResponse = function (data)
             {
@@ -107,16 +107,16 @@ angular.module("dendroApp.controllers")
                 {
                     var requestUri = "/research_domains/autocomplete?query=" + typed;
                     return $http.get(requestUri)
-                        .then(function(response)
+                        .then(function (response)
                         {
-
-                            _.map(response.data, function(researchDomain)
+                            _.map(response.data, function (researchDomain)
                             {
                                 researchDomain.tag_face = researchDomain.dcterms.title;
                             });
 
                             return response;
-                        }).catch(function(error){
+                        }).catch(function (error)
+                        {
                             Utils.show_popup("error", "Invalid response", "Error occurred while searching for research domains.");
                             console.log(error);
                         });
