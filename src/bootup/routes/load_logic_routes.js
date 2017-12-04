@@ -651,6 +651,13 @@ const loadRoutes = function (app, callback)
                 ],
                 all:
               [
+                  // restore operation
+                  {
+                      queryKeys: ["restore"],
+                      handler: files.restore,
+                      permissions: modificationPermissions,
+                      authentication_error: "Permission denied : cannot restore a past version of the root of this project because you do not have permissions to modify it."
+                  },
                   // uploads
                   {
                       queryKeys: ["upload"],
@@ -988,6 +995,13 @@ const loadRoutes = function (app, callback)
                     }
                 ],
                 all: [
+                    // restore operation
+                    {
+                        queryKeys: ["restore"],
+                        handler: files.restore,
+                        permissions: modificationPermissionsBranch,
+                        authentication_error: "Permission denied : cannot restore a past version of the root of this project because you do not have permissions to modify it."
+                    },
                     // uploads
                     {
                         queryKeys: ["upload"],

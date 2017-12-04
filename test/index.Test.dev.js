@@ -20,3 +20,6 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 // Search
 require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
 
+// Restore a folder Tests
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__restore/routes.project.publicProject.data.testFolder1.__restore.Test.js"));
+
