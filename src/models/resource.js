@@ -1551,8 +1551,9 @@ Resource.prototype.getTextuallySimilarResources = function (indexConnection, max
         {
             if (!isNull(id))
             {
+                // search in all graphs for resources (generic type)
                 indexConnection.moreLikeThis(
-                    IndexConnection.indexTypes.resource, // search in all graphs for resources (generic type)
+                    IndexConnection.indexTypes.resource,
                     id,
                     function (err, results)
                     {
@@ -1647,6 +1648,10 @@ Resource.restoreFromIndexResults = function (hits)
             results.push(newResult);
         }
     }
+
+    results.sort(function(a, b){
+        return a.indexData.score - b.indexData.score;
+    });
 
     return results;
 };
@@ -2361,7 +2366,7 @@ Resource.findByPropertyValue = function (
     }
     else
     {
-        getFromTripleStore(uri, function (err, result)
+        getFromTripleStore(function (err, result)
         {
             return callback(err, result);
         }, customGraphUri);
@@ -2370,20 +2375,31 @@ Resource.findByPropertyValue = function (
 
 Resource.prototype.loadFromIndexHit = function (hit)
 {
-    if (isNull(this.indexData))
+    const self = this;
+    if (isNull(self.indexData))
     {
-        this.indexData = {};
+        self.indexData = {};
     }
 
-    this.indexData.id = hit._id;
-    this.indexData.indexId = hit._id;
-    this.indexData.score = hit._score;
-    this.uri = hit._source.uri;
-    this.indexData.graph = hit._source.graph;
-    this.indexData.last_indexing_date = hit._source.last_indexing_date;
-    this.indexData.descriptors = hit._source.descriptors;
+    self.indexData.id = hit._id;
+    self.indexData.indexId = hit._id;
+    self.indexData.score = hit._score;
+    self.uri = hit._source.uri;
+    self.indexData.graph = hit._source.graph;
+    self.indexData.last_indexing_date = hit._source.last_indexing_date;
 
-    return this;
+    const resourceDescriptors = _.map(hit._source.descriptors, function (descriptorObject)
+    {
+        const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+
+        return new Descriptor({
+            uri: descriptorObject.predicate,
+            value: descriptorObject.object
+        });;
+    });
+
+    self.updateDescriptors(resourceDescriptors);
+    return self;
 };
 
 Resource.prototype.insertDescriptors = function (newDescriptors, callback, customGraphUri)

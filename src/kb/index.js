@@ -403,7 +403,8 @@ IndexConnection.prototype.search = function (typeName,
         });
 };
 
-IndexConnection.prototype.moreLikeThis = function (typeName,
+IndexConnection.prototype.moreLikeThis = function (
+    typeName,
     documentId,
     callback)
 {

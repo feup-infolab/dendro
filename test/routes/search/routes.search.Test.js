@@ -18,6 +18,7 @@ const privateProject = require("../../mockdata/projects/private_project.js");
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const searchUtils = require(Pathfinder.absPathInTestsFolder("utils/search/searchUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
 const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
@@ -36,41 +37,49 @@ describe("/search", function ()
     });
 
     /**
-     * Search effectiveness (does it find the things it should, without considering permisions for now?)
+     * Search effectiveness (does it find the things it should, without considering permissions for now?)
      */
-    // TODO
-    it("[HTML] should search and find a folder by searching for a term present in its search term", function (done)
+    it("[JSON] should search and find folders by searching for a term present in their abstract", function (done)
     {
-        async.map(foldersData, function (folder)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
-            searchUtils.search(folder.searchTerms, function (err, res)
+            async.mapSeries(foldersData, function (folder, callback)
             {
-                should.not.exist(err);
-                res.status.should.equal(200);
-                callback(err, res);
+                const searchTerms = folder.searchTerms;
+                searchUtils.search(true, agent, searchTerms, function (err, res)
+                {
+                    should.not.exist(err);
+                    res.status.should.equal(200);
+
+                    const firstHit = JSON.parse(res.text).hits[0];
+
+                    firstHit.dcterms.abstract.should.contain(searchTerms);
+
+                    callback(err, res);
+                });
+            }, function (err, results)
+            {
+                done(err);
             });
-        }, function (err, results)
-        {
-            done();
         });
-    });
-
-    // TODO
-    it("[HTML] should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done)
-    {
-        done();
-    });
-
-    // TODO
-    it("[JSON] should search and find a folder by searching for a term present in its abstract", function (done)
-    {
-        done();
     });
 
     // TODO
     it("[JSON] should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done)
     {
-        done();
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        {
+            searchUtils.search(true, agent, "asjksdhfkjshdfkad", function (err, res)
+            {
+                should.not.exist(err);
+                res.status.should.equal(200);
+
+                const hits = JSON.parse(res.text).hits;
+                hits.should.be.an("array");
+                hits.length.should.equal(0);
+                done();
+            });
+        });
     });
 
     /**
@@ -79,38 +88,38 @@ describe("/search", function ()
 
     // Folders inside different types of projects
     // TODO
-    it("[HTML] should find a folder present in " + publicProject.handle + " project by searching for a term present in its description. Query : \"public project type\"", function (done)
+    it("[JSON] should find a folder present in " + publicProject.handle + " project by searching for a term present in its description. Query : \"public project type\"", function (done)
     {
         done();
     });
 
     // TODO
-    it("[HTML] should NOT find a folder present in the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done)
+    it("[JSON] should NOT find a folder present in the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done)
     {
         done();
     });
 
     // TODO
-    it("[HTML] should NOT find a folder present in the " + privateProject.handle + " project by searching for a term present in its description", function (done)
+    it("[JSON] should NOT find a folder present in the " + privateProject.handle + " project by searching for a term present in its description", function (done)
     {
         done();
     });
 
     // Different types of projects
     // TODO
-    it("[HTML] should find the " + publicProject.handle + " project by searching for a term present in its description", function (done)
+    it("[JSON] should find the " + publicProject.handle + " project by searching for a term present in its description", function (done)
     {
         done();
     });
 
     // TODO
-    it("[HTML] should find the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done)
+    it("[JSON] should find the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done)
     {
         done();
     });
 
     // TODO
-    it("[HTML] should not the " + privateProject.handle + " project by searching for a term present in its description", function (done)
+    it("[JSON] should not the " + privateProject.handle + " project by searching for a term present in its description", function (done)
     {
         done();
     });
