@@ -1031,6 +1031,8 @@ Folder.prototype.loadMetadata = function (
                 {
                     if (isNull(err) && !isNull(file))
                     {
+                        // TODO NELSON
+                        file.nie.isLogicalPartOf = self.uri;
                         file.loadMetadata(
                             childNode,
                             function (err, result)
@@ -1175,14 +1177,14 @@ Folder.prototype.loadMetadata = function (
             {
                 if (!isNull(existingFolder))
                 {
-                    const getTitleDescriptor = _.find(node.metadata, function (descriptor)
-                    {
-                        return descriptor.prefixedForm === "nie:title";
-                    });
-
                     if (node.resource === existingFolder.uri)
                     {
-                        existingFolder.loadMetadata(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                        // existingFolder.loadMetadata(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                        // TODO NELSON
+                        loadMetadataIntoThisFolder(node, function (err, result)
+                        {
+                            callback(err, result);
+                        });
                     }
                     else
                     {
@@ -1191,6 +1193,12 @@ Folder.prototype.loadMetadata = function (
                 }
                 else
                 {
+                    /* const getTitleDescriptor = _.find(node.metadata, function (descriptor)
+                    {
+                        return descriptor.prefixedForm === "nie:title";
+                    });*/
+                    // NELSOOOOO AQUI
+                    node.resource = self.uri;
                     loadMetadataIntoThisFolder(node, function (err, result)
                     {
                         callback(err, result);
