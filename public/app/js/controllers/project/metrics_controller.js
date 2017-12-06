@@ -27,8 +27,9 @@ angular.module('dendroApp.controllers')
             };
 
             $scope.init = function () {
-                $scope.loadData();
-               // $scope.loadDeposits();
+                //$scope.loadData();
+                //$scope.loadDeposits();
+                $scope.startDeposits();
             };
 
             $scope.loadData = function () {
@@ -86,6 +87,33 @@ angular.module('dendroApp.controllers')
                 });
             };
 
+            $scope.parseFilter = function(){
+                let search = {};
+                for(item in $scope.search){
+                    if($scope.search[item].value !== null && $scope.search[item].value !== "")
+                        search[$scope.search[item].key] = $scope.search[item].value;
+                }
+                return search;
+            };
+
+            $scope.startDeposits = function () {
+                let url = $scope.get_current_url();
+                url += "deposits/latest";
+                const params = $scope.parseFilter();
+
+                $http({
+                    method: "GET",
+                    url: url,
+                    params: params,
+                    contentType: "application/json",
+                    headers: {"Accept": "application/json"}
+                }).then(function(response){
+                    let deposits = response.data;
+                    $scope.deposits = deposits;
+                }).catch(function(error){
+                    console.log(error);
+                });
+            };
 
 
             $scope.loadDeposits = function () {
