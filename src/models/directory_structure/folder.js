@@ -990,6 +990,8 @@ Folder.prototype.loadMetadata = function (
                 {
                     if (isNull(err) && !isNull(folder))
                     {
+                        // TODO NELSON
+                        folder.nie.isLogicalPartOf = self.uri;
                         folder.loadMetadata(
                             childNode,
                             function (err, result)
@@ -1006,6 +1008,8 @@ Folder.prototype.loadMetadata = function (
                         {
                             if (isNull(err) && !isNull(folder))
                             {
+                                // TODO NELSON
+                                folder.nie.isLogicalPartOf = self.uri;
                                 folder.loadMetadata(
                                     childNode,
                                     function (err, result)
@@ -1197,7 +1201,7 @@ Folder.prototype.loadMetadata = function (
                     {
                         return descriptor.prefixedForm === "nie:title";
                     });*/
-                    // NELSOOOOO AQUI
+                    // TODO NELSON
                     node.resource = self.uri;
                     loadMetadataIntoThisFolder(node, function (err, result)
                     {
