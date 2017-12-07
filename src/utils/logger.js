@@ -217,6 +217,23 @@ Logger.log_boot_message = function (message)
 
 Logger.log = function (type, message)
 {
+    // special case for when the message is null and we are logging an error
+    if (type === "error" && isNull(message))
+    {
+        const stack = new Error().stack;
+        const msg = "Unspecified error at : " + stack;
+        if (!isNull(Logger.logger))
+        {
+            Logger.logger.error(msg);
+        }
+        else
+        {
+            console.error(msg);
+        }
+
+        return;
+    }
+
     if (typeof type === "string" && !isNull(message))
     {
         if (!isNull(Logger.logger))

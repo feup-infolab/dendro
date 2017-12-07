@@ -168,7 +168,15 @@ const queryObjectToString = function (query, argumentsArray, callback)
             {
                 Logger.log("error", "Error processing argument " + currentArgumentIndex + " in query: \n----------------------\n\n" + transformedQuery + "\n----------------------");
                 Logger.log("error", "Value of Argument " + currentArgumentIndex + ": " + currentArgument.value);
-                Logger.log("error", e.stack);
+                if (!isNull(e.stack))
+                {
+                    Logger.log("error", e.stack);
+                }
+                else
+                {
+                    Logger.log("error", JSON.stringify(e));
+                }
+
                 throw e;
             }
         }

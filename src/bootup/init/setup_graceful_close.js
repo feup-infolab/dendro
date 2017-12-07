@@ -32,7 +32,7 @@ const setupGracefulClose = function (app, server, callback)
             mkdirp.sync(snapshotsFolder);
             heapdump.writeSnapshot(snapshotFile, function (err, filename)
             {
-                if(isNull(err))
+                if (isNull(err))
                 {
                     Logger.log("info", "Dumped snapshot at " + filename + "!");
                 }

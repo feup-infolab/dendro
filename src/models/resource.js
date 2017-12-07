@@ -1649,7 +1649,8 @@ Resource.restoreFromIndexResults = function (hits)
         }
     }
 
-    results.sort(function(a, b){
+    results.sort(function (a, b)
+    {
         return a.indexData.score - b.indexData.score;
     });
 
@@ -2395,7 +2396,7 @@ Resource.prototype.loadFromIndexHit = function (hit)
         return new Descriptor({
             uri: descriptorObject.predicate,
             value: descriptorObject.object
-        });;
+        });
     });
 
     self.updateDescriptors(resourceDescriptors);

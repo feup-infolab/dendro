@@ -1241,7 +1241,15 @@ Descriptor.validateDescriptorParametrization = function (callback)
                         }
                         catch (e)
                         {
-                            Logger.log("error", e.stack);
+                            if (!isNull(e.stack))
+                            {
+                                Logger.log("error", e.stack);
+                            }
+                            else
+                            {
+                                Logger.log("error", JSON.stringify(e));
+                            }
+
                             return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }
