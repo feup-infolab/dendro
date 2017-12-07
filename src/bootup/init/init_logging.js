@@ -60,8 +60,9 @@ const initLogging = function (app, callback)
                             }
                             catch (e)
                             {
-                                Logger.log("error", "[ERROR] Error creating folder for logs at " + absPath + "\n" + JSON.stringify(e));
-                                // process.exit(1);
+                                const msg = "Error creating folder for logs at " + absPath + "\n" + JSON.stringify(e);
+                                Logger.log("error", msg);
+                                throw new Error(msg);
                             }
                         }
                         else

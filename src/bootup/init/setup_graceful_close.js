@@ -198,8 +198,9 @@ const setupGracefulClose = function (app, server, callback)
             {
                 setTimeout(function ()
                 {
-                    Logger.log_boot_message("Graceful close timed out. Forcing server closing!");
-                    process.kill(process.pid);
+                    const msg = "Graceful close timed out. Forcing server closing!";
+                    Logger.log_boot_message(msg);
+                    throw new Error(msg);
                 }, Config.dbOperationTimeout);
             };
 
@@ -225,14 +226,15 @@ const setupGracefulClose = function (app, server, callback)
                     Logger.log_boot_message("Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
 
                     process.kill(process.pid, signal);
-                    process.exit(exitCode);
+                    throw new Error("");
                 });
 
                 return false;
             }
             else if (exitCode === 0 && !isNull(process.env.NODE_ENV) && process.env.NODE_ENV !== "test")
             {
-                process.exit(0);
+                nodeCleanup.uninstall();
+                process.kill(process.pid, signal);
             }
 
             Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code " + exitCode + "!");
