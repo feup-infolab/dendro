@@ -34,7 +34,7 @@ angular.module("dendroApp.controllers")
                 $scope.invalidFiles = [];
 
                 $scope.isResumeSupported = false; // Upload.isResumeSupported(); //TODO Enable this
-                $scope.chunkSize = "1MB";
+                $scope.chunkSize = "20MB";
 
                 const cleanUploadFilesListByPropertyAndValue = function (property, value, timeout)
                 {
