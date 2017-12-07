@@ -15,7 +15,8 @@ const setupGracefulClose = function (app, server, callback)
     // setup graceful server close
     if (process.env.NODE_ENV !== "test")
     {
-        app.pid = npid.create(Pathfinder.absPathInApp("running.pid"), true); // second arg = overwrite pid if exists
+        // second arg = overwrite pid if exists
+        app.pid = npid.create(Pathfinder.absPathInApp("running.pid"), true);
         app.pid.removeOnExit();
     }
 
@@ -31,7 +32,16 @@ const setupGracefulClose = function (app, server, callback)
             mkdirp.sync(snapshotsFolder);
             heapdump.writeSnapshot(snapshotFile, function (err, filename)
             {
-                Logger.log("info", "Dumped snapshot at " + snapshotFile + "!");
+                if(isNull(err))
+                {
+                    Logger.log("info", "Dumped snapshot at " + filename + "!");
+                }
+                else
+                {
+                    const msg = "Error dumping snapshot at " + filename + "!";
+                    Logger.log("error", msg);
+                    throw new Error(msg);
+                }
             });
         }
 
@@ -185,44 +195,44 @@ const setupGracefulClose = function (app, server, callback)
             removePIDFile
         ], function (err, results)
         {
+            if (!err)
+            {
+                Logger.log_boot_message("Freed all resources. Halting Dendro Server now.");
+            }
+            else
+            {
+                Logger.log_boot_message("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
+            }
+
+            Logger.log_boot_message("No need to remove PID, because this Dendro is running in TEST Mode");
+
+            // don't call cleanup handler again
+            nodeCleanup.uninstall();
             callback(err, results);
         });
     };
 
     if (!setupGracefulClose._handlers_are_installed)
     {
+        // if this fancy cleanup fails, we drop the hammer in 10 secs
+        const setupForceKillTimer = function ()
+        {
+            setTimeout(function ()
+            {
+                const msg = "Graceful close timed out. Forcing server closing!";
+                Logger.log_boot_message(msg);
+                throw new Error(msg);
+            }, Config.dbOperationTimeout);
+        };
+
         nodeCleanup(function (exitCode, signal)
         {
-            // if this fancy cleanup fails, we drop the hammer in 10 secs
-            const setupForceKillTimer = function ()
-            {
-                setTimeout(function ()
-                {
-                    const msg = "Graceful close timed out. Forcing server closing!";
-                    Logger.log_boot_message(msg);
-                    throw new Error(msg);
-                }, Config.dbOperationTimeout);
-            };
-
             setupForceKillTimer();
 
             if (exitCode || signal)
             {
-                app.freeResources(function (err)
+                app.freeResources(function ()
                 {
-                    if (!err)
-                    {
-                        Logger.log_boot_message("Freed all resources. Halting Dendro Server now.");
-                    }
-                    else
-                    {
-                        Logger.log_boot_message("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
-                    }
-
-                    Logger.log_boot_message("No need to remove PID, because this Dendro is running in TEST Mode");
-
-                    // don't call cleanup handler again
-                    nodeCleanup.uninstall();
                     Logger.log_boot_message("Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
 
                     process.kill(process.pid, signal);
@@ -248,9 +258,13 @@ const setupGracefulClose = function (app, server, callback)
                 Logger.log("error", "Unknown error occurred!");
                 Logger.log("error", rejection.stack);
 
-                // we send SIGINT (like Ctrl+c) so that the graceful
-                // cleanup process function can be called (see setup_graceful_close.js)
-                process.kill(process.pid, "SIGINT");
+                setupForceKillTimer();
+
+                app.freeResources(function ()
+                {
+                    Logger.log_boot_message("Freed all resources. Rethrowing error to end with an unclean code...");
+                    throw rejection;
+                });
             });
         }
     }
