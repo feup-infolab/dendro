@@ -23,6 +23,7 @@ Logger.init = function (startTime)
     // Setup logging
     if (!isNull(Config.logging))
     {
+        const loggerLevel = (Config.logging.level) ? Config.logging.level : "debug";
         if (!isNull(Config.logging.app_logs_folder))
         {
             const absPath = Pathfinder.absPathInApp(Config.logging.app_logs_folder);
@@ -42,7 +43,7 @@ Logger.init = function (startTime)
             }
 
             const logger = winston.createLogger({
-                level: Config.logging.level
+                level: loggerLevel
             });
 
             const { format } = require("winston");
@@ -66,7 +67,7 @@ Logger.init = function (startTime)
                     mkdirp.sync(path.join(absPath, "development"));
                     const errorLogFile = new winston.transports.File({
                         filename: `${absPath}/development/${slug(startTime.toISOString() + "_development_" + Config.activeConfiguration, "_")}-error.log`,
-                        level: "error",
+                        level: loggerLevel,
                         format: combine(
                             timestamp(),
                             jsonFormat
@@ -98,7 +99,7 @@ Logger.init = function (startTime)
                     mkdirp.sync(path.join(absPath, "test"));
                     const errorLogFile = new winston.transports.File({
                         filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-error.log`,
-                        level: "error",
+                        level: loggerLevel,
                         format: combine(
                             timestamp(),
                             jsonFormat
@@ -107,7 +108,7 @@ Logger.init = function (startTime)
 
                     const combinedErrorLog = new winston.transports.File({
                         filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-combined.log`,
-                        level: "info",
+                        level: loggerLevel,
                         format: combine(
                             timestamp(),
                             jsonFormat
@@ -148,7 +149,7 @@ Logger.init = function (startTime)
                     const rotatedLogFileInfo = new winston.transports.File(
                         {
                             stream: logstreamInfo,
-                            level: "info",
+                            level: loggerLevel,
                             timestamp: tsFormat,
                             format: combine(
                                 timestamp(),
@@ -167,7 +168,7 @@ Logger.init = function (startTime)
                     const rotatedLogFileError = new winston.transports.File(
                         {
                             stream: logstreamError,
-                            level: "error",
+                            level: loggerLevel,
                             timestamp: tsFormat,
                             format: combine(
                                 timestamp(),

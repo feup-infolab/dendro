@@ -239,7 +239,7 @@ const setupGracefulClose = function (app, server, callback)
                     throw new Error("");
                 });
 
-                return false;
+                // return false;
             }
             else if (exitCode === 0 && !isNull(process.env.NODE_ENV) && process.env.NODE_ENV !== "test")
             {
@@ -248,7 +248,7 @@ const setupGracefulClose = function (app, server, callback)
             }
 
             Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code " + exitCode + "!");
-            return true;
+            return false;
         });
 
         if (process.env !== "test")
