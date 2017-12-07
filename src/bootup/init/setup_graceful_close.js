@@ -219,9 +219,13 @@ const setupGracefulClose = function (app, server, callback)
                     }
 
                     Logger.log_boot_message("No need to remove PID, because this Dendro is running in TEST Mode");
-                    nodeCleanup.uninstall(); // don't call cleanup handler again
+
+                    // don't call cleanup handler again
+                    nodeCleanup.uninstall();
                     Logger.log_boot_message("Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
+
                     process.kill(process.pid, signal);
+                    process.exit(exitCode);
                 });
 
                 return false;
@@ -231,9 +235,8 @@ const setupGracefulClose = function (app, server, callback)
                 process.exit(0);
             }
 
-            return true;
-
             Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code " + exitCode + "!");
+            return true;
         });
 
         if (process.env !== "test")
