@@ -1421,7 +1421,16 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
             {
                 const deleteChild = function (child, cb)
                 {
-                    child.delete(cb, uriOfUserDeletingTheFolder, notRecursive);
+                    //TODO AQUI NELSON
+                    if (child instanceof Folder)
+                    {
+                        child.delete(cb, uriOfUserDeletingTheFolder, notRecursive, reallyDelete);
+                    }
+                    else if (child instanceof File)
+                    {
+                        child.delete(cb, uriOfUserDeletingTheFolder, reallyDelete);
+                    }
+                    /*child.delete(cb, uriOfUserDeletingTheFolder, notRecursive);*/
                 };
 
                 async.mapSeries(children, deleteChild, function (err, result)
