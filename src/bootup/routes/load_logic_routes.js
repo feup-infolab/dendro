@@ -31,6 +31,7 @@ const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
 const timeline = require(Pathfinder.absPathInSrcFolder("/controllers/timeline"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
 const deposits = require(Pathfinder.absPathInSrcFolder("/controllers/deposits"));
+const metrics = require(Pathfinder.absPathInSrcFolder("/controllers/metrics"));
 
 let recommendation;
 
@@ -1394,6 +1395,8 @@ const loadRoutes = function (app, callback)
 
     //TODO William
     app.get("/deposits/latest", deposits.getDeposits);
+
+    app.get("/metrics/deposits", metrics.getDeposits);
 
     /*app.get([
             getNonHumanReadableRouteRegex("deposit")

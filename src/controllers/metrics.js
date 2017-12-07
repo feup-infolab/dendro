@@ -64,13 +64,19 @@ exports.public = function (req, callback) {
 
     Deposit.createQuery(depositType, function(err, results){
         callback(err, results);
-        });
+    });
 };
 
+
 exports.allowed = function (req, callback) {
+
     let params = req.query;
-    params.self = req.user.ddr.username;
-    Deposit.createQuery(params, function(err, results){
-        callback(err, results);
+    params.self = req.user.uri;
+    Project.findByUri(params.id, function (err,project){
+        params.project = project.dcterms.title;
+        Deposit.createQuery(params, function(err, results){
+            callback(err, results);
+        });
     });
+
 };

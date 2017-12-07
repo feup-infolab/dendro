@@ -19,16 +19,9 @@ angular.module('dendroApp.controllers')
                   windowService,
                   metricsService) {
 
-            $scope.projectfilter = {
-                type: "text",
-                label: "Project",
-                key: "project",
-                value: "",
-            };
 
             $scope.init = function () {
                 //$scope.loadData();
-                //$scope.loadDeposits();
                 $scope.startDeposits();
             };
 
@@ -87,68 +80,27 @@ angular.module('dendroApp.controllers')
                 });
             };
 
-            $scope.parseFilter = function(){
-                let search = {};
-                for(item in $scope.search){
-                    if($scope.search[item].value !== null && $scope.search[item].value !== "")
-                        search[$scope.search[item].key] = $scope.search[item].value;
-                }
-                return search;
-            };
 
             $scope.startDeposits = function () {
-                let url = $scope.get_current_url();
-                url += "deposits/latest";
-                const params = $scope.parseFilter();
-
+                let url = $scope.get_host();
+                url += "/metrics/deposits";
+                let param =
+                    {
+                        id: window.location.pathname
+                    };
                 $http({
                     method: "GET",
                     url: url,
-                    params: params,
+                    params: param,
                     contentType: "application/json",
                     headers: {"Accept": "application/json"}
-                }).then(function(response){
+                }).then(function (response) {
                     let deposits = response.data;
                     $scope.deposits = deposits;
-                }).catch(function(error){
+                }).catch(function (error) {
                     console.log(error);
                 });
             };
-
-
-            $scope.loadDeposits = function () {
-                function getDeposits (uri)
-                {
-                    metricsService.get_deposits(uri)
-                        .then(function (response)
-                        {
-                            let deposistsData = response.data;
-                        });
-                }
-                if ($scope.check_project_root())
-                {
-                    getDeposits($scope.get_calling_uri());
-                }
-                else
-                {
-                    $scope.get_owner_project()
-                        .then(function (ownerProject)
-                        {
-                            if (ownerProject != null)
-                            {
-                                getDeposits(ownerProject.uri);
-                            }
-                        })
-                        .catch(function (e)
-                        {
-                            console.log("error", "Unable to fetch parent project of the currently selected file.");
-                            console.log("error", JSON.stringify(e));
-                            windowService.show_popup("error", "Error", e.statusText);
-                        });
-                }
-
-            };
-
 
 
             //Chart Block
