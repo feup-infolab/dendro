@@ -227,10 +227,11 @@ const setupGracefulClose = function (app, server, callback)
 
         nodeCleanup(function (exitCode, signal)
         {
-            setupForceKillTimer();
-
-            if (exitCode || signal)
+            if (signal)
             {
+                setupForceKillTimer();
+                Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code " + exitCode + "!");
+
                 app.freeResources(function ()
                 {
                     Logger.log_boot_message("Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
@@ -239,34 +240,24 @@ const setupGracefulClose = function (app, server, callback)
                     throw new Error("");
                 });
 
-                // return false;
-            }
-            else if (exitCode === 0 && !isNull(process.env.NODE_ENV) && process.env.NODE_ENV !== "test")
-            {
                 nodeCleanup.uninstall();
-                process.kill(process.pid, signal);
+                return false;
             }
-
-            Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code " + exitCode + "!");
-            return false;
-        });
-
-        if (process.env !== "test")
-        {
-            process.on("unhandledRejection", function (rejection)
+            else if (!isNull(exitCode) && exitCode !== 0)
             {
                 Logger.log("error", "Unknown error occurred!");
-                Logger.log("error", rejection.stack);
 
                 setupForceKillTimer();
 
                 app.freeResources(function ()
                 {
                     Logger.log_boot_message("Freed all resources. Rethrowing error to end with an unclean code...");
-                    throw rejection;
                 });
-            });
-        }
+
+                nodeCleanup.uninstall();
+                return false;
+            }
+        });
     }
 
     setupGracefulClose._handlers_are_installed = true;
