@@ -22,7 +22,7 @@ const setupGracefulClose = function (app, server, callback)
 
     app.freeResources = function (callback)
     {
-        if (Config.debug.active && Config.debug.memory.dump_snapshots)
+        if (!isNull(Config.debug) && Config.debug.active && !isNull(Config.debug.memory) && Config.debug.memory.dump_snapshots)
         {
             Logger.log("info", "Dumping heap snapshot!");
             const heapdump = require("heapdump");
