@@ -259,6 +259,12 @@ const setupGracefulClose = function (app, server, callback)
                 return false;
             }
         });
+
+        process.on("uncaughtException", function (exception) {
+            Logger.log("error", "Critical error occurred! ");
+            Logger.log("error", JSON.stringify(exception));
+            process.kill(process.pid, "SIGINT");
+        });
     }
 
     setupGracefulClose._handlers_are_installed = true;

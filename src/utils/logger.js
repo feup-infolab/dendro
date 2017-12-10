@@ -64,6 +64,7 @@ Logger.init = function (startTime)
             {
                 mkdirp.sync(path.join(absPath, "development"));
                 const errorLogFile = new winston.transports.File({
+                    timestamp: tsFormat,
                     filename: path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`),
                     level: "error",
                     handleExceptions: true,
@@ -74,6 +75,7 @@ Logger.init = function (startTime)
                 });
 
                 const logFile = new winston.transports.File({
+                    timestamp: tsFormat,
                     filename: path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`),
                     level: loggerLevel,
                     handleExceptions: true,
@@ -104,6 +106,7 @@ Logger.init = function (startTime)
             {
                 mkdirp.sync(path.join(absPath, "test"));
                 const errorLogFile = new winston.transports.File({
+                    timestamp: tsFormat,
                     filename: path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`),
                     handleExceptions: true,
                     level: "error",
@@ -114,6 +117,7 @@ Logger.init = function (startTime)
                 });
 
                 const logFile = new winston.transports.File({
+                    timestamp: tsFormat,
                     filename: path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`),
                     level: loggerLevel,
                     handleExceptions: true,
@@ -155,9 +159,9 @@ Logger.init = function (startTime)
 
                 const logFile = new winston.transports.File(
                     {
+                        timestamp: tsFormat,
                         stream: logStream,
                         level: loggerLevel,
-                        timestamp: tsFormat,
                         handleExceptions: true,
                         format: combine(
                             timestamp(),
@@ -175,9 +179,9 @@ Logger.init = function (startTime)
 
                 const logFileError = new winston.transports.File(
                     {
+                        timestamp: tsFormat,
                         stream: logstreamError,
                         level: loggerLevel,
-                        timestamp: tsFormat,
                         handleExceptions: true,
                         format: combine(
                             timestamp(),
