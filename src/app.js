@@ -284,7 +284,8 @@ const startWebServer = function (callback)
             // add graceful closing methods to release connections on server shutdown, for example
             require(Pathfinder.absPathInSrcFolder("bootup/init/setup_graceful_close.js")).setupGracefulClose(self.app, self.server, callback);
         }
-    ], function(err, result){
+    ], function (err, result)
+    {
         callback(err, result);
     });
 };

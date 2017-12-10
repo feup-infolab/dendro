@@ -236,7 +236,7 @@ Logger.log = function (type, message)
         const stack = new Error().stack;
         let msg;
 
-        if(isNull(message))
+        if (isNull(message))
         {
             msg = "Unspecified error at : " + stack;
         }
