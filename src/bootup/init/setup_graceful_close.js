@@ -265,6 +265,10 @@ const setupGracefulClose = function (app, server, callback)
             Logger.log("error", JSON.stringify(exception));
             process.kill(process.pid, "SIGINT");
         });
+
+        process.on("exit", function(code) {
+            return Logger.log("info", `About to exit with code ${code}`);
+        });
     }
 
     setupGracefulClose._handlers_are_installed = true;

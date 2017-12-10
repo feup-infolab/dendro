@@ -151,7 +151,7 @@ Logger.init = function (startTime)
 
                 const logStream = rotator({
                     path: path.join(absPath, "production"),
-                    name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_" + loggerLevel, "_"),
+                    name: slug("production_" + Config.activeConfiguration + "_" + loggerLevel, "_"),
                     size: "5m",
                     retention: 2,
                     boundary: "daily"
@@ -171,7 +171,7 @@ Logger.init = function (startTime)
 
                 const logstreamError = rotator({
                     path: path.join(absPath, "production"),
-                    name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_error", "_"),
+                    name: slug("production_" + Config.activeConfiguration + "_error", "_"),
                     size: "5m",
                     retention: 2,
                     boundary: "daily"
