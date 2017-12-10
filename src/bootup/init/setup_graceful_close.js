@@ -220,19 +220,23 @@ const setupGracefulClose = function (app, server, callback)
             {
                 const msg = "Graceful close timed out. Forcing server closing!";
                 Logger.log("warn", msg);
+                process.exit(1);
             }, Config.dbOperationTimeout);
         };
 
         const signals = ["SIGHUP", "SIGINT", "SIGQUIT", "SIGABRT", "SIGTERM"];
 
-        _.map(signals, function(signal){
-            process.on(signal, function() {
+        _.map(signals, function (signal)
+        {
+            process.on(signal, function ()
+            {
                 setupForceKillTimer();
                 Logger.log("warn", "Signal " + signal + " received!");
 
                 app.freeResources(function ()
                 {
                     Logger.log("info", "Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
+                    process.exit(0);
                 });
             });
         });
@@ -241,7 +245,10 @@ const setupGracefulClose = function (app, server, callback)
         {
             Logger.log("error", "Critical error occurred! ");
             Logger.log("error", JSON.stringify(exception));
-            process.kill(process.pid, "SIGTERM");
+            process.nextTick(function ()
+            {
+                process.exit(1);
+            });
         });
 
         process.on("exit", function (code)
@@ -252,10 +259,8 @@ const setupGracefulClose = function (app, server, callback)
             {
                 Logger.log("info", "Freed all resources.");
                 Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
-                process.kill(process.pid, "SIGTERM");
+                process.exit(code);
             });
-
-            return false;
         });
     }
 

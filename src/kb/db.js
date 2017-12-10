@@ -447,10 +447,11 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         }
         else
         {
-            const msg = "Error occurred while reserving connection from JDBC connection pool of database " + self.handle;
-            Logger.log("error", err.message);
-            Logger.log("error", err.stack);
-            Logger.log("error", msg);
+            // giving error but works... go figure. Commenting for now.
+            // const msg = "Error occurred while reserving connection from JDBC connection pool of database " + self.handle;
+            // Logger.log("error", err.message);
+            // Logger.log("error", err.stack);
+            // Logger.log("error", msg);
         }
     });
 };
