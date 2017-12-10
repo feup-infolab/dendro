@@ -4,11 +4,11 @@ const DbConnection = require(Pathfinder.absPathInSrcFolder("kb/db.js")).DbConnec
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
 
-const nodeCleanup = require("node-cleanup");
 const npid = require("npid");
 const async = require("async");
 const mkdirp = require("mkdirp");
 const path = require("path");
+const _ = require("underscore");
 
 const setupGracefulClose = function (app, server, callback)
 {
@@ -207,7 +207,6 @@ const setupGracefulClose = function (app, server, callback)
             Logger.log("info", "No need to remove PID, because this Dendro is running in TEST Mode");
 
             // don't call cleanup handler again
-            nodeCleanup.uninstall();
             callback(err, results);
         });
     };
@@ -221,62 +220,42 @@ const setupGracefulClose = function (app, server, callback)
             {
                 const msg = "Graceful close timed out. Forcing server closing!";
                 Logger.log("warn", msg);
-                throw new Error(msg);
             }, Config.dbOperationTimeout);
         };
 
-        nodeCleanup(function (exitCode, signal)
-        {
-            setupForceKillTimer();
-            if (signal)
-            {
-                Logger.log("warn", "Signal " + signal + " received, with exit code " + exitCode + "!");
+        const signals = ["SIGHUP", "SIGINT", "SIGQUIT", "SIGABRT", "SIGTERM"];
+
+        _.map(signals, function(signal){
+            process.on(signal, function() {
+                setupForceKillTimer();
+                Logger.log("warn", "Signal " + signal + " received!");
 
                 app.freeResources(function ()
                 {
                     Logger.log("info", "Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
-
-                    process.kill(process.pid, signal);
                 });
-
-                nodeCleanup.uninstall();
-                return false;
-            }
-
-            if (!isNull(exitCode) && exitCode !== 0)
-            {
-                Logger.log("error", "Unknown error occurred!");
-
-                app.freeResources(function ()
-                {
-                    Logger.log("warn", "Freed all resources. Rethrowing error to end with an unclean code...");
-                    Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
-                    process.exit(exitCode);
-                });
-
-                nodeCleanup.uninstall();
-                return false;
-            }
-
-            app.freeResources(function ()
-            {
-                Logger.log("info", "Freed all resources. Exiting...");
             });
-
-            nodeCleanup.uninstall();
-            return false;
         });
 
         process.on("uncaughtException", function (exception)
         {
             Logger.log("error", "Critical error occurred! ");
             Logger.log("error", JSON.stringify(exception));
-            process.kill(process.pid, "SIGINT");
+            process.kill(process.pid, "SIGTERM");
         });
 
         process.on("exit", function (code)
         {
-            return Logger.log("info", `About to exit with code ${code}`);
+            Logger.log("info", `Unknown error occurred! About to exit with code ${code}`);
+
+            app.freeResources(function ()
+            {
+                Logger.log("info", "Freed all resources.");
+                Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
+                process.kill(process.pid, "SIGTERM");
+            });
+
+            return false;
         });
     }
 

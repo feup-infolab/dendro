@@ -3038,7 +3038,7 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
                                     metadataResult.hasLogicalParts.push(result2);
                                     return callback(null);
                                 }
-                                console.info("[findMetadataRecursive] error accessing metadata of resource " + folder.nie.title);
+                                Logger.log("info", "[findMetadataRecursive] error accessing metadata of resource " + self.nie.title);
                                 return callback(err);
                             }, typeConfigsToRetain);
                         },

@@ -712,14 +712,14 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
                         }
                         else
                         {
-                            console.info("[findMetadataRecursive] error accessing logical parts of folder " + resource.nie.title);
+                            Logger.log("info", "[findMetadata] error accessing logical parts of folder " + resource.nie.title);
                             return callback(true, null);
                         }
                     });
                 }
                 else
                 {
-                    console.info("[findMetadataRecursive] " + resource.nie.title + " is not a folder.");
+                    Logger.log("info", "[findMetadata] " + resource.nie.title + " is not a folder.");
                     return callback(null, metadataResult);
                 }
             }
