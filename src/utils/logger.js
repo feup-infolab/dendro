@@ -64,7 +64,17 @@ Logger.init = function (startTime)
             {
                 mkdirp.sync(path.join(absPath, "development"));
                 const errorLogFile = new winston.transports.File({
-                    filename: `${absPath}/development/${slug(startTime.toISOString() + "_development_" + Config.activeConfiguration, "_")}-error.log`,
+                    filename: path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`),
+                    level: "error",
+                    handleExceptions: true,
+                    format: combine(
+                        timestamp(),
+                        jsonFormat
+                    )
+                });
+
+                const logFile = new winston.transports.File({
+                    filename: path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`),
                     level: loggerLevel,
                     handleExceptions: true,
                     format: combine(
@@ -74,13 +84,14 @@ Logger.init = function (startTime)
                 });
 
                 logger.add(errorLogFile);
+                logger.add(logFile);
 
                 // colorize the output to the console
                 const coloredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
-                        colorize: true,
                         handleExceptions: true,
+                        colorize: true,
                         format: combine(
                             timestamp(),
                             consoleFormat
@@ -92,16 +103,27 @@ Logger.init = function (startTime)
             else if (process.env.NODE_ENV === "test")
             {
                 mkdirp.sync(path.join(absPath, "test"));
-                const logFile = new winston.transports.File({
-                    filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-error.log`,
+                const errorLogFile = new winston.transports.File({
+                    filename: path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`),
                     handleExceptions: true,
-                    level: loggerLevel,
+                    level: "error",
                     format: combine(
                         timestamp(),
                         jsonFormat
                     )
                 });
 
+                const logFile = new winston.transports.File({
+                    filename: path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`),
+                    level: loggerLevel,
+                    handleExceptions: true,
+                    format: combine(
+                        timestamp(),
+                        jsonFormat
+                    )
+                });
+
+                logger.add(errorLogFile);
                 logger.add(logFile);
 
                 // colorize the output to the console
@@ -122,27 +144,49 @@ Logger.init = function (startTime)
             {
                 mkdirp.sync(path.join(absPath, "production"));
                 const rotator = require("stream-rotate");
-                const logstreamInfo = rotator({
+
+                const logStream = rotator({
                     path: path.join(absPath, "production"),
-                    name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_combined", "_"),
+                    name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_" + loggerLevel, "_"),
                     size: "5m",
                     retention: 2,
                     boundary: "daily"
                 });
 
-                const rotatedLogFileInfo = new winston.transports.File(
+                const logFile = new winston.transports.File(
                     {
-                        stream: logstreamInfo,
+                        stream: logStream,
                         level: loggerLevel,
-                        handleExceptions: true,
                         timestamp: tsFormat,
+                        handleExceptions: true,
                         format: combine(
                             timestamp(),
                             jsonFormat
                         )
                     });
 
-                logger.add(rotatedLogFileInfo);
+                const logstreamError = rotator({
+                    path: path.join(absPath, "production"),
+                    name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_error", "_"),
+                    size: "5m",
+                    retention: 2,
+                    boundary: "daily"
+                });
+
+                const logFileError = new winston.transports.File(
+                    {
+                        stream: logstreamError,
+                        level: loggerLevel,
+                        timestamp: tsFormat,
+                        handleExceptions: true,
+                        format: combine(
+                            timestamp(),
+                            jsonFormat
+                        )
+                    });
+
+                logger.add(logFile);
+                logger.add(logFileError);
 
                 // do not colorize the output to the console
                 const nonColoredConsoleOutput = new (winston.transports.Console)(
