@@ -66,21 +66,21 @@ Logger.init = function (startTime)
                 const errorLogFile = new winston.transports.File({
                     filename: `${absPath}/development/${slug(startTime.toISOString() + "_development_" + Config.activeConfiguration, "_")}-error.log`,
                     level: loggerLevel,
+                    handleExceptions: true,
                     format: combine(
                         timestamp(),
                         jsonFormat
                     )
                 });
-                const combinedErrorLog = new winston.transports.File({filename: "combined.log"});
 
                 logger.add(errorLogFile);
-                logger.add(combinedErrorLog);
 
                 // colorize the output to the console
                 const coloredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
                         colorize: true,
+                        handleExceptions: true,
                         format: combine(
                             timestamp(),
                             consoleFormat
@@ -92,8 +92,9 @@ Logger.init = function (startTime)
             else if (process.env.NODE_ENV === "test")
             {
                 mkdirp.sync(path.join(absPath, "test"));
-                const errorLogFile = new winston.transports.File({
+                const logFile = new winston.transports.File({
                     filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-error.log`,
+                    handleExceptions: true,
                     level: loggerLevel,
                     format: combine(
                         timestamp(),
@@ -101,23 +102,14 @@ Logger.init = function (startTime)
                     )
                 });
 
-                const combinedErrorLog = new winston.transports.File({
-                    filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-combined.log`,
-                    level: loggerLevel,
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
-                });
-
-                logger.add(errorLogFile);
-                logger.add(combinedErrorLog);
+                logger.add(logFile);
 
                 // colorize the output to the console
                 const coloredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
                         colorize: true,
+                        handleExceptions: true,
                         format: combine(
                             timestamp(),
                             consoleFormat
@@ -142,25 +134,7 @@ Logger.init = function (startTime)
                     {
                         stream: logstreamInfo,
                         level: loggerLevel,
-                        timestamp: tsFormat,
-                        format: combine(
-                            timestamp(),
-                            jsonFormat
-                        )
-                    });
-
-                const logstreamError = rotator({
-                    path: path.join(absPath, "production"),
-                    name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_error", "_"),
-                    size: "5m",
-                    retention: 2,
-                    boundary: "daily"
-                });
-
-                const rotatedLogFileError = new winston.transports.File(
-                    {
-                        stream: logstreamError,
-                        level: loggerLevel,
+                        handleExceptions: true,
                         timestamp: tsFormat,
                         format: combine(
                             timestamp(),
@@ -169,12 +143,12 @@ Logger.init = function (startTime)
                     });
 
                 logger.add(rotatedLogFileInfo);
-                logger.add(rotatedLogFileError);
 
                 // do not colorize the output to the console
                 const nonColoredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
+                        handleExceptions: true,
                         format: combine(
                             timestamp(),
                             consoleFormat

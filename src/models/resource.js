@@ -3061,7 +3061,8 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
             }
             else
             {
-                console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
+                Logger.log("error", "[findMetadataRecursive] error accessing logical parts of folder " + self.nie.title);
+                Logger.log("error", err);
                 return callback(true, null);
             }
         });

@@ -252,6 +252,7 @@ const setupGracefulClose = function (app, server, callback)
                 app.freeResources(function ()
                 {
                     Logger.log_boot_message("Freed all resources. Rethrowing error to end with an unclean code...");
+                    throw new Error(`Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
                 });
 
                 nodeCleanup.uninstall();
