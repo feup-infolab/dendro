@@ -18,7 +18,6 @@ Logger.init = function (startTime)
     {
         startTime = new Date();
     }
-
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     // Setup logging
     if (!isNull(Config.logging))
@@ -45,6 +44,16 @@ Logger.init = function (startTime)
             const logger = winston.createLogger({
                 level: loggerLevel
             });
+
+            logger.on("error", function (err)
+            {
+                Logger.log("error", JSON.stringif(err));
+                process.nextTick(function ()
+                {
+                    process.kill(process.pid, "SIGTERM");
+                });
+            }
+            );
 
             const { format } = require("winston");
             const { combine, timestamp, printf } = format;

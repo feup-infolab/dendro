@@ -448,10 +448,10 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         else
         {
             // giving error but works... go figure. Commenting for now.
-            // const msg = "Error occurred while reserving connection from JDBC connection pool of database " + self.handle;
-            // Logger.log("error", err.message);
-            // Logger.log("error", err.stack);
-            // Logger.log("error", msg);
+            const msg = "Error occurred while reserving connection from JDBC connection pool of database " + self.handle;
+            Logger.log("error", err.message);
+            Logger.log("error", err.stack);
+            Logger.log("error", msg);
         }
     });
 };
@@ -842,7 +842,6 @@ DbConnection.prototype.create = function (callback)
                         Logger.log("error", "Query " + queryObject.query_id + " Failed!\n" + queryObject.query + "\n");
                         const error = "Virtuoso server returned error: \n " + util.inspect(err);
                         Logger.log("error", error);
-                        console.trace(err);
                         recordQueryConclusionInLog(queryObject);
                         popQueueCallback(1, error);
                         queryObject.callback(1, error);
