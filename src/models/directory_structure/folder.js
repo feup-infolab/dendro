@@ -990,7 +990,7 @@ Folder.prototype.loadMetadata = function (
                 {
                     if (isNull(err) && !isNull(folder))
                     {
-                        // TODO NELSON
+                        // Sets the parent as the new folder and not the parent specified in the metadata.json file
                         folder.nie.isLogicalPartOf = self.uri;
                         folder.loadMetadata(
                             childNode,
@@ -1008,7 +1008,7 @@ Folder.prototype.loadMetadata = function (
                         {
                             if (isNull(err) && !isNull(folder))
                             {
-                                // TODO NELSON
+                                // Sets the parent as the new folder and not the parent specified in the metadata.json file
                                 folder.nie.isLogicalPartOf = self.uri;
                                 folder.loadMetadata(
                                     childNode,
@@ -1035,7 +1035,7 @@ Folder.prototype.loadMetadata = function (
                 {
                     if (isNull(err) && !isNull(file))
                     {
-                        // TODO NELSON
+                        // Sets the parent as the new folder and not the parent specified in the metadata.json file
                         file.nie.isLogicalPartOf = self.uri;
                         file.loadMetadata(
                             childNode,
@@ -1183,8 +1183,6 @@ Folder.prototype.loadMetadata = function (
                 {
                     if (node.resource === existingFolder.uri)
                     {
-                        // existingFolder.loadMetadata(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
-                        // TODO NELSON
                         loadMetadataIntoThisFolder(node, function (err, result)
                         {
                             callback(err, result);
@@ -1197,11 +1195,7 @@ Folder.prototype.loadMetadata = function (
                 }
                 else
                 {
-                    /* const getTitleDescriptor = _.find(node.metadata, function (descriptor)
-                    {
-                        return descriptor.prefixedForm === "nie:title";
-                    });*/
-                    // TODO NELSON
+                    // Sets the resource as the new folder and not the one specified in the metadata.json file
                     node.resource = self.uri;
                     loadMetadataIntoThisFolder(node, function (err, result)
                     {
@@ -1421,7 +1415,7 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
             {
                 const deleteChild = function (child, cb)
                 {
-                    //TODO AQUI NELSON
+                    // This is necessary because depending on the type the .delete function has different parameters. This was previously creating a bug that prevented child resources to be "really_deleted" when its parent was.
                     if (child instanceof Folder)
                     {
                         child.delete(cb, uriOfUserDeletingTheFolder, notRecursive, reallyDelete);
@@ -1430,7 +1424,6 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
                     {
                         child.delete(cb, uriOfUserDeletingTheFolder, reallyDelete);
                     }
-                    /*child.delete(cb, uriOfUserDeletingTheFolder, notRecursive);*/
                 };
 
                 async.mapSeries(children, deleteChild, function (err, result)

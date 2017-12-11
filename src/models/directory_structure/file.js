@@ -1125,7 +1125,6 @@ File.prototype.findFileInMongo = function (db, callback)
 File.prototype.loadMetadata = function (node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     const self = this;
-    // TODO set here parent
     if (!isNull(node))
     {
         const metadata = node.metadata;
