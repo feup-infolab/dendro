@@ -12,12 +12,12 @@ const Logger = function ()
 
 };
 
-Logger.setLogFilePath = function(newLogFilePath)
+Logger.setLogFilePath = function (newLogFilePath)
 {
     Logger.logFilePath = newLogFilePath;
 };
 
-Logger.getLogFilePath = function()
+Logger.getLogFilePath = function ()
 {
     return Logger.logFilePath;
 };
@@ -244,7 +244,7 @@ Logger.init = function (startTime, app)
     }
 };
 
-Logger.add_request_logging = function (app)
+Logger.add_middlewares = function (app)
 {
     const expressWinston = require("express-winston");
     app.use(

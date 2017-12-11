@@ -92,7 +92,7 @@ const startApp = function ()
                 // add request logging
                 if (Config.logging.log_all_requests)
                 {
-                    Logger.add_request_logging(self.app);
+                    Logger.add_middlewares(self.app);
                 }
                 callback(null);
             },
@@ -336,7 +336,10 @@ const startApp = function ()
     exports.serverListening = serverListeningPromise.promise;
 };
 
-process.env.NODE_ENV = Config.environment;
+if (isNull(process.env.NODE_ENV) && !isNull(Config.environment))
+{
+    process.env.NODE_ENV = Config.environment;
+}
 
 if (process.env.NODE_ENV === "production")
 {
