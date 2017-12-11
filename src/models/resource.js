@@ -1649,7 +1649,8 @@ Resource.restoreFromIndexResults = function (hits)
         }
     }
 
-    results.sort(function(a, b){
+    results.sort(function (a, b)
+    {
         return a.indexData.score - b.indexData.score;
     });
 
@@ -2395,7 +2396,7 @@ Resource.prototype.loadFromIndexHit = function (hit)
         return new Descriptor({
             uri: descriptorObject.predicate,
             value: descriptorObject.object
-        });;
+        });
     });
 
     self.updateDescriptors(resourceDescriptors);
@@ -3037,7 +3038,7 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
                                     metadataResult.hasLogicalParts.push(result2);
                                     return callback(null);
                                 }
-                                console.info("[findMetadataRecursive] error accessing metadata of resource " + folder.nie.title);
+                                Logger.log("info", "[findMetadataRecursive] error accessing metadata of resource " + self.nie.title);
                                 return callback(err);
                             }, typeConfigsToRetain);
                         },
@@ -3060,7 +3061,8 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
             }
             else
             {
-                console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
+                Logger.log("error", "[findMetadataRecursive] error accessing logical parts of folder " + self.nie.title);
+                Logger.log("error", err);
                 return callback(true, null);
             }
         });

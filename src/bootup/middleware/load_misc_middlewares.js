@@ -11,10 +11,16 @@ const appSecret = Config.crypto.secret,
     bodyParser = require("body-parser"),
     methodOverride = require("method-override"),
     flash = require("connect-flash"),
-    errorHandler = require("express-session");
+    session = require("express-session"),
+    errorHandler = require("errorhandler");
 
 const loadMiscMiddlewares = function (app, callback)
 {
+    if (process.env.NODE_ENV !== "production")
+    {
+        app.use(errorHandler({ dumpExceptions: true, showStack: true }));
+    }
+
     const busboy = require("connect-busboy");
     app.use(busboy());
 
@@ -68,7 +74,7 @@ const loadMiscMiddlewares = function (app, callback)
     //		development only
     if (app.get("env") === "development")
     {
-        app.use(errorHandler({
+        app.use(session({
             secret: appSecret,
             resave: true,
             saveUninitialized: true

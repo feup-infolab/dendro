@@ -1,4 +1,5 @@
 const cluster = require("cluster");
+const timeout = require("connect-timeout");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -7,6 +8,16 @@ const numCPUs = Config.numCPUs;
 
 const startServer = function (app, server, callback)
 {
+    app.use(timeout("5s"));
+
+    const haltOnTimedout = function (req, res, next)
+    {
+        if (!req.timedout)
+        {
+            next();
+        }
+    };
+
     if (numCPUs && numCPUs > 1)
     {
         if (cluster.isMaster)
@@ -19,6 +30,7 @@ const startServer = function (app, server, callback)
         }
         else
         {
+            app.use(haltOnTimedout);
             server.listen(app.get("port"), function ()
             {
                 Logger.log("Express server listening on port " + app.get("port"));
@@ -28,6 +40,7 @@ const startServer = function (app, server, callback)
     }
     else
     {
+        app.use(haltOnTimedout);
         server.listen(app.get("port"), function ()
         {
             Logger.log("Express server listening on port " + app.get("port"));

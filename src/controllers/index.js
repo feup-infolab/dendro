@@ -18,7 +18,8 @@ exports.analytics_tracking_code = function (req, res)
 
     if (typeof Config.analytics_tracking_code !== "undefined")
     {
-        if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+        // will be null if the client does not accept html
+        if (acceptsJSON && !acceptsHTML)
         {
             res.json(
                 Config.analytics_tracking_code

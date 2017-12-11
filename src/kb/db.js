@@ -168,7 +168,15 @@ const queryObjectToString = function (query, argumentsArray, callback)
             {
                 Logger.log("error", "Error processing argument " + currentArgumentIndex + " in query: \n----------------------\n\n" + transformedQuery + "\n----------------------");
                 Logger.log("error", "Value of Argument " + currentArgumentIndex + ": " + currentArgument.value);
-                Logger.log("error", e.stack);
+                if (!isNull(e.stack))
+                {
+                    Logger.log("error", e.stack);
+                }
+                else
+                {
+                    Logger.log("error", JSON.stringify(e));
+                }
+
                 throw e;
             }
         }
@@ -439,6 +447,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         }
         else
         {
+            // giving error but works... go figure. Commenting for now.
             const msg = "Error occurred while reserving connection from JDBC connection pool of database " + self.handle;
             Logger.log("error", err.message);
             Logger.log("error", err.stack);
@@ -833,7 +842,6 @@ DbConnection.prototype.create = function (callback)
                         Logger.log("error", "Query " + queryObject.query_id + " Failed!\n" + queryObject.query + "\n");
                         const error = "Virtuoso server returned error: \n " + util.inspect(err);
                         Logger.log("error", error);
-                        console.trace(err);
                         recordQueryConclusionInLog(queryObject);
                         popQueueCallback(1, error);
                         queryObject.callback(1, error);

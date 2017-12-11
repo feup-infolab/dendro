@@ -25,8 +25,9 @@ const destroyAllGraphs = function (app, callback)
                 {
                     if (exists)
                     {
-                        Logger.log("error", "Tried to delete graph " + graphUri + " but it still exists!");
-                        process.exit(1);
+                        const msg = "Tried to delete graph " + graphUri + " but it still exists!";
+                        Logger.log("error", msg);
+                        throw new Error(msg);
                     }
                     else
                     {
