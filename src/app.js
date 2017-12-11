@@ -372,6 +372,7 @@ if (process.env.NODE_ENV === "production")
                     // max_memory_restart : '1024M'   // Optional: Restarts your app if it reaches 100Mo
                     args: ["--pm2_slave=1"],
                     out_file: Logger.getLogFilePath(),
+                    error_file: Logger.getErrorLogFilePath(),
                     merge_logs: true
                 }, function (err, apps)
                 {
