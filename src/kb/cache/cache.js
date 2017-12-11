@@ -52,7 +52,7 @@ Cache.initConnections = function (callback, deleteAllCachedRecords)
                                     }
                                     else
                                     {
-                                        Logger.log("info", "Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " + mongoDBConnection.host + ":" + mongoDBConnection.port);
+                                        Logger.log_boot_message("Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " + mongoDBConnection.host + ":" + mongoDBConnection.port);
 
                                         if (mongoCacheConfig.clear_on_startup)
                                         {
@@ -143,7 +143,7 @@ Cache.initConnections = function (callback, deleteAllCachedRecords)
         {
             if (isNull(err))
             {
-                Logger.log("info", "All Cache instances are up and running!");
+                Logger.log_boot_message("All Cache instances are up and running!");
                 return callback(null);
             }
 

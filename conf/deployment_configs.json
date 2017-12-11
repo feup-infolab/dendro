@@ -265,11 +265,7 @@
       "level": "debug",
       "format": "combined",
       "app_logs_folder": "logs/app",
-      "log_request_times": false,
-      "request_times_log_folder": "logs/request_times",
-      "log_requests_in_apache_format": false,
-      "requests_in_apache_format_log_folder": "logs/requests_apache_format",
-      "log_all_requests": false,
+      "log_all_requests": true,
       "log_emailing": false
     },
     "version": {
@@ -385,7 +381,7 @@
         "button_text": "Sign-in with SIGARRA"
       }
     },
-    "numCPUs" : 1
+    "numCPUs" : 4
   },
   "test": {
     "port": 3002,
@@ -650,11 +646,7 @@
       "level": "debug",
       "format": "combined",
       "app_logs_folder": "logs/app",
-      "log_request_times": false,
-      "request_times_log_folder": "logs/request_times",
-      "log_requests_in_apache_format": false,
-      "requests_in_apache_format_log_folder": "logs/requests_apache_format",
-      "log_all_requests": false,
+      "log_all_requests": true,
       "log_emailing": false,
       "custom_exception_logging": false
     },
@@ -1036,11 +1028,7 @@
       "format": "combined",
       "pipe_console_to_logfile": true,
       "app_logs_folder": "logs/app",
-      "log_request_times": false,
-      "request_times_log_folder": "logs/request_times",
-      "log_requests_in_apache_format": false,
-      "requests_in_apache_format_log_folder": "logs/requests_apache_format",
-      "log_all_requests": false,
+      "log_all_requests": true,
       "log_emailing": false,
       "custom_exception_logging": false
     },

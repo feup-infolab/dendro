@@ -12,7 +12,7 @@ const Logger = function ()
 
 };
 
-Logger.init = function (startTime)
+Logger.init = function (startTime, app)
 {
     if (isNull(startTime))
     {
@@ -231,12 +231,71 @@ Logger.init = function (startTime)
     }
 };
 
+Logger.add_request_logging = function (app)
+{
+    const expressWinston = require("express-winston");
+    app.use(
+        expressWinston.logger({
+            winstonInstance: Logger.logger,
+            // optional: control whether you want to log the meta data about the request (default to true)
+            meta: true,
+            // msg: "HTTP {{req.method}} {{req.url}}", // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
+            // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
+            expressFormat: true,
+            // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
+            colorize: true,
+            // optional: allows to skip some log messages based on request and/or response
+            ignoreRoute: function (req, res)
+            {
+                // do not log requests for public assets
+                if (req.url.startsWith("/bower_components") ||
+                    req.url.startsWith("/stylesheets") ||
+                    req.url.startsWith("/app") ||
+                    req.url.startsWith("/shared") ||
+                    req.url.startsWith("/analytics_tracking_code") ||
+                    req.url.startsWith("/images") ||
+                    req.url.startsWith("/js")
+                )
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        })
+    );
+};
+
 Logger.log_boot_message = function (message)
 {
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     if (Config.startup.log_bootup_actions)
     {
-        Logger.logger.info(message);
+        if (Config.numCPUs > 1)
+        {
+            if (!Config.runningAsSlave)
+            {
+                if (!isNull(Logger.logger))
+                {
+                    Logger.logger.info(message);
+                }
+                else
+                {
+                    console.log(message);
+                }
+            }
+        }
+        else
+        {
+            if (!isNull(Logger.logger))
+            {
+                Logger.logger.info(message);
+            }
+            else
+            {
+                console.log(message);
+            }
+        }
     }
 };
 

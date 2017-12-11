@@ -1,13 +1,17 @@
 {
-  "name": "dendro-data-management-platform-beta",
-  "version": "0.0.1",
+  "name": "dendro-rdm",
+  "version": "0.2.0",
   "private": true,
+  "description": "The Dendro platform is an open-source data storage and description platform designed to help users describe their data files, fully built on Linked Open Data and ontologies. Whenever users want to publish a dataset, they can export to repositories such as CKAN, Zenodo, DSpace or EUDAT's B2Share. More repositories can be added at will. http://dendro.fe.up.pt.",
+  "repository": "https://github.com/feup-infolab/dendro",
+  "license": "LICENSE.md",
+  "readme": "readme.md",
   "engines": {
     "node": "v8.9.0",
     "npm": "5.5.1"
   },
   "scripts": {
-    "preinstall": "npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g",
+    "preinstall": "npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install pm2 -g && npm install -g npm-check-updates",
     "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
     "prestart": "nodengine",
     "start": "node src/app.js",
@@ -68,6 +72,7 @@
     "expect": "^21.2.1",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
+    "express-winston": "^2.4.0",
     "eyes": "0.1.8",
     "file-size": "^1.0.0",
     "file-stream-rotator": "^0.2.0",

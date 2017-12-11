@@ -133,6 +133,7 @@ Config.maxUploadSize = getConfigParameter("maxUploadSize");
 // 10000MB®
 Config.maxProjectSize = getConfigParameter("maxProjectSize");
 Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
+
 Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
 
 if (path.isAbsolute(getConfigParameter("tempFilesDir")))
@@ -692,7 +693,7 @@ if (Config.demo_mode.active)
         {
             if (isNull(error))
             {
-                Logger.log("Active branch : " + JSON.stringify(stdout));
+                Logger.log_boot_message("Active branch : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.active_branch = stdout;
             }
             else
@@ -708,7 +709,7 @@ if (Config.demo_mode.active)
         {
             if (isNull(error))
             {
-                Logger.log("Last commit hash : " + JSON.stringify(stdout));
+                Logger.log_boot_message("Last commit hash : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.commit_hash = stdout;
             }
             else
@@ -724,7 +725,7 @@ if (Config.demo_mode.active)
         {
             if (isNull(error))
             {
-                Logger.log("Last commit date : " + JSON.stringify(stdout));
+                Logger.log_boot_message("Last commit date : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.last_commit_date = stdout;
             }
             else
@@ -756,5 +757,14 @@ Config.regex_routes = {
 
 Config.authentication = getConfigParameter("authentication");
 Config.numCPUs = getConfigParameter("numCPUs");
+
+Config.runningAsSlave = false;
+
+const argv = require("yargs").argv;
+if (!isNull(argv.pm2_slave))
+{
+    Config.runningAsSlave = true;
+    Config.maxSimultaneousConnectionsToDb = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+}
 
 module.exports.Config = Config;
