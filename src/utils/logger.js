@@ -12,6 +12,16 @@ const Logger = function ()
 
 };
 
+Logger.setLogFilePath = function(newLogFilePath)
+{
+    Logger.logFilePath = newLogFilePath;
+};
+
+Logger.getLogFilePath = function()
+{
+    return Logger.logFilePath;
+};
+
 Logger.init = function (startTime, app)
 {
     if (isNull(startTime))
@@ -83,9 +93,11 @@ Logger.init = function (startTime, app)
                 //     )
                 // });
 
+                Logger.setLogFilePath(path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`));
+
                 const logFile = new winston.transports.File({
                     timestamp: tsFormat,
-                    filename: path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`),
+                    filename: Logger.getLogFilePath(),
                     level: loggerLevel,
                     handleExceptions: true,
                     exitOnError: true,
@@ -126,9 +138,10 @@ Logger.init = function (startTime, app)
                 //     )
                 // });
 
+                Logger.setLogFilePath(path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`));
                 const logFile = new winston.transports.File({
                     timestamp: tsFormat,
-                    filename: path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`),
+                    filename: Logger.getLogFilePath(),
                     level: loggerLevel,
                     handleExceptions: true,
                     exitOnError: true,

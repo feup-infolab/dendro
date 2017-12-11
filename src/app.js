@@ -367,7 +367,9 @@ if (process.env.NODE_ENV === "production")
                     // Optional: Scales your app by X
                     instances: (isNull(Config.numCPUs)) ? "max" : Config.numCPUs,
                     // max_memory_restart : '1024M'   // Optional: Restarts your app if it reaches 100Mo
-                    args: ["--pm2_slave=1"]
+                    args: ["--pm2_slave=1"],
+                    out_file: Logger.getLogFilePath(),
+                    merge_logs: true
                 }, function (err, apps)
                 {
                     // Disconnects from PM2
