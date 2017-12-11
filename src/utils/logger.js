@@ -72,29 +72,30 @@ Logger.init = function (startTime)
             if (process.env.NODE_ENV === "development")
             {
                 mkdirp.sync(path.join(absPath, "development"));
-                const errorLogFile = new winston.transports.File({
-                    timestamp: tsFormat,
-                    filename: path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`),
-                    level: "error",
-                    handleExceptions: true,
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
-                });
+                // const errorLogFile = new winston.transports.File({
+                //     timestamp: tsFormat,
+                //     filename: path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`),
+                //     level: "error",
+                //     handleExceptions: true,
+                //     format: combine(
+                //         timestamp(),
+                //         jsonFormat
+                //     )
+                // });
 
                 const logFile = new winston.transports.File({
                     timestamp: tsFormat,
                     filename: path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`),
                     level: loggerLevel,
                     handleExceptions: true,
+                    exitOnError: true,
                     format: combine(
                         timestamp(),
                         jsonFormat
                     )
                 });
 
-                logger.add(errorLogFile);
+                // logger.add(errorLogFile);
                 logger.add(logFile);
 
                 // colorize the output to the console
@@ -114,29 +115,30 @@ Logger.init = function (startTime)
             else if (process.env.NODE_ENV === "test")
             {
                 mkdirp.sync(path.join(absPath, "test"));
-                const errorLogFile = new winston.transports.File({
-                    timestamp: tsFormat,
-                    filename: path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`),
-                    handleExceptions: true,
-                    level: "error",
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
-                });
+                // const errorLogFile = new winston.transports.File({
+                //     timestamp: tsFormat,
+                //     filename: path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`),
+                //     handleExceptions: true,
+                //     level: "error",
+                //     format: combine(
+                //         timestamp(),
+                //         jsonFormat
+                //     )
+                // });
 
                 const logFile = new winston.transports.File({
                     timestamp: tsFormat,
                     filename: path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`),
                     level: loggerLevel,
                     handleExceptions: true,
+                    exitOnError: true,
                     format: combine(
                         timestamp(),
                         jsonFormat
                     )
                 });
 
-                logger.add(errorLogFile);
+                // logger.add(errorLogFile);
                 logger.add(logFile);
 
                 // colorize the output to the console
@@ -172,34 +174,35 @@ Logger.init = function (startTime)
                         stream: logStream,
                         level: loggerLevel,
                         handleExceptions: true,
+                        exitOnError: true,
                         format: combine(
                             timestamp(),
                             jsonFormat
                         )
                     });
 
-                const logstreamError = rotator({
-                    path: path.join(absPath, "production"),
-                    name: slug("production_" + Config.activeConfiguration + "_error", "_"),
-                    size: "5m",
-                    retention: 2,
-                    boundary: "daily"
-                });
-
-                const logFileError = new winston.transports.File(
-                    {
-                        timestamp: tsFormat,
-                        stream: logstreamError,
-                        level: loggerLevel,
-                        handleExceptions: true,
-                        format: combine(
-                            timestamp(),
-                            jsonFormat
-                        )
-                    });
+                // const logstreamError = rotator({
+                //     path: path.join(absPath, "production"),
+                //     name: slug("production_" + Config.activeConfiguration + "_error", "_"),
+                //     size: "5m",
+                //     retention: 2,
+                //     boundary: "daily"
+                // });
+                //
+                // const logFileError = new winston.transports.File(
+                //     {
+                //         timestamp: tsFormat,
+                //         stream: logstreamError,
+                //         level: loggerLevel,
+                //         handleExceptions: true,
+                //         format: combine(
+                //             timestamp(),
+                //             jsonFormat
+                //         )
+                //     });
 
                 logger.add(logFile);
-                logger.add(logFileError);
+                // logger.add(logFileError);
 
                 // do not colorize the output to the console
                 const nonColoredConsoleOutput = new (winston.transports.Console)(
