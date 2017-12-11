@@ -24,6 +24,7 @@ let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const startApp = function ()
 {
+
     if (global.app_startup_time)
     {
         Logger.init(global.app_startup_time);
@@ -33,16 +34,16 @@ const startApp = function ()
         Logger.init(new Date());
     }
 
+    Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
+
     if (process.env.NODE_ENV === "test")
     {
         Logger.log_boot_message("Running in test mode and the app directory is : " + appDir);
     }
     else
     {
-        Logger.log_boot_message("Running in production / dev mode and the app directory is : " + appDir);
+        Logger.log_boot_message("Running in NODE ENV \"" + process.env.NODE_ENV + "\" and the app directory is : " + appDir);
     }
-
-    Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
 
     const validatenv = require("validate-node-version")();
 
@@ -343,6 +344,14 @@ if (isNull(process.env.NODE_ENV) && !isNull(Config.environment))
 
 if (process.env.NODE_ENV === "production")
 {
+    // avoid running more instances than the number of cores in the system
+    const os = require("os");
+    if(os.cpus().length < Config.numCPUs)
+    {
+        Logger.log_boot_message(`The number of instances specified ( ${Config.numCPUs} ) exceeds the number of cores (physical or virtual) available in this machine (${os.cpus().length} cores)! Reducing the number of instances to ${os.cpus().length}.`);
+        Config.numCPUs = os.cpus().length;
+    }
+
     if (!Config.runningAsSlave)
     {
         Logger.log("info", `Starting master process with PID ${process.pid}...`);

@@ -758,6 +758,7 @@ Config.regex_routes = {
 Config.authentication = getConfigParameter("authentication");
 Config.numCPUs = getConfigParameter("numCPUs");
 
+// detect slave / master status for production environments using pm2
 Config.runningAsSlave = false;
 
 const argv = require("yargs").argv;
