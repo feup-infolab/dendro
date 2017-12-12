@@ -382,7 +382,8 @@ if (process.env.NODE_ENV === "production")
                     args: ["--pm2_slave=1"],
                     out_file: Logger.getLogFilePath(),
                     error_file: Logger.getErrorLogFilePath(),
-                    merge_logs: true
+                    merge_logs: true,
+                    cwd: appDir
                 }, function (err, apps)
                 {
                     // Disconnects from PM2
