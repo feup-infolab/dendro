@@ -92,7 +92,7 @@
                             <div class="col-sm-11" id="language">
                                 <ui-select ng-model="new_project.language" theme="bootstrap" style="min-width: 300px;" title="Choose a language">
                                     <ui-select-match placeholder="Select a language for your project...">{{$select.selected.English}}</ui-select-match>
-                                    <ui-select-choices repeat="language in languages">
+                                    <ui-select-choices repeat="language in languages | filter: $select.search">
                                         <div ng-bind-html="language.English | highlight: $select.search"></div>
                                         <small>
                                             Language: {{language.English}}({{language.alpha2}})

@@ -131,18 +131,19 @@ exports.ontologies_autocomplete = function (req, res)
     }
 };
 
-const addTitlesAndDescriptions = function(ontologies)
+const addTitlesAndDescriptions = function (ontologies)
 {
-    _.map(ontologies, function(ontology){
+    _.map(ontologies, function (ontology)
+    {
         let prefix = ontology.prefix;
-        if(!isNull(ontology.dcterms))
+        if (!isNull(ontology.dcterms))
         {
-            if(isNull(ontology.dcterms.title))
+            if (isNull(ontology.dcterms.title))
             {
                 ontology.dcterms.title = Elements.ontologies[prefix].label;
             }
 
-            if(isNull(ontology.dcterms.description))
+            if (isNull(ontology.dcterms.description))
             {
                 ontology.dcterms.description = Elements.ontologies[prefix].description;
             }
@@ -150,7 +151,7 @@ const addTitlesAndDescriptions = function(ontologies)
     });
 
     return ontologies;
-}
+};
 
 exports.public = function (req, res)
 {
@@ -180,7 +181,7 @@ exports.all = function (req, res)
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
-        Ontology.all(function(err, ontologies)
+        Ontology.all(function (err, ontologies)
         {
             if (isNull(err))
             {
@@ -240,11 +241,11 @@ exports.edit = function (req, res)
 
     if (newOntologyData instanceof Object)
     {
-        Ontology.findByUri(newOntologyData.uri, function(err, ontologyBeingEdited)
+        Ontology.findByUri(newOntologyData.uri, function (err, ontologyBeingEdited)
         {
-            if(isNull(err))
+            if (isNull(err))
             {
-                if(!isNull(ontologyBeingEdited))
+                if (!isNull(ontologyBeingEdited))
                 {
                     ontologyBeingEdited.ddr.hasResearchDomain = newOntologyData.ddr.hasResearchDomain;
                     ontologyBeingEdited.dcterms.description = newOntologyData.description;

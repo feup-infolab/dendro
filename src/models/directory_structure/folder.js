@@ -757,18 +757,6 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     else
                     {
                         const childFolderObject = new Folder(childFolder);
-
-                        if (childFolderObject.nie.isLogicalPartOf instanceof Array)
-                        {
-                            childFolderObject.nie.isLogicalPartOf.push(self.uri);
-                        }
-                        else if (typeof childFolderObject.nie.isLogicalPartOf === "string")
-                        {
-                            childFolderObject.nie.isLogicalPartOf = [childFolderObject.nie.isLogicalPartOf, self.uri];
-                        }
-
-                        childFolderObject.nie.title = folderName;
-
                         childFolderObject.save(function (err, result)
                         {
                             cb(err, childFolderObject);
@@ -1192,7 +1180,7 @@ Folder.prototype.loadMetadata = function (
                         return descriptor.prefixedForm === "nie:title";
                     });
 
-                    if (node.resource === self.uri)
+                    if (node.resource === existingFolder.uri)
                     {
                         existingFolder.loadMetadata(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
                     }
@@ -1291,7 +1279,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
         {
             return callback(err, result);
         }
-    }, runningOnRoot);
+    }, runningOnRoot, entityLoadingTheMetadata);
 };
 
 Folder.prototype.setDescriptorsRecursively = function (descriptors, callback, uriOfUserDeletingTheFolder)

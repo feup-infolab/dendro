@@ -530,7 +530,7 @@ Ontology.initAllFromDatabase = function (callback)
                 }
                 else
                 {
-                    Logger.log("error", "Error: Ontology has its descriptors incorrectly parametrized");
+                    Logger.log("error", "Error: Ontology " + ontology.uri + " has its descriptors incorrectly parametrized");
                 }
             }
 

@@ -3024,6 +3024,189 @@ Elements.ontologies.po =
   }
 };
 
+/**
+ * Elements of the Discovery
+ */
+Elements.ontologies.disco =
+    {
+        computationBase:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        purpose:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+        caseQuantity:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        startDate:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        endDate:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            }
+    };
+
+/**
+ * Elements of the ddiup
+ */
+Elements.ontologies.ddiup = {
+    data_collection:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    scale_reference:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    scale_domain:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    scale_dimension:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    dependent_dimension:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    independent_dimension:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    sample_size:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    deviation_from_sample_design:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    sampling_procedure:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    time_method:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    methodology:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    analysis_unit:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    based_on:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    collection_mode:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    concept:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    data_file:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    instrument:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    kind_of_data:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    product:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    question:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    representation:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    response_domain:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    statistics_category:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    statistics_data_file:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    statistics_variable:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    summary_statistics_type:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    universe:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    variable:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    weighted_by:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            }
+};
+
 Elements.setAllElements = function (loadedElements)
 {
     for (let i = 0; i < loadedElements.length; i++)

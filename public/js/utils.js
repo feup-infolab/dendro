@@ -29,7 +29,7 @@ Utils.getCurrentProjectHandle = function () {
  * Bootstrap parametrization!
  * @type {{dir1: string, dir2: string, push: string}}
  */
-// this HAS TO BE A GLOBAL VAR https://github.com/sciactive/pnotify/issues/23
+// this HAS TO BE A global.VAR https://github.com/sciactive/pnotify/issues/23
 var stack_topright = {'dir1': 'down', 'dir2': 'left', 'push': 'top'}
 // $.pnotify.defaults.styling = "bootstrap3";
 // $.pnotify.defaults.history = false;

@@ -12,17 +12,37 @@ const Logger = function ()
 
 };
 
-Logger.init = function (startTime)
+Logger.setLogFilePath = function (newLogFilePath)
+{
+    Logger.logFilePath = newLogFilePath;
+};
+
+Logger.getLogFilePath = function ()
+{
+    return Logger.logFilePath;
+};
+
+Logger.setErrorLogFilePath = function (newErrorLogFilePath)
+{
+    Logger.errorLogFilePath = newErrorLogFilePath;
+};
+
+Logger.getErrorLogFilePath = function ()
+{
+    return Logger.errorLogFilePath;
+};
+
+Logger.init = function (startTime, app)
 {
     if (isNull(startTime))
     {
         startTime = new Date();
     }
-
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     // Setup logging
     if (!isNull(Config.logging))
     {
+        const loggerLevel = (Config.logging.level) ? Config.logging.level : "debug";
         if (!isNull(Config.logging.app_logs_folder))
         {
             const absPath = Pathfinder.absPathInApp(Config.logging.app_logs_folder);
@@ -42,8 +62,18 @@ Logger.init = function (startTime)
             }
 
             const logger = winston.createLogger({
-                level: Config.logging.level
+                level: loggerLevel
             });
+
+            logger.on("error", function (err)
+            {
+                Logger.log("error", JSON.stringif(err));
+                process.nextTick(function ()
+                {
+                    process.kill(process.pid, "SIGTERM");
+                });
+            }
+            );
 
             const { format } = require("winston");
             const { combine, timestamp, printf } = format;
@@ -61,27 +91,41 @@ Logger.init = function (startTime)
 
             if (process.env.NODE_ENV === "development")
             {
-                if (Config.logging.pipe_console_to_logfile)
-                {
-                    mkdirp.sync(path.join(absPath, "development"));
-                    const errorLogFile = new winston.transports.File({
-                        filename: `${absPath}/development/${slug(startTime.toISOString() + "_development_" + Config.activeConfiguration, "_")}-error.log`,
-                        level: "error",
-                        format: combine(
-                            timestamp(),
-                            jsonFormat
-                        )
-                    });
-                    const combinedErrorLog = new winston.transports.File({filename: "combined.log"});
+                mkdirp.sync(path.join(absPath, "development"));
 
-                    logger.add(errorLogFile);
-                    logger.add(combinedErrorLog);
-                }
+                Logger.setErrorLogFilePath(path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`));
+                const errorLogFile = new winston.transports.File({
+                    timestamp: tsFormat,
+                    filename: Logger.getErrorLogFilePath(),
+                    level: "error",
+                    handleExceptions: true,
+                    format: combine(
+                        timestamp(),
+                        jsonFormat
+                    )
+                });
+
+                Logger.setLogFilePath(path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`));
+                const logFile = new winston.transports.File({
+                    timestamp: tsFormat,
+                    filename: Logger.getLogFilePath(),
+                    level: loggerLevel,
+                    handleExceptions: true,
+                    exitOnError: true,
+                    format: combine(
+                        timestamp(),
+                        jsonFormat
+                    )
+                });
+
+                logger.add(errorLogFile);
+                logger.add(logFile);
 
                 // colorize the output to the console
                 const coloredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
+                        handleExceptions: true,
                         colorize: true,
                         format: combine(
                             timestamp(),
@@ -93,36 +137,42 @@ Logger.init = function (startTime)
             }
             else if (process.env.NODE_ENV === "test")
             {
-                if (Config.logging.pipe_console_to_logfile)
-                {
-                    mkdirp.sync(path.join(absPath, "test"));
-                    const errorLogFile = new winston.transports.File({
-                        filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-error.log`,
-                        level: "error",
-                        format: combine(
-                            timestamp(),
-                            jsonFormat
-                        )
-                    });
+                mkdirp.sync(path.join(absPath, "test"));
 
-                    const combinedErrorLog = new winston.transports.File({
-                        filename: `${absPath}/test/${slug(startTime.toISOString() + "_test_" + Config.activeConfiguration, "_")}-combined.log`,
-                        level: "info",
-                        format: combine(
-                            timestamp(),
-                            jsonFormat
-                        )
-                    });
+                Logger.setErrorLogFilePath(path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`));
+                const errorLogFile = new winston.transports.File({
+                    timestamp: tsFormat,
+                    filename: Logger.getErrorLogFilePath(),
+                    handleExceptions: true,
+                    level: "error",
+                    format: combine(
+                        timestamp(),
+                        jsonFormat
+                    )
+                });
 
-                    logger.add(errorLogFile);
-                    logger.add(combinedErrorLog);
-                }
+                Logger.setLogFilePath(path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`));
+                const logFile = new winston.transports.File({
+                    timestamp: tsFormat,
+                    filename: Logger.getLogFilePath(),
+                    level: loggerLevel,
+                    handleExceptions: true,
+                    exitOnError: true,
+                    format: combine(
+                        timestamp(),
+                        jsonFormat
+                    )
+                });
+
+                logger.add(errorLogFile);
+                logger.add(logFile);
 
                 // colorize the output to the console
                 const coloredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
                         colorize: true,
+                        handleExceptions: true,
                         format: combine(
                             timestamp(),
                             consoleFormat
@@ -133,56 +183,58 @@ Logger.init = function (startTime)
             }
             else if (process.env.NODE_ENV === "production")
             {
-                if (Config.logging.pipe_console_to_logfile)
-                {
-                    mkdirp.sync(path.join(absPath, "production"));
-                    const rotator = require("stream-rotate");
-                    const logstreamInfo = rotator({
-                        path: path.join(absPath, "production"),
-                        name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_combined", "_"),
-                        size: "5m",
-                        retention: 2,
-                        boundary: "daily"
+                mkdirp.sync(path.join(absPath, "production"));
+                const rotator = require("stream-rotate");
+
+                const logStream = rotator({
+                    path: path.join(absPath, "production"),
+                    name: slug("production_" + Config.activeConfiguration + "_" + loggerLevel, "_"),
+                    size: "5m",
+                    retention: 2,
+                    boundary: "daily"
+                });
+
+                const logFile = new winston.transports.File(
+                    {
+                        timestamp: tsFormat,
+                        stream: logStream,
+                        level: loggerLevel,
+                        handleExceptions: true,
+                        exitOnError: true,
+                        format: combine(
+                            timestamp(),
+                            jsonFormat
+                        )
                     });
 
-                    const rotatedLogFileInfo = new winston.transports.File(
-                        {
-                            stream: logstreamInfo,
-                            level: "info",
-                            timestamp: tsFormat,
-                            format: combine(
-                                timestamp(),
-                                jsonFormat
-                            )
-                        });
+                const logstreamError = rotator({
+                    path: path.join(absPath, "production"),
+                    name: slug("production_" + Config.activeConfiguration + "_error", "_"),
+                    size: "5m",
+                    retention: 2,
+                    boundary: "daily"
+                });
 
-                    const logstreamError = rotator({
-                        path: path.join(absPath, "production"),
-                        name: slug(startTime.toISOString() + "_production_" + Config.activeConfiguration + "_error", "_"),
-                        size: "5m",
-                        retention: 2,
-                        boundary: "daily"
+                const logFileError = new winston.transports.File(
+                    {
+                        timestamp: tsFormat,
+                        stream: logstreamError,
+                        level: "error",
+                        handleExceptions: true,
+                        format: combine(
+                            timestamp(),
+                            jsonFormat
+                        )
                     });
 
-                    const rotatedLogFileError = new winston.transports.File(
-                        {
-                            stream: logstreamError,
-                            level: "error",
-                            timestamp: tsFormat,
-                            format: combine(
-                                timestamp(),
-                                jsonFormat
-                            )
-                        });
-
-                    logger.add(rotatedLogFileInfo);
-                    logger.add(rotatedLogFileError);
-                }
+                logger.add(logFile);
+                logger.add(logFileError);
 
                 // do not colorize the output to the console
                 const nonColoredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
+                        handleExceptions: true,
                         format: combine(
                             timestamp(),
                             consoleFormat
@@ -205,17 +257,100 @@ Logger.init = function (startTime)
     }
 };
 
+Logger.add_middlewares = function (app)
+{
+    const expressWinston = require("express-winston");
+    app.use(
+        expressWinston.logger({
+            winstonInstance: Logger.logger,
+            // optional: control whether you want to log the meta data about the request (default to true)
+            meta: true,
+            // msg: "HTTP {{req.method}} {{req.url}}", // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
+            // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
+            expressFormat: true,
+            // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
+            colorize: true,
+            // optional: allows to skip some log messages based on request and/or response
+            ignoreRoute: function (req, res)
+            {
+                // do not log requests for public assets
+                if (req.url.startsWith("/bower_components") ||
+                    req.url.startsWith("/stylesheets") ||
+                    req.url.startsWith("/app") ||
+                    req.url.startsWith("/shared") ||
+                    req.url.startsWith("/analytics_tracking_code") ||
+                    req.url.startsWith("/images") ||
+                    req.url.startsWith("/js")
+                )
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        })
+    );
+};
+
 Logger.log_boot_message = function (message)
 {
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     if (Config.startup.log_bootup_actions)
     {
-        Logger.logger.info(message);
+        if (Config.runningAsSlave === false)
+        {
+            if (!isNull(Logger.logger))
+            {
+                Logger.logger.info(message);
+            }
+            else
+            {
+                console.log(message);
+            }
+        }
+        else
+        {
+            if (!isNull(Logger.logger))
+            {
+                Logger.logger.info(message);
+            }
+            else
+            {
+                console.log(message);
+            }
+        }
     }
 };
 
 Logger.log = function (type, message)
 {
+    // special case for when the message is null and we are logging an error
+    if (type === "error")
+    {
+        const stack = new Error().stack;
+        let msg;
+
+        if (isNull(message))
+        {
+            msg = "Unspecified error at : " + stack;
+        }
+        else
+        {
+            msg = "Error " + message + " at : " + stack;
+        }
+
+        if (!isNull(Logger.logger))
+        {
+            Logger.logger.error(msg);
+        }
+        else
+        {
+            console.error(msg);
+        }
+
+        return;
+    }
+
     if (typeof type === "string" && !isNull(message))
     {
         if (!isNull(Logger.logger))
