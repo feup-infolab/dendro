@@ -366,7 +366,7 @@ if (process.env.NODE_ENV === "production")
                 process.exit(2);
             }
 
-            const appName = require(Pathfinder.absPathInApp("package.json")).name + " " + require(Pathfinder.absPathInApp("package.json")).version;
+            const appName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
 
             pm2.delete(appName, function (err)
             {
