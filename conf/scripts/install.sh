@@ -3,6 +3,8 @@
 INITIAL_DIR=`pwd`
 NODE_VERSION=`cat .node-version`
 
+echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
+
 if [ "$NODE_VERSION" == "" ]
 then
     echo "Unable to determine the version of NodeJS to install!"
