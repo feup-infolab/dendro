@@ -20,6 +20,10 @@
     <li>
         <a href="#actions" role="tab" data-toggle="tab">Actions</a>
     </li>
+    <!-- TODO -->
+    <li>
+        <a href="#configuration" role="tab" data-toggle="tab">Config</a>
+    </li>
 </ul>
 
 <!-- Tab panes -->
@@ -140,6 +144,28 @@
 
                     <p class="help-block">Select the graphs you want to reindex</p>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane active" id="configuration" ng-controller="configurationController" ng-init="init()">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="page-header">
+                    Editing Configuration
+                </h4>
+
+                <div ng-model="serverConfiguration" ui-ace="{
+                      useWrapMode : true,
+                      showGutter: false,
+                      theme:'twilight',
+                      mode: 'json',
+                      firstLineNumber: 5,
+                      onLoad: aceLoaded,
+                      onChange: aceChanged
+                    }"></div>
+
+                <button ng-click="saveConfiguration" class="btn btn-sm btn-primary">Save</button>
             </div>
         </div>
     </div>

@@ -297,18 +297,15 @@ Logger.log_boot_message = function (message)
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     if (Config.startup.log_bootup_actions)
     {
-        if (Config.numCPUs > 1)
+        if (Config.runningAsSlave === false)
         {
-            if (!Config.runningAsSlave)
+            if (!isNull(Logger.logger))
             {
-                if (!isNull(Logger.logger))
-                {
-                    Logger.logger.info(message);
-                }
-                else
-                {
-                    console.log(message);
-                }
+                Logger.logger.info(message);
+            }
+            else
+            {
+                console.log(message);
             }
         }
         else

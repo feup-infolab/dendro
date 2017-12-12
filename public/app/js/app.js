@@ -39,7 +39,8 @@ var dendroApp = angular.module("dendroApp", [
     "ngSanitize",
     "ui.select",
     "angularSpinner",
-    "ui.bootstrap.contextMenu"
+    "ui.bootstrap.contextMenu",
+    "ui.ace"
 ]).filter("trustAsResourceUrl", ["$sce", function ($sce)
 {
     return function (val)

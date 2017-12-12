@@ -496,6 +496,24 @@ Config.enabledOntologies = {
         description: "General Purpose schema",
         domain: "Generic",
         domain_specific: false
+    },
+    ddiup: {
+        prefix: "ddiup",
+        uri: "http://dendro.fe.up.pt/ontology/ddiup#",
+        elements: Elements.ontologies.ddiup,
+        label: "Data Documentation Initiative (DDI)",
+        description: "Elements for the description of  data produced by surveys and other observational methods in the social, behavioral, economic, and health sciences",
+        domain: "Generic",
+        domain_specific: false
+    },
+    disco: {
+        prefix: "disco",
+        uri: "http://rdf-vocabulary.ddialliance.org/discovery#",
+        elements: Elements.ontologies.disco,
+        label: "DDI-RDF Discovery Vocabulary",
+        description: "A vocabulary for publishing metadata about data sets (research and survey data) into the Web of Linked Data",
+        domain: "Generic",
+        domain_specific: false
     }
 };
 
@@ -758,14 +776,17 @@ Config.regex_routes = {
 Config.authentication = getConfigParameter("authentication");
 Config.numCPUs = getConfigParameter("numCPUs");
 
-// detect slave / master status for production environments using pm2
-Config.runningAsSlave = false;
-
-const argv = require("yargs").argv;
-if (!isNull(argv.pm2_slave))
+if (process.env.NODE_ENV === "production")
 {
-    Config.runningAsSlave = true;
-    Config.maxSimultaneousConnectionsToDb = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+    // detect slave / master status for production environments using pm2
+    Config.runningAsSlave = false;
+
+    const argv = require("yargs").argv;
+    if (!isNull(argv.pm2_slave))
+    {
+        Config.runningAsSlave = true;
+        Config.maxSimultaneousConnectionsToDb = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+    }
 }
 
 module.exports.Config = Config;

@@ -3018,6 +3018,189 @@ Elements.ontologies.po =
   }
 };
 
+/**
+ * Elements of the Discovery
+ */
+Elements.disco =
+    {
+        computationBase:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        purpose:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+        numberOfCases:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        startDate:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        endDate:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            }
+    };
+
+/**
+ * Elements of the ddiup
+ */
+Elements.ddiup = {
+    dataCollection:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    scaleReference:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    scaleDomain:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    scaleDimension:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    dependentDimension:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    independenteDimension:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    sampleSize:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    deviationFromSampleDesign:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    samplingProcedure:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    timeMethod:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    methodology:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    analysisUnit:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    basedOn:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    collectionMode:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    concept:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    dataFile:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    instrument:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    kindOfData:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    product:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    question:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    representation:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    responseDomain:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    statisticsCategory:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    statisticsDataFile:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    statisticsVariable:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    summaryStatisticsType:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    universe:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+    variable:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+    weightedBy:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            }
+};
+
 Elements.setAllElements = function (loadedElements)
 {
     for (let i = 0; i < loadedElements.length; i++)

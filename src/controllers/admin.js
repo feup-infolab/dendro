@@ -249,3 +249,19 @@ module.exports.reindex = function (req, res)
             }
         });
 };
+
+module.exports.configuration = function (req, res)
+{
+    const configFilePath = Pathfinder.absPathInApp("conf/deployment_configs");
+    if (req.originalMethod === "GET")
+    {
+        const config = require(configFilePath);
+        res.json(config);
+    }
+    else if (req.originalMethod === "POST")
+    {
+        const config = JSON.parse(req.body);
+        const fs = require("fs");
+        fs.writeFileSync(configFilePath, JSON.stringify(config, null, 4));
+    }
+};

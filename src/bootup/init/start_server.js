@@ -18,7 +18,7 @@ const startServer = function (app, server, callback)
     app.use(haltOnTimedout);
     server.listen(app.get("port"), function ()
     {
-        Logger.log_boot_message("Express server listening on port " + app.get("port"));
+        Logger.log_boot_message("Dendro server listening on port " + app.get("port"));
         callback(null);
     });
 };

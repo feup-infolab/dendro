@@ -360,7 +360,9 @@
       "dcterms",
       "bdv",
       "research",
-      "hdg"
+      "hdg",
+      "ddiup",
+      "discovery"
     ],
     "authentication": {
       "default": {

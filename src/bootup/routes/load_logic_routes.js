@@ -100,6 +100,8 @@ const loadRoutes = function (app, callback)
     // admin area
     app.get("/admin", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.home);
     app.post("/admin/reindex", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.reindex);
+    app.get("/admin/config", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.configuration);
+    app.post("/admin/config", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.configuration);
 
     // low-level sparql endpoint
     // TODO

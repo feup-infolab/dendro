@@ -24,7 +24,6 @@ let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const startApp = function ()
 {
-
     if (global.app_startup_time)
     {
         Logger.init(global.app_startup_time);
@@ -346,12 +345,13 @@ if (process.env.NODE_ENV === "production")
 {
     // avoid running more instances than the number of cores in the system
     const os = require("os");
-    if(os.cpus().length < Config.numCPUs)
+    if (os.cpus().length < Config.numCPUs)
     {
         Logger.log_boot_message(`The number of instances specified ( ${Config.numCPUs} ) exceeds the number of cores (physical or virtual) available in this machine (${os.cpus().length} cores)! Reducing the number of instances to ${os.cpus().length}.`);
         Config.numCPUs = os.cpus().length;
     }
 
+    // master instance will start the slaves and exit.
     if (!Config.runningAsSlave)
     {
         Logger.log("info", `Starting master process with PID ${process.pid}...`);
