@@ -7,6 +7,7 @@ function Config ()
 
 const fs = require("fs");
 const path = require("path");
+const _ = require("underscore");
 const isNull = require("../../utils/null.js").isNull;
 
 const Pathfinder = global.Pathfinder;
@@ -758,6 +759,34 @@ Config.email = getConfigParameter("email");
 Config.analytics_tracking_code = getConfigParameter("analytics_tracking_code");
 
 Config.public_ontologies = getConfigParameter("public_ontologies");
+
+// from https://github.com/lodash/lodash/issues/1743
+/**
+ * Returns TRUE if the first specified array contains all elements
+ * from the second one. FALSE otherwise.
+ *
+ * @param {array} superset
+ * @param {array} subset
+ *
+ * @returns {boolean}
+ */
+function arrayContainsArray (superset, subset) {
+    if (0 === subset.length) {
+        return false;
+    }
+    return subset.every(function (value) {
+        return (superset.indexOf(value) >= 0);
+    });
+}
+
+// if we have unparametrized prefixes in the public ontologies inside deployment_configs.json, dendro should crash immediately
+if(!arrayContainsArray(Object.keys(Config.enabledOntologies), Config.public_ontologies))
+{
+
+    const msg = `The public_ontologies value in deployment_configs contains prefixes not parametrized in the list of enabled ontologies in config.js. : ${_.difference(Config.public_ontologies, Object.keys(Config.enabledOntologies))}`;
+    Logger.log("error", msg);
+    throw new Error(msg);
+}
 
 Config.regex_routes = {
     project_root:

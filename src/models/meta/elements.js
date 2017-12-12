@@ -3021,7 +3021,7 @@ Elements.ontologies.po =
 /**
  * Elements of the Discovery
  */
-Elements.disco =
+Elements.ontologies.disco =
     {
         computationBase:
             {
@@ -3033,7 +3033,7 @@ Elements.disco =
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-        numberOfCases:
+        caseQuantity:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
@@ -3053,53 +3053,53 @@ Elements.disco =
 /**
  * Elements of the ddiup
  */
-Elements.ddiup = {
-    dataCollection:
+Elements.ontologies.ddiup = {
+    data_collection:
             {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    scaleReference:
+    scale_reference:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    scaleDomain:
+    scale_domain:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    scaleDimension:
+    scale_dimension:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    dependentDimension:
+    dependent_dimension:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    independenteDimension:
+    independent_dimension:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    sampleSize:
+    sample_size:
             {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    deviationFromSampleDesign:
+    deviation_from_sample_design:
             {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    samplingProcedure:
+    sampling_procedure:
             {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    timeMethod:
+    time_method:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
@@ -3109,17 +3109,17 @@ Elements.ddiup = {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    analysisUnit:
+    analysis_unit:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    basedOn:
+    based_on:
             {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    collectionMode:
+    collection_mode:
             {
                 type: Elements.types.string,
                 control: Controls.markdown_box
@@ -3129,7 +3129,7 @@ Elements.ddiup = {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    dataFile:
+    data_file:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
@@ -3139,7 +3139,7 @@ Elements.ddiup = {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    kindOfData:
+    kind_of_data:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
@@ -3159,27 +3159,27 @@ Elements.ddiup = {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    responseDomain:
+    response_domain:
             {
                 type: Elements.types.string,
                 control: Controls.markdown_box
             },
-    statisticsCategory:
+    statistics_category:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    statisticsDataFile:
+    statistics_data_file:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    statisticsVariable:
+    statistics_variable:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    summaryStatisticsType:
+    summary_statistics_type:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
@@ -3194,7 +3194,7 @@ Elements.ddiup = {
                 type: Elements.types.string,
                 control: Controls.input_box
             },
-    weightedBy:
+    weighted_by:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
