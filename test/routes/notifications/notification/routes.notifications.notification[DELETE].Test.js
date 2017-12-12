@@ -16,7 +16,6 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const versionUtils = require(Pathfinder.absPathInTestsFolder("utils/versions/versionUtils.js"));
 const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
@@ -37,9 +36,9 @@ let notificationToDelete;
 
 describe("Delete a specific notification tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
         {
@@ -207,7 +206,7 @@ describe("Delete a specific notification tests", function ()
     after(function (done)
     {
         // destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

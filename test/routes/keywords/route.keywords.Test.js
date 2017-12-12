@@ -47,7 +47,6 @@ describe("Searches DBpedia for important terms", function (done)
 
     describe("[GET] /keywords/conceptextraction", function ()
     {
-        /*
         it("Should upload a PDF file successfully and extract its text for content-based indexing", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -82,7 +81,7 @@ describe("Searches DBpedia for important terms", function (done)
                     });
                 });
             });
-        });*/
+        });
         it("[HTML] Simple test to extract POS and lemma", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

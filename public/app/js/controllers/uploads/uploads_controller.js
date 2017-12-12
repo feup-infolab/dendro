@@ -34,7 +34,7 @@ angular.module("dendroApp.controllers")
                 $scope.invalidFiles = [];
 
                 $scope.isResumeSupported = false; // Upload.isResumeSupported(); //TODO Enable this
-                $scope.chunkSize = "1MB";
+                $scope.chunkSize = "20MB";
 
                 const cleanUploadFilesListByPropertyAndValue = function (property, value, timeout)
                 {
@@ -370,22 +370,22 @@ angular.module("dendroApp.controllers")
                 });
 
                 $scope.init = function (
-                    upload_url_function,
+                    upload_url,
                     files_array_name,
                     invalid_files_array_name,
                     upload_files_successful_array_name,
                     uploads_callback,
                     move_to_success_timeout)
                 {
-                    if (typeof upload_url_function === "function")
+                    if (typeof upload_url === "function")
                     {
-                        $scope.get_uploads_url_function = upload_url_function;
+                        $scope.get_upload_url = upload_url;
                     }
-                    else if (typeof upload_url_function === "string")
+                    else if (typeof upload_url === "string")
                     {
-                        $scope.get_uploads_url_function = function ()
+                        $scope.get_upload_url = function ()
                         {
-                            return upload_url_function;
+                            return upload_url;
                         };
                     }
 
@@ -396,6 +396,10 @@ angular.module("dendroApp.controllers")
                     $scope.upload_files_successful_array_name = upload_files_successful_array_name;
                     $scope.move_to_success_timeout = move_to_success_timeout;
 
+                    /* $scope.get_restore_url = function ()
+                    {
+                        return URI($scope.get_current_url()).addSearch("restore").toString();
+                    };
                     $scope.get_upload_url = function ()
                     {
                         return URI($scope.get_uploads_url_function()).addSearch("upload").toString();
@@ -407,7 +411,7 @@ angular.module("dendroApp.controllers")
                     $scope.get_restart_url = function ()
                     {
                         return URI($scope.get_uploads_url_function()).addSearch("restart").toString();
-                    };
+                    };*/
 
                     $scope.activate_watches();
                 };

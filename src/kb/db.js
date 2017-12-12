@@ -63,7 +63,7 @@ const queryObjectToString = function (query, argumentsArray, callback)
                     transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
                     break;
                 case Elements.types.string:
-                    transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
+                    transformedQuery = transformedQuery.replace(pattern, "'''" + currentArgument.value + "'''");
                     break;
                 case Elements.types.int:
                     transformedQuery = transformedQuery.replace(pattern, currentArgument.value);
@@ -168,7 +168,15 @@ const queryObjectToString = function (query, argumentsArray, callback)
             {
                 Logger.log("error", "Error processing argument " + currentArgumentIndex + " in query: \n----------------------\n\n" + transformedQuery + "\n----------------------");
                 Logger.log("error", "Value of Argument " + currentArgumentIndex + ": " + currentArgument.value);
-                Logger.log("error", e.stack);
+                if (!isNull(e.stack))
+                {
+                    Logger.log("error", e.stack);
+                }
+                else
+                {
+                    Logger.log("error", JSON.stringify(e));
+                }
+
                 throw e;
             }
         }
@@ -292,22 +300,29 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
 
     const releaseConnection = function (connection, callback)
     {
-        self.pool.release(connection, function (err, connection)
+        if (!isNull(self.pool))
         {
-            if (isNull(err))
+            self.pool.release(connection, function (err, connection)
             {
-                delete self.pendingRequests[queryId];
-                delete self.pendingRequests[queryId];
-                callback(err);
-            }
-            else
-            {
-                Logger.log("error", "Error releasing JDBC connection on pool of database " + self.id);
-                Logger.log("error", JSON.stringify(err));
-                Logger.log("error", JSON.stringify(connection));
-                callback(err, connection);
-            }
-        });
+                if (isNull(err))
+                {
+                    delete self.pendingRequests[queryId];
+                    delete self.pendingRequests[queryId];
+                    callback(null);
+                }
+                else
+                {
+                    Logger.log("error", "Error releasing JDBC connection on pool of database " + self.id);
+                    Logger.log("error", JSON.stringify(err));
+                    Logger.log("error", JSON.stringify(connection));
+                    callback(err, connection);
+                }
+            });
+        }
+        else
+        {
+            callback(null);
+        }
     };
 
     const executeQueryOrUpdate = function (connection, callback)
@@ -432,6 +447,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         }
         else
         {
+            // giving error but works... go figure. Commenting for now.
             const msg = "Error occurred while reserving connection from JDBC connection pool of database " + self.handle;
             Logger.log("error", err.message);
             Logger.log("error", err.stack);
@@ -659,8 +675,9 @@ DbConnection.prototype.create = function (callback)
             url: "jdbc:virtuoso://" + self.host + ":" + self.port_isql + "/UID=" + self.username + "/PWD=" + self.password + "/PWDTYPE=cleartext" + "/CHARSET=UTF-8",
             drivername: "virtuoso.jdbc4.Driver",
             maxpoolsize: self.maxSimultaneousConnections,
+            minpoolsize: 1,
             // 10 seconds idle time
-            maxidle: 1000 * 10,
+            // maxidle: 1000 * 10,
             properties: {}
         };
 
@@ -825,7 +842,6 @@ DbConnection.prototype.create = function (callback)
                         Logger.log("error", "Query " + queryObject.query_id + " Failed!\n" + queryObject.query + "\n");
                         const error = "Virtuoso server returned error: \n " + util.inspect(err);
                         Logger.log("error", error);
-                        console.trace(err);
                         recordQueryConclusionInLog(queryObject);
                         popQueueCallback(1, error);
                         queryObject.callback(1, error);
@@ -966,14 +982,35 @@ DbConnection.prototype.close = function (callback)
     {
         async.mapSeries(self.queue_jdbc, function (queryObject, callback)
         {
-            queryObject.connection.release(callback);
+            if (!isNull(queryObject))
+            {
+                if (!isNull(queryObject.connection))
+                {
+                    queryObject.connection.release(callback);
+                }
+                else
+                {
+                    callback(null, null);
+                }
+            }
+            else
+            {
+                callback(null, null);
+            }
         }, function (err, results)
         {
-            self.pool.purge(function (err, result)
+            if (!isNull(self.pool))
             {
-                delete self.pool;
-                callback(err, result);
-            });
+                self.pool.purge(function (err, result)
+                {
+                    delete self.pool;
+                    callback(err, result);
+                });
+            }
+            else
+            {
+                callback(null);
+            }
         });
     };
 

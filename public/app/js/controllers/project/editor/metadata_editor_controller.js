@@ -93,6 +93,16 @@ angular.module("dendroApp.controllers")
                 {
                     var descriptor_clone = $scope.shared.metadata[i];
                     descriptor_clone.recommendedFor = currentUri;
+                    // Removes the descriptor values that are marked as deleted
+                    if (descriptor_clone.value instanceof Array && descriptor_clone.valuesMarkedAsDeleted instanceof Object)
+                    {
+                        var descriptorValues = _.reject(descriptor_clone.value, function (value)
+                        {
+                            var result = descriptor_clone.valuesMarkedAsDeleted[value];
+                            return result;
+                        });
+                        descriptor_clone.value = descriptorValues;
+                    }
 
                     if (!descriptor_clone.just_deleted)
                     {
@@ -317,9 +327,9 @@ angular.module("dendroApp.controllers")
             });
         };
 
-        $scope.toggle_datepicker = function (descriptorIndex)
+        $scope.toggle_datepicker = function (descriptorIndex, valueIndex)
         {
-            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
+            /* if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
             {
                 if ($scope.shared.metadata[descriptorIndex].datepicker_uuid == null)
                 {
@@ -327,6 +337,35 @@ angular.module("dendroApp.controllers")
                 }
 
                 var datepickerUUID = $scope.shared.metadata[descriptorIndex].datepicker_uuid;
+
+                if ($scope.open_datepickers == null)
+                {
+                    $scope.open_datepickers = {};
+                }
+
+                if ($scope.open_datepickers[datepickerUUID])
+                {
+                    $scope.open_datepickers[datepickerUUID] = false;
+                }
+                else
+                {
+                    $scope.open_datepickers[datepickerUUID] = true;
+                }
+            }*/
+
+            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
+            {
+                if ($scope.shared.metadata[descriptorIndex].datepicker_uuids == null)
+                {
+                    $scope.shared.metadata[descriptorIndex].datepicker_uuids = [];
+                    $scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex] = UUIDjs.create().hex;
+                }
+                else if ($scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex] == null)
+                {
+                    $scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex] = UUIDjs.create().hex;
+                }
+
+                var datepickerUUID = $scope.shared.metadata[descriptorIndex].datepicker_uuids[valueIndex];
 
                 if ($scope.open_datepickers == null)
                 {
@@ -396,9 +435,29 @@ angular.module("dendroApp.controllers")
             }
         };
 
-        $scope.get_map_src = function (descriptor, key)
+        $scope.get_map_src = function (descriptor, key, descriptorValueIndex)
         {
-            return "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value;
+            var mapSrc;
+            if (descriptor === null || descriptor.value === null)
+            {
+                throw new Error("Map source is required!!!");
+            }
+            else if (descriptor.value instanceof Array)
+            {
+                if (descriptorValueIndex !== null)
+                {
+                    mapSrc = "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value[descriptorValueIndex];
+                }
+                else
+                {
+                    throw new Error("Map value is an array, descriptorValueIndex is required for this case");
+                }
+            }
+            else if (typeof descriptor.value === "string" || descriptor.value instanceof String)
+            {
+                mapSrc = "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value;
+            }
+            return mapSrc;
         };
 
         $scope.shared.descriptor_is_filled_in = function (descriptor)

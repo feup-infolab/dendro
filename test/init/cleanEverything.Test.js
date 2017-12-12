@@ -28,9 +28,9 @@ let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units
 
 describe("Initial clean-up...", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         bootupUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -43,7 +43,7 @@ describe("Initial clean-up...", function ()
         it("Should destroy all test graphs", function (done)
         {
             // destroy graphs
-            this.timeout(Config.testsTimeout);
+
             appUtils.clearAppState(function (err, data)
             {
                 should.equal(err, null);

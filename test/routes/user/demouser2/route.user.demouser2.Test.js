@@ -14,12 +14,12 @@ const createUserUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder(
 
 describe("/user/demouser2", function (done)
 {
+    this.timeout(Config.testsTimeout);
     const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
     const falseUser = "demouser404";
 
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createUserUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -155,7 +155,6 @@ describe("/user/demouser2", function (done)
 
     after(function (done)
     {
-        this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

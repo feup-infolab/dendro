@@ -27,9 +27,9 @@ const allFiles = createFilesUnit.filesData;
 
 describe("Private project testFolder1 ?rename", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createFilesUnit.setup(function (err, results)
         {
             should.equal(err, null);

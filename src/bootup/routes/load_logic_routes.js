@@ -15,7 +15,7 @@ const sendResponse = require(Pathfinder.absPathInSrcFolder("/bootup/middleware/s
 // app's own requires
 const index = require(Pathfinder.absPathInSrcFolder("/controllers/index"));
 const users = require(Pathfinder.absPathInSrcFolder("/controllers/users"));
-const vertexes = require(Pathfinder.absPathInSrcFolder("/controllers/vertexes"));
+const search = require(Pathfinder.absPathInSrcFolder("/controllers/search"));
 const admin = require(Pathfinder.absPathInSrcFolder("/controllers/admin"));
 const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects"));
 const files = require(Pathfinder.absPathInSrcFolder("/controllers/files"));
@@ -95,18 +95,14 @@ const loadRoutes = function (app, callback)
 
     app.get("/analytics_tracking_code", index.analytics_tracking_code);
 
-    // nodes
-    app.get("/vertexes", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), vertexes.all);
-    app.get("/vertexes/random", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), vertexes.random);
-    app.get("/vertexes/show", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), vertexes.show);
-
     // search
-    app.get("/search", vertexes.search);
+    app.get("/search", search.search);
 
     // admin area
     app.get("/admin", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.home);
-    app.get("/admin/reindex", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.reindex);
-    app.get("/admin/reload", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.reload);
+    app.post("/admin/reindex", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.reindex);
+    app.get("/admin/config", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.configuration);
+    app.post("/admin/config", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.configuration);
 
     // low-level sparql endpoint
     // TODO
@@ -664,6 +660,13 @@ const loadRoutes = function (app, callback)
                 ],
                 all:
               [
+                  // restore operation
+                  {
+                      queryKeys: ["restore"],
+                      handler: files.restore,
+                      permissions: modificationPermissions,
+                      authentication_error: "Permission denied : cannot restore a past version of the root of this project because you do not have permissions to modify it."
+                  },
                   // uploads
                   {
                       queryKeys: ["upload"],
@@ -1001,6 +1004,13 @@ const loadRoutes = function (app, callback)
                     }
                 ],
                 all: [
+                    // restore operation
+                    {
+                        queryKeys: ["restore"],
+                        handler: files.restore,
+                        permissions: modificationPermissionsBranch,
+                        authentication_error: "Permission denied : cannot restore a past version of the root of this project because you do not have permissions to modify it."
+                    },
                     // uploads
                     {
                         queryKeys: ["upload"],

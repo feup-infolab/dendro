@@ -117,7 +117,7 @@ const newExportRepoData = {
         title: "ckan2"
     },
     ddr: {
-        hasExternalUrl: "http://dendro-dev.fe.up.pt:5000",
+        hasExternalUrl: "http://dendro-prd.fe.up.pt",
         hasUsername: "nelsonpereira1991",
         hasOrganization: "organization-test1",
         hasAPIKey: "15f8dac8-6f95-4318-ae5d-9b390088484c",

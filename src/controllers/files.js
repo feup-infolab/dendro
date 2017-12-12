@@ -1137,44 +1137,17 @@ exports.upload = function (req, res)
 
 exports.restore = function (req, res)
 {
-    if (req.originalMethod === "GET")
+    const performRestore = function (err, restoreInfo)
     {
-        res.render("files/restore",
+        if (isNull(err))
+        {
+            const requestedResourceUri = req.params.requestedResourceUri;
+            if (!isNull(restoreInfo) && restoreInfo instanceof Array && restoreInfo.length === 1)
             {
-
-            }
-        );
-    }
-    else if (req.originalMethod === "POST")
-    {
-        const requestedResourceUri = req.params.requestedResourceUri;
-
-        req.form.on("error", function (err)
-        {
-            res.status(500).json(
-                {
-                    result: "error",
-                    message: "an error occurred on file upload"
-                });
-        });
-
-        req.form.on("aborted", function ()
-        {
-            res.status(500).json(
-                {
-                    result: "aborted",
-                    message: "request aborted by user"
-                });
-        });
-
-        req.form.on("end", function ()
-        {
-            if (!isNull(req.files) && req.files.files instanceof Array && req.files.files.length === 1)
-            {
-                const tempFilePath = req.files.files[0].path;
+                const tempFilePath = restoreInfo[0].path;
                 const file = new File({
                     nie: {
-                        title: req.files.files[0].name
+                        title: restoreInfo[0].name
                     }
                 });
 
@@ -1199,7 +1172,7 @@ exports.restore = function (req, res)
                                     {
                                         if (isNull(err))
                                         {
-                                            const msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + result;
+                                            const msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + JSON.stringify(result);
                                             Logger.log(msg);
 
                                             res.status(200).json(
@@ -1225,7 +1198,7 @@ exports.restore = function (req, res)
                                 }
                                 else
                                 {
-                                    const msg = "Error fetching currently logged in user during restore operation of zip file to folder " + requestedResourceUri + " : " + result;
+                                    const msg = "Error fetching currently logged in user during restore operation of zip file to folder " + requestedResourceUri + " : " + user;
                                     res.status(500).json(
                                         {
                                             result: "error",
@@ -1265,6 +1238,42 @@ exports.restore = function (req, res)
                     }
                 );
             }
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error",
+                    message: "Error  performing the restore of folder: " + req.params.requestedResourceUri + "with error: " + restoreInfo
+                }
+            );
+        }
+    };
+
+    if (!isNull(req.params.requestedResourceUri))
+    {
+        const uploader = new Uploader();
+        uploader.handleUpload(req, res, function (err, result)
+        {
+            if (isNull(err))
+            {
+                performRestore(err, result);
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "error",
+                    message: "Unable to perform the folder restore",
+                    error: "error"
+                });
+            }
+        });
+    }
+    else
+    {
+        res.status.json(400, {
+            result: "error",
+            message: "Unable to determine the folder to be restored"
         });
     }
 };
@@ -1712,7 +1721,7 @@ exports.undelete = function (req, res)
                     {
                         res.status(404).json({
                             result: "error",
-                            message: "Unable to find resource " + resourceToDelete
+                            message: "Unable to find resource " + resourceToUnDelete
                         });
                     }
                     else
@@ -1723,38 +1732,28 @@ exports.undelete = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    file.undelete(function (err, result)
+                                    if (!isNull(file) && file instanceof File)
                                     {
-                                        if (isNull(err))
+                                        file.undelete(function (err, result)
                                         {
-                                            res.status(200).json({
-                                                result: "success",
-                                                message: "Successfully undeleted " + resourceToUnDelete
-                                            });
-                                        }
-                                        else
-                                        {
-                                            res.status(500).json(
-                                                {
-                                                    result: "error",
-                                                    message: "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
-                                                }
-                                            );
-                                        }
-
-                                        callback(err);
-                                    });
+                                            if (isNull(err))
+                                            {
+                                                callback(null);
+                                            }
+                                            else
+                                            {
+                                                callback(err);
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        callback(resourceToUnDelete + " is not a file.");
+                                    }
                                 }
                                 else
                                 {
-                                    res.status(500).json(
-                                        {
-                                            result: "error",
-                                            message: "Unable to retrieve resource with uri " + resourceToUnDelete
-                                        }
-                                    );
-
-                                    callback(err);
+                                    callback("Unable to retrieve resource with uri " + resourceToUnDelete, false);
                                 }
                             });
                         }
@@ -1765,26 +1764,45 @@ exports.undelete = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    folder.undelete(function (err, result)
+                                    if (!isNull(folder) && folder instanceof Folder)
                                     {
-                                        if (isNull(err))
+                                        folder.undelete(function (err, result)
                                         {
-                                            res.status(200).json({
-                                                result: "success",
-                                                message: "Successfully undeleted " + resourceToUnDelete
-                                            });
-                                        }
-                                        else
-                                        {
-                                            res.status(500).json(
-                                                {
-                                                    result: "error",
-                                                    message: "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
-                                                }
-                                            );
-                                        }
+                                            if (isNull(err))
+                                            {
+                                                callback(null);
+                                            }
+                                            else
+                                            {
+                                                callback(err);
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        // not a folder, we will try to undelete a file with this uri
+                                        callback(resourceToUnDelete + " is not a folder.");
+                                    }
+                                }
+                                else
+                                {
+                                    callback("Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + folder);
+                                }
+                            });
+                        }
 
-                                        callback(err);
+                        async.tryEach([
+                            unDeleteFolder,
+                            undeleteFile
+                        ], function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                if (isNull(err))
+                                {
+                                    res.status(200).json({
+                                        result: "success",
+                                        message: "Successfully undeleted " + resourceToUnDelete
                                     });
                                 }
                                 else
@@ -1792,20 +1810,21 @@ exports.undelete = function (req, res)
                                     res.status(500).json(
                                         {
                                             result: "error",
-                                            message: "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + folder
+                                            message: "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
                                         }
                                     );
-
-                                    callback(err);
                                 }
-                            });
-                        }
-
-                        const async = require("async");
-                        async.tryEach([
-                            unDeleteFolder,
-                            undeleteFile
-                        ]);
+                            }
+                            else
+                            {
+                                res.status(500).json(
+                                    {
+                                        result: "error",
+                                        message: "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
+                                    }
+                                );
+                            }
+                        });
                     }
                 }
                 else
@@ -2720,18 +2739,44 @@ exports.rename = function (req, res)
 
                         ie.nie.title = newName + parsed.ext;
 
-                        ie.save(function (err, result)
+                        ie.needsRenaming(function (err, shouldRename)
                         {
                             if (isNull(err))
                             {
-                                res.json({
-                                    result: "ok",
-                                    message: "File successfully renamed."
-                                });
+                                if (shouldRename === false)
+                                {
+                                    ie.save(function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            res.json({
+                                                result: "ok",
+                                                message: "File successfully renamed."
+                                            });
+                                        }
+                                        else
+                                        {
+                                            const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(result);
+                                            Logger.log("error", error);
+                                            res.status(500).json({
+                                                result: "error",
+                                                message: error
+                                            });
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    let errorMessage = "There already exists a resource with the name " + ie.nie.title + " in this location" + ", please try another name!";
+                                    res.status(412).json({
+                                        result: "error",
+                                        message: errorMessage
+                                    });
+                                }
                             }
                             else
                             {
-                                const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(result);
+                                const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(shouldRename);
                                 Logger.log("error", error);
                                 res.status(500).json({
                                     result: "error",
@@ -2888,6 +2933,41 @@ const checkIfFilesExist = function (files, callback)
     });
 };
 
+const checkIfDestinationIsNotTheSameAsMovedFilesParents = function (filesToMove, targetFolder, callback)
+{
+    async.mapSeries(filesToMove, function (fileToMove, callback)
+    {
+        fileToMove.getParent(function (err, parent)
+        {
+            if (isNull(err))
+            {
+                if (!isNull(parent) && parent instanceof Folder)
+                {
+                    if (parent.uri !== targetFolder.uri)
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        callback(3, "Cannot move a folder or resource to the same place where it already is. In this case, folder " + fileToMove.uri + " is already in " + targetFolder.uri);
+                    }
+                }
+                else
+                {
+                    callback(3, "Error while determining the parent of resource " + fileToMove.uri + ". It has a null parent!");
+                }
+            }
+            else
+            {
+                return callback(2, "Unable to determine the parent of resource " + filesToMove.uri + " when validating if it is already inside the destination folder.");
+            }
+        });
+    }, function (err, results)
+    {
+        callback(err, results);
+    });
+};
+
 const checkIfDestinationIsNotContainedByAnySource = function (filesToMove, targetFolder, callback)
 {
     async.mapSeries(filesToMove, function (fileToMove, callback)
@@ -2902,12 +2982,12 @@ const checkIfDestinationIsNotContainedByAnySource = function (filesToMove, targe
                 }
                 else
                 {
-                    callback(3, "Cannot move a folder or resource to inside itself!. In this case, folder " + targetFolder.uri + " is contained in " + fileToMove.uri);
+                    callback(4, "Cannot move a folder or resource to inside itself!. In this case, folder " + targetFolder.uri + " is contained in " + fileToMove.uri);
                 }
             }
             else
             {
-                return callback(2, "Resource " + fileUri + " does not exist.");
+                return callback(3, "Resource " + fileUri + " does not exist.");
             }
         });
     }, function (err, results)
@@ -2956,36 +3036,50 @@ exports.cut = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    checkIfDestinationIsNotContainedByAnySource(filesToBeMoved, targetFolder, function (err, result)
+                                    checkIfDestinationIsNotTheSameAsMovedFilesParents(filesToBeMoved, targetFolder, function (err, result)
                                     {
                                         if (isNull(err))
                                         {
-                                            checkIfUserHasPermissionsOverFiles(req, permissions, filesToBeMoved, function (err, hasPermissions)
+                                            checkIfDestinationIsNotContainedByAnySource(filesToBeMoved, targetFolder, function (err, result)
                                             {
                                                 if (isNull(err))
                                                 {
-                                                    cutResources(filesToBeMoved, targetFolder, function (err, result)
+                                                    checkIfUserHasPermissionsOverFiles(req, permissions, filesToBeMoved, function (err, hasPermissions)
                                                     {
                                                         if (isNull(err))
                                                         {
-                                                            return res.json({
-                                                                result: "ok",
-                                                                message: "Files moved successfully"
+                                                            cutResources(filesToBeMoved, targetFolder, function (err, result)
+                                                            {
+                                                                if (isNull(err))
+                                                                {
+                                                                    return res.json({
+                                                                        result: "ok",
+                                                                        message: "Files moved successfully"
+                                                                    });
+                                                                }
+                                                                return res.status(500).json({
+                                                                    result: "error",
+                                                                    message: "An error occurred while moving files.",
+                                                                    error: result
+                                                                });
                                                             });
                                                         }
-                                                        return res.status(500).json({
-                                                            result: "error",
-                                                            message: "An error occurred while moving files.",
-                                                            error: result
-                                                        });
+                                                        else
+                                                        {
+                                                            return res.status(500).json({
+                                                                result: "error",
+                                                                message: "An error occurred while checking permissions over the files you are trying to move.",
+                                                                error: hasPermissions
+                                                            });
+                                                        }
                                                     });
                                                 }
                                                 else
                                                 {
-                                                    return res.status(500).json({
+                                                    return res.status(400).json({
                                                         result: "error",
-                                                        message: "An error occurred while checking permissions over the files you are trying to move.",
-                                                        error: hasPermissions
+                                                        message: "Cannot move a resource to inside itself.",
+                                                        error: result
                                                     });
                                                 }
                                             });
@@ -2994,7 +3088,7 @@ exports.cut = function (req, res)
                                         {
                                             return res.status(400).json({
                                                 result: "error",
-                                                message: "Cannot move a resource to inside itself.",
+                                                message: "Cannot move a resource to the same folder where it already is.",
                                                 error: result
                                             });
                                         }
@@ -3012,7 +3106,11 @@ exports.cut = function (req, res)
                         }
                         else
                         {
-
+                            return res.status(404).json({
+                                result: "error",
+                                error: err,
+                                message: "Unable to find target tolder!"
+                            });
                         }
                     }
                     else

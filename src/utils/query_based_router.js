@@ -109,7 +109,15 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
                     req.permissions_management.reasons_for_authorizing.length > 0
                 )
                 {
-                    matchingRoute.handler(req, res);
+                    if (typeof matchingRoute.handler === "function")
+                    {
+                        matchingRoute.handler(req, res);
+                    }
+                    else
+                    {
+                        Logger.log("error", "Matching route handler for route " + req.url + " is not a function!");
+                        next();
+                    }
                 }
                 else
                 {

@@ -46,7 +46,7 @@ angular.module("dendroApp.services")
                 }
                 else
                 {
-                    console.log("error","No handler registered for event " + event_object);
+                    console.log("error", "No handler registered for event " + event_object);
                 }
             }
 

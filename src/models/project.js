@@ -39,14 +39,17 @@ function Project (object)
         self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
     }
 
-    if (isNull(object.ddr.hasStorageLimit))
+    if (isNull(object.ddr != null))
     {
-        self.ddr.hasStorageLimit = Config.maxProjectSize;
-    }
+        if (object.ddr.hasStorageLimit)
+        {
+            self.ddr.hasStorageLimit = Config.maxProjectSize;
+        }
 
-    if (isNull(object.ddr.requiresVerifiedUploads))
-    {
-        self.ddr.requiresVerifiedUploads = false;
+        if (isNull(object.ddr.requiresVerifiedUploads))
+        {
+            self.ddr.requiresVerifiedUploads = false;
+        }
     }
 
     return self;
@@ -1136,7 +1139,7 @@ Project.prototype.getRevisionsCount = function (callback)
                 value: db.graphUri
             },
             {
-                type: Elements.ontologies.ddr.isLogicalPartOf.type,
+                type: Elements.ontologies.nie.isLogicalPartOf.type,
                 value: self.uri
             }
         ],

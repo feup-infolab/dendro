@@ -28,9 +28,9 @@ const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder
 
 describe("Backup Private project", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createFilesUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -42,7 +42,6 @@ describe("Backup Private project", function ()
     {
         it("Should give an error message when a project does not exist", function (done)
         {
-            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 should.equal(err, null);
@@ -56,7 +55,6 @@ describe("Backup Private project", function ()
 
         it("Should give an error when the user is not authenticated", function (done)
         {
-            this.timeout(Config.testsTimeout);
             const app = global.tests.app;
             const agent = chai.request.agent(app);
 
@@ -70,7 +68,6 @@ describe("Backup Private project", function ()
 
         it("Should give an error when the user is authenticated, but not as a creator nor contributor of the project", function (done)
         {
-            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
                 should.equal(err, null);
@@ -87,7 +84,6 @@ describe("Backup Private project", function ()
     {
         it("Should backup the private project correctly", function (done)
         {
-            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 projectUtils.bagit(agent, project.handle, function (err, res)

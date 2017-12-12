@@ -59,18 +59,12 @@ module.exports.setup = function (project, finish)
                 {
                     projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res)
                     {
-                        res.statusCode.should.equal(200);
                         async.mapSeries(res.body, function (folder, cb)
                         {
                             fileUtils.uploadFile(true, agent, project.handle, folder.nie.title, txtMockFile, function (err, res)
                             {
-                                res.statusCode.should.equal(200);
-                                res.body.should.be.instanceof(Array);
-                                res.body.length.should.equal(1);
-
                                 fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
                                 {
-                                    res.statusCode.should.equal(200);
                                     cb(error, res);
                                 });
                             });

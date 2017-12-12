@@ -1,5 +1,9 @@
 <%- include ../layout/header.ejs %>
 
+<h1 class="page-header">
+    System administration page
+</h1>
+
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
     <li class="active">
@@ -16,13 +20,20 @@
     <li>
         <a href="#actions" role="tab" data-toggle="tab">Actions</a>
     </li>
+    <!-- TODO -->
+    <li>
+        <a href="#configuration" role="tab" data-toggle="tab">Config</a>
+    </li>
 </ul>
 
 <!-- Tab panes -->
 <div class="tab-content">
-    <div class="tab-pane active" id="ontologies" ng-controller="ontologiesCtrl">
+    <div class="tab-pane active" id="ontologies" ng-controller="ontologiesCtrl" ng-init="init()">
         <div class="row">
             <div class="col-lg-12">
+                <h4 class="page-header">
+                    Editing ontologies
+                </h4>
                 <%- include ../ontologies/edit.ejs %>
             </div>
         </div>
@@ -38,6 +49,9 @@
     <div class="tab-pane" id="research_domains" ng-controller="researchDomainsCtrl">
         <div class="row">
             <div class="col-lg-12">
+                <h4 class="page-header">
+                    Editing research domains
+                </h4>
                 <%- include ../research_domains/edit.ejs %>
             </div>
         </div>
@@ -45,77 +59,113 @@
     <div class="tab-pane" id="actions">
         <div class="row">
             <div class="col-lg-12">
-                <h1 class="page-header">
+                <h4 class="page-header">
                     Actions
-                </h1>
+                </h4>
             </div>
         </div>
         <div class="tab-pane" id="actions">
-            <div class="well">
-                <h4>Load resources from locally stored datasets</h4>
-                <form action="/admin/reload" method="get">
-                    <p class="help-block">Select the graphs you want to reload</p>
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <label class="checkbox">
-                                <input type="checkbox" name="graphs[dbpedia]" value="dbpedia" checked>DBpedia</input>
-                            </label>
-                        </div>
-                        <div class="col-lg-9">
-                            <label class="checkbox">
-                                <input type="checkbox" name="graphs_to_delete[dbpedia]" value="1" checked>Delete existing</input>
-                            </label>
-                        </div>
-                    </div>
+            <!--<div class="well">-->
+                <!--<h4>Load resources from locally stored datasets</h4>-->
+                <!--<form action="/admin/reload" method="get">-->
+                    <!--<p class="help-block">Select the graphs you want to reload</p>-->
+                    <!--<div class="row">-->
+                        <!--<div class="col-lg-3">-->
+                            <!--<label class="checkbox">-->
+                                <!--<input type="checkbox" name="graphs[dbpedia]" value="dbpedia" checked>DBpedia</input>-->
+                            <!--</label>-->
+                        <!--</div>-->
+                        <!--<div class="col-lg-9">-->
+                            <!--<label class="checkbox">-->
+                                <!--<input type="checkbox" name="graphs_to_delete[dbpedia]" value="1" checked>Delete existing</input>-->
+                            <!--</label>-->
+                        <!--</div>-->
+                    <!--</div>-->
 
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <label class="checkbox">
-                                <input type="checkbox" name="graphs[dryad]" value="dryad" checked>Dryad</input>
-                            </label>
-                        </div>
-                        <div class="col-lg-9">
-                            <label class="checkbox">
-                                <input type="checkbox" name="graphs_to_delete[dryad]" value="1" checked>Delete existing</input>
-                            </label>
-                        </div>
-                    </div>
+                    <!--<div class="row">-->
+                        <!--<div class="col-lg-3">-->
+                            <!--<label class="checkbox">-->
+                                <!--<input type="checkbox" name="graphs[dryad]" value="dryad" checked>Dryad</input>-->
+                            <!--</label>-->
+                        <!--</div>-->
+                        <!--<div class="col-lg-9">-->
+                            <!--<label class="checkbox">-->
+                                <!--<input type="checkbox" name="graphs_to_delete[dryad]" value="1" checked>Delete existing</input>-->
+                            <!--</label>-->
+                        <!--</div>-->
+                    <!--</div>-->
 
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <label class="checkbox">
-                                <input type="checkbox" name="graphs[freebase]" value="freebase" checked>Freebase</input>
-                            </label>
-                        </div>
-                        <div class="col-lg-9">
-                            <label class="checkbox">
-                                <input type="checkbox" name="graphs_to_delete[freebase]" value="1" checked>Delete existing</input>
-                            </label>
-                        </div>
-                    </div>
+                    <!--<div class="row">-->
+                        <!--<div class="col-lg-3">-->
+                            <!--<label class="checkbox">-->
+                                <!--<input type="checkbox" name="graphs[freebase]" value="freebase" checked>Freebase</input>-->
+                            <!--</label>-->
+                        <!--</div>-->
+                        <!--<div class="col-lg-9">-->
+                            <!--<label class="checkbox">-->
+                                <!--<input type="checkbox" name="graphs_to_delete[freebase]" value="1" checked>Delete existing</input>-->
+                            <!--</label>-->
+                        <!--</div>-->
+                    <!--</div>-->
 
-                    <input type="submit" value="Proceed" class="btn btn-primary">
+                    <!--<input type="submit" value="Proceed" class="btn btn-primary">-->
+                <!--</form>-->
+            <!--</div>-->
+            <!--</div>-->
+
+            <h3>Reindex all resources from a graph</h3>
+            <div class="help-block">if your search box is not working properly, reindex the resources in the database.</div>
+            <div class="form-group">
+                <form action="/admin/reindex" method="post">
+                    <%
+                        var keys = Object.keys(db);
+                        for (var i = 0; i < keys.length; i++) {
+
+                        var graph = db[keys[i]];
+
+                    %>
+                        <div class="row">
+                            <div class="col-xs-12" class="form-control">
+                                <strong>Graph <%=graph.graphHandle%></strong>
+                            </div>
+                            <div class="col-xs-12" class="form-control">
+                                <label for="reindex_<%=graph.graphHandle%>_graph_checkbox">Reindex</label>
+                                <input type="checkbox" id="reindex_<%=graph.graphHandle%>_graph_checkbox" name="graphs_to_reindex[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label for="reindex_<%=graph.graphHandle%>_graph_checkbox">Force delete index before reindexing</label>
+                                <input type="checkbox" id="delete_<%=graph.graphHandle%>_checkbox" name="graphs_to_delete[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>
+                            </div>
+                        </div>
+                    <% } %>
+                    <input type="submit" value="Reindex" class="btn btn-primary">
+
+                    <p class="help-block">Select the graphs you want to reindex</p>
                 </form>
             </div>
+        </div>
+    </div>
 
-            <div class="well">
-                <h4>Reindex all resources from a graph (to enable free-text search)</h4>
-                <form action="/admin/reindex" method="get">
-                    <p class="help-block">Select the graphs you want to reindex</p>
+    <div class="tab-pane active" id="configuration" ng-controller="configurationController" ng-init="init()">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4 class="page-header">
+                    Editing Configuration
+                </h4>
 
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <label class="checkbox">
-                                <input type="checkbox" name="graphs[dendro]" value="dendro" checked>Dendro (Working Graph)</input>
-                            </label>
-                        </div>
-                        <div class="col-lg-9">
-                            <label class="checkbox">
-                                <input type="checkbox" name="graphs_to_delete[dendro]" value="1" checked>Delete existing index (will not delete base data)</input>
-                            </label>
-                        </div>
-                    </div>
-                </form>
+                <div ng-model="serverConfiguration" ui-ace="{
+                      useWrapMode : true,
+                      showGutter: false,
+                      theme:'twilight',
+                      mode: 'json',
+                      firstLineNumber: 5,
+                      onLoad: aceLoaded,
+                      onChange: aceChanged
+                    }"></div>
+
+                <button ng-click="saveConfiguration" class="btn btn-sm btn-primary">Save</button>
             </div>
         </div>
     </div>

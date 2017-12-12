@@ -184,7 +184,7 @@ describe("Private project testFolder1 ?rename", function ()
         after(function (done)
         {
         // destroy graphs
-            this.timeout(Config.testsTimeout);
+
             appUtils.clearAppState(function (err, data)
             {
                 should.equal(err, null);
@@ -197,7 +197,6 @@ describe("Private project testFolder1 ?rename", function ()
     {
         beforeEach(function (done)
         {
-            this.timeout(Config.testsTimeout);
             createFilesUnit.setup(function (err, results)
             {
                 should.equal(err, null);
@@ -314,7 +313,7 @@ describe("Private project testFolder1 ?rename", function ()
         afterEach(function (done)
         {
             // destroy graphs
-            this.timeout(Config.testsTimeout);
+
             appUtils.clearAppState(function (err, data)
             {
                 should.equal(err, null);

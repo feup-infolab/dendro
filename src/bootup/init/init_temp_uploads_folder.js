@@ -8,7 +8,6 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const initTempUploadsFolder = function (app, callback)
 {
     let fs = require("fs");
-    let registeredUncaughtExceptionHandler;
 
     // create temporary uploads folder if not exists
     let tempUploadsFolder = Config.tempUploadsDir;
