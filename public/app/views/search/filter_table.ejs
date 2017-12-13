@@ -1,5 +1,5 @@
 
-<div class="form-group sidebar-item" ng-repeat="item in attr() track by $index">
+<div class="form-group sidebar-item" ng-repeat="item in $eval(attr()) track by $index">
     <label>
         {{item.label}}
             <div ng-if="item.type === 'dropdown'">
