@@ -395,11 +395,6 @@ const loadRoutes = function (app, callback)
     app.get("/external_repositories", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), repo_bookmarks.all);
     app.post("/external_repositories/sword_collections", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), datasets.sword_collections);
     app.post("/external_repositories/new", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.new);
-    // keywords
-    app.get("/keywords/preprocessing", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.preprocessing);
-    app.post("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
-    app.get("/keywords/dbpedialookup", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpedialookup);
-    app.get("/keywords/loadfiles", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.loadfiles);
 
     app.get([
         getNonHumanReadableRouteRegex("archived_resource")
@@ -1410,6 +1405,12 @@ const loadRoutes = function (app, callback)
     app.post("/interactions/fill_in_inherited_descriptor", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.fill_in_inherited_descriptor);
 
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
+
+    // keywords
+    app.get("/keywords/preprocessing", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.preprocessing);
+    app.post("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
+    app.get("/keywords/dbpedialookup", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpedialookup);
+    app.get("/keywords/loadfiles", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.loadfiles);
 
     // serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);

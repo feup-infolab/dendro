@@ -125,7 +125,7 @@ describe("Searches DBpedia for important terms", function (done)
                     res.text.should.contain("introduction");
                     // console.log(res.text);
                     // res.text.should.contain("science");
-                  keywordsUtils.termextraction(res.text, artigo.toString(), agent, function (err, te)
+                    keywordsUtils.termextraction(res.text, artigo.toString(), agent, function (err, te)
                     {
                         te.statusCode.should.equal(200);
                         // te.text.should.contain("google");

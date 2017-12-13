@@ -43,24 +43,38 @@ module.exports.preprocessing = function (text, agent, cb)
 
 module.exports.termextraction = function (text, documents, agent, cb)
 {
-    console.log(text);
     const path = "/keywords/termextraction";
+
     agent
         .post(path)
-        .attach("text", new Buffer.from(JSON.stringify({text: text, documents: documents})))
         .set("Accept", "application/json")
-        .then(function (response, res)
+        .attach("documents", new Buffer.from(JSON.stringify({text: text, documents: documents})), "documents.json")
+        .end(function (err, res)
         {
-            if (response.ok)
-            {
-                cb(null, response);
-            }
-            else
-            {
-                cb("Error extracting terms.", response);
-            }
+            cb(err, res);
         });
 };
+
+// module.exports.termextraction = function (text, documents, agent, cb)
+// {
+//     console.log(text);
+//     const path = "/keywords/termextraction";
+//     agent
+//         .post(path)
+//         .attach("text", new Buffer.from(JSON.stringify({text: text, documents: documents})))
+//         .set("Accept", "application/json")
+//         .then(function (response, res)
+//         {
+//             if (response.ok)
+//             {
+//                 cb(null, response);
+//             }
+//             else
+//             {
+//                 cb("Error extracting terms.", response);
+//             }
+//         });
+// };
 
 module.exports.dbpedialookup = function (text, agent, cb)
 {

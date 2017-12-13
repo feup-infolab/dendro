@@ -1,6 +1,10 @@
 require("babel-polyfill");
-var async = require("async");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
+var async = require("async");
 var natural = require("natural");
 var tm = require("text-miner");
 
@@ -52,7 +56,7 @@ exports.preprocessing = function (req, res)
             var output = [];
             // console.log(JSON.parse(JSON.stringify(sent.sentences[0])).tokens);
             // console.log(output);
-            console.log(sent.text);
+            // console.log(sent.text);
             for (var i = 0; i < sent.sentences.length; i++)
             {
                 for (var j = 0; j < JSON.parse(JSON.stringify(sent.sentences[i])).tokens.length; j++)
@@ -172,56 +176,90 @@ exports.termextraction = function (req, res)
         }
         /*
 
-        		double log_2_lenD = (Math.log((double)len)/Math.log((double)2));
-		double freqD = (double) freq;
-		double invUniqNestersD = 1D / (double) uniqNesters;
-		double freqNestedD = (double) freqNested;
+        double log_2_lenD = (Math.log((double)len)/Math.log((double)2));
+        double freqD = (double) freq;
+        double invUniqNestersD = 1D / (double) uniqNesters;
+        double freqNestedD = (double) freqNested;
 
-		if (uniqNesters == 0) {
-			return log_2_lenD * freqD;
-		} else {
-			return log_2_lenD * (freqD - invUniqNestersD * freqNestedD);
+        if (uniqNesters == 0) {
+            return log_2_lenD * freqD;
+        } else {
+            return log_2_lenD * (freqD - invUniqNestersD * freqNestedD);
 
          */
     };
 
-    var TfIdf = natural.TfIdf;
-    var tfidf = new TfIdf();
-    var text = JSON.parse(req.body.text).result;
-    console.log("textero" + text);
-    var posnoums = [];
-    var score = [];
-    var out = [];
-    var values = [];
-    nounphrase(text, out);
-    cvalue(out, req.body.documents, values);
-    for (var i = 0; i < text.length; i++)
+    const uploader = new Uploader();
+    uploader.handleUpload(req, res, function (err, result)
     {
-        if (text[i].pos === "NN" || text[i].pos === "NNS" || text[i].pos === "NNP" || text[i].pos === "NNPS")
+        const fs = require("fs");
+        if (isNull(result) || !(result instanceof Array) || result.length !== 1)
         {
-            posnoums.push(text[i].lemma);
+            res.status(400).json(
+                {
+                    result: "error",
+                    message: "Unable to process document upload for term extraction."
+                }
+            );
         }
-    }
-    // console.log(rec.body.documents);
-    tfidf.addDocument(req.body.documents);
+        else
+        {
+            fs.readFile(result[0].path, "utf8", function (err, text)
+            {
+                text = JSON.parse(text);
+                const documents = text.documents;
+                if (isNull(err))
+                {
+                    console.log("textero" + text);
+                    var TfIdf = natural.TfIdf;
+                    var tfidf = new TfIdf();
+                    var posnoums = [];
+                    var score = [];
+                    var out = [];
+                    var values = [];
+                    nounphrase(text, out);
+                    cvalue(out, documents, values);
+                    for (var i = 0; i < text.length; i++)
+                    {
+                        if (text[i].pos === "NN" || text[i].pos === "NNS" || text[i].pos === "NNP" || text[i].pos === "NNPS")
+                        {
+                            posnoums.push(text[i].lemma);
+                        }
+                    }
+                    // console.log(rec.body.documents);
+                    tfidf.addDocument(documents);
 
-    for (var p = 0; p < posnoums.length; p++)
-    {
-        tfidf.tfidfs(posnoums[p], function (i, measure)
-        {
-            // console.log("word " + posnoums[p] + " in document #" + i + " has a TF-IDF value of " + measure);
-            score.push(measure);
-        });
-    }
-    /* for (var j = 0; j < posnoums.length; j++)
-    {
-        console.log("noun: " + posnoums[j] + " score: " + score[j]);
-    }*/
-    res.json(
-        {
-            words: posnoums, measures: score
+                    for (var p = 0; p < posnoums.length; p++)
+                    {
+                        tfidf.tfidfs(posnoums[p], function (i, measure)
+                        {
+                            // console.log("word " + posnoums[p] + " in document #" + i + " has a TF-IDF value of " + measure);
+                            score.push(measure);
+                        });
+                    }
+                    /* for (var j = 0; j < posnoums.length; j++)
+                    {
+                        console.log("noun: " + posnoums[j] + " score: " + score[j]);
+                    }*/
+                    res.json(
+                        {
+                            words: posnoums, measures: score
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(400).json(
+                        {
+                            result: "error",
+                            message: "Unable to read uploaded file for term extraction.",
+                            error: text
+                        }
+                    );
+                }
+            });
         }
-    );
+    });
 };
 
 var search = function (lookup, cb)
