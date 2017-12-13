@@ -267,7 +267,7 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
                             }
                             else
                             {
-                                callback(true, "Error: Parent of :  " + self.uri + " is neither a folder nor project");
+                                callback(true, "Error: Parent (with uri: " + parentUri + ") of :" + self.uri + " is neither a folder nor project");
                             }
                         }
                         else
