@@ -70,6 +70,24 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
                       value: true,
                     }
                   ]
+                },
+                ordering: {
+                  type: "dropdown",
+                  list: true,
+                  label: "Order By",
+                  key: "order",
+                  selected: "Date",
+                  value: [
+                    {
+                      name: "Date",
+                    },
+                    {
+                      name: "Username",
+                    },
+                    {
+                      name: "Project",
+                    }
+                  ]
                 }
 
                 /*offset: 0,
@@ -169,21 +187,15 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
     .directive("searchBar", function (
 
     ) {
-        //let searchParameters = $scope.search();
         return {
-          template: "<div class=\"form-group\" ng-repeat=\"item in search track by $index\">\n" +
-          "        <label>\n" +
-          "            {{item.label}}\n" +
-          "            <div ng-if=\"item.list\" ng-repeat=\"iterator in item.value track by $index\">\n" +
-          "                <label>\n" +
-          "                    {{iterator.name}}\n" +
-          "                    <input ng-model=\"iterator.value\" ng-change=\"getRegistry()\" ng-model-options=\"{debounce : 500}\" type=\"{{item.type}}\">\n" +
-          "                </label>\n" +
-          "            </div>\n" +
-          "\n" +
-          "            <input ng-if=\"!item.list\" ng-model=\"item.value\" ng-change=\"getRegistry()\" ng-model-options=\"{debounce : 500}\" type=\"{{item.type}}\">\n" +
-          "\n" +
-          "        </label>\n" +
-          "    </div>"
-        }
+          restrict: "ACE",
+          scope: true,
+          replace: true,
+          templateUrl: "/app/views/search/filter_table.ejs",
+          link: function(scope, elem, attr){
+            scope.attr = function(){
+              return attr.searchmodel;
+            }
+          }
+        };
     });

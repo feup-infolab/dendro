@@ -75,10 +75,8 @@ exports.allowed = function (req, callback) {
         params.dateFrom = dateFormat(params.dateFrom, "isoDateTime");
     if(!isNull(params.dateTo)){
         let nextDay = new Date(params.dateTo);
-        //params.dateTo = dateFormat(params.dateTo, "isoDate") + "T23:59:99.999Z";
-
-        //sparql is stupid does not
-        params.dateTo = dateFormat(params.dateTo, "isoDateTime");
+        nextDay.setDate(nextDay.getDate() + 1);
+        params.dateTo = dateFormat(nextDay, "isoDateTime");
     }
     Deposit.createQuery(params, function(err, results){
         callback(err, results);
