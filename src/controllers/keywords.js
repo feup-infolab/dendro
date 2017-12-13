@@ -32,10 +32,10 @@ exports.loadfiles = function (rec, res)
         }
     );
 };
-exports.preprocessing = function (rec, res)
+exports.preprocessing = function (req, res)
 {
     var my_corpus = new tm.Corpus([]);
-    my_corpus.addDoc(rec.body.text);
+    my_corpus.addDoc(req.body.text);
     // my_corpus.clean();
     my_corpus.toLower();
     // my_corpus.removeWords(tm.STOPWORDS.EN);
@@ -83,7 +83,7 @@ exports.preprocessing = function (rec, res)
         });
 };
 
-exports.termextraction = function (rec, res)
+exports.termextraction = function (req, res)
 {
     var nounphrase = function (text, re)
     {
@@ -187,14 +187,14 @@ exports.termextraction = function (rec, res)
 
     var TfIdf = natural.TfIdf;
     var tfidf = new TfIdf();
-    var text = JSON.parse(rec.body.text).result;
-    // console.log(text);
+    var text = JSON.parse(req.body.text).result;
+    console.log("textero" + text);
     var posnoums = [];
     var score = [];
     var out = [];
     var values = [];
     nounphrase(text, out);
-    cvalue(out, rec.body.documents, values);
+    cvalue(out, req.body.documents, values);
     for (var i = 0; i < text.length; i++)
     {
         if (text[i].pos === "NN" || text[i].pos === "NNS" || text[i].pos === "NNP" || text[i].pos === "NNPS")
@@ -203,7 +203,7 @@ exports.termextraction = function (rec, res)
         }
     }
     // console.log(rec.body.documents);
-    tfidf.addDocument(rec.body.documents);
+    tfidf.addDocument(req.body.documents);
 
     for (var p = 0; p < posnoums.length; p++)
     {

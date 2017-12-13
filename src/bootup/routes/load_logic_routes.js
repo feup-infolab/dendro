@@ -397,10 +397,9 @@ const loadRoutes = function (app, callback)
     app.post("/external_repositories/new", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.new);
     // keywords
     app.get("/keywords/preprocessing", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.preprocessing);
-    app.get("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
+    app.post("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
     app.get("/keywords/dbpedialookup", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpedialookup);
     app.get("/keywords/loadfiles", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.loadfiles);
-
 
     app.get([
         getNonHumanReadableRouteRegex("archived_resource")
