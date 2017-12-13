@@ -10,7 +10,7 @@ const connector = new corenlp.ConnectorServer({
     dsn: "http://localhost:9000"
 });
 const props = new corenlp.Properties({
-    annotators: "tokenize,ssplit,pos,ner,parse",
+    annotators: "tokenize,ssplit,pos,ner",
     "ssplit.isOneSentence": "false"
 });
 const pipeline = new corenlp.Pipeline(props, "English", connector);
@@ -124,6 +124,65 @@ exports.termextraction = function (rec, res)
         const result = [...new Set(multiterm.map(obj => JSON.stringify(obj)))]
             .map(str => JSON.parse(str));
         console.log(result);
+        out = result;
+    };
+
+    var occurences = function (string, subString, allowOverlapping)
+    {
+        string = String(string);
+        subString = String(subString);
+        if (subString.length <= 0) return (string.length + 1);
+
+        var n = 0,
+            pos = 0,
+            step = allowOverlapping ? 1 : subString.length;
+
+        while (true)
+        {
+            pos = string.indexOf(subString, pos);
+            if (pos >= 0)
+            {
+                ++n;
+                pos += step;
+            }
+            else break;
+        }
+        return n;
+    };
+    function count (list, x)
+    {
+        var c = 0;
+        for (var y = 0; y < list.length; y++)
+        {
+            if (list[y].toString().includes(x.toString()) && list[y].toString() !== x.toString())
+            {
+                c++;
+            }
+        }
+        return c;
+    }
+    var cvalue = function (input, corpus, output)
+    {
+        for (var j = 0; j < input.length; j++)
+        {
+            console.log(corpus.toString());
+            console.log(input[j].toString());
+            console.log(occurences(corpus.toString(), input[j].toString()));
+            console.log(input[j] + " : " + count(input, input[j]));
+        }
+        /*
+
+        		double log_2_lenD = (Math.log((double)len)/Math.log((double)2));
+		double freqD = (double) freq;
+		double invUniqNestersD = 1D / (double) uniqNesters;
+		double freqNestedD = (double) freqNested;
+
+		if (uniqNesters == 0) {
+			return log_2_lenD * freqD;
+		} else {
+			return log_2_lenD * (freqD - invUniqNestersD * freqNestedD);
+
+         */
     };
 
     var TfIdf = natural.TfIdf;
@@ -132,8 +191,10 @@ exports.termextraction = function (rec, res)
     // console.log(text);
     var posnoums = [];
     var score = [];
-    var out;
+    var out = [];
+    var values = [];
     nounphrase(text, out);
+    cvalue(out, rec.body.documents, values);
     for (var i = 0; i < text.length; i++)
     {
         if (text[i].pos === "NN" || text[i].pos === "NNS" || text[i].pos === "NNP" || text[i].pos === "NNPS")
@@ -205,7 +266,10 @@ exports.dbpedialookup = function (rec, res)
     var dbpediaresults = {
         result: []
     };
-    async.map(lookup, search, function (err, results)
+    const lookup2 = [...new Set(lookup.map(obj => JSON.stringify(obj)))]
+        .map(str => JSON.parse(str));
+
+    async.map(lookup2, search, function (err, results)
     {
         if (err)
         {
