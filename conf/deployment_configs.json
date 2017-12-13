@@ -249,15 +249,15 @@
     },
     "startup": {
       "load_databases": false,
-      "reload_administrators_on_startup": true,
-      "reload_demo_users_on_startup": true,
+      "reload_administrators_on_startup": false,
+      "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
-      "clear_session_store": true,
+      "clear_session_store": false,
       "log_bootup_actions" : true,
-      "destroy_all_graphs": true,
-      "destroy_all_indexes": true,
-      "destroy_files_store": true,
-      "destroy_datastore": true
+      "destroy_all_graphs": false,
+      "destroy_all_indexes": false,
+      "destroy_files_store": false,
+      "destroy_datastore": false
     },
     "baselines": {
     },

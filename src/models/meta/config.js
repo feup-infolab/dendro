@@ -820,4 +820,11 @@ if (process.env.NODE_ENV === "production")
     }
 }
 
+Config.toJSONObject = function()
+{
+    const CircularJSON = require("circular-json");
+    const string = CircularJSON.stringify(_.extend({}, Config));
+    return JSON.parse(string);
+};
+
 module.exports.Config = Config;

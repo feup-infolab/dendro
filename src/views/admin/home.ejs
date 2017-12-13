@@ -22,7 +22,10 @@
     </li>
     <!-- TODO -->
     <li>
-        <a href="#configuration" role="tab" data-toggle="tab">Config</a>
+        <a href="#view_server_configuration" role="tab" data-toggle="tab">Server configuration</a>
+    </li>
+    <li>
+        <a href="#edit_server_configuration" role="tab" data-toggle="tab">Edit configuration</a>
     </li>
 </ul>
 
@@ -148,14 +151,42 @@
         </div>
     </div>
 
-    <div class="tab-pane active" id="configuration" ng-controller="configurationController" ng-init="init()">
+    <div class="tab-pane active" id="view_server_configuration" ng-controller="dendroConfigurationController" ng-init="init()">
         <div class="row">
             <div class="col-lg-12">
-                <h4 class="page-header">
-                    Editing Configuration
+                <h4>
+                    Current server configuration
                 </h4>
 
-                <div ng-model="serverConfiguration" ui-ace="{
+                <div class="dendro_config_code_editor"
+                     ng-model="runningConfiguration" ui-ace="{
+                      useWrapMode : true,
+                      theme:'twilight',
+                      mode: 'json',
+                      readonly: true,
+                      showGutter: false,
+                      firstLineNumber: 5
+                    }"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane active" id="edit_server_configuration" ng-controller="dendroConfigurationController" ng-init="init()">
+        <div class="row">
+            <div class="col-lg-12">
+                <h4>
+                    Edit configuration file
+                </h4>
+
+                <div class="dendro_config_code_editor"
+                     ng-model="serverConfiguration" ui-ace="{
+                      useWrapMode : true,
+                      theme:'twilight',
+                      mode: 'json',
+                      firstLineNumber: 5
+                    }"></div>
+
+                <!--<div ng-model="serverConfiguration" ui-ace="{
                       useWrapMode : true,
                       showGutter: false,
                       theme:'twilight',
@@ -164,8 +195,19 @@
                       onLoad: aceLoaded,
                       onChange: aceChanged
                     }"></div>
+                -->
+                <br/>
+                <br/>
+                <br/>
+                <button ng-click="saveConfiguration" class="btn btn-sm btn-danger">Update configuration</button>
+                <div class="help-block">Updates the server configuration
+                    <br/>
+                    <strong>Be sure to keep a backup to restore in via SSH if your configuration ends up with errors! If there are errors, Dendro will FAIL to start up!</strong>
+                </div>
 
-                <button ng-click="saveConfiguration" class="btn btn-sm btn-primary">Save</button>
+                <button ng-click="restartServer" class="btn btn-sm btn-primary">Restart server</button>
+                <div class="help-block">Restarts Dendro. The service will be momentarily unavailable.
+                </div>
             </div>
         </div>
     </div>

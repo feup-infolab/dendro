@@ -7,9 +7,10 @@ angular.module("dendroApp.controllers")
         $scope.getConfiguration = function ()
         {
             dendroConfigurationService.getConfiguration()
-                .then(function (response)
+                .then(function (configuration)
                 {
-                    $scope.serverConfiguration = response.data;
+                    $scope.serverConfiguration = JSON.stringify(configuration.deployment_configs, null, 4);
+                    $scope.runningConfiguration = JSON.stringify(configuration.config, null, 4);
                 });
         };
 

@@ -253,10 +253,16 @@ module.exports.reindex = function (req, res)
 module.exports.configuration = function (req, res)
 {
     const configFilePath = Pathfinder.absPathInApp("conf/deployment_configs");
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+    const util = require("util");
     if (req.originalMethod === "GET")
     {
         const config = require(configFilePath);
-        res.json(config);
+
+        res.json({
+            deployment_configs: config,
+            config: Config.toJSONObject()
+        });
     }
     else if (req.originalMethod === "POST")
     {
