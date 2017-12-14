@@ -1,6 +1,7 @@
 const path = require("path");
 const async = require("async");
 const pm2 = require("pm2");
+let Q = require("q");
 
 const self = this;
 
@@ -24,6 +25,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
+let serverListeningPromise = Q.defer();
 
 const reloadPM2Slave = exports.reloadPM2Slave = function (cb)
 {
@@ -140,13 +142,10 @@ const startApp = function ()
      */
 
     let express = require("express");
-    let Q = require("q");
 
     /**
      * Promise for reporting the bootup operation.
      */
-
-    let serverListeningPromise = Q.defer();
 
     self.app = express();
 
@@ -412,10 +411,7 @@ const startApp = function ()
                 result: result
             });
         }
-    }
-    );
-
-    exports.serverListening = serverListeningPromise.promise;
+    });
 };
 
 if (isNull(process.env.NODE_ENV) && !isNull(Config.environment))
@@ -458,3 +454,5 @@ else
         }
     });
 }
+
+exports.serverListening = serverListeningPromise.promise;
