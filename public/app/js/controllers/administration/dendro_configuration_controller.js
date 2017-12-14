@@ -35,7 +35,8 @@ angular.module("dendroApp.controllers")
                     $scope.combinedLog = logs.combined;
                     $scope.errorLog = logs.error;
                 })
-                .catch(function (error){
+                .catch(function (error)
+                {
                     Utils.show_popup("error", "Error", error.message);
                     $scope.autoRefreshLogs = false;
                 });
@@ -66,11 +67,11 @@ angular.module("dendroApp.controllers")
             storageService.save_to_local_storage("autoRefreshLogs", $scope.autoRefreshLogs);
         };
 
-        $scope.periodicLogRefresh = function()
+        $scope.periodicLogRefresh = function ()
         {
-            setTimeout(function()
+            setTimeout(function ()
             {
-                if($scope.autoRefreshLogs)
+                if ($scope.autoRefreshLogs)
                 {
                     $scope.getLogs();
                     $scope.periodicLogRefresh();

@@ -45,7 +45,7 @@ angular.module("dendroApp.services")
             return $http({
                 method: "GET",
                 url: "/admin/logs",
-                params: {lines : nLines},
+                params: {lines: nLines},
                 responseType: "json",
                 headers: {Accept: "application/json"}
             })

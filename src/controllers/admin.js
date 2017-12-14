@@ -1,4 +1,6 @@
 const path = require("path");
+const slug = require("slug");
+const mkdirp = require("mkdirp");
 const pm2 = require("pm2");
 const _ = require("underscore");
 const async = require("async");
@@ -255,10 +257,11 @@ module.exports.reindex = function (req, res)
 module.exports.logs = function (req, res)
 {
     let lines = 30;
-    try{
+    try
+    {
         lines = parseInt(req.query.lines);
     }
-    catch(e)
+    catch (e)
     {
         res.status(400).json({
             result: "error",
@@ -280,11 +283,12 @@ module.exports.logs = function (req, res)
             {
                 if (!err)
                 {
-                    description = _.find(description, function(description){
+                    description = _.find(description, function (description)
+                    {
                         return description.pid === process.pid;
                     });
 
-                    if(!isNull(description))
+                    if (!isNull(description))
                     {
                         const readLastLines = require("read-last-lines");
                         async.series([
@@ -400,23 +404,41 @@ module.exports.configuration = function (req, res)
         else if (req.originalMethod === "POST")
         {
             const config = req.body;
-            fs.writeFile(configFilePath, JSON.stringify(config, null, 4), function (err, result)
+            mkdirp(Pathfinder.absPathInApp("conf/deployment_config_backups"), function (err)
             {
-                if (!err)
+                // destination.txt will be created or overwritten by default
+                fs.copyFile(configFilePath, path.join(Pathfinder.absPathInApp("conf/deployment_config_backups"), path.basename(configFilePath) + "_" + slug(new Date().toISOString()) + ".bak"), function (err)
                 {
-                    res.json({
-                        result: "ok",
-                        message: "Configuration updated successfully."
-                    });
-                }
-                else
-                {
-                    res.status(500).json({
-                        result: "error",
-                        message: "Error updating configuration!",
-                        error: err
-                    });
-                }
+                    if (isNull(err))
+                    {
+                        fs.writeFile(configFilePath, JSON.stringify(config, null, 4), function (err, result)
+                        {
+                            if (!err)
+                            {
+                                res.json({
+                                    result: "ok",
+                                    message: "Configuration updated successfully."
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result: "error",
+                                    message: "Error updating configuration!",
+                                    error: err
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "error",
+                            message: "Error making backup of configuration!",
+                            error: err
+                        });
+                    }
+                });
             });
         }
     }
