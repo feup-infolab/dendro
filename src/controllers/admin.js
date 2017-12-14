@@ -1,8 +1,10 @@
 const path = require("path");
+const pm2 = require("pm2");
 const _ = require("underscore");
 const async = require("async");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const fs = require("fs");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
@@ -252,22 +254,99 @@ module.exports.reindex = function (req, res)
 
 module.exports.configuration = function (req, res)
 {
-    const configFilePath = Pathfinder.absPathInApp("conf/deployment_configs");
-    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-    const util = require("util");
-    if (req.originalMethod === "GET")
+    if(process.env.NODE_ENV === "production")
     {
-        const config = require(configFilePath);
+        const configFilePath = Pathfinder.absPathInApp("conf/deployment_configs.json");
+        const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+        if (req.originalMethod === "GET")
+        {
+            pm2.connect(function (err)
+            {
+                if (err)
+                {
+                    console.error(err);
+                    process.exit(2);
+                }
 
-        res.json({
-            deployment_configs: config,
-            config: Config.toJSONObject()
+                pm2.describe(Config.pm2AppName, function(err, description){
+                    if(!err)
+                    {
+                        fs.readFile(configFilePath, function(err, config){
+                            if(!err)
+                            {
+                                res.json({
+                                    deployment_configs: JSON.parse(config),
+                                    config: Config.toJSONObject(),
+                                    pm2_description: description
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result : "error",
+                                    message :"Error getting PM2 status!",
+                                    error : err
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result : "error",
+                            message :"Error updating configuration!",
+                            error : err
+                        });
+                    }
+
+                });
+            });
+        }
+        else if (req.originalMethod === "POST")
+        {
+            const config = req.body;
+            fs.writeFile(configFilePath, JSON.stringify(config, null, 4), function(err, result){
+                if(!err)
+                {
+                    res.json({
+                        result : "ok",
+                        message :"Configuration updated successfully."
+                    });
+                }
+                else
+                {
+                    res.status(500).json({
+                        result : "error",
+                        message :"Error updating configuration!",
+                        error : err
+                    });
+                }
+            });
+        }
+    }
+    else
+    {
+        res.status(400).json({
+            result : "error",
+            message : "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
         });
     }
-    else if (req.originalMethod === "POST")
+};
+
+module.exports.restartServer = function (req, res)
+{
+    if(process.env.NODE_ENV === "production")
     {
-        const config = JSON.parse(req.body);
-        const fs = require("fs");
-        fs.writeFileSync(configFilePath, JSON.stringify(config, null, 4));
+        require(Pathfinder.absPathInSrcFolder("app.js")).reloadPM2Slave(function ()
+        {
+            process.kill(process.pid, "SIGINT");
+        });
+    }
+    else
+    {
+        res.status(400).json({
+            result : "error",
+            message : "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
+        });
     }
 };

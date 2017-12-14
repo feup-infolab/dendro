@@ -1,5 +1,6 @@
 const path = require("path");
-let async = require("async");
+const async = require("async");
+const pm2 = require("pm2");
 
 const self = this;
 
@@ -21,6 +22,69 @@ Pathfinder.appDir = appDir;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
+Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
+
+const reloadPM2Slave = exports.reloadPM2Slave = function(cb)
+{
+    pm2.connect(function (err)
+    {
+        if (err)
+        {
+            console.error(err);
+            process.exit(2);
+        }
+
+        pm2.gracefulReload(function (err)
+        {
+
+        });
+    });
+}
+
+const startPM2Master = exports.startPM2Master = function(cb)
+{
+    pm2.connect(function (err)
+    {
+        if (err)
+        {
+            console.error(err);
+            process.exit(2);
+        }
+
+        pm2.delete(Config.pm2AppName, function (err)
+        {
+            pm2.start({
+                // Script to be run
+                script: path.join(appDir, "src", "app.js"),
+                // Allows your app to be clustered
+                exec_mode: "cluster",
+                name: Config.pm2AppName,
+                // Optional: Scales your app by X
+                instances: (isNull(Config.numCPUs)) ? "max" : Config.numCPUs,
+                // max_memory_restart : '1024M'   // Optional: Restarts your app if it reaches 100Mo
+                args: ["--pm2_slave=1"],
+                out_file: Logger.getLogFilePath(),
+                error_file: Logger.getErrorLogFilePath(),
+                merge_logs: true,
+                cwd: appDir
+            }, function (err, apps)
+            {
+                // Disconnects from PM2
+                pm2.disconnect();
+                if (err)
+                {
+                    throw err;
+                }
+
+                if(typeof cb === "function")
+                {
+                    cb();
+                }
+            });
+        });
+    });
+}
 
 const startApp = function ()
 {
@@ -356,45 +420,7 @@ if (process.env.NODE_ENV === "production")
     {
         Logger.log("info", `Starting master process with PID ${process.pid}...`);
         Logger.log("info", `Using ${Config.numCPUs} app instances...`);
-        const pm2 = require("pm2");
-
-        pm2.connect(function (err)
-        {
-            if (err)
-            {
-                console.error(err);
-                process.exit(2);
-            }
-
-            const appName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
-
-            pm2.delete(appName, function (err)
-            {
-                pm2.start({
-                    // Script to be run
-                    script: path.join(appDir, "src", "app.js"),
-                    // Allows your app to be clustered
-                    exec_mode: "cluster",
-                    name: appName,
-                    // Optional: Scales your app by X
-                    instances: (isNull(Config.numCPUs)) ? "max" : Config.numCPUs,
-                    // max_memory_restart : '1024M'   // Optional: Restarts your app if it reaches 100Mo
-                    args: ["--pm2_slave=1"],
-                    out_file: Logger.getLogFilePath(),
-                    error_file: Logger.getErrorLogFilePath(),
-                    merge_logs: true,
-                    cwd: appDir
-                }, function (err, apps)
-                {
-                    // Disconnects from PM2
-                    pm2.disconnect();
-                    if (err)
-                    {
-                        throw err;
-                    }
-                });
-            });
-        });
+        startPM2Master();
     }
     else
     {

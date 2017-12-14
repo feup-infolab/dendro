@@ -158,12 +158,30 @@
                     Current server configuration
                 </h4>
 
+                <button ng-click="getConfiguration()" class="btn btn-sm btn-primary">Reload configuration</button>
+                <div class="help-block">Reload the server configuration
+                </div>
+
                 <div class="dendro_config_code_editor"
                      ng-model="runningConfiguration" ui-ace="{
                       useWrapMode : true,
                       theme:'twilight',
                       mode: 'json',
-                      readonly: true,
+                      readOnly: true,
+                      showGutter: false,
+                      firstLineNumber: 5
+                    }"></div>
+
+                <h4>
+                    Process description (PM2)
+                </h4>
+
+                <div class="dendro_config_code_editor"
+                     ng-model="pm2Description" ui-ace="{
+                      useWrapMode : true,
+                      theme:'twilight',
+                      mode: 'json',
+                      readOnly: true,
                       showGutter: false,
                       firstLineNumber: 5
                     }"></div>
@@ -174,6 +192,20 @@
     <div class="tab-pane active" id="edit_server_configuration" ng-controller="dendroConfigurationController" ng-init="init()">
         <div class="row">
             <div class="col-lg-12">
+                <h4>
+                    Save changes
+                </h4>
+
+                <button ng-click="saveConfiguration()" class="btn btn-sm btn-danger">Update configuration</button>
+                <div class="help-block">Updates the server configuration
+                    <br/>
+                    <strong>Be sure to keep a backup to restore in via SSH if your configuration ends up with errors! If there are errors, Dendro will FAIL to start up!</strong>
+                </div>
+
+                <button ng-click="restartServer()" class="btn btn-sm btn-primary">Restart server</button>
+                <div class="help-block">Restarts Dendro. The service will be momentarily unavailable.
+                </div>
+
                 <h4>
                     Edit configuration file
                 </h4>
@@ -196,18 +228,6 @@
                       onChange: aceChanged
                     }"></div>
                 -->
-                <br/>
-                <br/>
-                <br/>
-                <button ng-click="saveConfiguration" class="btn btn-sm btn-danger">Update configuration</button>
-                <div class="help-block">Updates the server configuration
-                    <br/>
-                    <strong>Be sure to keep a backup to restore in via SSH if your configuration ends up with errors! If there are errors, Dendro will FAIL to start up!</strong>
-                </div>
-
-                <button ng-click="restartServer" class="btn btn-sm btn-primary">Restart server</button>
-                <div class="help-block">Restarts Dendro. The service will be momentarily unavailable.
-                </div>
             </div>
         </div>
     </div>

@@ -11,12 +11,13 @@ angular.module("dendroApp.controllers")
                 {
                     $scope.serverConfiguration = JSON.stringify(configuration.deployment_configs, null, 4);
                     $scope.runningConfiguration = JSON.stringify(configuration.config, null, 4);
+                    $scope.pm2Description = JSON.stringify(configuration.pm2_description, null, 4);
                 });
         };
 
         $scope.saveConfiguration = function ()
         {
-            dendroConfigurationService.save($scope.serverConfiguration)
+            dendroConfigurationService.saveConfiguration($scope.serverConfiguration)
                 .then(function (data)
                 {
                     Utils.show_popup("success", "Saved", data.message);
@@ -28,9 +29,9 @@ angular.module("dendroApp.controllers")
                 });
         };
 
-        $scope.rebootServer = function ()
+        $scope.restartServer = function ()
         {
-            dendroConfigurationService.rebootServer();
+            dendroConfigurationService.restartServer();
         };
 
         $scope.init = function ()
