@@ -62,17 +62,14 @@ const loadMiscMiddlewares = function (app, callback)
 
     app.use(express.static(Pathfinder.getPathToPublicFolder()));
 
-    // all environments
-
-    const env = process.env.NODE_ENV || "development";
-
     app.set("title", "Dendro");
     app.set("theme", Config.theme);
-    app.use(session({
-        secret: appSecret,
-        resave: true,
-        saveUninitialized: true
-    }));
+
+    // app.use(session({
+    //     secret: appSecret,
+    //     resave: true,
+    //     saveUninitialized: true
+    // }));
 
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, true, {
         docExpansion: "list"
