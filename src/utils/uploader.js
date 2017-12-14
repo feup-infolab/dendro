@@ -415,33 +415,44 @@ Uploader.prototype.handleUpload = function (req, res, callback)
     {
         if (!isNull(username) && !isNull(filename) && !isNull(size) && !isNull(md5_checksum))
         {
-            if (!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
+            if(!isNull(upload))
             {
-                if (req.query.size && !isNaN(req.query.size) && req.query.size > 0)
+                if (!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
                 {
-                    processChunkedUpload(upload, function (err, result)
+                    if (req.query.size && !isNaN(req.query.size) && req.query.size > 0)
                     {
-                        if (isNull(err))
+                        processChunkedUpload(upload, function (err, result)
                         {
-                            Logger.log("Completed upload of file " + filename + " !! " + new Date().toISOString());
-                            callback(err, result);
-                        }
-                        else
-                        {
-                            res.status(err).json({
-                                result: "error",
-                                message: "There were errors processing your upload",
-                                error: result,
-                                files: fileNames
-                            });
-                        }
-                    });
+                            if (isNull(err))
+                            {
+                                Logger.log("Completed upload of file " + filename + " !! " + new Date().toISOString());
+                                callback(err, result);
+                            }
+                            else
+                            {
+                                res.status(err).json({
+                                    result: "error",
+                                    message: "There were errors processing your upload",
+                                    error: result,
+                                    files: fileNames
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(412).json({
+                            result: "error",
+                            message: "Invalid file size! You cannot upload empty files!"
+                        });
+                    }
                 }
                 else
                 {
-                    res.status(412).json({
+                    res.status(400).json({
                         result: "error",
-                        message: "Invalid file size! You cannot upload empty files!"
+                        message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
+                        files: fileNames
                     });
                 }
             }
@@ -449,8 +460,8 @@ Uploader.prototype.handleUpload = function (req, res, callback)
             {
                 res.status(400).json({
                     result: "error",
-                    message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
-                    files: fileNames
+                    message: "Unable to find upload with id " + upload_id + " !",
+                    error: "Unable to find upload with id " + upload_id + " !"
                 });
             }
         }
