@@ -415,7 +415,7 @@ Uploader.prototype.handleUpload = function (req, res, callback)
     {
         if (!isNull(username) && !isNull(filename) && !isNull(size) && !isNull(md5_checksum))
         {
-            if(!isNull(upload))
+            if (!isNull(upload))
             {
                 if (!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
                 {
