@@ -260,6 +260,7 @@
             "level": "debug",
             "app_logs_folder": "logs/app",
             "log_all_requests": true,
+            "do_not_log_requests_to_public_assets": false,
             "log_emailing": false
         },
         "version": {
@@ -637,8 +638,8 @@
             "format": "combined",
             "app_logs_folder": "logs/app",
             "log_all_requests": true,
-            "log_emailing": false,
-            "custom_exception_logging": false
+            "do_not_log_requests_to_public_assets": true,
+            "log_emailing": false
         },
         "version": {
             "number": 0.2,
@@ -1013,8 +1014,8 @@
             "pipe_console_to_logfile": true,
             "app_logs_folder": "logs/app",
             "log_all_requests": true,
-            "log_emailing": false,
-            "custom_exception_logging": false
+            "do_not_log_requests_to_public_assets": true,
+            "log_emailing": false
         },
         "version": {
             "number": 0.2,

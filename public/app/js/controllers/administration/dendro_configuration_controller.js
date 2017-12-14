@@ -22,15 +22,11 @@ angular.module("dendroApp.controllers")
                 });
         };
 
-        $scope.saveNLinesOfLogToFetch = function()
-        {
-            storageService.save_to_local_storage("nLinesOfLogToFetch", $scope.nLinesOfLogToFetch);
-        };
-
         $scope.getLogs = function ()
         {
             $scope.fetchingLogs = true;
-            $scope.saveNLinesOfLogToFetch();
+            storageService.save_to_local_storage("nLinesOfLogToFetch", $scope.nLinesOfLogToFetch);
+            storageService.save_to_local_storage("millisecsLogRefresh", $scope.millisecsLogRefresh);
 
             dendroConfigurationService.getLogs($scope.nLinesOfLogToFetch)
                 .then(function (logs)
@@ -79,14 +75,16 @@ angular.module("dendroApp.controllers")
                     $scope.getLogs();
                     $scope.periodicLogRefresh();
                 }
-            }, 1000);
-        }
+            }, $scope.millisecsLogRefresh);
+        };
 
         $scope.init = function ()
         {
             $scope.set_from_local_storage_and_then_from_value("nLinesOfLogToFetch", 30, $scope);
             $scope.set_from_local_storage_and_then_from_value("autoRefreshLogs", false, $scope);
+            $scope.set_from_local_storage_and_then_from_value("millisecsLogRefresh", 10000, $scope);
             $scope.getConfiguration();
+            $scope.getLogs();
             $scope.periodicLogRefresh();
         };
     });

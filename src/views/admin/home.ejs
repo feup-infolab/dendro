@@ -52,9 +52,13 @@
 
                         <button ng-click="getLogs()" class="btn btn-sm btn-primary">Refresh logs</button>
                     </div>
-                    <div class="col-xs-4">
+                    <div class="col-xs-2">
                         <label for="n_lines_for_log_textbox">Number of lines to fetch</label>
                         <input type="text" class="form-control" ng-model="nLinesOfLogToFetch" id="n_lines_for_log_textbox"/>
+                    </div>
+                    <div class="col-xs-2">
+                        <label for="n_millisecs_for_log_refresh_textbox">mSec between refreshes</label>
+                        <input type="text" class="form-control" ng-model="millisecsLogRefresh" id="n_millisecs_for_log_refresh_textbox"/>
                     </div>
                 </div>
 
@@ -255,7 +259,7 @@
         </div>
     </div>
 
-    <div class="tab-pane active" id="edit_server_configuration" ng-controller="dendroConfigurationController" ng-init="init()">
+    <div class="tab-pane" id="edit_server_configuration" ng-controller="dendroConfigurationController" ng-init="init()">
         <div class="row">
             <div class="col-xs-12">
                 <h4>
