@@ -25,7 +25,7 @@ let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
 
-const reloadPM2Slave = exports.reloadPM2Slave = function(cb)
+const reloadPM2Slave = exports.reloadPM2Slave = function (cb)
 {
     pm2.connect(function (err)
     {
@@ -40,9 +40,26 @@ const reloadPM2Slave = exports.reloadPM2Slave = function(cb)
 
         });
     });
-}
+};
 
-const startPM2Master = exports.startPM2Master = function(cb)
+const killPM2InstancesIfRunning = exports.killPM2InstancesIfRunning = function (cb)
+{
+    pm2.connect(function (err)
+    {
+        if (err)
+        {
+            console.error(err);
+            process.exit(2);
+        }
+
+        pm2.delete(Config.pm2AppName, function (err)
+        {
+            cb(err);
+        });
+    });
+};
+
+const startPM2Master = exports.startPM2Master = function (cb)
 {
     pm2.connect(function (err)
     {
@@ -64,6 +81,7 @@ const startPM2Master = exports.startPM2Master = function(cb)
                 instances: (isNull(Config.numCPUs)) ? "max" : Config.numCPUs,
                 // max_memory_restart : '1024M'   // Optional: Restarts your app if it reaches 100Mo
                 args: ["--pm2_slave=1"],
+                logDateFormat: "YYYY-MM-DD HH:mm Z",
                 out_file: Logger.getLogFilePath(),
                 error_file: Logger.getErrorLogFilePath(),
                 merge_logs: true,
@@ -77,14 +95,14 @@ const startPM2Master = exports.startPM2Master = function(cb)
                     throw err;
                 }
 
-                if(typeof cb === "function")
+                if (typeof cb === "function")
                 {
                     cb();
                 }
             });
         });
     });
-}
+};
 
 const startApp = function ()
 {
@@ -225,12 +243,12 @@ const startApp = function ()
             function (callback)
             {
                 // init temporary files directory
-                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_folder.js")).initTempFilesFolder, self.app, callback);
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_folder.js")).initTempFilesFolder(self.app, callback);
             },
             function (callback)
             {
                 // init folder for temporary files
-                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder, self.app, callback);
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder(self.app, callback);
             },
             function (callback)
             {
@@ -430,5 +448,13 @@ if (process.env.NODE_ENV === "production")
 }
 else
 {
-    startApp();
+    killPM2InstancesIfRunning(function (err)
+    {
+        startApp();
+        if (!isNull(err))
+        {
+            const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
+            Logger.log("warn", msg);
+        }
+    });
 }

@@ -280,7 +280,8 @@ Logger.add_middlewares = function (app)
                     req.url.startsWith("/shared") ||
                     req.url.startsWith("/analytics_tracking_code") ||
                     req.url.startsWith("/images") ||
-                    req.url.startsWith("/js")
+                    req.url.startsWith("/js") ||
+                    req.url.startsWith("/admin/logs")
                 )
                 {
                     return true;
