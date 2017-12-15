@@ -895,21 +895,30 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     const absPath = path.join(absolutePathOfLocalFolder, fileName);
                     fs.stat(absPath, function (err, stats)
                     {
-                        if (stats.isFile())
+                        if (isNull(err))
                         {
-                            loadChildFile(fileName, function (err, savedChildFile)
+                            if (stats.isFile())
                             {
-                                // Logger.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
-                                return cb(err, savedChildFile);
-                            });
+                                loadChildFile(fileName, function (err, savedChildFile)
+                                {
+                                    // Logger.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
+                                    return cb(err, savedChildFile);
+                                });
+                            }
+                            else if (stats.isDirectory())
+                            {
+                                loadChildFolder(fileName, function (err, savedChildFolder)
+                                {
+                                    // Logger.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
+                                    return cb(err, savedChildFolder);
+                                });
+                            }
                         }
-                        else if (stats.isDirectory())
+                        else
                         {
-                            loadChildFolder(fileName, function (err, savedChildFolder)
-                            {
-                                // Logger.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
-                                return cb(err, savedChildFolder);
-                            });
+                            const msg = "Unable to determine the contents of folder " + self.uri + " when loading a the contents of a folder into it: " + JSON.stringify(err);
+                            Logger.log("error", msg);
+                            return cb(err, stats);
                         }
                     });
                 }, function (err, results)

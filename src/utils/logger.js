@@ -273,14 +273,18 @@ Logger.add_middlewares = function (app)
             // optional: allows to skip some log messages based on request and/or response
             ignoreRoute: function (req, res)
             {
+                const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
                 // do not log requests for public assets
-                if (req.url.startsWith("/bower_components") ||
+                if (
+                    Config.logging.do_not_log_requests_to_public_assets &&
+                    req.url.startsWith("/bower_components") ||
                     req.url.startsWith("/stylesheets") ||
                     req.url.startsWith("/app") ||
                     req.url.startsWith("/shared") ||
                     req.url.startsWith("/analytics_tracking_code") ||
                     req.url.startsWith("/images") ||
-                    req.url.startsWith("/js")
+                    req.url.startsWith("/js") ||
+                    req.url.startsWith("/admin/logs")
                 )
                 {
                     return true;

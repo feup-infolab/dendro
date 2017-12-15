@@ -22,24 +22,23 @@ angular.module("dendroApp.services")
 
                                 targetObject[namespace][key] = self.$storage[namespace][key];
                             }
-                        }
-                        else
-                        {
+
                             return self.$storage[namespace][key];
                         }
+
+                        return self.$storage[namespace][key];
                     }
-                    else // if(self.$storage[key] != null)
+
+                    if (targetObject != null)
                     {
-                        if (targetObject != null)
-                        {
-                            targetObject[key] = self.$storage[key];
-                        }
-                        else
-                        {
-                            return self.$storage[key];
-                        }
+                        targetObject[key] = self.$storage[key];
+                        return self.$storage[key];
                     }
+
+                    return self.$storage[key];
                 }
+
+                return null;
             };
 
             this.save_to_local_storage = function (key, value, namespace)

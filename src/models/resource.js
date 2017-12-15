@@ -2998,6 +2998,12 @@ Resource.prototype.getLogicalParts = function (callback)
 Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToRetain)
 {
     const self = this;
+    self.findMetadata(callback, typeConfigsToRetain, true);
+};
+
+Resource.prototype.findMetadata = function (callback, typeConfigsToRetain, recursive)
+{
+    const self = this;
     const async = require("async");
     const myDescriptors = self.getDescriptors(
         [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], typeConfigsToRetain
@@ -3025,34 +3031,68 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
 
                 if (children.length > 0)
                 {
-                    // 1st parameter in async.each() is the array of items
-                    async.each(children,
-                        // 2nd parameter is the function that each item is passed into
-                        function (child, callback)
-                        {
-                            // Call an asynchronous function
-                            child.findMetadataRecursive(function (err, result2)
+                    if (recursive)
+                    {
+                        // 1st parameter in async.each() is the array of items
+                        async.each(children,
+                            // 2nd parameter is the function that each item is passed into
+                            function (child, callback)
+                            {
+                                // Call an asynchronous function
+                                child.findMetadataRecursive(function (err, result2)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        metadataResult.hasLogicalParts.push(result2);
+                                        return callback(null);
+                                    }
+                                    Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                    return callback(err);
+                                }, typeConfigsToRetain);
+                            },
+                            // 3rd parameter is the function call when everything is done
+                            function (err)
                             {
                                 if (isNull(err))
                                 {
-                                    metadataResult.hasLogicalParts.push(result2);
-                                    return callback(null);
+                                    // All tasks are done now
+                                    return callback(null, metadataResult);
                                 }
-                                Logger.log("info", "[findMetadataRecursive] error accessing metadata of resource " + self.nie.title);
-                                return callback(err);
-                            }, typeConfigsToRetain);
-                        },
-                        // 3rd parameter is the function call when everything is done
-                        function (err)
-                        {
-                            if (isNull(err))
-                            {
-                                // All tasks are done now
-                                return callback(null, metadataResult);
+                                return callback(true, null);
                             }
-                            return callback(true, null);
-                        }
-                    );
+                        );
+                    }
+                    else
+                    {
+                        // 1st parameter in async.each() is the array of items
+                        async.each(children,
+                            // 2nd parameter is the function that each item is passed into
+                            function (child, callback)
+                            {
+                                // Call an asynchronous function
+                                child.findMetadata(function (err, result2)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        metadataResult.hasLogicalParts.push(result2);
+                                        return callback(null);
+                                    }
+                                    Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                    return callback(err);
+                                }, typeConfigsToRetain);
+                            },
+                            // 3rd parameter is the function call when everything is done
+                            function (err)
+                            {
+                                if (isNull(err))
+                                {
+                                    // All tasks are done now
+                                    return callback(null, metadataResult);
+                                }
+                                return callback(true, null);
+                            }
+                        );
+                    }
                 }
                 else
                 {
@@ -3061,7 +3101,7 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
             }
             else
             {
-                Logger.log("error", "[findMetadataRecursive] error accessing logical parts of folder " + self.nie.title);
+                Logger.log("error", "[findMetadata] error accessing logical parts of folder " + self.nie.title);
                 Logger.log("error", err);
                 return callback(true, null);
             }
@@ -3614,29 +3654,21 @@ Resource.getCount = function (callback)
                             totalCount = parseInt(count[0].count);
                             return callback(null, totalCount);
                         }
-                        else
-                        {
-                            return callback(1, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is an Array but does not contain the 'count' property or has length 0.");
-                        }
+
+                        return callback(1, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is an Array but does not contain the 'count' property or has length 0.");
                     }
                     else if (!isNull(count.count))
                     {
                         return callback(null, parseInt(count.count));
                     }
-                    else
-                    {
-                        return callback(2, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is not an Array and does not contain the 'count' property.");
-                    }
+
+                    return callback(2, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is not an Array and does not contain the 'count' property.");
                 }
-                else
-                {
-                    return callback(3, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is null!");
-                }
+
+                return callback(3, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is null!");
             }
-            else
-            {
-                return callback(err, count);
-            }
+
+            return callback(err, count);
         }
     );
 };

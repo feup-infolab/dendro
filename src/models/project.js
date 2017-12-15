@@ -1545,7 +1545,7 @@ Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
     });
 };
 
-Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, callback)
+Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, req, callback)
 {
     const path = require("path");
 
@@ -1555,7 +1555,8 @@ Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxSt
         {
             if (!isNaN(size))
             {
-                if (size < maxStorageSize)
+                // admin is god, can import as much data as (s)he wants
+                if (size < maxStorageSize || req.user.isAdmin)
                 {
                     File.unzip(absPathToZipFile, function (err, absPathOfRootFolder)
                     {

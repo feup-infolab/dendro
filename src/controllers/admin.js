@@ -1,4 +1,6 @@
 const path = require("path");
+const slug = require("slug");
+const mkdirp = require("mkdirp");
 const pm2 = require("pm2");
 const _ = require("underscore");
 const async = require("async");
@@ -252,9 +254,105 @@ module.exports.reindex = function (req, res)
         });
 };
 
+module.exports.logs = function (req, res)
+{
+    let lines = 30;
+    try
+    {
+        lines = parseInt(req.query.lines);
+    }
+    catch (e)
+    {
+        res.status(400).json({
+            result: "error",
+            message: "Invalid 'lines' parameter"
+        });
+    }
+
+    if (process.env.NODE_ENV === "production")
+    {
+        pm2.connect(function (err)
+        {
+            if (err)
+            {
+                console.error(err);
+                process.exit(2);
+            }
+
+            pm2.describe(Config.pm2AppName, function (err, description)
+            {
+                if (!err)
+                {
+                    description = _.find(description, function (description)
+                    {
+                        return description.pid === process.pid;
+                    });
+
+                    if (!isNull(description))
+                    {
+                        const readLastLines = require("read-last-lines");
+                        async.series([
+                            function (cb)
+                            {
+                                readLastLines.read(description.pm2_env.pm_out_log_path, lines)
+                                    .then((lines) => cb(null, lines));
+                            },
+                            function (cb)
+                            {
+                                readLastLines.read(description.pm2_env.pm_err_log_path, lines)
+                                    .then((lines) => cb(null, lines));
+                            }
+                        ], function (err, results)
+                        {
+                            if (isNull(err))
+                            {
+                                res.json({
+                                    combined: results[0].split("\n").reverse().join("\n"),
+                                    error: results[1].split("\n").reverse().join("\n")
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result: "error",
+                                    message: "Error fetching logs! " + JSON.stringify(results),
+                                    error: err
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "error",
+                            message: "Error getting pm2 configuration for current PID when fetching logs!",
+                            error: err
+                        });
+                    }
+                }
+                else
+                {
+                    res.status(500).json({
+                        result: "error",
+                        message: "Error getting pm2 configuration for fetching logs!",
+                        error: err
+                    });
+                }
+            });
+        });
+    }
+    else
+    {
+        res.status(400).json({
+            result: "error",
+            message: "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
+        });
+    }
+};
+
 module.exports.configuration = function (req, res)
 {
-    if(process.env.NODE_ENV === "production")
+    if (process.env.NODE_ENV === "production")
     {
         const configFilePath = Pathfinder.absPathInApp("conf/deployment_configs.json");
         const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -268,11 +366,13 @@ module.exports.configuration = function (req, res)
                     process.exit(2);
                 }
 
-                pm2.describe(Config.pm2AppName, function(err, description){
-                    if(!err)
+                pm2.describe(Config.pm2AppName, function (err, description)
+                {
+                    if (!err)
                     {
-                        fs.readFile(configFilePath, function(err, config){
-                            if(!err)
+                        fs.readFile(configFilePath, function (err, config)
+                        {
+                            if (!err)
                             {
                                 res.json({
                                     deployment_configs: JSON.parse(config),
@@ -283,9 +383,9 @@ module.exports.configuration = function (req, res)
                             else
                             {
                                 res.status(500).json({
-                                    result : "error",
-                                    message :"Error getting PM2 status!",
-                                    error : err
+                                    result: "error",
+                                    message: "Error getting PM2 status!",
+                                    error: err
                                 });
                             }
                         });
@@ -293,49 +393,67 @@ module.exports.configuration = function (req, res)
                     else
                     {
                         res.status(500).json({
-                            result : "error",
-                            message :"Error updating configuration!",
-                            error : err
+                            result: "error",
+                            message: "Error updating configuration!",
+                            error: err
                         });
                     }
-
                 });
             });
         }
         else if (req.originalMethod === "POST")
         {
             const config = req.body;
-            fs.writeFile(configFilePath, JSON.stringify(config, null, 4), function(err, result){
-                if(!err)
+            mkdirp(Pathfinder.absPathInApp("conf/deployment_config_backups"), function (err)
+            {
+                // destination.txt will be created or overwritten by default
+                fs.copyFile(configFilePath, path.join(Pathfinder.absPathInApp("conf/deployment_config_backups"), path.basename(configFilePath) + "_" + slug(new Date().toISOString()) + ".bak"), function (err)
                 {
-                    res.json({
-                        result : "ok",
-                        message :"Configuration updated successfully."
-                    });
-                }
-                else
-                {
-                    res.status(500).json({
-                        result : "error",
-                        message :"Error updating configuration!",
-                        error : err
-                    });
-                }
+                    if (isNull(err))
+                    {
+                        fs.writeFile(configFilePath, JSON.stringify(config, null, 4), function (err, result)
+                        {
+                            if (!err)
+                            {
+                                res.json({
+                                    result: "ok",
+                                    message: "Configuration updated successfully."
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result: "error",
+                                    message: "Error updating configuration!",
+                                    error: err
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "error",
+                            message: "Error making backup of configuration!",
+                            error: err
+                        });
+                    }
+                });
             });
         }
     }
     else
     {
         res.status(400).json({
-            result : "error",
-            message : "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
+            result: "error",
+            message: "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
         });
     }
 };
 
 module.exports.restartServer = function (req, res)
 {
-    if(process.env.NODE_ENV === "production")
+    if (process.env.NODE_ENV === "production")
     {
         require(Pathfinder.absPathInSrcFolder("app.js")).reloadPM2Slave(function ()
         {
@@ -345,8 +463,8 @@ module.exports.restartServer = function (req, res)
     else
     {
         res.status(400).json({
-            result : "error",
-            message : "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
+            result: "error",
+            message: "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
         });
     }
 };

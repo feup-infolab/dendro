@@ -103,6 +103,7 @@ const loadRoutes = function (app, callback)
     app.get("/admin/config", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.configuration);
     app.post("/admin/config", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.configuration);
     app.post("/admin/restart", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.restartServer);
+    app.get("/admin/logs", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.logs);
 
     // low-level sparql endpoint
     // TODO
@@ -341,6 +342,7 @@ const loadRoutes = function (app, callback)
 
     app.get([
         getNonHumanReadableRouteRegex("user"),
+        getNonHumanReadableRouteRegex("administrator"),
         "/user/:username"
     ],
     extractUriFromRequest,

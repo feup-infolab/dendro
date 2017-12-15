@@ -127,6 +127,7 @@
     "q": "^1.5.1",
     "qs": "^6.5.1",
     "queue": "^4.4.2",
+    "read-last-lines": "^1.3.0",
     "recursive-readdir": "^2.2.1",
     "redis": "^2.8.0",
     "request": "^2.83.0",

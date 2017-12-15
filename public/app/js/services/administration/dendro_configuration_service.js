@@ -40,6 +40,26 @@ angular.module("dendroApp.services")
                 });
         };
 
+        this.getLogs = function (nLines)
+        {
+            return $http({
+                method: "GET",
+                url: "/admin/logs",
+                params: {lines: nLines},
+                responseType: "json",
+                headers: {Accept: "application/json"}
+            })
+                .then(function (response)
+                {
+                    return response.data;
+                })
+                .catch(function (error)
+                {
+                    console.log("error", error);
+                    throw error;
+                });
+        };
+
         this.restartServer = function ()
         {
             return $http({

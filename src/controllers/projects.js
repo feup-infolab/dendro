@@ -1590,7 +1590,7 @@ exports.stats = function (req, res)
 
                     res.json({
                         size: storageSize,
-                        max_size: Config.maxProjectSize,
+                        max_size: project.ddr.hasStorageLimit,
                         percent_full: Math.round((storageSize / Config.maxProjectSize) * 100),
                         members_count: membersCount,
                         folders_count: foldersCount,
@@ -1923,6 +1923,7 @@ exports.import = function (req, res)
                         Project.unzipAndValidateBagItBackupStructure(
                             uploadedBackupAbsPath,
                             Config.maxProjectSize,
+                            req,
                             function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
                             {
                                 File.deleteOnLocalFileSystem(uploadedBackupAbsPath, function (err, result)
