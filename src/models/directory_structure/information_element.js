@@ -738,7 +738,7 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
 
             return callback(true, msg);
         }
-    }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_accessible]);
+    }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_readable]);
 };
 
 InformationElement.prototype.containedIn = function (parentResource, callback, customGraphUri)

@@ -114,42 +114,42 @@ Elements.ontologies.schema = {
       type: Elements.types.string,
       control: Controls.input_box,
       locked: true,
-      api_accessible: true
+      api_readable: true
   },
     provider:
   {
       type: Elements.types.string,
       control: Controls.input_box,
       locked: true,
-      api_accessible: true
+      api_readable: true
   },
     telephone:
   {
       type: Elements.types.string,
       control: Controls.input_box,
       locked: true,
-      api_accessible: true
+      api_readable: true
   },
     address:
   {
       type: Elements.types.string,
       control: Controls.input_box,
       locked: true,
-      api_accessible: true
+      api_readable: true
   },
     license:
   {
       type: Elements.types.string,
       control: Controls.input_box,
       locked: true,
-      api_accessible: true
+      api_readable: true
   },
     email:
     {
         type: Elements.types.string,
         control: Controls.input_box,
         locked: true,
-        api_accessible: true
+        api_readable: true
     }
 };
 
