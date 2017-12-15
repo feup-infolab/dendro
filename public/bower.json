@@ -64,7 +64,7 @@
     "angular-utils-pagination": "0.11.1",
     "fileapi": "^2.0.20",
     "urijs": "uri.js#^1.18.4",
-    "browser-md5-file": "git://github.com/feup-infolab/browser-md5-file.git#1.0.0",
+    "browser-md5-file": "git://github.com/feup-infolab/browser-md5-file.git#52f0465bcc762990c44a8c5151e29e47a36ea9b4",
     "reclinejs": "git://github.com/okfn/recline.git#0.6",
     "slickgrid": "git://github.com/6pac/SlickGrid.git#2.3.2",
     "angular-animate": "1.6.2",

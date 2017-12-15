@@ -342,6 +342,7 @@ const loadRoutes = function (app, callback)
 
     app.get([
         getNonHumanReadableRouteRegex("user"),
+        getNonHumanReadableRouteRegex("administrator"),
         "/user/:username"
     ],
     extractUriFromRequest,

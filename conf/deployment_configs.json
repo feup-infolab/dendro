@@ -377,7 +377,7 @@
                 "button_text": "Sign-in with SIGARRA"
             }
         },
-        "numCPUs": 2
+        "numCPUs": 1
     },
     "test": {
         "port": 3002,

@@ -37,7 +37,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    Utils.show_popup("error", "Error", error.message);
+                    Utils.show_popup("error", "Error", error.data.message);
                     $scope.autoRefreshLogs = false;
                 });
         };
