@@ -87,7 +87,8 @@ const startPM2Master = exports.startPM2Master = function (cb)
                 out_file: Logger.getLogFilePath(),
                 error_file: Logger.getErrorLogFilePath(),
                 merge_logs: true,
-                cwd: appDir
+                cwd: appDir,
+                pid: path.join(appDir, "running.pid")
             }, function (err, apps)
             {
                 // Disconnects from PM2
