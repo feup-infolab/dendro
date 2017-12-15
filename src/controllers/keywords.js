@@ -38,6 +38,11 @@ exports.loadfiles = function (rec, res)
 };
 exports.preprocessing = function (req, res)
 {
+    function hasNumber (myString)
+    {
+        return /\d/.test(myString);
+    }
+
     var my_corpus = new tm.Corpus([]);
     my_corpus.addDoc(req.body.text);
     // my_corpus.clean();
@@ -61,7 +66,14 @@ exports.preprocessing = function (req, res)
             {
                 for (var j = 0; j < JSON.parse(JSON.stringify(sent.sentences[i])).tokens.length; j++)
                 {
-                    output.push({word: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word, pos: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].pos, lemma: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].lemma});
+                    if (JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("www") + 1 || JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("http") + 1 || JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("@") + 1 || hasNumber(JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word))
+                    {
+                        // console.log("contain numbers or address " + JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word);
+                    }
+                    else
+                    {
+                        output.push({word: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word, pos: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].pos, lemma: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].lemma});
+                    }
                 }
             }
             /*
@@ -98,6 +110,8 @@ exports.termextraction = function (req, res)
       */
         var multiterm = [];
         var current_word;
+        // console.log(text);
+        // console.log(text.length);
         for (var index = 0; index < text.length; index++)
         {
             if (text[index].pos.charAt(0) === "N")
@@ -122,13 +136,11 @@ exports.termextraction = function (req, res)
                     }
                 }
             }
-
-            console.log(text[index]);
         }
         const result = [...new Set(multiterm.map(obj => JSON.stringify(obj)))]
             .map(str => JSON.parse(str));
-        console.log(result);
-        out = result;
+        // console.log(result);
+        return result;
     };
 
     var occurences = function (string, subString, allowOverlapping)
@@ -169,10 +181,10 @@ exports.termextraction = function (req, res)
     {
         for (var j = 0; j < input.length; j++)
         {
-            console.log(corpus.toString());
-            console.log(input[j].toString());
-            console.log(occurences(corpus.toString(), input[j].toString()));
-            console.log(input[j] + " : " + count(input, input[j]));
+            // console.log(corpus.toString());
+            // console.log(input[j].toString());
+            // console.log(occurences(corpus.toString(), input[j].toString()));
+            // console.log(input[j] + " : " + count(input, input[j]));
         }
         /*
 
@@ -206,36 +218,60 @@ exports.termextraction = function (req, res)
         {
             fs.readFile(result[0].path, "utf8", function (err, text)
             {
-                text = JSON.parse(text);
-                const documents = text.documents;
+                var texti = JSON.parse(text);
+                var results = JSON.parse(texti.text).result;
+                // console.log(results);
+                const documents = texti.documents;
+                // console.log("documents " + documents);
                 if (isNull(err))
                 {
-                    console.log("textero" + text);
+                    // console.log("textero" + text);
                     var TfIdf = natural.TfIdf;
                     var tfidf = new TfIdf();
                     var posnoums = [];
                     var score = [];
                     var out = [];
                     var values = [];
-                    nounphrase(text, out);
+                    out = nounphrase(results, null);
                     cvalue(out, documents, values);
-                    for (var i = 0; i < text.length; i++)
+                    for (var i = 0; i < results.length; i++)
                     {
-                        if (text[i].pos === "NN" || text[i].pos === "NNS" || text[i].pos === "NNP" || text[i].pos === "NNPS")
+                        if (results[i].pos === "NN" || results[i].pos === "NNS" || results[i].pos === "NNP" || results[i].pos === "NNPS")
                         {
-                            posnoums.push(text[i].lemma);
+                            posnoums.push(results[i].lemma);
                         }
                     }
+                    const posnoumssimple = [...new Set(posnoums.map(obj => JSON.stringify(obj)))]
+                        .map(str => JSON.parse(str));
                     // console.log(rec.body.documents);
                     tfidf.addDocument(documents);
 
-                    for (var p = 0; p < posnoums.length; p++)
+                    for (var p = 0; p < posnoumssimple.length; p++)
                     {
-                        tfidf.tfidfs(posnoums[p], function (i, measure)
+                        tfidf.tfidfs(posnoumssimple[p], function (i, measure)
                         {
                             // console.log("word " + posnoums[p] + " in document #" + i + " has a TF-IDF value of " + measure);
                             score.push(measure);
                         });
+                    }
+                    var sum = score.reduce(function (a, b)
+                    {
+                        return a + b;
+                    });
+                    var avg = sum / score.length;
+                    var dbpediaterms = {
+                        keywords: []
+                    };
+                    for (var index = 0; index < posnoumssimple.length; index++)
+                    {
+                        if (score[index] > (avg + avg))
+                        {
+                            // console.log(dbsearch[i]);
+                            dbpediaterms.keywords.push({
+                                words: posnoumssimple[index],
+                                measures: score[index]
+                            });
+                        }
                     }
                     /* for (var j = 0; j < posnoums.length; j++)
                     {
@@ -243,7 +279,7 @@ exports.termextraction = function (req, res)
                     }*/
                     res.json(
                         {
-                            words: posnoums, measures: score
+                            dbpediaterms
                         }
                     );
                 }
@@ -264,7 +300,8 @@ exports.termextraction = function (req, res)
 
 var search = function (lookup, cb)
 {
-    baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=5&QueryString=" + lookup, function getResponse (error, response, body)
+    console.log("search : " + lookup.words);
+    baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=5&QueryString=" + lookup.words, function getResponse (error, response, body)
     {
         if (!error && response.statusCode === 200)
         {
@@ -282,10 +319,12 @@ var search = function (lookup, cb)
 
 exports.dbpedialookup = function (rec, res)
 {
-    var dbsearch = JSON.parse(JSON.parse(JSON.stringify(rec.body.keywords))).words;
-    var scores = JSON.parse(JSON.parse(JSON.stringify(rec.body.keywords))).measures;
-    var lookup = [];
-
+    // var dbsearch = JSON.parse(JSON.parse(JSON.stringify(rec.body.keywords))).words;
+    // var scores = JSON.parse(JSON.parse(JSON.stringify(rec.body.keywords))).measures;
+    // console.log(JSON.parse(rec.body.keywords).dbpediaterms.keywords[0].words);
+    var dbpediaresults = JSON.parse(rec.body.keywords).dbpediaterms.keywords;
+    // var lookup = rec.body;
+    /*
     var sum = scores.reduce(function (a, b)
     {
         return a + b;
@@ -301,13 +340,12 @@ exports.dbpedialookup = function (rec, res)
             lookup.push(dbsearch[i]);
         }
     }
-    var dbpediaresults = {
+    */
+
+    var dbpediauri = {
         result: []
     };
-    const lookup2 = [...new Set(lookup.map(obj => JSON.stringify(obj)))]
-        .map(str => JSON.parse(str));
-
-    async.map(lookup2, search, function (err, results)
+    async.map(dbpediaresults, search, function (err, results)
     {
         if (err)
         {
@@ -317,19 +355,31 @@ exports.dbpedialookup = function (rec, res)
         {
             for (var i = 0; i < results.length; i++)
             {
-                console.log("searched word: " + lookup[i]);
-                console.log("URI: " + JSON.parse(results[i]).results[0].uri);
-                console.log("label: " + JSON.parse(results[i]).results[0].label);
-                console.log("description: " + JSON.parse(results[i]).results[0].description);
-                dbpediaresults.result.push({
-                    uri: JSON.parse(results[i]).results[0].uri,
-                    label: JSON.parse(results[i]).results[0].label,
-                    description: JSON.parse(results[i]).results[0].description
-                });
+                if (results[i] !== undefined)
+                {
+                    console.log("searched word: " + dbpediaresults[i].words);
+                    console.log("URI: " + JSON.parse(results[i]).results[0].uri);
+                    console.log("label: " + JSON.parse(results[i]).results[0].label);
+                    console.log("description: " + JSON.parse(results[i]).results[0].description);
+                    dbpediauri.result.push({
+                        searchterm: dbpediaresults[i].words,
+                        uri: JSON.parse(results[i]).results[0].uri,
+                        label: JSON.parse(results[i]).results[0].label,
+                        description: JSON.parse(results[i]).results[0].description
+                    });
+                }
+                else
+                {
+                    console.log("results for word : " + dbpediaresults[i].words + " undefined");
+                    dbpediauri.result.push({
+                        searchterm: dbpediaresults[i].words,
+                        error: "undefined term in dbpedia"
+                    });
+                }
             }
             res.json(
                 {
-                    dbpediaresults
+                  dbpediauri
                 }
             );
         }
