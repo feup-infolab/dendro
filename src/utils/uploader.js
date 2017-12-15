@@ -140,7 +140,7 @@ Uploader.prototype.handleUpload = function (req, res, callback)
                                     name: upload.filename
                                 }];
 
-                                if(md5_checksum !== "skipped")
+                                if (md5_checksum !== "skipped")
                                 {
                                     md5File(upload.temp_file, function (err, hash)
                                     {

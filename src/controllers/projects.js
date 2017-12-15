@@ -892,7 +892,8 @@ exports.new = function (req, res)
                             },
                             ddr: {
                                 handle: req.body.handle,
-                                privacyStatus: req.body.privacy
+                                privacyStatus: req.body.privacy,
+                                hasStorageLimit: Config.maxProjectSize
                             },
                             schema: {
                                 provider: req.body.contact_name,

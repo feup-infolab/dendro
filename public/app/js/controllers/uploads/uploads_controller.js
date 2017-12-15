@@ -138,7 +138,7 @@ angular.module("dendroApp.controllers")
                                             }
                                         });
 
-                                        file.md5_progress = function()
+                                        file.md5_progress = function ()
                                         {
                                             return Math.ceil(file.md5Calculator.progress * 100);
                                         };

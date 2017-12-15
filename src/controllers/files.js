@@ -855,7 +855,7 @@ exports.upload = function (req, res)
             {
                 fs.stat(file.path, function (err, stats)
                 {
-                    if(!isNull(stats))
+                    if (!isNull(stats))
                     {
                         callback(err, stats.size);
                     }
