@@ -1400,7 +1400,8 @@ Elements.ontologies.nie = {
       type: Elements.types.resource,
       control: Controls.url_box,
       backuppable: true,
-      locked: true
+      locked: true,
+      api_readable: true
   },
     hasPart:
   {
@@ -1427,7 +1428,8 @@ Elements.ontologies.nie = {
       control: Controls.url_box,
       type: Elements.types.resource,
       backuppable: true,
-      locked: true
+      locked: true,
+      api_readable: true
   },
     isPartOf:
   {
