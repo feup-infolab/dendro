@@ -14,7 +14,7 @@ const createIndexes = function (app, callback)
     {
         if (!isNull(error))
         {
-            return callback("[ERROR] Unable to create or link to index " + IndexConnection.all.dendro_graph.short_name);
+            return callback("[ERROR] Unable to create or link to index " + IndexConnection._all.dendro_graph.short_name);
         }
         else
         {

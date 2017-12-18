@@ -30,7 +30,7 @@ IndexConnection.indexTypes =
 
 // exclude a field from indexing : add "index" : "no".
 
-IndexConnection.all = {
+IndexConnection._all = {
     dendro_graph: new IndexConnection({
         id: "dendro_graph",
         short_name: slug(db.graphUri),
@@ -115,32 +115,24 @@ IndexConnection.all = {
 
 IndexConnection.initAllIndexes = function (callback)
 {
-    async.mapSeries(Object.keys(IndexConnection.all), function (key, cb)
+    async.mapSeries(Object.keys(IndexConnection._all), function (key, cb)
     {
-        const index = new IndexConnection(IndexConnection.all[key]);
+        const index = new IndexConnection(IndexConnection._all[key]);
         index.open(function (err, result)
         {
-            IndexConnection.all[key] = result;
+            IndexConnection._all[key] = result;
             if (isNull(err))
             {
-                IndexConnection.get(key, function (err, index)
+                const newIndex = IndexConnection.get(key);
+
+                if (!isNull(newIndex) && newIndex.isInitialized())
                 {
-                    if (isNull(err))
-                    {
-                        if (!isNull(index) && index.isInitialized())
-                        {
-                            cb(null, index);
-                        }
-                        else
-                        {
-                            cb(1, "Unable to get index connection to index " + key + " right after creating it!");
-                        }
-                    }
-                    else
-                    {
-                        cb(2, "Error getting index connection with id " + key + " right after creating it!");
-                    }
-                });
+                    cb(null, newIndex);
+                }
+                else
+                {
+                    cb(1, "Unable to get index connection to index " + key + " right after creating it!");
+                }
             }
             else
             {
@@ -153,17 +145,23 @@ IndexConnection.initAllIndexes = function (callback)
     });
 };
 
-IndexConnection.get = function (indexKey, callback)
+IndexConnection.get = function (indexKey)
 {
-    const index = IndexConnection.all[indexKey];
+    const index = IndexConnection._all[indexKey];
     if (!isNull(index))
     {
-        callback(null, index);
+        return index;
     }
     else
     {
-        callback(1, "Index parametrization does not exist for key " + indexKey);
+        Logger.log("warn", "Index parametrization does not exist for key " + indexKey);
+        return null;
     }
+};
+
+IndexConnection.getDefault = function()
+{
+    return IndexConnection.get("dendro_graph");
 };
 
 IndexConnection.prototype.isInitialized = function ()
@@ -279,9 +277,9 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
 
 IndexConnection.create_all_indexes = function (numberOfShards, numberOfReplicas, deleteIfExists, callback)
 {
-    async.mapSeries(Object.keys(IndexConnection.all), function (key, cb)
+    async.mapSeries(Object.keys(IndexConnection._all), function (key, cb)
     {
-        IndexConnection.all[key].create_new_index(numberOfShards, numberOfReplicas, deleteIfExists, cb);
+        IndexConnection._all[key].create_new_index(numberOfShards, numberOfReplicas, deleteIfExists, cb);
     }, function (err, results)
     {
         callback(err, results);

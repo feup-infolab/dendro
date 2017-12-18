@@ -14,7 +14,7 @@ const should = chai.should();
 module.exports.deleteIndexes = function (finish)
 {
     let indexConnection = new IndexConnection();
-    indexConnection.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.all.dendro_graph, function (index)
+    indexConnection.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection._all.dendro_graph, function (index)
     {
         index.delete_index(function (err, res)
         {

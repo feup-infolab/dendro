@@ -1,8 +1,12 @@
+const Pathfinder = global.Pathfinder;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+
 const appendIndexToRequests = function (app, index, callback)
 {
     const appendIndexToRequest = function (req, res, next)
     {
-        req.index = index;
+
+        req.index = IndexConnection.getDefault();
         // for debugging
         req.util = require("util");
         req.async = require("async");

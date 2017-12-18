@@ -108,7 +108,7 @@ module.exports.home = function (req, res)
 //         if (graph === "dryad")
 //         {
 //             const dryadLoader = new DryadLoader();
-//             dryadLoader.loadFromDownloadedFiles(IndexConnection.get(IndexConnection.all.dendro_graph));
+//             dryadLoader.loadFromDownloadedFiles(IndexConnection.get(IndexConnection._all.dendro_graph));
 //         }
 //     }
 //
@@ -127,7 +127,7 @@ module.exports.reindex = function (req, res)
 
     const rebuildIndex = function (indexConnection, graphShortName, deleteBeforeReindexing, callback)
     {
-        if (!isNull(IndexConnection.all[graphShortName]))
+        if (!isNull(IndexConnection.get(graphShortName)))
         {
             async.waterfall([
                 // delete current index if requested
@@ -222,15 +222,22 @@ module.exports.reindex = function (req, res)
         graphsToBeIndexed,
         function (graph, cb)
         {
-            if (IndexConnection.all.hasOwnProperty(graph))
+            if (!isNull(IndexConnection.get(graph)))
             {
                 const deleteTheIndex = Boolean(_.contains(graphsToDelete, graph));
-                let indexConnection = IndexConnection.all[graph];
+                let indexConnection = IndexConnection.get(graph);
 
-                rebuildIndex(indexConnection, graph, deleteTheIndex, function (err, result)
+                if(!isNull(indexConnection))
                 {
-                    return cb(err, result);
-                });
+                    rebuildIndex(indexConnection, graph, deleteTheIndex, function (err, result)
+                    {
+                        return cb(err, result);
+                    });
+                }
+                else
+                {
+                    return cb(2, "Index with key " + graph + " not found 2!");
+                }
             }
             else
             {

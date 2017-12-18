@@ -1690,8 +1690,6 @@ Resource.prototype.restoreFromIndexDocument = function (indexConnection, callbac
         {
             if (isNull(err))
             {
-                let id = null;
-
                 if (!isNull(hits) && hits instanceof Array && hits.length > 0)
                 {
                     if (hits.length > 1)
