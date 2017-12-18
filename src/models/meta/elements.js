@@ -3,21 +3,22 @@ const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
 
-function Elements (){}
+function Elements ()
+{}
 
 /** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
 Elements.access_types = {
-    public : "public",                                  //can be shared, read and written
-    private : "private",                                //cannot be shared to the outside world under any circumstance
-    locked : "locked",                                  //can not be seen or edited from the main interface or via apis
-    restorable : "restorable",                          //can be restorable from a metadata.json file in a zip backup file
-    backuppable : "backuppable",                        //will be included in a metadata.json file produced in a zip file (backup zips)
-    audit : "audit",                                    //cannot be changed via API calls, changed internally only
-    api_readable : "api_readable",                      //accessible to the outside world via API calls
-    api_writeable : "api_writeable",                    //modifiable from the outside world via API calls
-    immutable : "immutable",                            //cannot be changed under ANY circumstance
-    unrevertable : "unrevertable",                      //cannot be fallen back in the a "restore previous version" operation
-    locked_for_projects : "locked_for_projects"         //project metadata which cannot be modified using the metadata editor, has to go through the project administrator
+    public: "public", // can be shared, read and written
+    private: "private", // cannot be shared to the outside world under any circumstance
+    locked: "locked", // can not be seen or edited from the main interface or via apis
+    restorable: "restorable", // can be restorable from a metadata.json file in a zip backup file
+    backuppable: "backuppable", // will be included in a metadata.json file produced in a zip file (backup zips)
+    audit: "audit", // cannot be changed via API calls, changed internally only
+    api_readable: "api_readable", // accessible to the outside world via API calls
+    api_writeable: "api_writeable", // modifiable from the outside world via API calls
+    immutable: "immutable", // cannot be changed under ANY circumstance
+    unrevertable: "unrevertable", // cannot be fallen back in the a "restore previous version" operation
+    locked_for_projects: "locked_for_projects" // project metadata which cannot be modified using the metadata editor, has to go through the project administrator
 };
 
 Elements.types = {};
@@ -29,7 +30,7 @@ Elements.types.string = 3;
 Elements.types.int = 4;
 Elements.types.double = 5;
 Elements.types.boolean = 6;
-Elements.types.prefixedResource = 7; //for "dcterms:creator", "nie:isLogicalPartOf" and other prefixed resources
+Elements.types.prefixedResource = 7; // for "dcterms:creator", "nie:isLogicalPartOf" and other prefixed resources
 Elements.types.date = 8;
 Elements.types.long_string = 9;
 Elements.types.stringNoEscape = 10;
@@ -41,40 +42,40 @@ Elements.ontologies = {};
  */
 
 Elements.ontologies.schema = {
-    sharedContent :
+    sharedContent:
         {
-            type : Elements.types.string,
-            control : Controls.input_box,
-            locked : true,
-            api_accessible : true
+            type: Elements.types.string,
+            control: Controls.input_box,
+            locked: true,
+            api_accessible: true
         },
-    provider :
+    provider:
         {
-            type : Elements.types.string,
-            control : Controls.input_box,
-            locked : true,
-            api_accessible : true
+            type: Elements.types.string,
+            control: Controls.input_box,
+            locked: true,
+            api_accessible: true
         },
-    telephone :
+    telephone:
         {
-            type : Elements.types.string,
-            control : Controls.input_box,
-            locked : true,
-            api_accessible : true
+            type: Elements.types.string,
+            control: Controls.input_box,
+            locked: true,
+            api_accessible: true
         },
-    address :
+    address:
         {
-            type : Elements.types.string,
-            control : Controls.input_box,
-            locked : true,
-            api_accessible : true
+            type: Elements.types.string,
+            control: Controls.input_box,
+            locked: true,
+            api_accessible: true
         },
-    license :
+    license:
         {
-            type : Elements.types.string,
-            control : Controls.input_box,
-            locked : true,
-            api_accessible : true
+            type: Elements.types.string,
+            control: Controls.input_box,
+            locked: true,
+            api_accessible: true
         }
 };
 
@@ -84,287 +85,287 @@ Elements.ontologies.schema = {
 
 Elements.ontologies.dcterms =
     {
-        abstract :
+        abstract:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        accessRights :
+        accessRights:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
 
             },
-        accrualMethod :
+        accrualMethod:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        accrualPeriodicity :
+        accrualPeriodicity:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        accrualPolicy :
+        accrualPolicy:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        alternative :
+        alternative:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        audience :
+        audience:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        available :
+        available:
             {
-                type : Elements.types.date,
-                control : Controls.date_picker
+                type: Elements.types.date,
+                control: Controls.date_picker
             },
-        bibliographicCitation :
+        bibliographicCitation:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        conformsTo :
+        conformsTo:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        contributor :
+        contributor:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box,
-                locked_for_projects : true
+                type: Elements.types.resource,
+                control: Controls.url_box,
+                locked_for_projects: true
             },
-        coverage :
+        coverage:
             {
-                type : Elements.types.string,
-                control : Controls.map
+                type: Elements.types.string,
+                control: Controls.map
             },
-        created :
+        created:
             {
-                type : Elements.types.date,
-                control : Controls.date_picker
+                type: Elements.types.date,
+                control: Controls.date_picker
             },
-        creator :
+        creator:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box,
-                locked_for_projects : true
+                type: Elements.types.resource,
+                control: Controls.url_box,
+                locked_for_projects: true
             },
-        date :
+        date:
             {
-                type : Elements.types.date,
-                control : Controls.date_picker
+                type: Elements.types.date,
+                control: Controls.date_picker
             },
-        dateAccepted :
+        dateAccepted:
             {
-                type : Elements.types.date,
-                control : Controls.date_picker
+                type: Elements.types.date,
+                control: Controls.date_picker
             },
-        dateCopyrighted :
+        dateCopyrighted:
             {
-                type : Elements.types.date,
-                control : Controls.date_picker
+                type: Elements.types.date,
+                control: Controls.date_picker
             },
-        dateSubmitted :
+        dateSubmitted:
             {
-                type : Elements.types.date,
-                control : Controls.date_picker
+                type: Elements.types.date,
+                control: Controls.date_picker
             },
-        description :
+        description:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        educationLevel :
+        educationLevel:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        extent :
+        extent:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        format :
+        format:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        identifier :
+        identifier:
             {
-                type : Elements.types.string,
-                control : Controls.url_box
+                type: Elements.types.string,
+                control: Controls.url_box
             },
-        instructionalMethod :
+        instructionalMethod:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        issued :
+        issued:
             {
-                type : Elements.types.date,
-                control : Controls.date_picker
+                type: Elements.types.date,
+                control: Controls.date_picker
             },
-        language :
+        language:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        license :
+        license:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        mediator :
+        mediator:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        medium :
+        medium:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        modified :
+        modified:
             {
-                type : Elements.types.date,
-                control : Controls.date_picker,
+                type: Elements.types.date,
+                control: Controls.date_picker
             },
-        provenance :
+        provenance:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        publisher :
+        publisher:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        references :
+        references:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        relation :
+        relation:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        replaces :
+        replaces:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        requires :
+        requires:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        rights :
+        rights:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        rightsHolder :
+        rightsHolder:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        source :
+        source:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        spatial :
+        spatial:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        subject :
+        subject:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        tableOfContents :
+        tableOfContents:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        temporal :
+        temporal:
             {
-                type : Elements.types.date,
-                control : Controls.input_box
+                type: Elements.types.date,
+                control: Controls.input_box
             },
-        type :
+        type:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        title :
+        title:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
         socialUpdatedAt:
             {
-                type : Elements.types.date,
-                control : Controls.input_box
+                type: Elements.types.date,
+                control: Controls.input_box
             },
-        hasVersion :
+        hasVersion:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        hasPart :
+        hasPart:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        isPartOf :
+        isPartOf:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        hasFormat : {
+        hasFormat: {
             type: Elements.types.string,
             control: Controls.input_box
         },
-        isFormatOf :
+        isFormatOf:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        isReferencedBy :
+        isReferencedBy:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        isReplacedBy :
+        isReplacedBy:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        isRequiredBy :
+        isRequiredBy:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        isVersionOf :
+        isVersionOf:
             {
-                type : Elements.types.string,
-                control : Controls.url_box
+                type: Elements.types.string,
+                control: Controls.url_box
             },
-        valid :
+        valid:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             }
     };
 
@@ -374,316 +375,316 @@ Elements.ontologies.dcterms =
 
 Elements.ontologies.foaf =
     {
-        mbox : {
-            type : Elements.types.string,
-            control : Controls.input_box
+        mbox: {
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-        firstName :
+        firstName:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        surname :
+        surname:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        account :
+        account:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        accountName :
+        accountName:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        accountServiceHomepage :
+        accountServiceHomepage:
             {
-                type : Elements.types.resource,
-                control : Controls.input_box
+                type: Elements.types.resource,
+                control: Controls.input_box
             },
-        age :
+        age:
             {
-                type : Elements.types.int,
-                control : Controls.input_box
+                type: Elements.types.int,
+                control: Controls.input_box
             },
-        aimChatID :
+        aimChatID:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        based_near :
+        based_near:
             {
-                type : Elements.types.string,
-                control : Controls.map
+                type: Elements.types.string,
+                control: Controls.map
             },
-        birthday :
+        birthday:
             {
-                type : Elements.types.date,
-                control : Controls.date_picker
+                type: Elements.types.date,
+                control: Controls.date_picker
             },
-        currentProject :
+        currentProject:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        depiction :
+        depiction:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        depicts :
+        depicts:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        dnaChecksum :
+        dnaChecksum:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        familyName :
+        familyName:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        focus :
+        focus:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        fundedBy :
+        fundedBy:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        geekcode :
+        geekcode:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        gender :
+        gender:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        givenName :
+        givenName:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        holdsAccount :
+        holdsAccount:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        homepage :
+        homepage:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        icqChatID :
+        icqChatID:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        img :
+        img:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        interest :
+        interest:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        jabberID :
+        jabberID:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        knows :
+        knows:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        lastName :
+        lastName:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        logo :
+        logo:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        made :
+        made:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        maker :
+        maker:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        mbox_sha1sum :
+        mbox_sha1sum:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        member :
+        member:
             {
-                type : Elements.types.string,
-                control : Controls.url_box
+                type: Elements.types.string,
+                control: Controls.url_box
             },
-        membershipClass :
+        membershipClass:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        msnChatID :
+        msnChatID:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        name :
+        name:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        nick :
+        nick:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        openid :
+        openid:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        page :
+        page:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        pastProject :
+        pastProject:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        phone :
+        phone:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        plan :
+        plan:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        primaryTopic :
+        primaryTopic:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        publications :
+        publications:
             {
-                type : Elements.types.string,
-                control : Controls.url_box
+                type: Elements.types.string,
+                control: Controls.url_box
             },
-        schoolHomepage :
+        schoolHomepage:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        sha1 :
+        sha1:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        skypeID :
+        skypeID:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        status :
+        status:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        theme :
+        theme:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        tipjar :
+        tipjar:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        title :
+        title:
             {
-                type : Elements.types.string,
-                control : Controls.input_box,
-                backuppable : true,
-                restorable : true
+                type: Elements.types.string,
+                control: Controls.input_box,
+                backuppable: true,
+                restorable: true
             },
-        topic :
+        topic:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        topic_interest :
+        topic_interest:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        weblog :
+        weblog:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        workInfoHomepage :
+        workInfoHomepage:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        workplaceHomepage :
+        workplaceHomepage:
             {
-                type : Elements.types.resource,
-                control : Controls.url_box
+                type: Elements.types.resource,
+                control: Controls.url_box
             },
-        yahooChatID :
+        yahooChatID:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        family_name :
+        family_name:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        givenname :
+        givenname:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        isPrimaryTopicOf :
+        isPrimaryTopicOf:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        myersBriggs :
+        myersBriggs:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        thumbnail :
+        thumbnail:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             }
     };
 
@@ -695,33 +696,70 @@ Elements.ontologies.ddr = {
     hasStorageConfig:
         {
             type: Elements.types.resource,
-            locked: true,
-            api_readable: true
+            api_readable: true,
+            locked: true
         },
     storageType:
         {
             type: Elements.types.string,
-            locked: true,
-            api_readable: true
+            api_readable: true,
+            locked: true
         },
     host:
         {
             type: Elements.types.string,
-            locked: true,
-            api_readable: true
+            api_readable: true,
+            locked: true
         },
     port:
         {
             type: Elements.types.int,
-            locked: true,
-            api_readable: true
+            api_readable: true,
+            locked: true
         },
-    handle:
+    hasStorageLimit:
+        {
+            type: Elements.types.int,
+            control: Controls.input_box,
+            api_readable: true,
+            locked: true
+        },
+    requiresVerifiedUploads:
+        {
+            type: Elements.types.boolean,
+            control: Controls.input_box,
+            api_readable: true,
+            locked: true
+        },
+    created:
+        {
+            type: Elements.types.date,
+            control: Controls.date_picker,
+            api_readable: true,
+            locked: true,
+            audit: true
+        },
+    modified:
         {
             type: Elements.types.string,
             control: Controls.input_box,
-            locked_for_projects: true
+            private: true,
+            locked: true,
+            api_readable: true,
+            audit: true
         },
+    humanReadableURI: {
+        type: Elements.types.string,
+        control: Controls.input_box,
+        private: true,
+        locked: true,
+        api_readable: true
+    },
+    handle: {
+        type: Elements.types.string,
+        control: Controls.input_box,
+        locked_for_projects: true
+    },
     password:
         {
             type: Elements.types.string,
@@ -1237,233 +1275,233 @@ Elements.ontologies.rdf = {
  * http://www.semanticdesktop.org/ontologies/nie/
  */
 Elements.ontologies.nie = {
-    byteSize :
+    byteSize:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    characterSet :
+    characterSet:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    comment :
+    comment:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    contentCreated :
+    contentCreated:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
     contentLastModified:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    contentSize :
+    contentSize:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    copyright :
+    copyright:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    created :
+    created:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    dataSource :
+    dataSource:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    depends :
+    depends:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    description :
+    description:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    disclaimer :
+    disclaimer:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    generator :
+    generator:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    generatorOption :
+    generatorOption:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    hasLogicalPart :
+    hasLogicalPart:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box,
-            backuppable : true,
-            locked : true
+            type: Elements.types.resource,
+            control: Controls.url_box,
+            backuppable: true,
+            locked: true
         },
-    hasPart :
+    hasPart:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    identifier :
+    identifier:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    informationElementDate :
+    informationElementDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    interpretedAs :
+    interpretedAs:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    isLogicalPartOf :
+    isLogicalPartOf:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource,
-            backuppable : true,
-            locked : true
+            control: Controls.url_box,
+            type: Elements.types.resource,
+            backuppable: true,
+            locked: true
         },
-    isPartOf :
+    isPartOf:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource,
-            backuppable : true,
-            locked : true
+            control: Controls.url_box,
+            type: Elements.types.resource,
+            backuppable: true,
+            locked: true
         },
-    isStoredAs :
+    isStoredAs:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    keyword :
+    keyword:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    language :
+    language:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    lastRefreshed :
+    lastRefreshed:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    legal :
+    legal:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    license :
+    license:
         {
-            control : Controls.markdown_box,
-            type : Elements.types.string
+            control: Controls.markdown_box,
+            type: Elements.types.string
         },
-    licenseType :
+    licenseType:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    links :
+    links:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource
+            control: Controls.url_box,
+            type: Elements.types.resource
         },
-    mimeType :
+    mimeType:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    plainTextContent :
+    plainTextContent:
         {
-            control : Controls.markdown_box,
-            type : Elements.types.long_string,
-            locked : true
+            control: Controls.markdown_box,
+            type: Elements.types.long_string,
+            locked: true
         },
-    relatedTo :
+    relatedTo:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource
+            control: Controls.url_box,
+            type: Elements.types.resource
         },
-    rootElementOf :
+    rootElementOf:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource
+            control: Controls.url_box,
+            type: Elements.types.resource
         },
-    subject :
+    subject:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    title :
+    title:
         {
-            type : Elements.types.string,
-            control : Controls.input_box,
-            backuppable : true,
-            restorable : true,
-            locked_for_projects : true,
-            api_readable : true,
-            locked : true
+            type: Elements.types.string,
+            control: Controls.input_box,
+            backuppable: true,
+            restorable: true,
+            locked_for_projects: true,
+            api_readable: true,
+            locked: true
         },
-    version :
+    version:
         {
-            control : Controls.input_box,
-            type : Elements.types.resource,
-            locked : true
+            control: Controls.input_box,
+            type: Elements.types.resource,
+            locked: true
         },
-    lastModified :
+    lastModified:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    url :
+    url:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    contentModified :
+    contentModified:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    coreGraph :
+    coreGraph:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    htmlContent :
+    htmlContent:
         {
-            type : Elements.types.long_string,
-            control : Controls.markdown_box
+            type: Elements.types.long_string,
+            control: Controls.markdown_box
         },
-    modified :
+    modified:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    sourceMode :
+    sourceMode:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
@@ -1473,395 +1511,395 @@ Elements.ontologies.nie = {
  */
 
 Elements.ontologies.nfo = {
-    aspectRatio :
+    aspectRatio:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    averageBitrate :
+    averageBitrate:
         {
-            control : Controls.input_box,
-            type : Elements.types.int
+            control: Controls.input_box,
+            type: Elements.types.int
         },
-    belongsToContainer :
+    belongsToContainer:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource
+            control: Controls.url_box,
+            type: Elements.types.resource
         },
-    bitDepth :
+    bitDepth:
         {
-            control : Controls.input_box,
-            type : Elements.types.int
+            control: Controls.input_box,
+            type: Elements.types.int
         },
-    bitsPerSample :
+    bitsPerSample:
         {
-            control : Controls.input_box,
-            type : Elements.types.int
+            control: Controls.input_box,
+            type: Elements.types.int
         },
-    bookmarks :
+    bookmarks:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource
+            control: Controls.url_box,
+            type: Elements.types.resource
         },
-    channels :
+    channels:
         {
-            control : Controls.input_box,
-            type : Elements.types.int
+            control: Controls.input_box,
+            type: Elements.types.int
         },
-    characterCount :
+    characterCount:
         {
-            control : Controls.input_box,
-            type : Elements.types.int
+            control: Controls.input_box,
+            type: Elements.types.int
         },
-    codec :
+    codec:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    commentCharacterCount :
+    commentCharacterCount:
         {
-            control : Controls.input_box,
-            type : Elements.types.int
+            control: Controls.input_box,
+            type: Elements.types.int
         },
-    compressionType :
+    compressionType:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    conflicts :
+    conflicts:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource
+            control: Controls.url_box,
+            type: Elements.types.resource
         },
-    containsBookmark :
+    containsBookmark:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource
+            control: Controls.url_box,
+            type: Elements.types.resource
         },
-    containsBookmarkFolder :
+    containsBookmarkFolder:
         {
-            control : Controls.url_box,
-            type : Elements.types.resource
+            control: Controls.url_box,
+            type: Elements.types.resource
         },
-    count :
+    count:
         {
-            control : Controls.input_box,
-            type : Elements.types.int
+            control: Controls.input_box,
+            type: Elements.types.int
         },
-    definesClass :
+    definesClass:
         {
-            control : Controls.input_box,
-            type : Elements.types.resource
+            control: Controls.input_box,
+            type: Elements.types.resource
         },
-    definesFunction :
+    definesFunction:
         {
-            control : Controls.input_box,
-            type : Elements.types.resource
+            control: Controls.input_box,
+            type: Elements.types.resource
         },
-    definesGlobalVariable :
+    definesGlobalVariable:
         {
-            control : Controls.input_box,
-            type : Elements.types.resource
+            control: Controls.input_box,
+            type: Elements.types.resource
         },
-    deletionDate :
+    deletionDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    duration :
+    duration:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    encoding :
+    encoding:
         {
-            control : Controls.input_box,
-            type : Elements.types.string
+            control: Controls.input_box,
+            type: Elements.types.string
         },
-    fileCreated :
+    fileCreated:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    fileLastAccessed :
+    fileLastAccessed:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    fileLastModified :
+    fileLastModified:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    fileName :
+    fileName:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    fileOwner :
+    fileOwner:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    fileSize :
+    fileSize:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    fileUrl :
+    fileUrl:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    fontFamily :
+    fontFamily:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    foundry :
+    foundry:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    frameCount :
+    frameCount:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    frameRate :
+    frameRate:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    frontChannels :
+    frontChannels:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    hasHash :
+    hasHash:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    hasMediaFileListEntry :
+    hasMediaFileListEntry:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    hasMediaStream :
+    hasMediaStream:
         {
-            type : Elements.types.resource,
-            control : Controls.input_box
+            type: Elements.types.resource,
+            control: Controls.input_box
         },
-    hashAlgorithm :
+    hashAlgorithm:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    hashValue :
+    hashValue:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    height :
+    height:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    horizontalResolution :
+    horizontalResolution:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    interlaceMode :
+    interlaceMode:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    isPassswordProtected :
+    isPassswordProtected:
         {
-            type : Elements.types.boolean,
-            control : Controls.input_box
+            type: Elements.types.boolean,
+            control: Controls.input_box
         },
-    lfeChannels :
+    lfeChannels:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    lineCount :
+    lineCount:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    losslessCompressionType :
+    losslessCompressionType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    lossyCompressionType :
+    lossyCompressionType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    originalLocation :
+    originalLocation:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    pageCount :
+    pageCount:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    permissions :
+    permissions:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    programmingLanguage :
+    programmingLanguage:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    rate :
+    rate:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    rearChannels :
+    rearChannels:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    sampleCount :
+    sampleCount:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    sampleRate :
+    sampleRate:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    sideChannels :
+    sideChannels:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    supercedes :
+    supercedes:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    uncompressedSize :
+    uncompressedSize:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    verticalResolution :
+    verticalResolution:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    width :
+    width:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
-    wordCount :
+    wordCount:
         {
-            type : Elements.types.int,
-            control : Controls.input_box
+            type: Elements.types.int,
+            control: Controls.input_box
         },
     bitrateType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     characterPosition:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     colorCount:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     colorDepth:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     containsPlacemark:
         {
-            type : Elements.types.string,
-            control : Controls.map
+            type: Elements.types.string,
+            control: Controls.map
         },
     depiction:
         {
-            type : Elements.types.resource,
-            control : Controls.input_box
+            type: Elements.types.resource,
+            control: Controls.input_box
         },
     depicts:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
     encryptionStatus:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     filesystemType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     freeSpace:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     isPasswordProtected:
         {
-            type : Elements.types.boolean,
-            control : Controls.input_box
+            type: Elements.types.boolean,
+            control: Controls.input_box
         },
     occupiedSpace:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     pageNumber:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     paletteSize:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     streamPosition:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     totalSpace:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     uuid:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
 Elements.ontologies.research = {
-    /*sampleCollectionDate :
+    /* sampleCollectionDate :
     {
         type : Elements.types.date,
         control : Controls.input_box
@@ -1873,830 +1911,830 @@ Elements.ontologies.research = {
     },*/
     instrumentation:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     measurement:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     method:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     sample:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     software:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    hasRegex :
+    hasRegex:
         {
-            type : Elements.types.string,
-            control : Controls.input_box,
-            private : true
+            type: Elements.types.string,
+            control: Controls.input_box,
+            private: true
         },
-    hasAlternative :
+    hasAlternative:
         {
-            type : Elements.types.string,
-            control : Controls.input_box,
+            type: Elements.types.string,
+            control: Controls.input_box,
             private: true
         }
 };
 
 Elements.ontologies.dcb = {
-    specimen :
+    specimen:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    specimenProperties :
+    specimenProperties:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    specimenProperty :
+    specimenProperty:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    initialCrackLenght :
+    initialCrackLenght:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    specimenHeight :
+    specimenHeight:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    specimenLength :
+    specimenLength:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    specimenWidth :
+    specimenWidth:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    instrumentName :
+    instrumentName:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    method :
+    method:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    moisture :
+    moisture:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    temperature :
+    temperature:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    testVelocity :
+    testVelocity:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
 Elements.ontologies.achem = {
-    compound :
+    compound:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     sampleCount:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
 Elements.ontologies.bdv = {
-    identifierCode :
+    identifierCode:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    conformityDate :
+    conformityDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    conformityDateType :
+    conformityDateType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    conformityDegree :
+    conformityDegree:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    conformitySpecification :
+    conformitySpecification:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    conformitySpecificationTitle :
+    conformitySpecificationTitle:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    coupledResource :
+    coupledResource:
         {
-            type : Elements.types.resource,
-            control : Controls.url_box
+            type: Elements.types.resource,
+            control: Controls.url_box
         },
-    dateOfCreation :
+    dateOfCreation:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    dateOfLastRevision :
+    dateOfLastRevision:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    dateOfPublication :
+    dateOfPublication:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    diagnosticAndUsability :
+    diagnosticAndUsability:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    distributionFormatName :
+    distributionFormatName:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    equivalentScale :
+    equivalentScale:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    geographicBoundBox :
+    geographicBoundBox:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    geographicExtentCode :
+    geographicExtentCode:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    identifierNamespace :
+    identifierNamespace:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    keywordINSPIRE :
+    keywordINSPIRE:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    keywordValue :
+    keywordValue:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    lineage :
+    lineage:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    linkage :
+    linkage:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    metadataDate :
+    metadataDate:
         {
-            type : Elements.types.string,
-            control : Controls.date_picker
+            type: Elements.types.string,
+            control: Controls.date_picker
         },
-    metadataLanguage :
+    metadataLanguage:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    metadataPointOfContact :
+    metadataPointOfContact:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    metadataPointOfContactEmail :
+    metadataPointOfContactEmail:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    organizationEmail :
+    organizationEmail:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    organizationName :
+    organizationName:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    originatingControlledVocabulary :
+    originatingControlledVocabulary:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    originatingControlledVocabularyDateType :
+    originatingControlledVocabularyDateType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    originatingControlledVocabularyReferenceDate :
+    originatingControlledVocabularyReferenceDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    originatingControlledVocabularyTitle :
+    originatingControlledVocabularyTitle:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    projectName :
+    projectName:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    referenceSystemAuthority :
+    referenceSystemAuthority:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    referenceSystemIdentifier :
+    referenceSystemIdentifier:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    referenceSystemIdentifierCode :
+    referenceSystemIdentifierCode:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    referenceSystemIdentifierCodeSpace :
+    referenceSystemIdentifierCodeSpace:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    referenceSystemCode :
+    referenceSystemCode:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    resolutionDistance :
+    resolutionDistance:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    resourceAbstract :
+    resourceAbstract:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    resourceLanguage :
+    resourceLanguage:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    resourceTitle :
+    resourceTitle:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    responsibleParty :
+    responsibleParty:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    responsiblePartyRole :
+    responsiblePartyRole:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    spatialRepresentation :
+    spatialRepresentation:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    spatialResolution :
+    spatialResolution:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    spatialResolutionUnitMeasure :
+    spatialResolutionUnitMeasure:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    spatialServiceDataType :
+    spatialServiceDataType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    temporalExtentEndingDate :
+    temporalExtentEndingDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    temporalExtentStartingDate :
+    temporalExtentStartingDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
-    uniqueResourceIdentifier :
+    uniqueResourceIdentifier:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    version :
+    version:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    topicCategory :
+    topicCategory:
         {
-            type : Elements.types.resource,
-            control : Controls.input_box
+            type: Elements.types.resource,
+            control: Controls.input_box
         },
     identifierNameSpace:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     referencesSystemCode:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     resourceLocator:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
 Elements.ontologies.tsim = {
-    aerodynamicDragCoefficient :
+    aerodynamicDragCoefficient:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     airDensity:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     controllerEfficiency:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     drivingCycle:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     gearRatio:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     gravitationalAcceleration:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     roadSurfaceCoefficient:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     tireRadius:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     vehicle:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     vehicleMass:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     vehicleModel:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     vehicleFrontalArea:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
 Elements.ontologies.biocn = {
-    beginDate :
+    beginDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
     commonName:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     endDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
     geographicDescription:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     lifeStage:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     individualCount:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     individualsPerSpecies:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     observedWeight:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     speciesCount:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     sampleDestination:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     sampleIdentification:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     samplingDescription:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     samplingEffort:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     samplingPeriodicity:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     scientificName:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     sex:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     singleDateTime:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
 Elements.ontologies.grav = {
-    altitudeDatumName :
+    altitudeDatumName:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     altitudeDistanceUnits:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     altitudeSystemDefinition:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     beginningTime:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     endingTime:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     geographicBoundingBox:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     altitudeResolution:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     resolutionDistance:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     temporalExtentEndingDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
     temporalExtentStartingDate:
         {
-            type : Elements.types.date,
-            control : Controls.date_picker
+            type: Elements.types.date,
+            control: Controls.date_picker
         },
     altitudeEncodingMethods:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         }
 };
 
 Elements.ontologies.hdg = {
     additive:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     catalyst:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     gravimetricCapacity:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     hydrationFactor:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     hydrogenGenerationRate:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     hydrolysis:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    numberOfReutilization :
+    numberOfReutilization:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     reactorType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    reagent :
+    reagent:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
 Elements.ontologies.cep = {
-    applicationDomain :
+    applicationDomain:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     boardType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     convexNonConvex:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     coordinateOrigin:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     gridType:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     hardwareConfiguration:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     heuristics:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     inputProperty:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    resultProperty :
+    resultProperty:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    solver :
+    solver:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    solverConfiguration :
+    solverConfiguration:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    typologyWascher :
+    typologyWascher:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
 Elements.ontologies.social = {
-    dataCollectionDate :
+    dataCollectionDate:
         {
-            type : Elements.types.string,
-            control : Controls.date_picker
+            type: Elements.types.string,
+            control: Controls.date_picker
         },
     dataCollectionMethodology:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     dataCollectionSoftware:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     dataSource:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     externalAid:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     kindOfData:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     methodology:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     sampleSize:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    samplingProcedure :
+    samplingProcedure:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    universe :
+    universe:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
 Elements.ontologies.cfd = {
-    analyticalSolution :
+    analyticalSolution:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     boundaryCondition:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     computationalDomain:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     convergenceCriteria:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     flowCase:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     initialCondition:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     mathematicalModel:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
     numericalGrid:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    numericalMethod :
+    numericalMethod:
         {
-            type : Elements.types.string,
-            control : Controls.markdown_box
+            type: Elements.types.string,
+            control: Controls.markdown_box
         },
-    surfaceRoughness :
+    surfaceRoughness:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    temporalDiscretization :
+    temporalDiscretization:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    totalSimulatedTime :
+    totalSimulatedTime:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
-    underrelaxation :
+    underrelaxation:
         {
-            type : Elements.types.string,
-            control : Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         }
 };
 
@@ -2705,181 +2743,181 @@ Elements.ontologies.cfd = {
  */
 Elements.ontologies.tvu =
     {
-        comment :
+        comment:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        dateLastUpdated :
+        dateLastUpdated:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        endDateTime :
+        endDateTime:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        startDateTime :
+        startDateTime:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        episodeNumber :
+        episodeNumber:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        publicationDate :
+        publicationDate:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        quotation :
+        quotation:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        aspectRatio :
+        aspectRatio:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        averageBitRate :
+        averageBitRate:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        codecName :
+        codecName:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        duration :
+        duration:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        eventEndDate :
+        eventEndDate:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        eventStartDate :
+        eventStartDate:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        fileName :
+        fileName:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        fileSize :
+        fileSize:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        frameRate :
+        frameRate:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        height :
+        height:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        homepageOffice :
+        homepageOffice:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        locationDescription :
+        locationDescription:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        officeMailAddress :
+        officeMailAddress:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        playbackSpeed :
+        playbackSpeed:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        relatedResources :
+        relatedResources:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        sampleRate :
+        sampleRate:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        samplingFormat :
+        samplingFormat:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        telephoneOffice :
+        telephoneOffice:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        width :
+        width:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        attachments :
+        attachments:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        chapters :
+        chapters:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        curator :
+        curator:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        numberOfFavourites :
+        numberOfFavourites:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        numberOfVisualizations :
+        numberOfVisualizations:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        typeOfUpdate :
+        typeOfUpdate:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        videoMakers :
+        videoMakers:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        dataRate :
+        dataRate:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        soundField :
+        soundField:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
-            },
+                type: Elements.types.string,
+                control: Controls.input_box
+            }
     };
 
 /**
@@ -2887,37 +2925,37 @@ Elements.ontologies.tvu =
  */
 Elements.ontologies.po =
     {
-        actor :
+        actor:
             {
-                type : Elements.types.string,
-                control : Controls.markdown_box
+                type: Elements.types.string,
+                control: Controls.markdown_box
             },
-        channel :
+        channel:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
 
             },
-        commentator :
+        commentator:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        genre :
+        genre:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
-        location :
+        location:
             {
-                type : Elements.types.string,
-                control : Controls.input_box
-            },
+                type: Elements.types.string,
+                control: Controls.input_box
+            }
     };
 
-Elements.setAllElements = function(loadedElements)
+Elements.setAllElements = function (loadedElements)
 {
-    for(let i = 0; i < loadedElements.length;i++)
+    for (let i = 0; i < loadedElements.length; i++)
     {
         let loadedElement = loadedElements[i];
         let prefix = loadedElement.prefix;
@@ -2925,11 +2963,11 @@ Elements.setAllElements = function(loadedElements)
 
         let existingElement = Elements.ontologies[prefix][shortName];
 
-        for(let k in loadedElement)
+        for (let k in loadedElement)
         {
-            if(existingElement[k] === null || typeof existingElement[k] === "undefined")
+            if (existingElement[k] === null || typeof existingElement[k] === "undefined")
             {
-                Elements.ontologies[prefix][shortName][k]=loadedElement[k];
+                Elements.ontologies[prefix][shortName][k] = loadedElement[k];
             }
         }
     }

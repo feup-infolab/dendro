@@ -153,7 +153,7 @@ exports.my = function (req, res)
         }
     });
 };
-exports.change_log = function (req, res)
+exports.chsendResponseange_log = function (req, res)
 {
     const fetchVersionsInformation = function (archivedResource, cb)
     {
@@ -279,7 +279,7 @@ exports.show = function (req, res)
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
+                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private] ,[Elements.access_types.api_readable]);
                 }
 
                 return false;
@@ -881,7 +881,6 @@ exports.new = function (req, res)
                     {
                         // creator will be the currently logged in user
 
-                        // TODO
                         const storageConfig = {
                             ddr: {
                                 storageType: Config.defaultStorageConfig.storageType,
@@ -897,8 +896,7 @@ exports.new = function (req, res)
 
                         storageConf.save(function (err, result)
                         {
-                            if (isNull(err))
-                            {
+                            if (isNull(err)) {
                                 const projectData = {
                                     dcterms: {
                                         creator: req.user.uri,
@@ -909,11 +907,11 @@ exports.new = function (req, res)
                                         coverage: req.body.coverage
                                     },
                                     ddr: {
-                                        hasStorageConfig: storageConf,
                                         handle: req.body.handle,
                                         privacyStatus: req.body.privacy
                                     },
                                     schema: {
+                                        hasActiveStorage: result,
                                         provider: req.body.contact_name,
                                         telephone: req.body.contact_phone,
                                         address: req.body.contact_address,
@@ -922,15 +920,12 @@ exports.new = function (req, res)
                                     }
                                 };
 
-                                Project.createAndInsertFromObject(projectData, function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
+                                Project.createAndInsertFromObject(projectData, function (err, result) {
+                                    if (isNull(err)) {
                                         req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
                                         res.redirect("/projects/my");
                                     }
-                                    else
-                                    {
+                                    else {
                                         req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
                                         throw err;
                                     }

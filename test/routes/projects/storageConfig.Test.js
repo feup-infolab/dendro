@@ -44,7 +44,7 @@ describe("Project storageConfig tests", function (done)
 
     describe("Create Project with storage Config", function ()
     {
-        it("Should create a project public project with storage config", function (done)
+        it("Should create a project public project with default storage config", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -56,25 +56,38 @@ describe("Project storageConfig tests", function (done)
             });
         });
 
-        it("Should edit storage config and give a valid access", function ()
+        it("Should edit storage config has  project owner", function ()
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                // Get initial project storage config
-                // Edit project storage config
-                // should give OK status
-                done();
+                projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res)
+                {
+                    should.not.exist(err);
+                    // Check config inicial  == OK
+                    projectUtils.edit_project_storage( function (err, res) {
+                        should.not.exist(err);
+                        //Check config enviada == OK
+                    });
+                    done();
+                });
             });
         });
 
-        it("Should edit storage config and give error", function ()
+        it("Should try to edit storage config and doesnt have permissions", function ()
         {
+            // usar user que nao seja owner / contribuidor do projecto
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                // Get initial project storage config
-                // Edit project storage config
-                // should give !OK status
-                done();
+                projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res) {
+                    should.not.exist(err);
+                    projectUtils.edit_project_storage( function (err, res) {
+                        should.exist(err);
+
+                        //verificar metadados do proj == metadaddos inicial
+
+                        done();
+                    });
+                });
             });
         });
 
