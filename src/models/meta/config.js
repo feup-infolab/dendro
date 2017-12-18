@@ -770,19 +770,21 @@ Config.public_ontologies = getConfigParameter("public_ontologies");
  *
  * @returns {boolean}
  */
-function arrayContainsArray (superset, subset) {
-    if (0 === subset.length) {
+function arrayContainsArray (superset, subset)
+{
+    if (subset.length === 0)
+    {
         return false;
     }
-    return subset.every(function (value) {
+    return subset.every(function (value)
+    {
         return (superset.indexOf(value) >= 0);
     });
 }
 
 // if we have unparametrized prefixes in the public ontologies inside deployment_configs.json, dendro should crash immediately
-if(!arrayContainsArray(Object.keys(Config.enabledOntologies), Config.public_ontologies))
+if (!arrayContainsArray(Object.keys(Config.enabledOntologies), Config.public_ontologies))
 {
-
     const msg = `The public_ontologies value in deployment_configs contains prefixes not parametrized in the list of enabled ontologies in config.js. : ${_.difference(Config.public_ontologies, Object.keys(Config.enabledOntologies))}`;
     Logger.log("error", msg);
     throw new Error(msg);
@@ -817,5 +819,12 @@ if (process.env.NODE_ENV === "production")
         Config.maxSimultaneousConnectionsToDb = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
     }
 }
+
+Config.toJSONObject = function ()
+{
+    const CircularJSON = require("circular-json");
+    const string = CircularJSON.stringify(_.extend({}, Config));
+    return JSON.parse(string);
+};
 
 module.exports.Config = Config;

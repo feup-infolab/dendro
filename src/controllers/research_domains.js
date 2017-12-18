@@ -26,7 +26,7 @@ exports.autocomplete = function (req, res)
                 {
                     _.map(researchDomains, function (researchDomain)
                     {
-                        Descriptor.removeUnauthorizedFromObject(researchDomain, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_accessible]);
+                        Descriptor.removeUnauthorizedFromObject(researchDomain, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
                     });
 
                     res.json(
@@ -73,7 +73,7 @@ exports.all = function (req, res)
                 }
             );
         }
-    }, null, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_accessible]);
+    }, null, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
 };
 
 exports.edit = function (req, res)

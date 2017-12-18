@@ -855,7 +855,16 @@ exports.upload = function (req, res)
             {
                 fs.stat(file.path, function (err, stats)
                 {
-                    callback(err, stats.size);
+                    if (!isNull(stats))
+                    {
+                        callback(err, stats.size);
+                    }
+                    else
+                    {
+                        const msg = "Unable to calculate the stats of file path " + file.path;
+                        Logger.log("error", msg);
+                        callback(1, msg);
+                    }
                 });
             }, function (err, results)
             {
@@ -958,7 +967,7 @@ exports.upload = function (req, res)
                                             {
                                                 if (isNull(err))
                                                 {
-                                                    if (totalSize + storageSize < Config.maxProjectSize)
+                                                    if (totalSize + storageSize < project.ddr.hasStorageLimit)
                                                     {
                                                         async.mapSeries(files, function (file, callback)
                                                         {
@@ -1054,7 +1063,7 @@ exports.upload = function (req, res)
                                                     }
                                                     else
                                                     {
-                                                        return callback(403, "By uploading this file you would exceed the limit of " + JSON.stringify(humanize.filesize(Config.maxProjectSize)) + " for this project.");
+                                                        return callback(403, "By uploading this file you would exceed the limit of " + JSON.stringify(humanize.filesize(project.ddr.hasStorageLimit)) + " for this project.");
                                                     }
                                                 }
                                                 else
@@ -1455,7 +1464,7 @@ exports.rm = function (req, res)
                                             return callback(null, msg);
                                         }
                                         return callback(err, result);
-                                    }, userUri, true, req.query.really_delete);
+                                    }, userUri, false, req.query.really_delete);
                                 }
                                 else
                                 {

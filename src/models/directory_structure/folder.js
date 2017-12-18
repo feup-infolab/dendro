@@ -895,21 +895,30 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     const absPath = path.join(absolutePathOfLocalFolder, fileName);
                     fs.stat(absPath, function (err, stats)
                     {
-                        if (stats.isFile())
+                        if (isNull(err))
                         {
-                            loadChildFile(fileName, function (err, savedChildFile)
+                            if (stats.isFile())
                             {
-                                // Logger.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
-                                return cb(err, savedChildFile);
-                            });
+                                loadChildFile(fileName, function (err, savedChildFile)
+                                {
+                                    // Logger.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
+                                    return cb(err, savedChildFile);
+                                });
+                            }
+                            else if (stats.isDirectory())
+                            {
+                                loadChildFolder(fileName, function (err, savedChildFolder)
+                                {
+                                    // Logger.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
+                                    return cb(err, savedChildFolder);
+                                });
+                            }
                         }
-                        else if (stats.isDirectory())
+                        else
                         {
-                            loadChildFolder(fileName, function (err, savedChildFolder)
-                            {
-                                // Logger.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
-                                return cb(err, savedChildFolder);
-                            });
+                            const msg = "Unable to determine the contents of folder " + self.uri + " when loading a the contents of a folder into it: " + JSON.stringify(err);
+                            Logger.log("error", msg);
+                            return cb(err, stats);
                         }
                     });
                 }, function (err, results)
@@ -990,6 +999,8 @@ Folder.prototype.loadMetadata = function (
                 {
                     if (isNull(err) && !isNull(folder))
                     {
+                        // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                        folder.nie.isLogicalPartOf = self.uri;
                         folder.loadMetadata(
                             childNode,
                             function (err, result)
@@ -1006,6 +1017,8 @@ Folder.prototype.loadMetadata = function (
                         {
                             if (isNull(err) && !isNull(folder))
                             {
+                                // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                                folder.nie.isLogicalPartOf = self.uri;
                                 folder.loadMetadata(
                                     childNode,
                                     function (err, result)
@@ -1031,6 +1044,8 @@ Folder.prototype.loadMetadata = function (
                 {
                     if (isNull(err) && !isNull(file))
                     {
+                        // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                        file.nie.isLogicalPartOf = self.uri;
                         file.loadMetadata(
                             childNode,
                             function (err, result)
@@ -1175,14 +1190,12 @@ Folder.prototype.loadMetadata = function (
             {
                 if (!isNull(existingFolder))
                 {
-                    const getTitleDescriptor = _.find(node.metadata, function (descriptor)
-                    {
-                        return descriptor.prefixedForm === "nie:title";
-                    });
-
                     if (node.resource === existingFolder.uri)
                     {
-                        existingFolder.loadMetadata(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                        loadMetadataIntoThisFolder(node, function (err, result)
+                        {
+                            callback(err, result);
+                        });
                     }
                     else
                     {
@@ -1191,6 +1204,8 @@ Folder.prototype.loadMetadata = function (
                 }
                 else
                 {
+                    // Sets the resource as the new folder and not the one specified in the metadata.json file
+                    node.resource = self.uri;
                     loadMetadataIntoThisFolder(node, function (err, result)
                     {
                         callback(err, result);
@@ -1409,7 +1424,15 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
             {
                 const deleteChild = function (child, cb)
                 {
-                    child.delete(cb, uriOfUserDeletingTheFolder, notRecursive);
+                    // This is necessary because depending on the type the .delete function has different parameters. This was previously creating a bug that prevented child resources to be "really_deleted" when its parent was.
+                    if (child instanceof Folder)
+                    {
+                        child.delete(cb, uriOfUserDeletingTheFolder, notRecursive, reallyDelete);
+                    }
+                    else if (child instanceof File)
+                    {
+                        child.delete(cb, uriOfUserDeletingTheFolder, reallyDelete);
+                    }
                 };
 
                 async.mapSeries(children, deleteChild, function (err, result)

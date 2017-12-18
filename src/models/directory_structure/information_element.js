@@ -267,7 +267,7 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
                             }
                             else
                             {
-                                callback(true, "Error: Parent of :  " + self.uri + " is neither a folder nor project");
+                                callback(true, "Error: Parent (with uri: " + parentUri + ") of :" + self.uri + " is neither a folder nor project");
                             }
                         }
                         else
@@ -712,14 +712,14 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
                         }
                         else
                         {
-                            Logger.log("info", "[findMetadata] error accessing logical parts of folder " + resource.nie.title);
+                            Logger.log("info", "[Information Element find metadata] error accessing logical parts of folder " + resource.nie.title);
                             return callback(true, null);
                         }
                     });
                 }
                 else
                 {
-                    Logger.log("info", "[findMetadata] " + resource.nie.title + " is not a folder.");
+                    Logger.log("info", "[Information Element find metadata] " + resource.nie.title + " is not a folder.");
                     return callback(null, metadataResult);
                 }
             }
@@ -738,7 +738,7 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
 
             return callback(true, msg);
         }
-    }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_accessible]);
+    }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_readable]);
 };
 
 InformationElement.prototype.containedIn = function (parentResource, callback, customGraphUri)

@@ -206,15 +206,11 @@ angular.module("dendroApp.services")
                     return ticketPromise.promise;
                 };
 
-                this.calculate_md5 = function (file, callback, progressCallback)
+                this.calculate_md5 = function (file, callback)
                 {
-                    browserMD5File(file, function (err, md5)
+                    return new BrowserMD5File(file, function (err, md5)
                     {
-                        callback(err, md5); // 97027eb624f85892c69c4bcec8ab0f11
-                    },
-                    function (progress)
-                    {
-                        progressCallback(progress);
+                        callback(err, md5);
                     });
                 };
             }
