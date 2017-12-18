@@ -909,7 +909,7 @@ exports.new = function (req, res)
                                     ddr: {
                                         handle: req.body.handle,
                                         privacyStatus: req.body.privacy,
-                                        hasStorageConfig: storageConfig.uri
+                                        hasStorageConfig: result.uri
                                     },
                                     schema: {
                                         hasActiveStorage: result,

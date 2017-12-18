@@ -51,7 +51,14 @@ describe("Project storageConfig tests", function (done)
                 projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res)
                 {
                     should.not.exist(err);
-                    done();
+                    if (!isNull(res.body.descriptors.ddr.hasStorageConfig))
+                    {
+                        done();
+                    }
+                    else
+                    {
+                        done("hasActiveStorageConfig not set");
+                    }
                 });
             });
         });
@@ -64,9 +71,10 @@ describe("Project storageConfig tests", function (done)
                 {
                     should.not.exist(err);
                     // Check config inicial  == OK
-                    projectUtils.edit_project_storage( function (err, res) {
+                    projectUtils.edit_project_storage(function (err, res)
+                    {
                         should.not.exist(err);
-                        //Check config enviada == OK
+                        // Check config enviada == OK
                     });
                     done();
                 });
@@ -78,12 +86,14 @@ describe("Project storageConfig tests", function (done)
             // usar user que nao seja owner / contribuidor do projecto
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res) {
+                projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res)
+                {
                     should.not.exist(err);
-                    projectUtils.edit_project_storage( function (err, res) {
+                    projectUtils.edit_project_storage(function (err, res)
+                    {
                         should.exist(err);
 
-                        //verificar metadados do proj == metadaddos inicial
+                        // verificar metadados do proj == metadaddos inicial
 
                         done();
                     });
