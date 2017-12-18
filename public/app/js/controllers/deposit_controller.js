@@ -1,4 +1,4 @@
-angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
+angular.module('dendroApp.controllers', [])
 /**
  *  Project administration controller
  */

@@ -59,120 +59,6 @@ Deposit.createDepositRegistry = function (object, callback) {
     });
 };
 
-Deposit.public = function(publicPrivacy, page, offset, callback){
-
-    const query =
-        "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy \n" +
-        "FROM [0] \n"  +
-        "WHERE { \n" +
-            "?uri rdf:type ddr:Registry . \n" +
-            "?uri ddr:exportedFromProject ?projused . \n" +
-            "?uri ddr:privacyStatus [1] . \n" +
-            "?projused ddr:privacyStatus ?privacy . \n" +
-            "?projused dcterms:title ?title . \n" +
-            "?uri dcterms:creator ?user . \n" +
-            "?uri dcterms:title ?label . \n" +
-            "?uri dcterms:date ?date . \n" +
-            "?uri dcterms:description ?description . \n" +
-        "} \n" +
-        "ORDER BY ?date \n" +
-        "LIMIT [2] \n" +
-        "OFFSET [3]";
-
-    db.connection.executeViaJDBC(query,
-        [   {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
-            },
-            {
-                type : DbConnection.string,
-                value : publicPrivacy
-            },
-            {
-                type : DbConnection.string,
-                value : page
-            },
-            {
-                type : DbConnection.string,
-                value : offset
-            }
-        ], function (err, results){
-
-            //do this client-side
-            let deposits = results;
-            for(let i = 0; i < deposits.length; i++){
-                deposits[i].date = moment(deposits[i].date).fromNow();
-            }
-            //check for error
-            callback(err, deposits);
-        });
-};
-
-Deposit.allowed = function(username, parameters, callback){
-
-    const query =
-        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy\n" +
-        "FROM [0] \n"  +
-        "WHERE " +
-        "{ \n" +
-        "   ?uri rdf:type ddr:Registry . \n" +
-        "   ?uri ddr:exportedFromProject ?projused . \n" +
-        "   { \n" +
-        "       ?projused ddr:privacyStatus [1] . \n" +
-        "       ?projused rdf:type ddr:Project . \n" +
-        "       ?projused dcterms:title ?projectTitle . \n" +
-        "       ?projused ddr:privacyStatus ?privacy . \n" +
-        "       { \n" +
-        "           ?projused dcterms:creator ?creator . \n" +
-        "           ?creator ddr:username [2] \n" +
-        "       } \n" +
-        "       UNION \n" +
-        "       { \n" +
-        "           ?projused dcterms:contributor ?contributor . \n" +
-        "           ?contributor ddr:username [2] \n" +
-        "       } \n" +
-        "       UNION \n" +
-        "       { " +
-        "           ?projused ddr:privacyStatus [3] \n" +
-        "       }\n"+
-        "   } \n" +
-        "   ?uri dcterms:creator ?user . \n" +
-        "   ?uri dcterms:title ?label . \n" +
-        "   ?uri dcterms:date ?date . \n" +
-        "   ?uri dcterms:description ?description . \n" +
-        "} \n" +
-        "ORDER BY ?date ";
-
-    db.connection.executeViaJDBC(query,
-        [   {
-            type : DbConnection.resourceNoEscape,
-            value : db.graphUri
-        },
-            {
-                type : DbConnection.string,
-                value : "private"
-            },
-            {
-                type : DbConnection.string,
-                value : username
-            },
-            {
-                type : DbConnection.string,
-                value : "public"
-            }
-        ], function (err, results){
-
-            let deposits = results;
-
-            //make this operation client-side
-            for(let i = 0; i < deposits.length; i++){
-                deposits[i].date = moment(deposits[i].date).fromNow();
-            }
-            //check for error
-            callback(err, deposits);
-        });
-};
-
 Deposit.createQuery = function(params, callback){
     let query =
         "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy\n" +
@@ -184,46 +70,57 @@ Deposit.createQuery = function(params, callback){
         "   ?projused rdf:type ddr:Project . \n" +
         "   ?projused dcterms:title ?projectTitle . \n" +
         "   ?projused ddr:privacyStatus ?privacy . \n" +
-        "   { \n" +
-        "       { \n" +
-        "         ?uri ddr:privacyStatus [1] . \n" +
-        "       } \n" +
-        "       UNION \n" +
-        "       { \n" +
-        "         ?uri ddr:privacyStatus [2] . \n" +
-        "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-        "         ?projused ?role [3] . \n" +
-        "       } \n" +
-        "   } \n" +
         "   ?uri dcterms:creator ?user . \n" +
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri dcterms:description ?description . \n";
 
 
-    let ending =
-        "} \n" +
-        "ORDER BY DESC(?date) \n" +
-        "OFFSET [4] \n" +
-        "LIMIT [5]";
+    let i = 1;
+
 
     let variables = [
         {
             type: Elements.types.resourceNoEscape,
             value: db.graphUri
-        },
-        {
+        }];
+
+    if(params.self){
+        const personal =
+        "   { \n" +
+        "       { \n" +
+        "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { \n" +
+        "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+        "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+        "         ?projused ?role [" + i++ + "] . \n" +
+        "       } \n" +
+        "   } \n";
+
+        query += personal;
+        variables = variables.concat([
+          {
             type : Elements.ontologies.ddr.privacyStatus.type,
             value : "public"
-        },
-        {
+          },
+          {
             type : Elements.ontologies.ddr.privacyStatus.type,
             value : "private"
-        },
-        {
+          },
+          {
             type : Elements.ontologies.dcterms.creator.type,
             value : params.self
-        },];
+          }]);
+    }
+
+
+    let ending =
+        "} \n" +
+        "ORDER BY DESC(?date) \n" +
+        "OFFSET [" + i++ + "] \n" +
+        "LIMIT [" + i++ + "]";
 
     if(params.offset){
         variables.push({
@@ -249,7 +146,6 @@ Deposit.createQuery = function(params, callback){
         });
     }
 
-    let i = 6;
     if(params.project){
         query += "  ?projused dcterms:title [" + i++ + "] \n";
         variables.push({

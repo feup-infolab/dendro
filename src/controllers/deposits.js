@@ -49,23 +49,7 @@ exports.getDeposits = function(req, res) {
         display = "render";
     }
 
-    if(user instanceof User) {
-        exports.allowed(req, verification);
-    } else {
-        //not logged in. return public deposits only
-        exports.public(req, verification);
-    }
-};
-
-exports.public = function (req, callback) {
-
-    const depositType = "public";
-    const page = req.query.page;
-    const offset = req.query.offset;
-
-    Deposit.createQuery(depositType, function(err, results){
-        callback(err, results);
-    });
+    exports.allowed(req, verification);
 };
 
 exports.allowed = function (req, callback) {

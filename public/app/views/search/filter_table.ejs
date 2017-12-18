@@ -1,21 +1,26 @@
+<table>
+    <tr class="form-group sidebar-item" ng-repeat="item in $eval(attr()) track by $index">
+        <td>
+            {{item.label}}
+        </td>
 
-<div class="form-group sidebar-item" ng-repeat="item in $eval(attr()) track by $index">
-    <label>
-        {{item.label}}
-            <div ng-if="item.type === 'dropdown'">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    {{item.selected}} <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                    <li ng-repeat="iterator in item.value track by $index"><a href="#">{{iterator.name}}</a></li>
-                </ul>
-            </div>
-            <div ng-if="item.list && item.type !== 'dropdown'" class="{{item.type}}" ng-repeat="iterator in item.value track by $index">
-                <label ng-if="item.type !== 'dropdown'">
-                    <input ng-model="iterator.value" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="{{item.type}}">
-                    {{iterator.name}}
-                </label>
-            </div>
-        <input ng-if="!item.list" ng-model="item.value" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="{{item.type}}">
-    </label>
-</div>
+        <td ng-if="item.type === 'dropdown'">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                {{item.selected}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li ng-repeat="iterator in item.value track by $index"><a href="#">{{iterator.name}}</a></li>
+            </ul>
+        </td>
+
+        <td ng-if="item.list && item.type !== 'dropdown'" class="{{item.type}}" ng-repeat="iterator in item.value track by $index">
+            <label ng-if="item.type !== 'dropdown'">
+                <input ng-model="iterator.value" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="{{item.type}}">
+                {{iterator.name}}
+            </label>
+        </td>
+        <td>
+            <input ng-if="!item.list" ng-model="item.value" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="{{item.type}}">
+        </td>
+    </tr>
+</table>
