@@ -3654,18 +3654,24 @@ Resource.getCount = function (callback)
                             totalCount = parseInt(count[0].count);
                             return callback(null, totalCount);
                         }
-
-                        return callback(1, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is an Array but does not contain the 'count' property or has length 0.");
+                        else
+                        {
+                            return callback(1, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is an Array but does not contain the 'count' property or has length 0.");
+                        }
                     }
                     else if (!isNull(count.count))
                     {
                         return callback(null, parseInt(count.count));
                     }
-
-                    return callback(2, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is not an Array and does not contain the 'count' property.");
+                    else
+                    {
+                        return callback(2, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is not an Array and does not contain the 'count' property.");
+                    }
                 }
-
-                return callback(3, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is null!");
+                else
+                {
+                    return callback(3, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is null!");
+                }
             }
 
             return callback(err, count);
