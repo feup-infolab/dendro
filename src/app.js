@@ -218,12 +218,10 @@ const startApp = function ()
                 // init_elasticsearch
                 require(Pathfinder.absPathInSrcFolder("bootup/init/init_elasticsearch.js")).initElasticSearch(self.app, callback);
             },
-            function (app, index, callback)
+            function (callback)
             {
-                // save index connection
-                self.index = index;
                 // create search indexes on elasticsearch if needed
-                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(app, self.index, callback);
+                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
             },
             function (callback)
             {

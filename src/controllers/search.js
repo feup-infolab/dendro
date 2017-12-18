@@ -48,7 +48,7 @@ exports.search = function (req, res)
                 {
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function (err, similarResources)
                     {
-                        if (!isNull(resource.indexData))
+                        if (isNull(resource.indexData))
                         {
                             resource.indexData = {};
                         }

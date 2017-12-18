@@ -1479,7 +1479,7 @@ Resource.prototype.reindex = function (indexConnection, callback)
 
                 const document = {
                     uri: self.uri,
-                    graph: indexConnection.index.uri,
+                    graph: indexConnection.uri,
                     descriptors: results,
                     last_indexing_date: now.toISOString()
                 };
@@ -1503,7 +1503,7 @@ Resource.prototype.reindex = function (indexConnection, callback)
                             {
                                 if (isNull(err))
                                 {
-                                    infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.index.short_name);
+                                    infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.short_name);
                                     return callback(null, infoMessages);
                                 }
                                 const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
@@ -3654,24 +3654,18 @@ Resource.getCount = function (callback)
                             totalCount = parseInt(count[0].count);
                             return callback(null, totalCount);
                         }
-                        else
-                        {
-                            return callback(1, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is an Array but does not contain the 'count' property or has length 0.");
-                        }
+
+                        return callback(1, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is an Array but does not contain the 'count' property or has length 0.");
                     }
                     else if (!isNull(count.count))
                     {
                         return callback(null, parseInt(count.count));
                     }
-                    else
-                    {
-                        return callback(2, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is not an Array and does not contain the 'count' property.");
-                    }
+
+                    return callback(2, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is not an Array and does not contain the 'count' property.");
                 }
-                else
-                {
-                    return callback(3, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is null!");
-                }
+
+                return callback(3, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is null!");
             }
 
             return callback(err, count);

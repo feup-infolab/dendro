@@ -108,7 +108,7 @@ module.exports.home = function (req, res)
 //         if (graph === "dryad")
 //         {
 //             const dryadLoader = new DryadLoader();
-//             dryadLoader.loadFromDownloadedFiles(req.index);
+//             dryadLoader.loadFromDownloadedFiles(IndexConnection.get(IndexConnection.all.dendro_graph));
 //         }
 //     }
 //
@@ -122,13 +122,12 @@ module.exports.home = function (req, res)
 
 module.exports.reindex = function (req, res)
 {
-    const indexConnection = req.index;
     const graphsToBeIndexed = req.body.graphs_to_reindex;
     const graphsToDelete = req.body.graphs_to_delete;
 
     const rebuildIndex = function (indexConnection, graphShortName, deleteBeforeReindexing, callback)
     {
-        if (!isNull(IndexConnection.indexes[graphShortName]))
+        if (!isNull(IndexConnection.all[graphShortName]))
         {
             async.waterfall([
                 // delete current index if requested
@@ -138,11 +137,11 @@ module.exports.reindex = function (req, res)
                     {
                         if (isNull(err) && isNull(result))
                         {
-                            Logger.log("Index " + indexConnection.index.short_name + " recreated .");
+                            Logger.log("Index " + indexConnection.short_name + " recreated .");
                             return callback(null);
                         }
 
-                        Logger.log("Error recreating index " + indexConnection.index.short_name + " . " + result);
+                        Logger.log("Error recreating index " + indexConnection.short_name + " . " + result);
                         // delete success, move on
                         return callback(1);
                     });
@@ -223,12 +222,20 @@ module.exports.reindex = function (req, res)
         graphsToBeIndexed,
         function (graph, cb)
         {
-            const deleteTheIndex = Boolean(_.contains(graphsToDelete, graph));
-
-            rebuildIndex(indexConnection, graph, deleteTheIndex, function (err, result)
+            if (IndexConnection.all.hasOwnProperty(graph))
             {
-                cb(err, result);
-            });
+                const deleteTheIndex = Boolean(_.contains(graphsToDelete, graph));
+                let indexConnection = IndexConnection.all[graph];
+
+                rebuildIndex(indexConnection, graph, deleteTheIndex, function (err, result)
+                {
+                    return cb(err, result);
+                });
+            }
+            else
+            {
+                return cb(1, "Index with key " + graph + " not found!");
+            }
         }, function (err, result)
         {
             if (err)
