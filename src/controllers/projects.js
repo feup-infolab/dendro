@@ -279,7 +279,7 @@ exports.show = function (req, res)
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private] ,[Elements.access_types.api_readable]);
+                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private] );
                 }
 
                 return false;
