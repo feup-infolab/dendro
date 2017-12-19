@@ -61,19 +61,7 @@ Logger.init = function (startTime, app)
                 }
             }
 
-            const logger = winston.createLogger({
-                level: loggerLevel
-            });
-
-            logger.on("error", function (err)
-            {
-                Logger.log("error", JSON.stringif(err));
-                process.nextTick(function ()
-                {
-                    process.kill(process.pid, "SIGTERM");
-                });
-            }
-            );
+            let logger;
 
             const { format } = require("winston");
             const { combine, timestamp, printf } = format;
@@ -96,9 +84,11 @@ Logger.init = function (startTime, app)
                 Logger.setErrorLogFilePath(path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`));
                 const errorLogFile = new winston.transports.File({
                     timestamp: tsFormat,
+                    name: "error-file",
                     filename: Logger.getErrorLogFilePath(),
                     level: "error",
                     handleExceptions: true,
+                    exitOnError: false,
                     format: combine(
                         timestamp(),
                         jsonFormat
@@ -108,32 +98,35 @@ Logger.init = function (startTime, app)
                 Logger.setLogFilePath(path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`));
                 const logFile = new winston.transports.File({
                     timestamp: tsFormat,
+                    name: "combined-file",
                     filename: Logger.getLogFilePath(),
+                    exitOnError: false,
                     level: loggerLevel,
-                    handleExceptions: true,
-                    exitOnError: true,
                     format: combine(
                         timestamp(),
                         jsonFormat
                     )
                 });
 
-                logger.add(errorLogFile);
-                logger.add(logFile);
-
                 // colorize the output to the console
                 const coloredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
-                        handleExceptions: true,
                         colorize: true,
+                        exitOnError: false,
                         format: combine(
                             timestamp(),
                             consoleFormat
                         )
                     });
 
-                logger.add(coloredConsoleOutput);
+                logger = winston.createLogger({
+                    transports: [
+                        coloredConsoleOutput,
+                        errorLogFile,
+                        logFile
+                    ]
+                });
             }
             else if (process.env.NODE_ENV === "test")
             {
@@ -144,7 +137,9 @@ Logger.init = function (startTime, app)
                     timestamp: tsFormat,
                     filename: Logger.getErrorLogFilePath(),
                     handleExceptions: true,
+                    exitOnError: false,
                     level: "error",
+                    name: "error-file-test",
                     format: combine(
                         timestamp(),
                         jsonFormat
@@ -156,30 +151,33 @@ Logger.init = function (startTime, app)
                     timestamp: tsFormat,
                     filename: Logger.getLogFilePath(),
                     level: loggerLevel,
-                    handleExceptions: true,
-                    exitOnError: true,
+                    exitOnError: false,
+                    name: "combined-file-test",
                     format: combine(
                         timestamp(),
                         jsonFormat
                     )
                 });
 
-                logger.add(errorLogFile);
-                logger.add(logFile);
-
                 // colorize the output to the console
                 const coloredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
                         colorize: true,
-                        handleExceptions: true,
+                        exitOnError: false,
                         format: combine(
                             timestamp(),
                             consoleFormat
                         )
                     });
 
-                logger.add(coloredConsoleOutput);
+                logger = winston.createLogger({
+                    transports: [
+                        coloredConsoleOutput,
+                        errorLogFile,
+                        logFile
+                    ]
+                });
             }
             else if (process.env.NODE_ENV === "production")
             {
@@ -199,8 +197,7 @@ Logger.init = function (startTime, app)
                         timestamp: tsFormat,
                         stream: logStream,
                         level: loggerLevel,
-                        handleExceptions: true,
-                        exitOnError: true,
+                        exitOnError: false,
                         format: combine(
                             timestamp(),
                             jsonFormat
@@ -221,29 +218,44 @@ Logger.init = function (startTime, app)
                         stream: logstreamError,
                         level: "error",
                         handleExceptions: true,
+                        exitOnError: false,
                         format: combine(
                             timestamp(),
                             jsonFormat
                         )
                     });
 
-                logger.add(logFile);
-                logger.add(logFileError);
-
                 // do not colorize the output to the console
                 const nonColoredConsoleOutput = new (winston.transports.Console)(
                     {
                         timestamp: tsFormat,
-                        handleExceptions: true,
+                        handleExceptions: false,
+                        exitOnError: false,
                         format: combine(
                             timestamp(),
                             consoleFormat
                         )
                     });
 
-                logger.add(nonColoredConsoleOutput);
+                logger = winston.createLogger({
+                    transports: [
+                        nonColoredConsoleOutput,
+                        logFileError,
+                        logFile
+                    ]
+                });
             }
 
+            logger.on("error", function (err)
+            {
+                Logger.log("error", JSON.stringify(err));
+                process.nextTick(function ()
+                {
+                    process.kill(process.pid, "SIGTERM");
+                });
+            });
+
+            logger.emitErrs = true;
             Logger.logger = logger;
         }
         else

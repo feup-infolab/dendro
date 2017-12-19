@@ -152,14 +152,12 @@ IndexConnection.get = function (indexKey)
     {
         return index;
     }
-    else
-    {
-        Logger.log("warn", "Index parametrization does not exist for key " + indexKey);
-        return null;
-    }
+
+    Logger.log("warn", "Index parametrization does not exist for key " + indexKey);
+    return null;
 };
 
-IndexConnection.getDefault = function()
+IndexConnection.getDefault = function ()
 {
     return IndexConnection.get("dendro_graph");
 };

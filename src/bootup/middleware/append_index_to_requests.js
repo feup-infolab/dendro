@@ -5,7 +5,6 @@ const appendIndexToRequests = function (app, index, callback)
 {
     const appendIndexToRequest = function (req, res, next)
     {
-
         req.index = IndexConnection.getDefault();
         // for debugging
         req.util = require("util");

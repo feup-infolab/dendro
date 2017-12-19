@@ -17,12 +17,10 @@ const initElasticSearch = function (app, callback)
             Logger.log_boot_message("Created connections to ElasticSearch Clusters but did not try to connect yet...");
             return callback(null);
         }
-        else
-        {
-            const msg = "[ERROR] Unable to create connection to indexes!";
-            Logger.log("error", msg);
-            return callback(msg);
-        }
+
+        const msg = "[ERROR] Unable to create connection to indexes!";
+        Logger.log("error", msg);
+        return callback(msg);
     });
 };
 

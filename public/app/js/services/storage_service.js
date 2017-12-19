@@ -23,10 +23,18 @@ angular.module("dendroApp.services")
                                 targetObject[namespace][key] = self.$storage[namespace][key];
                             }
 
-                            return self.$storage[namespace][key];
+                            if (self.$storage[namespace] != null)
+                            {
+                                return self.$storage[namespace][key];
+                            }
+                            return null;
                         }
 
-                        return self.$storage[namespace][key];
+                        if (self.$storage[namespace] != null)
+                        {
+                            return self.$storage[namespace][key];
+                        }
+                        return null;
                     }
 
                     if (targetObject != null)
