@@ -245,6 +245,10 @@ Logger.init = function (startTime, app)
                     ]
                 });
             }
+            else
+            {
+                throw new Error("Invalid environment configuration set! : " + process.env.NODE_ENV);
+            }
 
             logger.on("error", function (err)
             {
