@@ -38,6 +38,10 @@ Logger.init = function (startTime, app)
     {
         startTime = new Date();
     }
+
+    const moment = require("moment");
+    const fileNameDateSection = moment(startTime).format("YYYY_MM_DD");
+
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     // Setup logging
     if (!isNull(Config.logging))
@@ -63,192 +67,48 @@ Logger.init = function (startTime, app)
 
             let logger;
 
-            const { format } = require("winston");
-            const { combine, timestamp, printf } = format;
-            const consoleFormat = printf(info =>
-                `${info.timestamp} ${info.level}: ${info.message}`);
+            const { createLogger, format, transports } = require("winston");
+            const { combine, timestamp, label, printf } = format;
 
-            const jsonFormat = printf(info =>
-                JSON.stringify({
-                    timestamp: info.timestamp,
-                    level: info.level,
-                    message: info.message
-                }));
+            const myFormat = printf(info => {
+                return `${info.timestamp} [${process.env.NODE_ENV}] ${info.level}: ${info.message}`;
+            });
 
-            const tsFormat = () => (new Date()).toLocaleTimeString();
+            const env = process.env.NODE_ENV;
 
-            if (process.env.NODE_ENV === "development")
-            {
-                mkdirp.sync(path.join(absPath, "development"));
+            const logFilePath = path.join(absPath, env, fileNameDateSection, `${slug(Config.activeConfiguration)}_${loggerLevel}.log`);
+            const errorLogFilePath = path.join(absPath, env, fileNameDateSection, `${slug(Config.activeConfiguration)}_error.log`);
 
-                Logger.setErrorLogFilePath(path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`));
-                const errorLogFile = new winston.transports.File({
-                    timestamp: tsFormat,
-                    name: "error-file",
-                    filename: Logger.getErrorLogFilePath(),
-                    level: "error",
-                    handleExceptions: true,
-                    exitOnError: false,
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
-                });
+            mkdirp.sync(path.join(absPath, env, fileNameDateSection));
 
-                Logger.setLogFilePath(path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`));
-                const logFile = new winston.transports.File({
-                    timestamp: tsFormat,
-                    name: "combined-file",
+            Logger.setLogFilePath(logFilePath);
+            const logFile = new winston.transports.File(
+                {
                     filename: Logger.getLogFilePath(),
-                    exitOnError: false,
-                    level: loggerLevel,
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
+                    level: loggerLevel
                 });
 
-                // colorize the output to the console
-                const coloredConsoleOutput = new (winston.transports.Console)(
-                    {
-                        timestamp: tsFormat,
-                        colorize: true,
-                        exitOnError: false,
-                        format: combine(
-                            timestamp(),
-                            consoleFormat
-                        )
-                    });
-
-                logger = winston.createLogger({
-                    transports: [
-                        coloredConsoleOutput,
-                        errorLogFile,
-                        logFile
-                    ]
-                });
-            }
-            else if (process.env.NODE_ENV === "test")
-            {
-                mkdirp.sync(path.join(absPath, "test"));
-
-                Logger.setErrorLogFilePath(path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`));
-                const errorLogFile = new winston.transports.File({
-                    timestamp: tsFormat,
+            Logger.setErrorLogFilePath(errorLogFilePath);
+            const logFileError = new winston.transports.File(
+                {
                     filename: Logger.getErrorLogFilePath(),
-                    handleExceptions: true,
-                    exitOnError: false,
-                    level: "error",
-                    name: "error-file-test",
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
+                    level: "error"
                 });
 
-                Logger.setLogFilePath(path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`));
-                const logFile = new winston.transports.File({
-                    timestamp: tsFormat,
-                    filename: Logger.getLogFilePath(),
-                    level: loggerLevel,
-                    exitOnError: false,
-                    name: "combined-file-test",
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
-                });
+            // do not colorize the output to the console
+            const nonColoredConsoleOutput = new (winston.transports.Console)({});
 
-                // colorize the output to the console
-                const coloredConsoleOutput = new (winston.transports.Console)(
-                    {
-                        timestamp: tsFormat,
-                        colorize: true,
-                        exitOnError: false,
-                        format: combine(
-                            timestamp(),
-                            consoleFormat
-                        )
-                    });
-
-                logger = winston.createLogger({
-                    transports: [
-                        coloredConsoleOutput,
-                        errorLogFile,
-                        logFile
-                    ]
-                });
-            }
-            else if (process.env.NODE_ENV === "production")
-            {
-                mkdirp.sync(path.join(absPath, "production"));
-                const rotator = require("stream-rotate");
-
-                const logStream = rotator({
-                    path: path.join(absPath, "production"),
-                    name: slug("production_" + Config.activeConfiguration + "_" + loggerLevel, "_"),
-                    size: "5m",
-                    retention: 2,
-                    boundary: "daily"
-                });
-
-                const logFile = new winston.transports.File(
-                    {
-                        timestamp: tsFormat,
-                        stream: logStream,
-                        level: loggerLevel,
-                        exitOnError: false,
-                        format: combine(
-                            timestamp(),
-                            jsonFormat
-                        )
-                    });
-
-                const logstreamError = rotator({
-                    path: path.join(absPath, "production"),
-                    name: slug("production_" + Config.activeConfiguration + "_error", "_"),
-                    size: "5m",
-                    retention: 2,
-                    boundary: "daily"
-                });
-
-                const logFileError = new winston.transports.File(
-                    {
-                        timestamp: tsFormat,
-                        stream: logstreamError,
-                        level: "error",
-                        handleExceptions: true,
-                        exitOnError: false,
-                        format: combine(
-                            timestamp(),
-                            jsonFormat
-                        )
-                    });
-
-                // do not colorize the output to the console
-                const nonColoredConsoleOutput = new (winston.transports.Console)(
-                    {
-                        timestamp: tsFormat,
-                        handleExceptions: false,
-                        exitOnError: false,
-                        format: combine(
-                            timestamp(),
-                            consoleFormat
-                        )
-                    });
-
-                logger = winston.createLogger({
-                    transports: [
-                        nonColoredConsoleOutput,
-                        logFileError,
-                        logFile
-                    ]
-                });
-            }
-            else
-            {
-                throw new Error("Invalid environment configuration set! : " + process.env.NODE_ENV);
-            }
+            logger = winston.createLogger({
+                format: combine(
+                    timestamp(),
+                    myFormat
+                ),
+                transports: [
+                    nonColoredConsoleOutput,
+                    logFileError,
+                    logFile
+                ]
+            });
 
             logger.on("error", function (err)
             {

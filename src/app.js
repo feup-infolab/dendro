@@ -63,6 +63,7 @@ const killPM2InstancesIfRunning = exports.killPM2InstancesIfRunning = function (
 
 const startPM2Master = exports.startPM2Master = function (cb)
 {
+    Logger.log_boot_message("PM2 log file path: " + Logger.getLogFilePath());
     pm2.connect(function (err)
     {
         if (err)
@@ -73,6 +74,9 @@ const startPM2Master = exports.startPM2Master = function (cb)
 
         pm2.delete(Config.pm2AppName, function (err)
         {
+            Logger.log_boot_message("PM2 log file path: " + Logger.getLogFilePath());
+            Logger.log_boot_message("PM2 error file path: " + Logger.getErrorLogFilePath());
+
             pm2.start({
                 // Script to be run
                 script: path.join(appDir, "src", "app.js"),
@@ -107,7 +111,7 @@ const startPM2Master = exports.startPM2Master = function (cb)
     });
 };
 
-const startApp = function ()
+const initLogger = function()
 {
     if (global.app_startup_time)
     {
@@ -117,7 +121,10 @@ const startApp = function ()
     {
         Logger.init(new Date());
     }
+};
 
+const startApp = function ()
+{
     Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
 
     if (process.env.NODE_ENV === "test")
@@ -417,6 +424,8 @@ if (isNull(process.env.NODE_ENV) && !isNull(Config.environment))
 {
     process.env.NODE_ENV = Config.environment;
 }
+
+initLogger();
 
 if (process.env.NODE_ENV === "production")
 {
