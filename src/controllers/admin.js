@@ -417,7 +417,7 @@ module.exports.configuration = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        cb(err, config);
+                        cb(err, JSON.parse(config));
                     }
                     else
                     {
