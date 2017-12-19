@@ -75,6 +75,19 @@ Config.port = getConfigParameter("port");
 Config.host = getConfigParameter("host");
 Config.baseUri = getConfigParameter("baseUri");
 Config.environment = getConfigParameter("environment");
+
+if (Config.environment !== "test" &&
+    Config.environment !== "development" &&
+    Config.environment !== "production"
+)
+{
+    throw new Error("Invalid environment configuration set! : " + Config.environment);
+}
+else
+{
+    process.env.NODE_ENV = Config.environment;
+}
+
 Config.eudatBaseUrl = getConfigParameter("eudatBaseUrl");
 Config.eudatToken = getConfigParameter("eudatToken");
 Config.eudatCommunityId = getConfigParameter("eudatCommunityId");

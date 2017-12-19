@@ -7,14 +7,6 @@ const self = this;
 
 let appDir;
 
-if (process.env.NODE_ENV !== "test" &&
-    process.env.NODE_ENV !== "development" &&
-    process.env.NODE_ENV !== "production"
-)
-{
-    throw new Error("Invalid environment configuration set! : " + process.env.NODE_ENV);
-}
-
 if (process.env.NODE_ENV === "test")
 {
     appDir = path.resolve(path.dirname(require.main.filename), "../../..");
