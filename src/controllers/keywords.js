@@ -27,15 +27,16 @@ var baseRequest = request.defaults({
         Accept: "application/json"
     }
 });
-
+/*
 exports.loadfiles = function (rec, res)
 {
     res.json(
         {
-            ola: "hello"
+            return : "return"
         }
     );
 };
+*/
 exports.preprocessing = function (req, res)
 {
     function hasNumber (myString)
@@ -109,14 +110,13 @@ exports.termextraction = function (req, res)
       3. ((Adj | Noun)+ | ((Adj | Noun)* (NounPrep)?)(Adj| Noun)* ) Noun
       */
         var multiterm = [];
-        var current_word;
+        var current_word = "";
         // console.log(text);
         // console.log(text.length);
         for (var index = 0; index < text.length; index++)
         {
             if (text[index].pos.charAt(0) === "N")
             {
-                current_word = "";
                 current_word = text[index].word;
                 for (var index2 = index + 1; index2 < text.length; index2++)
                 {
@@ -218,10 +218,35 @@ exports.termextraction = function (req, res)
         {
             fs.readFile(result[0].path, "utf8", function (err, text)
             {
+                console.log("result: " + result[0].path);
+                console.log("text: " + text);
                 var texti = JSON.parse(text);
-                var results = JSON.parse(texti.text).result;
-                // console.log(results);
-                const documents = texti.documents;
+                console.log("texti: " + texti.text);
+                // var results = JSON.parse(texti.text).result;
+                console.log("text length: " + texti.text.length);
+                var results = [];
+                var documents = [];
+                if (texti.text.length > 1)
+                {
+                    for (var xx = 0; xx < texti.text.length; xx++)
+                    {
+                        console.log(JSON.parse(texti.text[xx]).result);
+                        results.push(JSON.parse(texti.text[xx]).result);
+                        documents.push(texti.document[xx]);
+                    }
+                }
+                else
+                {
+                    results.push(JSON.parse(texti.text).result);
+                    documents.push(texti.documents);
+                }
+                console.log(results);
+
+                for (var h = 0; h < results.length; h++)
+                {
+                    console.log(results[h]);
+                }
+
                 // console.log("documents " + documents);
                 if (isNull(err))
                 {
@@ -232,19 +257,38 @@ exports.termextraction = function (req, res)
                     var score = [];
                     var out = [];
                     var values = [];
-                    out = nounphrase(results, null);
-                    cvalue(out, documents, values);
-                    for (var i = 0; i < results.length; i++)
+                    // out = nounphrase(results, null);
+                    // cvalue(out, documents, values);
+                    if (texti.text.length > 1)
                     {
-                        if (results[i].pos === "NN" || results[i].pos === "NNS" || results[i].pos === "NNP" || results[i].pos === "NNPS")
+                        for (var i = 0; i < results.length; i++)
                         {
-                            posnoums.push(results[i].lemma);
+                            for (var j = 0; j < results[i].length; j++)
+                            {
+                                if (results[i][j].pos === "NN" || results[i][j].pos === "NNS" || results[i][j].pos === "NNP" || results[i][j].pos === "NNPS")
+                                {
+                                    posnoums.push(results[i][j].lemma);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (var i = 0; i < results[i].length; j++)
+                        {
+                            if (results[i].pos === "NN" || results[i].pos === "NNS" || results[i].pos === "NNP" || results[i].pos === "NNPS")
+                            {
+                                posnoums.push(results[i].lemma);
+                            }
                         }
                     }
                     const posnoumssimple = [...new Set(posnoums.map(obj => JSON.stringify(obj)))]
                         .map(str => JSON.parse(str));
                     // console.log(rec.body.documents);
-                    tfidf.addDocument(documents);
+                    for (var a = 0; a < documents.length; a++)
+                    {
+                        tfidf.addDocument(documents[a]);
+                    }
 
                     for (var p = 0; p < posnoumssimple.length; p++)
                     {
@@ -274,9 +318,10 @@ exports.termextraction = function (req, res)
                         }
                     }
                     /* for (var j = 0; j < posnoums.length; j++)
-                    {
-                        console.log("noun: " + posnoums[j] + " score: " + score[j]);
-                    }*/
+                  {
+                      console.log("noun: " + posnoums[j] + " score: " + score[j]);
+                  }*/
+
                     res.json(
                         {
                             dbpediaterms
@@ -379,7 +424,7 @@ exports.dbpedialookup = function (rec, res)
             }
             res.json(
                 {
-                  dbpediauri
+                    dbpediauri
                 }
             );
         }

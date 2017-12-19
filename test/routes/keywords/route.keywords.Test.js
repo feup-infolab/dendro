@@ -30,7 +30,12 @@ const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFold
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
-const pdfMockFile2 = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile2.js"));
+const BusPerformance = require(Pathfinder.absPathInTestsFolder("mockdata/files/BusPerformance.js"));
+const SimulatingVehicle = require(Pathfinder.absPathInTestsFolder("mockdata/files/SimulatingVehicle.js"));
+const driverattitude = require(Pathfinder.absPathInTestsFolder("mockdata/files/driverattitude.js"));
+const RegenerativeBraking = require(Pathfinder.absPathInTestsFolder("mockdata/files/RegenerativeBraking.js"));
+const RoutePlanning = require(Pathfinder.absPathInTestsFolder("mockdata/files/RoutePlanning.js"));
+
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
@@ -63,7 +68,7 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, pdfMockFile2, function (err, res)
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, BusPerformance, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
@@ -71,26 +76,19 @@ describe("Searches DBpedia for important terms", function (done)
                     res.body.length.should.equal(1);
                     const newResourceUri = res.body[0].uri;
 
-                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
+                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
                     {
-                        console.log(pdfMockFile2);
-                        pdfMockFile2.md5.should.equal(md5(res.body));
                         res.statusCode.should.equal(200);
+                        res.body.descriptors.should.be.instanceof(Array);
+                        artigo = JSON.parse(res.text).descriptors[7].value;
+                        descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
 
-                        itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
-                        {
-                            res.statusCode.should.equal(200);
-                            res.body.descriptors.should.be.instanceof(Array);
-                            artigo = JSON.parse(res.text).descriptors[7].value;
-                            descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
+                        descriptorUtils.containsAllMetadata(
+                            BusPerformance.metadata,
+                            JSON.parse(res.text).descriptors
+                        );
 
-                            descriptorUtils.containsAllMetadata(
-                                pdfMockFile2.metadata,
-                                JSON.parse(res.text).descriptors
-                            );
-
-                            done();
-                        });
+                        done();
                     });
                 });
             });
@@ -118,14 +116,14 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                console.log(artigo.toString());
+                // console.log(artigo.toString());
                 keywordsUtils.preprocessing(artigo, agent, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("introduction");
                     // console.log(res.text);
                     // res.text.should.contain("science");
-                    keywordsUtils.termextraction(res.text, artigo.toString(), agent, function (err, te)
+                    keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
                     {
                         te.statusCode.should.equal(200);
                         // te.text.should.contain("google");
@@ -142,17 +140,17 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                console.log(artigo.toString());
+                // console.log(artigo.toString());
                 keywordsUtils.preprocessing(artigo, agent, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("introduction");
                     // console.log(res.text);
                     // res.text.should.contain("science");
-                    keywordsUtils.termextraction(res.text, artigo.toString(), agent, function (err, te)
+                    keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
                     {
                         te.statusCode.should.equal(200);
-                        console.log(te.text);
+                        // console.log(te.text);
                         // te.text.should.contain("google");
                         // te.text.should.contain("kaggle");
                         // te.text.should.contain("3.068528194400547");
@@ -169,38 +167,150 @@ describe("Searches DBpedia for important terms", function (done)
                     });
                 });
             });
-            /*
+        });
+    });
+
+    describe("[GET] Complete path using all 4 files", function ()
+    {
+        var artigos = [];
+        var textprocessado = [];
+        it("Should load every pdf and extract their content", function (done)
+        {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.preprocessing("Sources tell us that Google is acquiring Kaggle, a platform that hosts data science and machine learning    competitions. Details about the transaction remain somewhat vague , but given that Google is hosting    its Cloud Next conference in San Francisco this week, the official announcement could come as early    as tomorrow.  Reached by phone, Kaggle co-founder CEO Anthony Goldbloom declined to deny that the    acquisition is happening. Google itself declined \\'to comment on rumors\\'.    Kaggle, which has about half a million data scientists on its platform, was founded by Goldbloom    and Ben Hamner in 2010. The service got an early start and even though it has a few competitors    like DrivenData, TopCoder and HackerRank, it has managed to stay well ahead of them by focusing on its    specific niche. The service is basically the de facto home for running data science  and machine learning    competitions.  With Kaggle, Google is buying one of the largest and most active communities for    data scientists - and with that, it will get increased mindshare in this community, too    (though it already has plenty of that thanks to Tensorflow and other projects).    Kaggle has a bit of a history with Google, too, but that\\'s pretty recent. Earlier this month,    Google and Kaggle teamed up to host a $100,000 machine learning competition around classifying    YouTube videos. That competition had some deep integrations with the Google Cloud Platform, too.    Our understanding is that Google will keep the service running - likely under its current name.    While the acquisition is probably more about Kaggle\\'s community than technology, Kaggle did build    some interesting tools for hosting its competition and \\'kernels\\', too. On Kaggle, kernels are    basically the source code for analyzing data sets and developers can share this code on the    platform (the company previously called them \\'scripts\\').  Like similar competition-centric sites,    Kaggle also runs a job board, too. It\\'s unclear what Google will do with that part of the service.    According to Crunchbase, Kaggle raised $12.5 million (though PitchBook says it\\'s $12.75) since its    launch in 2010. Investors in Kaggle include Index Ventures, SV Angel, Max Levchin, Naval Ravikant,    Google chief economist Hal Varian, Khosla Ventures and Yuri Milner", agent, function (err, res)
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, BusPerformance, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    // console.log(res.text);
-                    res.text.should.contain("source");
-                    res.text.should.contain("datum");
-                    res.text.should.contain("science");
-
-                    done();
-
-                    keywordsUtils.termextraction(res.text, "Sources tell us that Google is acquiring Kaggle, a platform that hosts data science and machine learning    competitions. Details about the transaction remain somewhat vague , but given that Google is hosting    its Cloud Next conference in San Francisco this week, the official announcement could come as early    as tomorrow.  Reached by phone, Kaggle co-founder CEO Anthony Goldbloom declined to deny that the    acquisition is happening. Google itself declined \\'to comment on rumors\\'.    Kaggle, which has about half a million data scientists on its platform, was founded by Goldbloom    and Ben Hamner in 2010. The service got an early start and even though it has a few competitors    like DrivenData, TopCoder and HackerRank, it has managed to stay well ahead of them by focusing on its    specific niche. The service is basically the de facto home for running data science  and machine learning    competitions.  With Kaggle, Google is buying one of the largest and most active communities for    data scientists - and with that, it will get increased mindshare in this community, too    (though it already has plenty of that thanks to Tensorflow and other projects).    Kaggle has a bit of a history with Google, too, but that\\'s pretty recent. Earlier this month,    Google and Kaggle teamed up to host a $100,000 machine learning competition around classifying    YouTube videos. That competition had some deep integrations with the Google Cloud Platform, too.    Our understanding is that Google will keep the service running - likely under its current name.    While the acquisition is probably more about Kaggle\\'s community than technology, Kaggle did build    some interesting tools for hosting its competition and \\'kernels\\', too. On Kaggle, kernels are    basically the source code for analyzing data sets and developers can share this code on the    platform (the company previously called them \\'scripts\\').  Like similar competition-centric sites,    Kaggle also runs a job board, too. It\\'s unclear what Google will do with that part of the service.    According to Crunchbase, Kaggle raised $12.5 million (though PitchBook says it\\'s $12.75) since its    launch in 2010. Investors in Kaggle include Index Ventures, SV Angel, Max Levchin, Naval Ravikant,    Google chief economist Hal Varian, Khosla Ventures and Yuri Milner", agent, function (err, te)
+                    res.body.should.be.instanceof(Object);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
+                    const newResourceUri = res.body[0].uri;
+                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
                     {
-                        te.statusCode.should.equal(200);
-                        te.text.should.contain("google");
-                        te.text.should.contain("kaggle");
-                        // te.text.should.contain("3.068528194400547");
-                        // te.text.should.contain("3.068528194400547");
-
-                        keywordsUtils.dbpedialookup(te.text, agent, function (err, db)
+                        res.statusCode.should.equal(200);
+                        res.body.descriptors.should.be.instanceof(Array);
+                        artigos.push(JSON.parse(res.text).descriptors[7].value);
+                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, SimulatingVehicle, function (err, res)
                         {
-                            db.statusCode.should.equal(200);
-                            // console.log(db.body.dbpediaresults.result);
-                            db.text.should.contain("Google");
-                            db.text.should.contain("Kaggle");
-                            done();
+                            res.statusCode.should.equal(200);
+                            res.body.should.be.instanceof(Object);
+                            res.body.should.be.instanceof(Array);
+                            res.body.length.should.equal(1);
+                            const newResourceUri = res.body[0].uri;
+                            itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                            {
+                                res.statusCode.should.equal(200);
+                                res.body.descriptors.should.be.instanceof(Array);
+                                artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, driverattitude, function (err, res)
+                                {
+                                    res.statusCode.should.equal(200);
+                                    res.body.should.be.instanceof(Object);
+                                    res.body.should.be.instanceof(Array);
+                                    res.body.length.should.equal(1);
+                                    const newResourceUri = res.body[0].uri;
+                                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                    {
+                                        res.statusCode.should.equal(200);
+                                        res.body.descriptors.should.be.instanceof(Array);
+                                        artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, RegenerativeBraking, function (err, res)
+                                        {
+                                            res.statusCode.should.equal(200);
+                                            res.body.should.be.instanceof(Object);
+                                            res.body.should.be.instanceof(Array);
+                                            res.body.length.should.equal(1);
+                                            const newResourceUri = res.body[0].uri;
+                                            itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                            {
+                                                res.statusCode.should.equal(200);
+                                                res.body.descriptors.should.be.instanceof(Array);
+                                                artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, RoutePlanning, function (err, res)
+                                                {
+                                                    res.statusCode.should.equal(200);
+                                                    res.body.should.be.instanceof(Object);
+                                                    res.body.should.be.instanceof(Array);
+                                                    res.body.length.should.equal(1);
+                                                    const newResourceUri = res.body[0].uri;
+                                                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                                    {
+                                                        res.statusCode.should.equal(200);
+                                                        res.body.descriptors.should.be.instanceof(Array);
+                                                        artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                                        done();
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
                         });
                     });
                 });
-            });*/
+            });
+        });
+        it("Should pre process text", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                keywordsUtils.preprocessing(artigos[0], agent, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.text.should.contain("introduction");
+                    console.log(artigos[0]);
+                    console.log(res.text);
+                    textprocessado.push(res.text);
+                    keywordsUtils.preprocessing(artigos[1], agent, function (err, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        res.text.should.contain("introduction");
+                        console.log(artigos[1]);
+                        console.log(res.text);
+                        textprocessado.push(res.text);
+                        keywordsUtils.preprocessing(artigos[2], agent, function (err, res)
+                        {
+                            res.statusCode.should.equal(200);
+                            res.text.should.contain("introduction");
+                            console.log(artigos[2]);
+                            console.log(res.text);
+                            textprocessado.push(res.text);
+                            keywordsUtils.preprocessing(artigos[3], agent, function (err, res)
+                            {
+                                res.statusCode.should.equal(200);
+                                res.text.should.contain("introduction");
+                                console.log(artigos[3]);
+                                console.log(res.text);
+                                textprocessado.push(res.text);
+
+                                keywordsUtils.preprocessing(artigos[4], agent, function (err, res)
+                                {
+                                    res.statusCode.should.equal(200);
+                                    res.text.should.contain("introduction");
+                                    console.log(artigos[4]);
+                                    console.log(res.text);
+                                    textprocessado.push(res.text);
+                                    done();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+        it("Should extract keywords", function (done)
+        {
+            keywordsUtils.termextraction(textprocessado, artigos, agent, function (err, te)
+            {
+                te.statusCode.should.equal(200);
+                // te.text.should.contain("google");
+                // te.text.should.contain("kaggle");
+                // te.text.should.contain("3.068528194400547");
+                // te.text.should.contain("3.068528194400547");
+
+                done();
+            });
         });
     });
 

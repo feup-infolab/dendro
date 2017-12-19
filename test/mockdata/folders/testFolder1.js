@@ -10,7 +10,11 @@ let folderData = {
     searchTerms: "testFolder1",
     files: [
         require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile2.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/BusPerformance.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/SimulatingVehicle.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/driverattitude.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/RegenerativeBraking.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/RoutePlanning.js")),
         require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
         require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"))
     ],
