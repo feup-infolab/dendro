@@ -30,6 +30,8 @@ const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.
 const projectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
+let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
 describe("Project storageConfig tests", function (done)
 {
     this.timeout(Config.testsTimeout);
@@ -51,11 +53,20 @@ describe("Project storageConfig tests", function (done)
                 projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res)
                 {
                     should.not.exist(err);
-                    if (!isNull(res.body.descriptors.ddr.hasStorageConfig))
+
+                    var descriptors = res.body.descriptors;
+                    var found = false;
+                    for (var i = 0; i < descriptors.length; i++)
                     {
-                        done();
+                        if (descriptors[i].shortName === "hasStorageConfig")
+                        {
+                            done();
+                            found = true;
+                            break;
+                        }
                     }
-                    else
+
+                    if (!found)
                     {
                         done("hasActiveStorageConfig not set");
                     }
@@ -63,25 +74,32 @@ describe("Project storageConfig tests", function (done)
             });
         });
 
-        it("Should edit storage config has  project owner", function ()
+        it("Should edit storage config has  project owner", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
+                should.not.exist(err);
                 projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res)
                 {
                     should.not.exist(err);
                     // Check config inicial  == OK
-                    projectUtils.edit_project_storage(function (err, res)
+                    projectUtils.projectStorage(false, agent, publicProject.handle, function (err, res)
                     {
                         should.not.exist(err);
                         // Check config enviada == OK
+
+                        projectUtils.projectStorage(true, agent, publicProject.handle, function (err, res)
+                        {
+                            should.not.exist(err);
+                            // check config == to created
+                            done();
+                        });
                     });
-                    done();
                 });
             });
         });
 
-        it("Should try to edit storage config and doesnt have permissions", function ()
+        it("Should try to edit storage config and doesnt have permissions", function (done)
         {
             // usar user que nao seja owner / contribuidor do projecto
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -101,7 +119,7 @@ describe("Project storageConfig tests", function (done)
             });
         });
 
-        it("Should  create a new storage config and initiate the new storage", function ()
+        it("Should  create a new storage config and initiate the new storage", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -114,7 +132,7 @@ describe("Project storageConfig tests", function (done)
             });
         });
 
-        it("Should edit storage config and fail to initiate the new storage", function ()
+        it("Should edit storage config and fail to initiate the new storage", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {

@@ -1076,6 +1076,27 @@ const getProjectUriFromHandle = function (agent, projectHandle, callback)
     });
 };
 
+const projectStorage = function (modify, agent, projectHandle, callback) {
+    if (modify)
+    {   //TODO not working
+        agent
+            .post("/project/" + projectHandle + "?storage")
+            .send({})
+            .end(function (err, res)
+            {
+                callback(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get("/project/" + projectHandle + "?storage")
+            .end(function (err, res)
+            {
+                callback(err, res);
+            });
+    }
+}
 module.exports = {
     updateMetadataCorrectRoute: updateMetadataCorrectRoute,
     listAllMyProjects: listAllMyProjects,
@@ -1108,5 +1129,6 @@ module.exports = {
     metadataMatchesBackup: metadataMatchesBackup,
     countProjectTriples: countProjectTriples,
     countProjectFilesInGridFS: countProjectFilesInGridFS,
-    getProjectUriFromHandle: getProjectUriFromHandle
+    getProjectUriFromHandle: getProjectUriFromHandle,
+    projectStorage: projectStorage
 };

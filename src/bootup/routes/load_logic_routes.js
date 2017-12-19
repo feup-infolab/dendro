@@ -596,6 +596,13 @@ const loadRoutes = function (app, callback)
                         permissions: [Permissions.settings.privacy.of_project.public, Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator],
                         authentication_error: "Permission denied : cannot backup this project because you do not have permissions to access it."
                     },
+                    // storage configuration
+                    {
+                        queryKeys: ["storage"],
+                        handler: projects.storage,
+                        permissions: modificationPermissions,
+                        authentication_error: "Permission denied : cannot get storage of this project because you do not have permissions to access it."
+                    },
                     // default case
                     {
                         queryKeys: [],
@@ -652,6 +659,12 @@ const loadRoutes = function (app, callback)
                         handler: files.copy,
                         permissions: modificationPermissions,
                         authentication_error: "Permission denied : cannot paste resources into this folder because you do not have permissions to edit resources inside this project."
+                    },
+                    {
+                        queryKeys: ["storage"],
+                        handler: projects.storage,
+                        permissions: modificationPermissions,
+                        authentication_error: "Permission denied: cannot edit storage of this project because you do not have permissions "
                     }
                 ],
                 all:

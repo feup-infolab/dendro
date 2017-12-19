@@ -2189,4 +2189,16 @@ exports.delete = function (req, res)
     }
 };
 
+exports.storage = function (req, res)
+{
+    //TODO 
+    if (req.originalMethod === "GET")
+    {
+        res.status(200).json({test: "works"});
+    }
+    else if ( req.originalMethod === "POST")
+    {
+        res.status(200).json({test: "OK"});
+    }
+}
 module.exports = exports;
