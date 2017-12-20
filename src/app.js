@@ -88,9 +88,10 @@ const startPM2Master = exports.startPM2Master = function (cb)
                 // max_memory_restart : '1024M'   // Optional: Restarts your app if it reaches 100Mo
                 args: ["--pm2_slave=1"],
                 logDateFormat: "YYYY-MM-DD HH:mm Z",
-                out_file: Logger.getLogFilePath(),
-                error_file: Logger.getErrorLogFilePath(),
-                merge_logs: true,
+                // we will handle logs on our own with winston. This is necessary so that there are no conflicts
+                out_file: "/dev/null",
+                error_file: "/dev/null",
+                // merge_logs: true,
                 cwd: appDir,
                 pid: path.join(appDir, "running.pid")
             }, function (err, apps)

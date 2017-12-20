@@ -6,6 +6,7 @@ const slug = require("slug");
 const mkdirp = require("mkdirp");
 const path = require("path");
 const winston = require("winston");
+const colors = require("colors");
 
 const Logger = function ()
 {
@@ -70,8 +71,53 @@ Logger.init = function (startTime, app)
             const { createLogger, format, transports } = require("winston");
             const { combine, timestamp, label, printf } = format;
 
-            const myFormat = printf(info =>
-                `${info.timestamp} [${process.env.NODE_ENV}] ${info.level}: ${info.message}`);
+            const nonColorizedFormat = printf(function (info)
+            {
+                return `${info.timestamp} [${process.env.NODE_ENV}] ${info.level}: ${info.message}`;
+            });
+
+            const colorizedFormat = printf(function (info)
+            {
+                const timestamp = info.timestamp.grey;
+                let level;
+                switch (info.level)
+                {
+                    case "error":
+                    {
+                        level = info.level.red.bold;
+                        break;
+                    }
+                    case "warn":
+                    {
+                        level = info.level.yellow.bold;
+                        break;
+                    }
+                    case "info":
+                    {
+                        level = info.level.cyan;
+                        break;
+                    }
+                    case "verbose":
+                    {
+                        level = info.level.grey;
+                        break;
+                    }
+                    case "debug":
+                    {
+                        level = info.level.orange;
+                        break;
+                    }
+                    case "silly":
+                    {
+                        level = info.level.purple;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                return `${timestamp} [${process.env.NODE_ENV}] ${level}: ${info.message}`;
+            });
 
             const env = process.env.NODE_ENV;
 
@@ -80,9 +126,17 @@ Logger.init = function (startTime, app)
 
             mkdirp.sync(path.join(absPath, env, fileNameDateSection));
 
+            const fsExtra = require("fs-extra");
+            fsExtra.ensureFileSync(logFilePath);
+            fsExtra.ensureFileSync(errorLogFilePath);
+
             Logger.setLogFilePath(logFilePath);
             const logFile = new winston.transports.File(
                 {
+                    format: combine(
+                        timestamp(),
+                        nonColorizedFormat
+                    ),
                     filename: Logger.getLogFilePath(),
                     level: loggerLevel
                 });
@@ -90,48 +144,28 @@ Logger.init = function (startTime, app)
             Logger.setErrorLogFilePath(errorLogFilePath);
             const logFileError = new winston.transports.File(
                 {
+                    format: combine(
+                        timestamp(),
+                        nonColorizedFormat
+                    ),
                     filename: Logger.getErrorLogFilePath(),
                     level: "error"
                 });
 
-            // do not colorize the output to the console
-            const nonColoredConsoleOutput = new winston.transports.Console({
-
+            const consoleOutput = new winston.transports.Console({
+                format: combine(
+                    timestamp(),
+                    colorizedFormat
+                )
             });
 
-            const coloredConsoleOutput = new winston.transports.Console({
-                colorize: true
+            logger = winston.createLogger({
+                transports: [
+                    consoleOutput,
+                    logFileError,
+                    logFile
+                ]
             });
-
-            // PM2 will handle logging in case of production,
-            // we just need to echo to the console.
-            if (process.env.NODE_ENV === "production")
-            {
-                logger = winston.createLogger({
-                    format: combine(
-                        timestamp(),
-                        myFormat
-                    ),
-                    transports: [
-                        coloredConsoleOutput
-                    ]
-                });
-            }
-            // In development we need to print to the log files ourselves.
-            else
-            {
-                logger = winston.createLogger({
-                    format: combine(
-                        timestamp(),
-                        myFormat
-                    ),
-                    transports: [
-                        nonColoredConsoleOutput,
-                        logFileError,
-                        logFile
-                    ]
-                });
-            }
 
             logger.on("error", function (err)
             {
