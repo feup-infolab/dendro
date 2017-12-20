@@ -82,38 +82,38 @@ Logger.init = function (startTime, app)
                 let level;
                 switch (info.level)
                 {
-                    case "error":
-                    {
-                        level = info.level.red.bold;
-                        break;
-                    }
-                    case "warn":
-                    {
-                        level = info.level.yellow.bold;
-                        break;
-                    }
-                    case "info":
-                    {
-                        level = info.level.cyan;
-                        break;
-                    }
-                    case "verbose":
-                    {
-                        level = info.level.grey;
-                        break;
-                    }
-                    case "debug":
-                    {
-                        level = info.level.orange;
-                        break;
-                    }
-                    case "silly":
-                    {
-                        level = info.level.purple;
-                        break;
-                    }
-                    default:
-                        break;
+                case "error":
+                {
+                    level = info.level.red.bold;
+                    break;
+                }
+                case "warn":
+                {
+                    level = info.level.yellow.bold;
+                    break;
+                }
+                case "info":
+                {
+                    level = info.level.cyan;
+                    break;
+                }
+                case "verbose":
+                {
+                    level = info.level.grey;
+                    break;
+                }
+                case "debug":
+                {
+                    level = info.level.orange;
+                    break;
+                }
+                case "silly":
+                {
+                    level = info.level.purple;
+                    break;
+                }
+                default:
+                    break;
                 }
 
                 return `${timestamp} [${process.env.NODE_ENV}] ${level}: ${info.message}`;
@@ -152,20 +152,41 @@ Logger.init = function (startTime, app)
                     level: "error"
                 });
 
-            const consoleOutput = new winston.transports.Console({
+            const colorizedConsole = new winston.transports.Console({
                 format: combine(
                     timestamp(),
                     colorizedFormat
-                )
+                ),
+                level: loggerLevel
             });
 
-            logger = winston.createLogger({
-                transports: [
-                    consoleOutput,
-                    logFileError,
-                    logFile
-                ]
+            const nonColorizedConsole = new winston.transports.Console({
+                format: combine(
+                    timestamp(),
+                    nonColorizedFormat
+                ),
+                level: loggerLevel
             });
+
+            if(process.env.NODE_ENV === "production")
+            {
+                logger = winston.createLogger({
+                    transports: [
+                        nonColorizedConsole
+                    ]
+                });
+            }
+            else
+            {
+
+                logger = winston.createLogger({
+                    transports: [
+                        colorizedConsole,
+                        logFileError,
+                        logFile
+                    ]
+                });
+            }
 
             logger.on("error", function (err)
             {
@@ -234,27 +255,13 @@ Logger.log_boot_message = function (message)
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     if (Config.startup.log_bootup_actions)
     {
-        if (Config.runningAsSlave === false)
+        if (!isNull(Logger.logger))
         {
-            if (!isNull(Logger.logger))
-            {
-                Logger.logger.info(message);
-            }
-            else
-            {
-                console.log(message);
-            }
+            Logger.logger.info(message);
         }
         else
         {
-            if (!isNull(Logger.logger))
-            {
-                Logger.logger.info(message);
-            }
-            else
-            {
-                console.log(message);
-            }
+            console.log(message);
         }
     }
 };

@@ -89,8 +89,8 @@ const startPM2Master = exports.startPM2Master = function (cb)
                 args: ["--pm2_slave=1"],
                 logDateFormat: "YYYY-MM-DD HH:mm Z",
                 // we will handle logs on our own with winston. This is necessary so that there are no conflicts
-                out_file: "/dev/null",
-                error_file: "/dev/null",
+                out_file: Logger.getLogFilePath(),
+                error_file: Logger.getErrorLogFilePath(),
                 // merge_logs: true,
                 cwd: appDir,
                 pid: path.join(appDir, "running.pid")
