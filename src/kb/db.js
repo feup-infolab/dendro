@@ -293,6 +293,9 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
             }
             else
             {
+                Logger.log("error", "Error while reserving connection settings for running query");
+                Logger.log("error", JSON.stringify(err));
+                Logger.log("error", JSON.stringify(connection));
                 callback(err, connection);
             }
         });
