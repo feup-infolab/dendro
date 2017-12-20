@@ -111,7 +111,7 @@ const startPM2Master = exports.startPM2Master = function (cb)
     });
 };
 
-const initLogger = function()
+const initLogger = function ()
 {
     if (global.app_startup_time)
     {

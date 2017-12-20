@@ -70,9 +70,8 @@ Logger.init = function (startTime, app)
             const { createLogger, format, transports } = require("winston");
             const { combine, timestamp, label, printf } = format;
 
-            const myFormat = printf(info => {
-                return `${info.timestamp} [${process.env.NODE_ENV}] ${info.level}: ${info.message}`;
-            });
+            const myFormat = printf(info =>
+                `${info.timestamp} [${process.env.NODE_ENV}] ${info.level}: ${info.message}`);
 
             const env = process.env.NODE_ENV;
 
@@ -96,19 +95,43 @@ Logger.init = function (startTime, app)
                 });
 
             // do not colorize the output to the console
-            const nonColoredConsoleOutput = new (winston.transports.Console)({});
+            const nonColoredConsoleOutput = new winston.transports.Console({
 
-            logger = winston.createLogger({
-                format: combine(
-                    timestamp(),
-                    myFormat
-                ),
-                transports: [
-                    nonColoredConsoleOutput,
-                    logFileError,
-                    logFile
-                ]
             });
+
+            const coloredConsoleOutput = new winston.transports.Console({
+                colorize: true
+            });
+
+            // PM2 will handle logging in case of production,
+            // we just need to echo to the console.
+            if (process.env.NODE_ENV === "production")
+            {
+                logger = winston.createLogger({
+                    format: combine(
+                        timestamp(),
+                        myFormat
+                    ),
+                    transports: [
+                        coloredConsoleOutput
+                    ]
+                });
+            }
+            // In development we need to print to the log files ourselves.
+            else
+            {
+                logger = winston.createLogger({
+                    format: combine(
+                        timestamp(),
+                        myFormat
+                    ),
+                    transports: [
+                        nonColoredConsoleOutput,
+                        logFileError,
+                        logFile
+                    ]
+                });
+            }
 
             logger.on("error", function (err)
             {
