@@ -95,80 +95,80 @@ describe("Searches DBpedia for important terms", function (done)
         });
     });
 
-    describe("[GET] /keywords/conceptextraction", function ()
-    {
-        it("[HTML] Simple test to extract POS and lemma", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                keywordsUtils.preprocessing("a really Interesting string with some words", agent, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    // console.log(res.text);
-                    res.text.should.contain("interesting");
-                    res.text.should.contain("string");
-                    res.text.should.contain("word");
-                    done();
-                });
-            });
-        });
-        it("[GET] single term extraction", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                // console.log(artigo.toString());
-                keywordsUtils.preprocessing(artigo, agent, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.text.should.contain("introduction");
-                    // console.log(res.text);
-                    // res.text.should.contain("science");
-                    keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
-                    {
-                        te.statusCode.should.equal(200);
-                        // te.text.should.contain("google");
-                        // te.text.should.contain("kaggle");
-                        // te.text.should.contain("3.068528194400547");
-                        // te.text.should.contain("3.068528194400547");
-
-                        done();
-                    });
-                });
-            });
-        });
-        it("[Get] DBpedia lookup higher frequency items", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                // console.log(artigo.toString());
-                keywordsUtils.preprocessing(artigo, agent, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.text.should.contain("introduction");
-                    // console.log(res.text);
-                    // res.text.should.contain("science");
-                    keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
-                    {
-                        te.statusCode.should.equal(200);
-                        // console.log(te.text);
-                        // te.text.should.contain("google");
-                        // te.text.should.contain("kaggle");
-                        // te.text.should.contain("3.068528194400547");
-                        // te.text.should.contain("3.068528194400547");
-
-                        keywordsUtils.dbpedialookup(te.text, agent, function (err, db)
-                        {
-                            db.statusCode.should.equal(200);
-                            console.log(db.body.dbpediauri.result);
-                            // db.text.should.contain("Google");
-                            // db.text.should.contain("Kaggle");
-                            done();
-                        });
-                    });
-                });
-            });
-        });
-    });
+    // describe("[GET] /keywords/conceptextraction", function ()
+    // {
+    //     it("[HTML] Simple test to extract POS and lemma", function (done)
+    //     {
+    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+    //         {
+    //             keywordsUtils.preprocessing("a really Interesting string with some words", agent, function (err, res)
+    //             {
+    //                 res.statusCode.should.equal(200);
+    //                 // console.log(res.text);
+    //                 res.text.should.contain("interesting");
+    //                 res.text.should.contain("string");
+    //                 res.text.should.contain("word");
+    //                 done();
+    //             });
+    //         });
+    //     });
+    //     it("[GET] single term extraction", function (done)
+    //     {
+    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+    //         {
+    //             // console.log(artigo.toString());
+    //             keywordsUtils.preprocessing(artigo, agent, function (err, res)
+    //             {
+    //                 res.statusCode.should.equal(200);
+    //                 res.text.should.contain("introduction");
+    //                 // console.log(res.text);
+    //                 // res.text.should.contain("science");
+    //                 keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
+    //                 {
+    //                     te.statusCode.should.equal(200);
+    //                     // te.text.should.contain("google");
+    //                     // te.text.should.contain("kaggle");
+    //                     // te.text.should.contain("3.068528194400547");
+    //                     // te.text.should.contain("3.068528194400547");
+    //
+    //                     done();
+    //                 });
+    //             });
+    //         });
+    //     });
+    //     it("[Get] DBpedia lookup higher frequency items", function (done)
+    //     {
+    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+    //         {
+    //             // console.log(artigo.toString());
+    //             keywordsUtils.preprocessing(artigo, agent, function (err, res)
+    //             {
+    //                 res.statusCode.should.equal(200);
+    //                 res.text.should.contain("introduction");
+    //                 // console.log(res.text);
+    //                 // res.text.should.contain("science");
+    //                 keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
+    //                 {
+    //                     te.statusCode.should.equal(200);
+    //                     // console.log(te.text);
+    //                     // te.text.should.contain("google");
+    //                     // te.text.should.contain("kaggle");
+    //                     // te.text.should.contain("3.068528194400547");
+    //                     // te.text.should.contain("3.068528194400547");
+    //
+    //                     keywordsUtils.dbpedialookup(te.text, agent, function (err, db)
+    //                     {
+    //                         db.statusCode.should.equal(200);
+    //                         console.log(db.body.dbpediauri.result);
+    //                         // db.text.should.contain("Google");
+    //                         // db.text.should.contain("Kaggle");
+    //                         done();
+    //                     });
+    //                 });
+    //             });
+    //         });
+    //     });
+    // });
 
     describe("[GET] Complete path using all 4 files", function ()
     {
@@ -299,16 +299,29 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         });
+        var dbpediaterms;
         it("Should extract keywords", function (done)
         {
             keywordsUtils.termextraction(textprocessado, artigos, agent, function (err, te)
             {
                 te.statusCode.should.equal(200);
+                console.log(te.text);
+                dbpediaterms = te.text;
                 // te.text.should.contain("google");
                 // te.text.should.contain("kaggle");
                 // te.text.should.contain("3.068528194400547");
                 // te.text.should.contain("3.068528194400547");
-
+                done();
+            });
+        });
+        it("Search terms in dbpedia", function (done)
+        {
+            keywordsUtils.dbpedialookup(dbpediaterms, agent, function (err, db)
+            {
+                db.statusCode.should.equal(200);
+                console.log(db.body.dbpediauri.result);
+                // db.text.should.contain("Google");
+                // db.text.should.contain("Kaggle");
                 done();
             });
         });

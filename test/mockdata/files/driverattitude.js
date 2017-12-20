@@ -4,10 +4,10 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const md5File = require("md5-file");
 
 module.exports = {
-    md5: md5File.sync(Pathfinder.absPathInApp("/test/vehiclesimulation/BusPerformance.pdf")),
-    name: "BusPerformance.pdf",
+    md5: md5File.sync(Pathfinder.absPathInApp("/test/vehiclesimulation/driverattitude.pdf")),
+    name: "driverattitude.pdf",
     extension: "pdf",
-    location: Pathfinder.absPathInApp("/test/vehiclesimulation/BusPerformance.pdf"),
+    location: Pathfinder.absPathInApp("/test/vehiclesimulation/driverattitude.pdf"),
     metadata: [{
         prefix: "nie",
         shortName: "plainTextContent",

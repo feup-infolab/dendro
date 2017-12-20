@@ -63,18 +63,28 @@ exports.preprocessing = function (req, res)
             // console.log(JSON.parse(JSON.stringify(sent.sentences[0])).tokens);
             // console.log(output);
             // console.log(sent.text);
+            var comparision;
             for (var i = 0; i < sent.sentences.length; i++)
             {
                 for (var j = 0; j < JSON.parse(JSON.stringify(sent.sentences[i])).tokens.length; j++)
                 {
-                    if (JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("www") + 1 || JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("http") + 1 || JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("@") + 1 || hasNumber(JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word))
+                    comparision = JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word;
+                    if (comparision.indexOf("www") + 1 || comparision.indexOf("http") + 1 || comparision.indexOf("@") + 1 || hasNumber(comparision))
                     {
-                        // console.log("contain numbers or address " + JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word);
+                    // console.log("contain numbers or address " + JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word);
                     }
                     else
                     {
                         output.push({word: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word, pos: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].pos, lemma: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].lemma});
                     }
+                    // if (JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("www") + 1 || JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("http") + 1 || JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("@") + 1 || hasNumber(JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word))
+                    // {
+                    //     // console.log("contain numbers or address " + JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word);
+                    // }
+                    // else
+                    // {
+                    //     output.push({word: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word, pos: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].pos, lemma: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].lemma});
+                    // }
                 }
             }
             /*
@@ -230,18 +240,23 @@ exports.termextraction = function (req, res)
                 {
                     for (var xx = 0; xx < texti.text.length; xx++)
                     {
-                        console.log(JSON.parse(texti.text[xx]).result);
+                        // console.log(JSON.parse(texti.text[xx]).result);
                         results.push(JSON.parse(texti.text[xx]).result);
-                        documents.push(texti.document[xx]);
+                    }
+                    for (var yy = 0; yy < texti.documents.length; yy++)
+                    // documents.push(texti.documents);
+                    {
+                        // console.log(texti.documents[yy]);
+                        documents.push(texti.documents[yy]);
                     }
                 }
                 else
                 {
                     results.push(JSON.parse(texti.text).result);
                     documents.push(texti.documents);
+                    // console.log(results);
+                    // console.log(documents);
                 }
-                console.log(results);
-
                 for (var h = 0; h < results.length; h++)
                 {
                     console.log(results[h]);
@@ -259,9 +274,10 @@ exports.termextraction = function (req, res)
                     var values = [];
                     // out = nounphrase(results, null);
                     // cvalue(out, documents, values);
+                    var i = 0;
                     if (texti.text.length > 1)
                     {
-                        for (var i = 0; i < results.length; i++)
+                        for (i = 0; i < results.length; i++)
                         {
                             for (var j = 0; j < results[i].length; j++)
                             {
@@ -274,11 +290,11 @@ exports.termextraction = function (req, res)
                     }
                     else
                     {
-                        for (var i = 0; i < results[i].length; j++)
+                        for (i = 0; i < results[0].length; i++)
                         {
-                            if (results[i].pos === "NN" || results[i].pos === "NNS" || results[i].pos === "NNP" || results[i].pos === "NNPS")
+                            if (results[0][i].pos === "NN" || results[0][i].pos === "NNS" || results[0][i].pos === "NNP" || results[0][i].pos === "NNPS")
                             {
-                                posnoums.push(results[i].lemma);
+                                posnoums.push(results[0][i].lemma);
                             }
                         }
                     }
@@ -287,7 +303,16 @@ exports.termextraction = function (req, res)
                     // console.log(rec.body.documents);
                     for (var a = 0; a < documents.length; a++)
                     {
-                        tfidf.addDocument(documents[a]);
+                        // console.log("a :" + a);
+                        // console.log("documents " + documents[a]);
+                        if (texti.text.length > 1)
+                        {
+                            tfidf.addDocument(documents[a]);
+                        }
+                        else
+                        {
+                            tfidf.addDocument(documents[a][0]);
+                        }
                     }
 
                     for (var p = 0; p < posnoumssimple.length; p++)
@@ -298,17 +323,14 @@ exports.termextraction = function (req, res)
                             score.push(measure);
                         });
                     }
-                    var sum = score.reduce(function (a, b)
-                    {
-                        return a + b;
-                    });
+                    var sum = score.reduce((a, b) => a + b);
                     var avg = sum / score.length;
                     var dbpediaterms = {
                         keywords: []
                     };
                     for (var index = 0; index < posnoumssimple.length; index++)
                     {
-                        if (score[index] > (avg + avg))
+                        if (score[index] > parseFloat((avg)))
                         {
                             // console.log(dbsearch[i]);
                             dbpediaterms.keywords.push({
