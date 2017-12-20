@@ -20,6 +20,7 @@ const IndexConnection = function (options)
     self.port = options.port;
     self.id = options.id;
     self.short_name = options.short_name;
+    self.uri = options.uri;
     return self;
 };
 
@@ -40,6 +41,7 @@ IndexConnection._all = {
         elasticsearch_mappings:
                 {
                     resource: {
+                        dynamic: false,
                         properties: {
                             uri:
                                 {

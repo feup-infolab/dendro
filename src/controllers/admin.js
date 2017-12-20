@@ -199,7 +199,7 @@ module.exports.reindex = function (req, res)
                         },
                         function (err)
                         {
-                            return callback(null, null);
+                            return callback(err, null);
                         });
                 }
             ],

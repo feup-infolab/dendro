@@ -17,4 +17,4 @@ global.tests = {};
 // uncomment the first time you run the tests after installing dendro
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/admin/reindex/routes.admin.reindex.Test.js"));
