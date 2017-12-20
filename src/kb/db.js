@@ -670,14 +670,15 @@ DbConnection.prototype.create = function (callback)
             ]);
         }
 
+        const timeoutSecs = 10;
         const config = {
             // Required
-            url: "jdbc:virtuoso://" + self.host + ":" + self.port_isql + "/UID=" + self.username + "/PWD=" + self.password + "/PWDTYPE=cleartext" + "/CHARSET=UTF-8",
+            url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
             drivername: "virtuoso.jdbc4.Driver",
-            maxpoolsize: self.maxSimultaneousConnections,
+            maxpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
             minpoolsize: 1,
             // 10 seconds idle time
-            // maxidle: 1000 * 10,
+            maxidle: 1000 * timeoutSecs,
             properties: {}
         };
 

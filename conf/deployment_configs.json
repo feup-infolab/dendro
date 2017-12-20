@@ -260,7 +260,7 @@
             "level": "silly",
             "app_logs_folder": "logs/app",
             "log_all_requests": true,
-            "do_not_log_requests_to_public_assets": false,
+            "do_not_log_requests_to_public_assets": true,
             "log_emailing": false
         },
         "version": {
