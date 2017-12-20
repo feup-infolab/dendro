@@ -199,6 +199,10 @@ Config.recommendation.getTargetTable = function ()
     {
         return Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
     }
+    else
+    {
+        return Config.recommendations.interactions_recording_table;
+    }
 };
 
 Config.exporting = getConfigParameter("exporting");
