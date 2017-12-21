@@ -1496,9 +1496,9 @@ Resource.prototype.reindex = function (indexConnection, callback)
         }
     }
 
-    const validator = require("validator");
     // Remove all non-textual values from index
-    /*descriptors = _.filter(descriptors, function (descriptor)
+    /*const validator = require("validator");
+    descriptors = _.filter(descriptors, function (descriptor)
     {
         const value = descriptor.object;
         const resourceUriRegex = Resource.getResourceRegex("[^/]+");

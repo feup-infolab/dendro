@@ -21,6 +21,7 @@ const IndexConnection = function (options)
     self.id = options.id;
     self.short_name = options.short_name;
     self.uri = options.uri;
+    self.elasticsearchMappings = options.elasticsearchMappings;
     return self;
 };
 
@@ -38,10 +39,9 @@ IndexConnection._all = {
         uri: db.graphUri,
         host: Config.elasticSearchHost,
         port: Config.elasticSearchPort,
-        elasticsearch_mappings:
+        elasticsearchMappings:
                 {
                     resource: {
-                        dynamic: false,
                         properties: {
                             uri:
                                 {
@@ -69,8 +69,6 @@ IndexConnection._all = {
                                                 },
                                             object:
                                                 {
-                                                    date_detection: false,
-                                                    numeric_detection: false,
                                                     type: "string",
                                                     index_options: "offsets",
                                                     analyzer: "standard"
@@ -202,7 +200,7 @@ IndexConnection.prototype.open = function (callback)
     }
     else
     {
-	    return callback(null, self);
+        return callback(null, self);
     }
 };
 
@@ -224,8 +222,11 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
             {
                 return callback(null, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
-            Logger.log("error", err.stack);
-            return callback(1, "Unable to RE index document " + JSON.stringify(document));
+            else
+            {
+                Logger.log("error", err.stack);
+                return callback(1, "Unable to RE index document " + JSON.stringify(document));
+            }
         });
     }
     else
@@ -240,9 +241,11 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
             {
                 return callback(null, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
-
-            Logger.log("error", err.stack);
-            return callback(1, "Unable to index document " + JSON.stringify(document));
+            else
+            {
+                Logger.log("error", err.stack);
+                return callback(1, "Unable to index document " + JSON.stringify(document));
+            }
         });
     }
 };
@@ -352,7 +355,7 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                             settings.number_of_replicas = numberOfReplicas;
                         }
 
-                        settings.body.mappings = self.elasticsearch_mappings;
+                        settings.body.mappings = self.elasticsearchMappings;
                         settings.index = indexName;
 
                         self.client.indices.create(settings, function (err, data)
