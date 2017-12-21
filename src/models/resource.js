@@ -1498,20 +1498,19 @@ Resource.prototype.reindex = function (indexConnection, callback)
 
     const validator = require("validator");
     // Remove all non-textual values from index
-    descriptors = _.filter(descriptors, function(descriptor){
+    /*descriptors = _.filter(descriptors, function (descriptor)
+    {
         const value = descriptor.object;
         const resourceUriRegex = Resource.getResourceRegex("[^/]+");
-        if(typeof value !== "string")
+        if (typeof value !== "string")
         {
             return false;
         }
-        else
-        {
-            return !validator.isURL(value) &&
+
+        return !validator.isURL(value) &&
                 !validator.toDate(value) &&
                 !value.match(resourceUriRegex);
-        }
-    });
+    });*/
 
     const document = {
         uri: self.uri,
@@ -2404,6 +2403,8 @@ Resource.findByPropertyValue = function (
 Resource.prototype.loadFromIndexHit = function (hit)
 {
     const self = this;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+
     if (isNull(self.indexData))
     {
         self.indexData = {};
@@ -2416,17 +2417,40 @@ Resource.prototype.loadFromIndexHit = function (hit)
     self.indexData.graph = hit._source.graph;
     self.indexData.last_indexing_date = hit._source.last_indexing_date;
 
-    const resourceDescriptors = _.map(hit._source.descriptors, function (descriptorObject)
-    {
-        const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    let descriptorsAndValues = {};
 
+    for (let i = 0; i < hit._source.descriptors.length; i++)
+    {
+        let descriptorObject = hit._source.descriptors[i];
+        let descriptorUri = descriptorObject.predicate;
+        let descriptorValue = descriptorObject.object;
+
+        if (isNull(descriptorsAndValues[descriptorUri]))
+        {
+            descriptorsAndValues[descriptorUri] = descriptorValue;
+        }
+        else
+        {
+            if (typeof descriptorsAndValues[descriptorUri] === "string")
+            {
+                descriptorsAndValues[descriptorUri] = [descriptorsAndValues[descriptorUri], descriptorValue];
+            }
+            else if (descriptorsAndValues[descriptorUri] instanceof Array)
+            {
+                descriptorsAndValues[descriptorUri].push(descriptorValue);
+            }
+        }
+    }
+
+    descriptorsAndValues = _.map(Object.keys(descriptorsAndValues), function (descriptorUri)
+    {
         return new Descriptor({
-            uri: descriptorObject.predicate,
-            value: descriptorObject.object
+            uri: descriptorUri,
+            value: descriptorsAndValues[descriptorUri]
         });
     });
 
-    self.updateDescriptors(resourceDescriptors);
+    self.updateDescriptors(descriptorsAndValues);
     return self;
 };
 

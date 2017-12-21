@@ -69,6 +69,8 @@ IndexConnection._all = {
                                                 },
                                             object:
                                                 {
+                                                    date_detection: false,
+                                                    numeric_detection: false,
                                                     type: "string",
                                                     index_options: "offsets",
                                                     analyzer: "standard"
