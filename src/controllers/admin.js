@@ -108,7 +108,7 @@ module.exports.home = function (req, res)
 //         if (graph === "dryad")
 //         {
 //             const dryadLoader = new DryadLoader();
-//             dryadLoader.loadFromDownloadedFiles(req.index);
+//             dryadLoader.loadFromDownloadedFiles(IndexConnection.get(IndexConnection._all.dendro_graph));
 //         }
 //     }
 //
@@ -122,13 +122,12 @@ module.exports.home = function (req, res)
 
 module.exports.reindex = function (req, res)
 {
-    const indexConnection = req.index;
     const graphsToBeIndexed = req.body.graphs_to_reindex;
     const graphsToDelete = req.body.graphs_to_delete;
 
     const rebuildIndex = function (indexConnection, graphShortName, deleteBeforeReindexing, callback)
     {
-        if (!isNull(IndexConnection.indexes[graphShortName]))
+        if (!isNull(IndexConnection.get(graphShortName)))
         {
             async.waterfall([
                 // delete current index if requested
@@ -138,11 +137,11 @@ module.exports.reindex = function (req, res)
                     {
                         if (isNull(err) && isNull(result))
                         {
-                            Logger.log("Index " + indexConnection.index.short_name + " recreated .");
+                            Logger.log("Index " + indexConnection.short_name + " recreated .");
                             return callback(null);
                         }
 
-                        Logger.log("Error recreating index " + indexConnection.index.short_name + " . " + result);
+                        Logger.log("Error recreating index " + indexConnection.short_name + " . " + result);
                         // delete success, move on
                         return callback(1);
                     });
@@ -200,7 +199,7 @@ module.exports.reindex = function (req, res)
                         },
                         function (err)
                         {
-                            return callback(null, null);
+                            return callback(err, null);
                         });
                 }
             ],
@@ -223,12 +222,27 @@ module.exports.reindex = function (req, res)
         graphsToBeIndexed,
         function (graph, cb)
         {
-            const deleteTheIndex = Boolean(_.contains(graphsToDelete, graph));
-
-            rebuildIndex(indexConnection, graph, deleteTheIndex, function (err, result)
+            if (!isNull(IndexConnection.get(graph)))
             {
-                cb(err, result);
-            });
+                const deleteTheIndex = Boolean(_.contains(graphsToDelete, graph));
+                let indexConnection = IndexConnection.get(graph);
+
+                if (!isNull(indexConnection))
+                {
+                    rebuildIndex(indexConnection, graph, deleteTheIndex, function (err, result)
+                    {
+                        return cb(err, result);
+                    });
+                }
+                else
+                {
+                    return cb(2, "Index with key " + graph + " not found 2!");
+                }
+            }
+            else
+            {
+                return cb(1, "Index with key " + graph + " not found!");
+            }
         }, function (err, result)
         {
             if (err)
@@ -269,6 +283,40 @@ module.exports.logs = function (req, res)
         });
     }
 
+    const getLastLinesOfLogs = function (combinedLogPath, errorLogPath)
+    {
+        const readLastLines = require("read-last-lines");
+        async.series([
+            function (cb)
+            {
+                readLastLines.read(combinedLogPath, lines)
+                    .then((lines) => cb(null, lines));
+            },
+            function (cb)
+            {
+                readLastLines.read(errorLogPath, lines)
+                    .then((lines) => cb(null, lines));
+            }
+        ], function (err, results)
+        {
+            if (isNull(err))
+            {
+                res.json({
+                    combined: results[0].split("\n").reverse().join("\n"),
+                    error: results[1].split("\n").reverse().join("\n")
+                });
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "error",
+                    message: "Error fetching logs! " + JSON.stringify(results),
+                    error: err
+                });
+            }
+        });
+    };
+
     if (process.env.NODE_ENV === "production")
     {
         pm2.connect(function (err)
@@ -290,36 +338,9 @@ module.exports.logs = function (req, res)
 
                     if (!isNull(description))
                     {
-                        const readLastLines = require("read-last-lines");
-                        async.series([
-                            function (cb)
-                            {
-                                readLastLines.read(description.pm2_env.pm_out_log_path, lines)
-                                    .then((lines) => cb(null, lines));
-                            },
-                            function (cb)
-                            {
-                                readLastLines.read(description.pm2_env.pm_err_log_path, lines)
-                                    .then((lines) => cb(null, lines));
-                            }
-                        ], function (err, results)
-                        {
-                            if (isNull(err))
-                            {
-                                res.json({
-                                    combined: results[0].split("\n").reverse().join("\n"),
-                                    error: results[1].split("\n").reverse().join("\n")
-                                });
-                            }
-                            else
-                            {
-                                res.status(500).json({
-                                    result: "error",
-                                    message: "Error fetching logs! " + JSON.stringify(results),
-                                    error: err
-                                });
-                            }
-                        });
+                        const errorLogPath = description.pm2_env.pm_err_log_path;
+                        const combinedLogPath = description.pm2_env.pm_out_log_path;
+                        getLastLinesOfLogs(combinedLogPath, errorLogPath);
                     }
                     else
                     {
@@ -343,82 +364,36 @@ module.exports.logs = function (req, res)
     }
     else
     {
-        res.status(400).json({
-            result: "error",
-            message: "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
-        });
+        const errorLogPath = Logger.getErrorLogFilePath();
+        const combinedLogPath = Logger.getLogFilePath();
+        getLastLinesOfLogs(combinedLogPath, errorLogPath);
     }
 };
 
 module.exports.configuration = function (req, res)
 {
-    if (process.env.NODE_ENV === "production")
+    const configFilePath = Pathfinder.absPathInApp("conf/deployment_configs.json");
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+    if (req.originalMethod === "GET")
     {
-        const configFilePath = Pathfinder.absPathInApp("conf/deployment_configs.json");
-        const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-        if (req.originalMethod === "GET")
-        {
-            pm2.connect(function (err)
+        async.parallel([
+            function (cb)
             {
-                if (err)
+                if (process.env.NODE_ENV === "production")
                 {
-                    console.error(err);
-                    process.exit(2);
-                }
+                    pm2.connect(function (err)
+                    {
+                        if (err)
+                        {
+                            console.error(err);
+                            process.exit(2);
+                        }
 
-                pm2.describe(Config.pm2AppName, function (err, description)
-                {
-                    if (!err)
-                    {
-                        fs.readFile(configFilePath, function (err, config)
+                        pm2.describe(Config.pm2AppName, function (err, description)
                         {
                             if (!err)
                             {
-                                res.json({
-                                    deployment_configs: JSON.parse(config),
-                                    config: Config.toJSONObject(),
-                                    pm2_description: description
-                                });
-                            }
-                            else
-                            {
-                                res.status(500).json({
-                                    result: "error",
-                                    message: "Error getting PM2 status!",
-                                    error: err
-                                });
-                            }
-                        });
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result: "error",
-                            message: "Error updating configuration!",
-                            error: err
-                        });
-                    }
-                });
-            });
-        }
-        else if (req.originalMethod === "POST")
-        {
-            const config = req.body;
-            mkdirp(Pathfinder.absPathInApp("conf/deployment_config_backups"), function (err)
-            {
-                // destination.txt will be created or overwritten by default
-                fs.copyFile(configFilePath, path.join(Pathfinder.absPathInApp("conf/deployment_config_backups"), path.basename(configFilePath) + "_" + slug(new Date().toISOString()) + ".bak"), function (err)
-                {
-                    if (isNull(err))
-                    {
-                        fs.writeFile(configFilePath, JSON.stringify(config, null, 4), function (err, result)
-                        {
-                            if (!err)
-                            {
-                                res.json({
-                                    result: "ok",
-                                    message: "Configuration updated successfully."
-                                });
+                                cb(null, description);
                             }
                             else
                             {
@@ -429,24 +404,86 @@ module.exports.configuration = function (req, res)
                                 });
                             }
                         });
+                    });
+                }
+                else
+                {
+                    cb(null, null);
+                }
+            },
+            function (cb)
+            {
+                fs.readFile(configFilePath, function (err, config)
+                {
+                    if (isNull(err))
+                    {
+                        cb(err, JSON.parse(config));
                     }
                     else
                     {
-                        res.status(500).json({
-                            result: "error",
-                            message: "Error making backup of configuration!",
-                            error: err
-                        });
+                        Logger.log("error", "Error getting configuration file contents.");
+                        cb(err, config);
                     }
                 });
-            });
-        }
+            }],
+        function (err, results)
+        {
+            if (isNull(err))
+            {
+                res.json({
+                    config: Config.toJSONObject(),
+                    deployment_configs: results[1],
+                    pm2_description: results[0]
+                });
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "error",
+                    message: "Error getting configurations!",
+                    error: results
+                });
+            }
+        });
     }
-    else
+    else if (req.originalMethod === "POST")
     {
-        res.status(400).json({
-            result: "error",
-            message: "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
+        const config = req.body;
+        mkdirp(Pathfinder.absPathInApp("conf/deployment_config_backups"), function (err)
+        {
+            // destination.txt will be created or overwritten by default
+            fs.copyFile(configFilePath, path.join(Pathfinder.absPathInApp("conf/deployment_config_backups"), path.basename(configFilePath) + "_" + slug(new Date().toISOString()) + ".bak"), function (err)
+            {
+                if (isNull(err))
+                {
+                    fs.writeFile(configFilePath, JSON.stringify(config, null, 4), function (err, result)
+                    {
+                        if (!err)
+                        {
+                            res.json({
+                                result: "ok",
+                                message: "Configuration updated successfully."
+                            });
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result: "error",
+                                message: "Error updating configuration!",
+                                error: err
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    res.status(500).json({
+                        result: "error",
+                        message: "Error making backup of configuration!",
+                        error: err
+                    });
+                }
+            });
         });
     }
 };

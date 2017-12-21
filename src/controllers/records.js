@@ -1,5 +1,6 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -384,7 +385,7 @@ exports.update = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        updatedResource.reindex(req.index, function (err, result)
+                        updatedResource.reindex(IndexConnection.getDefault(), function (err, result)
                         {
                             if (isNull(err))
                             {
@@ -392,9 +393,11 @@ exports.update = function (req, res)
                             }
                             else
                             {
+                                const msg = "Error updating resource : unable to reindex new values. Error reported : " + result;
+                                Logger.log("error", msg);
                                 res.status(500).json({
                                     result: "Error",
-                                    message: "Error updating resource : unable to reindex new values. Error reported : " + result
+                                    message: msg
                                 });
                             }
                         });

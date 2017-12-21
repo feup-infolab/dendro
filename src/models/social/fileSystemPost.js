@@ -200,8 +200,8 @@ FileSystemPost.prototype.getResourceInfo = function (callback)
         }
         else
         {
-            Logger.log("error", "Error getting resource info from a FileSystemPost");
-            Logger.log("error", resource);
+            Logger.log("warn", "Error getting resource info from a FileSystemPost");
+            Logger.log("warn", resource);
             callback(err, resource);
         }
     }, null, db.graphUri, false, null, null);

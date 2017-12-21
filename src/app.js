@@ -63,6 +63,7 @@ const killPM2InstancesIfRunning = exports.killPM2InstancesIfRunning = function (
 
 const startPM2Master = exports.startPM2Master = function (cb)
 {
+    Logger.log_boot_message("PM2 log file path: " + Logger.getLogFilePath());
     pm2.connect(function (err)
     {
         if (err)
@@ -73,6 +74,9 @@ const startPM2Master = exports.startPM2Master = function (cb)
 
         pm2.delete(Config.pm2AppName, function (err)
         {
+            Logger.log_boot_message("PM2 log file path: " + Logger.getLogFilePath());
+            Logger.log_boot_message("PM2 error file path: " + Logger.getErrorLogFilePath());
+
             pm2.start({
                 // Script to be run
                 script: path.join(appDir, "src", "app.js"),
@@ -84,9 +88,10 @@ const startPM2Master = exports.startPM2Master = function (cb)
                 // max_memory_restart : '1024M'   // Optional: Restarts your app if it reaches 100Mo
                 args: ["--pm2_slave=1"],
                 logDateFormat: "YYYY-MM-DD HH:mm Z",
+                // we will handle logs on our own with winston. This is necessary so that there are no conflicts
                 out_file: Logger.getLogFilePath(),
                 error_file: Logger.getErrorLogFilePath(),
-                merge_logs: true,
+                // merge_logs: true,
                 cwd: appDir,
                 pid: path.join(appDir, "running.pid")
             }, function (err, apps)
@@ -107,7 +112,7 @@ const startPM2Master = exports.startPM2Master = function (cb)
     });
 };
 
-const startApp = function ()
+const initLogger = function ()
 {
     if (global.app_startup_time)
     {
@@ -117,7 +122,10 @@ const startApp = function ()
     {
         Logger.init(new Date());
     }
+};
 
+const startApp = function ()
+{
     Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
 
     if (process.env.NODE_ENV === "test")
@@ -218,12 +226,10 @@ const startApp = function ()
                 // init_elasticsearch
                 require(Pathfinder.absPathInSrcFolder("bootup/init/init_elasticsearch.js")).initElasticSearch(self.app, callback);
             },
-            function (app, index, callback)
+            function (callback)
             {
-                // save index connection
-                self.index = index;
                 // create search indexes on elasticsearch if needed
-                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(app, self.index, callback);
+                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
             },
             function (callback)
             {
@@ -419,6 +425,8 @@ if (isNull(process.env.NODE_ENV) && !isNull(Config.environment))
 {
     process.env.NODE_ENV = Config.environment;
 }
+
+initLogger();
 
 if (process.env.NODE_ENV === "production")
 {

@@ -113,21 +113,29 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                                                 });
                                             };
 
-                                            for (let i = 0; i < contributors.length; i++)
+                                            if(req.user.isAdmin)
                                             {
-                                                if (contributors[i].uri === user.uri)
-                                                {
-                                                    createInteraction();
-                                                    return;
-                                                }
+                                                createInteraction();
+                                                return;
                                             }
+                                            else
+                                            {
+                                                for (let i = 0; i < contributors.length; i++)
+                                                {
+                                                    if (contributors[i].uri === user.uri)
+                                                    {
+                                                        createInteraction();
+                                                        return;
+                                                    }
+                                                }
 
-                                            const msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + project.uri;
-                                            Logger.log("error", msg);
-                                            res.status(400).json({
-                                                result: "Error",
-                                                message: msg
-                                            });
+                                                const msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + project.uri;
+                                                Logger.log("error", msg);
+                                                res.status(400).json({
+                                                    result: "Error",
+                                                    message: msg
+                                                });
+                                            }
                                         }
                                         else
                                         {

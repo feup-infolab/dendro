@@ -201,10 +201,10 @@ Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback,
     const self = this;
     const type = self.prefixedRDFType;
 
-    const dummyRec = {
+    const dummyReq = {
         query: {
-            page_number: 0,
-            page_size: 10000
+            currentPage: 0,
+            pageSize: 10000
         }
     };
 
@@ -268,7 +268,7 @@ Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback,
     query = query + "} \n";
 
     query = DbConnection.paginateQuery(
-        dummyRec,
+        dummyReq,
         query
     );
 
@@ -276,25 +276,28 @@ Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback,
     async.until(
         function ()
         {
-            if (!isNull(resultsSize) && resultsSize > 0)
+            if (!isNull(checkFunction))
             {
-                if (!isNull(checkFunction))
+                if (!checkFunction())
                 {
-                    if (checkFunction())
-                    {
-                        return false;
-                    }
-
-                    // check function failed, stop querying!
-                    finalCallback(1, "Validation condition not met when fetching resources with pagination. Aborting paginated querying...");
-                    return true;
+                    return false;
                 }
-            }
-            else
-            {
-                finalCallback(null, "All resources of type " + self.prefixedForm + " retrieved via pagination query.");
+                // check function failed, stop querying!
+                finalCallback(1, "Validation condition not met when fetching resources with pagination. Aborting paginated querying...");
                 return true;
             }
+
+            if (!isNull(resultsSize))
+            {
+                if (resultsSize > 0)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return true;
         },
         function (callback)
         {
@@ -305,7 +308,7 @@ Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback,
                 {
                     if (isNull(err))
                     {
-                        dummyRec.query.page_number++;
+                        dummyReq.query.currentPage++;
                         async.mapSeries(results,
                             function (result, cb)
                             {
@@ -328,10 +331,14 @@ Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback,
                     }
                     else
                     {
-                        return callback(1, "Unable to fetch all resources from the graph, on page " + req.query.page_number);
+                        return callback(1, "Unable to fetch all resources from the graph, on page " + dummyReq.query.currentPage);
                     }
                 }
             );
+        },
+        function (err, results)
+        {
+            finalCallback(err, "All resources of type " + self.leafClass + " retrieved via pagination query.");
         }
     );
 };
@@ -1456,75 +1463,96 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
 
 Resource.prototype.reindex = function (indexConnection, callback)
 {
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     const self = this;
     const infoMessages = [];
     const errorMessages = [];
 
-    self.getLiteralPropertiesFromOntologies(
-        Ontology.getPublicOntologiesUris()
-        ,
-        true,
-        function (err, results)
+    const results = self.getPublicDescriptorsForAPICalls();
+
+    let descriptors = [];
+
+    const now = new Date();
+
+    for (let i = 0; i < results.length; i++)
+    {
+        const result = results[i];
+        if (result.value instanceof Array)
         {
-            if (isNull(err) && !isNull(results))
+            for (let j = 0; j < result.value.length; j++)
             {
-                const now = new Date();
+                let value = result.value[j];
+                descriptors.push({
+                    predicate: result.uri,
+                    object: value
+                });
+            }
+        }
+        else
+        {
+            descriptors.push({
+                predicate: result.uri,
+                object: result.value
+            });
+        }
+    }
 
-                for (let i = 0; i < results.length; i++)
-                {
-                    results[i].predicate = results[i].property;
-                    delete results[i].property;
-                }
+    // Remove all non-textual values from index
+    /*const validator = require("validator");
+    descriptors = _.filter(descriptors, function (descriptor)
+    {
+        const value = descriptor.object;
+        const resourceUriRegex = Resource.getResourceRegex("[^/]+");
+        if (typeof value !== "string")
+        {
+            return false;
+        }
 
-                const document = {
-                    uri: self.uri,
-                    graph: indexConnection.index.uri,
-                    descriptors: results,
-                    last_indexing_date: now.toISOString()
-                };
+        return !validator.isURL(value) &&
+                !validator.toDate(value) &&
+                !value.match(resourceUriRegex);
+    });*/
 
-                // Logger.log("Reindexing resource " + self.uri);
-                // Logger.log("Document: \n" + JSON.stringify(document, null, 4));
+    const document = {
+        uri: self.uri,
+        graph: indexConnection.uri,
+        descriptors: descriptors,
+        last_indexing_date: now.toISOString()
+    };
 
-                self.getIndexDocumentId(indexConnection, function (err, id)
+    // Logger.log("Reindexing resource " + self.uri);
+    // Logger.log("Document: \n" + JSON.stringify(document, null, 4));
+
+    self.getIndexDocumentId(indexConnection, function (err, id)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(id))
+            {
+                document._id = id;
+            }
+
+            indexConnection.indexDocument(
+                IndexConnection.indexTypes.resource,
+                document,
+                function (err, result)
                 {
                     if (isNull(err))
                     {
-                        if (!isNull(id))
-                        {
-                            document._id = id;
-                        }
-
-                        indexConnection.indexDocument(
-                            IndexConnection.indexTypes.resource,
-                            document,
-                            function (err, result)
-                            {
-                                if (isNull(err))
-                                {
-                                    infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.index.short_name);
-                                    return callback(null, infoMessages);
-                                }
-                                const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
-                                errorMessages.push(msg);
-                                Logger.log("error", msg);
-                                return callback(1, errorMessages);
-                            });
+                        infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.short_name);
+                        return callback(null, infoMessages);
                     }
-                    else
-                    {
-                        errorMessages.push("Error getting document id for resource " + self.uri + " error returned " + id);
-                        return callback(1, errorMessages);
-                    }
+                    const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
+                    errorMessages.push(msg);
+                    Logger.log("error", msg);
+                    return callback(1, errorMessages);
                 });
-            }
-            else
-            {
-                infoMessages.push("Node " + self.uri + " has no literal properties to be indexed, moving on");
-                return callback(null, errorMessages);
-            }
-        });
+        }
+        else
+        {
+            errorMessages.push("Error getting document id for resource " + self.uri + " error returned " + id);
+            return callback(1, errorMessages);
+        }
+    });
 };
 
 Resource.prototype.getIndexDocumentId = function (indexConnection, callback)
@@ -1690,8 +1718,6 @@ Resource.prototype.restoreFromIndexDocument = function (indexConnection, callbac
         {
             if (isNull(err))
             {
-                let id = null;
-
                 if (!isNull(hits) && hits instanceof Array && hits.length > 0)
                 {
                     if (hits.length > 1)
@@ -2377,6 +2403,8 @@ Resource.findByPropertyValue = function (
 Resource.prototype.loadFromIndexHit = function (hit)
 {
     const self = this;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+
     if (isNull(self.indexData))
     {
         self.indexData = {};
@@ -2389,17 +2417,40 @@ Resource.prototype.loadFromIndexHit = function (hit)
     self.indexData.graph = hit._source.graph;
     self.indexData.last_indexing_date = hit._source.last_indexing_date;
 
-    const resourceDescriptors = _.map(hit._source.descriptors, function (descriptorObject)
-    {
-        const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    let descriptorsAndValues = {};
 
+    for (let i = 0; i < hit._source.descriptors.length; i++)
+    {
+        let descriptorObject = hit._source.descriptors[i];
+        let descriptorUri = descriptorObject.predicate;
+        let descriptorValue = descriptorObject.object;
+
+        if (isNull(descriptorsAndValues[descriptorUri]))
+        {
+            descriptorsAndValues[descriptorUri] = descriptorValue;
+        }
+        else
+        {
+            if (typeof descriptorsAndValues[descriptorUri] === "string")
+            {
+                descriptorsAndValues[descriptorUri] = [descriptorsAndValues[descriptorUri], descriptorValue];
+            }
+            else if (descriptorsAndValues[descriptorUri] instanceof Array)
+            {
+                descriptorsAndValues[descriptorUri].push(descriptorValue);
+            }
+        }
+    }
+
+    descriptorsAndValues = _.map(Object.keys(descriptorsAndValues), function (descriptorUri)
+    {
         return new Descriptor({
-            uri: descriptorObject.predicate,
-            value: descriptorObject.object
+            uri: descriptorUri,
+            value: descriptorsAndValues[descriptorUri]
         });
     });
 
-    self.updateDescriptors(resourceDescriptors);
+    self.updateDescriptors(descriptorsAndValues);
     return self;
 };
 

@@ -6,7 +6,7 @@
             "secret": "THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzAIAIMARIA"
         },
         "baseUri": "http://127.0.0.1:3001",
-        "environment": "production",
+        "environment": "development",
         "eudatBaseUrl": "https://trng-b2share.eudat.eu",
         "eudatToken": "901",
         "eudatCommunityId": "e9b9792e-79fb-4b07-b6b4-b9c2bd06d095",
@@ -257,10 +257,10 @@
         },
         "baselines": {},
         "logging": {
-            "level": "debug",
+            "level": "silly",
             "app_logs_folder": "logs/app",
             "log_all_requests": true,
-            "do_not_log_requests_to_public_assets": false,
+            "do_not_log_requests_to_public_assets": true,
             "log_emailing": false
         },
         "version": {
@@ -298,7 +298,8 @@
             "max_suggestions_of_each_type": 80,
             "recommendation_page_size": 30,
             "random_interactions_generation_page_size": 5,
-            "max_interaction_pushing_threads": 1
+            "max_interaction_pushing_threads": 1,
+            "interactions_recording_table": "interactions"
         },
         "email": {
             "gmail": {
@@ -495,7 +496,7 @@
         "mySQLDBName": "dendroVagrantDemo",
         "maxUploadSize": 2147483648,
         "maxProjectSize": 5368709120,
-        "maxSimultaneousConnectionsToDb": 120,
+        "maxSimultaneousConnectionsToDb": 12,
         "dbOperationTimeout": 16000,
         "tempFilesDir": "temp",
         "tempUploadsDir": "temp_uploads",
@@ -676,7 +677,8 @@
             "max_suggestions_of_each_type": 80,
             "recommendation_page_size": 30,
             "random_interactions_generation_page_size": 5,
-            "max_interaction_pushing_threads": 1
+            "max_interaction_pushing_threads": 1,
+            "interactions_recording_table": "interactions"
         },
         "email": {
             "gmail": {
@@ -870,7 +872,7 @@
         "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
         "maxUploadSize": 2147483648,
         "maxProjectSize": 5368709120,
-        "maxSimultaneousConnectionsToDb": 120,
+        "maxSimultaneousConnectionsToDb": 12,
         "dbOperationTimeout": 16000,
         "tempFilesDir": "temp",
         "tempUploadsDir": "temp_uploads",
@@ -1052,7 +1054,8 @@
             "max_suggestions_of_each_type": 80,
             "recommendation_page_size": 30,
             "random_interactions_generation_page_size": 5,
-            "max_interaction_pushing_threads": 1
+            "max_interaction_pushing_threads": 1,
+            "interactions_recording_table": "interactions"
         },
         "email": {
             "gmail": {

@@ -1,5 +1,6 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -38,7 +39,7 @@ exports.recommend_descriptors = function (req, res)
             return Ontology.allOntologies[prefix].uri;
         });
 
-        const indexConnection = req.index;
+        const indexConnection = IndexConnection.getDefault();
 
         exports.shared.recommend_descriptors(resourceUri, userUri, req.query.page, allowedOntologies, indexConnection, function (err, descriptors)
         {

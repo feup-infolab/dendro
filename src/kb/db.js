@@ -293,6 +293,9 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
             }
             else
             {
+                Logger.log("error", "Error while reserving connection settings for running query");
+                Logger.log("error", JSON.stringify(err));
+                Logger.log("error", JSON.stringify(connection));
                 callback(err, connection);
             }
         });
@@ -670,14 +673,15 @@ DbConnection.prototype.create = function (callback)
             ]);
         }
 
+        const timeoutSecs = 60;
         const config = {
             // Required
-            url: "jdbc:virtuoso://" + self.host + ":" + self.port_isql + "/UID=" + self.username + "/PWD=" + self.password + "/PWDTYPE=cleartext" + "/CHARSET=UTF-8",
+            url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
             drivername: "virtuoso.jdbc4.Driver",
             maxpoolsize: self.maxSimultaneousConnections,
-            minpoolsize: 1,
-            // 10 seconds idle time
-            // maxidle: 1000 * 10,
+            minpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
+            // 600 seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
+            // maxidle: 1000 * timeoutSecs * 10,
             properties: {}
         };
 

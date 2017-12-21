@@ -1,5 +1,6 @@
 const humanize = require("humanize");
 const Pathfinder = global.Pathfinder;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -984,7 +985,7 @@ exports.upload = function (req, res)
                                                                     }
                                                                 });
 
-                                                                newFile.saveWithFileAndContents(file.path, req.index, function (err, newFile)
+                                                                newFile.saveWithFileAndContents(file.path, IndexConnection.getDefault(), function (err, newFile)
                                                                 {
                                                                     if (isNull(err))
                                                                     {

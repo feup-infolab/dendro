@@ -1,4 +1,4 @@
-const path = require("path");
+const async = require("async");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
@@ -13,8 +13,16 @@ const db_notifications = Config.getDBByID("notifications");
 const es = require("elasticsearch");
 const slug = require("slug");
 
-const IndexConnection = function ()
+const IndexConnection = function (options)
 {
+    const self = this;
+    self.host = options.host;
+    self.port = options.port;
+    self.id = options.id;
+    self.short_name = options.short_name;
+    self.uri = options.uri;
+    self.elasticsearchMappings = options.elasticsearchMappings;
+    return self;
 };
 
 IndexConnection.indexTypes =
@@ -24,92 +32,151 @@ IndexConnection.indexTypes =
 
 // exclude a field from indexing : add "index" : "no".
 
-IndexConnection.indexes = {
-    dendro_graph:
-    {
+IndexConnection._all = {
+    dendro_graph: new IndexConnection({
+        id: "dendro_graph",
         short_name: slug(db.graphUri),
         uri: db.graphUri,
-        elasticsearch_mappings:
-        {
-            resource: {
-                properties: {
-                    uri:
-              {
-                  type: "string",
-                  index: "not_analyzed" // we only want exact matches, disable term analysis
-              },
-                    graph:
-              {
-                  type: "string",
-                  index: "not_analyzed" // we only want exact matches, disable term analysis
-              },
-                    last_indexing_date:
-              {
-                  type: "string",
-                  index: "not_analyzed" // we only want exact matches, disable term analysis
-              },
-                    descriptors:
-              {
-                  properties:
+        host: Config.elasticSearchHost,
+        port: Config.elasticSearchPort,
+        elasticsearchMappings:
                 {
-                    predicate:
-                  {
-                      type: "string",
-                      index: "not_analyzed" // we only want exact matches, disable term analysis
-                  },
-                    object:
-                  {
-                      type: "string",
-                      index_options: "offsets",
-                      analyzer: "standard"
-                  }
+                    resource: {
+                        properties: {
+                            uri:
+                                {
+                                    type: "string",
+                                    index: "not_analyzed" // we only want exact matches, disable term analysis
+                                },
+                            graph:
+                                {
+                                    type: "string",
+                                    index: "not_analyzed" // we only want exact matches, disable term analysis
+                                },
+                            last_indexing_date:
+                                {
+                                    type: "string",
+                                    index: "not_analyzed" // we only want exact matches, disable term analysis
+                                },
+                            descriptors:
+                                {
+                                    properties:
+                                        {
+                                            predicate:
+                                                {
+                                                    type: "string",
+                                                    index: "not_analyzed" // we only want exact matches, disable term analysis
+                                                },
+                                            object:
+                                                {
+                                                    type: "string",
+                                                    index_options: "offsets",
+                                                    analyzer: "standard"
+                                                }
+                                        }
+                                }
+                        }
+                    }
                 }
-              }
-                }
-            }
-        }
-    },
-    social_dendro:
-    {
+    }),
+    social_dendro: new IndexConnection({
+        id: "social_dendro",
         short_name: slug(db_social.graphUri),
+        host: Config.elasticSearchHost,
+        port: Config.elasticSearchPort,
         uri: db_social.graphUri
-    },
-    notifications_dendro:
-    {
+    }),
+    notifications_dendro: new IndexConnection({id: "notifications_dendro",
         short_name: slug(db_notifications.graphUri),
+        host: Config.elasticSearchHost,
+        port: Config.elasticSearchPort,
         uri: db_notifications.graphUri
-    },
-    dbpedia:
-    {
+    }),
+    dbpedia: new IndexConnection({
+        id: "dbpedia",
         short_name: slug("http://dbpedia.org"),
+        host: Config.elasticSearchHost,
+        port: Config.elasticSearchPort,
         uri: "http://dbpedia.org"
-    },
-    dryad:
-    {
+    }),
+    dryad: new IndexConnection({
+        id: "dryad",
         short_name: slug("http://dryad.org"),
+        host: Config.elasticSearchHost,
+        port: Config.elasticSearchPort,
         uri: "http://dryad.org"
-    },
-    freebase:
-    {
+    }),
+    freebase: new IndexConnection({
+        id: "freebase",
         short_name: slug("http://freebase.org"),
+        host: Config.elasticSearchHost,
+        port: Config.elasticSearchPort,
         uri: "http://freebase.org"
-    }
+    })
 };
 
-IndexConnection.prototype.open = function (host, port, index, callback)
+IndexConnection.initAllIndexes = function (callback)
+{
+    async.mapSeries(Object.keys(IndexConnection._all), function (key, cb)
+    {
+        const index = new IndexConnection(IndexConnection._all[key]);
+        index.open(function (err, result)
+        {
+            IndexConnection._all[key] = result;
+            if (isNull(err))
+            {
+                const newIndex = IndexConnection.get(key);
+
+                if (!isNull(newIndex) && newIndex.isInitialized())
+                {
+                    cb(null, newIndex);
+                }
+                else
+                {
+                    cb(1, "Unable to get index connection to index " + key + " right after creating it!");
+                }
+            }
+            else
+            {
+                cb(3, "Unable to open index connection to index " + key + ".");
+            }
+        });
+    }, function (err, results)
+    {
+        callback(err, results);
+    });
+};
+
+IndexConnection.get = function (indexKey)
+{
+    const index = IndexConnection._all[indexKey];
+    if (!isNull(index))
+    {
+        return index;
+    }
+
+    Logger.log("warn", "Index parametrization does not exist for key " + indexKey);
+    return null;
+};
+
+IndexConnection.getDefault = function ()
+{
+    return IndexConnection.get("dendro_graph");
+};
+
+IndexConnection.prototype.isInitialized = function ()
 {
     const self = this;
-    if (!self.client)
+    return (!isNull(self.client));
+};
+
+IndexConnection.prototype.open = function (callback)
+{
+    const self = this;
+    if (!self.isInitialized())
     {
-        const util = require("util");
-
-        self.client = {};
-        self.host = host;
-        self.port = port;
-        self.index = index;
-
         let serverOptions = {
-            host: host + ":" + port
+            host: self.host + ":" + self.port
         };
 
         if (Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
@@ -123,17 +190,17 @@ IndexConnection.prototype.open = function (host, port, index, callback)
             serverOptions.auth = Config.elasticSearchAuthCredentials;
         }
 
-        self.client = new es.Client(serverOptions).cluster.client;
+        self.client = new es.Client(JSON.parse(JSON.stringify(serverOptions))).cluster.client;
 
         self.client.indices.getMapping()
             .then(function (mapping)
             {
-                return callback(self);
+                return callback(null, self);
             });
     }
     else
     {
-	    return callback(self);
+        return callback(null, self);
     }
 };
 
@@ -146,7 +213,7 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
         delete document._id;
 
         self.client.update({
-            index: self.index.short_name,
+            index: self.short_name,
             type: type,
             body: document
         }, function (err, data)
@@ -155,14 +222,17 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
             {
                 return callback(null, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
-            Logger.log("error", err.stack);
-            return callback(1, "Unable to RE index document " + JSON.stringify(document));
+            else
+            {
+                Logger.log("error", err.stack);
+                return callback(1, "Unable to RE index document " + JSON.stringify(document));
+            }
         });
     }
     else
     {
         self.client.index({
-            index: self.index.short_name,
+            index: self.short_name,
             type: type,
             body: document
         }, function (err, data)
@@ -171,8 +241,11 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
             {
                 return callback(null, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
-            Logger.log("error", err.stack);
-            return callback(1, "Unable to index document " + JSON.stringify(document));
+            else
+            {
+                Logger.log("error", err.stack);
+                return callback(1, "Unable to index document " + JSON.stringify(document));
+            }
         });
     }
 };
@@ -185,7 +258,7 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
         return callback(null, "No document to delete");
     }
 
-    self.client.delete(self.index.short_name,
+    self.client.delete(self.short_name,
         type,
         documentID,
         {},
@@ -207,11 +280,22 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
         });
 };
 
+IndexConnection.create_all_indexes = function (numberOfShards, numberOfReplicas, deleteIfExists, callback)
+{
+    async.mapSeries(Object.keys(IndexConnection._all), function (key, cb)
+    {
+        IndexConnection._all[key].create_new_index(numberOfShards, numberOfReplicas, deleteIfExists, cb);
+    }, function (err, results)
+    {
+        callback(err, results);
+    });
+};
+
 IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfReplicas, deleteIfExists, callback)
 {
     let self = this;
     let async = require("async");
-    let indexName = self.index.short_name;
+    let indexName = self.short_name;
 
     async.waterfall([
         function (callback)
@@ -230,7 +314,7 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                                     return callback(null);
                                 }
 
-                                Logger.log("error", "Unable do delete index " + self.index.short_name + " Error returned  : " + err);
+                                Logger.log("error", "Unable do delete index " + self.id + " Error returned  : " + err);
                                 return callback(1);
                             });
                         }
@@ -271,7 +355,7 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                             settings.number_of_replicas = numberOfReplicas;
                         }
 
-                        settings.body.mappings = self.index.elasticsearch_mappings;
+                        settings.body.mappings = self.elasticsearchMappings;
                         settings.index = indexName;
 
                         self.client.indices.create(settings, function (err, data)
@@ -308,15 +392,14 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
 IndexConnection.prototype.delete_index = function (callback)
 {
     const self = this;
-
-    this.client.indices.delete(
+    self.client.indices.delete(
         {
-            index: self.index.short_name
+            index: self.short_name
         }, function (err, data)
         {
             if (isNull(err) && !data.error)
             {
-                return callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
+                return callback(null, "Index with name " + self.short_name + " successfully deleted.");
             }
 
             const error = "Error deleting index : " + JSON.stringify(data);
@@ -353,7 +436,7 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
             {
                 const response = JSON.parse(xmlHttp.responseText);
 
-                if (response.indices.hasOwnProperty(self.index.short_name))
+                if (response.indices.hasOwnProperty(self.short_name))
                 {
                     return callback(true);
                 }
@@ -380,7 +463,8 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 //	field : term
 // }
 
-IndexConnection.prototype.search = function (typeName,
+IndexConnection.prototype.search = function (
+    typeName,
     queryObject,
     callback)
 {
@@ -388,7 +472,7 @@ IndexConnection.prototype.search = function (typeName,
 
     self.client.search(
         {
-            index: self.index.short_name,
+            index: self.short_name,
             type: typeName,
             body: queryObject
         })
@@ -413,14 +497,14 @@ IndexConnection.prototype.moreLikeThis = function (
     if (!isNull(documentId))
     {
         self.client.search(
-            self.index.short_name,
+            self.short_name,
             typeName,
             {
                 query: {
                     more_like_this: {
                         docs: [
                             {
-                                _index: self.index.short_name,
+                                _index: self.short_name,
                                 _type: typeName,
                                 _id: documentId
                             }

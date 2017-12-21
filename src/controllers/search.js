@@ -1,5 +1,6 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -38,7 +39,7 @@ exports.search = function (req, res)
         const skip = req.query.pageSize * req.query.currentPage;
 
         Resource.findResourcesByTextQuery(
-            req.index,
+            IndexConnection.getDefault(),
             query,
             skip,
             req.query.pageSize,
@@ -46,9 +47,9 @@ exports.search = function (req, res)
             {
                 let getSimilarResources = function (resource, callback)
                 {
-                    resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function (err, similarResources)
+                    resource.getTextuallySimilarResources(IndexConnection.getDefault(), Config.limits.index.maxResults, function (err, similarResources)
                     {
-                        if (!isNull(resource.indexData))
+                        if (isNull(resource.indexData))
                         {
                             resource.indexData = {};
                         }
