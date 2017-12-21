@@ -86,7 +86,7 @@ angular.module('dendroApp.controllers')
                 url += "/metrics/deposits";
                 let param =
                     {
-                        id: window.location.pathname
+                        id: $scope.get_owner_project()
                     };
                 $http({
                     method: "GET",
