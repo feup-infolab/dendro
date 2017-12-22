@@ -45,10 +45,26 @@ if(results.length > 0)
         <div class="well">
             <div class="row">
                 <div class="col-lg-1">
-                    <%=JSON.stringify(result.rdf)%>
+                    <%=JSON.stringify(result, null, 4) %>
                     <%=result.leafClass%>
 
+                    <% switch(result.type) { %>
+                        <% case("folder"): { %>
+                    
+                            <% break; %>
+                        <%}%>
 
+                        <% case("file"): { %>
+
+                            <% break; %>
+                        <%}%>
+
+                        <% case("project"): { %>
+
+                            <% break; %>
+                        <%}%>
+
+                    <%}%>
                 </div>
                 <div class="col-lg-11">
                     <b><a href="<%=result.uri%>"><%=result.dcterms.title%></a></b>
