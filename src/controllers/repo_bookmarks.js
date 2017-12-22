@@ -9,6 +9,7 @@ const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harves
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
 
 const async = require("async");
 const _ = require("underscore");
@@ -243,10 +244,27 @@ exports.new = function (req, res)
                                 {
                                     if (isNull(err))
                                     {
+                                      const registryData = {
+                                        dcterms: {
+                                          title: req.body.dcterms.title,
+                                          description: repo_platform.dcterms.title,
+                                          creator: req.user.ddr.username,
+                                        },
+                                        ddr: {
+                                          exportedResource: req.body.ddr.exportedResource,
+                                          //exportedFromProject: result.uri, //given later
+                                          privacyStatus: req.body.ddr.privacyStatus,
+                                        }
+                                      };
+
+                                      Deposit.createDepositRegistry(registryData, function(err, result){
                                         res.json({
-                                            result: "ok",
-                                            message: "New bookmark saved as " + newBookmark.dcterms.title
+                                          result: "ok",
+                                          message: "New bookmark saved as " + newBookmark.dcterms.title
                                         });
+                                      });
+
+
                                     }
                                     else
                                     {

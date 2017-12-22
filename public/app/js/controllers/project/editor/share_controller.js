@@ -172,6 +172,23 @@ angular.module("dendroApp.controllers")
                 }
                 new_repository.ddr.hasPlatform = $scope.new_repository_type;
 
+
+                var url = window.location.pathname;
+                var calling = $scope.get_currently_selected_resource();
+                var thumb = $scope.get_calling_uri_thumbnail();
+
+                let shared = $scope.shared;
+
+                let selectedUri = [];
+
+                for (index in shared.folder_contents){
+                    if(shared.folder_contents[index].selected) selectedUri.push(shared.folder_contents[index].uri);
+                }
+
+                if(selectedUri.length === 0) selectedUri.push(url);
+
+                new_repository.ddr.exportedResource = selectedUri;
+
                 var requestPayload = JSON.stringify(new_repository);
 
                 $.ajax({

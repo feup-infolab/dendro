@@ -20,6 +20,7 @@ const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Cl
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
@@ -48,15 +49,44 @@ function Deposit(object){
 Deposit.createDepositRegistry = function (object, callback) {
     const newRegistry = new Deposit(object);
 
-    console.log("creating registry from deposit\n" + util.inspect(object));
+    const requestedResourceURI = object.ddr.exportedResource;
 
-    newRegistry.save(function(err, newRegistry){
-        if(!err){
-            callback(err, newRegistry);
-        } else{
+    const isResource = function (url)
+    {
+      const regexp = /\/r\/(folder|file)\/.*/;
+        return regexp.test(url);
+    };
 
-        }
-    });
+    if(requestedResourceURI instanceof Array && requestedResourceURI.length > 0){
+      const resourceUri = requestedResourceURI[0];
+      if(isResource(resourceUri)){
+        const info = new InformationElement({
+          uri: resourceUri,
+        });
+
+        info.getOwnerProject(function (err, ie) {
+          newRegistry.ddr.exportedFromProject = ie.uri;
+          if (isNull(err)) {
+
+            console.log("creating registry from deposit\n" + util.inspect(object));
+
+            newRegistry.save(function(err, newRegistry){
+              if(!err){
+                callback(err, newRegistry);
+              } else{
+
+              }
+            });
+          }
+        });
+      }else{
+        return;
+      }
+    }else{
+      return;
+    }
+
+
 };
 
 Deposit.createQuery = function(params, callback){
@@ -75,9 +105,7 @@ Deposit.createQuery = function(params, callback){
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri dcterms:description ?description . \n";
 
-
     let i = 1;
-
 
     let variables = [
         {
