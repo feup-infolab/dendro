@@ -1217,7 +1217,9 @@ Elements.ontologies.ddr = {
   {
       type: Elements.types.string,
       locked: true,
-      control: Controls.input_box
+      private: true,
+      control: Controls.input_box,
+      api_readable: true
   },
     pageNumber:
   {
