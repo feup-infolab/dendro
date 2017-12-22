@@ -809,13 +809,73 @@ export_to_repository_b2share = function (req, res)
                                                     description = folder.dcterms.description;
                                                 }
 
+                                                let creators = [];
+                                                if(Array.isArray(folder.dcterms.creator))
+                                                {
+                                                    for(let i = 0; i != folder.dcterms.creator.length; ++i)
+                                                    {
+                                                        creators.push({creator_name: folder.dcterms.creator[i]});
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    creators.push({creator_name: folder.dcterms.creator});
+                                                }
                                                 const draftData = {
                                                     titles: [{title: title}],
                                                     community: Config.eudatCommunityId,
                                                     open_access: true,
                                                     community_specific: {},
-                                                    creators: [{creator_name: folder.dcterms.creator}]
+                                                    creators: creators
+                                                    //creators: [{creator_name: folder.dcterms.creator}]
                                                 };
+
+                                                // "descriptions":[{"description":"The abstract of the harem dataset","description_type":"Abstract"}]
+                                                if(!isNull(folder.dcterms.abstract))
+                                                {
+                                                    if(isNull(draftData.descriptions))
+                                                    {
+                                                        draftData.descriptions = [
+                                                            {
+                                                                description: folder.dcterms.abstract,
+                                                                description_type: "Abstract"
+                                                            }
+                                                        ];
+                                                    }
+                                                    else
+                                                    {
+                                                        draftData.descriptions.push({
+                                                            description: folder.dcterms.abstract,
+                                                            description_type: "Abstract"
+                                                        })
+                                                    }
+                                                }
+
+                                                if(!isNull(folder.dcterms.description))
+                                                {
+                                                    if(isNull(draftData.descriptions))
+                                                    {
+                                                        draftData.descriptions = [
+                                                            {
+                                                                description: folder.dcterms.description,
+                                                                description_type: "Other"
+                                                            }
+                                                        ];
+                                                    }
+                                                    else
+                                                    {
+                                                        draftData.descriptions.push({
+                                                            description: folder.dcterms.description,
+                                                            description_type: "Other"
+                                                        })
+                                                    }
+                                                }
+
+                                                /*
+                                                if(!isNull(folder.dcterms.description))
+                                                {
+                                                    draftData.description = folder.dcterms.description;
+                                                }*/
 
                                                 if (folder.dcterms.contributor)
                                                 {
