@@ -789,8 +789,8 @@ export_to_repository_b2share = function (req, res)
                                             {
                                                 const accessToken = targetRepository.ddr.hasAccessToken;
 
+                                                /*
                                                 let title;
-
                                                 if (Array.isArray(folder.dcterms.title))
                                                 {
                                                     title = folder.dcterms.title[0];
@@ -807,7 +807,14 @@ export_to_repository_b2share = function (req, res)
                                                 else
                                                 {
                                                     description = folder.dcterms.description;
-                                                }
+                                                }*/
+
+                                                let title, description, abstract, publisher, language;
+                                                title = generalDatasetUtils.parseDescriptorValue(folder.dcterms.title);
+                                                description = generalDatasetUtils.parseDescriptorValue(folder.dcterms.description);
+                                                abstract = generalDatasetUtils.parseDescriptorValue(folder.dcterms.abstract);
+                                                publisher = generalDatasetUtils.parseDescriptorValue(folder.dcterms.publisher) | generalDatasetUtils.parseDescriptorValue(project.dcterms.publisher) | "http://dendro.fe.up.pt";
+                                                language = generalDatasetUtils.parseDescriptorValue(folder.dcterms.language) | generalDatasetUtils.parseDescriptorValue(project.dcterms.language) | "en";
 
                                                 let creators = [];
                                                 if(Array.isArray(folder.dcterms.creator))
@@ -827,17 +834,16 @@ export_to_repository_b2share = function (req, res)
                                                     open_access: true,
                                                     community_specific: {},
                                                     creators: creators
-                                                    //creators: [{creator_name: folder.dcterms.creator}]
                                                 };
 
                                                 // "descriptions":[{"description":"The abstract of the harem dataset","description_type":"Abstract"}]
-                                                if(!isNull(folder.dcterms.abstract))
+                                                if(!isNull(abstract))
                                                 {
                                                     if(isNull(draftData.descriptions))
                                                     {
                                                         draftData.descriptions = [
                                                             {
-                                                                description: folder.dcterms.abstract,
+                                                                description: abstract,
                                                                 description_type: "Abstract"
                                                             }
                                                         ];
@@ -845,19 +851,19 @@ export_to_repository_b2share = function (req, res)
                                                     else
                                                     {
                                                         draftData.descriptions.push({
-                                                            description: folder.dcterms.abstract,
+                                                            description: abstract,
                                                             description_type: "Abstract"
                                                         })
                                                     }
                                                 }
 
-                                                if(!isNull(folder.dcterms.description))
+                                                if(!isNull(description))
                                                 {
                                                     if(isNull(draftData.descriptions))
                                                     {
                                                         draftData.descriptions = [
                                                             {
-                                                                description: folder.dcterms.description,
+                                                                description: description,
                                                                 description_type: "Other"
                                                             }
                                                         ];
@@ -865,17 +871,11 @@ export_to_repository_b2share = function (req, res)
                                                     else
                                                     {
                                                         draftData.descriptions.push({
-                                                            description: folder.dcterms.description,
+                                                            description: description,
                                                             description_type: "Other"
                                                         })
                                                     }
                                                 }
-
-                                                /*
-                                                if(!isNull(folder.dcterms.description))
-                                                {
-                                                    draftData.description = folder.dcterms.description;
-                                                }*/
 
                                                 if (folder.dcterms.contributor)
                                                 {
@@ -899,6 +899,7 @@ export_to_repository_b2share = function (req, res)
                                                     }
                                                 }
 
+                                                /*
                                                 if (folder.dcterms.publisher)
                                                 {
                                                     draftData.publisher = folder.dcterms.publisher;
@@ -910,6 +911,11 @@ export_to_repository_b2share = function (req, res)
                                                 else
                                                 {
                                                     draftData.publisher = "http://dendro.fe.up.pt";
+                                                }*/
+
+                                                if(!isNull(publisher))
+                                                {
+                                                    draftData.publisher = publisher;
                                                 }
 
                                                 if (folder.dcterms.subject)
@@ -926,6 +932,7 @@ export_to_repository_b2share = function (req, res)
                                                     }
                                                 }
 
+                                                /*
                                                 if (folder.dcterms.language)
                                                 {
                                                     draftData.language = folder.dcterms.language;
@@ -937,6 +944,11 @@ export_to_repository_b2share = function (req, res)
                                                 else
                                                 {
                                                     draftData.language = "en";
+                                                }*/
+
+                                                if(!isNull(language))
+                                                {
+                                                    draftData.language = language;
                                                 }
 
                                                 const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
