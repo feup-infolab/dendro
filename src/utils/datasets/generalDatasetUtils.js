@@ -32,16 +32,14 @@ const deleteFolderRecursive = function (path)
 
 
 const parseDescriptorValue = function (descriptorValue) {
+    let result = descriptorValue;
     if(!isNull(descriptorValue))
     {
         if(Array.isArray(descriptorValue))
         {
-            return descriptorValue.join(",");
+            result = descriptorValue.join(",");
         }
-        else
-        {
-            return descriptorValue;
-        }
+        return result;
     }
     else
     {

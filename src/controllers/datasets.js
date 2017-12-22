@@ -788,33 +788,12 @@ export_to_repository_b2share = function (req, res)
                                             try
                                             {
                                                 const accessToken = targetRepository.ddr.hasAccessToken;
-
-                                                /*
-                                                let title;
-                                                if (Array.isArray(folder.dcterms.title))
-                                                {
-                                                    title = folder.dcterms.title[0];
-                                                }
-                                                else
-                                                {
-                                                    title = folder.dcterms.title;
-                                                }
-                                                let description;
-                                                if (Array.isArray(folder.dcterms.description))
-                                                {
-                                                    description = folder.dcterms.description[0];
-                                                }
-                                                else
-                                                {
-                                                    description = folder.dcterms.description;
-                                                }*/
-
                                                 let title, description, abstract, publisher, language;
                                                 title = generalDatasetUtils.parseDescriptorValue(folder.dcterms.title);
                                                 description = generalDatasetUtils.parseDescriptorValue(folder.dcterms.description);
                                                 abstract = generalDatasetUtils.parseDescriptorValue(folder.dcterms.abstract);
-                                                publisher = generalDatasetUtils.parseDescriptorValue(folder.dcterms.publisher) | generalDatasetUtils.parseDescriptorValue(project.dcterms.publisher) | "http://dendro.fe.up.pt";
-                                                language = generalDatasetUtils.parseDescriptorValue(folder.dcterms.language) | generalDatasetUtils.parseDescriptorValue(project.dcterms.language) | "en";
+                                                publisher = generalDatasetUtils.parseDescriptorValue(folder.dcterms.publisher) || generalDatasetUtils.parseDescriptorValue(project.dcterms.publisher) || "http://dendro.fe.up.pt";
+                                                language = generalDatasetUtils.parseDescriptorValue(folder.dcterms.language) || generalDatasetUtils.parseDescriptorValue(project.dcterms.language) || "en";
 
                                                 let creators = [];
                                                 if(Array.isArray(folder.dcterms.creator))
@@ -899,20 +878,6 @@ export_to_repository_b2share = function (req, res)
                                                     }
                                                 }
 
-                                                /*
-                                                if (folder.dcterms.publisher)
-                                                {
-                                                    draftData.publisher = folder.dcterms.publisher;
-                                                }
-                                                else if (!isNull(project.dcterms.publisher))
-                                                {
-                                                    draftData.publisher = project.dcterms.publisher;
-                                                }
-                                                else
-                                                {
-                                                    draftData.publisher = "http://dendro.fe.up.pt";
-                                                }*/
-
                                                 if(!isNull(publisher))
                                                 {
                                                     draftData.publisher = publisher;
@@ -931,20 +896,6 @@ export_to_repository_b2share = function (req, res)
                                                         draftData.keywords = keywords;
                                                     }
                                                 }
-
-                                                /*
-                                                if (folder.dcterms.language)
-                                                {
-                                                    draftData.language = folder.dcterms.language;
-                                                }
-                                                else if (!isNull(project.dcterms.language))
-                                                {
-                                                    draftData.language = project.dcterms.language;
-                                                }
-                                                else
-                                                {
-                                                    draftData.language = "en";
-                                                }*/
 
                                                 if(!isNull(language))
                                                 {
