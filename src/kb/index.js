@@ -222,11 +222,9 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
             {
                 return callback(null, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
-            else
-            {
-                Logger.log("error", err.stack);
-                return callback(1, "Unable to RE index document " + JSON.stringify(document));
-            }
+
+            Logger.log("error", err.stack);
+            return callback(1, "Unable to RE index document " + JSON.stringify(document));
         });
     }
     else
@@ -241,11 +239,9 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
             {
                 return callback(null, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
-            else
-            {
-                Logger.log("error", err.stack);
-                return callback(1, "Unable to index document " + JSON.stringify(document));
-            }
+
+            Logger.log("error", err.stack);
+            return callback(1, "Unable to index document " + JSON.stringify(document));
         });
     }
 };

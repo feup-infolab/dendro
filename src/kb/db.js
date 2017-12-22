@@ -673,6 +673,20 @@ DbConnection.prototype.create = function (callback)
             ]);
         }
 
+        // Working config in Dendro PRD, 22-12-2017
+        /*
+        const timeoutSecs = 10;
+        const config = {
+            // Required
+            url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
+            drivername: "virtuoso.jdbc4.Driver",
+            maxpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
+            minpoolsize: 1,
+            // 10 seconds idle time
+            maxidle: 1000 * timeoutSecs,
+            properties: {}
+        };*/
+
         const timeoutSecs = 60;
         const config = {
             // Required

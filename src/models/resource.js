@@ -1497,7 +1497,7 @@ Resource.prototype.reindex = function (indexConnection, callback)
     }
 
     // Remove all non-textual values from index
-    /*const validator = require("validator");
+    /* const validator = require("validator");
     descriptors = _.filter(descriptors, function (descriptor)
     {
         const value = descriptor.object;
