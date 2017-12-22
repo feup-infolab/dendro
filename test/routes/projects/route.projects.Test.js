@@ -71,11 +71,11 @@ describe("List all projects tests", function (done)
                     res.text.should.contain("metadataonlyprojectcreatedbydemouser1");
                     res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1");
 
-                    res.text.should.contain("publicprojectcreatedbydemouser1\">publicprojectcreatedbydemouser1");
-                    res.text.should.contain("publicprojecthtmlcreatedbydemouser1\">publicprojecthtmlcreatedbydemouser1");
+                    res.text.should.contain("publicprojectcreatedbydemouser1</a>");
+                    res.text.should.contain("publicprojecthtmlcreatedbydemouser1</a>");
 
-                    res.text.should.contain("privateprojectcreatedbydemouser1\">privateprojectcreatedbydemouser1");
-                    res.text.should.contain("privateprojecthtmlcreatedbydemouser1\">privateprojecthtmlcreatedbydemouser1");
+                    res.text.should.contain("privateprojectcreatedbydemouser1</a>");
+                    res.text.should.contain("privateprojecthtmlcreatedbydemouser1</a>");
                     done();
                 });
             });
@@ -88,14 +88,14 @@ describe("List all projects tests", function (done)
                 projectUtils.listAllProjects(false, agent, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.text.should.contain("metadataonlyprojectcreatedbydemouser1\">metadataonlyprojectcreatedbydemouser1");
-                    res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1\">metadataonlyhtmlprojectcreatedbydemouser1");
+                    res.text.should.contain("metadataonlyprojectcreatedbydemouser1</a>");
+                    res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1</a>");
 
-                    res.text.should.contain("publicprojectcreatedbydemouser1\">publicprojectcreatedbydemouser1");
-                    res.text.should.contain("publicprojecthtmlcreatedbydemouser1\">publicprojecthtmlcreatedbydemouser1");
+                    res.text.should.contain("publicprojectcreatedbydemouser1</a>");
+                    res.text.should.contain("publicprojecthtmlcreatedbydemouser1</a>");
 
-                    res.text.should.contain("privateprojectcreatedbydemouser1\">privateprojectcreatedbydemouser1");
-                    res.text.should.contain("privateprojecthtmlcreatedbydemouser1\">privateprojecthtmlcreatedbydemouser1");
+                    res.text.should.contain("privateprojectcreatedbydemouser1</a>");
+                    res.text.should.contain("privateprojecthtmlcreatedbydemouser1</a>");
                     done();
                 });
             });
@@ -108,14 +108,14 @@ describe("List all projects tests", function (done)
                 projectUtils.listAllProjects(false, agent, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.text.should.contain("metadataonlyprojectcreatedbydemouser1\">metadataonlyprojectcreatedbydemouser1");
-                    res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1\">metadataonlyhtmlprojectcreatedbydemouser1");
+                    res.text.should.contain("metadataonlyprojectcreatedbydemouser1</a>");
+                    res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1</a>");
 
-                    res.text.should.contain("publicprojectcreatedbydemouser1\">publicprojectcreatedbydemouser1");
-                    res.text.should.contain("publicprojecthtmlcreatedbydemouser1\">publicprojecthtmlcreatedbydemouser1");
+                    res.text.should.contain("publicprojectcreatedbydemouser1</a>");
+                    res.text.should.contain("publicprojecthtmlcreatedbydemouser1</a>");
 
-                    res.text.should.not.contain("privateprojectcreatedbydemouser1\">privateprojectcreatedbydemouser1");
-                    res.text.should.not.contain("privateprojecthtmlcreatedbydemouser1\">privateprojecthtmlcreatedbydemouser1");
+                    res.text.should.not.contain("privateprojectcreatedbydemouser1</a>");
+                    res.text.should.not.contain("privateprojecthtmlcreatedbydemouser1</a>");
                     done();
                 });
             });

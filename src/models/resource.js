@@ -196,7 +196,15 @@ Resource.exists = function (uri, callback, customGraphUri)
         });
 };
 
-Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+Resource.for_all = function (
+    resourcePageCallback,
+    checkFunction,
+    finalCallback,
+    customGraphUri,
+    descriptorTypesToRemove,
+    descriptorTypesToExemptFromRemoval,
+    includeArchivedResources
+)
 {
     const self = this;
     const type = self.prefixedRDFType;
@@ -263,6 +271,11 @@ Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback,
     else
     {
         query = query + " ?uri ?p ?o\n";
+    }
+
+    if (isNull(includeArchivedResources) || !includeArchivedResources)
+    {
+        query = query + "\nFILTER NOT EXISTS { ?uri rdf:type ddr:ArchivedResource }";
     }
 
     query = query + "} \n";
