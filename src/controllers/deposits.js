@@ -62,6 +62,19 @@ exports.allowed = function (req, callback) {
         nextDay.setDate(nextDay.getDate() + 1);
         params.dateTo = dateFormat(nextDay, "isoDateTime");
     }
+
+    switch (params.order){
+      case "Username":
+          params.order = "user";
+          break;
+      case "Project":
+          params.order = "projectTitle";
+          break;
+      case "Date":
+      default:
+          params.order = "date";
+          break;
+    }
     Deposit.createQuery(params, function(err, results){
         callback(err, results);
     });

@@ -114,25 +114,33 @@ Deposit.createQuery = function(params, callback){
         }];
 
     if(params.self){
-        const personal =
-        "   { \n" +
-        "       { \n" +
-        "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-        "       } \n" +
-        "       UNION \n" +
-        "       { \n" +
-        "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-        "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-        "         ?projused ?role [" + i++ + "] . \n" +
-        "       } \n" +
-        "   } \n";
+        if(isNull(params.private) || params.private === "false"){
+            query +=
+              "   { \n" +
+              "       { \n" +
+              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+              "       } \n" +
+              "       UNION \n" +
+              "       { \n" +
+              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+              "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+              "         ?projused ?role [" + i++ + "] . \n" +
+              "       } \n" +
+              "   } \n";
 
-        query += personal;
+            variables.push(
+              {
+                type : Elements.ontologies.ddr.privacyStatus.type,
+                value : "public"
+              }
+            );
+        }else {
+          query +=
+            "    ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+            "    VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+            "    ?projused ?role [" + i++ + "] . \n";
+        }
         variables = variables.concat([
-          {
-            type : Elements.ontologies.ddr.privacyStatus.type,
-            value : "public"
-          },
           {
             type : Elements.ontologies.ddr.privacyStatus.type,
             value : "private"
@@ -146,7 +154,7 @@ Deposit.createQuery = function(params, callback){
 
     let ending =
         "} \n" +
-        "ORDER BY DESC(?date) \n" +
+        "ORDER BY DESC(?" + params.order + ") \n" +
         "OFFSET [" + i++ + "] \n" +
         "LIMIT [" + i++ + "]";
 

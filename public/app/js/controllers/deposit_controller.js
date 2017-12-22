@@ -51,7 +51,7 @@ angular.module('dendroApp.controllers', [])
                 },
                 privateDeposit: {
                   type: "checkbox",
-                  label: "Private Deposits",
+                  label: "Private Deposits only",
                   key: "private",
                   value: false,
                 },
@@ -107,7 +107,7 @@ angular.module('dendroApp.controllers', [])
             $scope.getRegistry();
         };
 
-        $scope.getRegistry = function(){
+        $scope.getRegistry = function(filters){
             let url = $scope.get_current_url();
             url += "deposits/latest";
             const params = $scope.parseFilter();
@@ -138,8 +138,13 @@ angular.module('dendroApp.controllers', [])
         $scope.parseFilter = function(){
             let search = {};
             for(item in $scope.search){
-              if($scope.search[item].value !== null && $scope.search[item].value !== "")
-              search[$scope.search[item].key] = $scope.search[item].value;
+              if($scope.search[item].value !== null && $scope.search[item].value !== ""){
+                if($scope.search[item].type === "dropdown"){
+                  search[$scope.search[item].key] = $scope.search[item].selected;
+                }else {
+                  search[$scope.search[item].key] = $scope.search[item].value;
+                }
+              }
             }
             return search;
         };
