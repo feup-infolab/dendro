@@ -393,9 +393,11 @@ exports.update = function (req, res)
                             }
                             else
                             {
+                                const msg = "Error updating resource : unable to reindex new values. Error reported : " + result;
+                                Logger.log("error", msg);
                                 res.status(500).json({
                                     result: "Error",
-                                    message: "Error updating resource : unable to reindex new values. Error reported : " + result
+                                    message: msg
                                 });
                             }
                         });

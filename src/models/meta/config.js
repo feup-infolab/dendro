@@ -191,17 +191,30 @@ Config.crypto = getConfigParameter("crypto");
 Config.recommendation = getConfigParameter("recommendation");
 Config.recommendation.getTargetTable = function ()
 {
+    let tableName = null;
     if (Config.recommendation.modes.dendro_recommender.log_modes.phase_1.active)
     {
-        return Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
+        tableName = Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
     }
     else if (Config.recommendation.modes.dendro_recommender.log_modes.phase_2.active)
     {
-        return Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
+        tableName = Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
     }
     else
     {
-        return Config.recommendations.interactions_recording_table;
+        if (!isNull(Config.recommendations.interactions_recording_table))
+        {
+            tableName = Config.recommendations.interactions_recording_table;
+        }
+    }
+
+    if (isNull(tableName))
+    {
+        throw new Error("Unspecified interactions table name. Check your deployment_configs.json for recommendation/interactions_recording_table field.");
+    }
+    else
+    {
+        return tableName;
     }
 };
 

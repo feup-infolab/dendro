@@ -673,15 +673,29 @@ DbConnection.prototype.create = function (callback)
             ]);
         }
 
-        const timeoutSecs = 60;
+        // Working config in Dendro PRD, 22-12-2017
+        /*
+        const timeoutSecs = 10;
         const config = {
             // Required
             url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
             drivername: "virtuoso.jdbc4.Driver",
             maxpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
             minpoolsize: 1,
+            // 10 seconds idle time
+            maxidle: 1000 * timeoutSecs,
+            properties: {}
+        };*/
+
+        const timeoutSecs = 60;
+        const config = {
+            // Required
+            url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
+            drivername: "virtuoso.jdbc4.Driver",
+            maxpoolsize: self.maxSimultaneousConnections,
+            minpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
             // 600 seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
-            maxidle: 1000 * timeoutSecs * 10,
+            // maxidle: 1000 * timeoutSecs * 10,
             properties: {}
         };
 

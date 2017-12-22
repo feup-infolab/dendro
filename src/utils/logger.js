@@ -104,7 +104,7 @@ Logger.init = function (startTime, app)
                 }
                 case "debug":
                 {
-                    level = info.level.orange;
+                    level = info.level.yellow.bgCyan;
                     break;
                 }
                 case "silly":
@@ -168,7 +168,7 @@ Logger.init = function (startTime, app)
                 level: loggerLevel
             });
 
-            if(process.env.NODE_ENV === "production")
+            if (process.env.NODE_ENV === "production")
             {
                 logger = winston.createLogger({
                     transports: [
@@ -178,7 +178,6 @@ Logger.init = function (startTime, app)
             }
             else
             {
-
                 logger = winston.createLogger({
                     transports: [
                         colorizedConsole,
@@ -266,21 +265,24 @@ Logger.log_boot_message = function (message)
     }
 };
 
-Logger.log = function (type, message)
+Logger.log = function (type, message, printStack)
 {
     // special case for when the message is null and we are logging an error
     if (type === "error")
     {
         const stack = new Error().stack;
-        let msg;
+        let msg = message;
 
-        if (isNull(message))
+        if (printStack)
         {
-            msg = "Unspecified error at : " + stack;
-        }
-        else
-        {
-            msg = "Error " + message + " at : " + stack;
+            if (isNull(message))
+            {
+                msg = "Unspecified error at : " + stack;
+            }
+            else
+            {
+                msg = "Error " + message + " at : " + stack;
+            }
         }
 
         if (!isNull(Logger.logger))

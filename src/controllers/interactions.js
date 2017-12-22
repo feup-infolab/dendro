@@ -113,6 +113,12 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                                                 });
                                             };
 
+                                            if (req.user.isAdmin)
+                                            {
+                                                createInteraction();
+                                                return;
+                                            }
+
                                             for (let i = 0; i < contributors.length; i++)
                                             {
                                                 if (contributors[i].uri === user.uri)
