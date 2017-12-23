@@ -1401,12 +1401,12 @@ const loadRoutes = function (app, callback)
     //TODO William
     app.get("/deposits/latest", deposits.getDeposits);
 
-    /*app.get([
+    app.get([
             getNonHumanReadableRouteRegex("deposit")
         ],
         extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions););
-        */
+        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), deposits.getDeposit);
+
 
     //serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);

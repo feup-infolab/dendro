@@ -79,3 +79,14 @@ exports.allowed = function (req, callback) {
         callback(err, results);
     });
 };
+
+exports.getDeposit = function(req, res){
+
+    let resourceURI = req.params.requestedResourceUri;
+    Deposit.findByUri(resourceURI, function(err, deposit){
+       if(err){
+           viewVars.deposit = deposit;
+           res.render("deposit/show", viewVars);
+       }
+    });
+};

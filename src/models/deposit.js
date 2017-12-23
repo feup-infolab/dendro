@@ -41,7 +41,7 @@ function Deposit(object){
     self.dcterms.date = now;
     const uuid = require('uuid');
 
-    self.uri = Config.baseUri + "/deposit/" + uuid.v4();
+    //self.uri = Config.baseUri + "/deposit/" + uuid.v4();
 
     return self;
 }
@@ -91,7 +91,7 @@ Deposit.createDepositRegistry = function (object, callback) {
 
 Deposit.createQuery = function(params, callback){
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy\n" +
+        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy ?uri\n" +
         "FROM [0] \n"  +
         "WHERE " +
         "{ \n" +
@@ -235,6 +235,8 @@ Deposit.createAndInsertFromObject = function(object, callback){
         }
     })
 };
+
+
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");
 

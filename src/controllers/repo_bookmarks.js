@@ -253,7 +253,7 @@ exports.new = function (req, res)
                                         ddr: {
                                           exportedResource: req.body.ddr.exportedResource,
                                           //exportedFromProject: result.uri, //given later
-                                          privacyStatus: req.body.ddr.privacyStatus,
+                                          privacyStatus: isNull(req.body.ddr.privacyStatus) || req.body.ddr.privacyStatus === false ? "private" : "public",
                                         }
                                       };
 
