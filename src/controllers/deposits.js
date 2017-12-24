@@ -84,9 +84,13 @@ exports.getDeposit = function(req, res){
 
     let resourceURI = req.params.requestedResourceUri;
     Deposit.findByUri(resourceURI, function(err, deposit){
-       if(err){
+       if(isNull(err)){
+           const viewVars = {
+               title: "Deposit information"
+           };
+           deposit.dcterms.date = moment(deposit.dcterms.date).format('LLLL');
            viewVars.deposit = deposit;
-           res.render("deposit/show", viewVars);
+           res.render("registry/deposit", viewVars);
        }
     });
 };

@@ -1,0 +1,43 @@
+<%- include ../layout/header.ejs %>
+
+<h1 class="sidebar-title">Deposit information</h1>
+
+<div class="deposit-info">
+    <table class="table table-responsive table-striped table-bordered">
+        <tbody>
+        <tr>
+            <td>Deposit label: </td>
+            <td><%= locals.deposit.dcterms.title%></td>
+        </tr>
+        <tr>
+            <td>Date created: </td>
+            <td><%= locals.deposit.dcterms.date%></td>
+        </tr>
+        <tr>
+            <td>Deposit privacy: </td>
+            <td><%= locals.deposit.ddr.privacyStatus%></td>
+        </tr>
+        <tr>
+            <td>Exported From Project: </td>
+            <td><a href="<%= locals.deposit.ddr.exportedFromProject%>">abcd</a></td>
+        </tr>
+        <tr>
+            <td>Deposit creator: </td>
+            <td><a href="<%= locals.deposit.dcterms.creator%>">Creator</a></td>
+        </tr>
+        <tr>
+            <td>Deposited in system: </td>
+            <td><%= locals.deposit.dcterms.description%></td>
+        </tr>
+        <tr>
+            <td>Resources deposited: </td>
+            <td><%= locals.deposit.ddr.exportedResource%></td>
+        </tr>
+        <tr>
+            <td>Exported from parent folder: </td>
+            <td><a href="<%= locals.deposit.ddr.exportedFromFolder%>">Folder</a></td>
+        </tr>
+        </tbody>
+
+    </table>
+</div>

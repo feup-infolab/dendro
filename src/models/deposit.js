@@ -243,8 +243,6 @@ Deposit.createAndInsertFromObject = function(object, callback){
     })
 };
 
-
-
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");
 
 module.exports.Deposit = Deposit;
