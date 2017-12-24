@@ -188,6 +188,7 @@ angular.module("dendroApp.controllers")
                 if(selectedUri.length === 0) selectedUri.push(url);
 
                 new_repository.ddr.exportedResource = selectedUri;
+                new_repository.ddr.exportedFromFolder = url;
 
                 var requestPayload = JSON.stringify(new_repository);
 

@@ -167,11 +167,16 @@ footer .container-fluid {
   -webkit-border-radius: 20pt;
   -moz-border-radius: 20pt;
   border-radius: 20pt;
-  border-width: 4pt;
+  border-width: 20pt;
+  border-color: #aaa;
 }
 .sidebar-item {
   padding-left: 20;
 }
 .sidebar-title {
   text-align: center;
+}
+.deposit-list-info {
+  margin-left: 20;
+  padding-right: 20pt;
 }

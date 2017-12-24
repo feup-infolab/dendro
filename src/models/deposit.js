@@ -66,18 +66,23 @@ Deposit.createDepositRegistry = function (object, callback) {
 
         info.getOwnerProject(function (err, ie) {
           newRegistry.ddr.exportedFromProject = ie.uri;
-          if (isNull(err)) {
 
-            console.log("creating registry from deposit\n" + util.inspect(object));
+          info.getParent(function(err, ie){
+            newRegistry.ddr.exportedFromFolder = ie.uri;
+            if (isNull(err)) {
 
-            newRegistry.save(function(err, newRegistry){
-              if(!err){
-                callback(err, newRegistry);
-              } else{
+              console.log("creating registry from deposit\n" + util.inspect(object));
 
-              }
-            });
-          }
+              newRegistry.save(function(err, newRegistry){
+                if(!err){
+                  callback(err, newRegistry);
+                } else{
+
+                }
+              });
+            }
+          });
+
         });
       }else{
         return;
@@ -91,7 +96,7 @@ Deposit.createDepositRegistry = function (object, callback) {
 
 Deposit.createQuery = function(params, callback){
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy ?uri\n" +
+        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName\n" +
         "FROM [0] \n"  +
         "WHERE " +
         "{ \n" +
@@ -103,6 +108,8 @@ Deposit.createQuery = function(params, callback){
         "   ?uri dcterms:creator ?user . \n" +
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
+        "   ?uri ddr:exportedFromFolder ?folder . \n" +
+        "   ?folder nie:title ?folderName . \n" +
         "   ?uri dcterms:description ?description . \n";
 
     let i = 1;

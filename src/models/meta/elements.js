@@ -1280,6 +1280,12 @@ Elements.ontologies.ddr = {
       type: Elements.types.resource,
       control: Controls.url_box,
       locked_for_projects: true
+  },
+    exportedFromFolder:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box,
+      locked_for_projects: true
   }
 };
 
