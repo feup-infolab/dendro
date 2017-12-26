@@ -1498,7 +1498,7 @@ Resource.prototype.reindex = function (indexConnection, callback)
                 let value = result.value[j];
                 descriptors.push({
                     predicate: result.uri,
-                    object: Utils.toString(value)
+                    object: value.toString()
                 });
             }
         }
@@ -1506,7 +1506,7 @@ Resource.prototype.reindex = function (indexConnection, callback)
         {
             descriptors.push({
                 predicate: result.uri,
-                object: Utils.toString(result.value)
+                object: result.value.toString()
             });
         }
     }

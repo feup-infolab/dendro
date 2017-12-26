@@ -161,6 +161,7 @@ module.exports.reindex = function (req, res)
 
                     async.mapSeries(classesToReindex, function (classToReindex, cb)
                     {
+                        const customGraphUri = Config.getDBByHandle(graphShortName);
                         classToReindex.for_all(
                             function (err, resources)
                             {
@@ -211,7 +212,8 @@ module.exports.reindex = function (req, res)
                             function (err)
                             {
                                 return cb(err, null);
-                            });
+                            }, (!isNull(customGraphUri)) ? customGraphUri.graphUri : Config.getDBByID()
+                        );
                     }, function (err, results)
                     {
                         callback(err, results);

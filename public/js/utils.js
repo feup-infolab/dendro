@@ -192,5 +192,8 @@ if (typeof exports !== 'undefined') {
 
 Utils.anyToString = function(value)
 {
-    return value + "";
+    if(typeof value === "number")
+        return value + "";
+    else
+        return value;
 };

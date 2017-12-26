@@ -88,7 +88,8 @@ exports.search = function (req, res)
                             renderParameters.metadata = _.map(resultsWithSimilarOnes, function (result)
                             {
                                 return result.getDescriptors(
-                                    [Elements.access_types.private], [Elements.access_types.api_readable]
+                                    [Elements.access_types.private, Elements.access_types.private],
+                                    [Elements.access_types.api_readable]
                                 );
                             });
 
