@@ -63,6 +63,19 @@ exports.allowed = function (req, callback) {
         params.dateTo = dateFormat(nextDay, "isoDateTime");
     }
 
+    let platforms = [];
+    for(platform in params.platforms){
+        const p = JSON.parse(params.platforms[platform]);
+        if(p.value){
+            platforms.push(p.name);
+        }
+    }
+    if(platforms!== ""){
+        params.platforms = platforms;
+    }else{
+        params.platforms = null;
+    }
+
     switch (params.order){
       case "Username":
           params.order = "user";

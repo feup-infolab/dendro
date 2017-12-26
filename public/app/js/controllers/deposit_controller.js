@@ -58,17 +58,33 @@ angular.module('dendroApp.controllers', [])
                 system: {
                   type: "checkbox",
                   list: true,
-                  label: "System Used",
-                  key: "systems",
+                  label: "Platform Used",
+                  key: "platforms",
                   value: [
                     {
-                      name: "ckan",
-                      value: false,
+                      name: "CKAN",
+                      value: true,
                     },
                     {
-                      name: "b2Drop",
+                      name: "DSpace",
                       value: true,
-                    }
+                    },
+                    {
+                      name: "EPrints",
+                      value: true,
+                    },
+                    {
+                      name: "Figshare",
+                      value: true,
+                    },
+                    {
+                      name: "Zenodo",
+                      value: true,
+                    },
+                    {
+                      name: "EUDAT B2Share",
+                      value: true,
+                    },
                   ]
                 },
                 ordering: {

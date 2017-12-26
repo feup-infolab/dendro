@@ -1286,6 +1286,12 @@ Elements.ontologies.ddr = {
       type: Elements.types.resource,
       control: Controls.url_box,
       locked_for_projects: true
+  },
+    exportedToPlatform:
+  {
+      type: Elements.types.string,
+      locked: true,
+      control: Controls.input_box
   }
 };
 

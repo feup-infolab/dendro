@@ -96,7 +96,7 @@ Deposit.createDepositRegistry = function (object, callback) {
 
 Deposit.createQuery = function(params, callback){
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName\n" +
+        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName\n" +
         "FROM [0] \n"  +
         "WHERE " +
         "{ \n" +
@@ -109,8 +109,7 @@ Deposit.createQuery = function(params, callback){
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
-        "   ?folder nie:title ?folderName . \n" +
-        "   ?uri dcterms:description ?description . \n";
+        "   ?folder nie:title ?folderName . \n";
 
     let i = 1;
 
@@ -203,12 +202,22 @@ Deposit.createQuery = function(params, callback){
             value: params.creator
         });
     }
-    if(params.description){
-        query += "  ?uri dcterms:description [" + i++ + "] \n";
+    if(params.platforms){
+      query +=
+        "    VALUES ?platformsUsed {";
+
+      for(let j = 0; j < params.platforms.length; j++) {
+        query += "[" + i++ + "] ";
         variables.push({
-            type: Elements.ontologies.dcterms.description.type,
-            value: params.description
+          type: Elements.types.string,
+          value: params.platforms[j]
         });
+      }
+      query +=
+      "} . \n" +
+        "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+
+
     }
     if(params.dateFrom){
         query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
@@ -218,7 +227,7 @@ Deposit.createQuery = function(params, callback){
         });
     }
     if(params.dateTo){
-        query += "  FILTER ([" + i + "]^^xsd:dateTime > ?date )\n";
+        query += "  FILTER ([" + i++ + "]^^xsd:dateTime > ?date )\n";
         variables.push({
             type: Elements.types.string,
             value: params.dateTo,

@@ -247,13 +247,15 @@ exports.new = function (req, res)
                                       const registryData = {
                                         dcterms: {
                                           title: req.body.dcterms.title,
-                                          description: repo_platform.dcterms.title,
                                           creator: req.user.ddr.username,
                                         },
                                         ddr: {
                                           exportedResource: req.body.ddr.exportedResource,
-                                          //exportedFromProject: result.uri, //given later
+                                          exportedToPlatform: repo_platform.dcterms.title,
+                                          hasExternalUrl: req.body.ddr.hasExternalUrl,
                                           privacyStatus: isNull(req.body.ddr.privacyStatus) || req.body.ddr.privacyStatus === false ? "private" : "public",
+                                          hasOrganization: req.body.ddr.hasOrganization,
+
                                         }
                                       };
 
