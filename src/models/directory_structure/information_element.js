@@ -655,7 +655,8 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
                     title: resource.nie.title,
                     descriptors: resource.getDescriptors([Elements.access_types.private], [Elements.access_types.api_readable], typeConfigsToRetain),
                     file_extension: resource.ddr.fileExtension,
-                    hasLogicalParts: []
+                    hasLogicalParts: [],
+                    uri : self.uri
                 };
 
                 if (!isNull(resource.ddr) && !isNull(resource.ddr.metadataQuality))
