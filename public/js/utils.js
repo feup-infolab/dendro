@@ -189,3 +189,8 @@ Utils.fade_messages = function () {
 if (typeof exports !== 'undefined') {
   exports.Utils = Utils
 }
+
+Utils.anyToString = function(value)
+{
+    return value + "";
+};

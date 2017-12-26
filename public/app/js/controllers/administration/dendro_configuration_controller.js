@@ -6,6 +6,12 @@ angular.module("dendroApp.controllers")
     {
         $scope.storageNamespace = "dendro_admin_controller";
 
+        $scope.clicked_tab = function (tabId)
+        {
+            $scope.active_tab = tabId;
+            $scope.save_to_local_storage("active_tab", tabId, $scope.storageNamespace);
+        };
+
         $scope.setReadOnly = function (_editor)
         {
             _editor.setReadOnly(true);
@@ -84,6 +90,10 @@ angular.module("dendroApp.controllers")
             $scope.set_from_local_storage_and_then_from_value("nLinesOfLogToFetch", 30, $scope);
             $scope.set_from_local_storage_and_then_from_value("autoRefreshLogs", false, $scope);
             $scope.set_from_local_storage_and_then_from_value("millisecsLogRefresh", 10000, $scope);
+
+            $scope.set_from_local_storage_and_then_from_value("active_tab", "logs", $scope, $scope.storageNamespace);
+            $scope.active_tab = $scope[$scope.storageNamespace].active_tab;
+
             $scope.getConfiguration();
             $scope.getLogs();
             $scope.periodicLogRefresh();

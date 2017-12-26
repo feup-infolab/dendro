@@ -680,6 +680,11 @@ Config.thumbnails = {
           description: "icon",
           width: 32,
           height: 32
+      },
+      tiny: {
+          description: "tiny",
+          width: 16,
+          height: 16
       }
   }
 };
