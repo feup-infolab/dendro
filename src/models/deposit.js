@@ -96,7 +96,7 @@ Deposit.createDepositRegistry = function (object, callback) {
 
 Deposit.createQuery = function(params, callback){
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName\n" +
+        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName ?repository\n" +
         "FROM [0] \n"  +
         "WHERE " +
         "{ \n" +
@@ -109,6 +109,7 @@ Deposit.createQuery = function(params, callback){
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
+        "   ?uri ddr:hasExternalUri ?repository . \n" +
         "   ?folder nie:title ?folderName . \n";
 
     let i = 1;
@@ -250,6 +251,27 @@ Deposit.createAndInsertFromObject = function(object, callback){
 
         }
     })
+};
+
+Deposit.getAllRepositories = function(callback){
+    let query =
+      "SELECT ?repository COUNT(?repository) as ?count\n" +
+      "FROM [0]" +
+      "WHERE {" +
+      "   ?uri rdf:type ddr:Registry . \n" +
+      "   ?uri ddr:hasExternalUri ?repository" +
+      "}" +
+      "GROUP BY ?repository"
+
+    let variables = [
+      {
+        type: Elements.types.resourceNoEscape,
+        value: db.graphUri
+      }];
+
+    db.connection.executeViaJDBC(query,variables, function (err, regs){
+      callback(err, regs);
+    });
 };
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");

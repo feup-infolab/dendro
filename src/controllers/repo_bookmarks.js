@@ -252,7 +252,7 @@ exports.new = function (req, res)
                                         ddr: {
                                           exportedResource: req.body.ddr.exportedResource,
                                           exportedToPlatform: repo_platform.dcterms.title,
-                                          hasExternalUrl: req.body.ddr.hasExternalUrl,
+                                          hasExternalUri: req.body.ddr.hasExternalUrl,  //repository url
                                           privacyStatus: isNull(req.body.ddr.privacyStatus) || req.body.ddr.privacyStatus === false ? "private" : "public",
                                           hasOrganization: req.body.ddr.hasOrganization,
 

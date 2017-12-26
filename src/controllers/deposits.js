@@ -89,7 +89,9 @@ exports.allowed = function (req, callback) {
           break;
     }
     Deposit.createQuery(params, function(err, results){
-        callback(err, results);
+        Deposit.getAllRepositories(function(err, repos){
+          callback(err, results);
+        })
     });
 };
 
