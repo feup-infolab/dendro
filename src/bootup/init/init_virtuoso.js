@@ -8,7 +8,7 @@ let DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnect
 
 const initVirtuoso = function (app, callback)
 {
-    console.log("[INFO] Initializing Virtuoso Connection...");
+    Logger.log_boot_message("Initializing Virtuoso Connection...");
 
     let db = new DbConnection(
         Config.db.default.graphHandle,
@@ -29,7 +29,7 @@ const initVirtuoso = function (app, callback)
             {
                 return callback("[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
             }
-            Logger.log_boot_message("success", "Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+            Logger.log_boot_message("Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
 
             // set default connection. If you want to add other connections, add them in succession.
             Config.db.default.connection = db;
@@ -37,8 +37,8 @@ const initVirtuoso = function (app, callback)
             return callback(null);
         }
         callback("[ERROR] Error connecting to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
-        console.error(JSON.stringify(err));
-        console.error(JSON.stringify(db));
+        Logger.log("error", JSON.stringify(err));
+        Logger.log("error", JSON.stringify(db));
     });
 };
 

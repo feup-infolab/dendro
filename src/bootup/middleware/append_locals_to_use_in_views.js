@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const Pathfinder = global.Pathfinder;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const appendLocalsToUseInViews = function (app, callback)
 {
@@ -82,7 +83,7 @@ const appendLocalsToUseInViews = function (app, callback)
 
                         if (err)
                         {
-                            console.error("Error checking for admin status of user " + req.user.uri + " !!");
+                            Logger.log("error", "Error checking for admin status of user " + req.user.uri + " !!");
                         }
                     });
                 }

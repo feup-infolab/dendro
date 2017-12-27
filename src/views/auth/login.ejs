@@ -15,15 +15,9 @@
     <div class="container well well-main">
             <div class="row-fluid">
                 <div class="row">
-                    <form action="/login" method="POST">
+                    <form action="/login" method="POST" data-parsley-validate="">
                         <div class="col-xs-12">
                             <h1>Login</h1>
-                            <div class="form-group text-center">
-                                <div class="text-center">
-                                    <button onclick="prefillBoxes()" class="btn btn-sm btn-success"><i class="fa fa-paste"></i>Login as demonstration user</button>
-                                </div>
-                            </div>
-
                             <div class="form-group">
                                 <label for="handle" class="col-sm-2 control-label">Username</label>
                                 <div class="col-sm-10">
@@ -43,7 +37,10 @@
                                            class="form-control"
                                            id="password"
                                            placeholder="Password"
-                                           name="password">
+                                           name="password"
+                                           data-parsley-trigger="change"
+                                           required=""
+                                           data-parsley-minlength="8">
                                     <p class="help-block">Your password</p>
                                 </div>
                             </div>
@@ -58,6 +55,12 @@
                             <div class="form-group">
                                 <div class="text-center">
                                     <button class="btn btn-primary btn-block">Sign in</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group text-center">
+                                <div class="text-center">
+                                    <button onclick="prefillBoxes()" class="btn btn-sm btn-success"><i class="fa fa-paste"></i>Login as demonstration user</button>
                                 </div>
                             </div>
 

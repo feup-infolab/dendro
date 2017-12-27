@@ -8,6 +8,7 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const async = require("async");
 const fs = require("fs");
@@ -663,7 +664,7 @@ exports.upload_avatar = function (req, res)
                             });
                         }
                         let msg = "Error updating hasAvatar for user " + user.uri + ". Error reported :" + newUser;
-                        console.error(msg);
+                        Logger.log("error", msg);
                         return res.status(500).json({
                             result: "Error",
                             message: msg
@@ -747,7 +748,7 @@ exports.edit = function (req, res, next)
                                         return callback(null, null);
                                     }
                                     let msg = "Error encrypting password";
-                                    console.error(msg);
+                                    Logger.log("error", msg);
                                     /* req.flash('error', msg);
                                          res.redirect('/me'); */
                                     return callback(true, msg);
@@ -756,7 +757,7 @@ exports.edit = function (req, res, next)
                             else
                             {
                                 let msg = "Passwords fields must be the same and at least 8 characters in length!";
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 // req.flash('error', msg);
                                 // res.redirect('/me');
                                 return callback(true, msg);
@@ -777,7 +778,7 @@ exports.edit = function (req, res, next)
                             {
                                 let auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth.js"));
                                 req.flash("success", "User " + editedUser.ddr.username + " edited.");
-                                // console.log("User " + editedUser.ddr.username + " edited.");
+                                // Logger.log("User " + editedUser.ddr.username + " edited.");
                                 // res.redirect('/me');
                                 if (changedPassword)
                                 {
@@ -798,7 +799,7 @@ exports.edit = function (req, res, next)
                                             else
                                             {
                                                 let msg = "Error updating user session. Error reported:  " + JSON.stringify(err);
-                                                console.error(msg);
+                                                Logger.log("error", msg);
                                                 req.flash("error", msg);
                                                 auth.logout(req, res);
                                             }
@@ -814,7 +815,7 @@ exports.edit = function (req, res, next)
                             else
                             {
                                 let msg = "Error editing user " + user.uri + ". Error reported :" + editedUser;
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 req.flash("error", msg);
                                 res.redirect("/me");
                             }
@@ -823,7 +824,7 @@ exports.edit = function (req, res, next)
                     else
                     {
                         let msg = "Error editing user " + user.uri + ". Error reported :" + JSON.stringify(results);
-                        console.error(msg);
+                        Logger.log("error", msg);
                         req.flash("error", msg);
                         res.redirect("/me");
                     }
@@ -832,7 +833,7 @@ exports.edit = function (req, res, next)
             else
             {
                 let msg = "User to edit was not found";
-                console.error(msg);
+                Logger.log("error", msg);
                 req.flash("error", msg);
                 res.redirect("/me");
             }
@@ -841,7 +842,7 @@ exports.edit = function (req, res, next)
     else
     {
         let msg = "User to edit was not specified";
-        console.error(msg);
+        Logger.log("error", msg);
         req.flash("error", msg);
         res.redirect("/me");
     }

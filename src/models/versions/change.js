@@ -6,6 +6,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const db = Config.getDBByID();
 
@@ -42,7 +43,7 @@ Change.findByAssociatedRevision = function (revisionUri, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.pertainsTo.type,
                 value: revisionUri
             }
         ],
@@ -96,7 +97,7 @@ Change.findByAssociatedRevision = function (revisionUri, callback)
     }
     else
     {
-        console.error("Attempt to record a change on a locked descriptor. debug please. ");
+        Logger.log("error","Attempt to record a change on a locked descriptor. debug please. ");
         return callback(null, null);
     }
 } */

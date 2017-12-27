@@ -1,8 +1,7 @@
-const path = require("path");
 const async = require("async");
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
@@ -110,7 +109,15 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
                     req.permissions_management.reasons_for_authorizing.length > 0
                 )
                 {
-                    matchingRoute.handler(req, res);
+                    if (typeof matchingRoute.handler === "function")
+                    {
+                        matchingRoute.handler(req, res);
+                    }
+                    else
+                    {
+                        Logger.log("error", "Matching route handler for route " + req.url + " is not a function!");
+                        next();
+                    }
                 }
                 else
                 {
@@ -132,7 +139,7 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
             }
             else
             {
-                console.error("Matching route is not a function!");
+                Logger.log("error", "Matching route is not a function!");
                 next();
             }
         }

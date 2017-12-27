@@ -3,24 +3,17 @@
  */
 const request = require("request");
 
-const path = require("path");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-
-Zenodo.apiURL = "https://zenodo.org/api";
-Zenodo.depositionsURL = Zenodo.apiURL + "/deposit/depositions/";
-Zenodo.depositionFilesPath = "/files";
-Zenodo.actionsEditPath = "/actions/edit";
-Zenodo.actionsPublishPath = "/actions/publish";
 
 function Zenodo (accessToken)
 {
     this.oauth = {};
     if (isNull(accessToken))
     {
-        throw "Undefined access token";
+        throw new Error("Undefined access token");
     }
     else
     {
@@ -28,6 +21,13 @@ function Zenodo (accessToken)
         this.accessTokenURL = "?access_token=" + accessToken;
     }
 }
+
+Zenodo.apiURL = "https://zenodo.org/api";
+Zenodo.depositionsURL = Zenodo.apiURL + "/deposit/depositions/";
+Zenodo.depositionFilesPath = "/files";
+Zenodo.actionsEditPath = "/actions/edit";
+Zenodo.actionsPublishPath = "/actions/publish";
+
 Zenodo.prototype.getDeposition = function (depositionID, callback)
 {
     request.get({
@@ -38,7 +38,7 @@ Zenodo.prototype.getDeposition = function (depositionID, callback)
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(null, data);
@@ -54,7 +54,7 @@ Zenodo.prototype.getDepositionsList = function (callback)
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(null, depositions);
@@ -82,7 +82,7 @@ Zenodo.prototype.createDeposition = function (data, callback)
     {
         if (r.statusCode !== "201")
         {
-            console.error(depostition.message);
+            Logger.log("error", depostition.message);
             return callback(true, depostition);
         }
         return callback(false, depostition);
@@ -100,7 +100,7 @@ Zenodo.prototype.uploadFileToDeposition = function (depositionID, file, callback
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(false);
@@ -142,7 +142,7 @@ Zenodo.prototype.depositionEdit = function (depositionID, callback)
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(false, data);
@@ -158,7 +158,7 @@ Zenodo.prototype.depositionPublish = function (depositionID, callback)
     {
         if (e)
         {
-            console.error(e);
+            Logger.log("error", e);
             return callback(true);
         }
         return callback(false, data);

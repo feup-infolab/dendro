@@ -1,5 +1,6 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 var Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
@@ -79,7 +80,7 @@ MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project
         else
         {
             const msg = "Error building a MetadataChangePost from an ArchivedVersion: " + JSON.stringify(fullVersionCreator);
-            console.error(msg);
+            Logger.log("error", msg);
             callback(err, fullVersionCreator);
         }
     });
@@ -101,7 +102,7 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb)
             else
             {
                 const msg = "Error getting the prefixedForm for descriptor: " + descriptorUri;
-                console.error(msg);
+                Logger.log("error", msg);
                 callback(err, descriptor);
             }
         });
@@ -204,28 +205,28 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb)
                             else
                             {
                                 const msg = "Resource at getChangesFromMetadataChangePost resource does not exist";
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 cb(true, msg);
                             }
                         }
                         else
                         {
-                            console.error("Error Looking for the resource at getChangesFromMetadataChangePost Error: " + JSON.stringify(resource));
+                            Logger.log("error", "Error Looking for the resource at getChangesFromMetadataChangePost Error: " + JSON.stringify(resource));
                             cb(err, archivedVersion);
                         }
                     });
                 }
                 else
                 {
-                    console.error("Error Looking for prefixedResource at getChangesFromMetadataChangePost Error: " + result);
+                    Logger.log("error", "Error Looking for prefixedResource at getChangesFromMetadataChangePost Error: " + result);
                     cb(err, result);
                 }
             });
         }
         else
         {
-            console.error("Error at getChangesFromMetadataChangePost:");
-            console.error(err);
+            Logger.log("error", "Error at getChangesFromMetadataChangePost:");
+            Logger.log("error", err);
             cb(err, archivedVersion);
         }
     });

@@ -3,6 +3,7 @@ const async = require("async");
 const fs = require("fs");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const monitorRAMUsage = function (app, callback)
 {
@@ -11,7 +12,7 @@ const monitorRAMUsage = function (app, callback)
         setInterval(function ()
         {
             const pretty = require("prettysize");
-            console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss)); // log memory usage
+            Logger.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss)); // log memory usage
             if (typeof gc === "function")
             {
                 gc();

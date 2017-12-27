@@ -8,7 +8,7 @@ let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const initMySQL = function (app, callback)
 {
-    Logger.log_boot_message("info", "Setting up MySQL connection pool.");
+    Logger.log_boot_message("Setting up MySQL connection pool.");
     const mysql = require("mysql");
     const pool = mysql.createPool({
         host: Config.mySQLHost,
@@ -20,7 +20,7 @@ const initMySQL = function (app, callback)
 
     const poolOK = function (pool)
     {
-        Logger.log_boot_message("success", "Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
+        Logger.log_boot_message("Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
         Config.mysql.default.pool = pool;
         return callback(null);
     };
@@ -38,12 +38,12 @@ const initMySQL = function (app, callback)
                     {
                         if (result.length > 0)
                         {
-                            Logger.log_boot_message("info", "Interactions table " + tablename + " exists in the MySQL database.");
+                            Logger.log_boot_message("Interactions table " + tablename + " exists in the MySQL database.");
                             poolOK(pool);
                         }
                         else
                         {
-                            Logger.log_boot_message("info", "Interactions table does not exists in the MySQL database. Attempting creation...");
+                            Logger.log_boot_message("Interactions table does not exists in the MySQL database. Attempting creation...");
 
                             const createTableQuery = "CREATE TABLE `" + tablename + "` (\n" +
                                 "   `id` int(11) NOT NULL AUTO_INCREMENT, \n" +
@@ -67,7 +67,7 @@ const initMySQL = function (app, callback)
                                 "CREATE INDEX " + tablename + "_executedOver_text ON " + tablename + "(executedOver(255)); \n" +
                                 "CREATE INDEX " + tablename + "_originallyRecommendedFor_text ON " + tablename + "(originallyRecommendedFor(255)); \n";
 
-                            Logger.log_boot_message("info", "Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
+                            Logger.log_boot_message("Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
 
                             connection.query(
                                 createTableQuery,
@@ -75,12 +75,12 @@ const initMySQL = function (app, callback)
                                 {
                                     if (isNull(err))
                                     {
-                                        Logger.log_boot_message("info", "Interactions table " + tablename + " succesfully created in the MySQL database.");
+                                        Logger.log_boot_message("Interactions table " + tablename + " succesfully created in the MySQL database.");
 
                                         connection.release();
                                         if (isNull(err))
                                         {
-                                            Logger.log_boot_message("info", "Indexes on table  " + tablename + " succesfully created in the MySQL database.");
+                                            Logger.log_boot_message("Indexes on table  " + tablename + " succesfully created in the MySQL database.");
                                             poolOK(pool);
                                         }
                                         else

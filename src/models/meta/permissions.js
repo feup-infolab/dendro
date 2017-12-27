@@ -1,6 +1,7 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
@@ -24,17 +25,17 @@ function Permissions ()
 
 Permissions.messages = {
     generic: {
-        api: "Action not permitted. You are not logged into the system.",
-        user: "Please log into the system."
+        api: "Generic authentication error, Error detected. You are not authorized to perform this operation. You must be signed into Dendro.",
+        user: "Generic authentication error, are you logged in? Please log into the system."
     }
 };
 
-Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAllowingOrDenying, errorMessage)
+Permissions.sendResponse = function (allowAccess, req, res, next, reasonsForAllowingOrDenying, errorMessage)
 {
     let acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    if (allow_access)
+    if (allowAccess)
     {
         if (Config.debug.permissions.log_authorizations)
         {
@@ -44,13 +45,56 @@ Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAll
                 user = req.user.uri;
             }
 
-            console.log("[ALLOW-ACCESS] User " + user + " granted access to " + req.originalUrl + " .");
+            Logger.log("[ALLOW-ACCESS] User " + user + " granted access to " + req.originalUrl + " .");
         }
 
         return next();
     }
-    let messageAPI = errorMessage;
-    let messageUser = errorMessage;
+
+    let messageAPI;
+    let messageUser;
+
+    if (!isNull(errorMessage) && errorMessage !== "")
+    {
+        messageAPI = errorMessage;
+        messageUser = errorMessage;
+    }
+    else
+    {
+        messageAPI = "";
+        messageUser = "";
+
+        _.map(reasonsForAllowingOrDenying, function (reason)
+        {
+            if (messageAPI !== "")
+            {
+                messageAPI = reason.role.error_message_api + "\n" + messageAPI;
+            }
+            else
+            {
+                messageAPI = reason.role.error_message_api;
+            }
+
+            if (messageUser !== "")
+            {
+                messageUser = reason.role.error_message_user + "\n" + messageUser;
+            }
+            else
+            {
+                messageUser = reason.role.error_message_user;
+            }
+        });
+    }
+
+    if (messageUser === "" || isNull(messageUser))
+    {
+        messageUser = Permissions.messages.generic.user;
+    }
+
+    if (messageAPI === "" || isNull(messageAPI))
+    {
+        messageAPI = Permissions.messages.generic.api;
+    }
 
     req.permissions_management = {
         reasons_for_denying: reasonsForAllowingOrDenying
@@ -64,26 +108,18 @@ Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAll
             user = req.user.uri;
         }
 
-        console.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messageUser);
+        Logger.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messageUser);
     }
 
-    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+    // will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)
     {
-        if (messageAPI === "" || isNull(messageAPI))
-        {
-            messageAPI = Permissions.messages.generic.api;
-        }
-
         return res.status(401).json(
             {
                 result: "error",
                 message: messageAPI
             }
         );
-    }
-    if (messageUser === "" || isNull(messageUser))
-    {
-        messageUser = Permissions.messages.generic.user;
     }
 
     req.flash("error", messageUser);
@@ -95,6 +131,7 @@ Permissions.sendResponse = function (allow_access, req, res, next, reasonsForAll
                 error_messages: [messageUser]
             });
     }
+
     return res.status(401).render("auth/login", {
         error_messages: [messageUser],
         redirect: req.url
@@ -736,7 +773,7 @@ Permissions.check = function (permissionsRequired, req, callback)
     {
         const reasonsForAllowing = [{
             authorized: true,
-            role: Permissions.role.in_system.admin
+            role: Permissions.types.role_in_system.admin
         }];
 
         req = Permissions.addToReasons(req, reasonsForAllowing, true);
@@ -751,12 +788,9 @@ Permissions.require = function (permissionsRequired, req, res, next)
     {
         if (Config.debug.active && Config.debug.permissions.log_requests_and_permissions)
         {
-            console.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
-            console.log(JSON.stringify(permissionsRequired, null, 2));
+            Logger.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
+            Logger.log(JSON.stringify(permissionsRequired, null, 2));
         }
-
-        const async = require("async");
-
         // Global Administrators are God, so they dont go through any checks
         if (!req.session.isAdmin)
         {
@@ -766,8 +800,8 @@ Permissions.require = function (permissionsRequired, req, res, next)
                 {
                     if (Config.debug.active && Config.debug.permissions.log_authorizations)
                     {
-                        console.log("[AUTHORIZED] : Checking for permissions on request " + req.originalUrl);
-                        console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
+                        Logger.log("[AUTHORIZED] : Checking for permissions on request " + req.originalUrl);
+                        Logger.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
                     }
 
                     return Permissions.sendResponse(true, req, res, next, req.permissions_management.reasons_for_authorizing);
@@ -776,9 +810,9 @@ Permissions.require = function (permissionsRequired, req, res, next)
                 {
                     if (Config.debug.active && Config.debug.permissions.log_denials)
                     {
-                        console.log("[DENIED] : Checking for permissions on request " + req.originalUrl);
-                        console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
-                        console.log(JSON.stringify(req.permissions_management.reasons_for_denying, null, 2));
+                        Logger.log("[DENIED] : Checking for permissions on request " + req.originalUrl);
+                        Logger.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
+                        Logger.log(JSON.stringify(req.permissions_management.reasons_for_denying, null, 2));
                     }
 
                     return Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);
@@ -789,7 +823,7 @@ Permissions.require = function (permissionsRequired, req, res, next)
         }
         else
         {
-            return Permissions.sendResponse(true, req, res, next, [Permissions.role.in_system.admin]);
+            return Permissions.sendResponse(true, req, res, next, [Permissions.settings.role.in_system.admin]);
         }
     }
     else

@@ -11,10 +11,16 @@ const appSecret = Config.crypto.secret,
     bodyParser = require("body-parser"),
     methodOverride = require("method-override"),
     flash = require("connect-flash"),
-    errorHandler = require("express-session");
+    session = require("express-session"),
+    errorHandler = require("errorhandler");
 
 const loadMiscMiddlewares = function (app, callback)
 {
+    if (process.env.NODE_ENV !== "production")
+    {
+        app.use(errorHandler({ dumpExceptions: true, showStack: true }));
+    }
+
     const busboy = require("connect-busboy");
     app.use(busboy());
 
@@ -56,24 +62,14 @@ const loadMiscMiddlewares = function (app, callback)
 
     app.use(express.static(Pathfinder.getPathToPublicFolder()));
 
-    // all environments
+    app.set("title", "Dendro");
+    app.set("theme", Config.theme);
 
-    const env = process.env.NODE_ENV || "development";
-    if (env === "development")
-    {
-        app.set("title", "Dendro");
-        app.set("theme", Config.theme);
-    }
-
-    //		development only
-    if (app.get("env") === "development")
-    {
-        app.use(errorHandler({
-            secret: appSecret,
-            resave: true,
-            saveUninitialized: true
-        }));
-    }
+    // app.use(session({
+    //     secret: appSecret,
+    //     resave: true,
+    //     saveUninitialized: true
+    // }));
 
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, true, {
         docExpansion: "list"

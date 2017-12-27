@@ -21,7 +21,19 @@ angular.module("dendroApp.factories")
 
                             if (descriptor.control === "date_picker")
                             {
-                                descriptor.value = new Date(descriptor.value);
+                                if (typeof descriptor.value === "string" || descriptor.value instanceof String)
+                                {
+                                    descriptor.value = new Date(descriptor.value);
+                                }
+                                else if (descriptor.value instanceof Object)
+                                {
+                                    var arrayOfDates = [];
+                                    for (var j = 0; j !== Object.keys(descriptor.value).length; j++)
+                                    {
+                                        arrayOfDates.push(new Date(descriptor.value[j]));
+                                    }
+                                    descriptor.value = arrayOfDates;
+                                }
                             }
 
                             deserialized.push(descriptor);
@@ -29,7 +41,7 @@ angular.module("dendroApp.factories")
                     }
                     else
                     {
-                        console.error("Error deserializing metadata. Argument should be an array of descriptors");
+                        console.log("error", "Error deserializing metadata. Argument should be an array of descriptors");
                     }
 
                     return deserialized;
@@ -128,9 +140,6 @@ angular.module("dendroApp.factories")
                 this.save_metadata = function (metadata_array, resource_uri)
                 {
                     var self = this;
-
-                    var deferred = $q.defer();
-
                     if (self.metadata_is_valid(metadata_array))
                     {
                         var metadataString = JSON.stringify(metadata_array);
@@ -145,16 +154,14 @@ angular.module("dendroApp.factories")
                         }).then(function (response)
                         {
                             var data = response.data;
-                            deferred.resolve(data);
+                            return data;
                         }
                         ).catch(function (error)
                         {
-                            deferred.reject(error);
+                            throw error.data.message;
                         }
                         );
                     }
-
-                    return deferred.promise;
                 };
 
                 this.save_as = function (format)

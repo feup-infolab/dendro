@@ -21,7 +21,8 @@ angular.module("dendroApp.controllers")
         ontologiesService,
         storageService,
         recommendationService,
-        projectsService
+        projectsService,
+        moment
     )
     {
         $scope.shared = {
@@ -33,6 +34,38 @@ angular.module("dendroApp.controllers")
             recommender_offline: null,
             change_log: null,
             stats: null
+        };
+
+        $scope.getTypeOfOfData = function (data)
+        {
+            var type;
+            var dateFormats = [
+                moment.ISO_8601
+            ];
+            if (data instanceof Date)
+            {
+                // is a date object
+                // returns the 'date' type
+                type = "date";
+            }
+            else
+            {
+                // tests only objects that are not of the "Date" type
+                // it may still be a date but as a string and not as an object
+                var possibleDate = new Date(data);
+                var momentDate = moment(possibleDate, dateFormats, true);
+                var isDate = momentDate.isValid();
+                if (isDate)
+                {
+                    // is a valid date
+                    type = "date";
+                }
+                else
+                {
+                    type = typeof data;
+                }
+            }
+            return type;
         };
 
         $scope.get_currently_selected_resource = function ()
@@ -180,17 +213,39 @@ angular.module("dendroApp.controllers")
 
         $scope.showing_a_file = function ()
         {
-            if ($scope.shared.selected_file != null)
+            if (!$scope.shared.multiple_selection_active)
             {
-                if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, "nie:File"))
+                if ($scope.shared.selected_file != null)
                 {
-                    return true;
+                    if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject"))
+                    {
+                        return true;
+                    }
+
+                    return false;
                 }
-            }
-            else
-            {
+
                 return $scope.shared.is_a_file;
             }
+
+            if ($scope.get_selected_files() != null)
+            {
+                var files = $scope.get_selected_files();
+
+                if (files.length === 1)
+                {
+                    if (files[0].ddr.fileExtension != "folder")
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                return false;
+            }
+
+            return false;
         };
 
         $scope.showing_descriptor_selection_area = function ()
@@ -246,7 +301,36 @@ angular.module("dendroApp.controllers")
                 $scope.shared.metadata = [];
             }
 
-            $scope.shared.metadata.unshift(descriptor);
+            var addToExistingDescriptor = _.find($scope.shared.metadata, function (existingDescriptor)
+            {
+                return existingDescriptor.prefix === descriptor.prefix && existingDescriptor.prefixedForm === descriptor.prefixedForm;
+            });
+
+            if (addToExistingDescriptor && addToExistingDescriptor.value)
+            {
+                addToExistingDescriptor.just_added = true;
+                var defaultValue = descriptor.label;
+
+                if (addToExistingDescriptor.control === "date_picker")
+                {
+                    defaultValue = new Date();
+                }
+
+                if (addToExistingDescriptor.value instanceof Array)
+                {
+                    addToExistingDescriptor.value.push(defaultValue);
+                }
+                else
+                {
+                    var newValues = [addToExistingDescriptor.value];
+                    addToExistingDescriptor.value = newValues;
+                    addToExistingDescriptor.value.push(defaultValue);
+                }
+            }
+            else
+            {
+                $scope.shared.metadata.unshift(descriptor);
+            }
         };
 
         $scope.add_all_descriptors = function (descriptor_array)
@@ -261,13 +345,47 @@ angular.module("dendroApp.controllers")
                 $scope.shared.metadata.unshift(descriptor_array[j]);
             }
         };
-
+        $scope.remove_value_from_descriptor = function (descriptor, descriptorValue, descriptorIsGoingtoBeDeleted)
+        {
+            if (descriptor.valuesMarkedAsDeleted && descriptor.valuesMarkedAsDeleted instanceof Object)
+            {
+                if (descriptor.valuesMarkedAsDeleted[descriptorValue] && !descriptorIsGoingtoBeDeleted)
+                {
+                    // IT was previously marked as deleted so now it is going to be unmarked
+                    delete descriptor.valuesMarkedAsDeleted[descriptorValue];
+                    // the descriptor is no longer marked as just_deleted because at least one of the values for it still exist
+                    descriptor.just_deleted = false;
+                }
+                else
+                {
+                    // It is going to be marked has deleted
+                    descriptor.valuesMarkedAsDeleted[descriptorValue] = true;
+                    if (descriptor.valuesMarkedAsDeleted instanceof Object && descriptor.value instanceof Array && Object.keys(descriptor.valuesMarkedAsDeleted).length === descriptor.value.length)
+                    {
+                        // if all the values for the descriptor are in the object valuesMarkedAsDeleted -> the descriptor is going to be marked as just_deleted
+                        descriptor.just_deleted = true;
+                    }
+                }
+            }
+            else
+            {
+                descriptor.valuesMarkedAsDeleted = {};
+                descriptor.valuesMarkedAsDeleted[descriptorValue] = true;
+                if (descriptor.valuesMarkedAsDeleted instanceof Object && descriptor.value instanceof Array && Object.keys(descriptor.valuesMarkedAsDeleted).length === descriptor.value.length)
+                {
+                    // if all the values for the descriptor are in the object valuesMarkedAsDeleted -> the descriptor is going to be marked as just_deleted
+                    descriptor.just_deleted = true;
+                }
+            }
+            return descriptor;
+        };
         $scope.remove_descriptor_at = function (index, forceDelete)
         {
             if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
             {
                 if ($scope.shared.metadata[index].just_deleted)
                 {
+                    delete $scope.shared.metadata[index].valuesMarkedAsDeleted;
                     delete $scope.shared.metadata[index].just_deleted;
                 }
                 else if ($scope.shared.metadata[index].just_added || $scope.shared.metadata[index].just_inherited || $scope.shared.metadata[index].just_recommended)
@@ -276,6 +394,14 @@ angular.module("dendroApp.controllers")
                 }
                 else
                 {
+                    if ($scope.shared.metadata[index].value instanceof Array)
+                    {
+                        for (var i = 0; i !== $scope.shared.metadata[index].value.length; i++)
+                        {
+                            var descriptorIsGoingtoBeDeleted = true;
+                            $scope.remove_value_from_descriptor($scope.shared.metadata[index], $scope.shared.metadata[index].value[i], descriptorIsGoingtoBeDeleted);
+                        }
+                    }
                     $scope.shared.metadata[index].just_deleted = true;
                 }
             }
@@ -308,11 +434,14 @@ angular.module("dendroApp.controllers")
         {
             var selected_files = [];
 
-            for (var i = 0; i < $scope.shared.folder_contents.length; i++)
+            if ($scope.shared.folder_contents)
             {
-                if ($scope.shared.folder_contents[i].selected)
+                for (var i = 0; i < $scope.shared.folder_contents.length; i++)
                 {
-                    selected_files.push($scope.shared.folder_contents[i]);
+                    if ($scope.shared.folder_contents[i].selected)
+                    {
+                        selected_files.push($scope.shared.folder_contents[i]);
+                    }
                 }
             }
 
@@ -494,14 +623,20 @@ angular.module("dendroApp.controllers")
             $scope.shared.metadata = metadataService.deserialize_metadata(metadata.descriptors);
             $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
             $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata.descriptors);
+            $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
             $scope.shared.is_project_root = metadata.is_project_root;
             $scope.shared.is_a_file = metadata.is_a_file;
             $scope.shared.file_extension = metadata.file_extension;
             $scope.shared.data_processing_error = metadata.data_processing_error;
         };
 
-        $scope.load_metadata = function ()
+        $scope.load_metadata = function (abortIfDirty)
         {
+            if (abortIfDirty && $scope.dirty_metadata())
+            {
+                return;
+            }
+
             var deferred = $q.defer();
 
             metadataService.load_metadata($scope.get_calling_uri())
@@ -526,6 +661,14 @@ angular.module("dendroApp.controllers")
             }
         };
 
+        $scope.dirty_metadata = function ()
+        {
+            return metadataService.dirty_metadata(
+                $scope.shared.initial_metadata,
+                $scope.shared.metadata
+            );
+        };
+
         // initialization
         $scope.init = function ()
         {
@@ -537,16 +680,75 @@ angular.module("dendroApp.controllers")
             $scope.recommendationService = recommendationService;
 
             // monitor url change events (ask to save if metadata changed)
-            $scope.$on("$routeChangeStart", function (next, current)
+
+            function isChrome ()
             {
-                console.log("Changing location from " + current + " to " + next);
-                $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
-                $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
-                $scope.change_location(next,
-                    metadataService.dirty_metadata(
-                        $scope.shared.initial_metadata,
-                        $scope.shared.metadata
-                    ));
+                var isChromium = window.chrome,
+                    winNav = window.navigator,
+                    vendorName = winNav.vendor,
+                    isOpera = winNav.userAgent.indexOf("OPR") > -1,
+                    isIEedge = winNav.userAgent.indexOf("Edge") > -1,
+                    isIOSChrome = winNav.userAgent.match("CriOS");
+
+                if (isIOSChrome)
+                {
+                    return true;
+                }
+                else if (
+                    isChromium !== null &&
+                    typeof isChromium !== "undefined" &&
+                    vendorName === "Google Inc." &&
+                    isOpera === false &&
+                    isIEedge === false
+                )
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            if (isChrome())
+            {
+                window.onbeforeunload = function (event)
+                {
+                    event.preventDefault();
+                    if ($scope.dirty_metadata())
+                    {
+                        $scope.confirm_change_of_resource_being_edited(function (confirmed)
+                        {
+                            if (confirmed)
+                            {
+                                $scope.change_location(next,
+                                    metadataService.dirty_metadata(
+                                        $scope.shared.initial_metadata,
+                                        $scope.shared.metadata
+                                    ));
+                            }
+                        }, $scope.dirty_metadata());
+                    }
+                };
+            }
+
+            $scope.$on("$locationChangeStart", function (event, next, current)
+            {
+                if ($scope.dirty_metadata())
+                {
+                    $scope.confirm_change_of_resource_being_edited(function (confirmed)
+                    {
+                        if (confirmed)
+                        {
+                            $scope.change_location(next,
+                                metadataService.dirty_metadata(
+                                    $scope.shared.initial_metadata,
+                                    $scope.shared.metadata
+                                ));
+                        }
+                        else
+                        {
+                            event.preventDefault();
+                        }
+                    }, $scope.dirty_metadata());
+                }
             });
 
             $scope.load_metadata().then(

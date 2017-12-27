@@ -12,6 +12,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
@@ -30,10 +31,9 @@ const filesToMove = JSON.parse(JSON.stringify(allFiles)).pop();
 
 describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
 {
+    this.timeout(Config.testsTimeout);
     describe("[Invalid Cases] /project/" + privateProject.handle + "/data/cutFiles?cut", function ()
     {
-        this.timeout(3 * Config.testsTimeOut);
-
         beforeEach(function (done)
         {
             createFilesUnit.setup(function (err, results)
@@ -399,11 +399,46 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
                 });
             });
         });
+
+        it("Should give an error if one tries to move a folder or file to the same place where it is already", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                projectUtils.getProjectRootContent(true, agent, privateProject.handle, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    should.equal(err, null);
+                    JSON.parse(res.text).should.be.instanceof(Array);
+
+                    var targetFolder = JSON.parse(res.text)[0].uri;
+
+                    folderUtils.getFolderContentsByUri(true, agent, targetFolder, function (err, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        should.equal(err, null);
+                        JSON.parse(res.text).should.be.instanceof(Array);
+                        JSON.parse(res.text).length.should.equal(allFiles.length);
+                        should.equal(folderUtils.responseContainsAllMockFiles(res, allFiles), true);
+
+                        const urisOfFilesToMove = _.map(JSON.parse(res.text), function (file)
+                        {
+                            return file.uri;
+                        });
+
+                        folderUtils.moveFilesIntoFolder(true, agent, [urisOfFilesToMove[0]], targetFolder, function (err, res)
+                        {
+                            res.statusCode.should.equal(400);
+                            JSON.parse(res.text).message.should.include("Cannot move a resource to the same folder where it already is.");
+                            done();
+                        });
+                    });
+                });
+            });
+        });
     });
 
     describe("[Valid Cases] /project/" + privateProject.handle + "/data/testFolder1/:filename?cut", function ()
     {
-        this.timeout(2 * Config.testsTimeout);
         beforeEach(function (done)
         {
             createFilesUnit.setup(function (err, results)

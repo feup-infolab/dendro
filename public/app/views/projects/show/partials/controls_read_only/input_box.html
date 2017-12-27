@@ -28,7 +28,17 @@
     <div class="controls col-xs-12">
         <div class="input-group col-lg-11">
             <div  class="control-value-read-only">
-                {{descriptor.value}}
+                <div ng-switch="getTypeOfOfData(descriptor.value)">
+                    <div ng-switch-when='object'>
+                        <div ng-repeat="descriptorValue in descriptor.value track by $index">
+                            {{descriptorValue}}
+                        </div>
+                    </div>
+
+                    <div ng-switch-default>
+                        {{descriptor.value}}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

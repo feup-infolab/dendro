@@ -1,3 +1,6 @@
+const Pathfinder = global.Pathfinder;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+
 const loadRoutes = function (app, callback)
 {
     // Handle 404
@@ -53,7 +56,7 @@ const loadRoutes = function (app, callback)
     {
         let acceptsHTML = req.accepts("html");
         const acceptsJSON = req.accepts("json");
-        console.error(error.stack);
+        Logger.log("error", error.stack);
 
         if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
         {

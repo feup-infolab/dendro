@@ -13,7 +13,7 @@ const clearFilesStorage = function (app, callback)
         {
             if (!err)
             {
-                Logger.log_boot_message("info", "Files storage cleared successfully.");
+                Logger.log_boot_message("Files storage cleared successfully.");
             }
 
             callback(err);
@@ -21,7 +21,7 @@ const clearFilesStorage = function (app, callback)
     }
     else
     {
-        Logger.log_boot_message("info", "Files storage is not set to be cleared. Continuing...");
+        Logger.log_boot_message("Files storage is not set to be cleared. Continuing...");
         return callback(null);
     }
 };

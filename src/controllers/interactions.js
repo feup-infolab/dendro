@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
@@ -85,14 +86,14 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                                                                     if (isNull(err))
                                                                     {
                                                                         const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
-                                                                        console.log(msg);
+                                                                        Logger.log(msg);
                                                                         return res.json({
                                                                             result: "OK",
                                                                             message: msg
                                                                         });
                                                                     }
                                                                     const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
-                                                                    console.log(msg);
+                                                                    Logger.log(msg);
                                                                     return res.json({
                                                                         result: "OK",
                                                                         message: msg
@@ -102,7 +103,7 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                                                             else
                                                             {
                                                                 const msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
-                                                                console.error(msg);
+                                                                Logger.log("error", msg);
                                                                 return res.status(500).json({
                                                                     result: "Error",
                                                                     message: msg
@@ -111,6 +112,12 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                                                         });
                                                 });
                                             };
+
+                                            if (req.user.isAdmin)
+                                            {
+                                                createInteraction();
+                                                return;
+                                            }
 
                                             for (let i = 0; i < contributors.length; i++)
                                             {
@@ -122,7 +129,7 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                                             }
 
                                             const msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + project.uri;
-                                            console.error(msg);
+                                            Logger.log("error", msg);
                                             res.status(400).json({
                                                 result: "Error",
                                                 message: msg
@@ -131,7 +138,7 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                                         else
                                         {
                                             const msg = "Unable to retrieve creators and contributors of parent project " + project.uri + " of resource " + resource.uri;
-                                            console.error(msg);
+                                            Logger.log("error", msg);
                                             res.status(500).json({
                                                 result: "Error",
                                                 message: msg
@@ -143,7 +150,7 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                             else
                             {
                                 const msg = "Unable to retrieve parent project of resource " + resource.uri;
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 res.status(404).json({
                                     result: "Error",
                                     message: msg
@@ -154,8 +161,8 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                     else
                     {
                         const msg = "Resource with uri " + resource.recommendedFor + " not found in this system.";
-                        console.error(JSON.stringify(resource));
-                        console.error(msg);
+                        Logger.log("error", JSON.stringify(resource));
+                        Logger.log("error", msg);
                         res.status(404).json({
                             result: "Error",
                             message: msg
@@ -165,8 +172,8 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                 else
                 {
                     const msg = "Error retriving resource " + resource.recommendedFor;
-                    console.error(JSON.stringify(resource));
-                    console.error(msg);
+                    Logger.log("error", JSON.stringify(resource));
+                    Logger.log("error", msg);
                     res.status(500).json({
                         result: "Error",
                         message: msg
@@ -177,8 +184,8 @@ const recordInteractionOverAResource = function (user, resource, req, res)
         else
         {
             const msg = "Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.";
-            console.error(JSON.stringify(resource));
-            console.error(msg);
+            Logger.log("error", JSON.stringify(resource));
+            Logger.log("error", msg);
             res.status(400).json({
                 result: "Error",
                 message: msg
@@ -188,7 +195,7 @@ const recordInteractionOverAResource = function (user, resource, req, res)
     else
     {
         const msg = "Error recording interaction over resource " + resource.uri + " : No user is currently authenticated!";
-        console.error(msg);
+        Logger.log("error", msg);
         res.status(500).json({
             result: "Error",
             message: msg

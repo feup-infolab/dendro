@@ -1,5 +1,6 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -9,6 +10,7 @@ const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const async = require("async");
 const _ = require("underscore");
@@ -96,7 +98,7 @@ exports.recommend_descriptors = function (req, res)
                                         }
                                         else
                                         {
-                                            console.log("Successfully recorded interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list in resource with uri " + req.params.requestedResourceUri);
+                                            Logger.log("Successfully recorded interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list in resource with uri " + req.params.requestedResourceUri);
                                         }
                                     });
                                 }
@@ -107,7 +109,7 @@ exports.recommend_descriptors = function (req, res)
 
             const allowedOntologies = getAllowedOntologies();
 
-            exports.shared.recommend_descriptors(req.params.requestedResourceUri, req.user.uri, req.query.page, allowedOntologies, req.index, function (err, descriptors)
+            exports.shared.recommend_descriptors(req.params.requestedResourceUri, req.user.uri, req.query.page, allowedOntologies, IndexConnection.getDefault(), function (err, descriptors)
             {
                 if (isNull(err))
                 {

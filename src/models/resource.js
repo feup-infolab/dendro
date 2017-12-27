@@ -1,10 +1,13 @@
 const path = require("path");
+const validator = require("validator");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
@@ -188,11 +191,171 @@ Resource.exists = function (uri, callback, customGraphUri)
                 return callback(null, result);
             }
             const msg = "Error checking for the existence of resource with uri : " + uri;
-            console.error(msg);
-            console.error(JSON.stringify(err));
-            console.error(JSON.stringify(result));
+            Logger.log("error", msg);
+            Logger.log("error", JSON.stringify(err));
+            Logger.log("error", JSON.stringify(result));
             return callback(err, msg);
         });
+};
+
+Resource.for_all = function (
+    resourcePageCallback,
+    checkFunction,
+    finalCallback,
+    customGraphUri,
+    descriptorTypesToRemove,
+    descriptorTypesToExemptFromRemoval,
+    includeArchivedResources
+)
+{
+    const self = this;
+    const type = self.prefixedRDFType;
+
+    const dummyReq = {
+        query: {
+            currentPage: 0,
+            pageSize: 10000
+        }
+    };
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const queryArguments = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: graphUri
+        }
+    ];
+
+    let query =
+        "SELECT DISTINCT ?uri \n" +
+        "FROM [0]\n" +
+        "WHERE \n" +
+        "{ \n";
+
+    if (!isNull(type))
+    {
+        let rdfTypes;
+
+        if (!(self.prefixedRDFType instanceof Array))
+        {
+            rdfTypes = [self.prefixedRDFType];
+        }
+        else
+        {
+            rdfTypes = self.prefixedRDFType;
+        }
+
+        let argumentCount = 1;
+        let typeRestrictions = "";
+        for (let i = 0; i < rdfTypes.length; i++)
+        {
+            typeRestrictions = typeRestrictions + " ?uri rdf:type [" + argumentCount + "]";
+            argumentCount++;
+
+            queryArguments.push({
+                type: Elements.types.prefixedResource,
+                value: rdfTypes[i]
+            });
+
+            if (i < rdfTypes.length - 1)
+            {
+                typeRestrictions += ".\n";
+            }
+            else
+            {
+                typeRestrictions += "\n";
+            }
+        }
+
+        query = query + typeRestrictions;
+    }
+    else
+    {
+        query = query + " ?uri ?p ?o\n";
+    }
+
+    if (isNull(includeArchivedResources) || !includeArchivedResources)
+    {
+        query = query + "\nFILTER NOT EXISTS { ?uri rdf:type ddr:ArchivedResource }";
+    }
+
+    query = query + "} \n";
+
+    query = DbConnection.paginateQuery(
+        dummyReq,
+        query
+    );
+
+    let resultsSize;
+    async.until(
+        function ()
+        {
+            if (!isNull(checkFunction))
+            {
+                if (!checkFunction())
+                {
+                    return false;
+                }
+                // check function failed, stop querying!
+                finalCallback(1, "Validation condition not met when fetching resources with pagination. Aborting paginated querying...");
+                return true;
+            }
+
+            if (!isNull(resultsSize))
+            {
+                if (resultsSize > 0)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return true;
+        },
+        function (callback)
+        {
+            db.connection.executeViaJDBC(
+                query,
+                queryArguments,
+                function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        dummyReq.query.currentPage++;
+                        async.mapSeries(results,
+                            function (result, cb)
+                            {
+                                const aResource = new self.prototype.constructor(result);
+                                self.findByUri(aResource.uri, function (err, completeResource)
+                                {
+                                    if (!isNull(descriptorTypesToRemove) && descriptorTypesToRemove instanceof Array)
+                                    {
+                                        completeResource.clearDescriptors(descriptorTypesToExemptFromRemoval, descriptorTypesToRemove);
+                                    }
+
+                                    cb(err, completeResource);
+                                });
+                            },
+                            function (err, results)
+                            {
+                                resultsSize = results.length;
+                                return resourcePageCallback(err, results);
+                            });
+                    }
+                    else
+                    {
+                        return callback(1, "Unable to fetch all resources from the graph, on page " + dummyReq.query.currentPage);
+                    }
+                }
+            );
+        },
+        function (err, results)
+        {
+            finalCallback(err, "All resources of type " + self.leafClass + " retrieved via pagination query.");
+        }
+    );
 };
 
 Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
@@ -237,7 +400,7 @@ Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove,
 
             queryArguments.push({
                 type: Elements.types.prefixedResource,
-                value: self.prefixedRDFType[i]
+                value: rdfTypes[i]
             });
 
             if (i < rdfTypes.length - 1)
@@ -251,6 +414,10 @@ Resource.all = function (callback, req, customGraphUri, descriptorTypesToRemove,
         }
 
         query = query + typeRestrictions;
+    }
+    else
+    {
+        query = query + " ?uri ?p ?o";
     }
 
     query = query + "} \n";
@@ -456,7 +623,7 @@ Resource.prototype.deleteDescriptorTriples = function (descriptorInPrefixedForm,
     else
     {
         const msg = "No descriptor specified --> Descriptor " + descriptorInPrefixedForm;
-        console.error(msg);
+        Logger.log("error", msg);
         return callback(1, msg);
     }
 };
@@ -570,7 +737,7 @@ Resource.prototype.loadPropertiesFromOntologies = function (ontologyURIsArray, c
             }
             else
             {
-                console.error("Error fetching descriptors from ontologies : " + JSON.stringify(ontologyURIsArray) + ". Error returned : " + descriptors);
+                Logger.log("error", "Error fetching descriptors from ontologies : " + JSON.stringify(ontologyURIsArray) + ". Error returned : " + descriptors);
                 return callback(1, descriptors);
             }
         });
@@ -637,7 +804,7 @@ Resource.prototype.getPropertiesFromOntologies = function (ontologyURIsArray, cu
                     }
                     catch (e)
                     {
-                        console.error(JSON.stringify(e));
+                        Logger.log("error", JSON.stringify(e));
                     }
                 }
             }
@@ -673,7 +840,7 @@ Resource.prototype.validateDescriptorValues = function (callback)
             {
                 const error = "[ERROR] Value \"" + descriptor.value + "\" of descriptor " + descriptor.uri + " is invalid, because it is not one of the valid alternatives " + JSON.stringify(descriptor.hasAlternative) + ". " +
                     "This error occurred when checking the validity of the descriptors of resource " + self.uri;
-                console.error(error);
+                Logger.log("error", error);
                 return callback(1, error);
             }
             return callback(null, null);
@@ -691,7 +858,7 @@ Resource.prototype.validateDescriptorValues = function (callback)
             {
                 const error = "[ERROR] Value \"" + descriptor.value + "\" of descriptor " + descriptor.uri + " is invalid, because it does not comply with the regular expression " + descriptor.hasRegex + ". " +
                     "This error occurred when checking the validity of the descriptors of resource " + self.uri;
-                console.error(error);
+                Logger.log("error", error);
                 return callback(1, error);
             }
             return callback(null, null);
@@ -707,9 +874,9 @@ Resource.prototype.validateDescriptorValues = function (callback)
                     async.apply(descriptorValueIsWithinAlternatives, descriptor),
                     async.apply(descriptorValueConformsToRegex, descriptor)
                 ],
-                function (firstError)
+                function (error, info)
                 {
-                    return callback(firstError);
+                    return callback(error, info);
                 }
             );
         },
@@ -717,7 +884,7 @@ Resource.prototype.validateDescriptorValues = function (callback)
         {
             if (err)
             {
-                console.error("Error detected while validating descriptors: " + JSON.stringify(errors));
+                Logger.log("error", "Error detected while validating descriptors: " + JSON.stringify(errors));
                 return callback(err, errors);
             }
             return callback(err, errors);
@@ -829,7 +996,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
             db.connection.executeViaJDBC(query, queryArguments, function (err, results)
             {
                 return callback(err, results);
-                // console.log(results);
+                // Logger.log(results);
             }, null, null, null, true);
         });
     }
@@ -881,7 +1048,7 @@ Resource.prototype.save = function
             {
                 if (err)
                 {
-                    console.error("Error validating values before saving resource " + self.uri + " : " + JSON.stringify(results));
+                    Logger.log("error", "Error validating values before saving resource " + self.uri + " : " + JSON.stringify(results));
                 }
                 cb(err, results);
             });
@@ -898,8 +1065,8 @@ Resource.prototype.save = function
             }
             else
             {
-                console.error("Error occurred while getting last version of the resource " + myUri);
-                console.error(JSON.stringify(currentResource));
+                Logger.log("error", "Error occurred while getting last version of the resource " + myUri);
+                Logger.log("error", JSON.stringify(currentResource));
                 cb(err, currentResource);
             }
         }, null, customGraphUri);
@@ -965,14 +1132,14 @@ Resource.prototype.save = function
                     }
                     else
                     {
-                        console.error("Error saving changes to resource  " + archivedResource.uri + ". Error reported : " + err);
+                        Logger.log("error", "Error saving changes to resource  " + archivedResource.uri + ". Error reported : " + err);
                         cb(1, results);
                     }
                 });
             }
             else
             {
-                console.error("Error making archived version of resource with URI : " + self.uri + ". Error returned : " + archivedResource);
+                Logger.log("error", "Error making archived version of resource with URI : " + self.uri + ". Error returned : " + archivedResource);
                 cb(1, archivedResource);
             }
         });
@@ -1138,7 +1305,7 @@ Resource.prototype.updateDescriptors = function (descriptors, cannotChangeTheseD
         {
             const util = require("util");
             const error = "Descriptor " + util.inspect(descriptor) + " does not have a prefix and a short name.";
-            console.error(error);
+            Logger.log("error", error);
         }
     }
 
@@ -1274,7 +1441,7 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
             if (err)
             {
                 const error = "error retrieving literal properties for resource " + self.uri;
-                console.log(error);
+                Logger.log(error);
                 return callback(1, error);
             }
             if (returnAsFlatArray)
@@ -1311,75 +1478,96 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
 
 Resource.prototype.reindex = function (indexConnection, callback)
 {
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     const self = this;
     const infoMessages = [];
     const errorMessages = [];
 
-    self.getLiteralPropertiesFromOntologies(
-        Ontology.getPublicOntologiesUris()
-        ,
-        true,
-        function (err, results)
+    const results = self.getPublicDescriptorsForAPICalls();
+
+    let descriptors = [];
+
+    const now = new Date();
+
+    for (let i = 0; i < results.length; i++)
+    {
+        const result = results[i];
+        if (result.value instanceof Array)
         {
-            if (isNull(err) && !isNull(results))
+            for (let j = 0; j < result.value.length; j++)
             {
-                const now = new Date();
+                let value = result.value[j];
+                descriptors.push({
+                    predicate: result.uri,
+                    object: value.toString()
+                });
+            }
+        }
+        else
+        {
+            descriptors.push({
+                predicate: result.uri,
+                object: result.value.toString()
+            });
+        }
+    }
 
-                for (let i = 0; i < results.length; i++)
-                {
-                    results[i].predicate = results[i].property;
-                    delete results[i].property;
-                }
+    // Remove all non-textual values from index
+    /* const validator = require("validator");
+    descriptors = _.filter(descriptors, function (descriptor)
+    {
+        const value = descriptor.object;
+        const resourceUriRegex = Resource.getResourceRegex("[^/]+");
+        if (typeof value !== "string")
+        {
+            return false;
+        }
 
-                const document = {
-                    uri: self.uri,
-                    graph: indexConnection.index.uri,
-                    descriptors: results,
-                    last_indexing_date: now.toISOString()
-                };
+        return !validator.isURL(value) &&
+                !validator.toDate(value) &&
+                !value.match(resourceUriRegex);
+    });*/
 
-                // console.log("Reindexing resource " + self.uri);
-                // console.log("Document: \n" + JSON.stringify(document, null, 4));
+    const document = {
+        uri: self.uri,
+        graph: indexConnection.uri,
+        descriptors: descriptors,
+        last_indexing_date: now.toISOString()
+    };
 
-                self.getIndexDocumentId(indexConnection, function (err, id)
+    // Logger.log("Reindexing resource " + self.uri);
+    // Logger.log("Document: \n" + JSON.stringify(document, null, 4));
+
+    self.getIndexDocumentId(indexConnection, function (err, id)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(id))
+            {
+                document._id = id;
+            }
+
+            indexConnection.indexDocument(
+                IndexConnection.indexTypes.resource,
+                document,
+                function (err, result)
                 {
                     if (isNull(err))
                     {
-                        if (!isNull(id))
-                        {
-                            document._id = id;
-                        }
-
-                        indexConnection.indexDocument(
-                            IndexConnection.indexTypes.resource,
-                            document,
-                            function (err, result)
-                            {
-                                if (isNull(err))
-                                {
-                                    infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.index.short_name);
-                                    return callback(null, infoMessages);
-                                }
-                                const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
-                                errorMessages.push(msg);
-                                console.error(msg);
-                                return callback(1, errorMessages);
-                            });
+                        infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.short_name);
+                        return callback(null, infoMessages);
                     }
-                    else
-                    {
-                        errorMessages.push("Error getting document id for resource " + self.uri + " error returned " + id);
-                        return callback(1, errorMessages);
-                    }
+                    const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
+                    errorMessages.push(msg);
+                    Logger.log("error", msg);
+                    return callback(1, errorMessages);
                 });
-            }
-            else
-            {
-                infoMessages.push("Node " + self.uri + " has no literal properties to be indexed, moving on");
-                return callback(null, errorMessages);
-            }
-        });
+        }
+        else
+        {
+            errorMessages.push("Error getting document id for resource " + self.uri + " error returned " + id);
+            return callback(1, errorMessages);
+        }
+    });
 };
 
 Resource.prototype.getIndexDocumentId = function (indexConnection, callback)
@@ -1406,8 +1594,9 @@ Resource.prototype.getTextuallySimilarResources = function (indexConnection, max
         {
             if (!isNull(id))
             {
+                // search in all graphs for resources (generic type)
                 indexConnection.moreLikeThis(
-                    IndexConnection.indexTypes.resource, // search in all graphs for resources (generic type)
+                    IndexConnection.indexTypes.resource,
                     id,
                     function (err, results)
                     {
@@ -1503,6 +1692,11 @@ Resource.restoreFromIndexResults = function (hits)
         }
     }
 
+    results.sort(function (a, b)
+    {
+        return a.indexData.score - b.indexData.score;
+    });
+
     return results;
 };
 
@@ -1539,13 +1733,11 @@ Resource.prototype.restoreFromIndexDocument = function (indexConnection, callbac
         {
             if (isNull(err))
             {
-                let id = null;
-
                 if (!isNull(hits) && hits instanceof Array && hits.length > 0)
                 {
                     if (hits.length > 1)
                     {
-                        console.error("Duplicate document in index detected for resource !!! Fix it " + self.uri);
+                        Logger.log("error", "Duplicate document in index detected for resource !!! Fix it " + self.uri);
                     }
 
                     let hit = hits[0];
@@ -1707,7 +1899,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
             if (!isNull(err))
             {
                 const msg = "Unable to set value of " + resource.uri + " as " + JSON.stringify(resource) + " in cache : " + JSON.stringify(err);
-                console.log(msg);
+                Logger.log(msg);
             }
 
             if (typeof callback === "function")
@@ -1759,8 +1951,8 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
                             return callback(null, resource);
                         }
                         const msg = "Error while trying to retrieve resource with uri " + self.uri + " from triple store.";
-                        console.error(msg);
-                        console.error(JSON.stringify(resource));
+                        Logger.log("error", msg);
+                        Logger.log("error", JSON.stringify(resource));
                         return callback(1, msg);
                     }, customGraphUri);
                 }
@@ -1769,7 +1961,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
                     if (Config.debug.resources.log_missing_resources)
                     {
                         const msg = uri + " does not exist in Dendro.";
-                        console.log(msg);
+                        Logger.log(msg);
                     }
 
                     return callback(null, null);
@@ -1778,7 +1970,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
             else
             {
                 const msg = "Error " + exists + " while trying to check existence of resource with uri " + uri + " from triple store.";
-                console.error(msg);
+                Logger.log("error", msg);
                 return callback(1, msg);
             }
         }, customGraphUri);
@@ -1826,8 +2018,8 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
                         else
                         {
                             const msg = "Unable to get resource with uri " + uri + " from triple store.";
-                            console.error(msg);
-                            console.error(err);
+                            Logger.log("error", msg);
+                            Logger.log("error", err);
                         }
                     }, customGraphUri);
                 }
@@ -1945,7 +2137,7 @@ Resource.findByPropertyValue = function (
             else
             {
                 const msg = "Unable to set value of " + resource.uri + " as " + JSON.stringify(resource) + " in cache : " + JSON.stringify(err);
-                console.log(msg);
+                Logger.log(msg);
             }
         });
     };
@@ -2115,7 +2307,7 @@ Resource.findByPropertyValue = function (
                     else
                     {
                         const msg = "Error checking for the existence of resource with property value : " + descriptor.value;
-                        console.error(msg);
+                        Logger.log("error", msg);
                         return callback(err, msg);
                     }
                 });
@@ -2132,7 +2324,7 @@ Resource.findByPropertyValue = function (
                 if (Config.debug.resources.log_missing_resources)
                 {
                     const msg = "Resource with property " + descriptor.getPrefixedForm() + " of value " + descriptor.value + "  does not exist in Dendro.";
-                    console.log(msg);
+                    Logger.log(msg);
                 }
 
                 return callback(null, null);
@@ -2153,7 +2345,7 @@ Resource.findByPropertyValue = function (
                 msg = "Error " + result + " while trying to check existence of resources with values " + descriptorValues + " from triple store.";
             }
 
-            console.error(msg);
+            Logger.log("error", msg);
             return callback(1, msg);
         }, customGraphUri);
     };
@@ -2203,8 +2395,8 @@ Resource.findByPropertyValue = function (
                         }
                         else
                         {
-                            console.error(object);
-                            console.error(err);
+                            Logger.log("error", object);
+                            Logger.log("error", err);
                         }
                     }, customGraphUri);
                 }
@@ -2216,7 +2408,7 @@ Resource.findByPropertyValue = function (
     }
     else
     {
-        getFromTripleStore(uri, function (err, result)
+        getFromTripleStore(function (err, result)
         {
             return callback(err, result);
         }, customGraphUri);
@@ -2225,20 +2417,56 @@ Resource.findByPropertyValue = function (
 
 Resource.prototype.loadFromIndexHit = function (hit)
 {
-    if (isNull(this.indexData))
+    const self = this;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+
+    if (isNull(self.indexData))
     {
-        this.indexData = {};
+        self.indexData = {};
     }
 
-    this.indexData.id = hit._id;
-    this.indexData.indexId = hit._id;
-    this.indexData.score = hit._score;
-    this.uri = hit._source.uri;
-    this.indexData.graph = hit._source.graph;
-    this.indexData.last_indexing_date = hit._source.last_indexing_date;
-    this.indexData.descriptors = hit._source.descriptors;
+    self.indexData.id = hit._id;
+    self.indexData.indexId = hit._id;
+    self.indexData.score = hit._score;
+    self.uri = hit._source.uri;
+    self.indexData.graph = hit._source.graph;
+    self.indexData.last_indexing_date = hit._source.last_indexing_date;
 
-    return this;
+    let descriptorsAndValues = {};
+
+    for (let i = 0; i < hit._source.descriptors.length; i++)
+    {
+        let descriptorObject = hit._source.descriptors[i];
+        let descriptorUri = descriptorObject.predicate;
+        let descriptorValue = descriptorObject.object;
+
+        if (isNull(descriptorsAndValues[descriptorUri]))
+        {
+            descriptorsAndValues[descriptorUri] = descriptorValue;
+        }
+        else
+        {
+            if (typeof descriptorsAndValues[descriptorUri] === "string")
+            {
+                descriptorsAndValues[descriptorUri] = [descriptorsAndValues[descriptorUri], descriptorValue];
+            }
+            else if (descriptorsAndValues[descriptorUri] instanceof Array)
+            {
+                descriptorsAndValues[descriptorUri].push(descriptorValue);
+            }
+        }
+    }
+
+    descriptorsAndValues = _.map(Object.keys(descriptorsAndValues), function (descriptorUri)
+    {
+        return new Descriptor({
+            uri: descriptorUri,
+            value: descriptorsAndValues[descriptorUri]
+        });
+    });
+
+    self.updateDescriptors(descriptorsAndValues);
+    return self;
 };
 
 Resource.prototype.insertDescriptors = function (newDescriptors, callback, customGraphUri)
@@ -2309,14 +2537,14 @@ Resource.prototype.getArchivedVersions = function (offset, limit, callback, cust
                         return callback(null, formattedVersions);
                     }
                     const error = "Error occurred fetching data about a past version of resource " + self.uri + ". Error returned : " + formattedVersions;
-                    console.error(error);
+                    Logger.log("error", error);
                     return callback(1, error);
                 });
             }
             else
             {
                 const error = "Error occurred fetching versions of resource " + self.uri + ". Error returned : " + versions;
-                console.error(error);
+                Logger.log("error", error);
                 return callback(1, error);
             }
         });
@@ -2336,7 +2564,7 @@ Resource.prototype.getLatestArchivedVersion = function (callback)
             return callback(null, null);
         }
         const error = "Error occurred fetching latest version of resource " + self.uri + ". Error returned : " + latestRevisionArray;
-        console.error(error);
+        Logger.log("error", error);
         return callback(1, error);
     });
 };
@@ -2386,7 +2614,7 @@ Resource.prototype.makeArchivedVersion = function (entitySavingTheResource, call
             return callback(null, archivedResource);
         }
         const error = "Error occurred creating a new archived version of resource " + self.uri + ". Error returned : " + latestArchivedVersion;
-        console.error(error);
+        Logger.log("error", error);
         return callback(1, error);
     });
 };
@@ -2668,7 +2896,7 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
                     const msg = "Error verifying existence of triple \"" + self.uri + " " + predicateInPrefixedForm + " " + value + "\". Error reported " + JSON.stringify(result);
                     if (Config.debug.resources.log_all_type_checks === true)
                     {
-                        console.error(msg);
+                        Logger.log("error", msg);
                     }
                     return callback(err, msg);
                 });
@@ -2716,7 +2944,7 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
     }
     else
     {
-        console.error("Attempting to check the value of an unknown descriptor " + predicateInPrefixedForm + " for resource " + self.uri);
+        Logger.log("error", "Attempting to check the value of an unknown descriptor " + predicateInPrefixedForm + " for resource " + self.uri);
         return false;
     }
 };
@@ -2836,6 +3064,12 @@ Resource.prototype.getLogicalParts = function (callback)
 Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToRetain)
 {
     const self = this;
+    self.findMetadata(callback, typeConfigsToRetain, true);
+};
+
+Resource.prototype.findMetadata = function (callback, typeConfigsToRetain, recursive)
+{
+    const self = this;
     const async = require("async");
     const myDescriptors = self.getDescriptors(
         [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], typeConfigsToRetain
@@ -2863,34 +3097,68 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
 
                 if (children.length > 0)
                 {
-                    // 1st parameter in async.each() is the array of items
-                    async.each(children,
-                        // 2nd parameter is the function that each item is passed into
-                        function (child, callback)
-                        {
-                            // Call an asynchronous function
-                            child.findMetadataRecursive(function (err, result2)
+                    if (recursive)
+                    {
+                        // 1st parameter in async.each() is the array of items
+                        async.each(children,
+                            // 2nd parameter is the function that each item is passed into
+                            function (child, callback)
+                            {
+                                // Call an asynchronous function
+                                child.findMetadataRecursive(function (err, result2)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        metadataResult.hasLogicalParts.push(result2);
+                                        return callback(null);
+                                    }
+                                    Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                    return callback(err);
+                                }, typeConfigsToRetain);
+                            },
+                            // 3rd parameter is the function call when everything is done
+                            function (err)
                             {
                                 if (isNull(err))
                                 {
-                                    metadataResult.hasLogicalParts.push(result2);
-                                    return callback(null);
+                                    // All tasks are done now
+                                    return callback(null, metadataResult);
                                 }
-                                console.info("[findMetadataRecursive] error accessing metadata of resource " + folder.nie.title);
-                                return callback(err);
-                            }, typeConfigsToRetain);
-                        },
-                        // 3rd parameter is the function call when everything is done
-                        function (err)
-                        {
-                            if (isNull(err))
-                            {
-                                // All tasks are done now
-                                return callback(null, metadataResult);
+                                return callback(true, null);
                             }
-                            return callback(true, null);
-                        }
-                    );
+                        );
+                    }
+                    else
+                    {
+                        // 1st parameter in async.each() is the array of items
+                        async.each(children,
+                            // 2nd parameter is the function that each item is passed into
+                            function (child, callback)
+                            {
+                                // Call an asynchronous function
+                                child.findMetadata(function (err, result2)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        metadataResult.hasLogicalParts.push(result2);
+                                        return callback(null);
+                                    }
+                                    Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                    return callback(err);
+                                }, typeConfigsToRetain);
+                            },
+                            // 3rd parameter is the function call when everything is done
+                            function (err)
+                            {
+                                if (isNull(err))
+                                {
+                                    // All tasks are done now
+                                    return callback(null, metadataResult);
+                                }
+                                return callback(true, null);
+                            }
+                        );
+                    }
                 }
                 else
                 {
@@ -2899,7 +3167,8 @@ Resource.prototype.findMetadataRecursive = function (callback, typeConfigsToReta
             }
             else
             {
-                console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
+                Logger.log("error", "[findMetadata] error accessing logical parts of folder " + self.nie.title);
+                Logger.log("error", err);
                 return callback(true, null);
             }
         });
@@ -2919,11 +3188,11 @@ Resource.prototype.isOfClass = function (classNameInPrefixedForm, callback)
         {
             if (isOfClass)
             {
-                console.log("Resource " + self.uri + " IS of type " + classNameInPrefixedForm);
+                Logger.log("Resource " + self.uri + " IS of type " + classNameInPrefixedForm);
             }
             else
             {
-                console.log("Resource " + self.uri + " IS NOT of type " + classNameInPrefixedForm);
+                Logger.log("Resource " + self.uri + " IS NOT of type " + classNameInPrefixedForm);
             }
         }
         return callback(err, isOfClass);
@@ -2957,7 +3226,7 @@ Resource.randomInstance = function (typeInPrefixedFormat, callback, customGraphU
                         value: graphUri
                     },
                     {
-                        type: Elements.types.prefixedResource,
+                        type: Elements.ontologies.rdf.type,
                         value: typeInPrefixedFormat
                     }
                 ],
@@ -2998,7 +3267,7 @@ Resource.randomInstance = function (typeInPrefixedFormat, callback, customGraphU
                         value: randomNumber
                     },
                     {
-                        type: Elements.types.prefixedResource,
+                        type: Elements.ontologies.rdf.type.type,
                         value: typeInPrefixedFormat
                     }
                 ],
@@ -3065,7 +3334,7 @@ Resource.deleteAll = function (callback, customGraphUri)
             argumentCount++;
 
             queryArguments.push({
-                type: Elements.types.prefixedResource,
+                type: Elements.ontologies.rdf.type.type,
                 value: self.prefixedRDFType[i]
             });
 
@@ -3239,14 +3508,14 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function (
                         return callback(null, results);
                     }
                     const msg = "Error deleting all resources of type with descriptor " + descriptor.getPrefixedForm() + " and value" + descriptor.value + " and their outgoing triples. Error returned: " + JSON.stringify(results);
-                    console.error(msg);
+                    Logger.log("error", msg);
                     return callback(err, msg);
                 });
         }
         else
         {
             const msg = "Error deleting all CACHED resources of type with descriptor " + descriptor.getPrefixedForm() + " and value" + descriptor.value + " and their outgoing triples. Error returned: " + JSON.stringify(err);
-            console.error(msg);
+            Logger.log("error", msg);
             return callback(err, msg);
         }
     });
@@ -3310,21 +3579,43 @@ Resource.prototype.isA = function (prototype)
 {
     let self = this;
 
-    const myRDFType = self.rdf.type;
-
     const getFullUri = function (prefixedForm)
     {
+        if (validator.isURL(prefixedForm))
+        {
+            return prefixedForm;
+        }
+
         const prefix = prefixedForm.split(":")[0];
         const shortName = prefixedForm.split(":")[1];
         const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
         return Ontology.allOntologies[prefix].uri + shortName;
     };
 
-    const objectRDFType = _.map(prototype.prefixedRDFType, getFullUri);
+    let myRDFType = self.rdf.type;
+    let objectRDFType = prototype.prefixedRDFType;
 
-    if (!isNull(myRDFType))
+    if (myRDFType instanceof Array)
     {
-        if (!isNull(objectRDFType))
+        myRDFType = _.map(myRDFType, getFullUri);
+    }
+    else
+    {
+        myRDFType = getFullUri(myRDFType);
+    }
+
+    if (objectRDFType instanceof Array)
+    {
+        objectRDFType = _.map(objectRDFType, getFullUri);
+    }
+    else
+    {
+        objectRDFType = getFullUri(objectRDFType);
+    }
+
+    if (!isNull(self.rdf.type))
+    {
+        if (!isNull(prototype.prefixedRDFType))
         {
             if (typeof objectRDFType === "string" && typeof myRDFType === "string")
             {
@@ -3336,16 +3627,17 @@ Resource.prototype.isA = function (prototype)
                 {
                     return false;
                 }
+
                 const myRDFTypeSorted = _.uniq(myRDFType.sort(), true);
                 const objectRDFTypeSorted = _.uniq(objectRDFType.sort(), true);
 
                 return _.isEqual(myRDFTypeSorted, objectRDFTypeSorted);
             }
+
+            return false;
         }
-        else
-        {
-            throw new Error("Unable to determine rdf:type of " + prototype.name);
-        }
+
+        throw new Error("Unable to determine rdf:type of " + prototype.name);
     }
     else
     {
@@ -3410,7 +3702,7 @@ Resource.getCount = function (callback)
     {
         typeRestrictions = typeRestrictions + " ?uri rdf:type [" + argumentCount + "]";
         queryArguments.push({
-            type: Elements.types.prefixedResource,
+            type: Elements.ontologies.rdf.type.type,
             value: self.prefixedRDFType[i]
         });
 
@@ -3440,12 +3732,32 @@ Resource.getCount = function (callback)
         queryArguments,
         function (err, count)
         {
-            if (isNull(err) && count instanceof Array)
+            if (isNull(err))
             {
-                totalCount = parseInt(count[0].count);
-                return callback(null, totalCount);
+                if (!isNull(count))
+                {
+                    if (count instanceof Array)
+                    {
+                        if (count.length >= 1 && !isNull(count[0]) && !isNull(count[0].count))
+                        {
+                            totalCount = parseInt(count[0].count);
+                            return callback(null, totalCount);
+                        }
+
+                        return callback(1, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is an Array but does not contain the 'count' property or has length 0.");
+                    }
+                    else if (!isNull(count.count))
+                    {
+                        return callback(null, parseInt(count.count));
+                    }
+
+                    return callback(2, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is not an Array and does not contain the 'count' property.");
+                }
+
+                return callback(3, "Unable to fetch the number of resources of type " + JSON.stringify(rdfTypes) + ". The count object is null!");
             }
-            return callback(err, count[0]);
+
+            return callback(err, count);
         }
     );
 };

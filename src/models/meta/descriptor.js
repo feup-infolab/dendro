@@ -6,6 +6,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const ObjectManipulator = require(Pathfinder.absPathInSrcFolder("/utils/object_manipulation.js"));
 
 const db = Config.getDBByID();
@@ -40,7 +41,7 @@ function Descriptor (object, typeConfigsToRetain)
             if (indexOfColon < 0)
             {
                 const error = "Invalid prefixed form for descriptor " + object.prefixedForm;
-                console.error(error);
+                Logger.log("error", error);
                 throw error;
             }
             else
@@ -65,7 +66,7 @@ function Descriptor (object, typeConfigsToRetain)
                 "Check that you have included one of the following: an uri; an ontology uri and shortName; a prefixed form; a prefix and a shortName. " +
                 "Also, does that descriptor really belong to that ontology?";
 
-            console.error(error);
+            Logger.log("error", error);
             return {error: error};
         }
 
@@ -75,7 +76,7 @@ function Descriptor (object, typeConfigsToRetain)
 
             if (Config.debug.log_missing_unknown_descriptors)
             {
-                console.error(error);
+                Logger.log("error", error);
             }
 
             return {error: error};
@@ -83,7 +84,7 @@ function Descriptor (object, typeConfigsToRetain)
         else if (isNull(Elements.ontologies[self.prefix][self.shortName]) && Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
         {
             const error = "Unknown descriptor -> " + object.uri + ". This descriptor is not parametrized in this Dendro instance; however, the ontology uri matches an ontology in this instance. Are you sure that descriptor belongs to that ontology? Check the final part of the URI, or parametrize the element in the elements.js file.";
-            console.error(error);
+            Logger.log("error", error);
             return {error: error};
         }
         if (!isNull(Elements.ontologies[self.prefix]) && !isNull(Elements.ontologies[self.prefix][self.shortName]))
@@ -180,16 +181,14 @@ function Descriptor (object, typeConfigsToRetain)
         else
         {
             self.type = Elements.types.string;
-            if (Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
-            {
-                console.error("Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
-            }
+            Logger.log("warn", "Descriptor " + self.uri + " is missing in the elements.js file");
+            Logger.log("warn", "Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
         }
 
         return self;
     }
     const error = "No object supplied for descriptor creation";
-    console.error(error);
+    Logger.log("error", error);
     return {error: error};
 }
 
@@ -340,13 +339,13 @@ Descriptor.findByUri = function (uri, callback)
                     return callback(null, formattedDescriptor);
                 }
 
-                console.error("Error fetching descriptor with uri : " + uri + " : " + descriptors);
+                Logger.log("error", "Error fetching descriptor with uri : " + uri + " : " + descriptors);
                 return callback(1, descriptors);
             });
     }
     catch (e)
     {
-        console.error("Exception finding descriptor by URI " + uri);
+        Logger.log("error", "Exception finding descriptor by URI " + uri);
         return callback(null, null);
     }
 };
@@ -468,7 +467,7 @@ Descriptor.all_in_ontology = function (ontologyURI, callback, page_number, pages
                     return callback(null, formattedResults);
                 }
 
-                console.error("Error fetching descriptors from ontology : " + ontologyURI + " " + descriptors);
+                Logger.log("error", "Error fetching descriptors from ontology : " + ontologyURI + " " + descriptors);
                 return callback(1, descriptors);
             });
     };
@@ -595,7 +594,7 @@ Descriptor.removeUnauthorizedFromObject = function (object, excludedDescriptorTy
                         {
                             if (Config.debug.descriptors.log_descriptor_filtering_operations)
                             {
-                                console.log("Removing descriptor " + prefix + ":" + shortName + " because excluded descriptor types are " + JSON.stringify(excludedDescriptorTypes) + " and exceptioned descriptor types are " + JSON.stringify(exceptionedDescriptorTypes));
+                                Logger.log("Removing descriptor " + prefix + ":" + shortName + " because excluded descriptor types are " + JSON.stringify(excludedDescriptorTypes) + " and exceptioned descriptor types are " + JSON.stringify(exceptionedDescriptorTypes));
                             }
                             delete object[prefix][shortName];
                         }
@@ -711,7 +710,7 @@ Descriptor.isAuthorized = function (prefix, shortName, excludedDescriptorTypes, 
     {
         if (Config.debug.descriptors.log_descriptor_filtering_operations)
         {
-            console.log("Removing descriptor " + prefix + ":" + shortName + " because excluded descriptor types are " + JSON.stringify(excludedDescriptorTypes) + " and exceptioned descriptor types are " + JSON.stringify(exceptionedDescriptorTypes));
+            Logger.log("Removing descriptor " + prefix + ":" + shortName + " because excluded descriptor types are " + JSON.stringify(excludedDescriptorTypes) + " and exceptioned descriptor types are " + JSON.stringify(exceptionedDescriptorTypes));
         }
         return false;
     } return true;
@@ -839,7 +838,15 @@ Descriptor.mergeDescriptors = function (descriptorsArray, callback)
         {
             if (descriptor.value instanceof Array)
             {
-                newDescriptors[descriptor.prefix][descriptor.shortName] = [descriptor.value].push(newDescriptors[descriptor.prefix][descriptor.shortName]);
+                let newValues = newDescriptors[descriptor.prefix][descriptor.shortName];
+                if (newValues instanceof Array)
+                {
+                    newDescriptors[descriptor.prefix][descriptor.shortName] = _.union(descriptor.value, newValues);
+                }
+                else
+                {
+                    newDescriptors[descriptor.prefix][descriptor.shortName] = _.union(descriptor.value, [newValues]);
+                }
             }
             else if (!isNull(descriptor.value))
             {
@@ -937,7 +944,7 @@ Descriptor.getRandomDescriptors = function (allowedOntologies, numberOfDescripto
 
             if (isNull(randomOntology))
             {
-                console.error("Error fetching random ontology from among " + JSON.stringify(allowedOntologies));
+                Logger.log("error", "Error fetching random ontology from among " + JSON.stringify(allowedOntologies));
                 return callback(null);
             }
 
@@ -979,7 +986,7 @@ Descriptor.getRandomDescriptors = function (allowedOntologies, numberOfDescripto
                         {
                             if (Config.debug.log_missing_unknown_descriptors)
                             {
-                                console.error("Unable to find descriptor with URI : " + randomDescriptor.uri + ". Review the loaded ontologies and the elements.js configuration file.");
+                                Logger.log("error", "Unable to find descriptor with URI : " + randomDescriptor.uri + ". Review the loaded ontologies and the elements.js configuration file.");
                             }
 
                             cb(null);
@@ -1073,7 +1080,7 @@ Descriptor.mostUsedPublicDescriptors = function (maxResults, callback, allowedOn
 
                     if (result.overall_use_count <= 0)
                     {
-                        console.error("Descriptor " + suggestion.uri + " recommended for overall use with invalid number of usages : " + result.recent_use_count);
+                        Logger.log("error", "Descriptor " + suggestion.uri + " recommended for overall use with invalid number of usages : " + result.recent_use_count);
                     }
 
                     // set recommendation type
@@ -1102,7 +1109,7 @@ Descriptor.mostUsedPublicDescriptors = function (maxResults, callback, allowedOn
             else
             {
                 const util = require("util");
-                console.error("Error fetching most used public descriptors: " + descriptors);
+                Logger.log("error", "Error fetching most used public descriptors: " + descriptors);
                 return callback(1, descriptors);
             }
         });
@@ -1143,10 +1150,13 @@ Descriptor.findByLabelOrComment = function (filterValue, maxResults, callback, a
         "   ?uri rdfs:comment ?comment . \n" +
         "   ?uri rdfs:label ?label . \n" +
         "   FILTER NOT EXISTS { ?uri rdf:type owl:Class } \n" + // eliminate classes, as all descriptors are properties
+        "   FILTER EXISTS { ?uri rdfs:comment ?comment } \n" +
+        "   FILTER EXISTS { ?uri rdfs:label ?label } \n" +
         "   FILTER (regex(?label, \"" + filterValue + "\", \"i\") || regex(?comment, \"" + filterValue + "\", \"i\" )). \n" +
         "   FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
         "   " + filterString +
         " } \n" +
+        "ORDER BY DESC(regex(?label, \"^" + filterValue + "$\", \"i\")) \n" +
         " LIMIT  " + maxResults;
 
     db.connection.executeViaJDBC(
@@ -1177,7 +1187,7 @@ Descriptor.findByLabelOrComment = function (filterValue, maxResults, callback, a
             else
             {
                 const util = require("util");
-                console.error("Error fetching descriptors by label or comment ontology. Filter value: " + filterValue + ". error reported: " + descriptors);
+                Logger.log("error", "Error fetching descriptors by label or comment ontology. Filter value: " + filterValue + ". error reported: " + descriptors);
                 return callback(1, descriptors);
             }
         });
@@ -1205,7 +1215,7 @@ Descriptor.validateDescriptorParametrization = function (callback)
                             {
                                 if (Config.debug.descriptors.log_missing_unknown_descriptors)
                                 {
-                                    console.error("Descriptor " + JSON.stringify(descriptor) + " has an unparametrized namespace " + descriptor.prefix + " . Check your elements.js file and ontology.js file");
+                                    Logger.log("error", "Descriptor " + JSON.stringify(descriptor) + " has an unparametrized namespace " + descriptor.prefix + " . Check your elements.js file and ontology.js file");
                                 }
 
                                 error = 1;
@@ -1214,7 +1224,7 @@ Descriptor.validateDescriptorParametrization = function (callback)
                             {
                                 if (Config.debug.descriptors.log_missing_unknown_descriptors)
                                 {
-                                    console.error("Descriptor " + descriptor.prefixedForm + " is not present in the elements.js file!");
+                                    Logger.log("error", "Descriptor " + descriptor.prefixedForm + " is not present in the elements.js file!");
                                 }
 
                                 error = 1;
@@ -1223,7 +1233,7 @@ Descriptor.validateDescriptorParametrization = function (callback)
                             {
                                 if (Config.debug.descriptors.log_missing_unknown_descriptors)
                                 {
-                                    console.error("Descriptor " + descriptor.prefixedForm + " is present in the elements.js file, but has no control type associated! Correct the error by setting the appropriate control type.");
+                                    Logger.log("error", "Descriptor " + descriptor.prefixedForm + " is present in the elements.js file, but has no control type associated! Correct the error by setting the appropriate control type.");
                                 }
 
                                 error = 1;
@@ -1231,14 +1241,22 @@ Descriptor.validateDescriptorParametrization = function (callback)
                         }
                         catch (e)
                         {
-                            console.error(e.stack);
+                            if (!isNull(e.stack))
+                            {
+                                Logger.log("error", e.stack);
+                            }
+                            else
+                            {
+                                Logger.log("error", JSON.stringify(e));
+                            }
+
                             return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }
 
                     if (error && Config.debug.descriptors.log_missing_unknown_descriptors)
                     {
-                        console.error("[WARNING] There are unparametrized descriptors in ontology " + ontology);
+                        Logger.log("error", "[WARNING] There are unparametrized descriptors in ontology " + ontology);
                     }
 
                     return callback(null);

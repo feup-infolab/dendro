@@ -1,11 +1,10 @@
-const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const RedisCache = require(Pathfinder.absPathInSrcFolder("/kb/cache/caches/redis.js")).RedisCache;
 const MongoDBCache = require(Pathfinder.absPathInSrcFolder("/kb/cache/caches/mongodb.js")).MongoDBCache;
-const colors = require("colors");
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const async = require("async");
 
 const Cache = function ()
@@ -15,7 +14,6 @@ const Cache = function ()
 
 Cache.initConnections = function (callback, deleteAllCachedRecords)
 {
-    const self = this;
     const _ = require("underscore");
 
     let keys = _.filter(Object.keys(Config.db), function (key)
@@ -54,7 +52,7 @@ Cache.initConnections = function (callback, deleteAllCachedRecords)
                                     }
                                     else
                                     {
-                                        console.log("[OK] Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " + mongoDBConnection.host + ":" + mongoDBConnection.port);
+                                        Logger.log_boot_message("Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " + mongoDBConnection.host + ":" + mongoDBConnection.port);
 
                                         if (mongoCacheConfig.clear_on_startup)
                                         {
@@ -97,13 +95,13 @@ Cache.initConnections = function (callback, deleteAllCachedRecords)
                                     }
                                     else
                                     {
-                                        console.log("[OK] Connected to Redis cache service with ID : " + newRedisConnection.id + " running on " + newRedisConnection.host + ":" + newRedisConnection.port);
+                                        Logger.log("info", "Connected to Redis cache service with ID : " + newRedisConnection.id + " running on " + newRedisConnection.host + ":" + newRedisConnection.port);
 
                                         newRedisCacheConnection.deleteAll(function (err, result)
                                         {
                                             if (isNull(err))
                                             {
-                                                console.log("[INFO] Deleted all cache records on Redis instance " + newRedisConnection.id);
+                                                Logger.log("info", "Deleted all cache records on Redis instance " + newRedisConnection.id);
                                                 Cache.caches[cacheId] = newRedisConnection;
                                                 Cache.cachesByGraphUri[graphUri] = newRedisConnection;
                                                 return callback(null, newRedisConnection);
@@ -145,7 +143,7 @@ Cache.initConnections = function (callback, deleteAllCachedRecords)
         {
             if (isNull(err))
             {
-                console.log("[INFO] All Cache instances are up and running!");
+                Logger.log_boot_message("All Cache instances are up and running!");
                 return callback(null);
             }
 
@@ -164,7 +162,7 @@ Cache.closeConnections = function (cb)
         {
             if (typeof self.caches[cacheKey].getHitRatio === "function")
             {
-                console.log("Cache " + self.caches[cacheKey].id + " HIT RATIO: " + self.caches[cacheKey].getHitRatio());
+                Logger.log("Cache " + self.caches[cacheKey].id + " HIT RATIO: " + self.caches[cacheKey].getHitRatio());
             }
 
             self.caches[cacheKey].close(function (err, result)

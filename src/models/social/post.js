@@ -11,6 +11,7 @@ const Comment = require(Pathfinder.absPathInSrcFolder("/models/social/comment.js
 const uuid = require("uuid");
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 
@@ -55,7 +56,7 @@ Post.prototype.getComments = function (cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: self.uri
             }
         ]),
@@ -102,7 +103,7 @@ Post.prototype.getNumLikes = function (cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: self.uri
             }
         ]),
@@ -144,8 +145,8 @@ Post.prototype.getLikes = function (cb)
         }
         else
         {
-            console.error("Error getting likesInfo from a post");
-            console.error(err);
+            Logger.log("error", "Error getting likesInfo from a post");
+            Logger.log("error", err);
             cb(true, "Error getting likesInfo from a post");
         }
     });
@@ -170,7 +171,7 @@ Post.prototype.getShares = function (cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: self.uri
             }
         ]),

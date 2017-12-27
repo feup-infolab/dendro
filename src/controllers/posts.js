@@ -10,6 +10,7 @@ const Notification = require("../models/notifications/notification.js").Notifica
 const Comment = require("../models/social/comment.js").Comment;
 const Share = require("../models/social/share.js").Share;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Project = require("../models/project.js").Project;
 const DbConnection = require("../kb/db.js").DbConnection;
 const MetadataChangePost = require("../models/social/metadataChangePost").MetadataChangePost;
@@ -111,8 +112,8 @@ exports.getUserPostsUris = function (userUri, currentPage, callback)
                     }
                     else
                     {
-                        console.error("Error getting a user post");
-                        console.error(err);
+                        Logger.log("error", "Error getting a user post");
+                        Logger.log("error", err);
                         callback(err, results);
                     }
                 }, index, maxResults);
@@ -120,8 +121,8 @@ exports.getUserPostsUris = function (userUri, currentPage, callback)
         }
         else
         {
-            console.error("Error finding user projects");
-            console.error(projects);
+            Logger.log("error", "Error finding user projects");
+            Logger.log("error", projects);
             callback(err, projects);
         }
     });
@@ -145,7 +146,7 @@ const getNumLikesForAPost = function (postID, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             }
         ]),
@@ -237,11 +238,11 @@ const userLikedAPost = function (postID, userUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.userWhoLiked.type,
                 value: userUri
             }
         ]),
@@ -285,11 +286,11 @@ const removeOrAddLike = function (postID, userUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.userWhoLiked.type,
                 value: userUri
             }
         ]),
@@ -383,7 +384,7 @@ const getCommentsForAPost = function (postID, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             }
         ]),
@@ -534,8 +535,8 @@ exports.getPosts_controller = function (req, res)
                                         }
                                         else
                                         {
-                                            console.error("Error getting a metadataChangePost");
-                                            console.error(err);
+                                            Logger.log("error", "Error getting a metadataChangePost");
+                                            Logger.log("error", err);
                                             callback(err);
                                         }
                                     }, null, db_social.graphUri, false, null, null);
@@ -554,8 +555,8 @@ exports.getPosts_controller = function (req, res)
                                         }
                                         else
                                         {
-                                            console.error("Error getting a File System Post");
-                                            console.error(err);
+                                            Logger.log("error", "Error getting a File System Post");
+                                            Logger.log("error", err);
                                             callback(err);
                                         }
                                     }, null, db_social.graphUri, false, null, null);
@@ -571,8 +572,8 @@ exports.getPosts_controller = function (req, res)
                                             {
                                                 if (err || isNull(originalPostInfo))
                                                 {
-                                                    console.error("Error getting the original shared post");
-                                                    console.error(err);
+                                                    Logger.log("error", "Error getting the original shared post");
+                                                    Logger.log("error", err);
                                                     callback(err);
                                                 }
                                                 else
@@ -584,8 +585,8 @@ exports.getPosts_controller = function (req, res)
                                         }
                                         else
                                         {
-                                            console.error("Error getting a share Post");
-                                            console.error(err);
+                                            Logger.log("error", "Error getting a share Post");
+                                            Logger.log("error", err);
                                             callback(err);
                                         }
                                     }, null, db_social.graphUri, false, null, null);
@@ -685,7 +686,7 @@ const getSharesForAPost = function (postID, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: postID
             }
         ]),
@@ -748,8 +749,8 @@ exports.numPostsDatabase = function (req, res)
                     }
                     else
                     {
-                        console.error("Error iterating over projects URIs");
-                        console.log(err);
+                        Logger.log("error", "Error iterating over projects URIs");
+                        Logger.log(err);
                         res.status(500).json({
                             result: "Error",
                             message: "Error counting posts. " + JSON.stringify(err)
@@ -873,7 +874,7 @@ exports.new = function (req, res)
                                         else
                                         {
                                             let errorMsg = "[Error] When saving a new manual post" + JSON.stringify(result);
-                                            console.error(errorMsg);
+                                            Logger.log("error", errorMsg);
                                             res.status(500).json({
                                                 result: "Error",
                                                 message: errorMsg
@@ -884,7 +885,7 @@ exports.new = function (req, res)
                                 else
                                 {
                                     let errorMsg = "[Error] When creating a new manual post" + JSON.stringify(manualPost);
-                                    console.error(errorMsg);
+                                    Logger.log("error", errorMsg);
                                     res.status(500).json({
                                         result: "Error",
                                         message: errorMsg
@@ -915,7 +916,7 @@ exports.new = function (req, res)
             else
             {
                 let errorMsg = "[Error]: This project does not exist: " + JSON.stringify(project);
-                console.error(errorMsg);
+                Logger.log("error", errorMsg);
                 res.status(404).json({
                     result: "Error",
                     message: errorMsg
@@ -926,7 +927,7 @@ exports.new = function (req, res)
     else
     {
         let errorMsg = "Error saving post. The request body is missing a parameter(REQUIRED 'newPostContent'; 'newPostTitle', 'newPostProjectUri')";
-        console.error(errorMsg);
+        Logger.log("error", errorMsg);
         res.status(400).json({
             result: "Error",
             message: errorMsg
@@ -1090,8 +1091,8 @@ exports.share = function (req, res)
                                 }
                                 else
                                 {
-                                    console.error("Error share a post");
-                                    console.error(err);
+                                    Logger.log("error", "Error share a post");
+                                    Logger.log("error", err);
                                     res.status(500).json({
                                         result: "Error",
                                         message: "Error sharing a post. " + JSON.stringify(resultShare)
@@ -1673,8 +1674,8 @@ exports.post = function (req, res)
                                 }
                                 else
                                 {
-                                    console.error("Error getting a metadataChangePost");
-                                    console.error(err);
+                                    Logger.log("error", "Error getting a metadataChangePost");
+                                    Logger.log("error", err);
                                     callback(err);
                                 }
                             }, null, db_social.graphUri, false, null, null);
@@ -1693,8 +1694,8 @@ exports.post = function (req, res)
                                 }
                                 else
                                 {
-                                    console.error("Error getting a File System Post");
-                                    console.error(err);
+                                    Logger.log("error", "Error getting a File System Post");
+                                    Logger.log("error", err);
                                     callback(err);
                                 }
                             }, null, db_social.graphUri, false, null, null);
@@ -1796,8 +1797,8 @@ exports.getShare = function (req, res)
                                         }
                                         else
                                         {
-                                            console.error("Error getting likesInfo from a post");
-                                            console.error(err);
+                                            Logger.log("error", "Error getting likesInfo from a post");
+                                            Logger.log("error", err);
                                             callback(true, "Error getting likesInfo from a post");
                                         }
                                     });
@@ -1805,8 +1806,8 @@ exports.getShare = function (req, res)
                                 else
                                 {
                                     const errorMsg = "Invalid post uri";
-                                    console.error(err);
-                                    console.error(errorMsg);
+                                    Logger.log("error", err);
+                                    Logger.log("error", errorMsg);
                                 }
                             }, null, db_social.graphUri, null);
                         };

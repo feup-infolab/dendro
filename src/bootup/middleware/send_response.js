@@ -1,6 +1,7 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
@@ -38,7 +39,7 @@ const sendAnyResponse = function (data, options, req, res, next)
             result = "invalid_request";
             break;
         default:
-            console.error("Unknown status code : " + options.code);
+            Logger.log("error", "Unknown status code : " + options.code);
             result = "other";
             break;
         }

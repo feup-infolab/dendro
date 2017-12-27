@@ -71,11 +71,25 @@ angular.module("dendroApp.controllers")
 
         $scope.valid_date = function (descriptor)
         {
-            if (descriptor.value != null)
+            if (descriptor.value !== null && descriptor.value instanceof Object)
             {
-                return windowService.valid_date(descriptor.value);
+                var numberOfDates = Object.keys(descriptor.value).length;
+                for (var i = 0; i !== numberOfDates; i++)
+                {
+                    var result = windowService.valid_date(descriptor.value[i]);
+                    if (result === false)
+                    {
+                        return false;
+                    }
+                }
+                return true;
             }
             return false;
+        };
+
+        $scope.save_to_local_storage = function (key, value, namespace)
+        {
+            storageService.save_to_local_storage(key, value, namespace);
         };
 
         $scope.set_from_local_storage_and_then_from_value = function (key, value, targetObject, namespace)
@@ -130,18 +144,43 @@ angular.module("dendroApp.controllers")
                 }
                 else
                 {
-                    if (namespace != null)
+                    if (targetObject != null)
                     {
-                        if ($scope[namespace] == null)
+                        if (namespace != null)
                         {
-                            $scope[namespace] = {};
+                            if (targetObject[namespace] != null && targetObject[namespace][key] == null)
+                            {
+                                targetObject[namespace][key] = value;
+                            }
+                            else if (targetObject[namespace] == null)
+                            {
+                                targetObject[namespace] = {};
+                                targetObject[namespace][key] = value;
+                            }
                         }
-
-                        $scope[namespace][key] = value;
+                        else
+                        {
+                            if (targetObject[key] == null)
+                            {
+                                targetObject[key] = value;
+                            }
+                        }
                     }
                     else
                     {
-                        $scope[key] = value;
+                        if (namespace != null)
+                        {
+                            if ($scope[namespace] == null)
+                            {
+                                $scope[namespace] = {};
+                            }
+
+                            $scope[namespace][key] = value;
+                        }
+                        else
+                        {
+                            $scope[key] = value;
+                        }
                     }
                 }
             }

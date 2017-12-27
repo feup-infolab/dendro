@@ -28,7 +28,7 @@ let app;
 
 describe("Metadata Only Project delete", function (done)
 {
-    this.timeout(2 * Config.testsTimeOut);
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
         createFilesUnit.setup(function (err, results)
@@ -44,7 +44,6 @@ describe("Metadata Only Project delete", function (done)
     {
         it("Should give an error if an invalid project is specified", function (done)
         {
-            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 projectUtils.deleteProject(false, agent, "invalidProjectHandle", function (err, res)
@@ -59,7 +58,6 @@ describe("Metadata Only Project delete", function (done)
 
         it("Should give an error if the request for this route is of type JSON", function (done)
         {
-            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 projectUtils.deleteProject(true, agent, metadataOnlyProject.handle, function (err, res)
@@ -73,7 +71,6 @@ describe("Metadata Only Project delete", function (done)
 
         it("Should give an error when the user is unauthenticated", function (done)
         {
-            this.timeout(Config.testsTimeout);
             projectUtils.deleteProject(false, agent, metadataOnlyProject.handle, function (err, res)
             {
                 res.statusCode.should.equal(401);
@@ -83,7 +80,6 @@ describe("Metadata Only Project delete", function (done)
 
         it("Should give an error when the user is logged in as demouser3 (not a collaborator nor creator in a project by demouser1)", function (done)
         {
-            this.timeout(Config.testsTimeout);
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
                 projectUtils.deleteProject(false, agent, metadataOnlyProject.handle, function (err, res)
@@ -99,8 +95,6 @@ describe("Metadata Only Project delete", function (done)
     {
         it("Should delete the project if the user is logged in as demouser1 (creator of the project)", function (done)
         {
-            this.timeout(Config.testsTimeout);
-
             const fileCountsBefore = {};
             const tripleCountsBefore = {};
             let deletedProjectUris = {};

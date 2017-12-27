@@ -1,10 +1,13 @@
 const path = require("path");
 const _ = require("underscore");
+const async = require("async");
+const validUrl = require("valid-url");
 const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-function Elements ()
-{}
+function Elements() {
+}
 
 /** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
 Elements.access_types = {
@@ -37,6 +40,62 @@ Elements.types.stringNoEscape = 10;
 
 Elements.ontologies = {};
 
+Elements.checkIfValidPrefixedResource = function (candidatePrefixedResource) {
+    return RegExp("^[a-zA-Z0-9]+:[a-zA-Z0-9]+$").exec(candidatePrefixedResource);
+};
+
+Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor) {
+    let errorMessagesForTypes = {};
+    const msgStart = "Error: The value type for the descriptor " + currentDescriptor.prefix + ":" + "(" + currentDescriptor.label + ")" + " should be ";
+    errorMessagesForTypes[Elements.types.resourceNoEscape] = msgStart + "an 'URI'";
+    errorMessagesForTypes[Elements.types.resource] = msgStart + "an 'URI'";
+    errorMessagesForTypes[Elements.types.property] = msgStart + "an 'URI'";
+    errorMessagesForTypes[Elements.types.string] = msgStart + "a 'String'";
+    errorMessagesForTypes[Elements.types.int] = msgStart + "an 'Integer'";
+    errorMessagesForTypes[Elements.types.double] = msgStart + "a 'Double'";
+    errorMessagesForTypes[Elements.types.boolean] = msgStart + "a 'Boolean'";
+    errorMessagesForTypes[Elements.types.prefixedResource] = msgStart + "a valid prefixed resource (ex: rdf:type)";
+    errorMessagesForTypes[Elements.types.date] = msgStart + "a valid date";
+    errorMessagesForTypes[Elements.types.long_string] = msgStart + "a 'String'";
+    errorMessagesForTypes[Elements.types.stringNoEscape] = msgStart + "a 'String'";
+
+    return errorMessagesForTypes[currentDescriptor.type];
+};
+
+Elements.validateDescriptorValueTypes = function (currentDescriptor) {
+    const validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue) {
+        let typesValidators = {};
+        typesValidators[Elements.types.resourceNoEscape] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+        typesValidators[Elements.types.resource] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+        typesValidators[Elements.types.property] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+        typesValidators[Elements.types.string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+        typesValidators[Elements.types.int] = Number.isInteger(descriptorValue);
+        typesValidators[Elements.types.double] = !isNaN(descriptorValue);
+        typesValidators[Elements.types.boolean] = (descriptorValue === "true" || descriptorValue === "false" || descriptorValue === true || descriptorValue === false);
+        typesValidators[Elements.types.prefixedResource] = Elements.checkIfValidPrefixedResource(descriptorValue);
+        typesValidators[Elements.types.date] = !isNaN(Date.parse(descriptorValue));
+        typesValidators[Elements.types.long_string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+        typesValidators[Elements.types.stringNoEscape] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+
+        return typesValidators[descriptorType];
+    };
+
+    // When there are various instances of a descriptor, for example: two dcterms:contributor
+    if (currentDescriptor.value instanceof Array) {
+        for (let i = 0; i !== currentDescriptor.value.length; i++) {
+            let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
+            if (isNull(resultOfValidation) || resultOfValidation === false) {
+                return false;
+            }
+        }
+    }
+    else {
+        // When there is only one instance of a descriptor (for example only one dcterms:abstract)
+        return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
+    }
+    return true;
+};
+
 /**
  * Elements of the schema.org Ontology
  */
@@ -47,35 +106,42 @@ Elements.ontologies.schema = {
             type: Elements.types.string,
             control: Controls.input_box,
             locked: true,
-            api_accessible: true
+            api_readable: true
         },
     provider:
         {
             type: Elements.types.string,
             control: Controls.input_box,
             locked: true,
-            api_accessible: true
+            api_readable: true
         },
     telephone:
         {
             type: Elements.types.string,
             control: Controls.input_box,
             locked: true,
-            api_accessible: true
+            api_readable: true
         },
     address:
         {
             type: Elements.types.string,
             control: Controls.input_box,
             locked: true,
-            api_accessible: true
+            api_readable: true
         },
     license:
         {
             type: Elements.types.string,
             control: Controls.input_box,
             locked: true,
-            api_accessible: true
+            api_readable: true
+        },
+    email:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box,
+            locked: true,
+            api_readable: true
         }
 };
 
@@ -113,8 +179,8 @@ Elements.ontologies.dcterms =
             },
         alternative:
             {
-                type: Elements.types.resource,
-                control: Controls.url_box
+                type: Elements.types.string,
+                control: Controls.input_box
             },
         audience:
             {
@@ -138,7 +204,7 @@ Elements.ontologies.dcterms =
             },
         contributor:
             {
-                type: Elements.types.resource,
+                type: Elements.types.string,
                 control: Controls.url_box,
                 locked_for_projects: true
             },
@@ -154,7 +220,7 @@ Elements.ontologies.dcterms =
             },
         creator:
             {
-                type: Elements.types.resource,
+                type: Elements.types.string,
                 control: Controls.url_box,
                 locked_for_projects: true
             },
@@ -293,6 +359,11 @@ Elements.ontologies.dcterms =
                 type: Elements.types.string,
                 control: Controls.input_box
             },
+        SizeOrDuration:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
         tableOfContents:
             {
                 type: Elements.types.string,
@@ -311,11 +382,6 @@ Elements.ontologies.dcterms =
         title:
             {
                 type: Elements.types.string,
-                control: Controls.input_box
-            },
-        socialUpdatedAt:
-            {
-                type: Elements.types.date,
                 control: Controls.input_box
             },
         hasVersion:
@@ -1167,7 +1233,9 @@ Elements.ontologies.ddr = {
         {
             type: Elements.types.string,
             locked: true,
-            control: Controls.input_box
+            private: true,
+            control: Controls.input_box,
+            api_readable: true
         },
     pageNumber:
         {
@@ -1350,7 +1418,8 @@ Elements.ontologies.nie = {
             type: Elements.types.resource,
             control: Controls.url_box,
             backuppable: true,
-            locked: true
+            locked: true,
+            api_readable: true
         },
     hasPart:
         {
@@ -1377,7 +1446,8 @@ Elements.ontologies.nie = {
             control: Controls.url_box,
             type: Elements.types.resource,
             backuppable: true,
-            locked: true
+            locked: true,
+            api_readable: true
         },
     isPartOf:
         {
@@ -2030,6 +2100,11 @@ Elements.ontologies.bdv = {
             type: Elements.types.string,
             control: Controls.input_box
         },
+    conditionApplyingToAccessAndUse:
+        {
+            type: Elements.types.resource,
+            control: Controls.input_box
+        },
     conformityDate:
         {
             type: Elements.types.date,
@@ -2121,6 +2196,11 @@ Elements.ontologies.bdv = {
             control: Controls.input_box
         },
     linkage:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    limitationOnPublicAccess:
         {
             type: Elements.types.string,
             control: Controls.input_box
@@ -2513,6 +2593,11 @@ Elements.ontologies.hdg = {
             control: Controls.input_box
         },
     catalyst:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    Exemplo_data:
         {
             type: Elements.types.string,
             control: Controls.input_box
@@ -2953,20 +3038,199 @@ Elements.ontologies.po =
             }
     };
 
-Elements.setAllElements = function (loadedElements)
-{
-    for (let i = 0; i < loadedElements.length; i++)
+/**
+ * Elements of the Discovery
+ */
+Elements.ontologies.disco =
     {
+        computationBase:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        purpose:
+            {
+                type: Elements.types.string,
+                control: Controls.markdown_box
+            },
+        caseQuantity:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        startDate:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        endDate:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            }
+    };
+
+/**
+ * Elements of the ddiup
+ */
+Elements.ontologies.ddiup = {
+    data_collection:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    scale_reference:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    scale_domain:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    scale_dimension:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    dependent_dimension:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    independent_dimension:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    sample_size:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    deviation_from_sample_design:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    sampling_procedure:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    time_method:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    methodology:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    analysis_unit:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    based_on:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    collection_mode:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    concept:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    data_file:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    instrument:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    kind_of_data:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    product:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    question:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    representation:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    response_domain:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    statistics_category:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    statistics_data_file:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    statistics_variable:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    summary_statistics_type:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    universe:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    variable:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    weighted_by:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        }
+};
+
+Elements.setAllElements = function (loadedElements) {
+    for (let i = 0; i < loadedElements.length; i++) {
         let loadedElement = loadedElements[i];
         let prefix = loadedElement.prefix;
         let shortName = loadedElement.shortName;
 
         let existingElement = Elements.ontologies[prefix][shortName];
 
-        for (let k in loadedElement)
-        {
-            if (existingElement[k] === null || typeof existingElement[k] === "undefined")
-            {
+        for (let k in loadedElement) {
+            if (existingElement[k] === null || typeof existingElement[k] === "undefined") {
                 Elements.ontologies[prefix][shortName][k] = loadedElement[k];
             }
         }

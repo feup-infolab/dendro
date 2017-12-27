@@ -10,6 +10,7 @@ var InformationElement = require(Pathfinder.absPathInSrcFolder("/models/director
 var Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var uuid = require("uuid");
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
@@ -80,7 +81,7 @@ FileSystemPost.buildFromRmdirOperation = function (userUri, project, folder, rea
         else
         {
             const msg = "Error building a FileSystemPost from an rmdir operation: " + JSON.stringify(creator);
-            console.error(msg);
+            Logger.log("error", msg);
             callback(err, creator);
         }
     });
@@ -111,7 +112,7 @@ FileSystemPost.buildFromMkdirOperation = function (userUri, project, folder, cal
         else
         {
             const msg = "Error building a FileSystemPost from an mkdir operation: " + JSON.stringify(creator);
-            console.error(msg);
+            Logger.log("error", msg);
             callback(err, creator);
         }
     });
@@ -142,7 +143,7 @@ FileSystemPost.buildFromUpload = function (userUri, project, file, callback)
         else
         {
             const msg = "Error building a FileSystemPost from an upload operation: " + JSON.stringify(creator);
-            console.error(msg);
+            Logger.log("error", msg);
             callback(err, creator);
         }
     });
@@ -174,7 +175,7 @@ FileSystemPost.buildFromDeleteFile = function (userUri, projectUri, file, callba
         else
         {
             const msg = "Error building a FileSystemPost from a delete file operation: " + JSON.stringify(creator);
-            console.error(msg);
+            Logger.log("error", msg);
             callback(err, creator);
         }
     });
@@ -199,8 +200,8 @@ FileSystemPost.prototype.getResourceInfo = function (callback)
         }
         else
         {
-            console.error("Error getting resource info from a FileSystemPost");
-            console.error(resource);
+            Logger.log("warn", "Error getting resource info from a FileSystemPost");
+            Logger.log("warn", resource);
             callback(err, resource);
         }
     }, null, db.graphUri, false, null, null);

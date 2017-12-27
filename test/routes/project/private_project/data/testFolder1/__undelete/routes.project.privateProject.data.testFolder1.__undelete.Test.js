@@ -26,9 +26,9 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Private project testFolder1 level undelete tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         deleteFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);

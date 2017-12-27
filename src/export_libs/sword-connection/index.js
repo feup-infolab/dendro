@@ -3,6 +3,7 @@ const lib = require("./lib/sword-connection");
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
@@ -47,13 +48,13 @@ exports.sendFiles = function (options, callback)
     {
         var message = "[sword-connection] Wrong arguments for function sendFile";
         return callback(true, message, null);
-        console.error(message);
+        Logger.log("error", message);
     }
     if (options.files.length === 0)
     {
         var message = "[sword-connection] Is necessary to indicate files to send to repository";
         return callback(true, message, null);
-        console.error(message);
+        Logger.log("error", message);
     }
 
     const sword = lib.SwordConnection(options.user, options.password, options.serviceDocRef);
@@ -80,12 +81,12 @@ exports.sendFiles = function (options, callback)
                     {
                         message = "[sword-connection] Error sending file to repository.";
                     }
-                    console.error(message);
+                    Logger.log("error", message);
                     cb(err);
                 }
                 else
                 {
-                    console.log(message);
+                    Logger.log(message);
                     cb(null);// response variable has list of available collections
                 }
             });

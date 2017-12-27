@@ -2,6 +2,7 @@ const util = require("util");
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const colors = require("colors");
@@ -122,7 +123,7 @@ MongoDBCache.prototype.put = function (resourceUri, object, callback)
                                         {
                                             if (Config.debug.active && Config.debug.cache.log_cache_writes)
                                             {
-                                                console.log("[DEBUG] Saved new cache record for " + resourceUri);
+                                                Logger.log("debug", "Saved new cache record for " + resourceUri);
                                             }
 
                                             return callback(null);
@@ -135,7 +136,7 @@ MongoDBCache.prototype.put = function (resourceUri, object, callback)
                             {
                                 if (Config.debug.active && Config.debug.cache.log_cache_writes)
                                 {
-                                    console.log("[DEBUG] Updated cache record for " + resourceUri);
+                                    Logger.log("debug", "Updated cache record for " + resourceUri);
                                 }
 
                                 return callback(null);
@@ -179,8 +180,8 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
                 {
                     if (Config.debug.active && Config.debug.database.log_all_cache_queries)
                     {
-                        console.log("Cache Query:\n");
-                        console.log(JSON.stringify(query, null, 2));
+                        Logger.log("Cache Query:\n");
+                        Logger.log(JSON.stringify(query, null, 2));
                     }
 
                     if (isNull(err))
@@ -189,7 +190,7 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
                         {
                             if (Config.cache.active && Config.debug.cache.log_cache_hits)
                             {
-                                console.log("Cache MISS on " + JSON.stringify(query));
+                                Logger.log("Cache MISS on " + JSON.stringify(query));
                             }
 
                             self.misses++;
@@ -197,15 +198,15 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
                         }
                         if (Config.cache.active && Config.debug.cache.log_cache_hits)
                         {
-                            console.log("Cache HIT on " + JSON.stringify(query) + "\n");
-                            console.log("Cached : \n " + JSON.stringify(result, null, 4));
+                            Logger.log("Cache HIT on " + JSON.stringify(query) + "\n");
+                            Logger.log("Cached : \n " + JSON.stringify(result, null, 4));
                         }
 
                         self.hits++;
                         return callback(null, result);
                     }
-                    console.error("Error running query: " + JSON.stringify(query, null, 4));
-                    console.error(err.stack);
+                    Logger.log("error", "Error running query: " + JSON.stringify(query, null, 4));
+                    Logger.log("error", err.stack);
                     return callback(err, "Unable to execute query " + JSON.stringify(query) + " from mongodb cache.");
 
                     cursor.close();
@@ -289,14 +290,14 @@ MongoDBCache.prototype.delete = function (resourceUriOrArrayOfResourceUris, call
                         {
                             if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                             {
-                                console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                                Logger.log("debug", "Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
                             }
 
                             return callback(null, null);
                         }
 
                         const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from MongoDB cache " + JSON.stringify(self.id) + "\n" + err;
-                        console.log(msg);
+                        Logger.log(msg);
                         return callback(err, msg);
                     }
                 );
@@ -334,7 +335,7 @@ MongoDBCache.prototype.deleteByQuery = function (queryObject, callback)
                         {
                             if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                             {
-                                console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(queryObject));
+                                Logger.log("debug", "Deleted mongodb cache records for " + JSON.stringify(queryObject));
                             }
 
                             return callback(null, null);
@@ -344,8 +345,8 @@ MongoDBCache.prototype.deleteByQuery = function (queryObject, callback)
                         const msg = "Unable to delete resources via query from MongoDB cache\n";
                         if (err.message !== "server instance pool was destroyed")
                         {
-                            console.error(JSON.stringify(err, null, 4));
-                            console.error(JSON.stringify(queryObject, null, 4));
+                            Logger.log("error", JSON.stringify(err, null, 4));
+                            Logger.log("error", JSON.stringify(queryObject, null, 4));
                             return callback(err, msg);
                         }
 
@@ -432,13 +433,13 @@ MongoDBCache.prototype.deleteAll = function (callback)
                 {
                     if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                     {
-                        console.log("[DEBUG] Deleted ALL cache records");
+                        Logger.log("debug", "Deleted ALL cache records");
                     }
 
                     return callback(null);
                 }
                 const msg = "Unable to delete collection " + self.collection + " : " + JSON.stringify(err);
-                console.log(msg);
+                Logger.log(msg);
                 return callback(err, msg);
             });
         }

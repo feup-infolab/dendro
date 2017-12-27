@@ -19,22 +19,6 @@
                         <button id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-success': shared.multiple_selection_active}" class="btn btn-sm fa fa-check-square-o" ng-click="toggle_multiple_selection()" onmouseover="$(this).addClass('btn-primary');" onmouseout="$(this).removeClass('btn-primary');"></button>
                     </div>
                 </div>
-                <h4>Selection</h4>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <button ng-show="shared.multiple_selection_active && file_explorer_selected_something()" id="clear_selection_button" class="btn btn-sm fa fa-ban" ng-click="clear_selection_and_get_parent_metadata()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                        <button ng-disabled="!file_explorer_selected_something()"
-                                id="download_selection_button"
-                                class="btn btn-sm fa fa-download"
-                                ng-click="download_selected_items()"
-                                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                        <button ng-disabled="!file_explorer_selected_something()"
-                                id="backup_selection_button"
-                                class="btn btn-sm fa fa-archive"
-                                ng-click="backup_selected_items()"
-                                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                    </div>
-                </div>
 
                 <script type="text/javascript">
                     $('#download_folder_button').tooltip({title : "<h4>Download</h4>Download the current folder" , html: true});

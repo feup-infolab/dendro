@@ -31,7 +31,7 @@ const projectsData = createProjectsUnit.projectsData;
 
 describe("Import projects", function (done)
 {
-    this.timeout(5 * Config.testsTimeOut);
+    this.timeout(5 * Config.testsTimeout);
 
     before(function (done)
     {
@@ -75,7 +75,7 @@ describe("Import projects", function (done)
             projectUtils.importProjectHTMLPage(false, agent, function (err, res)
             {
                 res.statusCode.should.equal(401);
-                res.text.should.contain("<p>Please log into the system.</p>");
+                res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });

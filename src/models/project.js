@@ -11,6 +11,7 @@ const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConne
 const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -38,14 +39,17 @@ function Project (object)
         self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
     }
 
-    if (isNull(object.ddr.hasStorageLimit))
+    if (isNull(object.ddr != null))
     {
-        self.ddr.hasStorageLimit = Config.maxProjectSize;
-    }
+        if (object.ddr.hasStorageLimit)
+        {
+            self.ddr.hasStorageLimit = Config.maxProjectSize;
+        }
 
-    if (isNull(object.ddr.requiresVerifiedUploads))
-    {
-        self.ddr.requiresVerifiedUploads = false;
+        if (isNull(object.ddr.requiresVerifiedUploads))
+        {
+            self.ddr.requiresVerifiedUploads = false;
+        }
     }
 
     return self;
@@ -67,7 +71,7 @@ Project.prototype.backup = function (callback)
         {
             if (!isNull(self.ddr.rootFolder))
             {
-                console.log("Started backup of project " + self.uri);
+                Logger.log("Started backup of project " + self.uri);
                 Folder.findByUri(self.ddr.rootFolder, function (err, folder)
                 {
                     if (isNull(err) && folder instanceof Folder)
@@ -167,7 +171,7 @@ Project.allNonPrivate = function (currentUser, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.string,
+                type: Elements.ontologies.ddr.privacyStatus.type,
                 value: "private"
             }
         ],
@@ -208,7 +212,7 @@ Project.allNonPrivateUnlessTheyBelongToMe = function (currentUser, callback)
         "    UNION\n" +
         "    {\n" +
         "        ?uri rdf:type ddr:Project .\n" +
-        "        ?uri dcterms:contributor  [2]\n" +
+        "        ?uri dcterms:contributor  [3]\n" +
         "    }\n" +
         "}\n";
 
@@ -219,11 +223,15 @@ Project.allNonPrivateUnlessTheyBelongToMe = function (currentUser, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.string,
+                type: Elements.ontologies.ddr.privacyStatus.type,
                 value: "private"
             },
             {
-                type: Elements.types.resourceNoEscape,
+                type: Elements.ontologies.dcterms.creator.type,
+                value: currentUser.uri
+            },
+            {
+                type: Elements.ontologies.dcterms.contributor.type,
                 value: currentUser.uri
             }
         ],
@@ -271,7 +279,7 @@ Project.findByHandle = function (handle, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.string,
+                type: Elements.ontologies.ddr.handle.type,
                 value: handle
             }
         ],
@@ -284,7 +292,7 @@ Project.findByHandle = function (handle, callback)
                 {
                     if (project.length > 1)
                     {
-                        console.log("Duplicate projects found!! Project handle : " + handle);
+                        Logger.log("Duplicate projects found!! Project handle : " + handle);
                     }
                     else
                     {
@@ -393,7 +401,7 @@ Project.findByContributor = function (contributor, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.contributor.type,
                 value: contributor
             }
         ],
@@ -443,7 +451,7 @@ Project.findByCreator = function (creator, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.creator.type,
                 value: creator
             }
         ],
@@ -497,7 +505,7 @@ Project.findByCreatorOrContributor = function (creatorOrContributor, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.contributor.type,
                 value: creatorOrContributor
             }
         ],
@@ -549,10 +557,9 @@ Project.createAndInsertFromObject = function (object, callback)
                         title: object.ddr.handle,
                         isLogicalPartOf: newProject.uri
                     },
-                    ddr:
-          {
-              humanReadableURI: newProject.ddr.humanReadableURI + "/data"
-          }
+                    ddr: {
+                        humanReadableURI: newProject.ddr.humanReadableURI + "/data"
+                    }
                 });
 
                 rootFolder.save(function (err, result)
@@ -569,7 +576,7 @@ Project.createAndInsertFromObject = function (object, callback)
                     }
                     else
                     {
-                        console.error("There was an error saving the root folder of project " + newProject.ddr.humanReadableURI + ": " + JSON.stringify(result));
+                        Logger.log("error", "There was an error saving the root folder of project " + newProject.ddr.humanReadableURI + ": " + JSON.stringify(result));
                         return callback(err, result);
                     }
                 });
@@ -600,7 +607,7 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
         "   UNION \n" +
         "   { \n" +
         "       [1] rdf:type ddr:Project . \n" +
-        "       ?uri dcterms:contributor [2] \n" +
+        "       ?uri dcterms:contributor [3] \n" +
         "   } \n" +
         "} \n";
 
@@ -615,7 +622,11 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
                 value: self.uri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.creator.type,
+                value: userUri
+            },
+            {
+                type: Elements.ontologies.dcterms.contributor.type,
                 value: userUri
             }
         ],
@@ -624,7 +635,7 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
             if (!isNull(err))
             {
                 const errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
-                console.error(errorMsg);
+                Logger.log("error", errorMsg);
             }
 
             if (properties.length > 0)
@@ -680,8 +691,8 @@ Project.prototype.getFirstLevelDirectoryContents = function (callback)
 Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 {
     const self = this;
-    console.log("In getProjectWideFolderFileCreationEvents");
-    console.log("the projectUri is:");
+    Logger.log("In getProjectWideFolderFileCreationEvents");
+    Logger.log("the projectUri is:");
     // <http://127.0.0.1:3001/project/testproject3/data>
     // var projectData = projectUri + '/data'; //TODO this is probably wrong
     const projectData = self.uri + "/data"; // TODO this is probably wrong
@@ -717,23 +728,19 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             {
                 type: Elements.types.resourceNoEscape,
                 value: projectData
-            }/*,
-            {
-                type : Elements.types.date,
-                value: createdAfterDate
-            } */
-        ]), //, startingResultPosition, maxResults),
+            }
+        ]),
         function (err, itemsUri)
         {
             if (isNull(err))
             {
-                console.log("itemsUri: ", itemsUri);
+                Logger.log("itemsUri: ", itemsUri);
 
                 async.mapSeries(itemsUri, function (itemUri, cb1)
                 {
                     Resource.findByUri(itemUri.dataUri, function (error, item)
                     {
-                        console.log(item);
+                        Logger.log(item);
                         // item.get
                         // TODO get author
                     });
@@ -771,7 +778,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             else
             {
                 const msg = "Error fetching file/folder change data";
-                console.log(msg);
+                Logger.log(msg);
                 return callback(1, msg);
             }
         });
@@ -780,9 +787,9 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 Project.prototype.getRecentProjectWideChangesSocial = function (callback, startingResultPosition, maxResults, createdAfterDate)
 {
     const self = this;
-    console.log("createdAfterDate:", createdAfterDate);
-    console.log("startingResultPosition: ", startingResultPosition);
-    console.log("maxResults: ", maxResults);
+    Logger.log("createdAfterDate:", createdAfterDate);
+    Logger.log("startingResultPosition: ", startingResultPosition);
+    Logger.log("maxResults: ", maxResults);
 
     let query =
         "WITH [0] \n" +
@@ -956,13 +963,13 @@ Project.prototype.getStorageSize = function (callback, customBucket)
                     }
                     return callback(null, 0);
                 }
-                console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                 return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
             });
         }
         else
         {
-            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(collection));
+            Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(collection));
             return callback(1, "Error retrieving files collection : " + collection);
         }
     });
@@ -1088,7 +1095,7 @@ Project.prototype.getFoldersCount = function (callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.nie.isLogicalPartOf.type,
                 value: self.uri
             }
         ],
@@ -1131,7 +1138,7 @@ Project.prototype.getRevisionsCount = function (callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.nie.isLogicalPartOf.type,
                 value: self.uri
             }
         ],
@@ -1537,7 +1544,7 @@ Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
     });
 };
 
-Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, callback)
+Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, req, callback)
 {
     const path = require("path");
 
@@ -1547,7 +1554,8 @@ Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxSt
         {
             if (!isNaN(size))
             {
-                if (size < maxStorageSize)
+                // admin is god, can import as much data as (s)he wants
+                if (size < maxStorageSize || req.user.isAdmin)
                 {
                     File.unzip(absPathToZipFile, function (err, absPathOfRootFolder)
                     {
@@ -1645,7 +1653,7 @@ Project.prototype.restoreFromFolder = function (
                             {
                                 if (err)
                                 {
-                                    console.log("Error: " + err);
+                                    Logger.log("Error: " + err);
                                     return;
                                 }
 
@@ -1754,19 +1762,14 @@ Project.prototype.delete = function (callback)
     const deleteProjectTriples = function (callback)
     {
         const deleteQuery =
-            "WITH [0] \n" +
-            "DELETE \n" +
+            "DELETE FROM [0]\n" +
             "{\n" +
             "    ?resource ?p ?o \n" +
             "} \n" +
             "WHERE \n" +
             "{ \n" +
-            "   SELECT ?resource ?p ?o \n" +
-            "   WHERE \n" +
-            "   { \n" +
-            "    [1] nie:hasLogicalPart* ?resource .\n" +
-            "    ?resource ?p ?o \n" +
-            "   } \n" +
+            "    ?resource ?p ?o .\n" +
+            "    [1] nie:hasLogicalPart* ?resource\n" +
             "} \n";
 
         db.connection.executeViaJDBC(deleteQuery,

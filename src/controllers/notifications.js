@@ -9,6 +9,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Notification = require("../models/notifications/notification.js").Notification;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const DbConnection = require("../kb/db.js").DbConnection;
 
 const db = Config.getDBByID();
@@ -49,7 +50,7 @@ exports.get_unread_user_notifications = function (req, res)
                         value: db_notifications.graphUri
                     },
                     {
-                        type: Elements.types.resourceNoEscape,
+                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
                         value: userUri
                     }
                 ]),
@@ -126,7 +127,7 @@ exports.get_notification_info = function (req, res)
                         value: notificationUri
                     },
                     {
-                        type: Elements.types.resourceNoEscape,
+                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
                         value: userUri
                     }
                 ]),
@@ -211,7 +212,7 @@ exports.delete = function (req, res)
                         value: notificationUri
                     },
                     {
-                        type: Elements.types.resourceNoEscape,
+                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
                         value: userUri
                     }
                 ]),

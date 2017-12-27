@@ -4,6 +4,7 @@ const _ = require("underscore");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 function PluginManager ()
@@ -51,7 +52,7 @@ PluginManager.registerPlugins = function (app, callback)
                 let setupFileLocation = pluginAbsolutePath + "/integration/setup.js";
                 let PluginSetup = require(setupFileLocation).Setup;
 
-                console.log("[INFO] Registering routes for plugin " + PluginConfig.name);
+                Logger.log("info", "Registering routes for plugin " + PluginConfig.name);
                 app = PluginSetup.registerRoutes(app);
             }
         }

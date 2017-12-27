@@ -1,10 +1,3 @@
-<h1 class="page-header">
-    Editing ontologies
-</h1>
-
-<br/>
-<br/>
-
 <div class="panel panel-default" ng-repeat="ontology in ontologies">
     <div class="panel-heading">
         <h3>{{ontology.uri}}</h3>
@@ -16,7 +9,7 @@
         </div>
         <div class="form-group">
             <label for="ontology_research_domains_textbox">Research domains</label>
-            <tags-input id="ontology_research_domains_textbox" ng-model="ontology.domain" display-property="tag_face">
+            <tags-input id="ontology_research_domains_textbox" ng-model="ontology.ddr.hasResearchDomain" display-property="tag_face" keyProperty="uri">
                 <auto-complete source="get_research_domains_by_text_search($query)"></auto-complete>
             </tags-input>
 

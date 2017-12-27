@@ -4,6 +4,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
@@ -83,7 +84,7 @@ Interaction.all = function (callback, streaming, customGraphUri)
 
     if (isNull(streaming) || !streaming)
     {
-        var query =
+        let query =
             "SELECT * " +
             "FROM [0] " +
             "WHERE " +
@@ -152,7 +153,7 @@ Interaction.all = function (callback, streaming, customGraphUri)
 
                     async.mapLimit(pageNumbersArray, Config.recommendation.max_interaction_pushing_threads, function (pageNumber, cb)
                     {
-                        console.log("Sending page " + pageNumber + " of " + n_pages);
+                        Logger.log("Sending page " + pageNumber + " of " + n_pages);
 
                         const pageOffset = pageNumber * Config.streaming.db.page_size;
 
@@ -315,7 +316,7 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
           self.ddr.executedOver,
           self.ddr.originallyRecommendedFor,
           self.ddr.rankingPosition,
-          self.ddr.pageNumber,
+          (isNull(self.ddr.pageNumber) ? -1 : self.ddr.pageNumber),
           self.ddr.recommendationCallId
       ];
 
@@ -330,7 +331,7 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
 
         if (Config.debug.database.log_all_queries)
         {
-            console.log(insertNewInteractionQuery);
+            Logger.log(insertNewInteractionQuery);
         }
 
         mysql.pool.getConnection(function (err, connection)
@@ -350,15 +351,15 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
                         }
 
                         const msg = "Error saving interaction to MySQL database : " + err;
-                        console.error(msg);
+                        Logger.log("error", msg);
                         return callback(1, msg);
                     });
             }
             else
             {
                 const msg = "Unable to get MYSQL connection when registering new interaction";
-                console.error(msg);
-                console.error(err.stack);
+                Logger.log("error", msg);
+                Logger.log("error", err.stack);
                 return callback(1, msg);
             }
         });
@@ -406,8 +407,8 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
             else
             {
                 const msg = "Unable to get MYSQL connection when registering new interaction";
-                console.error(msg);
-                console.error(err.stack);
+                Logger.log("error", msg);
+                Logger.log("error", err.stack);
                 return callback(1, msg);
             }
         });

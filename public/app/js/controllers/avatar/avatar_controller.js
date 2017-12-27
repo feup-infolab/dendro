@@ -30,7 +30,7 @@ angular.module("dendroApp.controllers")
                 })
                 .catch(function (error)
                 {
-                    console.error("Error updating avatar " + JSON.stringify(error));
+                    console.log("error", "Error updating avatar " + JSON.stringify(error));
                 });
         };
 

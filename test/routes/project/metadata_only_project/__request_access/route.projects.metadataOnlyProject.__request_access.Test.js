@@ -27,9 +27,9 @@ const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFol
 
 describe("Request access to metadata only project", function (done)
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createProjectsUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -105,7 +105,7 @@ describe("Request access to metadata only project", function (done)
             projectUtils.requestAccessToProject(false, agent, metadataProject.handle, function (err, res)
             {
                 res.statusCode.should.equal(200);
-                res.text.should.contain("<p>Please log into the system.</p>");
+                res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });

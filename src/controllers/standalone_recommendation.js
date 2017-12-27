@@ -1,9 +1,12 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
@@ -97,7 +100,7 @@ exports.recommend_descriptors = function (req, res)
                                         }
                                         else
                                         {
-                                            console.log("Successfully recorded interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list in resource with uri " + req.params.requestedResourceUri);
+                                            Logger.log("Successfully recorded interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list in resource with uri " + req.params.requestedResourceUri);
                                         }
                                     });
                                 }
@@ -108,7 +111,7 @@ exports.recommend_descriptors = function (req, res)
 
             const allowedOntologies = getAllowedOntologies();
 
-            exports.shared.recommend_descriptors(req.params.requestedResourceUri, req.user.uri, req.query.page, allowedOntologies, req.index, function (err, descriptors)
+            exports.shared.recommend_descriptors(req.params.requestedResourceUri, req.user.uri, req.query.page, allowedOntologies, IndexConnection.getDefault(), function (err, descriptors)
             {
                 if (isNull(err))
                 {
@@ -228,7 +231,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     else
                     {
                         const error = "Error fetching user : " + user + " : " + err;
-                        console.error(error);
+                        Logger.log("error", error);
                         return callback(1, error);
                     }
                 });
@@ -252,7 +255,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     else
                     {
                         const error = "Error fetching user : " + user + " : " + err;
-                        console.error(error);
+                        Logger.log("error", error);
                         return callback(1, error);
                     }
                 });
@@ -276,7 +279,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     else
                     {
                         const error = "Error fetching user : " + user + " : " + err;
-                        console.error(error);
+                        Logger.log("error", error);
                         return callback(1, error);
                     }
                 });
@@ -304,14 +307,14 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                         else
                         {
                             const error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
-                            console.error(error);
+                            Logger.log("error", error);
                             return callback(1, error);
                         }
                     }
                     else
                     {
                         const error = "Error fetching project : " + project + " : " + err;
-                        console.error(error);
+                        Logger.log("error", error);
                         return callback(1, error);
                     }
                 });
@@ -335,14 +338,14 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                         else
                         {
                             const error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
-                            console.error(error);
+                            Logger.log("error", error);
                             return callback(1, error);
                         }
                     }
                     else
                     {
                         const error = "Error fetching project : " + project + " : " + err;
-                        console.error(error);
+                        Logger.log("error", error);
                         return callback(1, error);
                     }
                 });
@@ -386,7 +389,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     else
                     {
                         const error = "Error fetching similar resources : " + similarResources + " : " + err;
-                        console.error(error);
+                        Logger.log("error", error);
                         return callback(1, error);
                     }
                 });
@@ -409,7 +412,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     else
                     {
                         const error = "Error fetching user : " + user + " : " + err;
-                        console.error(error);
+                        Logger.log("error", error);
                         return callback(1, error);
                     }
                 });
@@ -432,7 +435,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     else
                     {
                         const error = "Error fetching user : " + user + " : " + err;
-                        console.error(error);
+                        Logger.log("error", error);
                         return callback(1, error);
                     }
                 });
@@ -577,7 +580,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                     }
                                     catch (e)
                                     {
-                                        console.error("Estourei onde devia");
+                                        Logger.log("error", "Estourei onde devia");
                                     }
 
                                     if (typeof result_rec_types === "undefined")
@@ -642,7 +645,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             {
                                 var descriptor = descriptors[i];
 
-                                // console.log("Ranking descriptor " + descriptor.prefixedForm);
+                                // Logger.log("Ranking descriptor " + descriptor.prefixedForm);
 
                                 let score = descriptor.score;
 
@@ -750,7 +753,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                     return callback(err, results);
                                 }
                                 const msg = "Error occurred when padding recommended descriptors list with random descriptors: " + err + ". Error reported: " + JSON.stringify(randomDescriptors);
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 return callback(err, msg);
                             });
                         };
@@ -827,7 +830,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                         }
 
                         const msg = "Error performing final ranking of descriptors. Error reported : " + err + ", Errors reported  " + JSON.stringify(error_messages);
-                        console.log(msg);
+                        Logger.log(msg);
                         return callback(err, msg);
                     }
                 });

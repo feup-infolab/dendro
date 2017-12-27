@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = Config.getDBByID();
@@ -28,7 +29,7 @@ function ExternalRepository (object)
         else
         {
             const error = "Unable to create an external repository resource without specifying its creator and its dcterms:title";
-            console.error(error);
+            Logger.log("error", error);
             return {error: error};
         }
     }
@@ -55,7 +56,7 @@ ExternalRepository.findByCreator = function (creatorUri, callback)
                 value: db.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.dcterms.creator.type,
                 value: creatorUri
             }
         ],

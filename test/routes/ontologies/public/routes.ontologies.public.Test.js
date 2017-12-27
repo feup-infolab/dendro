@@ -15,13 +15,13 @@ const addBootUpUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("
 
 describe("/ontologies/public", function ()
 {
+    this.timeout(Config.testsTimeout);
     const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
     const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
     const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         addBootUpUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -154,7 +154,6 @@ describe("/ontologies/public", function ()
 
     after(function (done)
     {
-        this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

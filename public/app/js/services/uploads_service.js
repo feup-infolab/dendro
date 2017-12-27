@@ -50,13 +50,13 @@ angular.module("dendroApp.services")
                     {
                         if (file.hasOwnProperty(key))
                         {
-                            url.addSearch(key, encodeURIComponent(file[key]));
+                            url.addSearch(key, file[key]);
                         }
                     }
 
-                    url.addSearch("size", encodeURIComponent(file.size))
-                        .addSearch("filename", encodeURIComponent(file.name))
-                        .addSearch("md5_checksum", encodeURIComponent(file.md5));
+                    url.addSearch("size", file.size)
+                        .addSearch("filename", file.name)
+                        .addSearch("md5_checksum", file.md5);
 
                     url = url.toString();
 
@@ -166,9 +166,9 @@ angular.module("dendroApp.services")
                             try
                             {
                                 var uploadUri = URI(upload_url)
-                                    .addQuery("filename", encodeURIComponent(file.name))
-                                    .addQuery("size", encodeURIComponent(file.size))
-                                    .addQuery("md5_checksum", encodeURIComponent(file.md5))
+                                    .addQuery("filename", file.name)
+                                    .addQuery("size", file.size)
+                                    .addQuery("md5_checksum", file.md5)
                                     .addQuery("username", response.ddr.username);
 
                                 $http({
@@ -206,15 +206,11 @@ angular.module("dendroApp.services")
                     return ticketPromise.promise;
                 };
 
-                this.calculate_md5 = function (file, callback, progressCallback)
+                this.calculate_md5 = function (file, callback)
                 {
-                    browserMD5File(file, function (err, md5)
+                    return new BrowserMD5File(file, function (err, md5)
                     {
-                        callback(err, md5); // 97027eb624f85892c69c4bcec8ab0f11
-                    },
-                    function (progress)
-                    {
-                        progressCallback(progress);
+                        callback(err, md5);
                     });
                 };
             }

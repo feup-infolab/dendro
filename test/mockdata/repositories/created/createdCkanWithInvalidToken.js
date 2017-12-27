@@ -24,10 +24,10 @@ const newExportRepoData =
               },
               foaf: {
                   nick: "ckan",
-                  homepage: "http://dendro-dev.fe.up.pt:5000"
+                  homepage: "http://dendro-prd.fe.up.pt"
               }
           },
-          hasExternalUri: "http://dendro-dev.fe.up.pt:5000",
+          hasExternalUri: "http://dendro-prd.fe.up.pt",
           hasAPIKey: "6a50a8d3-44ce-4825-b3c7-9bca1c-cenas"
       },
       foaf: {},

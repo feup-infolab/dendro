@@ -6,8 +6,8 @@ const request = require("request");
 const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 FigShare.apiURL = "http://api.figshare.com";
 FigShare.requestTokenURL = FigShare.apiURL + "/v1/pbl/oauth/request_token";
@@ -42,7 +42,7 @@ FigShare.prototype.getArticles = function (callback)
     {
         if (e)
         {
-            console.log(e);
+            Logger.log(e);
             return callback(true);
         }
         return callback(false);
@@ -64,7 +64,7 @@ FigShare.prototype.createArticle = function (article_data, callback)
     {
         if (e)
         {
-            console.log(e);
+            Logger.log(e);
             return callback(true);
         }
         return callback(false, article);
@@ -81,7 +81,7 @@ FigShare.prototype.deleteArticle = function (articleID, callback)
     {
         if (e)
         {
-            console.log(e);
+            Logger.log(e);
             return callback(true);
         }
         return callback(false);
@@ -99,7 +99,7 @@ FigShare.prototype.addFileToArticle = function (articleID, file, callback)
     {
         if (e)
         {
-            console.log(e);
+            Logger.log(e);
             return callback(true);
         }
         return callback(false);

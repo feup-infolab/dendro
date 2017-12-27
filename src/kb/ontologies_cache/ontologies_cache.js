@@ -3,6 +3,7 @@ const async = require("async");
 const path = require("path");
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const colors = require("colors");
@@ -79,8 +80,8 @@ OntologiesCache.prototype._putObjects = function (newObjects, collectionName, ca
         }
         else
         {
-            console.error("Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
-            console.error(JSON.stringify(err));
+            Logger.log("error", "Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
+            Logger.log("error", JSON.stringify(err));
             callback(err);
         }
     });
@@ -112,8 +113,8 @@ OntologiesCache.prototype.getOntologies = function (callback)
         }
         else
         {
-            console.error("Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
-            console.error(JSON.stringify(err));
+            Logger.log("error", "Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
+            Logger.log("error", JSON.stringify(err));
             callback(err);
         }
     });
@@ -153,8 +154,8 @@ OntologiesCache.prototype.getElements = function (callback)
         }
         else
         {
-            console.error("Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
-            console.error(JSON.stringify(err));
+            Logger.log("error", "Error while connecting to mongodb database " + self.host + " " + self.port + " " + self.collection);
+            Logger.log("error", JSON.stringify(err));
             callback(err);
         }
     });

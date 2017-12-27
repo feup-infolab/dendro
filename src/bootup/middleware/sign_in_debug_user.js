@@ -3,6 +3,7 @@ const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
 const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
@@ -11,7 +12,7 @@ const signInDebugUser = function (app, callback)
 {
     const signInDebugUser = function (req, res, next)
     {
-    // console.log("[INFO] Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
+    // Logger.log("info", "Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
 
         if (isNull(req.user))
         {

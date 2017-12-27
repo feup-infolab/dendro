@@ -9,6 +9,7 @@ const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const db = Config.getDBByID();
 
@@ -99,14 +100,14 @@ ArchivedResource.findByResourceAndVersionNumber = function (resourceUri, version
                         else
                         {
                             const msg = "Unable to determine the URI of the archived resource version " + versionNumber + " of " + resourceUri;
-                            console.error(msg);
+                            Logger.log("error", msg);
                             return callback(1, msg);
                         }
                     }
                     else
                     {
                         const msg = "Error finding archived version " + versionNumber + " of resource " + resourceUri + " . Error returned: " + JSON.stringify(results);
-                        console.error(msg);
+                        Logger.log("error", msg);
                         return callback(err, msg);
                     }
                 });
@@ -142,7 +143,7 @@ ArchivedResource.findByUri = function (uri, callback)
         else
         {
             const error = "Unable to find archived resource with uri : " + uri;
-            console.error(error);
+            Logger.log("error", error);
             return callback(1, null);
         }
     });

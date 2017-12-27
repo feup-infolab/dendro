@@ -7,28 +7,30 @@ function Config ()
 
 const fs = require("fs");
 const path = require("path");
+const _ = require("underscore");
 const isNull = require("../../utils/null.js").isNull;
 
 const Pathfinder = global.Pathfinder;
 const Elements = require("./elements.js").Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const configs_file_path = Pathfinder.absPathInApp("conf/deployment_configs.json");
-const active_config_file_path = Pathfinder.absPathInApp("conf/active_deployment_config.json");
+const configsFilePath = Pathfinder.absPathInApp("conf/deployment_configs.json");
+const activeConfigFilePath = Pathfinder.absPathInApp("conf/active_deployment_config.json");
 
-const configs = JSON.parse(fs.readFileSync(configs_file_path, "utf8"));
+const configs = JSON.parse(fs.readFileSync(configsFilePath, "utf8"));
 
-let active_config_key;
+let activeConfigKey;
 if (process.env.NODE_ENV === "test")
 {
     if (process.env.RUNNING_IN_JENKINS)
     {
-        active_config_key = "jenkins_buildserver_test";
-        console.log("[INFO] Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
+        activeConfigKey = "jenkins_buildserver_test";
+        Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
     }
     else
     {
-        active_config_key = "test";
-        console.log("[INFO] Running in test environment detected");
+        activeConfigKey = "test";
+        Logger.log("info", "Running in test environment detected");
     }
 }
 else
@@ -37,39 +39,55 @@ else
 
     if (argv.config)
     {
-        active_config_key = argv.config;
+        activeConfigKey = argv.config;
     }
     else
     {
-        active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, "utf8")).key;
+        activeConfigKey = JSON.parse(fs.readFileSync(activeConfigFilePath, "utf8")).key;
     }
 }
 
-const active_config = configs[active_config_key];
+const activeConfig = configs[activeConfigKey];
 
 const getConfigParameter = function (parameter, defaultValue)
 {
-    if (isNull(active_config[parameter]))
+    if (isNull(activeConfig[parameter]))
     {
         if (!isNull(defaultValue))
         {
-            console.error("[WARNING] Using default value " + JSON.stringify(defaultValue) + " for parameter " + parameter + " !");
+            Logger.log("error", "[WARNING] Using default value " + JSON.stringify(defaultValue) + " for parameter " + parameter + " !");
             Config[parameter] = defaultValue;
             return Config[parameter];
         }
 
-        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from \'" + active_config_key + "\' configuration. Please review the deployment_configs.json file.");
+        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from '" + activeConfigKey + "' configuration. Please review the deployment_configs.json file.");
     }
     else
     {
-        return active_config[parameter];
+        return activeConfig[parameter];
     }
 };
+
+Config.activeConfiguration = activeConfigKey;
 
 // hostname for the machine in which this is running, configure when running on a production machine
 Config.port = getConfigParameter("port");
 Config.host = getConfigParameter("host");
 Config.baseUri = getConfigParameter("baseUri");
+Config.environment = getConfigParameter("environment");
+
+if (Config.environment !== "test" &&
+    Config.environment !== "development" &&
+    Config.environment !== "production"
+)
+{
+    throw new Error("Invalid environment configuration set! : " + Config.environment);
+}
+else
+{
+    process.env.NODE_ENV = Config.environment;
+}
+
 Config.eudatBaseUrl = getConfigParameter("eudatBaseUrl");
 Config.eudatToken = getConfigParameter("eudatToken");
 Config.eudatCommunityId = getConfigParameter("eudatCommunityId");
@@ -96,7 +114,7 @@ Config.virtuosoConnector = (function ()
     {
         return connectorType;
     }
-    throw "Invalid Virtuoso Server connector type " + connectorType;
+    throw new Error("Invalid Virtuoso Server connector type " + connectorType);
 }());
 
 Config.virtuosoAuth = getConfigParameter("virtuosoAuth");
@@ -128,9 +146,12 @@ Config.mySQLDBName = getConfigParameter("mySQLDBName");
 
 // file uploads and downloads
 
-Config.maxUploadSize = getConfigParameter("maxUploadSize"); // 1000MB®
-Config.maxProjectSize = getConfigParameter("maxProjectSize"); // 10000MB®
+// 1000MB®
+Config.maxUploadSize = getConfigParameter("maxUploadSize");
+// 10000MB®
+Config.maxProjectSize = getConfigParameter("maxProjectSize");
 Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
+
 Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
 
 if (path.isAbsolute(getConfigParameter("tempFilesDir")))
@@ -174,19 +195,64 @@ Config.crypto = getConfigParameter("crypto");
 Config.recommendation = getConfigParameter("recommendation");
 Config.recommendation.getTargetTable = function ()
 {
+    let tableName = null;
     if (Config.recommendation.modes.dendro_recommender.log_modes.phase_1.active)
     {
-        return Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
+        tableName = Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
     }
     else if (Config.recommendation.modes.dendro_recommender.log_modes.phase_2.active)
     {
-        return Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
+        tableName = Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
+    }
+    else
+    {
+        if (!isNull(Config.recommendations.interactions_recording_table))
+        {
+            tableName = Config.recommendations.interactions_recording_table;
+        }
+    }
+
+    if (isNull(tableName))
+    {
+        throw new Error("Unspecified interactions table name. Check your deployment_configs.json for recommendation/interactions_recording_table field.");
+    }
+    else
+    {
+        return tableName;
     }
 };
 
 Config.exporting = getConfigParameter("exporting");
 
 Config.cache = getConfigParameter("cache");
+
+/**
+ * Database connection (s).
+ * @type {{default: {baseURI: string, graphName: string, graphUri: string}}}
+ */
+
+Config.getDBByHandle = function (dbHandle)
+{
+    if (!isNull(dbHandle))
+    {
+        const key = _.find(Object.keys(Config.db), function(key){
+            return Config.db[key].graphHandle === dbHandle;
+        });
+
+        if(!isNull(key))
+        {
+            return Config.db[key];
+        }
+        else
+        {
+            return null;
+        }
+    }
+    else
+    {
+        return Config.db.default;
+    }
+};
 
 /**
  * Database connection (s).
@@ -493,6 +559,24 @@ Config.enabledOntologies = {
         description: "General Purpose schema",
         domain: "Generic",
         domain_specific: false
+    },
+    ddiup: {
+        prefix: "ddiup",
+        uri: "http://dendro.fe.up.pt/ontology/ddiup#",
+        elements: Elements.ontologies.ddiup,
+        label: "Data Documentation Initiative (DDI)",
+        description: "Elements for the description of  data produced by surveys and other observational methods in the social, behavioral, economic, and health sciences",
+        domain: "Generic",
+        domain_specific: false
+    },
+    disco: {
+        prefix: "disco",
+        uri: "http://rdf-vocabulary.ddialliance.org/discovery#",
+        elements: Elements.ontologies.disco,
+        label: "DDI-RDF Discovery Vocabulary",
+        description: "A vocabulary for publishing metadata about data sets (research and survey data) into the Web of Linked Data",
+        domain: "Generic",
+        domain_specific: false
     }
 };
 
@@ -537,9 +621,9 @@ Config.streaming =
   }
 };
 
-Config.useElasticSearchAuth = active_config.useElasticSearchAuth;
+Config.useElasticSearchAuth = activeConfig.useElasticSearchAuth;
 
-Config.elasticSearchAuthCredentials = active_config.elasticSearchAuthCredentials;
+Config.elasticSearchAuthCredentials = activeConfig.elasticSearchAuthCredentials;
 
 /**
  * Plugins
@@ -628,6 +712,11 @@ Config.thumbnails = {
           description: "icon",
           width: 32,
           height: 32
+      },
+      tiny: {
+          description: "tiny",
+          width: 16,
+          height: 16
       }
   }
 };
@@ -682,7 +771,7 @@ if (Config.demo_mode.active)
 
     Config.demo_mode.git_info = {};
 
-    exec("git branch | grep \"^\* .*$\" | cut -c 3- | tr -d \"\n\"",
+    exec("git branch | grep \"^* .*$\" | cut -c 3- | tr -d \"\n\"",
         {
             cwd: Config.appDir
         },
@@ -690,12 +779,12 @@ if (Config.demo_mode.active)
         {
             if (isNull(error))
             {
-                console.log("Active branch : " + JSON.stringify(stdout));
+                Logger.log_boot_message("Active branch : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.active_branch = stdout;
             }
             else
             {
-                console.error("Unable to get active branch : " + JSON.stringify(error));
+                Logger.log("error", "Unable to get active branch : " + JSON.stringify(error));
             }
         });
 
@@ -706,12 +795,12 @@ if (Config.demo_mode.active)
         {
             if (isNull(error))
             {
-                console.log("Last commit hash : " + JSON.stringify(stdout));
+                Logger.log_boot_message("Last commit hash : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.commit_hash = stdout;
             }
             else
             {
-                console.error("Unable to get commit hash : " + JSON.stringify(error));
+                Logger.log("error", "Unable to get commit hash : " + JSON.stringify(error));
             }
         });
 
@@ -722,12 +811,12 @@ if (Config.demo_mode.active)
         {
             if (isNull(error))
             {
-                console.log("Last commit date : " + JSON.stringify(stdout));
+                Logger.log_boot_message("Last commit date : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.last_commit_date = stdout;
             }
             else
             {
-                console.error("Unable to get last commit date : " + JSON.stringify(error));
+                Logger.log("error", "Unable to get last commit date : " + JSON.stringify(error));
             }
         });
 }
@@ -737,6 +826,36 @@ Config.email = getConfigParameter("email");
 Config.analytics_tracking_code = getConfigParameter("analytics_tracking_code");
 
 Config.public_ontologies = getConfigParameter("public_ontologies");
+
+// from https://github.com/lodash/lodash/issues/1743
+/**
+ * Returns TRUE if the first specified array contains all elements
+ * from the second one. FALSE otherwise.
+ *
+ * @param {array} superset
+ * @param {array} subset
+ *
+ * @returns {boolean}
+ */
+function arrayContainsArray (superset, subset)
+{
+    if (subset.length === 0)
+    {
+        return false;
+    }
+    return subset.every(function (value)
+    {
+        return (superset.indexOf(value) >= 0);
+    });
+}
+
+// if we have unparametrized prefixes in the public ontologies inside deployment_configs.json, dendro should crash immediately
+if (!arrayContainsArray(Object.keys(Config.enabledOntologies), Config.public_ontologies))
+{
+    const msg = `The public_ontologies value in deployment_configs contains prefixes not parametrized in the list of enabled ontologies in config.js. : ${_.difference(Config.public_ontologies, Object.keys(Config.enabledOntologies))}`;
+    Logger.log("error", msg);
+    throw new Error(msg);
+}
 
 Config.regex_routes = {
     project_root:
@@ -754,5 +873,25 @@ Config.regex_routes = {
 
 Config.authentication = getConfigParameter("authentication");
 Config.numCPUs = getConfigParameter("numCPUs");
+
+if (process.env.NODE_ENV === "production")
+{
+    // detect slave / master status for production environments using pm2
+    Config.runningAsSlave = false;
+
+    const argv = require("yargs").argv;
+    if (!isNull(argv.pm2_slave))
+    {
+        Config.runningAsSlave = true;
+        Config.maxSimultaneousConnectionsToDb = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+    }
+}
+
+Config.toJSONObject = function ()
+{
+    const CircularJSON = require("circular-json");
+    const string = CircularJSON.stringify(_.extend({}, Config));
+    return JSON.parse(string);
+};
 
 module.exports.Config = Config;

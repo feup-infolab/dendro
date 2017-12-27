@@ -1,9 +1,13 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder; const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Pathfinder = global.Pathfinder;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Ontology = require(Pathfinder.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
 const RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const _ = require("underscore");
 const async = require("async");
@@ -80,8 +84,9 @@ exports.shared.evaluate_metadata = function (req, callback)
             requestedResource.uri,
             req.user.uri,
             0,
-            recommendationOntologies,
-            req.index, function (err, descriptors)
+            Ontology.getPublicOntologiesUris(),
+            IndexConnection.getDefault(),
+            function (err, descriptors)
             {
                 if (isNull(err))
                 {
@@ -185,7 +190,7 @@ exports.shared.evaluate_metadata = function (req, callback)
                     if (err)
                     {
                         const error = results;
-                        console.log(error);
+                        Logger.log(error);
                         return callback(1, error);
                     }
                     const recommendations = results[0];

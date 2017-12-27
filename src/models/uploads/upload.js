@@ -1,5 +1,6 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -133,9 +134,9 @@ Upload.prototype.destroy = function (callback)
 
     rmdir(self.temp_dir, function (err, dirs, files)
     {
-        console.log(dirs);
-        console.log(files);
-        console.log("all files are removed");
+        Logger.log(dirs);
+        Logger.log(files);
+        Logger.log("all files are removed");
 
         return callback(err, dirs, files);
     });
@@ -188,7 +189,7 @@ Upload.prototype.pipe = function (part, callback)
 Upload.prototype.is_finished = function ()
 {
     const self = this;
-    // console.log("FINISHED " + self.loaded / self.expected + " of file " + self.filename);
+    // Logger.log("FINISHED " + self.loaded / self.expected + " of file " + self.filename);
     return (self.loaded >= self.expected);
 };
 

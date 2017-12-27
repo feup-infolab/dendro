@@ -8,7 +8,6 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const initTempUploadsFolder = function (app, callback)
 {
     let fs = require("fs");
-    let registeredUncaughtExceptionHandler;
 
     // create temporary uploads folder if not exists
     let tempUploadsFolder = Config.tempUploadsDir;
@@ -19,11 +18,11 @@ const initTempUploadsFolder = function (app, callback)
     }
     catch (e)
     {
-        Logger.log_boot_message("info", "Temp folder for uploads " + tempUploadsFolder + " does not exist. Creating...");
+        Logger.log_boot_message("Temp folder for uploads " + tempUploadsFolder + " does not exist. Creating...");
         try
         {
             mkdirp.sync(tempUploadsFolder);
-            Logger.log_boot_message("success", "Temp folder for uploads " + tempUploadsFolder + " created.");
+            Logger.log_boot_message("Temp folder for uploads " + tempUploadsFolder + " created.");
         }
         catch (e)
         {

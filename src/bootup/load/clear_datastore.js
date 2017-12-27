@@ -13,7 +13,7 @@ const clearDataStore = function (app, callback)
         {
             if (!err)
             {
-                Logger.log_boot_message("info", "Datastore cleared successfully.");
+                Logger.log_boot_message("Datastore cleared successfully.");
             }
 
             callback(err);
@@ -21,7 +21,7 @@ const clearDataStore = function (app, callback)
     }
     else
     {
-        Logger.log_boot_message("info", "Datastore is not set to be cleared. Continuing...");
+        Logger.log_boot_message("Datastore is not set to be cleared. Continuing...");
         return callback(null);
     }
 };

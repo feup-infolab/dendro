@@ -3,6 +3,7 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const Like = require("../models/social/like.js").Like;
 const Comment = require("../models/social/comment.js").Comment;
@@ -49,7 +50,7 @@ const getNumLikesForAFileVersion = function (fileVersionUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: fileVersionUri
             }
         ]),
@@ -86,11 +87,11 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.postURI.type,
                 value: fileVersionUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.userWhoLiked.type,
                 value: currentUserUri
             }
         ]),
@@ -174,7 +175,7 @@ const getSharesForAFileVersion = function (fileVersionUri, cb)
                 value: db_social.graphUri
             },
             {
-                type: Elements.types.resource,
+                type: Elements.ontologies.ddr.fileVersionUri.type,
                 value: fileVersionUri
             }
         ]),

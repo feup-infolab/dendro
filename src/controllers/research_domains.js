@@ -6,6 +6,8 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const async = require("async");
 const _ = require("underscore");
@@ -18,31 +20,24 @@ exports.autocomplete = function (req, res)
     {
         ResearchDomain.findByTitleOrDescription(
             query,
-            function (err, research_domains)
+            function (err, researchDomains)
             {
                 if (isNull(err))
                 {
-                    for (let i = 0; i < research_domains.length; i++)
+                    _.map(researchDomains, function (researchDomain)
                     {
-                        if (typeof research_domains[i].id === "undefined")
-                        {
-                            research_domains[i].id = i;
-                        }
-                        if (typeof research_domains[i].dcterms.title !== "undefined")
-                        {
-                            research_domains[i].tag_face = research_domains[i].dcterms.title;
-                        }
-                    }
+                        Descriptor.removeUnauthorizedFromObject(researchDomain, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
+                    });
 
                     res.json(
-                        research_domains
+                        researchDomains
                     );
                 }
                 else
                 {
                     res.status(500).json(
                         {
-                            error_messages: [research_domains]
+                            error_messages: [researchDomains]
                         }
                     );
                 }
@@ -61,50 +56,24 @@ exports.autocomplete = function (req, res)
 
 exports.all = function (req, res)
 {
-    ResearchDomain.all(req,
-        function (err, research_domains)
+    ResearchDomain.all(function (err, researchDomains)
+    {
+        if (isNull(err))
         {
-            if (isNull(err))
-            {
-                const getResearchDomainProperties = function (resultRow, cb)
-                {
-                    ResearchDomain.findByUri(resultRow.uri, function (err, project)
-                    {
-                        cb(err, project);
-                    });
-                };
-
-                async.mapSeries(research_domains, getResearchDomainProperties, function (err, researchDomains)
-                {
-                    if (isNull(err))
-                    {
-                        res.json({
-                            result: "ok",
-                            research_domains: researchDomains
-                        });
-                    }
-                    else
-                    {
-                        const msg = "error fetching research domain information : " + err;
-                        console.error(msg);
-
-                        res.json({
-                            result: "error",
-                            message: msg
-                        });
-                    }
-                });
-            }
-            else
-            {
-                res.status(500).json(
-                    {
-                        error_messages: [research_domains]
-                    }
-                );
-            }
+            res.json({
+                result: "ok",
+                research_domains: researchDomains
+            });
         }
-    );
+        else
+        {
+            res.status(500).json(
+                {
+                    error_messages: [researchDomains]
+                }
+            );
+        }
+    }, null, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
 };
 
 exports.edit = function (req, res)
@@ -123,7 +92,7 @@ exports.edit = function (req, res)
                         if (err)
                         {
                             const msg = "Error saving research domain " + JSON.stringify(domain) + " because of error " + JSON.stringify(result);
-                            console.error(msg);
+                            Logger.log("error", msg);
                         }
 
                         return callback(err, result);

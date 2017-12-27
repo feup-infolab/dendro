@@ -16,9 +16,9 @@ const md5 = require("md5");
 
 describe("[POST] /user_avatar", function (done)
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createUserUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -64,7 +64,7 @@ describe("[POST] /user_avatar", function (done)
         userUtils.uploadAvatar(false, agent, avatar, function (err, res)
         {
             res.should.have.status(401);
-            res.text.should.contain("Please log into the system.");
+            res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
             done();
         });
     });
@@ -108,7 +108,6 @@ describe("[POST] /user_avatar", function (done)
 
     after(function (done)
     {
-        this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

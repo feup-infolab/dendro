@@ -112,7 +112,7 @@ module.exports.setup = function (finish)
                             else
                             {
                                 const msg = "Error creating new Administrator at createUsers.Unit" + JSON.stringify(newUser);
-                                console.error(msg);
+                                console.log("error", msg);
                                 callback(err, msg);
                             }
                         });
@@ -136,7 +136,7 @@ module.exports.setup = function (finish)
                             {
                                 if (isNull(err))
                                 {
-                                    console.log("[OK] Admins successfully loaded at createUsers.Unit.");
+                                    console.log("info", "Admins successfully loaded at createUsers.Unit.");
                                 }
                                 else
                                 {
@@ -158,7 +158,7 @@ module.exports.setup = function (finish)
                         else
                         {
                             const msg = "Error creating Admins at createUsers.Unit";
-                            console.error(msg);
+                            console.log("error", msg);
                             appUtils.registerStopTimeForUnit(path.basename(__filename));
                             end();
                             finish(err, results);
@@ -168,7 +168,7 @@ module.exports.setup = function (finish)
                 else
                 {
                     var msg = "Error creating users at createUsers.Unit";
-                    console.error(msg);
+                    console.log("error", msg);
                     appUtils.registerStopTimeForUnit(path.basename(__filename));
                     end();
                     finish(err, results);

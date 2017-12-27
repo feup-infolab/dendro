@@ -14,10 +14,11 @@ const records = require(Pathfinder.absPathInSrcFolder("/controllers/records.js")
 const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
 const swordConnection = require(Pathfinder.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
 const Figshare = require(Pathfinder.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
-const B2ShareClient = require("node-b2share-v2");
+const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 const Zenodo = require(Pathfinder.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const CKAN = require("ckan");
 const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const generalDatasetUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/generalDatasetUtils.js"));
@@ -36,7 +37,7 @@ export_to_repository_sword = function (req, res)
     if (isNull(targetRepository.ddr.hasExternalUri))
     {
         const msg = "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute";
-        console.error(msg);
+        Logger.log("error", msg);
         res.status(500).json(
             {
                 result: "error",
@@ -55,7 +56,7 @@ export_to_repository_sword = function (req, res)
                     if (isNull(folder.dcterms.title))
                     {
                         const msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
-                        console.error(msg);
+                        Logger.log("error", msg);
                         res.status(400).json(
                             {
                                 result: "error",
@@ -73,7 +74,7 @@ export_to_repository_sword = function (req, res)
                                 {
                                     if (isNull(err))
                                     {
-                                        console.log("Package for export " + requestedResourceUri + " created.");
+                                        Logger.log("Package for export " + requestedResourceUri + " created.");
 
                                         let serviceDocumentRef = null;
 
@@ -100,7 +101,7 @@ export_to_repository_sword = function (req, res)
                                             {
                                                 generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                 const msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. " + message;
-                                                console.log(msg);
+                                                Logger.log(msg);
                                                 res.json(
                                                     {
                                                         result: "OK",
@@ -112,7 +113,7 @@ export_to_repository_sword = function (req, res)
                                             {
                                                 generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                 const msg = "Error exporting folder '" + folder.nie.title + "' from the Dendro platform. " + message;
-                                                console.error(msg);
+                                                Logger.log("error", msg);
                                                 res.status(500).json(
                                                     {
                                                         result: "error",
@@ -125,7 +126,7 @@ export_to_repository_sword = function (req, res)
                                     else
                                     {
                                         const msg = "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.";
-                                        console.error(msg);
+                                        Logger.log("error", msg);
                                         res.status(500).json(
                                             {
                                                 result: "error",
@@ -138,7 +139,7 @@ export_to_repository_sword = function (req, res)
                             else
                             {
                                 const msg = "Error building temporary folder for export folder" + folder.nie.title + " from the Dendro platform.";
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 res.status(500).json(
                                     {
                                         result: "error",
@@ -152,7 +153,7 @@ export_to_repository_sword = function (req, res)
                 else
                 {
                     const msg = requestedResourceUri + " does not exist in Dendro or is not a folder. You cannot export an entire project to an external repository.";
-                    console.error(msg);
+                    Logger.log("error", msg);
                     res.status(400).json(
                         {
                             result: "error",
@@ -164,7 +165,7 @@ export_to_repository_sword = function (req, res)
             else
             {
                 const msg = "Error fetching " + requestedResourceUri + " from the Dendro platform. Error reported : " + folder;
-                console.error(msg);
+                Logger.log("error", msg);
                 res.status(500).json(
                     {
                         result: "error",
@@ -191,6 +192,7 @@ exports.calculate_ckan_repository_diffs = function (req, res)
             }
             else
             {
+                Logger.log("error", "calculate_ckan_repository_diffs error: " + diffs.error.message);
                 res.status(diffs.error.statusCode).json(
                     {
                         result: "error",
@@ -203,7 +205,7 @@ exports.calculate_ckan_repository_diffs = function (req, res)
     catch (e)
     {
         const msg = "Error when checking if ckan package has diffs with Dendro: " + e.message;
-        console.error(msg);
+        Logger.log("error", msg);
         res.status(500).json(
             {
                 result: "error",
@@ -229,7 +231,7 @@ export_to_repository_ckan = function (req, res)
         }
         catch (e)
         {
-            console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
+            Logger.log("error", "Invalid value supplied to overwrite parameter. Not overwriting by default.");
         }
 
         try
@@ -238,7 +240,7 @@ export_to_repository_ckan = function (req, res)
         }
         catch (e)
         {
-            console.error("Invalid value supplied to deleteChangesOriginatedFromCkan parameter. Not overwriting by default.");
+            Logger.log("error", "Invalid value supplied to deleteChangesOriginatedFromCkan parameter. Not overwriting by default.");
         }
 
         try
@@ -247,7 +249,7 @@ export_to_repository_ckan = function (req, res)
         }
         catch (e)
         {
-            console.error("Invalid value supplied to propagateDendroChangesIntoCkan parameter. Not overwriting by default.");
+            Logger.log("error", "Invalid value supplied to propagateDendroChangesIntoCkan parameter. Not overwriting by default.");
         }
 
         const checkPermissionsDictionary = {
@@ -296,6 +298,7 @@ export_to_repository_ckan = function (req, res)
             {
                 if (!isNull(err))
                 {
+                    Logger.log("error", "export_to_repository_ckan error: " + resultInfo.message);
                     res.status(resultInfo.statusCode).json({
                         result: "error",
                         message: resultInfo.message
@@ -320,7 +323,7 @@ export_to_repository_ckan = function (req, res)
         else
         {
             const message = "Request body must contain the organization to which the user wants to submit the datataset in the field \"repository.ddr.hasOrganization\"";
-            console.error(message);
+            Logger.log("error", message);
             res.status(400).json(
                 {
                     result: "error",
@@ -332,7 +335,7 @@ export_to_repository_ckan = function (req, res)
     catch (e)
     {
         const message = "Error exporting to repository: " + e.message;
-        console.error(message);
+        Logger.log("error", message);
         res.status(500).json(
             {
                 result: "error",
@@ -350,7 +353,7 @@ export_to_repository_figshare = function (req, res)
     if (isNull(targetRepository.ddr.hasExternalUri))
     {
         const msg = "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute";
-        console.error(msg);
+        Logger.log("error", msg);
         res.status(500).json(
             {
                 result: "error",
@@ -369,7 +372,7 @@ export_to_repository_figshare = function (req, res)
                     if (isNull(folder.dcterms.title))
                     {
                         const msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
-                        console.error(msg);
+                        Logger.log("error", msg);
                         res.status(400).json(
                             {
                                 result: "error",
@@ -387,7 +390,7 @@ export_to_repository_figshare = function (req, res)
                                 {
                                     if (isNull(err))
                                     {
-                                        console.log("Package for export " + requestedResourceUri + " created.");
+                                        Logger.log("Package for export " + requestedResourceUri + " created.");
 
                                         try
                                         {
@@ -429,7 +432,7 @@ export_to_repository_figshare = function (req, res)
                                                 {
                                                     generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                     const msg = "Error creating article on figshare";
-                                                    console.error(msg);
+                                                    Logger.log("error", msg);
                                                     res.status(500).json(
                                                         {
                                                             result: "error",
@@ -445,7 +448,7 @@ export_to_repository_figshare = function (req, res)
                                                         {
                                                             generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                             const msg = "Error adding files to article on figshare";
-                                                            console.error(msg);
+                                                            Logger.log("error", msg);
                                                             res.status(500).json(
                                                                 {
                                                                     result: "error",
@@ -457,7 +460,7 @@ export_to_repository_figshare = function (req, res)
                                                         {
                                                             generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                             const msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
-                                                            console.log(msg);
+                                                            Logger.log(msg);
                                                             res.json(
                                                                 {
                                                                     result: "OK",
@@ -472,7 +475,7 @@ export_to_repository_figshare = function (req, res)
                                         catch (err)
                                         {
                                             generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                            console.error(err);
+                                            Logger.log("error", err);
                                             res.status(500).json(
                                                 {
                                                     result: "error",
@@ -484,7 +487,7 @@ export_to_repository_figshare = function (req, res)
                                     else
                                     {
                                         const msg = "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.";
-                                        console.error(msg);
+                                        Logger.log("error", msg);
                                         res.status(500).json(
                                             {
                                                 result: "error",
@@ -497,7 +500,7 @@ export_to_repository_figshare = function (req, res)
                             else
                             {
                                 const msg = "Error building temporary folder for export folder" + folder.nie.title + " from the Dendro platform.";
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 res.status(500).json(
                                     {
                                         result: "error",
@@ -511,7 +514,7 @@ export_to_repository_figshare = function (req, res)
                 else
                 {
                     const msg = requestedResourceUri + " does not exist in Dendro or is not a folder. You cannot export an entire project to an external repository.";
-                    console.error(msg);
+                    Logger.log("error", msg);
                     res.status(400).json(
                         {
                             result: "error",
@@ -523,7 +526,7 @@ export_to_repository_figshare = function (req, res)
             else
             {
                 const msg = "Error fetching " + requestedResourceUri + " from the Dendro platform. Error reported : " + folder;
-                console.error(msg);
+                Logger.log("error", msg);
                 res.status(500).json(
                     {
                         result: "error",
@@ -543,7 +546,7 @@ const export_to_repository_zenodo = function (req, res)
     if (isNull(targetRepository.ddr.hasExternalUri))
     {
         const msg = "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute";
-        console.error(msg);
+        Logger.log("error", msg);
         res.status(500).json(
             {
                 result: "error",
@@ -562,7 +565,7 @@ const export_to_repository_zenodo = function (req, res)
                     if (isNull(folder.dcterms.title))
                     {
                         const msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
-                        console.error(msg);
+                        Logger.log("error", msg);
                         res.status(400).json(
                             {
                                 result: "error",
@@ -580,7 +583,7 @@ const export_to_repository_zenodo = function (req, res)
                                 {
                                     if (isNull(err))
                                     {
-                                        console.log("Package for export " + requestedResourceUri + " created.");
+                                        Logger.log("Package for export " + requestedResourceUri + " created.");
 
                                         try
                                         {
@@ -618,7 +621,7 @@ const export_to_repository_zenodo = function (req, res)
                                                 {
                                                     generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                     const msg = "Error creating new deposition resource in Zenodo";
-                                                    console.error(msg);
+                                                    Logger.log("error", msg);
                                                     res.status(500).json(
                                                         {
                                                             result: "error",
@@ -636,7 +639,7 @@ const export_to_repository_zenodo = function (req, res)
                                                         {
                                                             generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                             const msg = "Error uploading multiple files to deposition in Zenodo";
-                                                            console.error(msg);
+                                                            Logger.log("error", msg);
                                                             res.status(500).json(
                                                                 {
                                                                     result: "error",
@@ -651,7 +654,7 @@ const export_to_repository_zenodo = function (req, res)
                                                                 if (err)
                                                                 {
                                                                     const msg = "Error publishing a deposition in Zenodo";
-                                                                    console.error(msg);
+                                                                    Logger.log("error", msg);
                                                                     res.status(500).json(
                                                                         {
                                                                             result: "error",
@@ -663,7 +666,7 @@ const export_to_repository_zenodo = function (req, res)
                                                                 {
                                                                     generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                                     const msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
-                                                                    console.log(msg);
+                                                                    Logger.log(msg);
                                                                     res.json(
                                                                         {
                                                                             result: "OK",
@@ -680,7 +683,7 @@ const export_to_repository_zenodo = function (req, res)
                                         catch (err)
                                         {
                                             generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                            console.error(err);
+                                            Logger.log("error", err);
                                             res.status(500).json(
                                                 {
                                                     result: "error",
@@ -692,7 +695,7 @@ const export_to_repository_zenodo = function (req, res)
                                     else
                                     {
                                         const msg = "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.";
-                                        console.error(msg);
+                                        Logger.log("error", msg);
                                         res.status(500).json(
                                             {
                                                 result: "error",
@@ -705,7 +708,7 @@ const export_to_repository_zenodo = function (req, res)
                             else
                             {
                                 const msg = "Error building temporary folder for export folder" + folder.nie.title + " from the Dendro platform.";
-                                console.error(msg);
+                                Logger.log("error", msg);
                                 res.status(500).json(
                                     {
                                         result: "error",
@@ -719,7 +722,7 @@ const export_to_repository_zenodo = function (req, res)
                 else
                 {
                     const msg = requestedResourceUri + " does not exist in Dendro or is not a folder. You cannot export an entire project to an external repository.";
-                    console.error(msg);
+                    Logger.log("error", msg);
                     res.status(400).json(
                         {
                             result: "error",
@@ -731,7 +734,7 @@ const export_to_repository_zenodo = function (req, res)
             else
             {
                 const msg = "Error fetching " + requestedResourceUri + " from the Dendro platform. Error reported : " + folder;
-                console.error(msg);
+                Logger.log("error", msg);
                 res.status(500).json(
                     {
                         result: "error",
@@ -758,7 +761,7 @@ export_to_repository_b2share = function (req, res)
                 if (isNull(folder.dcterms.title) || isNull(folder.dcterms.creator))
                 {
                     const msg = "Folder " + folder.uri + " has no title or creator! Please set these properties (from the dcterms metadata schema) and try the exporting process again.";
-                    console.error(msg);
+                    Logger.log("error", msg);
                     res.status(400).json(
                         {
                             result: "error",
@@ -780,7 +783,7 @@ export_to_repository_b2share = function (req, res)
                                     {
                                         if (isNull(err))
                                         {
-                                            console.log("Package for export " + requestedResourceUri + " created.");
+                                            Logger.log("Package for export " + requestedResourceUri + " created.");
 
                                             try
                                             {
@@ -883,7 +886,7 @@ export_to_repository_b2share = function (req, res)
                                                     {
                                                         generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                         const msg = "Error creating new draft resource in B2Share";
-                                                        console.error(msg);
+                                                        Logger.log("error", msg);
                                                         res.status(500).json(
                                                             {
                                                                 result: "error",
@@ -919,7 +922,7 @@ export_to_repository_b2share = function (req, res)
                                                                     if (err)
                                                                     {
                                                                         const msg = "Error publishing a draft in B2Share";
-                                                                        console.error(msg);
+                                                                        Logger.log("error", msg);
                                                                         res.status(500).json(
                                                                             {
                                                                                 result: "error",
@@ -959,12 +962,12 @@ export_to_repository_b2share = function (req, res)
                                                                          client.sendMail(email, function(err, info){
                                                                          if(err)
                                                                          {
-                                                                         console.log("[NODEMAILER] " + err);
+                                                                         Logger.log("[NODEMAILER] " + err);
                                                                          flash('error', "Error sending request to user. Please try again later");
                                                                          }
                                                                          else
                                                                          {
-                                                                         console.log("[NODEMAILER] email sent: " + info);
+                                                                         Logger.log("[NODEMAILER] email sent: " + info);
                                                                          flash('success', "Sent request to project's owner");
                                                                          }
                                                                          });
@@ -997,7 +1000,7 @@ export_to_repository_b2share = function (req, res)
                                                  if (error) {
                                                  generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                  const msg = "Error creating new deposition resource in B2Share";
-                                                 console.error(msg);
+                                                 Logger.log("error",msg);
                                                  res.status(500).json(
                                                  {
                                                  "result": "error",
@@ -1012,7 +1015,7 @@ export_to_repository_b2share = function (req, res)
                                                  if (error) {
                                                  generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                  const msg = "Error uploading multiple files to deposition in Zenodo";
-                                                 console.error(msg);
+                                                 Logger.log("error",msg);
                                                  res.status(500).json(
                                                  {
                                                  "result": "error",
@@ -1024,7 +1027,7 @@ export_to_repository_b2share = function (req, res)
                                                  b2share.depositionPublish(depositionID, data, function(error, data){
                                                  if (error) {
                                                  const msg = "Error publishing a deposition in Zenodo";
-                                                 console.error(msg);
+                                                 Logger.log("error",msg);
                                                  res.status(500).json(
                                                  {
                                                  "result": "error",
@@ -1056,12 +1059,12 @@ export_to_repository_b2share = function (req, res)
                                                  client.sendMail(email, function(err, info){
                                                  if(err)
                                                  {
-                                                 console.log("[NODEMAILER] " + err);
+                                                 Logger.log("[NODEMAILER] " + err);
                                                  flash('error', "Error sending request to user. Please try again later");
                                                  }
                                                  else
                                                  {
-                                                 console.log("[NODEMAILER] email sent: " + info);
+                                                 Logger.log("[NODEMAILER] email sent: " + info);
                                                  flash('success', "Sent request to project's owner");
                                                  }
                                                  });
@@ -1083,7 +1086,7 @@ export_to_repository_b2share = function (req, res)
                                             catch (err)
                                             {
                                                 generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                                console.error(err);
+                                                Logger.log("error", err);
                                                 res.status(500).json(
                                                     {
                                                         result: "error",
@@ -1153,7 +1156,7 @@ exports.export_to_repository = function (req, res)
                         else
                         {
                             const msg = "Invalid repository platform: " + JSON.stringify(repositoryPlatform);
-                            console.error(msg);
+                            Logger.log("error", msg);
                             callback(true, msg);
                         }
                     });
@@ -1189,7 +1192,7 @@ exports.export_to_repository = function (req, res)
             else
             {
                 const msg = "Invalid target repository";
-                console.error(msg);
+                Logger.log("error", msg);
                 res.status(500).json(
                     {
                         result: "error",
@@ -1202,7 +1205,7 @@ exports.export_to_repository = function (req, res)
     catch (e)
     {
         const msg = "Error exporting to repository: " + e.message;
-        console.error(msg);
+        Logger.log("error", msg);
         res.status(500).json(
             {
                 result: "error",
@@ -1233,12 +1236,12 @@ exports.sword_collections = function (req, res)
     {
         if (isNull(err))
         {
-            console.log(message);
+            Logger.log(message);
             res.json(collections);
         }
         else
         {
-            console.error(message);
+            Logger.log("error", message);
             res.status(500).json(
                 {
                     result: "error",

@@ -4,6 +4,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const deleteFolderRecursive = function (path)
 {
@@ -15,11 +16,13 @@ const deleteFolderRecursive = function (path)
         {
             const curPath = path + "/" + file;
             if (fs.lstatSync(curPath).isDirectory())
-            { // recurse
+            {
+                // recurse
                 deleteFolderRecursive(curPath);
             }
             else
-            { // delete file
+            {
+                // delete file
                 fs.unlinkSync(curPath);
             }
         });
@@ -72,7 +75,8 @@ const createPackage = function (parentFolderPath, folder, callback)
             const archiver = require("archiver");
             const output = fs.createWriteStream(outputFilenameZip);
             const zipArchive = archiver("zip", {
-                zlib: {level: 9} // Sets the compression level.
+                // Sets the compression level.
+                zlib: {level: 9}
             });
             filesToIncludeInPackage.push(outputFilenameZip);
             extraFiles.push(outputFilenameZip);
@@ -85,7 +89,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                     {
                         if (isNull(err))
                         {
-                            console.log("The file " + outputFilenameRDF + " was saved!");
+                            Logger.log("info", "The file " + outputFilenameRDF + " was saved!");
                             filesToIncludeInPackage.push(outputFilenameRDF);
                             extraFiles.push(outputFilenameRDF);
                             // add the metadata rdf file to the zip folder
@@ -95,7 +99,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                             {
                                 if (isNull(err))
                                 {
-                                    console.log("The file " + outputFilenameTXT + " was saved!");
+                                    Logger.log("info", "The file " + outputFilenameTXT + " was saved!");
                                     filesToIncludeInPackage.push(outputFilenameTXT);
                                     extraFiles.push(outputFilenameTXT);
                                     // add the metadata txt file to the zip folder
@@ -105,7 +109,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                                     {
                                         if (isNull(err))
                                         {
-                                            console.log("The file " + outputFilenameJSON + " was saved!");
+                                            Logger.log("info", "The file " + outputFilenameJSON + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameJSON);
                                             extraFiles.push(outputFilenameJSON);
                                             // add the metadata JSON file to the zip folder
@@ -121,27 +125,27 @@ const createPackage = function (parentFolderPath, folder, callback)
                                             });
                                             output.on("close", function ()
                                             {
-                                                console.log("Done with the zip", folderToZip);
+                                                Logger.log("info", "Done with the zip" + folderToZip);
                                                 cb(null, null);
                                             });
                                         }
                                         else
                                         {
-                                            console.log(err);
+                                            Logger.log("error", err);
                                             cb(true, null);
                                         }
                                     });
                                 }
                                 else
                                 {
-                                    console.log(err);
+                                    Logger.log("error", err);
                                     cb(true, null);
                                 }
                             });
                         }
                         else
                         {
-                            console.log(err);
+                            Logger.log("error", err);
                             cb(true, null);
                         }
                     });
@@ -149,7 +153,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                 else
                 {
                     const msg = "Error finding metadata in " + folder.uri;
-                    console.error(msg);
+                    Logger.log("error", msg);
                     cb(true, null);
                 }
             });

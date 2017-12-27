@@ -7,16 +7,13 @@ const chai = require("chai");
 chai.use(require("chai-http"));
 const should = chai.should();
 const async = require("async");
-const colors = require("colors");
 const path = require("path");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
 const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
@@ -62,7 +59,6 @@ module.exports.setup = function (finish)
 
     createUsersUnit.setup(function (err, results)
     {
-        // should.equal(err, null);
         if (err)
         {
             end();
@@ -91,7 +87,6 @@ module.exports.setup = function (finish)
                 });
             }, function (err, results)
             {
-                // should.equal(err, null);
                 appUtils.registerStopTimeForUnit(path.basename(__filename));
                 finish(err, results);
             });
