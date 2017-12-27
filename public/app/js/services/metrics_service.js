@@ -35,25 +35,24 @@ angular.module("dendroApp.services")
 
                 this.get_deposits = function (uri)
                 {
-                    let url = $scope.get_current_url();
-                    url += "deposits/latest";
-                    const params = $scope.projectfilter;
+                    let url = windowService.get_host();
+                    url += "/metrics/deposits";
+                    console.log(url);
 
-                    return $http({
+                    $http({
                         method: "GET",
                         url: url,
-                        params: params,
+                        params: uri.id,
                         contentType: "application/json",
                         headers: {"Accept": "application/json"}
-                    }).then(function (response)
+                    }).then(function (response) {
+                        if (response.data != null && response.data instanceof Object)
                         {
-                            if (response.data != null && response.data instanceof Object)
-                            {
-                                return response;
-                            }
-                            return {};
+                            return response;
                         }
-                    );
+                    }).catch(function (error) {
+                        console.log(error);
+                    });
                 };
 
 

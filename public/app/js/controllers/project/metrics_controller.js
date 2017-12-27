@@ -17,59 +17,17 @@ angular.module('dendroApp.controllers')
                   $timeout,
                   metadataService,
                   windowService,
+                  filesService,
+                  projectsService,
                   metricsService) {
 
 
             $scope.init = function () {
                 //$scope.loadData();
-                $scope.startDeposits();
-            };
-
-            $scope.loadData = function () {
-                function getStats (uri)
-                {
-                    metricsService.get_stats(uri)
-                        .then(function (response)
-                        {
-                            let statsData = response.data;
-                            $scope.data[0].push(statsData.folders_count);
-                        });
-                }
-                if ($scope.check_project_root())
-                {
-                    getStats($scope.get_calling_uri());
-                }
-                else
-                {
-                    $scope.get_owner_project()
-                        .then(function (ownerProject)
-                        {
-                            if (ownerProject != null)
-                            {
-                                getStats(ownerProject.uri);
-                            }
-                        })
-                        .catch(function (e)
-                        {
-                            console.log("error", "Unable to fetch parent project of the currently selected file.");
-                            console.log("error", JSON.stringify(e));
-                            windowService.show_popup("error", "Error", e.statusText);
-                        });
-                }
+               // $scope.getOwner();
+               // $scope.startDeposits();
 
             };
-
-
-            $scope.check_project_root = function ()
-            {
-                if ($scope.shared.selected_file != null)
-                {
-                    return false;
-                }
-                return $scope.shared.is_project_root;
-            };
-
-
 
             $scope.updateData = function () {
                 $scope.data = $scope.data.map(function (data) {
@@ -81,12 +39,47 @@ angular.module('dendroApp.controllers')
             };
 
 
+            $scope.getDeposits = function () {
+                function startDeposits (uri)
+                {
+                    metricsService.get_deposits(uri)
+                        .then(function (response)
+                        {
+                            let res = response;
+                            console.log(res);
+                        });
+                }
+                if ($scope.showing_project_root())
+                {
+                    startDeposits($scope.get_calling_uri());
+                }
+                else
+                {
+                    $scope.get_owner_project()
+                        .then(function (ownerProject)
+                        {
+                            if (ownerProject != null)
+                            {
+                                startDeposits(ownerProject.uri);
+                            }
+                        })
+                        .catch(function (e)
+                        {
+                            console.log("error", "Unable to fetch parent project of the currently selected file.");
+                            console.log("error", JSON.stringify(e));
+                            windowService.show_popup("error", "Error", e.statusText);
+                        });
+                }
+            };
+
+
+
             $scope.startDeposits = function () {
                 let url = $scope.get_host();
                 url += "/metrics/deposits";
                 let param =
                     {
-                        id: $scope.get_owner_project()
+                        id: window.location.pathname
                     };
                 $http({
                     method: "GET",
