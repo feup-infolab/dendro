@@ -1076,12 +1076,12 @@ const getProjectUriFromHandle = function (agent, projectHandle, callback)
     });
 };
 
-const projectStorage = function (modify, agent, projectHandle, callback) {
-    if (modify)
-    {   //TODO not working
+const projectStorage = function (modify, agent, projectHandle, callback, storageConfig) {
+    if (modify && storageConfig)
+    {
         agent
             .post("/project/" + projectHandle + "?storage")
-            .send({})
+            .send({storageConfig: storageConfig})
             .end(function (err, res)
             {
                 callback(err, res);

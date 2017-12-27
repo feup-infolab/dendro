@@ -913,6 +913,7 @@ exports.new = function (req, res)
                                     },
                                     schema: {
                                         hasActiveStorage: result,
+                                        hasActiveStorage: result, //TODO
                                         provider: req.body.contact_name,
                                         telephone: req.body.contact_phone,
                                         address: req.body.contact_address,
@@ -2191,14 +2192,95 @@ exports.delete = function (req, res)
 
 exports.storage = function (req, res)
 {
-    //TODO 
+    const getStorage = function (callback)
+    {
+        Project.findByUri(req.params.requestedResourceUri, function (err, project)
+        {
+            if (isNull(err))
+            {
+                if (!isNull(project) && project instanceof Project)
+                {
+                    let storageUri = project.ddr.hasStorageConfig;
+
+                    StorageConfig.findByUri(storageUri, function (err, storage)
+                    {
+                        if (!isNull(storage) && storage instanceof StorageConfig)
+                        {
+                            callback(null, storage);
+                        }
+                        else
+                        {
+                            callback("not a storage", null);
+                        }
+                    });
+                }
+                else
+                {
+                    callback("not a project", null);
+                }
+            }
+            else
+            {
+                callback("no project found", null);
+            }
+        });
+    };
+
     if (req.originalMethod === "GET")
     {
-        res.status(200).json({test: "works"});
+        getStorage(function (err, storageConfig)
+        {
+            if (!err)
+            {
+                res.status(200).json({storageConfig: storageConfig});
+            }
+            else
+            {
+                res.status(404);
+            }
+        });
     }
-    else if ( req.originalMethod === "POST")
+    else if (req.originalMethod === "POST")
     {
-        res.status(200).json({test: "OK"});
+        getStorage(function(err, storageConfig)
+        {
+            if (!err)
+            {
+
+                let data = req.body.storageConfig;
+
+                let currentKey = "ddr";
+
+                if (storageConfig[currentKey])
+                {
+                    let keysInArray = Object.keys(data);
+                    for (var t = 0; t < keysInArray.length; t++)
+                    {
+                        let valueKey = keysInArray[t];
+                        if (!isNull(storageConfig[currentKey][valueKey]))
+                        {
+                            storageConfig[currentKey][valueKey] = data[valueKey];
+                        }
+                    }
+                }
+                storageConfig.save(function (err, result)
+                {
+                    if (!err)
+                    {
+                        res.status(200).json({msg:"OK"});
+                    }
+                    else
+                    {
+                        res.status(400);
+                    }
+                });
+            }
+            else
+            {
+                res.status(401);
+            }
+        });
+
     }
-}
+};
 module.exports = exports;

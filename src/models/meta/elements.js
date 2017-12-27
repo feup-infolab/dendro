@@ -696,7 +696,7 @@ Elements.ontologies.ddr = {
     hasStorageConfig:
         {
             type: Elements.types.string,
-            api_readable: true,
+            api_readable: false,
             locked: true
         },
     storageType:

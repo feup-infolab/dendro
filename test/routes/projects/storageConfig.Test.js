@@ -30,6 +30,8 @@ const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.
 const projectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
+const b2dropStorageConfig = require(Pathfinder.absPathInTestsFolder("mockdata/storageConfig/b2DropConfig.js"));
+
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 describe("Project storageConfig tests", function (done)
@@ -46,6 +48,8 @@ describe("Project storageConfig tests", function (done)
 
     describe("Create Project with storage Config", function ()
     {
+        // TODO redo  should fail if problem with project metadata is fixed
+
         it("Should create a project public project with default storage config", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -79,46 +83,59 @@ describe("Project storageConfig tests", function (done)
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 should.not.exist(err);
-                projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res)
+
+                projectUtils.projectStorage(true, agent, publicProject.handle, function (err, res)
                 {
                     should.not.exist(err);
-                    // Check config inicial  == OK
+
                     projectUtils.projectStorage(false, agent, publicProject.handle, function (err, res)
                     {
                         should.not.exist(err);
-                        // Check config enviada == OK
 
-                        projectUtils.projectStorage(true, agent, publicProject.handle, function (err, res)
+                        let storageConfig = res.body.storageConfig;
+                        let currentKey = "ddr";
+
+                        if (storageConfig[currentKey])
                         {
-                            should.not.exist(err);
-                            // check config == to created
-                            done();
-                        });
+                            let keysInArray = Object.keys(b2dropStorageConfig);
+                            for (var t = 0; t < keysInArray.length; t++)
+                            {
+                                let valueKey = keysInArray[t];
+                                if (storageConfig[currentKey][valueKey] !== b2dropStorageConfig[valueKey])
+                                {
+                                    return done("parameter" + valueKey + " not saved properly");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            return done("storage doesn't have ddr attribute");
+                        }
+
+                        done();
                     });
-                });
+                }, b2dropStorageConfig);
             });
         });
 
         it("Should try to edit storage config and doesnt have permissions", function (done)
         {
-            // usar user que nao seja owner / contribuidor do projecto
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res)
                 {
                     should.not.exist(err);
-                    projectUtils.edit_project_storage(function (err, res)
+                    projectUtils.projectStorage(true, agent, publicProject.handle, function (err, res)
                     {
                         should.exist(err);
-
-                        // verificar metadados do proj == metadaddos inicial
-
+                        res.statusCode.should.equal(401);
                         done();
-                    });
+                    }, b2dropStorageConfig);
                 });
             });
         });
 
+        // switch storage test (moving data)
         it("Should  create a new storage config and initiate the new storage", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
