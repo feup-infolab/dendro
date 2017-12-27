@@ -557,10 +557,9 @@ Project.createAndInsertFromObject = function (object, callback)
                         title: object.ddr.handle,
                         isLogicalPartOf: newProject.uri
                     },
-                    ddr:
-          {
-              humanReadableURI: newProject.ddr.humanReadableURI + "/data"
-          }
+                    ddr: {
+                        humanReadableURI: newProject.ddr.humanReadableURI + "/data"
+                    }
                 });
 
                 rootFolder.save(function (err, result)

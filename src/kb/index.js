@@ -42,21 +42,25 @@ IndexConnection._all = {
         elasticsearchMappings:
                 {
                     resource: {
+                        dynamic: false,
+                        date_detection: false,
+                        numeric_detection: false,
                         properties: {
                             uri:
                                 {
                                     type: "string",
-                                    index: "not_analyzed" // we only want exact matches, disable term analysis
+                                    // we only want exact matches, disable term analysis
+                                    index: "not_analyzed"
                                 },
                             graph:
                                 {
                                     type: "string",
-                                    index: "not_analyzed" // we only want exact matches, disable term analysis
+                                    // we only want exact matches, disable term analysis
+                                    index: "not_analyzed"
                                 },
                             last_indexing_date:
                                 {
-                                    type: "string",
-                                    index: "not_analyzed" // we only want exact matches, disable term analysis
+                                    type: "date",
                                 },
                             descriptors:
                                 {
@@ -65,7 +69,8 @@ IndexConnection._all = {
                                             predicate:
                                                 {
                                                     type: "string",
-                                                    index: "not_analyzed" // we only want exact matches, disable term analysis
+                                                    // we only want exact matches, disable term analysis
+                                                    index: "not_analyzed"
                                                 },
                                             object:
                                                 {

@@ -1,4 +1,5 @@
 const path = require("path");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -7,6 +8,11 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 
 const db = Config.getDBByID();
 
@@ -78,6 +84,35 @@ exports.search = function (req, res)
                         if (!isNull(results) && results.length > 0)
                         {
                             renderParameters.results = resultsWithSimilarOnes;
+
+                            renderParameters.metadata = _.map(resultsWithSimilarOnes, function (result)
+                            {
+                                return result.getDescriptors(
+                                    [Elements.access_types.private, Elements.access_types.private],
+                                    [Elements.access_types.api_readable]
+                                );
+                            });
+
+                            renderParameters.types = _.map(resultsWithSimilarOnes, function (result)
+                            {
+                                if (result.isA(File))
+                                {
+                                    return "file";
+                                }
+                                else if (result.isA(Folder))
+                                {
+                                    return "folder";
+                                }
+                                else if (result.isA(User))
+                                {
+                                    return "user";
+                                }
+                                else if (result.isA(Project))
+                                {
+                                    return "project";
+                                }
+                            });
+
                             renderParameters.currentPage = req.query.currentPage;
                             renderParameters.pageSize = req.query.pageSize;
                         }
@@ -86,6 +121,7 @@ exports.search = function (req, res)
                             renderParameters.results = [];
                             renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
                         }
+
                         res.render("search/search", renderParameters);
                     }
                 });
