@@ -279,3 +279,6 @@ Animations (uncomment to have animations)
   pointer-events: none;
   opacity: 0.6;
 }
+.dendro_config_code_editor {
+  height: 2000px;
+}

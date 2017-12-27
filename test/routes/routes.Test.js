@@ -6,6 +6,7 @@ chai.use(chaiHttp);
 
 describe("/", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
         require(Pathfinder.absPathInTestsFolder("bootup.Unit.js"));

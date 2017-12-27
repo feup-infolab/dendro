@@ -1,4 +1,5 @@
 const chai = require("chai");
+const should = chai.should();
 const fs = require("fs");
 const tmp = require("tmp");
 const path = require("path");

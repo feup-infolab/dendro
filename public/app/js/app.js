@@ -1,6 +1,6 @@
 "use strict";
 
-// this HAS TO BE A GLOBAL VAR https://github.com/sciactive/pnotify/issues/23
+// this HAS TO BE A global.VAR https://github.com/sciactive/pnotify/issues/23
 PNotify.prototype.options.styling = "bootstrap3";
 var stack_topright = {dir1: "down", dir2: "left", push: "top"};
 
@@ -39,7 +39,8 @@ var dendroApp = angular.module("dendroApp", [
     "ngSanitize",
     "ui.select",
     "angularSpinner",
-    "ui.bootstrap.contextMenu"
+    "ui.bootstrap.contextMenu",
+    "ui.ace"
 ]).filter("trustAsResourceUrl", ["$sce", function ($sce)
 {
     return function (val)

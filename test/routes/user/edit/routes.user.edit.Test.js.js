@@ -16,6 +16,7 @@ var createUserUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("u
 
 describe("[POST] /user/edit", function (done)
 {
+    this.timeout(Config.testsTimeout);
     const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
     const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
     const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
@@ -62,7 +63,6 @@ describe("[POST] /user/edit", function (done)
 
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         createUserUnit.setup(function (err, results)
         {
             should.equal(err, null);
@@ -78,7 +78,7 @@ describe("[POST] /user/edit", function (done)
         userUtils.editUser(true, agent, correctDataToEdit, function (err, res)
         {
             res.should.have.status(401);
-            res.text.should.contain("You are not logged into the system.");
+            res.text.should.contain("Error detected. You are not authorized to perform this operation. You must be signed into Dendro");
             done();
         });
     });
@@ -238,7 +238,6 @@ describe("[POST] /user/edit", function (done)
 
     after(function (done)
     {
-        this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

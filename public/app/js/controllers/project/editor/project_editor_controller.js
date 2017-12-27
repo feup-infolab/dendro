@@ -630,8 +630,13 @@ angular.module("dendroApp.controllers")
             $scope.shared.data_processing_error = metadata.data_processing_error;
         };
 
-        $scope.load_metadata = function ()
+        $scope.load_metadata = function (abortIfDirty)
         {
+            if (abortIfDirty && $scope.dirty_metadata())
+            {
+                return;
+            }
+
             var deferred = $q.defer();
 
             metadataService.load_metadata($scope.get_calling_uri())
@@ -676,24 +681,53 @@ angular.module("dendroApp.controllers")
 
             // monitor url change events (ask to save if metadata changed)
 
-            window.onbeforeunload = function (event)
+            function isChrome ()
             {
-                event.preventDefault();
-                if ($scope.dirty_metadata())
+                var isChromium = window.chrome,
+                    winNav = window.navigator,
+                    vendorName = winNav.vendor,
+                    isOpera = winNav.userAgent.indexOf("OPR") > -1,
+                    isIEedge = winNav.userAgent.indexOf("Edge") > -1,
+                    isIOSChrome = winNav.userAgent.match("CriOS");
+
+                if (isIOSChrome)
                 {
-                    $scope.confirm_change_of_resource_being_edited(function (confirmed)
-                    {
-                        if (confirmed)
-                        {
-                            $scope.change_location(next,
-                                metadataService.dirty_metadata(
-                                    $scope.shared.initial_metadata,
-                                    $scope.shared.metadata
-                                ));
-                        }
-                    }, $scope.dirty_metadata());
+                    return true;
                 }
-            };
+                else if (
+                    isChromium !== null &&
+                    typeof isChromium !== "undefined" &&
+                    vendorName === "Google Inc." &&
+                    isOpera === false &&
+                    isIEedge === false
+                )
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            if (isChrome())
+            {
+                window.onbeforeunload = function (event)
+                {
+                    event.preventDefault();
+                    if ($scope.dirty_metadata())
+                    {
+                        $scope.confirm_change_of_resource_being_edited(function (confirmed)
+                        {
+                            if (confirmed)
+                            {
+                                $scope.change_location(next,
+                                    metadataService.dirty_metadata(
+                                        $scope.shared.initial_metadata,
+                                        $scope.shared.metadata
+                                    ));
+                            }
+                        }, $scope.dirty_metadata());
+                    }
+                };
+            }
 
             $scope.$on("$locationChangeStart", function (event, next, current)
             {

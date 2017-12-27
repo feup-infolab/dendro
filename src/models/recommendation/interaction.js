@@ -316,7 +316,7 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
           self.ddr.executedOver,
           self.ddr.originallyRecommendedFor,
           self.ddr.rankingPosition,
-          self.ddr.pageNumber,
+          (isNull(self.ddr.pageNumber) ? -1 : self.ddr.pageNumber),
           self.ddr.recommendationCallId
       ];
 

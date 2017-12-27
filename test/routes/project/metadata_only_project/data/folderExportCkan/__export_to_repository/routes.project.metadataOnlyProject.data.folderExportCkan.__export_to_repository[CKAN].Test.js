@@ -8,6 +8,7 @@ const expect = chai.expect;
 const md5File = require("md5-file");
 const _ = require("underscore");
 chai.use(chaiHttp);
+it.optional = require("it-optional");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -27,7 +28,6 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderExportCkan = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportCkan.js"));
 const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
 const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
@@ -53,10 +53,10 @@ let ckanData;
 
 describe("Export metadata only project folderExportCkan level to ckan tests", function ()
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        this.timeout(Config.testsTimeout);
         addChangesToExportedCkanPackagesUnit.setup(metadataOnlyProject, function (err, results)
         {
             should.equal(err, null);
@@ -95,8 +95,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
 
     describe("[POST] [CKAN] /project/:handle/data/:foldername?export_to_repository", function ()
     {
-        this.timeout(Config.testsTimeout);
-        it("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done)
+        it.optional("Should give an error when the target repository is invalid[not ckan b2share zenodo etc]", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -111,7 +110,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should give an error when the user is unauthenticated", function (done)
+        it.optional("Should give an error when the user is unauthenticated", function (done)
         {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
@@ -123,7 +122,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should give an error message when the user is logged in as demouser3(not a creator or collaborator of the project)", function (done)
+        it.optional("Should give an error message when the user is logged in as demouser3(not a creator or collaborator of the project)", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -136,7 +135,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should give a success message when the user is logged in as demouser2(a collaborator of the project)", function (done)
+        it.optional("Should give a success message when the user is logged in as demouser2(a collaborator of the project)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -149,7 +148,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
         });
 
         // THE CASE WHEN THE FOLDER URI DOES NOT EXIST
-        it("Should give a not found error when the folder uri does not exist when the user is logged in as demouser1(the creator of all projects)", function (done)
+        it.optional("Should give a not found error when the folder uri does not exist when the user is logged in as demouser1(the creator of all projects)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -161,7 +160,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should a give a not found error when the folder uri does not exist when the user is logged in as demouser2(a collaborator on all projects)", function (done)
+        it.optional("Should a give a not found error when the folder uri does not exist when the user is logged in as demouser2(a collaborator on all projects)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -173,7 +172,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should give a not found error when the folder uri does not exist when the user is logged in as demouser3(is not a collaborator or creator on any project)", function (done)
+        it.optional("Should give a not found error when the folder uri does not exist when the user is logged in as demouser3(is not a collaborator or creator on any project)", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
@@ -186,7 +185,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
         });
 
         // THERE ARE DENDRO DIFFS -> propagateDendroChangesIntoCkan === false -> export does not happen
-        it("Should give a precondition failed error when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file added in Dendro and the user did not allow propagateDendroChangesIntoCkan", function (done)
+        it.optional("Should give a precondition failed error when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file added in Dendro and the user did not allow propagateDendroChangesIntoCkan", function (done)
         {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
@@ -211,7 +210,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
         });
 
         // THERE ARE DENDRO DIFFS -> propagateDendroChangesIntoCkan === true -> export does happen
-        it("Should give a success message when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file added in Dendro and the user allowed propagateDendroChangesIntoCkan", function (done)
+        it.optional("Should give a success message when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file added in Dendro and the user allowed propagateDendroChangesIntoCkan", function (done)
         {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
@@ -234,7 +233,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should give a precondition failed error when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file deleted in Dendro and the user did not allow propagateDendroChangesIntoCkan", function (done)
+        it.optional("Should give a precondition failed error when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file deleted in Dendro and the user did not allow propagateDendroChangesIntoCkan", function (done)
         {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
@@ -278,7 +277,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should give a success message when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file deleted in Dendro and the user allowed propagateDendroChangesIntoCkan", function (done)
+        it.optional("Should give a success message when folderExportedCkanDendroDiffs was already exported previously but between the first and second export there was a file deleted in Dendro and the user allowed propagateDendroChangesIntoCkan", function (done)
         {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
@@ -304,7 +303,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
         });
 
         // When there are ckan diffs without permissions
-        it("Should give a message that folderExportedCkanCkanDiffs has ckanDiffs and the user gave no permission", function (done)
+        it.optional("Should give a message that folderExportedCkanCkanDiffs has ckanDiffs and the user gave no permission", function (done)
         {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
@@ -331,7 +330,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
         });
 
         // When there are ckan diffs with permissions
-        it("Should give a success message and export to ckan when there were ckanDiffs for folderExportedCkanCkanDiffs but the user gave permission", function (done)
+        it.optional("Should give a success message and export to ckan when there were ckanDiffs for folderExportedCkanCkanDiffs but the user gave permission", function (done)
         {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = true;
@@ -346,7 +345,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
         });
 
         // The case when there is a file in the dendro package that has a size of zero
-        it("Should export the folder  to ckan even when uploading a file with a size of zero to Dendro (this use case caused a bug before, now dendro does not accept files with a size of zero)", function (done)
+        it.optional("Should export the folder  to ckan even when uploading a file with a size of zero to Dendro (this use case caused a bug before, now dendro does not accept files with a size of zero)", function (done)
         {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
@@ -367,7 +366,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
         });
 
         // test when uploading/copying/moving/renaming folders/files
-        it("Should append the current date if a file with the same name was already uploaded before, however, should not export because the user did not allow dendroPermissions", function (done)
+        it.optional("Should append the current date if a file with the same name was already uploaded before, however, should not export because the user did not allow dendroPermissions", function (done)
         {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
@@ -405,7 +404,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
         });
 
         // test when uploading/copying/moving/renaming folders/files
-        it("Should append the current date if a file with the same name was already uploaded before, and should export because the user did allow dendroPermissions", function (done)
+        it.optional("Should append the current date if a file with the same name was already uploaded before, and should export because the user did allow dendroPermissions", function (done)
         {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
@@ -431,7 +430,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should give an error when the user tries to export a file to ckan, as it is only possible to export folders", function (done)
+        it.optional("Should give an error when the user tries to export a file to ckan, as it is only possible to export folders", function (done)
         {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
@@ -450,7 +449,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should give an error saying that a folder has no content to export", function (done)
+        it.optional("Should give an error saying that a folder has no content to export", function (done)
         {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
@@ -469,7 +468,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should give an error saying that a folder to export has children folders(ckan does not support this)", function (done)
+        it.optional("Should give an error saying that a folder to export has children folders(ckan does not support this)", function (done)
         {
             let propagateDendroChangesIntoCkan = false;
             let deleteChangesOriginatedFromCkan = false;
@@ -494,7 +493,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
             });
         });
 
-        it("Should export a large txt file of 100 MB(this was previously causing a bug)", function (done)
+        it.optional("Should export a large txt file of 100 MB(this was previously causing a bug)", function (done)
         {
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
@@ -545,7 +544,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
         });
 
         // TODO this test only passes when it is running individually. Otherwise the test results in a socket hangup error
-        /* it("Should not export a package to Ckan that contains a file with a size that is above 500MB", function (done) {
+        /* it.optional("Should not export a package to Ckan that contains a file with a size that is above 500MB", function (done) {
             this.timeout(12000000000000000000);
             let propagateDendroChangesIntoCkan = true;
             let deleteChangesOriginatedFromCkan = false;
@@ -592,7 +591,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
     after(function (done)
     {
         // destroy graphs
-        this.timeout(Config.testsTimeout);
+
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

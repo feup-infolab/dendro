@@ -8,9 +8,9 @@ pipeline {
     agent {
         label "dendro"
     }
-    options {
-        disableConcurrentBuilds()  //each branch has 1 job running at a time
-    }
+    //options {
+    //    disableConcurrentBuilds()  //each branch has 1 job running at a time
+    //}
     stages {
         stage('Build') {
             steps {

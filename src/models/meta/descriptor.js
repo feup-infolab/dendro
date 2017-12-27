@@ -181,10 +181,8 @@ function Descriptor (object, typeConfigsToRetain)
         else
         {
             self.type = Elements.types.string;
-            if (Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
-            {
-                Logger.log("error", "Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
-            }
+            Logger.log("warn", "Descriptor " + self.uri + " is missing in the elements.js file");
+            Logger.log("warn", "Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
         }
 
         return self;
@@ -1152,10 +1150,13 @@ Descriptor.findByLabelOrComment = function (filterValue, maxResults, callback, a
         "   ?uri rdfs:comment ?comment . \n" +
         "   ?uri rdfs:label ?label . \n" +
         "   FILTER NOT EXISTS { ?uri rdf:type owl:Class } \n" + // eliminate classes, as all descriptors are properties
+        "   FILTER EXISTS { ?uri rdfs:comment ?comment } \n" +
+        "   FILTER EXISTS { ?uri rdfs:label ?label } \n" +
         "   FILTER (regex(?label, \"" + filterValue + "\", \"i\") || regex(?comment, \"" + filterValue + "\", \"i\" )). \n" +
         "   FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
         "   " + filterString +
         " } \n" +
+        "ORDER BY DESC(regex(?label, \"^" + filterValue + "$\", \"i\")) \n" +
         " LIMIT  " + maxResults;
 
     db.connection.executeViaJDBC(
@@ -1240,7 +1241,15 @@ Descriptor.validateDescriptorParametrization = function (callback)
                         }
                         catch (e)
                         {
-                            Logger.log("error", e.stack);
+                            if (!isNull(e.stack))
+                            {
+                                Logger.log("error", e.stack);
+                            }
+                            else
+                            {
+                                Logger.log("error", JSON.stringify(e));
+                            }
+
                             return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }

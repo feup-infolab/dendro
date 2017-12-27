@@ -28,7 +28,7 @@
         {
             var project = locals.projects[i];
         %>
-        <%if(!project.ddr.deleted == 1 || (locals.user != null)) { %>
+        <%if(project && (!project.ddr.deleted == 1 || (locals.user != null))) { %>
         <tr
                 <%if(project.ddr.deleted == 1) {%>
                 class="warning"
@@ -46,7 +46,7 @@
                     <form>
                         <div class="btn-group">
                             <button type="submit" class="btn btn-default" onclick="location.href='<%=project.uri%>'">
-                                <img class="icon16" id="upload_button" src="/images/icons/folder_vertical_open.png"> <%= (project.dcterms.title)? project.dcterms.title : project.ddr.handle %>
+                                <img class="icon16" id="upload_button" src="/images/icons/box_closed.png"> <%= (project.dcterms.title)? project.dcterms.title : project.ddr.handle %>
                             </button>
                             <%
                             if(locals.user != null && locals.user.uri == project.dcterms.creator)
@@ -70,9 +70,6 @@
                                 <li>
                                     <a href="<%=project.uri%>?delete"><i class="fa fa-bomb"></i>&nbsp;&nbsp;Delete</a>
                                 </li>
-                                <li>
-                                    <a href="<%=project.uri%>?delete"><i class="fa fa-refresh"></i>&nbsp;&nbsp;Restore</a>
-                                </li>
                                 <% } %>
 
                             </ul>
@@ -88,12 +85,6 @@
                 <%
                 }
                 %>
-
-                <b>
-
-
-                    </a>
-                </b>
             </td>
             <td>
 

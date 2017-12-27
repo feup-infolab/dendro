@@ -64,7 +64,7 @@
     "angular-utils-pagination": "0.11.1",
     "fileapi": "^2.0.20",
     "urijs": "uri.js#^1.18.4",
-    "browser-md5-file": "git://github.com/feup-infolab/browser-md5-file.git#1.0.0",
+    "browser-md5-file": "git://github.com/feup-infolab/browser-md5-file.git#52f0465bcc762990c44a8c5151e29e47a36ea9b4",
     "reclinejs": "git://github.com/okfn/recline.git#0.6",
     "slickgrid": "git://github.com/6pac/SlickGrid.git#2.3.2",
     "angular-animate": "1.6.2",
@@ -82,7 +82,8 @@
     "angular-ui-scroll": "^1.6.3",
     "humanize-plus": "^1.8.2",
     "angular-spinner": "^1.0.1",
-    "angular-bootstrap-contextmenu": "^1.1.0"
+    "angular-bootstrap-contextmenu": "^1.1.0",
+    "angular-ui-ace": "bower"
   },
   "resolutions": {
     "bootstrap": "~3",

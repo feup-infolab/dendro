@@ -3,6 +3,8 @@
 INITIAL_DIR=`pwd`
 NODE_VERSION=`cat .node-version`
 
+echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
+
 if [ "$NODE_VERSION" == "" ]
 then
     echo "Unable to determine the version of NodeJS to install!"
@@ -44,7 +46,7 @@ else
     chown -R "$(whoami)" ~/.nvm
 
     #install preliminary dependencies
-    npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g
+    npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
 
     #install dependencies. Will also run bower install whenever needed
     npm install #this is needed when running npm install with sudo to install global modules

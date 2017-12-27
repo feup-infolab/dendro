@@ -31,9 +31,9 @@ const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/b
 
 describe("New project tests", function (done)
 {
+    this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         bootup.setup(function (err, res)
         {
             should.equal(err, null);
@@ -51,7 +51,7 @@ describe("New project tests", function (done)
                 {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("<h1 class=\"page-header\">\n    Create a new project\n</h1>");
-                    res.text.should.not.contain("<p>Please log into the system.</p>");
+                    res.text.should.not.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
                     done();
                 });
             });
@@ -94,7 +94,7 @@ describe("New project tests", function (done)
             projectUtils.createNewProject(true, agent, publicProject, function (err, res)
             {
                 res.statusCode.should.equal(401);
-                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });
@@ -119,7 +119,7 @@ describe("New project tests", function (done)
             projectUtils.createNewProject(false, agent, publicProjectHTMLTests, function (err, res)
             {
                 res.statusCode.should.equal(200);
-                res.text.should.contain("<p>Please log into the system.</p>");
+                res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });
@@ -147,7 +147,7 @@ describe("New project tests", function (done)
             projectUtils.createNewProject(true, agent, metadataOnlyProject, function (err, res)
             {
                 res.statusCode.should.equal(401);
-                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });
@@ -172,7 +172,7 @@ describe("New project tests", function (done)
             projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res)
             {
                 res.statusCode.should.equal(200);
-                res.text.should.contain("<p>Please log into the system.</p>");
+                res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });
@@ -200,7 +200,7 @@ describe("New project tests", function (done)
             projectUtils.createNewProject(true, agent, privateProject, function (err, res)
             {
                 res.statusCode.should.equal(401);
-                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });
@@ -225,7 +225,7 @@ describe("New project tests", function (done)
             projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res)
             {
                 res.statusCode.should.equal(200);
-                res.text.should.contain("<p>Please log into the system.</p>");
+                res.text.should.contain("You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
             });
         });

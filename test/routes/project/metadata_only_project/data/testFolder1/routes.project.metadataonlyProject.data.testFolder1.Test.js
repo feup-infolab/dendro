@@ -29,7 +29,6 @@ describe("Metadata only project testFolder1 level (default case) tests", functio
 {
     before(function (done)
     {
-        this.timeout(Config.testsTimeout);
         addMetadataToFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);

@@ -3,6 +3,9 @@ process.env.NODE_ENV = "test";
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
+const checkChai = require("check-chai");
+chai.use(checkChai);
+
 const fs = require("fs");
 const path = require("path");
 const async = require("async");
@@ -46,22 +49,25 @@ describe("Administer projects", function (done)
     {
         createProjectsUnit.setup(function (err, res)
         {
-            should.equal(err, null);
-            done();
+            chai.check(done, function ()
+            {
+                should.equal(err, null);
+            });
         });
     });
     describe("project/" + publicProject.handle + "?administer", function ()
     {
         it("[HTML] should not access project without logging in GET", function (done)
         {
-            var app = GLOBAL.tests.app;
+            var app = global.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, false, {}, publicProject.handle, function (err, res)
             {
-                /* res.should.have.status(200); */
-                res.should.have.status(401);
-                res.text.should.contain("Permission denied : cannot access the administration area of the project because you are not its creator.");
-                done();
+                chai.check(done, function ()
+                {
+                    res.should.have.status(401);
+                    res.text.should.contain("Permission denied : cannot access the administration area of the project because you are not its creator.");
+                });
             });
         });
 
@@ -130,7 +136,7 @@ describe("Administer projects", function (done)
 
         it("[HTML] should not modify project without logging in POST", function (done)
         {
-            var app = GLOBAL.tests.app;
+            var app = global.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, true, {}, publicProject.handle, function (err, res)
             {
@@ -274,11 +280,11 @@ describe("Administer projects", function (done)
     after(function (done)
     {
     // destroy graphs
-        this.timeout(Config.testsTimeout);
+
         db.deleteGraphs(function (err, data)
         {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
+            global.tests.server.close();
             done();
         });
     });

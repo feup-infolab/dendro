@@ -296,7 +296,7 @@ angular.module("dendroApp.controllers")
 
         $scope.toggle_restore_area = function ()
         {
-            angular.element("#upload_droparea_button").triggerHandler("click");
+            angular.element("#upload_restore_droparea_button").triggerHandler("click");
             // $scope.upload_area_visible = false;
             // $scope.restore_area_visible = !$scope.restore_area_visible;
         };
@@ -335,7 +335,8 @@ angular.module("dendroApp.controllers")
 
         $scope.rename = function ()
         {
-            if ($scope.get_selected_files().length === 1)
+            var selectedFiles = $scope.get_selected_files();
+            if (selectedFiles.length === 1)
             {
                 bootbox.prompt("Please enter the new name", function (newName)
                 {
@@ -352,7 +353,7 @@ angular.module("dendroApp.controllers")
                             if (newName != null)
                             {
                                 filesService.rename(newName,
-                                    $scope.get_calling_uri()
+                                    selectedFiles[0].uri
                                 ).then(function (result)
                                 {
                                     $scope.load_folder_contents();
@@ -360,7 +361,7 @@ angular.module("dendroApp.controllers")
                                 }).catch(function (error)
                                 {
                                     console.log("error", "Unable to rename resource: " + JSON.stringify(error));
-                                    windowService.show_popup("error", "There was an error renaming the resource", "Server returned status code " + status + " and message :\n" + error);
+                                    windowService.show_popup("error", "There was an error renaming the resource", error.data.message);
                                 });
                             }
                         }
@@ -770,7 +771,32 @@ angular.module("dendroApp.controllers")
 
         $scope.backup_folder = function ()
         {
-            windowService.download_url($scope.get_current_url(), "?backup");
+            var selectedFiles = $scope.get_selected_files();
+            if (selectedFiles.length && selectedFiles.length > 0)
+            {
+                $scope.backup_selected_items();
+            }
+            else
+            {
+                windowService.download_url($scope.get_current_url(), "?backup");
+            }
+        };
+
+        $scope.get_restore_url = function ()
+        {
+            return URI($scope.get_calling_uri()).addSearch("restore").toString();
+        };
+        $scope.get_upload_url = function ()
+        {
+            return URI($scope.get_calling_uri()).addSearch("upload").toString();
+        };
+        $scope.get_resume_url = function ()
+        {
+            return URI($scope.get_calling_uri()).addSearch("resume").toString();
+        };
+        $scope.get_restart_url = function ()
+        {
+            return URI($scope.get_calling_uri()).addSearch("restart").toString();
         };
 
         $scope.init = function ()

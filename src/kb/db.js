@@ -168,7 +168,15 @@ const queryObjectToString = function (query, argumentsArray, callback)
             {
                 Logger.log("error", "Error processing argument " + currentArgumentIndex + " in query: \n----------------------\n\n" + transformedQuery + "\n----------------------");
                 Logger.log("error", "Value of Argument " + currentArgumentIndex + ": " + currentArgument.value);
-                Logger.log("error", e.stack);
+                if (!isNull(e.stack))
+                {
+                    Logger.log("error", e.stack);
+                }
+                else
+                {
+                    Logger.log("error", JSON.stringify(e));
+                }
+
                 throw e;
             }
         }
@@ -285,6 +293,9 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
             }
             else
             {
+                Logger.log("error", "Error while reserving connection settings for running query");
+                Logger.log("error", JSON.stringify(err));
+                Logger.log("error", JSON.stringify(connection));
                 callback(err, connection);
             }
         });
@@ -292,7 +303,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
 
     const releaseConnection = function (connection, callback)
     {
-        if(!isNull(self.pool))
+        if (!isNull(self.pool))
         {
             self.pool.release(connection, function (err, connection)
             {
@@ -439,6 +450,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         }
         else
         {
+            // giving error but works... go figure. Commenting for now.
             const msg = "Error occurred while reserving connection from JDBC connection pool of database " + self.handle;
             Logger.log("error", err.message);
             Logger.log("error", err.stack);
@@ -661,14 +673,29 @@ DbConnection.prototype.create = function (callback)
             ]);
         }
 
+        // Working config in Dendro PRD, 22-12-2017
+        /*
+        const timeoutSecs = 10;
         const config = {
             // Required
-            url: "jdbc:virtuoso://" + self.host + ":" + self.port_isql + "/UID=" + self.username + "/PWD=" + self.password + "/PWDTYPE=cleartext" + "/CHARSET=UTF-8",
+            url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
             drivername: "virtuoso.jdbc4.Driver",
-            maxpoolsize: self.maxSimultaneousConnections,
+            maxpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
             minpoolsize: 1,
             // 10 seconds idle time
-            // maxidle: 1000 * 10,
+            maxidle: 1000 * timeoutSecs,
+            properties: {}
+        };*/
+
+        const timeoutSecs = 60;
+        const config = {
+            // Required
+            url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
+            drivername: "virtuoso.jdbc4.Driver",
+            maxpoolsize: self.maxSimultaneousConnections,
+            minpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
+            // 600 seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
+            // maxidle: 1000 * timeoutSecs * 10,
             properties: {}
         };
 
@@ -833,7 +860,6 @@ DbConnection.prototype.create = function (callback)
                         Logger.log("error", "Query " + queryObject.query_id + " Failed!\n" + queryObject.query + "\n");
                         const error = "Virtuoso server returned error: \n " + util.inspect(err);
                         Logger.log("error", error);
-                        console.trace(err);
                         recordQueryConclusionInLog(queryObject);
                         popQueueCallback(1, error);
                         queryObject.callback(1, error);
@@ -974,7 +1000,7 @@ DbConnection.prototype.close = function (callback)
     {
         async.mapSeries(self.queue_jdbc, function (queryObject, callback)
         {
-            if(!isNull(queryObject))
+            if (!isNull(queryObject))
             {
                 if (!isNull(queryObject.connection))
                 {

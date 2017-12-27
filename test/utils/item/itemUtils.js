@@ -545,3 +545,55 @@ module.exports.viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb
             });
     }
 };
+
+module.exports.itemRestoreFolder = function (jsonOnly, agent, folderUri, zipFile, cb)
+{
+    // http://127.0.0.1:3001/r/folder/569dced4-e1b9-491b-a5c3-9caaf0b27238?restore&filename=folderDebugCenas.zip&size=10587&md5_checksum=484164052f47b6959524b16fa84cdeb5&username=nelsonpereira1991
+    const path = folderUri + "?restore";
+    /* if (jsonOnly)
+    {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }*/
+
+    if (jsonOnly)
+    {
+        agent
+            .post(path)
+            .field("md5_checksum", zipFile.md5)
+            .set("Accept", "application/json")
+            .attach("file", zipFile.location)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .field("md5_checksum", zipFile.md5)
+            .attach("file", zipFile.location)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
