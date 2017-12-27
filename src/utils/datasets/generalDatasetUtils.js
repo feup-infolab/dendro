@@ -43,7 +43,7 @@ const parseDescriptorValue = function (descriptorValue) {
     }
     else
     {
-        return false;
+        return null;
     }
 };
 
