@@ -2241,8 +2241,8 @@ Elements.ontologies.bdv = {
   },
     projectName:
   {
-      type: Elements.types.date,
-      control: Controls.date_picker
+      type: Elements.types.string,
+      control: Controls.markdown_box
   },
     referenceSystemAuthority:
   {
