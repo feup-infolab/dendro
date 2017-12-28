@@ -96,7 +96,7 @@ Deposit.createDepositRegistry = function (object, callback) {
 
 Deposit.createQuery = function(params, callback){
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName ?repository\n" +
+        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName ?repository \n" +
         "FROM [0] \n"  +
         "WHERE " +
         "{ \n" +
@@ -158,7 +158,6 @@ Deposit.createQuery = function(params, callback){
           }]);
     }
 
-
     let ending =
         "} \n" +
         "ORDER BY DESC(?" + params.order + ") \n" +
@@ -217,6 +216,23 @@ Deposit.createQuery = function(params, callback){
       query +=
       "} . \n" +
         "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+
+
+    }
+    if(params.repositories){
+      query +=
+        "    VALUES ?repository { ";
+
+      for(let j = 0; j < params.repositories.length; j++) {
+        query += "[" + i++ + "] ";
+        variables.push({
+          type: Elements.ontologies.ddr.hasExternalUri.type ,
+          value: params.repositories[j]
+        });
+      }
+      query +=
+        "} . \n" +
+        "    ?uri ddr:hasExternalUri ?repository . \n";
 
 
     }

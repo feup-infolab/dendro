@@ -141,11 +141,30 @@ angular.module('dendroApp.controllers', [])
                 //if data checks out
                 $scope.offset++;
 
-                let deposits = response.data;
+                let deposits = response.data.deposits;
                 for(let i = 0; i < deposits.length; i++){
                     deposits[i].date = moment(deposits[i].date).fromNow();
                 }
                 $scope.deposits = deposits;
+
+                const repository = response.data.repositories;
+                if($scope.search.repositories == null || $scope.search.repositories == undefined){
+                  $scope.search.repositories = {
+                    type: "checkbox",
+                    list: true,
+                    label: "Repository Used",
+                    key: "repositories",
+                    value: []
+                  }
+                  for(let repo of repository){
+                    $scope.search.repositories.value.push({
+                      name: repo.repository,
+                      count: repo.count,
+                      value: true
+                    })
+                  }
+                }
+
             }).catch(function(error){
                 console.log(error);
             });

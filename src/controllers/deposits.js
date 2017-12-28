@@ -37,9 +37,13 @@ exports.getDeposits = function(req, res) {
     const acceptsJSON = req.accepts("json");
     let display;
 
-    const verification = function (err, deposits) {
+    const verification = function (err, results) {
         if(isNull(err)){
-            res[display](deposits);
+            if(display === "json"){
+              res.json({deposits: results[0], repositories: results[1]});
+            }else{
+              res.render("", {deposits: results[0], repositories: results[1]});
+            }
         }
     };
 
@@ -54,7 +58,8 @@ exports.getDeposits = function(req, res) {
 
 exports.allowed = function (req, callback) {
     let params = req.query;
-    params.self = req.user.uri;
+    if(req.user)
+        params.self = req.user.uri;
     if(!isNull(params.dateFrom))
         params.dateFrom = dateFormat(params.dateFrom, "isoDateTime");
     if(!isNull(params.dateTo)){
@@ -70,10 +75,34 @@ exports.allowed = function (req, callback) {
             platforms.push(p.name);
         }
     }
-    if(platforms!== ""){
+    if(platforms.length !== 0){
         params.platforms = platforms;
     }else{
         params.platforms = null;
+    }
+
+    let repositories = [];
+    if(!isNull(params.repositories)){
+      if(params.repositories instanceof Array){
+        for(repo in params.repositories){
+          const p = JSON.parse(params.repositories[repo]);
+          if(p.value){
+            repositories.push(p.name);
+          }
+        }
+      }
+      else{
+        const p = JSON.parse(params.repositories);
+        if(p.value){
+          repositories.push(p.name);
+        }
+      }
+
+    }
+    if(repositories.length !== 0){
+        params.repositories = repositories;
+    }else{
+        params.repositories = null;
     }
 
     switch (params.order){
@@ -88,11 +117,23 @@ exports.allowed = function (req, callback) {
           params.order = "date";
           break;
     }
-    Deposit.createQuery(params, function(err, results){
+
+    async.series([
+      function(callback){
+        Deposit.createQuery(params, callback);
+      },
+      function(callback){
+        Deposit.getAllRepositories(callback);
+      }
+    ],function(err, results){
+        callback(err, results);
+    });
+
+    /*Deposit.createQuery(params, function(err, results){
         Deposit.getAllRepositories(function(err, repos){
           callback(err, results);
         })
-    });
+    });*/
 };
 
 exports.getDeposit = function(req, res){
