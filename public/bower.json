@@ -85,7 +85,8 @@
     "humanize-plus": "^1.8.2",
     "angular-spinner": "^1.0.1",
     "angular-bootstrap-contextmenu": "^1.1.0",
-    "angular-ui-ace": "bower"
+    "angular-ui-ace": "bower",
+    "angular-timeline": "^1.7.0"
   },
   "resolutions": {
     "bootstrap": "~3",

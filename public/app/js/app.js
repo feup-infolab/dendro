@@ -41,7 +41,8 @@ var dendroApp = angular.module("dendroApp", [
     "angularSpinner",
     "ui.bootstrap.contextMenu",
     "ui.ace",
-    "chart.js"
+    "chart.js",
+    'angular-timeline'
 ]).filter("trustAsResourceUrl", ["$sce", function ($sce)
 {
     return function (val)

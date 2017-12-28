@@ -6,10 +6,27 @@
 </div>
 -->
 
-<div class="metrics" >
-    <canvas id="bar" width="200" height="100" class="chart chart-doughnut" chart-data="data" chart-labels="labels" chart-colors="colours">
+<!--<div class="metrics" >
+    <canvas id="bar" width="200" height="100" class="chart chart-line" chart-data="data" chart-labels="labels" chart-colors="colours">
     </canvas>
 </div>
 
 
-<button type="button" class="btn btn-primary pull-right" ng-click="updateData()">Update</button>
+<button type="button" class="btn btn-primary pull-right" ng-click="updateData()">Update</button>-->
+
+<div>
+<timeline>
+    <timeline-event ng-repeat="event in events" side="center">
+        <timeline-badge class="{{event.badgeClass}}">
+            <i class="glyphicon {{event.badgeIconClass}}"></i>
+        </timeline-badge>
+        <timeline-panel class="{{event.badgeClass}}">
+            <timeline-heading>
+                <h4>{{event.title}}</h4>
+            </timeline-heading>
+            <p>{{event.content}}</p>
+        </timeline-panel>
+    </timeline-event>
+</timeline>
+
+</div>

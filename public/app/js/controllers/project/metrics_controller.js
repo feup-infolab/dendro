@@ -25,6 +25,63 @@ angular.module('dendroApp.controllers')
             $scope.init = function () {
                 //$scope.loadData();
                // $scope.getOwner();
+
+
+                let deposit = {
+                    creator : null,
+                    date : "2017-12-21T17:14:53+00:00",
+                    description : "ckan",
+                    label : "new project",
+                    privacy : "private",
+                    projectTitle : "Gravimetry run campaign over the Azores",
+                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                    user : "demouser1"
+                };
+
+                let deposit2 = {
+                    creator : null,
+                    date : "2017-12-21T18:14:53+00:00",
+                    description : "ckan",
+                    label : "deposit",
+                    privacy : "private",
+                    projectTitle : "Gravimetry run campaign over the Azores",
+                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                    user : "demouser1"
+                };
+                let deposit3 = {
+                    creator : null,
+                    date : "2017-12-24T18:14:53+00:00",
+                    description : "ckan",
+                    label : "deposit",
+                    privacy : "private",
+                    projectTitle : "Gravimetry run campaign over the Azores",
+                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                    user : "demouser2"
+                };
+                let deposit4 = {
+                    creator : null,
+                    date : "2017-12-25T18:14:53+00:00",
+                    description : "ckan",
+                    label : "deposit",
+                    privacy : "private",
+                    projectTitle : "Gravimetry run campaign over the Azores",
+                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                    user : "demouser1"
+                };
+                let deposit5 = {
+                    creator : null,
+                    date : "2017-12-26T18:14:53+00:00",
+                    description : "ckan",
+                    label : "deposit",
+                    privacy : "private",
+                    projectTitle : "Gravimetry run campaign over the Azores",
+                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                    user : "demouser2"
+                };
+
+                var depositsSet =[deposit,deposit2,deposit3,deposit4,deposit5];
+                setChart(depositsSet);
+
                // $scope.startDeposits();
 
             };
@@ -89,18 +146,73 @@ angular.module('dendroApp.controllers')
                     headers: {"Accept": "application/json"}
                 }).then(function (response) {
                     let deposits = response.data;
-                    $scope.deposits = deposits;
+                    setChart(deposits);
                 }).catch(function (error) {
                     console.log(error);
                 });
             };
 
+            function setChart(deposits) {
+                for (let i =0; i < deposits.length; i++){
+                    if (deposits[i].label === "new project"){
+                        let event = {
+                        };
+                        var depositDate = new Date(deposits[i].date);
+                        depositDate.getMonth();
+                        event.badgeClass = "create";
+                        event.badgeIconClass = "glyphicon-map-marker";
+                        event.title = "Project " + deposits[i].projectTitle + "was created";
+                        event.content = "The project " + deposits[i].projectTitle + " was created by "+ deposits[i].user + " on the "
+                            + depositDate.getDay()+ "/"
+                        + depositDate.getMonth()+"/" + depositDate.getFullYear();
+                        $scope.events.push(event);
+                    }
+
+                    else if (deposits[i].label === "deposit"){
+                        let event = {
+                        };
+                        var depositDate = new Date(deposits[i].date);
+                        depositDate.getMonth();
+                        event.badgeClass = "ckan";
+                        event.badgeIconClass = "glyphicon-copy";
+                        event.title = "Deposit at " + deposits[i].description;
+                        event.content = "Deposit created at " + deposits[i].description + " was created by "+ deposits[i].user + " on the "
+                            + depositDate.getDay()+ "/"
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear() + " for the "+ deposits[i].projectTitle;
+                        $scope.events.push(event);
+                    }
+                }
+            }
+
+
+            $scope.events = [];
+
+
 
             //Chart Block
-            $scope.labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+            $scope.labels = [];
             $scope.data = [
-                [1, 4, 3]
+                [0,0,0]
             ];
+            $scope.datasetOverride = [{ yAxisID: 'y-axis-1' }, { yAxisID: 'y-axis-2' }];
+            $scope.options = {
+                scales: {
+                    yAxes: [
+                        {
+                            id: 'y-axis-1',
+                            type: 'linear',
+                            display: true,
+                            position: 'left'
+                        },
+                        {
+                            id: 'y-axis-2',
+                            type: 'linear',
+                            display: true,
+                            position: 'right'
+                        }
+                    ]
+                }
+            };
             $scope.colors = [
                 { // grey
                     backgroundColor: 'rgba(148,159,177,0.2)',
