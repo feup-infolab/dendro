@@ -178,7 +178,7 @@ angular.module('dendroApp.controllers')
                         event.title = "Deposit at " + deposits[i].description;
                         event.content = "Deposit created at " + deposits[i].description + " was created by "+ deposits[i].user + " on the "
                             + depositDate.getDay()+ "/"
-                            + depositDate.getMonth()+"/" + depositDate.getFullYear() + " for the "+ deposits[i].projectTitle;
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear() + " for the "+ deposits[i].projectTitle + " project.";
                         $scope.events.push(event);
                     }
                 }
