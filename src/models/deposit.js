@@ -156,6 +156,12 @@ Deposit.createQuery = function(params, callback){
             type : Elements.ontologies.dcterms.creator.type,
             value : params.self
           }]);
+    }else{
+      query += "   ?uri ddr:privacyStatus [" + i++ + "] . \n";
+      variables.push({
+        type : Elements.ontologies.ddr.privacyStatus.type,
+        value : "public"
+      },);
     }
 
     let ending =
@@ -269,15 +275,18 @@ Deposit.createAndInsertFromObject = function(object, callback){
     })
 };
 
-Deposit.getAllRepositories = function(callback){
+Deposit.getAllRepositories = function(params, callback){
     let query =
       "SELECT ?repository COUNT(?repository) as ?count\n" +
-      "FROM [0]" +
-      "WHERE {" +
+      "FROM [0] \n" +
+      "WHERE \n" +
+      "{ \n" +
       "   ?uri rdf:type ddr:Registry . \n" +
-      "   ?uri ddr:hasExternalUri ?repository" +
-      "}" +
-      "GROUP BY ?repository"
+      "   ?uri ddr:hasExternalUri ?repository . \n" +
+      "   ?uri ddr:exportedFromProject ?projused . \n";
+
+    const ending = "} \n" +
+      "GROUP BY ?repository";
 
     let variables = [
       {
@@ -285,9 +294,47 @@ Deposit.getAllRepositories = function(callback){
         value: db.graphUri
       }];
 
-    db.connection.executeViaJDBC(query,variables, function (err, regs){
-      callback(err, regs);
-    });
+    if(params.self){
+      query +=
+        "   { \n" +
+        "       { \n" +
+        "         ?uri ddr:privacyStatus [1] . \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { \n" +
+        "         ?uri ddr:privacyStatus [2] . \n" +
+        "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+        "         ?projused ?role [3] . \n" +
+        "       } \n" +
+        "   } \n";
+
+      variables = variables.concat([
+        {
+          type : Elements.ontologies.ddr.privacyStatus.type,
+          value : "public"
+        },
+        {
+          type : Elements.ontologies.ddr.privacyStatus.type,
+          value : "private"
+        },
+        {
+          type : Elements.ontologies.dcterms.creator.type,
+          value : params.self
+        }]);
+    } else{
+      query += "    ?uri ddr:privacyStatus [1]";
+      variables.push({
+        type : Elements.ontologies.ddr.privacyStatus.type,
+        value : "public"
+      });
+    }
+
+
+    query += ending;
+
+      db.connection.executeViaJDBC(query,variables, function (err, regs){
+        callback(err, regs);
+      });
 };
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");

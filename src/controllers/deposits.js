@@ -123,7 +123,11 @@ exports.allowed = function (req, callback) {
         Deposit.createQuery(params, callback);
       },
       function(callback){
-        Deposit.getAllRepositories(callback);
+        if(isNull(params.repositories))
+          Deposit.getAllRepositories(params, callback);
+        else{
+          callback(null);
+        }
       }
     ],function(err, results){
         callback(err, results);

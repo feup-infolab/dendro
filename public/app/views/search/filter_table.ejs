@@ -17,6 +17,7 @@
             <label ng-if="item.type !== 'dropdown'">
                 <input ng-model="iterator.value" ng-change="getRegistry()" ng-model-options="{debounce : 250}" type="{{item.type}}">
                 {{iterator.name}}
+                <b ng-if="iterator.count">({{iterator.count}})</b>
             </label>
         </td>
         <td>
