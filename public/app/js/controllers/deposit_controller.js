@@ -1,4 +1,4 @@
-angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
+angular.module('dendroApp.controllers', [])
 /**
  *  Project administration controller
  */
@@ -51,23 +51,57 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
                 },
                 privateDeposit: {
                   type: "checkbox",
-                  label: "Private Deposits",
+                  label: "Private Deposits only",
                   key: "private",
                   value: false,
                 },
                 system: {
                   type: "checkbox",
                   list: true,
-                  label: "System Used",
-                  key: "systems",
+                  label: "Platform Used",
+                  key: "platforms",
                   value: [
                     {
-                      name: "ckan",
-                      value: false,
+                      name: "CKAN",
+                      value: true,
                     },
                     {
-                      name: "b2Drop",
+                      name: "DSpace",
                       value: true,
+                    },
+                    {
+                      name: "EPrints",
+                      value: true,
+                    },
+                    {
+                      name: "Figshare",
+                      value: true,
+                    },
+                    {
+                      name: "Zenodo",
+                      value: true,
+                    },
+                    {
+                      name: "EUDAT B2Share",
+                      value: true,
+                    },
+                  ]
+                },
+                ordering: {
+                  type: "dropdown",
+                  list: true,
+                  label: "Order By",
+                  key: "order",
+                  selected: "Date",
+                  value: [
+                    {
+                      name: "Date",
+                    },
+                    {
+                      name: "Username",
+                    },
+                    {
+                      name: "Project",
                     }
                   ]
                 }
@@ -89,7 +123,7 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
             $scope.getRegistry();
         };
 
-        $scope.getRegistry = function(){
+        $scope.getRegistry = function(filters){
             let url = $scope.get_current_url();
             url += "deposits/latest";
             const params = $scope.parseFilter();
@@ -107,11 +141,30 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
                 //if data checks out
                 $scope.offset++;
 
-                let deposits = response.data;
+                let deposits = response.data.deposits;
                 for(let i = 0; i < deposits.length; i++){
                     deposits[i].date = moment(deposits[i].date).fromNow();
                 }
                 $scope.deposits = deposits;
+
+                const repository = response.data.repositories;
+                if($scope.search.repositories == null || $scope.search.repositories == undefined){
+                  $scope.search.repositories = {
+                    type: "checkbox",
+                    list: true,
+                    label: "Repository Used",
+                    key: "repositories",
+                    value: []
+                  }
+                  for(let repo of repository){
+                    $scope.search.repositories.value.push({
+                      name: repo.repository,
+                      count: repo.count,
+                      value: true
+                    })
+                  }
+                }
+
             }).catch(function(error){
                 console.log(error);
             });
@@ -120,8 +173,13 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
         $scope.parseFilter = function(){
             let search = {};
             for(item in $scope.search){
-              if($scope.search[item].value !== null && $scope.search[item].value !== "")
-              search[$scope.search[item].key] = $scope.search[item].value;
+              if($scope.search[item].value !== null && $scope.search[item].value !== ""){
+                if($scope.search[item].type === "dropdown"){
+                  search[$scope.search[item].key] = $scope.search[item].selected;
+                }else {
+                  search[$scope.search[item].key] = $scope.search[item].value;
+                }
+              }
             }
             return search;
         };
@@ -169,8 +227,15 @@ angular.module('dendroApp.controllers', ['ui.scroll', 'ui.scroll.grid'])
     .directive("searchBar", function (
 
     ) {
-        //let searchParameters = $scope.search();
         return {
-          template: "{{search.creator.label}} <br/><input type='{{search.creator.type}}' > "
-        }
+          restrict: "ACE",
+          scope: true,
+          replace: true,
+          templateUrl: "/app/views/search/filter_table.ejs",
+          link: function(scope, elem, attr){
+            scope.attr = function(){
+              return attr.searchmodel;
+            }
+          }
+        };
     });

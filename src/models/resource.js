@@ -1,8 +1,10 @@
 const path = require("path");
+const validator = require("validator");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
@@ -196,7 +198,15 @@ Resource.exists = function (uri, callback, customGraphUri)
         });
 };
 
-Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+Resource.for_all = function (
+    resourcePageCallback,
+    checkFunction,
+    finalCallback,
+    customGraphUri,
+    descriptorTypesToRemove,
+    descriptorTypesToExemptFromRemoval,
+    includeArchivedResources
+)
 {
     const self = this;
     const type = self.prefixedRDFType;
@@ -263,6 +273,11 @@ Resource.for_all = function (resourcePageCallback, checkFunction, finalCallback,
     else
     {
         query = query + " ?uri ?p ?o\n";
+    }
+
+    if (isNull(includeArchivedResources) || !includeArchivedResources)
+    {
+        query = query + "\nFILTER NOT EXISTS { ?uri rdf:type ddr:ArchivedResource }";
     }
 
     query = query + "} \n";
@@ -1483,7 +1498,7 @@ Resource.prototype.reindex = function (indexConnection, callback)
                 let value = result.value[j];
                 descriptors.push({
                     predicate: result.uri,
-                    object: value
+                    object: value.toString()
                 });
             }
         }
@@ -1491,13 +1506,13 @@ Resource.prototype.reindex = function (indexConnection, callback)
         {
             descriptors.push({
                 predicate: result.uri,
-                object: result.value
+                object: result.value.toString()
             });
         }
     }
 
     // Remove all non-textual values from index
-    /*const validator = require("validator");
+    /* const validator = require("validator");
     descriptors = _.filter(descriptors, function (descriptor)
     {
         const value = descriptor.object;
@@ -3564,21 +3579,43 @@ Resource.prototype.isA = function (prototype)
 {
     let self = this;
 
-    const myRDFType = self.rdf.type;
-
     const getFullUri = function (prefixedForm)
     {
+        if (validator.isURL(prefixedForm))
+        {
+            return prefixedForm;
+        }
+
         const prefix = prefixedForm.split(":")[0];
         const shortName = prefixedForm.split(":")[1];
         const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
         return Ontology.allOntologies[prefix].uri + shortName;
     };
 
-    const objectRDFType = _.map(prototype.prefixedRDFType, getFullUri);
+    let myRDFType = self.rdf.type;
+    let objectRDFType = prototype.prefixedRDFType;
 
-    if (!isNull(myRDFType))
+    if (myRDFType instanceof Array)
     {
-        if (!isNull(objectRDFType))
+        myRDFType = _.map(myRDFType, getFullUri);
+    }
+    else
+    {
+        myRDFType = getFullUri(myRDFType);
+    }
+
+    if (objectRDFType instanceof Array)
+    {
+        objectRDFType = _.map(objectRDFType, getFullUri);
+    }
+    else
+    {
+        objectRDFType = getFullUri(objectRDFType);
+    }
+
+    if (!isNull(self.rdf.type))
+    {
+        if (!isNull(prototype.prefixedRDFType))
         {
             if (typeof objectRDFType === "string" && typeof myRDFType === "string")
             {
@@ -3590,16 +3627,17 @@ Resource.prototype.isA = function (prototype)
                 {
                     return false;
                 }
+
                 const myRDFTypeSorted = _.uniq(myRDFType.sort(), true);
                 const objectRDFTypeSorted = _.uniq(objectRDFType.sort(), true);
 
                 return _.isEqual(myRDFTypeSorted, objectRDFTypeSorted);
             }
+
+            return false;
         }
-        else
-        {
-            throw new Error("Unable to determine rdf:type of " + prototype.name);
-        }
+
+        throw new Error("Unable to determine rdf:type of " + prototype.name);
     }
     else
     {

@@ -22,12 +22,11 @@ if(results.length > 0)
                 <option value="<%= pageSizes[i] %>"
                         <% if(pageSizes[i] == locals.pageSize) { %>
                         selected="true"
-                        <% } %>
-                >
-                    <%= pageSizes[i] %></option>
+                        <% } %>>
+                    <%= pageSizes[i] %>
+                </option>
 
                 <% } %>
-
 
                 <option value="50">50</option>
                 <option value="200">300</option>
@@ -38,22 +37,69 @@ if(results.length > 0)
         </div>
 
         <% } %>
+
         <% for(var i = 0; i < results.length; i++) {
 
             var result = results[i];
+            var resultType = types[i];
+            var resultMetadata = metadata[i];
         %>
         <div class="well">
             <div class="row">
                 <div class="col-lg-1">
-                    <%=JSON.stringify(result.rdf)%>
-                    <%=result.leafClass%>
-
-
+                <% var titleValue;%>
+                <% if(resultType === "folder") { %>
+                    <img src="<%=result.uri%>?thumbnail&size=tiny">
+                    <%titleValue = result.nie.title %>
+                <%} else if(resultType === "project") { %>
+                    <img src="/images/icons/box_closed.png">
+                    <%titleValue = result.nie.title %>
+                <%} else if(resultType === "file") { %>
+                    <img src="<%=result.uri%>?thumbnail&size=tiny">
+                    <%titleValue = result.nie.title %>
+                <%} else if(resultType === "user") { %>
+                    <img src="<%=result.uri%>?avatar">
+                    <%titleValue = result.foaf.firstname + " " + result.foaf.lastname %>
+                <%} %>
                 </div>
-                <div class="col-lg-11">
-                    <b><a href="<%=result.uri%>"><%=result.dcterms.title%></a></b>
-                    <br/>
-                    <%=result.dcterms.description%>
+                <div class="col-lg-2">
+                    <b><a href="<%=result.uri%>"><%=titleValue%></a></b>
+                </div>
+                <div class="col-lg-9">
+                    <% for(var j = 0; j < resultMetadata.length; j++) {
+                        var descriptor = resultMetadata[j];
+                    %>
+
+                    <% if(descriptor.prefixedForm !== "nie:isLogicalPartOf" && descriptor.prefixedForm !== "nie:hasLogicalPart") { %>
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <strong>
+                                        <%= descriptor.label %>
+                                    </strong>
+                                </div>
+
+                                <div class="col-lg-9">
+                                    <% if( descriptor.value instanceof Array) { %>
+                                        <% for(var k = 0; k < descriptor.value.length; k++) {
+                                            var descriptorValue = descriptor.value[k];
+                                        %>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <%= descriptorValue %>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    <% } else { %>
+                                        <%= descriptor.value %>
+                                    <% } %>
+                                </div>
+
+                                <div class="col-lg-12 help-block">
+                                    <%= descriptor.comment %>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% } %>
                 </div>
             </div>
         </div>

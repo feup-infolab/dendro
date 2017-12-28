@@ -189,3 +189,11 @@ Utils.fade_messages = function () {
 if (typeof exports !== 'undefined') {
   exports.Utils = Utils
 }
+
+Utils.anyToString = function(value)
+{
+    if(typeof value === "number")
+        return value + "";
+    else
+        return value;
+};

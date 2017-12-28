@@ -1217,7 +1217,9 @@ Elements.ontologies.ddr = {
   {
       type: Elements.types.string,
       locked: true,
-      control: Controls.input_box
+      private: true,
+      control: Controls.input_box,
+      api_readable: true
   },
     pageNumber:
   {
@@ -1274,6 +1276,24 @@ Elements.ontologies.ddr = {
       type: Elements.types.resource,
       control: Controls.url_box,
       locked_for_projects: true
+  },
+    exportedResource:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box,
+      locked_for_projects: true
+  },
+    exportedFromFolder:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box,
+      locked_for_projects: true
+  },
+    exportedToPlatform:
+  {
+      type: Elements.types.string,
+      locked: true,
+      control: Controls.input_box
   }
 };
 

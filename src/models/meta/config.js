@@ -227,6 +227,34 @@ Config.cache = getConfigParameter("cache");
  * @type {{default: {baseURI: string, graphName: string, graphUri: string}}}
  */
 
+Config.getDBByHandle = function (dbHandle)
+{
+    if (!isNull(dbHandle))
+    {
+        const key = _.find(Object.keys(Config.db), function(key){
+            return Config.db[key].graphHandle === dbHandle;
+        });
+
+        if(!isNull(key))
+        {
+            return Config.db[key];
+        }
+        else
+        {
+            return null;
+        }
+    }
+    else
+    {
+        return Config.db.default;
+    }
+};
+
+/**
+ * Database connection (s).
+ * @type {{default: {baseURI: string, graphName: string, graphUri: string}}}
+ */
+
 Config.getDBByID = function (DBID)
 {
     if (!isNull(DBID))
@@ -680,6 +708,11 @@ Config.thumbnails = {
           description: "icon",
           width: 32,
           height: 32
+      },
+      tiny: {
+          description: "tiny",
+          width: 16,
+          height: 16
       }
   }
 };

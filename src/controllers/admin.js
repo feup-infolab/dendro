@@ -11,6 +11,14 @@ const fs = require("fs");
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+
+let classesToReindex = [Folder, File, User, Project];
+
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 module.exports.home = function (req, res)
@@ -150,57 +158,66 @@ module.exports.reindex = function (req, res)
                 function (callback)
                 {
                     let failed;
-                    Resource.for_all(
-                        function (err, resources)
-                        {
-                            if (isNull(err))
-                            {
-                                if (resources.length > 0)
-                                {
-                                    async.map(resources, function (resource, callback)
-                                    {
-                                        Logger.log("Resource " + resource.uri + " now being reindexed.");
 
-                                        resource.reindex(indexConnection, function (err, results)
+                    async.mapSeries(classesToReindex, function (classToReindex, cb)
+                    {
+                        const customGraphUri = Config.getDBByHandle(graphShortName);
+                        classToReindex.for_all(
+                            function (err, resources)
+                            {
+                                if (isNull(err))
+                                {
+                                    if (resources.length > 0)
+                                    {
+                                        async.mapSeries(resources, function (resource, callback)
+                                        {
+                                            Logger.log("Resource " + resource.uri + " now being reindexed.");
+
+                                            resource.reindex(indexConnection, function (err, results)
+                                            {
+                                                if (err)
+                                                {
+                                                    Logger.log("error", "Error indexing Resource " + resource.uri + " : " + results);
+                                                    failed = true;
+                                                }
+
+                                                callback(failed, results);
+                                            });
+                                        }, function (err, results)
                                         {
                                             if (err)
                                             {
-                                                Logger.log("error", "Error indexing Resource " + resource.uri + " : " + results);
+                                                Logger.log("error", "Errors occurred indexing all Resources : " + results);
                                                 failed = true;
                                             }
 
-                                            callback(failed, results);
+                                            return callback(failed, null);
                                         });
-                                    }, function (err, results)
+                                    }
+                                    else
                                     {
-                                        if (err)
-                                        {
-                                            Logger.log("error", "Errors occurred indexing all Resources : " + results);
-                                            failed = true;
-                                        }
-
                                         return callback(failed, null);
-                                    });
+                                    }
                                 }
                                 else
                                 {
-                                    return callback(failed, null);
+                                    failed = true;
+                                    return callback(failed, "Error fetching all resources in the graph : " + resources);
                                 }
-                            }
-                            else
+                            },
+                            function ()
                             {
-                                failed = true;
-                                return callback(failed, "Error fetching all resources in the graph : " + resources);
-                            }
-                        },
-                        function ()
-                        {
-                            return failed;
-                        },
-                        function (err)
-                        {
-                            return callback(err, null);
-                        });
+                                return failed;
+                            },
+                            function (err)
+                            {
+                                return cb(err, null);
+                            }, (!isNull(customGraphUri)) ? customGraphUri.graphUri : Config.getDBByID()
+                        );
+                    }, function (err, results)
+                    {
+                        callback(err, results);
+                    });
                 }
             ],
             function (err, results)

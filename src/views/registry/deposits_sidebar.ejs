@@ -1,5 +1,5 @@
 <form class="deposit-sidebar">
-    Search registry
+    <h4 class="sidebar-title">Search registry</h4>
     <!--<div class="form-group" ng-repeat="item in search track by $index">
         <label>
             {{item.label}}
@@ -15,38 +15,5 @@
         </label>
     </div>
 -->
-    <div search-bar></div>
-    <!--<div>
-        <label>
-            Username
-            <input ng-model="search.creator" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="text">
-        </label>
-        <label>
-            Project
-            <input ng-model="search.project" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="text">
-        </label>routes.S
-        <label>
-            System Used
-            <p ng-repeat="(system,value) in search.system track by $index">
-                <input ng-model="value" type="checkbox"> {{system}}
-            </p>
-        </label>
-        <label>
-            Date start
-            <input ng-model="search.dateFrom" ng-change="getRegistry()" type="date">
-        </label>
-        <label>
-            Date end
-            <input ng-model="search.dateTo" ng-change="getRegistry()" type="date">
-        </label> <br>
-        <label>
-            Include private deposits
-            <input ng-model="search.privateDeposit" ng-change="getRegistry()" type="checkbox">
-        </label>
-        <label> <br>
-            System used <br>
-            <input name="system" type="radio" ng-checked="search.system" checked> All <br>
-            <input name="system" type="radio" ng-checked="search.system"> Ckan <br>
-        </label>
-    </div>-->
+    <div search-bar searchmodel="search"></div>
 </form>

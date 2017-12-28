@@ -29,60 +29,80 @@ angular.module('dendroApp.controllers')
 
                 let deposit = {
                     creator : null,
-                    date : "2017-12-21T17:14:53+00:00",
-                    description : "ckan",
-                    label : "new project",
+                    date : "2017-12-28T19:54:56+00:00",
+                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                    folderName : "gravimetry01",
+                    label : "B2Share Metrics",
+                    platformsUsed : null,
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                    repository : "trng-b2share.eudat.eu",
+                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
                     user : "demouser1"
                 };
 
                 let deposit2 = {
                     creator : null,
-                    date : "2017-12-21T18:14:53+00:00",
-                    description : "ckan",
-                    label : "deposit",
+                    date : "2017-12-28T19:54:56+00:00",
+                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                    folderName : "gravimetry01",
+                    label : "B2Share Metrics",
+                    platformsUsed : null,
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                    repository : "trng-b2share.eudat.eu",
+                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
                     user : "demouser1"
                 };
                 let deposit3 = {
                     creator : null,
-                    date : "2017-12-24T18:14:53+00:00",
-                    description : "ckan",
-                    label : "deposit",
+                    date : "2017-12-28T19:54:56+00:00",
+                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                    folderName : "gravimetry01",
+                    label : "B2Share Metrics",
+                    platformsUsed : null,
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    user : "demouser2"
+                    repository : "trng-b2share.eudat.eu",
+                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
+                    user : "demouser1"
                 };
                 let deposit4 = {
                     creator : null,
-                    date : "2017-12-25T18:14:53+00:00",
-                    description : "ckan",
-                    label : "deposit",
+                    date : "2017-12-28T19:54:56+00:00",
+                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                    folderName : "gravimetry01",
+                    label : "B2Share Metrics",
+                    platformsUsed : null,
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                    repository : "trng-b2share.eudat.eu",
+                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
                     user : "demouser1"
                 };
                 let deposit5 = {
                     creator : null,
-                    date : "2017-12-26T18:14:53+00:00",
-                    description : "ckan",
-                    label : "deposit",
+                    date : "2017-12-28T19:54:56+00:00",
+                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                    folderName : "gravimetry01",
+                    label : "B2Share Metrics",
+                    platformsUsed : null,
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    user : "demouser2"
+                    repository : "trng-b2share.eudat.eu",
+                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
+                    user : "demouser1"
                 };
 
                 var depositsSet =[deposit,deposit2,deposit3,deposit4,deposit5];
                 setChart(depositsSet);
 
-               // $scope.startDeposits();
+                $scope.startDeposits();
 
             };
 
@@ -134,10 +154,13 @@ angular.module('dendroApp.controllers')
             $scope.startDeposits = function () {
                 let url = $scope.get_host();
                 url += "/metrics/deposits";
+                let platforms = ["CKAN","DSpace","EPrints","Figshare","Zenodo","EUDAT B2Share"];
                 let param =
                     {
-                        id: window.location.pathname
+                        id: window.location.pathname,
+                        platforms: platforms
                     };
+
                 $http({
                     method: "GET",
                     url: url,
@@ -154,7 +177,7 @@ angular.module('dendroApp.controllers')
 
             function setChart(deposits) {
                 for (let i =0; i < deposits.length; i++){
-                    if (deposits[i].label === "new project"){
+/*                    if (deposits[i].label === "new project"){
                         let event = {
                         };
                         var depositDate = new Date(deposits[i].date);
@@ -166,14 +189,25 @@ angular.module('dendroApp.controllers')
                             + depositDate.getDay()+ "/"
                         + depositDate.getMonth()+"/" + depositDate.getFullYear();
                         $scope.events.push(event);
-                    }
+                    }*/
 
-                    else if (deposits[i].label === "deposit"){
+                    if (deposits[i].repository === "trng-b2share.eudat.eu"){
                         let event = {
                         };
                         var depositDate = new Date(deposits[i].date);
-                        depositDate.getMonth();
-                        event.badgeClass = "ckan";
+                        event.badgeClass = "b2share";
+                        event.badgeIconClass = "glyphicon-copy";
+                        event.title = "Deposit at " + deposits[i].description;
+                        event.content = "Deposit created at " + deposits[i].description + " was created by "+ deposits[i].user + " on the "
+                            + depositDate.getDay()+ "/"
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear() + " for the "+ deposits[i].projectTitle + " project.";
+                        $scope.events.push(event);
+                    }
+                    else if (deposits[i].repository === "http://www.zenodo.org/"){
+                        let event = {
+                        };
+                        var depositDate = new Date(deposits[i].date);
+                        event.badgeClass = "b2share";
                         event.badgeIconClass = "glyphicon-copy";
                         event.title = "Deposit at " + deposits[i].description;
                         event.content = "Deposit created at " + deposits[i].description + " was created by "+ deposits[i].user + " on the "

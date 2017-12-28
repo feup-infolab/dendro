@@ -20,6 +20,7 @@ const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Cl
 const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
@@ -40,7 +41,7 @@ function Deposit(object){
     self.dcterms.date = now;
     const uuid = require('uuid');
 
-    self.uri = Config.baseUri + "/deposit/" + uuid.v4();
+    //self.uri = Config.baseUri + "/deposit/" + uuid.v4();
 
     return self;
 }
@@ -48,134 +49,54 @@ function Deposit(object){
 Deposit.createDepositRegistry = function (object, callback) {
     const newRegistry = new Deposit(object);
 
-    console.log("creating registry from deposit\n" + util.inspect(object));
+    const requestedResourceURI = object.ddr.exportedResource;
 
-    newRegistry.save(function(err, newRegistry){
-        if(!err){
-            callback(err, newRegistry);
-        } else{
+    const isResource = function (url)
+    {
+      const regexp = /\/r\/(folder|file)\/.*/;
+        return regexp.test(url);
+    };
 
-        }
-    });
-};
-
-Deposit.public = function(publicPrivacy, page, offset, callback){
-
-    const query =
-        "SELECT ?label ?user ?date ?description ?title ?projused ?creator ?privacy \n" +
-        "FROM [0] \n"  +
-        "WHERE { \n" +
-            "?uri rdf:type ddr:Registry . \n" +
-            "?uri ddr:exportedFromProject ?projused . \n" +
-            "?uri ddr:privacyStatus [1] . \n" +
-            "?projused ddr:privacyStatus ?privacy . \n" +
-            "?projused dcterms:title ?title . \n" +
-            "?uri dcterms:creator ?user . \n" +
-            "?uri dcterms:title ?label . \n" +
-            "?uri dcterms:date ?date . \n" +
-            "?uri dcterms:description ?description . \n" +
-        "} \n" +
-        "ORDER BY ?date \n" +
-        "LIMIT [2] \n" +
-        "OFFSET [3]";
-
-    db.connection.executeViaJDBC(query,
-        [   {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
-            },
-            {
-                type : DbConnection.string,
-                value : publicPrivacy
-            },
-            {
-                type : DbConnection.string,
-                value : page
-            },
-            {
-                type : DbConnection.string,
-                value : offset
-            }
-        ], function (err, results){
-
-            //do this client-side
-            let deposits = results;
-            for(let i = 0; i < deposits.length; i++){
-                deposits[i].date = moment(deposits[i].date).fromNow();
-            }
-            //check for error
-            callback(err, deposits);
+    if(requestedResourceURI instanceof Array && requestedResourceURI.length > 0){
+      const resourceUri = requestedResourceURI[0];
+      if(isResource(resourceUri)){
+        const info = new InformationElement({
+          uri: resourceUri,
         });
-};
 
-Deposit.allowed = function(username, parameters, callback){
+        info.getOwnerProject(function (err, ie) {
+          newRegistry.ddr.exportedFromProject = ie.uri;
 
-    const query =
-        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy\n" +
-        "FROM [0] \n"  +
-        "WHERE " +
-        "{ \n" +
-        "   ?uri rdf:type ddr:Registry . \n" +
-        "   ?uri ddr:exportedFromProject ?projused . \n" +
-        "   { \n" +
-        "       ?projused ddr:privacyStatus [1] . \n" +
-        "       ?projused rdf:type ddr:Project . \n" +
-        "       ?projused dcterms:title ?projectTitle . \n" +
-        "       ?projused ddr:privacyStatus ?privacy . \n" +
-        "       { \n" +
-        "           ?projused dcterms:creator ?creator . \n" +
-        "           ?creator ddr:username [2] \n" +
-        "       } \n" +
-        "       UNION \n" +
-        "       { \n" +
-        "           ?projused dcterms:contributor ?contributor . \n" +
-        "           ?contributor ddr:username [2] \n" +
-        "       } \n" +
-        "       UNION \n" +
-        "       { " +
-        "           ?projused ddr:privacyStatus [3] \n" +
-        "       }\n"+
-        "   } \n" +
-        "   ?uri dcterms:creator ?user . \n" +
-        "   ?uri dcterms:title ?label . \n" +
-        "   ?uri dcterms:date ?date . \n" +
-        "   ?uri dcterms:description ?description . \n" +
-        "} \n" +
-        "ORDER BY ?date ";
+          info.getParent(function(err, ie){
+            newRegistry.ddr.exportedFromFolder = ie.uri;
+            if (isNull(err)) {
 
-    db.connection.executeViaJDBC(query,
-        [   {
-            type : DbConnection.resourceNoEscape,
-            value : db.graphUri
-        },
-            {
-                type : DbConnection.string,
-                value : "private"
-            },
-            {
-                type : DbConnection.string,
-                value : username
-            },
-            {
-                type : DbConnection.string,
-                value : "public"
+              console.log("creating registry from deposit\n" + util.inspect(object));
+
+              newRegistry.save(function(err, newRegistry){
+                if(!err){
+                  callback(err, newRegistry);
+                } else{
+
+                }
+              });
             }
-        ], function (err, results){
+          });
 
-            let deposits = results;
-
-            //make this operation client-side
-            for(let i = 0; i < deposits.length; i++){
-                deposits[i].date = moment(deposits[i].date).fromNow();
-            }
-            //check for error
-            callback(err, deposits);
         });
+      }else{
+        return;
+      }
+    }else{
+      return;
+    }
+
+
 };
 
 Deposit.createQuery = function(params, callback){
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?description ?projectTitle ?projused ?creator ?privacy\n" +
+        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName ?repository \n" +
         "FROM [0] \n"  +
         "WHERE " +
         "{ \n" +
@@ -184,46 +105,70 @@ Deposit.createQuery = function(params, callback){
         "   ?projused rdf:type ddr:Project . \n" +
         "   ?projused dcterms:title ?projectTitle . \n" +
         "   ?projused ddr:privacyStatus ?privacy . \n" +
-        "   { \n" +
-        "       { \n" +
-        "         ?uri ddr:privacyStatus [1] . \n" +
-        "       } \n" +
-        "       UNION \n" +
-        "       { \n" +
-        "         ?uri ddr:privacyStatus [2] . \n" +
-        "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-        "         ?projused ?role [3] . \n" +
-        "       } \n" +
-        "   } \n" +
         "   ?uri dcterms:creator ?user . \n" +
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
-        "   ?uri dcterms:description ?description . \n";
+        "   ?uri ddr:exportedFromFolder ?folder . \n" +
+        "   ?uri ddr:hasExternalUri ?repository . \n" +
+        "   ?folder nie:title ?folderName . \n";
 
-
-    let ending =
-        "} \n" +
-        "ORDER BY DESC(?date) \n" +
-        "OFFSET [4] \n" +
-        "LIMIT [5]";
+    let i = 1;
 
     let variables = [
         {
             type: Elements.types.resourceNoEscape,
             value: db.graphUri
-        },
-        {
-            type : Elements.types.string,
-            value : "public"
-        },
-        {
-            type : Elements.types.string,
+        }];
+
+    if(params.self){
+        if(isNull(params.private) || params.private === "false"){
+            query +=
+              "   { \n" +
+              "       { \n" +
+              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+              "       } \n" +
+              "       UNION \n" +
+              "       { \n" +
+              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+              "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+              "         ?projused ?role [" + i++ + "] . \n" +
+              "       } \n" +
+              "   } \n";
+
+            variables.push(
+              {
+                type : Elements.ontologies.ddr.privacyStatus.type,
+                value : "public"
+              }
+            );
+        }else {
+          query +=
+            "    ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+            "    VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+            "    ?projused ?role [" + i++ + "] . \n";
+        }
+        variables = variables.concat([
+          {
+            type : Elements.ontologies.ddr.privacyStatus.type,
             value : "private"
-        },
-        {
-            type : Elements.types.string,
+          },
+          {
+            type : Elements.ontologies.dcterms.creator.type,
             value : params.self
-        },];
+          }]);
+    }else{
+      query += "   ?uri ddr:privacyStatus [" + i++ + "] . \n";
+      variables.push({
+        type : Elements.ontologies.ddr.privacyStatus.type,
+        value : "public"
+      },);
+    }
+
+    let ending =
+        "} \n" +
+        "ORDER BY DESC(?" + params.order + ") \n" +
+        "OFFSET [" + i++ + "] \n" +
+        "LIMIT [" + i++ + "]";
 
     if(params.offset){
         variables.push({
@@ -249,27 +194,53 @@ Deposit.createQuery = function(params, callback){
         });
     }
 
-    let i = 6;
     if(params.project){
         query += "  ?projused dcterms:title [" + i++ + "] \n";
         variables.push({
-            type: Elements.types.string,
+            type: Elements.ontologies.dcterms.title.type,
             value: params.project
         });
     }
     if(params.creator){
         query += "  ?uri dcterms:creator [" + i++ + "] \n";
         variables.push({
-            type: Elements.types.resourceNoEscape,
+            type: Elements.ontologies.dcterms.creator.type,
             value: params.creator
         });
     }
-    if(params.description){
-        query += "  ?uri dcterms:description [" + i++ + "] \n";
+    if(params.platforms){
+      query +=
+        "    VALUES ?platformsUsed {";
+
+      for(let j = 0; j < params.platforms.length; j++) {
+        query += "[" + i++ + "] ";
         variables.push({
-            type: Elements.types.resourceNoEscape,
-            value: params.description
+          type: Elements.types.string,
+          value: params.platforms[j]
         });
+      }
+      query +=
+      "} . \n" +
+        "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+
+
+    }
+    if(params.repositories){
+      query +=
+        "    VALUES ?repository { ";
+
+      for(let j = 0; j < params.repositories.length; j++) {
+        query += "[" + i++ + "] ";
+        variables.push({
+          type: Elements.ontologies.ddr.hasExternalUri.type ,
+          value: params.repositories[j]
+        });
+      }
+      query +=
+        "} . \n" +
+        "    ?uri ddr:hasExternalUri ?repository . \n";
+
+
     }
     if(params.dateFrom){
         query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
@@ -302,6 +273,68 @@ Deposit.createAndInsertFromObject = function(object, callback){
 
         }
     })
+};
+
+Deposit.getAllRepositories = function(params, callback){
+    let query =
+      "SELECT ?repository COUNT(?repository) as ?count\n" +
+      "FROM [0] \n" +
+      "WHERE \n" +
+      "{ \n" +
+      "   ?uri rdf:type ddr:Registry . \n" +
+      "   ?uri ddr:hasExternalUri ?repository . \n" +
+      "   ?uri ddr:exportedFromProject ?projused . \n";
+
+    const ending = "} \n" +
+      "GROUP BY ?repository";
+
+    let variables = [
+      {
+        type: Elements.types.resourceNoEscape,
+        value: db.graphUri
+      }];
+
+    if(params.self){
+      query +=
+        "   { \n" +
+        "       { \n" +
+        "         ?uri ddr:privacyStatus [1] . \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { \n" +
+        "         ?uri ddr:privacyStatus [2] . \n" +
+        "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+        "         ?projused ?role [3] . \n" +
+        "       } \n" +
+        "   } \n";
+
+      variables = variables.concat([
+        {
+          type : Elements.ontologies.ddr.privacyStatus.type,
+          value : "public"
+        },
+        {
+          type : Elements.ontologies.ddr.privacyStatus.type,
+          value : "private"
+        },
+        {
+          type : Elements.ontologies.dcterms.creator.type,
+          value : params.self
+        }]);
+    } else{
+      query += "    ?uri ddr:privacyStatus [1]";
+      variables.push({
+        type : Elements.ontologies.ddr.privacyStatus.type,
+        value : "public"
+      });
+    }
+
+
+    query += ending;
+
+      db.connection.executeViaJDBC(query,variables, function (err, regs){
+        callback(err, regs);
+      });
 };
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");

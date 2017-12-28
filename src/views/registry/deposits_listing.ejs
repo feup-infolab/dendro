@@ -10,18 +10,23 @@
                 <div class="col-md-8">
                     <div class="table-container deposits-table">
                         <table class="table table-responsive table-striped table-bordered">
-                            <tbody ui-scroll-viewport="">
+                            <tbody>
                             <tr ng-repeat="deposit in deposits track by $index" buffer-size="20" >
                                 <td>
                                     <div class="media">
                                         <div class="media-body">
                                             <span class="media-meta pull-right">{{deposit.date}}</span>
                                             <h4 class="title">
-                                                <a href="{{deposit.creator}}">                                            {{deposit.user}}</a> deposited the folder <a
-                                                        href="" class="foldersLabel">boom</a> from {{deposit.privacy}} project <a href="{{deposit.projused}}">{{deposit.projectTitle}}</a> in {{deposit.description}}
+                                                <a href="{{deposit.creator}}">                                            {{deposit.user}}</a> deposited from the folder <a
+                                                        href="{{deposit.folder}}" class="foldersLabel">{{deposit.folderName}}</a> from {{deposit.privacy}} project <a href="{{deposit.projused}}" class="foldersLabel">{{deposit.projectTitle}}</a> in {{deposit.platformsUsed}}
                                             </h4>
-                                            <p class="summary">{{deposit.label}}</p>
-                                            <img src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="ckan">
+                                            <p class="summary">{{deposit.label}}
+                                            </p>
+                                            <p>
+                                                <img src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="ckan">
+                                                <a href="{{deposit.uri}}" class="pull-right deposit-list-info">See more</a>
+                                            </p>
+
                                         </div>
                                     </div>
                                 </td>

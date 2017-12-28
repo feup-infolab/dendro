@@ -20,6 +20,7 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
 
+
 const nodemailer = require("nodemailer");
 const db = Config.getDBByID();
 const flash = require("connect-flash");
@@ -910,8 +911,8 @@ exports.new = function (req, res)
                         {
                             if (isNull(err))
                             {
-/*                                req.flash('success', 'New project ' + projectData.dcterms.title + ' with handle ' + projectData.ddr.handle + ' created successfully');
-                                res.redirect('/projects/my');*/
+                                req.flash('success', 'New project ' + projectData.dcterms.title + ' with handle ' + projectData.ddr.handle + ' created successfully');
+                                res.redirect('/projects/my');
 
                                 const registryData = {
                                     dcterms: {
@@ -927,8 +928,8 @@ exports.new = function (req, res)
                                 Deposit.createDepositRegistry(registryData, function(err, result){
                                     console.log(result);
                                 });
-                                req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
-                                res.redirect("/projects/my");
+                                /*req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
+                                res.redirect("/projects/my");*/
                             }
                             else
                             {

@@ -640,7 +640,7 @@ InformationElement.isSafePath = function (absPath, callback)
     });
 };
 
-InformationElement.prototype.findMetadata = function (callback, typeConfigsToRetain)
+InformationElement.prototype.findMetadata = function (callback, typeConfigsToRetain, recursive)
 {
     const async = require("async");
 
@@ -681,29 +681,63 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
 
                             if (children.length > 0)
                             {
-                                // 1st parameter in async.each() is the array of items
-                                async.each(children,
-                                    // 2nd parameter is the function that each item is passed into
-                                    function (child, callback)
-                                    {
-                                        // Call an asynchronous function
-                                        metadataResult.hasLogicalParts.push({
-                                            title: child.nie.title
-                                        });
-                                        return callback(null);
-                                    },
-                                    // 3rd parameter is the function call when everything is done
-                                    function (err)
-                                    {
-                                        if (isNull(err))
+                                if (recursive)
+                                {
+                                    // 1st parameter in async.each() is the array of items
+                                    async.each(children,
+                                        // 2nd parameter is the function that each item is passed into
+                                        function (child, callback)
                                         {
-                                            // All tasks are done now
-                                            return callback(null, metadataResult);
+                                            // Call an asynchronous function
+                                            child.findMetadataRecursive(function (err, result2)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    metadataResult.hasLogicalParts.push(result2);
+                                                    return callback(null);
+                                                }
+                                                Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                                return callback(err);
+                                            }, typeConfigsToRetain);
+                                        },
+                                        // 3rd parameter is the function call when everything is done
+                                        function (err)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                // All tasks are done now
+                                                return callback(null, metadataResult);
+                                            }
+                                            return callback(true, null);
                                         }
+                                    );
+                                }
+                                else
+                                {
+                                    // 1st parameter in async.each() is the array of items
+                                    async.each(children,
+                                        // 2nd parameter is the function that each item is passed into
+                                        function (child, callback)
+                                        {
+                                            // Call an asynchronous function
+                                            metadataResult.hasLogicalParts.push({
+                                                title: child.nie.title
+                                            });
+                                            return callback(null);
+                                        },
+                                        // 3rd parameter is the function call when everything is done
+                                        function (err)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                // All tasks are done now
+                                                return callback(null, metadataResult);
+                                            }
 
-                                        return callback(true, null);
-                                    }
-                                );
+                                            return callback(true, null);
+                                        }
+                                    );
+                                }
                             }
                             else
                             {
