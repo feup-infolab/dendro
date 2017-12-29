@@ -14,19 +14,33 @@
 
 <button type="button" class="btn btn-primary pull-right" ng-click="updateData()">Update</button>-->
 
-<div>
-<timeline>
-    <timeline-event ng-repeat="event in events" side="center">
-        <timeline-badge class="{{event.badgeClass}}">
-            <i class="glyphicon {{event.badgeIconClass}}"></i>
-        </timeline-badge>
-        <timeline-panel class="{{event.badgeClass}}">
-            <timeline-heading>
-                <h4>{{event.title}}</h4>
-            </timeline-heading>
-            <p>{{event.content}}</p>
-        </timeline-panel>
-    </timeline-event>
-</timeline>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h4>Deposits Timeline</h4>
+    </div>
+    <div class="panel-body">
+        <div class="container">
+            <div class="row">
+                <timeline>
+                    <timeline-event ng-repeat="event in events" side="">
+                        <timeline-badge class="{{event.badgeClass}}">
+                            <i class="glyphicon {{event.badgeIconClass}}"></i>
+                        </timeline-badge>
+                        <timeline-panel class="{{event.badgeClass}}">
+                            <timeline-heading>
+                                <h4>{{event.title}}</h4>
+                            </timeline-heading>
+                            <p>{{event.content}}</p>
+                            <a href={{event.depositAnchor}}>Check deposit</a>
+                            <p ng-if="event.when" class="ng-scope">
+                                <img class="img-responsive pull-right" src={{event.image}} height="30px" width="30px" alt="">
+                                <small class="text-muted ng-binding"><i class="glyphicon glyphicon-time"></i>{{event.when}}</small>
+                            </p>
 
+                        </timeline-panel>
+                    </timeline-event>
+                </timeline>
+            </div>
+        </div>
+    </div>
 </div>

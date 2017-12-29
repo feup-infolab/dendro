@@ -33,7 +33,7 @@ angular.module('dendroApp.controllers')
                     folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
                     folderName : "gravimetry01",
                     label : "B2Share Metrics",
-                    platformsUsed : null,
+                    platformsUsed : "CKAN",
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
@@ -48,61 +48,61 @@ angular.module('dendroApp.controllers')
                     folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
                     folderName : "gravimetry01",
                     label : "B2Share Metrics",
-                    platformsUsed : null,
+                    platformsUsed : "DSpace",
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "trng-b2share.eudat.eu",
+                    repository : "http://demo.dspace.org ",
                     uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
                     user : "demouser1"
                 };
                 let deposit3 = {
                     creator : null,
-                    date : "2017-12-28T19:54:56+00:00",
+                    date : "2017-9-28T19:54:56+00:00",
                     folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
                     folderName : "gravimetry01",
                     label : "B2Share Metrics",
-                    platformsUsed : null,
+                    platformsUsed : "EUDAT B2Share",
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
                     repository : "trng-b2share.eudat.eu",
                     uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
-                    user : "demouser1"
+                    user : "demouser2"
                 };
                 let deposit4 = {
                     creator : null,
-                    date : "2017-12-28T19:54:56+00:00",
+                    date : "2017-10-28T19:54:56+00:00",
                     folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
                     folderName : "gravimetry01",
                     label : "B2Share Metrics",
-                    platformsUsed : null,
+                    platformsUsed : "Zenodo",
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "trng-b2share.eudat.eu",
+                    repository : "http://www.zenodo.org/",
                     uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
                     user : "demouser1"
                 };
                 let deposit5 = {
                     creator : null,
-                    date : "2017-12-28T19:54:56+00:00",
+                    date : "2017-11-28T19:54:56+00:00",
                     folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
                     folderName : "gravimetry01",
-                    label : "B2Share Metrics",
-                    platformsUsed : null,
+                    label : "Ckan demo",
+                    platformsUsed : "CKAN",
                     privacy : "private",
                     projectTitle : "Gravimetry run campaign over the Azores",
                     projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "trng-b2share.eudat.eu",
+                    repository : "http://demo.ckan.org",
                     uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
-                    user : "demouser1"
+                    user : "demouser4"
                 };
 
                 var depositsSet =[deposit,deposit2,deposit3,deposit4,deposit5];
                 setChart(depositsSet);
 
-                $scope.startDeposits();
+                //$scope.startDeposits();
 
             };
 
@@ -158,7 +158,6 @@ angular.module('dendroApp.controllers')
                 let param =
                     {
                         id: window.location.pathname,
-                        platforms: platforms
                     };
 
                 $http({
@@ -177,48 +176,93 @@ angular.module('dendroApp.controllers')
 
             function setChart(deposits) {
                 for (let i =0; i < deposits.length; i++){
-/*                    if (deposits[i].label === "new project"){
+                    if (deposits[i].platformsUsed === "CKAN"){
                         let event = {
                         };
                         var depositDate = new Date(deposits[i].date);
-                        depositDate.getMonth();
-                        event.badgeClass = "create";
-                        event.badgeIconClass = "glyphicon-map-marker";
-                        event.title = "Project " + deposits[i].projectTitle + "was created";
-                        event.content = "The project " + deposits[i].projectTitle + " was created by "+ deposits[i].user + " on the "
-                            + depositDate.getDay()+ "/"
-                        + depositDate.getMonth()+"/" + depositDate.getFullYear();
-                        $scope.events.push(event);
-                    }*/
-
-                    if (deposits[i].repository === "trng-b2share.eudat.eu"){
-                        let event = {
-                        };
-                        var depositDate = new Date(deposits[i].date);
-                        event.badgeClass = "b2share";
+                        event.badgeClass = "ckan";
                         event.badgeIconClass = "glyphicon-copy";
-                        event.title = "Deposit at " + deposits[i].description;
-                        event.content = "Deposit created at " + deposits[i].description + " was created by "+ deposits[i].user + " on the "
+                        event.title = "Deposit at " + deposits[i].platformsUsed;
+/*                        event.content = "Deposit created at " + deposits[i].repository + " was created by "+ deposits[i].user + " on the "
                             + depositDate.getDay()+ "/"
-                            + depositDate.getMonth()+"/" + depositDate.getFullYear() + " for the "+ deposits[i].projectTitle + " project.";
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear() + " for the "+ deposits[i].projectTitle + " project.";*/
+                        event.when = " Processed on "+depositDate.getDay()+ "/"
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear();
+                        event.depositAnchor = deposits[i].uri;
+                        event.image = "https://avatars1.githubusercontent.com/u/1630326?s=400&v=4";
                         $scope.events.push(event);
                     }
-                    else if (deposits[i].repository === "http://www.zenodo.org/"){
+                    else if (deposits[i].platformsUsed === "Zenodo"){
+                        let event = {
+                        };
+                        var depositDate = new Date(deposits[i].date);
+                        event.badgeClass = "zenodo";
+                        event.badgeIconClass = "glyphicon-copy";
+                        event.title = "Deposit at " + deposits[i].platformsUsed;
+                        event.content = "Deposit created at " + deposits[i].repository + " was created by "+ deposits[i].user;
+                        event.when = " Processed on "+depositDate.getDay()+ "/"
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear();
+                        event.depositAnchor = deposits[i].uri;
+                        event.image = "https://upload.wikimedia.org/wikipedia/commons/0/0f/Zenodo_logo.jpg";
+                        $scope.events.push(event);
+                    }
+                    else if (deposits[i].platformsUsed === "EUDAT B2Share"){
                         let event = {
                         };
                         var depositDate = new Date(deposits[i].date);
                         event.badgeClass = "b2share";
                         event.badgeIconClass = "glyphicon-copy";
-                        event.title = "Deposit at " + deposits[i].description;
-                        event.content = "Deposit created at " + deposits[i].description + " was created by "+ deposits[i].user + " on the "
-                            + depositDate.getDay()+ "/"
-                            + depositDate.getMonth()+"/" + depositDate.getFullYear() + " for the "+ deposits[i].projectTitle + " project.";
+                        event.title = "Deposit at " + deposits[i].platformsUsed;
+                        event.content = "Deposit created at " + deposits[i].repository + " was created by "+ deposits[i].user ;
+                        event.when = " Processed on "+depositDate.getDay()+ "/"
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear();
+                        event.depositAnchor = deposits[i].uri;
+                        event.image = "https://www.eudat.eu/sites/default/files/logo-b2share.png";
+                        $scope.events.push(event);
+                    }
+                    else if (deposits[i].platformsUsed === "Figshare"){
+                        let event = {
+                        };
+                        var depositDate = new Date(deposits[i].date);
+                        event.badgeClass = "figshare";
+                        event.badgeIconClass = "glyphicon-copy";
+                        event.title = "Deposit at " + deposits[i].platformsUsed;
+                        event.content = "Deposit created at " + deposits[i].repository + " was created by "+ deposits[i].user ;
+                        event.when = " Processed on "+depositDate.getDay()+ "/"
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear();
+                        event.depositAnchor = deposits[i].uri;
+                        $scope.events.push(event);
+                    }
+                    else if (deposits[i].platformsUsed === "DSpace"){
+                        let event = {
+                        };
+                        var depositDate = new Date(deposits[i].date);
+                        event.badgeClass = "dspace";
+                        event.badgeIconClass = "glyphicon-copy";
+                        event.title = "Deposit at " + deposits[i].platformsUsed;
+                        event.content = "Deposit created at " + deposits[i].repository + " was created by "+ deposits[i].user ;
+                        event.when = " Processed on "+depositDate.getDay()+ "/"
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear();
+                        event.depositAnchor = deposits[i].uri;
+                        $scope.events.push(event);
+                    }
+                    else if (deposits[i].platformsUsed === "EPrints"){
+                        let event = {
+                        };
+                        var depositDate = new Date(deposits[i].date);
+                        event.badgeClass = "eprints";
+                        event.badgeIconClass = "glyphicon-copy";
+                        event.title = "Deposit at " + deposits[i].platformsUsed;
+                        event.content = "Deposit created at " + deposits[i].repository + " was created by "+ deposits[i].user ;
+                        event.when = " Processed on "+depositDate.getDay()+ "/"
+                            + depositDate.getMonth()+"/" + depositDate.getFullYear();
+                        event.depositAnchor = deposits[i].uri;
                         $scope.events.push(event);
                     }
                 }
             }
 
-
+            $scope.side = 'right';
             $scope.events = [];
 
 
