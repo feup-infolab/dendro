@@ -22,10 +22,14 @@
         <div class="container">
             <div class="row">
                 <timeline>
+                    <div class="timeline-badge primary"><a><i class="glyphicon glyphicon-record" rel="tooltip" title="11 hours ago via Twitter" id=""></i></a></div>
                     <timeline-event ng-repeat="event in events" side="">
                         <timeline-badge class="{{event.badgeClass}}">
-                            <i class="glyphicon {{event.badgeIconClass}}"></i>
+                         <!--   <i class="glyphicon {{event.badgeIconClass}}"></i>-->
+                            <span class="timeline-balloon-date-day">"{{event.shortDate}}"</span>
+                            <span class="timeline-balloon-d ate-month">APR</span>
                         </timeline-badge>
+
                         <timeline-panel class="{{event.badgeClass}}">
                             <timeline-heading>
                                 <h4>{{event.title}}</h4>

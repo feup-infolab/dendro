@@ -1,21 +1,29 @@
 timeline-badge.ckan {
-  background-color: #e76b00 !important;
+  background-color: #f7a34a !important;
 }
 timeline-badge.create {
   background-color: #d9534f !important;
 }
 timeline-badge.figshare {
-  background-color: #a3cd3d !important;
+  background-color: #5acdc3 !important;
 }
 timeline-badge.dspace {
-  background-color: #92c745 !important;
+  background-color: #a3cd3d !important;
 }
 timeline-badge.eprints {
-  background-color: #ff771e !important;
+  background-color: #f7941d !important;
 }
 timeline-badge.zenodo {
-  background-color: #28b4f9 !important;
+  background-color: #75caeb !important;
 }
 timeline-badge.b2share {
-  background-color: #1c418f !important;
+  background-color: #2a80b9 !important;
+}
+#timeline .timeline-badge span.timeline-balloon-date-day {
+  font-size: 1.4em;
+}
+#timeline .timeline-badge span.timeline-balloon-date-month {
+  font-size: 0.7em;
+  position: relative;
+  top: -10px;
 }
