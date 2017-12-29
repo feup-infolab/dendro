@@ -27,6 +27,7 @@ const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects
 const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const createFoldersUnitKeywords = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersKeywords.Unit.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
@@ -53,7 +54,7 @@ describe("Searches DBpedia for important terms", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.setup(function (err, results)
+        createFoldersUnitKeywords.setup(function (err, results)
         {
             should.equal(err, null);
             done();
@@ -260,37 +261,46 @@ describe("Searches DBpedia for important terms", function (done)
                     res.statusCode.should.equal(200);
                     res.text.should.contain("introduction");
                     console.log(artigos[0]);
-                    console.log(res.text);
+                    // console.log(JSON.parse(res.text).text);
                     textprocessado.push(res.text);
+                    artigos[0] = JSON.parse(res.text).text;
+                    console.log(artigos[0]);
                     keywordsUtils.preprocessing(artigos[1], agent, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         res.text.should.contain("introduction");
                         console.log(artigos[1]);
-                        console.log(res.text);
+                        // console.log(res.text);
                         textprocessado.push(res.text);
+                        artigos[1] = JSON.parse(res.text).text;
+                        console.log(artigos[1]);
                         keywordsUtils.preprocessing(artigos[2], agent, function (err, res)
                         {
                             res.statusCode.should.equal(200);
                             res.text.should.contain("introduction");
                             console.log(artigos[2]);
-                            console.log(res.text);
+                            // console.log(res.text);
                             textprocessado.push(res.text);
+                            artigos[2] = JSON.parse(res.text).text;
+                            console.log(artigos[2]);
                             keywordsUtils.preprocessing(artigos[3], agent, function (err, res)
                             {
                                 res.statusCode.should.equal(200);
                                 res.text.should.contain("introduction");
                                 console.log(artigos[3]);
-                                console.log(res.text);
+                                // console.log(res.text);
                                 textprocessado.push(res.text);
-
+                                artigos[3] = JSON.parse(res.text).text;
+                                console.log(artigos[3]);
                                 keywordsUtils.preprocessing(artigos[4], agent, function (err, res)
                                 {
                                     res.statusCode.should.equal(200);
                                     res.text.should.contain("introduction");
                                     console.log(artigos[4]);
-                                    console.log(res.text);
+                                    // console.log(res.text);
                                     textprocessado.push(res.text);
+                                    artigos[4] = JSON.parse(res.text).text;
+                                    console.log(artigos[4]);
                                     done();
                                 });
                             });
@@ -305,7 +315,7 @@ describe("Searches DBpedia for important terms", function (done)
             keywordsUtils.termextraction(textprocessado, artigos, agent, function (err, te)
             {
                 te.statusCode.should.equal(200);
-                console.log(te.text);
+                // console.log(te.text);
                 dbpediaterms = te.text;
                 // te.text.should.contain("google");
                 // te.text.should.contain("kaggle");
