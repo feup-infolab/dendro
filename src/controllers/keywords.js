@@ -338,6 +338,7 @@ exports.termextraction = function (req, res)
                     }
                     var index;
                     var tfidfterms = {scores: []};
+                    var showedalready = [];
                     for (var b = 0; b < documents.length; b++)
                     {
                         index = 0;
@@ -345,8 +346,20 @@ exports.termextraction = function (req, res)
                         // console.log(documentlength[b] * 0.2);
                         tfidf.listTerms(b).forEach(function (item)
                         {
-                            if (index < (documentlength[b] * 0.1))
+                            // if (index < (documentlength[b] * 0.1))
+                            if (index < documentlength[b])
                             {
+                                if (item.term.toString() === "aerodynamic" || item.term.toString() === "drag" || item.term.toString() === "coefficient" || item.term.toString() === "air" || item.term.toString() === "density" || item.term.toString() === "controller" || item.term.toString() === "efficiency" || item.term.toString() === "drive" || item.term.toString() === "cycle" || item.term.toString() === "gear" || item.term.toString() === "ratio" || item.term.toString() === "gravitational" || item.term.toString() === "acceleration" || item.term.toString() === "road" || item.term.toString() === "surface" || item.term.toString() === "coefficient" || item.term.toString() === "tire" || item.term.toString() === "radius" || item.term.toString() === "vehicle" || item.term.toString() === "frontal" || item.term.toString() === "area" || item.term.toString() === "mass" || item.term.toString() === "model")
+                                {
+                                    if (showedalready.indexOf(item.term.toString()) > -1)
+                                    {
+                                    }
+                                    else
+                                    {
+                                        showedalready.push(item.term.toString());
+                                        console.log("term: " + item.term + " item score: " + item.tfidf + " position: " + index);
+                                    }
+                                }
                                 // console.log(b + " " + item.term + ": " + item.tfidf);
                                 tfidfterms.scores.push({term: item.term, score: item.tfidf});
                                 // console.log(index);
