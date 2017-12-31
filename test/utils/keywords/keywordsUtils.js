@@ -5,6 +5,7 @@ chai.use(chaiHttp);
 
 module.exports.loadfiles = function (text, agent, cb)
 {
+
     const path = "/keywords/loadfiles";
     agent
         .get(path)
@@ -92,6 +93,11 @@ module.exports.dbpedialookup = function (text, agent, cb)
             {
                 cb("Error dbpedia lookup.", response);
             }
+        })
+        .catch(function (error)
+        {
+            console.log("Error during dbpedia lookup" + error);
+            // cb(null, error);
         });
 };
 
