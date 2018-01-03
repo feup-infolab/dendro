@@ -314,9 +314,21 @@ describe("Searches DBpedia for important terms", function (done)
         {
             keywordsUtils.termextraction(textprocessado, artigos, agent, function (err, te)
             {
+                var keyword;
                 te.statusCode.should.equal(200);
                 // console.log(te.text);
                 dbpediaterms = te.text;
+                keyword = JSON.parse(te.text).dbpediaterms.keywords;
+
+                console.log(keyword.length);
+                for (var i = 0; i < keyword.length; i++)
+                {
+                    if (keyword[i].words.toString() === "aerodynamic" || keyword[i].words.toString() === "drag" || keyword[i].words.toString() === "coefficient" || keyword[i].words.toString() === "air" || keyword[i].words.toString() === "density" || keyword[i].words.toString() === "controller" || keyword[i].words.toString() === "efficiency" || keyword[i].words.toString() === "drive" || keyword[i].words.toString() === "driving" || keyword[i].words.toString() === "cycle" || keyword[i].words.toString() === "gear" || keyword[i].words.toString() === "ratio" || keyword[i].words.toString() === "gravitational" || keyword[i].words.toString() === "acceleration" || keyword[i].words.toString() === "road" || keyword[i].words.toString() === "surface" || keyword[i].words.toString() === "coefficient" || keyword[i].words.toString() === "tire" || keyword[i].words.toString() === "radius" || keyword[i].words.toString() === "vehicle" || keyword[i].words.toString() === "frontal" || keyword[i].words.toString() === "area" || keyword[i].words.toString() === "mass" || keyword[i].words.toString() === "model")
+                    {
+                        console.log(keyword[i].words.toString() + " " + (i + 1) + " score " + keyword[i].score);
+                    }
+                }
+
                 // te.text.should.contain("google");
                 // te.text.should.contain("kaggle");
                 // te.text.should.contain("3.068528194400547");
@@ -326,7 +338,7 @@ describe("Searches DBpedia for important terms", function (done)
         });
         it("Search terms in dbpedia", function (done)
         {
-            // this.timeout(150000);
+            this.timeout(150000);
             // console.log(agent);
 
             keywordsUtils.dbpedialookup(dbpediaterms, agent, function (err, db)
