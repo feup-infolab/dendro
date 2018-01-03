@@ -2152,6 +2152,76 @@ exports.mkdir = function (req, res)
     }
 };
 
+exports.ls_by_name = function (req, res) {
+    const resourceURI = req.params.requestedResourceUri;
+    let show_deleted = req.query.show_deleted;
+    let childName = req.query.title;
+    Folder.findByUri(resourceURI, function (err, containingFolder)
+    {
+        if (isNull(err) && !isNull(containingFolder))
+        {
+            /*
+            containingFolder.getLogicalParts(function (err, children)
+            {
+                if (isNull(err))
+                {
+                    if (!show_deleted)
+                    {
+                        const _ = require("underscore");
+                        children = _.reject(children, function (child)
+                        {
+                            return child.ddr.deleted;
+                        });
+                    }
+
+                    res.json(children);
+                }
+            });*/
+            containingFolder.findChildWithDescriptor(new Descriptor({
+                prefixedForm: "nie:title",
+                value: childName
+            }), function (err, children) {
+                if(isNull(err))
+                {
+                    if(isNull(children))
+                    {
+                        res.status(404).json({
+                            result: "Error",
+                            error: "Child with name : " + childName + " is not a children of " + containingFolder.uri
+                        });
+                    }
+                    else
+                    {
+                        /*if (!show_deleted)
+                        {
+                            const _ = require("underscore");
+                            children = _.reject(children, function (child)
+                            {
+                                return child.ddr.deleted;
+                            });
+                        }*/
+                        res.json(children);
+                    }
+                }
+                else
+                {
+                    res.status(500).json({
+                        result: "Error",
+                        error: JSON.stringify(children)
+                    });
+                }
+            });
+        }
+        else
+        {
+            res.status(404).json({
+                result: "Error",
+                error: "Non-existent folder. Is this a file instead of a folder? : " + resourceURI
+            });
+        }
+    });
+};
+
 exports.ls = function (req, res)
 {
     const resourceURI = req.params.requestedResourceUri;
