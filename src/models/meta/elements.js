@@ -5,6 +5,7 @@ const validUrl = require("valid-url");
 const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 function Elements ()
 {}
@@ -66,6 +67,7 @@ Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
 
 Elements.validateDescriptorValueTypes = function (currentDescriptor)
 {
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     const validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue)
     {
         let typesValidators = {};
@@ -84,6 +86,33 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
         return typesValidators[descriptorType];
     };
 
+    if(Config.skipDescriptorValuesValidation === true)
+    {
+        Logger.log("info", "Will skip validateDescriptorValueTypes because skipDescriptorValuesValidation is set to true in deployment_configs");
+      return true;
+    }
+    else
+    {
+        // When there are various instances of a descriptor, for example: two dcterms:contributor
+        if (currentDescriptor.value instanceof Array)
+        {
+            for (let i = 0; i !== currentDescriptor.value.length; i++)
+            {
+                let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
+                if (isNull(resultOfValidation) || resultOfValidation === false)
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            // When there is only one instance of a descriptor (for example only one dcterms:abstract)
+            return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
+        }
+        return true;
+    }
+    /*
     // When there are various instances of a descriptor, for example: two dcterms:contributor
     if (currentDescriptor.value instanceof Array)
     {
@@ -101,7 +130,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
         // When there is only one instance of a descriptor (for example only one dcterms:abstract)
         return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
     }
-    return true;
+    return true;*/
 };
 
 /**
