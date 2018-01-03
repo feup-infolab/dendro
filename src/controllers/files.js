@@ -1,5 +1,6 @@
 const humanize = require("humanize");
 const Pathfinder = global.Pathfinder;
+const path = require("path");
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -1173,6 +1174,8 @@ exports.restore = function (req, res)
                                     uri: requestedResourceUri
                                 });
                             }
+
+                            folder.nie.title = path.basename(restoreInfo[0].name, path.extname(restoreInfo[0].name));
 
                             User.findByUri(req.user, function (err, user)
                             {
