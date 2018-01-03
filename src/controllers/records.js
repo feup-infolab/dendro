@@ -385,7 +385,7 @@ exports.update = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        updatedResource.reindex(IndexConnection.getDefault(), function (err, result)
+                        updatedResource.reindex(function (err, result)
                         {
                             if (isNull(err))
                             {

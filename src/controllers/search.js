@@ -1,4 +1,3 @@
-const path = require("path");
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
@@ -13,6 +12,7 @@ const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
 
 const db = Config.getDBByID();
 
@@ -53,7 +53,7 @@ exports.search = function (req, res)
             {
                 let getSimilarResources = function (resource, callback)
                 {
-                    resource.getTextuallySimilarResources(IndexConnection.getDefault(), Config.limits.index.maxResults, function (err, similarResources)
+                    resource.getTextuallySimilarResources(function (err, similarResources)
                     {
                         if (isNull(resource.indexData))
                         {
@@ -62,7 +62,7 @@ exports.search = function (req, res)
 
                         resource.indexData.recommendations = similarResources;
                         return callback(err, resource);
-                    });
+                    }, Config.limits.index.maxResults);
                 };
 
                 async.mapSeries(results, getSimilarResources, function (err, resultsWithSimilarOnes)
@@ -104,6 +104,10 @@ exports.search = function (req, res)
                                     return "folder";
                                 }
                                 else if (result.isA(User))
+                                {
+                                    return "user";
+                                }
+                                else if (result.isA(Administrator))
                                 {
                                     return "user";
                                 }

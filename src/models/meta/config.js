@@ -231,23 +231,20 @@ Config.getDBByHandle = function (dbHandle)
 {
     if (!isNull(dbHandle))
     {
-        const key = _.find(Object.keys(Config.db), function(key){
+        const key = _.find(Object.keys(Config.db), function (key)
+        {
             return Config.db[key].graphHandle === dbHandle;
         });
 
-        if(!isNull(key))
+        if (!isNull(key))
         {
             return Config.db[key];
         }
-        else
-        {
-            return null;
-        }
+
+        return null;
     }
-    else
-    {
-        return Config.db.default;
-    }
+
+    return Config.db.default;
 };
 
 /**
@@ -283,18 +280,19 @@ Config.getDBByGraphUri = function (graphUri)
         {
             if (Config.db.hasOwnProperty(dbKey))
             {
-                if (Config.db.graphUri[graphUri] === graphUri)
+                if (!isNull(Config.db[dbKey]))
                 {
-                    Config.db_by_uri[graphUri] = Config.db[dbKey];
-                    return Config.db_by_uri[graphUri];
+                    if (Config.db[dbKey].graphUri === graphUri)
+                    {
+                        Config.db_by_uri[graphUri] = Config.db[dbKey];
+                        return Config.db_by_uri[graphUri];
+                    }
                 }
             }
         }
     }
-    else
-    {
-        return Config.db.default;
-    }
+
+    return Config.db.default;
 };
 
 Config.getGFSByID = function (gfsID)

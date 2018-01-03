@@ -198,7 +198,7 @@ Resource.exists = function (uri, callback, customGraphUri)
         });
 };
 
-Resource.for_all = function (
+Resource.forAll = function (
     resourcePageCallback,
     checkFunction,
     finalCallback,
@@ -1476,13 +1476,16 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
         });
 };
 
-Resource.prototype.reindex = function (indexConnection, callback)
+Resource.prototype.reindex = function (callback, customGraphUri)
 {
     const self = this;
     const infoMessages = [];
     const errorMessages = [];
 
     const results = self.getPublicDescriptorsForAPICalls();
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
     let descriptors = [];
 
@@ -1537,7 +1540,7 @@ Resource.prototype.reindex = function (indexConnection, callback)
     // Logger.log("Reindexing resource " + self.uri);
     // Logger.log("Document: \n" + JSON.stringify(document, null, 4));
 
-    self.getIndexDocumentId(indexConnection, function (err, id)
+    self.getIndexDocumentId(function (err, id)
     {
         if (isNull(err))
         {
@@ -1567,28 +1570,75 @@ Resource.prototype.reindex = function (indexConnection, callback)
             errorMessages.push("Error getting document id for resource " + self.uri + " error returned " + id);
             return callback(1, errorMessages);
         }
-    });
+    }, customGraphUri);
 };
 
-Resource.prototype.getIndexDocumentId = function (indexConnection, callback)
+Resource.prototype.unindex = function (callback, customGraphUri)
+{
+    const self = this;
+    const infoMessages = [];
+    const errorMessages = [];
+
+    const document = {
+        uri: self.uri
+    };
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
+
+    self.getIndexDocumentId(function (err, id)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(id))
+            {
+                document._id = id;
+            }
+
+            indexConnection.deleteDocument(
+                IndexConnection.indexTypes.resource,
+                document,
+                function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        infoMessages.push("Resource " + self.uri + "  successfully reindexed in index " + indexConnection.short_name);
+                        return callback(null, infoMessages);
+                    }
+                    const msg = "Error deleting old document for resource " + self.uri + " error returned " + result + " while unindexing it .";
+                    errorMessages.push(msg);
+                    Logger.log("error", msg);
+                    return callback(1, errorMessages);
+                });
+        }
+        else
+        {
+            errorMessages.push("Error getting document id for resource " + self.uri + " error returned " + id + " while unindexing it .");
+            return callback(1, errorMessages);
+        }
+    }, graphUri);
+};
+
+Resource.prototype.getIndexDocumentId = function (callback, customGraphUri)
 {
     let self = this;
 
-    self.restoreFromIndexDocument(indexConnection, function (err, restoredResource)
+    self.restoreFromIndexDocument(function (err, restoredResource)
     {
         if (!isNull(self.indexData))
         {
             return callback(err, self.indexData.id);
         }
         return callback(err, null);
-    });
+    }, customGraphUri);
 };
 
-Resource.prototype.getTextuallySimilarResources = function (indexConnection, maxResultSize, callback)
+Resource.prototype.getTextuallySimilarResources = function (callback, maxResultSize, customGraphUri)
 {
     let self = this;
+    const indexConnection = IndexConnection.getByGraphUri(customGraphUri);
 
-    self.getIndexDocumentId(indexConnection, function (err, id)
+    self.getIndexDocumentId(function (err, id)
     {
         if (isNull(err))
         {
@@ -1700,9 +1750,12 @@ Resource.restoreFromIndexResults = function (hits)
     return results;
 };
 
-Resource.prototype.restoreFromIndexDocument = function (indexConnection, callback)
+Resource.prototype.restoreFromIndexDocument = function (callback, customGraphUri)
 {
     let self = this;
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
     // fetch document from the index that matches the current resource
     const queryObject = {
@@ -1727,7 +1780,8 @@ Resource.prototype.restoreFromIndexDocument = function (indexConnection, callbac
     };
 
     indexConnection.search(
-        IndexConnection.indexTypes.resource, // search in all graphs for resources (generic type)
+        // search in all graphs for resources (generic type)
+        IndexConnection.indexTypes.resource,
         queryObject,
         function (err, hits)
         {

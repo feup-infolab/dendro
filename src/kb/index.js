@@ -1,14 +1,14 @@
 const async = require("async");
+const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const util = require("util");
 const db = Config.getDBByID();
-const db_social = Config.getDBByID("social");
-const db_notifications = Config.getDBByID("notifications");
+const dbSocial = Config.getDBByID("social");
+const dbNotifications = Config.getDBByID("notifications");
 
 const es = require("elasticsearch");
 const slug = require("slug");
@@ -60,7 +60,7 @@ IndexConnection._all = {
                                 },
                             last_indexing_date:
                                 {
-                                    type: "date",
+                                    type: "date"
                                 },
                             descriptors:
                                 {
@@ -86,16 +86,16 @@ IndexConnection._all = {
     }),
     social_dendro: new IndexConnection({
         id: "social_dendro",
-        short_name: slug(db_social.graphUri),
+        short_name: slug(dbSocial.graphUri),
         host: Config.elasticSearchHost,
         port: Config.elasticSearchPort,
-        uri: db_social.graphUri
+        uri: dbSocial.graphUri
     }),
     notifications_dendro: new IndexConnection({id: "notifications_dendro",
-        short_name: slug(db_notifications.graphUri),
+        short_name: slug(dbNotifications.graphUri),
         host: Config.elasticSearchHost,
         port: Config.elasticSearchPort,
-        uri: db_notifications.graphUri
+        uri: dbNotifications.graphUri
     }),
     dbpedia: new IndexConnection({
         id: "dbpedia",
@@ -162,6 +162,42 @@ IndexConnection.get = function (indexKey)
 
     Logger.log("warn", "Index parametrization does not exist for key " + indexKey);
     return null;
+};
+
+IndexConnection.getByGraphUri = function (graphUri)
+{
+    if (isNull(IndexConnection._indexesByUri))
+    {
+        IndexConnection._indexesByUri = {};
+    }
+
+    if (!isNull(IndexConnection._indexesByUri[graphUri]))
+    {
+        return IndexConnection._indexesByUri[graphUri];
+    }
+
+    if (!isNull(graphUri))
+    {
+        const connectionKey = _.find(Object.keys(IndexConnection._all), function (key)
+        {
+            const searchConnection = IndexConnection._all[key];
+            return searchConnection.uri === graphUri;
+        });
+        if (isNull(connectionKey))
+        {
+            Logger.log("warn", "Invalid index connection URI " + graphUri + " !");
+        }
+        else
+        {
+            const connection = IndexConnection._all[connectionKey];
+            IndexConnection._indexesByUri[graphUri] = connection;
+            return connection;
+        }
+    }
+    else
+    {
+        return IndexConnection.getDefault();
+    }
 };
 
 IndexConnection.getDefault = function ()
@@ -295,7 +331,6 @@ IndexConnection.create_all_indexes = function (numberOfShards, numberOfReplicas,
 IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfReplicas, deleteIfExists, callback)
 {
     let self = this;
-    let async = require("async");
     let indexName = self.short_name;
 
     async.waterfall([
