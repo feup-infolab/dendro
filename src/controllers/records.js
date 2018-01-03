@@ -385,15 +385,15 @@ exports.update = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        updatedResource.reindex(function (err, result)
+                        updatedResource.reindex(function (err, updatedResource)
                         {
                             if (isNull(err))
                             {
-                                callback(err, resource);
+                                callback(err, updatedResource);
                             }
                             else
                             {
-                                const msg = "Error updating resource : unable to reindex new values. Error reported : " + result;
+                                const msg = "Error updating resource : unable to reindex new values. Error reported : " + updatedResource;
                                 Logger.log("error", msg);
                                 res.status(500).json({
                                     result: "Error",

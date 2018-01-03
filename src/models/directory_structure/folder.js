@@ -1551,11 +1551,24 @@ Folder.prototype.save = function (callback)
             {
                 if (isNull(err))
                 {
-                    return callback(null, self);
+                    self.reindex(function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            return callback(err, self);
+                        }
+
+                        const msg = "Error reindexing folder " + self.uri + " : " + result;
+                        Logger.log("error", msg);
+                        return callback(1, msg);
+                    });
                 }
-                let errorMessage = "Error saving a folder: " + JSON.stringify(result);
-                Logger.log("error", errorMessage);
-                return callback(1, errorMessage);
+                else
+                {
+                    let errorMessage = "Error saving a folder: " + JSON.stringify(result);
+                    Logger.log("error", errorMessage);
+                    return callback(1, errorMessage);
+                }
             });
         }
         else

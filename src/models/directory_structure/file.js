@@ -258,10 +258,23 @@ File.prototype.save = function (callback, rename)
                         {
                             if (isNull(err))
                             {
-                                return callback(null, self);
+                                self.reindex(function (err, result)
+                                {
+                                    if (!isNull(err))
+                                    {
+                                        return callback(err, self);
+                                    }
+
+                                    const msg = "Error reindexing file " + self.uri + " : " + result;
+                                    Logger.log("error", msg);
+                                    return callback(1, msg);
+                                });
                             }
-                            Logger.log("error", "Error adding child file descriptors : " + result);
-                            return callback(1, "Error adding child file descriptors : " + result);
+                            else
+                            {
+                                Logger.log("error", "Error adding child file descriptors : " + result);
+                                return callback(1, "Error adding child file descriptors : " + result);
+                            }
                         });
                     }
                     else

@@ -30,21 +30,19 @@ const deleteFolderRecursive = function (path)
     }
 };
 
-
-const parseDescriptorValue = function (descriptorValue) {
+const parseDescriptorValue = function (descriptorValue)
+{
     let result = descriptorValue;
-    if(!isNull(descriptorValue))
+    if (!isNull(descriptorValue))
     {
-        if(Array.isArray(descriptorValue))
+        if (Array.isArray(descriptorValue))
         {
             result = descriptorValue.join(",");
         }
         return result;
     }
-    else
-    {
-        return null;
-    }
+
+    return null;
 };
 
 const createPackage = function (parentFolderPath, folder, callback)

@@ -7,6 +7,11 @@ const _ = require("underscore");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -20,64 +25,122 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const searchUtils = require(Pathfinder.absPathInTestsFolder("utils/search/searchUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
-const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-const foldersData = createFoldersUnit.foldersData;
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+
+const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const projectsData = createProjectsUnit.projectsData;
+
+const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
+const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
+const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
+
+const foldersData = [folder];
 
 describe("/search", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.setup(function (err, results)
+        createProjectsUnit.setup(function (err, results)
         {
-            should.not.exist(err);
-            done();
+            async.mapSeries(projectsData, function (projectData, cb)
+            {
+                async.mapSeries(foldersData, function (folderData, cb)
+                {
+                    itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
+                    {
+                        if (isNull(err))
+                        {
+                            itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, folderData.metadata, function (err, res)
+                            {
+                                if (!isNull(err))
+                                {
+                                    should.not.exist(err);
+                                    res.statusCode.should.equal(200);
+                                    cb(null, results);
+                                }
+                                else
+                                {
+                                    cb(err, results);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            cb(err, results);
+                        }
+                    });
+                }, function (err, results)
+                {
+                    if (!isNull(err))
+                    {
+                        cb(err, results);
+                    }
+                    else
+                    {
+                        cb(null, results);
+                    }
+                });
+            }, function (err, results)
+            {
+                should.not.exist(err);
+                done();
+            });
         });
     });
-
-    /**
-     * Search effectiveness (does it find the things it should, without considering permissions for now?)
-     */
-    it("[JSON] should search and find folders by searching for a term present in their abstract", function (done)
+    describe("Generic search inside public projects", function ()
     {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        /**
+         * Search effectiveness (does it find the things it should, without considering permissions for now?)
+         */
+        it("Should search and find folders by searching for a term present in their abstract", function (done)
         {
-            async.mapSeries(foldersData, function (folder, callback)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                const searchTerms = folder.searchTerms;
-                searchUtils.search(true, agent, searchTerms, function (err, res)
+                async.mapSeries(foldersData, function (folder, callback)
+                {
+                    const searchTerms = folder.searchTerms;
+                    searchUtils.search(true, agent, searchTerms, function (err, res)
+                    {
+                        should.not.exist(err);
+                        res.status.should.equal(200);
+
+                        const firstHit = JSON.parse(res.text).hits[0];
+
+                        should.exist(firstHit);
+
+                        const mockObjectMetadata = folder.metadata;
+                        const abstract = _.find(mockObjectMetadata, function (descriptor)
+                        {
+                            return (descriptor.prefix === "dcterms" && descriptor.shortName === "abstract");
+                        });
+
+                        firstHit.dcterms.abstract.should.equal(abstract.value);
+
+                        callback(err, res);
+                    });
+                }, function (err, results)
+                {
+                    done(err);
+                });
+            });
+        });
+
+        it("Should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                searchUtils.search(true, agent, "asjksdhfkjshdfkad", function (err, res)
                 {
                     should.not.exist(err);
                     res.status.should.equal(200);
 
-                    const firstHit = JSON.parse(res.text).hits[0];
-
-                    firstHit.dcterms.abstract.should.contain(searchTerms);
-
-                    callback(err, res);
+                    const hits = JSON.parse(res.text).hits;
+                    hits.should.be.an("array");
+                    hits.length.should.equal(0);
+                    done();
                 });
-            }, function (err, results)
-            {
-                done(err);
-            });
-        });
-    });
-
-    // TODO
-    it("[JSON] should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done)
-    {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-        {
-            searchUtils.search(true, agent, "asjksdhfkjshdfkad", function (err, res)
-            {
-                should.not.exist(err);
-                res.status.should.equal(200);
-
-                const hits = JSON.parse(res.text).hits;
-                hits.should.be.an("array");
-                hits.length.should.equal(0);
-                done();
             });
         });
     });
@@ -86,41 +149,217 @@ describe("/search", function ()
      * Permissions and project access levels (Does it filter the private and metadataonly projects and folders adequately?)
      */
 
-    // Folders inside different types of projects
-    // TODO
-    it("[JSON] should find a folder present in " + publicProject.handle + " project by searching for a term present in its description. Query : \"public project type\"", function (done)
+    describe("Search for projects of different visibility (public / private / metadata only)", function ()
     {
-        done();
+        // Different types of projects
+        it("should find the " + publicProject.handle + " project by searching for a term present in its title.", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                const searchTerms = publicProject.searchTerms;
+                searchUtils.search(true, agent, searchTerms, function (err, res)
+                {
+                    should.not.exist(err);
+                    res.status.should.equal(200);
+                    const hits = JSON.parse(res.text).hits;
+
+                    const publicProjectSearchHit = _.find(hits, function (hit)
+                    {
+                        return hit.ddr.handle === publicProject.handle;
+                    });
+
+                    should.exist(publicProjectSearchHit);
+
+                    publicProjectSearchHit.dcterms.description.should.equal(publicProject.description);
+                    publicProjectSearchHit.dcterms.title.should.equal(publicProject.title);
+
+                    done();
+                });
+            });
+        });
+
+        it("should find the " + metadataOnlyProject.handle + " project by searching for a term present in its title because it is findable (metadata is visible).", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                const searchTerms = metadataOnlyProject.searchTerms;
+                searchUtils.search(true, agent, searchTerms, function (err, res)
+                {
+                    should.not.exist(err);
+                    res.status.should.equal(200);
+
+                    const hits = JSON.parse(res.text).hits;
+                    const metadataOnlyProjectSearchHit = _.find(hits, function (hit)
+                    {
+                        return hit.ddr.handle === metadataOnlyProject.handle;
+                    });
+
+                    should.exist(metadataOnlyProjectSearchHit);
+
+                    metadataOnlyProjectSearchHit.dcterms.description.should.equal(metadataOnlyProject.description);
+                    metadataOnlyProjectSearchHit.dcterms.title.should.equal(metadataOnlyProject.title);
+
+                    done();
+                });
+            });
+        });
+
+        it("should NOT find the " + privateProject.handle + " project by searching for a term present in its title because it is private.", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                const searchTerms = privateProject.searchTerms;
+                searchUtils.search(true, agent, searchTerms, function (err, res)
+                {
+                    should.not.exist(err);
+                    res.status.should.equal(200);
+
+                    const hits = JSON.parse(res.text).hits;
+                    const privateProjectSearchHit = _.find(hits, function (hit)
+                    {
+                        return hit.ddr.handle === privateProject.handle;
+                    });
+
+                    should.not.exist(privateProjectSearchHit);
+
+                    done();
+                });
+            });
+        });
     });
 
-    // TODO
-    it("[JSON] should NOT find a folder present in the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done)
+    describe("Search for FOLDERS INSIDE projects of different visibility (public / private / metadata only)", function ()
     {
-        done();
-    });
+        // Folders inside different types of projects
+        it("should find the " + testFolder1.name + " folder by searching for a term present in its title, because it is created inside a public project", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, publicProject.handle, testFolder1.pathInProject, testFolder1.name, function (err, res)
+                {
+                    itemUtils.updateItemMetadata(true, agent, publicProject.handle, testFolder1.name, testFolder1.metadata, function (err, res)
+                    {
+                        if (!isNull(err))
+                        {
+                            should.not.exist(err);
+                            res.statusCode.should.equal(200);
+                            const searchTerms = testFolder1.searchTerms;
+                            searchUtils.search(true, agent, searchTerms, function (err, res)
+                            {
+                                should.not.exist(err);
+                                res.status.should.equal(200);
+                                const hits = JSON.parse(res.text).hits;
 
-    // TODO
-    it("[JSON] should NOT find a folder present in the " + privateProject.handle + " project by searching for a term present in its description", function (done)
-    {
-        done();
-    });
+                                const testFolder1SearchHit = _.find(hits, function (hit)
+                                {
+                                    return hit.nie.title === testFolder1.name;
+                                });
 
-    // Different types of projects
-    // TODO
-    it("[JSON] should find the " + publicProject.handle + " project by searching for a term present in its description", function (done)
-    {
-        done();
-    });
+                                should.exist(testFolder1SearchHit);
 
-    // TODO
-    it("[JSON] should find the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done)
-    {
-        done();
-    });
+                                const mockObjectMetadata = testFolder1.metadata;
+                                const abstract = _.find(mockObjectMetadata, function (descriptor)
+                                {
+                                    return (descriptor.prefix === "dcterms" && descriptor.shortName === "abstract");
+                                });
 
-    // TODO
-    it("[JSON] should not the " + privateProject.handle + " project by searching for a term present in its description", function (done)
-    {
-        done();
+                                const title = _.find(mockObjectMetadata, function (descriptor)
+                                {
+                                    return (descriptor.prefix === "dcterms" && descriptor.shortName === "title");
+                                });
+
+                                testFolder1SearchHit.dcterms.abstract.should.equal(abstract.value);
+                                testFolder1SearchHit.dcterms.title.should.equal(title.value);
+
+                                done();
+                            });
+                        }
+                        else
+                        {
+                            done(err);
+                        }
+                    });
+                });
+            });
+        });
+
+        it("should find a folder present in the " + metadataOnlyProject.handle + " project by searching for a term present in its title because it is metadata only project and thus shows up in search results", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, metadataOnlyProject.handle, testFolder2.pathInProject, testFolder2.name, function (err, res)
+                {
+                    itemUtils.updateItemMetadata(true, agent, metadataOnlyProject.handle, testFolder2.name, testFolder2.metadata, function (err, res)
+                    {
+                        if (!isNull(err))
+                        {
+                            should.not.exist(err);
+                            res.statusCode.should.equal(200);
+                            const searchTerms = testFolder2.searchTerms;
+                            searchUtils.search(true, agent, searchTerms, function (err, res)
+                            {
+                                should.not.exist(err);
+                                res.status.should.equal(200);
+
+                                const firstHit = JSON.parse(res.text).hits[0];
+
+                                const mockObjectMetadata = testFolder2.metadata;
+                                const abstract = _.find(mockObjectMetadata, function (descriptor)
+                                {
+                                    return (descriptor.prefix === "dcterms" && descriptor.shortName === "abstract");
+                                });
+
+                                const title = _.find(mockObjectMetadata, function (descriptor)
+                                {
+                                    return (descriptor.prefix === "dcterms" && descriptor.shortName === "title");
+                                });
+
+                                firstHit.dcterms.title.should.equal(title.value);
+                                firstHit.dcterms.abstract.should.equal(abstract.value);
+
+                                done();
+                            });
+                        }
+                        else
+                        {
+                            done(err);
+                        }
+                    });
+                });
+            });
+        });
+
+        it("should NOT find a folder present in the " + privateProject.handle + " project by searching for a term present in its description because its parent project is private", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                itemUtils.createFolder(true, agent, privateProject.handle, folderDemoUser2.pathInProject, folderDemoUser2.name, function (err, res)
+                {
+                    itemUtils.updateItemMetadata(true, agent, privateProject.handle, folderDemoUser2.name, folderDemoUser2.metadata, function (err, res)
+                    {
+                        if (!isNull(err))
+                        {
+                            should.not.exist(err);
+                            res.statusCode.should.equal(200);
+                            const searchTerms = folderDemoUser2.searchTerms;
+                            searchUtils.search(true, agent, searchTerms, function (err, res)
+                            {
+                                should.not.exist(err);
+                                res.status.should.equal(200);
+
+                                const firstHit = JSON.parse(res.text).hits[0];
+                                should.not.exist(firstHit);
+
+                                done();
+                            });
+                        }
+                        else
+                        {
+                            done(err);
+                        }
+                    });
+                });
+            });
+        });
     });
 });

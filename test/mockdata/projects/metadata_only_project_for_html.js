@@ -13,7 +13,8 @@ const projectData = {
     coverage: "Porto",
     handle: metadataProjectHandle,
     privacy: "metadata_only",
-    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/metadataonlyhtmlprojectcreatedbydemouser1.zip")
+    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/metadataonlyhtmlprojectcreatedbydemouser1.zip"),
+    searchTerms: metadataProjectHandle
 };
 
 module.exports = projectData;

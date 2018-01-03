@@ -19,7 +19,6 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const nodemailer = require("nodemailer");
-const db = Config.getDBByID();
 const flash = require("connect-flash");
 const async = require("async");
 

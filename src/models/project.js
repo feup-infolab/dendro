@@ -555,7 +555,7 @@ Project.createAndInsertFromObject = function (object, callback)
             {
                 const rootFolder = new Folder({
                     nie: {
-                        title: object.ddr.handle,
+                        title: object.ddr.handle + " (root folder)",
                         isLogicalPartOf: newProject.uri
                     },
                     ddr: {
@@ -572,7 +572,25 @@ Project.createAndInsertFromObject = function (object, callback)
 
                         newProject.save(function (err, result)
                         {
-                            return callback(err, result);
+                            if (isNull(err))
+                            {
+                                newProject.reindex(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(err, newProject);
+                                    }
+
+                                    const msg = "Error reindexing resource " + newProject.uri + " : " + result;
+                                    Logger.log("error", msg);
+                                    return callback(1, msg);
+                                });
+                            }
+                            else
+                            {
+                                Logger.log("error", "There was an error re-saving the project " + newProject.ddr.humanReadableURI + " while creating it: " + JSON.stringify(result));
+                                callback(err, result);
+                            }
                         });
                     }
                     else
@@ -1841,17 +1859,17 @@ Project.prototype.reindex = function (callback, customGraphUri)
                                     {
                                         Logger.log("Folder or File " + resource.uri + " now being reindexed.");
 
-                                        if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadataOnly")
+                                        if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
                                         {
-                                            resource.reindex(function (err, results)
+                                            resource.reindex(function (err, resource)
                                             {
                                                 if (err)
                                                 {
-                                                    Logger.log("error", "Error reindexing File or folder " + resource.uri + " : " + results);
+                                                    Logger.log("error", "Error reindexing File or folder " + resource.uri + " : " + resource);
                                                     failed = true;
                                                 }
 
-                                                callback(failed, results);
+                                                callback(failed, resource);
                                             }, customGraphUri);
                                         }
                                         else
@@ -1903,13 +1921,25 @@ Project.prototype.reindex = function (callback, customGraphUri)
                 },
                 function (callback)
                 {
-                    // reindex the Project object itself.
-                    self.baseConstructor.prototype.reindex.call(self, function (err, result)
+                    if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
                     {
-                        callback(err, result);
-                    });
+                        // reindex the Project object itself.
+                        self.baseConstructor.prototype.reindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        // unindex the Project object itself.
+                        self.baseConstructor.prototype.unindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
                 }
-            ], function(err, result){
+            ], function (err, result)
+            {
                 callback(err, result);
             });
         }

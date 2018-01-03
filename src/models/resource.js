@@ -1479,7 +1479,6 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
 Resource.prototype.reindex = function (callback, customGraphUri)
 {
     const self = this;
-    const infoMessages = [];
     const errorMessages = [];
 
     const results = self.getPublicDescriptorsForAPICalls();
@@ -1513,23 +1512,6 @@ Resource.prototype.reindex = function (callback, customGraphUri)
             });
         }
     }
-
-    // Remove all non-textual values from index
-    /* const validator = require("validator");
-    descriptors = _.filter(descriptors, function (descriptor)
-    {
-        const value = descriptor.object;
-        const resourceUriRegex = Resource.getResourceRegex("[^/]+");
-        if (typeof value !== "string")
-        {
-            return false;
-        }
-
-        return !validator.isURL(value) &&
-                !validator.toDate(value) &&
-                !value.match(resourceUriRegex);
-    });*/
-
     const document = {
         uri: self.uri,
         graph: indexConnection.uri,
@@ -1556,8 +1538,9 @@ Resource.prototype.reindex = function (callback, customGraphUri)
                 {
                     if (isNull(err))
                     {
-                        infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.short_name);
-                        return callback(null, infoMessages);
+                        const msg = self.uri + " resource successfully reindexed in index " + indexConnection.short_name;
+                        Logger.log("info", msg);
+                        return callback(null, self);
                     }
                     const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
                     errorMessages.push(msg);
@@ -1593,23 +1576,28 @@ Resource.prototype.unindex = function (callback, customGraphUri)
             if (!isNull(id))
             {
                 document._id = id;
-            }
 
-            indexConnection.deleteDocument(
-                IndexConnection.indexTypes.resource,
-                document,
-                function (err, result)
-                {
-                    if (isNull(err))
+                indexConnection.deleteDocument(
+                    IndexConnection.indexTypes.resource,
+                    document,
+                    function (err, result)
                     {
-                        infoMessages.push("Resource " + self.uri + "  successfully reindexed in index " + indexConnection.short_name);
-                        return callback(null, infoMessages);
-                    }
-                    const msg = "Error deleting old document for resource " + self.uri + " error returned " + result + " while unindexing it .";
-                    errorMessages.push(msg);
-                    Logger.log("error", msg);
-                    return callback(1, errorMessages);
-                });
+                        if (isNull(err))
+                        {
+                            infoMessages.push("Resource " + self.uri + "  successfully unindexed in index " + indexConnection.short_name);
+                            return callback(null, infoMessages);
+                        }
+                        const msg = "Error deleting old document for resource " + self.uri + " error returned " + result + " while unindexing it .";
+                        errorMessages.push(msg);
+                        Logger.log("error", msg);
+                        return callback(1, errorMessages);
+                    });
+            }
+            else
+            {
+                // resource does not not exist in the index, just return without error, no need to remove it.
+                return callback(null, self);
+            }
         }
         else
         {
@@ -1707,11 +1695,11 @@ Resource.findResourcesByTextQuery = function (
         version: true
     };
 
-    // var util = require('util');
-    // util.debug("Query in JSON : " + util.inspect(queryObject));
+    Logger.log("debug", "Index Query in JSON : " + JSON.stringify(queryObject, null, 4));
 
     indexConnection.search(
-        IndexConnection.indexTypes.resource, // search in all graphs for resources (generic type)
+        // search in all graphs for resources (generic type)
+        IndexConnection.indexTypes.resource,
         queryObject,
         function (err, results)
         {

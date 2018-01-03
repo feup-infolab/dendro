@@ -796,9 +796,9 @@ export_to_repository_b2share = function (req, res)
                                                 language = generalDatasetUtils.parseDescriptorValue(folder.dcterms.language) || generalDatasetUtils.parseDescriptorValue(project.dcterms.language) || "en";
 
                                                 let creators = [];
-                                                if(Array.isArray(folder.dcterms.creator))
+                                                if (Array.isArray(folder.dcterms.creator))
                                                 {
-                                                    for(let i = 0; i != folder.dcterms.creator.length; ++i)
+                                                    for (let i = 0; i != folder.dcterms.creator.length; ++i)
                                                     {
                                                         creators.push({creator_name: folder.dcterms.creator[i]});
                                                     }
@@ -816,9 +816,9 @@ export_to_repository_b2share = function (req, res)
                                                 };
 
                                                 // "descriptions":[{"description":"The abstract of the harem dataset","description_type":"Abstract"}]
-                                                if(!isNull(abstract))
+                                                if (!isNull(abstract))
                                                 {
-                                                    if(isNull(draftData.descriptions))
+                                                    if (isNull(draftData.descriptions))
                                                     {
                                                         draftData.descriptions = [
                                                             {
@@ -832,13 +832,13 @@ export_to_repository_b2share = function (req, res)
                                                         draftData.descriptions.push({
                                                             description: abstract,
                                                             description_type: "Abstract"
-                                                        })
+                                                        });
                                                     }
                                                 }
 
-                                                if(!isNull(description))
+                                                if (!isNull(description))
                                                 {
-                                                    if(isNull(draftData.descriptions))
+                                                    if (isNull(draftData.descriptions))
                                                     {
                                                         draftData.descriptions = [
                                                             {
@@ -852,7 +852,7 @@ export_to_repository_b2share = function (req, res)
                                                         draftData.descriptions.push({
                                                             description: description,
                                                             description_type: "Other"
-                                                        })
+                                                        });
                                                     }
                                                 }
 
@@ -878,7 +878,7 @@ export_to_repository_b2share = function (req, res)
                                                     }
                                                 }
 
-                                                if(!isNull(publisher))
+                                                if (!isNull(publisher))
                                                 {
                                                     draftData.publisher = publisher;
                                                 }
@@ -897,7 +897,7 @@ export_to_repository_b2share = function (req, res)
                                                     }
                                                 }
 
-                                                if(!isNull(language))
+                                                if (!isNull(language))
                                                 {
                                                     draftData.language = language;
                                                 }

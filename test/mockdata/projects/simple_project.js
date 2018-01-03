@@ -15,7 +15,8 @@ const projectData = {
     coverage: "Porto",
     handle: simpleProjectHandle,
     privacy: "public",
-    uri: "http://" + Config.host + "/" + simpleProjectHandle
+    uri: "http://" + Config.host + "/" + simpleProjectHandle,
+    searchTerms: simpleProjectHandle
 };
 
 module.exports = projectData;

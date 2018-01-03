@@ -17,7 +17,8 @@ const projectData = {
     handle: privateProjectHandle,
     privacy: "private",
     uri: "http://" + Config.host + "/" + privateProjectHandle,
-    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/privateprojectcreatedbydemouser3.zip")
+    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/privateprojectcreatedbydemouser3.zip"),
+    searchTerms: privateProjectHandle
 };
 
 module.exports = projectData;
