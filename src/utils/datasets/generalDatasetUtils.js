@@ -30,6 +30,23 @@ const deleteFolderRecursive = function (path)
     }
 };
 
+
+const parseDescriptorValue = function (descriptorValue) {
+    let result = descriptorValue;
+    if(!isNull(descriptorValue))
+    {
+        if(Array.isArray(descriptorValue))
+        {
+            result = descriptorValue.join(",");
+        }
+        return result;
+    }
+    else
+    {
+        return null;
+    }
+};
+
 const createPackage = function (parentFolderPath, folder, callback)
 {
     const folderToZip = path.join(parentFolderPath, folder.nie.title);
@@ -171,5 +188,6 @@ const createPackage = function (parentFolderPath, folder, callback)
 
 module.exports = {
     deleteFolderRecursive,
-    createPackage
+    createPackage,
+    parseDescriptorValue
 };
