@@ -72,52 +72,92 @@ exports.preprocessing = function (req, res)
             // console.log(output);
             // console.log(sent.text);
             var comparision;
+            var current_word;
+            var nounphrase = [];
+            var sentences = [];
             for (var i = 0; i < sent.sentences.length; i++)
             {
                 for (var j = 0; j < JSON.parse(JSON.stringify(sent.sentences[i])).tokens.length; j++)
                 {
                     comparision = JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j];
+                    // console.log(comparision.word + " " + comparision.lemma);
+
                     if (!/^[a-zA-Z\/\-]+$/.test(comparision.word) || comparision.word.indexOf("www") + 1 || comparision.word.indexOf("http") + 1 || comparision.word.indexOf("@") + 1 || hasNumber(comparision.word) || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME")
                     {
                         // console.log("contain numbers or address " + JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word);
+                        sentences.push(comparision.word);
                     }
                     else
                     {
                         if (comparision.word.toString() !== comparision.lemma.toString())
                         {
-                            text = replaceAll(text.toString(), comparision.word.toString(), comparision.lemma.toString());
+                            sentences.push(comparision.lemma);
+                            // text = replaceAll(text.toString(), comparision.word.toString(), comparision.lemma.toString());
+                        }
+                        else
+                        {
+                            sentences.push(comparision.lemma);
                         }
                         // console.log("word: " + comparision.word + " pos: " + comparision.pos); // + " ner: " + comparision.ner + " lemma: " + comparision.lemma);
                         if (comparision.lemma.toString().length > 2)
                         {
                             output.push({word: comparision.word, pos: comparision.pos, lemma: comparision.lemma.toString()});
                         }
+                        if (comparision.pos.charAt(0) === "N")
+                        {
+                            if (comparision.lemma.toString().length < 3)
+                            {
+                                // console.log(comparision.word);
+                            }
+                            else
+                            {
+                                current_word = comparision.lemma;
+                                for (var index2 = j + 1; index2 < JSON.parse(JSON.stringify(sent.sentences[i])).tokens.length; index2++)
+                                {
+                                    comparision = JSON.parse(JSON.stringify(sent.sentences[i])).tokens[index2];
+                                    if (comparision.pos.charAt(0) === "N")
+                                    {
+                                        if (comparision.lemma.toString().length < 3)
+                                        {
+                                            break;
+                                        }
+                                        current_word += (" " + comparision.lemma);
+                                        nounphrase.push(current_word);
+                                    }
+                                    else if (index2 === (j + 1))
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
-                    // if (JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("www") + 1 || JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("http") + 1 || JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word.indexOf("@") + 1 || hasNumber(JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word))
-                    // {
-                    //     // console.log("contain numbers or address " + JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word);
-                    // }
-                    // else
-                    // {
-                    //     output.push({word: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].word, pos: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].pos, lemma: JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j].lemma});
-                    // }
                 }
             }
+            nounphrase = [...new Set(nounphrase.map(obj => JSON.stringify(obj)))]
+                .map(str => JSON.parse(str));
+            output = [...new Set(output.map(obj => JSON.stringify(obj)))]
+                .map(str => JSON.parse(str));
             /*
-            var processed = {};
-            output.forEach(function (item)
-            {
-                var value = processed[item.word] = processed[item.word] || {};
-                value.pos = item.pos;
-                value.lemma = item.lemma;
-            });*/
+        var processed = {};
+        output.forEach(function (item)
+        {
+            var value = processed[item.word] = processed[item.word] || {};
+            value.pos = item.pos;
+            value.lemma = item.lemma;
+        });*/
             /* const result = [...new Set(output.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));*/
             const result = output;
             res.json(
                 {
-                    text: text,
-                    result
+                    text: sentences.join(" "),
+                    result,
+                    nounphrase
                 }
             );
         })
@@ -270,12 +310,14 @@ exports.termextraction = function (req, res)
                 var documents = [];
                 var my_corpus = new tm.Corpus([]);
                 var documentlength = [];
+                var nounphrase = [];
                 if (texti.text.length > 1)
                 {
                     for (var xx = 0; xx < texti.text.length; xx++)
                     {
                         // console.log(JSON.parse(texti.text[xx]).result);
                         results.push(JSON.parse(texti.text[xx]).result);
+                        nounphrase.push(JSON.parse(texti.text[xx]).nounphrase);
                     }
                     for (var yy = 0; yy < texti.documents.length; yy++)
                     // documents.push(texti.documents);
@@ -291,12 +333,13 @@ exports.termextraction = function (req, res)
                         // console.log(my_corpus.documents[yy]);
                         documents.push(my_corpus.documents[0]);
                         documentlength.push(WordCount(my_corpus.documents[0]));
-                        console.log(documentlength[yy]);
+                        // console.log(my_corpus.documents[0]);
                     }
                 }
                 else
                 {
                     results.push(JSON.parse(texti.text).result);
+                    nounphrase.push(JSON.parse(texti.text).nounphrase);
                     // console.log(texti.documents.toString().length);
                     // console.log(texti.documents.toString());
                     my_corpus.addDoc(texti.documents.toString());
@@ -312,7 +355,6 @@ exports.termextraction = function (req, res)
                 // {
                 //     console.log(results[h]);
                 // }
-
                 if (isNull(err))
                 {
                     // console.log("textero" + text);
@@ -322,10 +364,12 @@ exports.termextraction = function (req, res)
                     var posnoumsfinal = [];
                     var score = [];
                     var currentscore = [];
+                    var nounphrasefinal = [];
                     var out = [];
                     var values = [];
                     // cvalue(out, documents, values);
                     var i = 0;
+                    var j = 0;
                     var dbpediaterms = {
                         keywords: []
                     };
@@ -340,12 +384,20 @@ exports.termextraction = function (req, res)
                     {
                         for (i = 0; i < results.length; i++)
                         {
-                            for (var j = 0; j < results[i].length; j++)
+                            for (j = 0; j < results[i].length; j++)
                             {
                                 if (results[i][j].pos === "NN" || results[i][j].pos === "NNS" || results[i][j].pos === "NNP" || results[i][j].pos === "NNPS")
                                 {
                                     posnoums.push(results[i][j].lemma);
                                 }
+                            }
+                            // console.log("document size " + documentlength[i]);
+                        }
+                        for (i = 0; i < nounphrase.length; i++)
+                        {
+                            for (j = 0; j < nounphrase[i].length; j++)
+                            {
+                                nounphrasefinal.push(nounphrase[i][j]);
                             }
                             // console.log("document size " + documentlength[i]);
                         }
@@ -364,7 +416,10 @@ exports.termextraction = function (req, res)
                     // console.log("pos noun " + posnoums.length);
                     const posnoumssimple = [...new Set(posnoums.map(obj => JSON.stringify(obj)))]
                         .map(str => JSON.parse(str));
-                    out = nounphrase(documents, posnoumssimple, null);
+                    const nounphrasesimple = [...new Set(nounphrasefinal.map(obj => JSON.stringify(obj)))]
+                        .map(str => JSON.parse(str));
+                    // out = nounphrase(documents, posnoumssimple, null);
+
                     // console.log(rec.body.documents);
                     // console.log("posnoumssimple " + posnoumssimple);
                     for (var a = 0; a < documents.length; a++)
@@ -392,7 +447,7 @@ exports.termextraction = function (req, res)
                         tfidf.listTerms(b).forEach(function (item)
                         {
                             // if (index < (documentlength[b] * 0.1))
-                            if (index < documentlength[b] * 0.05)
+                            if (index < documentlength[b] * 0.01)
                             {
                                 if (item.term.toString() === "aerodynamic" || item.term.toString() === "drag" || item.term.toString() === "coefficient" || item.term.toString() === "air" || item.term.toString() === "density" || item.term.toString() === "controller" || item.term.toString() === "efficiency" || item.term.toString() === "drive" || item.term.toString() === "driving" || item.term.toString() === "cycle" || item.term.toString() === "gear" || item.term.toString() === "ratio" || item.term.toString() === "gravitational" || item.term.toString() === "acceleration" || item.term.toString() === "road" || item.term.toString() === "surface" || item.term.toString() === "coefficient" || item.term.toString() === "tire" || item.term.toString() === "radius" || item.term.toString() === "vehicle" || item.term.toString() === "frontal" || item.term.toString() === "area" || item.term.toString() === "mass" || item.term.toString() === "model")
                                 {
@@ -474,11 +529,11 @@ exports.termextraction = function (req, res)
                     // console.log(pos.length);
                     for (var sa = 0; sa < showedalready.length; sa++)
                     {
-                        console.log(showedalready[sa] + " " + showedalreadyscore[sa] + " doc: " + (doc[sa] + 1) + " pos " + (pos[sa] + 1));
+                        // console.log(showedalready[sa] + " " + showedalreadyscore[sa] + " doc: " + (doc[sa] + 1) + " pos " + (pos[sa] + 1));
                     }
                     // console.log(dbpediaterms.keywords);
-
-                    for (var p = 0; p < posnoumssimple.length; p++)
+                    var p = 0;
+                    for (p = 0; p < posnoumssimple.length; p++)
                     {
                         currentscore = [];
                         tfidf.tfidfs(posnoumssimple[p], function (i, measure)
@@ -488,31 +543,65 @@ exports.termextraction = function (req, res)
                         });
                         score.push({word: posnoumssimple[p], score: currentscore});
                     }
+                    var tfidfnp = {scores: []};
 
-                    var asd = [];
-                    var nounnoun = [];
-                    for (var pf = 0; pf < out.length; pf++)
+                    // console.log("Nounphrase simple: " + nounphrasesimple.length);
+                    for (p = 0; p < nounphrasesimple.length; p++)
                     {
-                        asd = [];
-                        tfidf.tfidfs(out[pf], function (i, measure)
+                        currentscore = [];
+                        // console.log(p + " " + nounphrasefinal[p]);
+                        tfidf.tfidfs(nounphrasesimple[p], function (i, measure)
                         {
-                            if (out[pf].toString() === "aerodynamic drag coefficient" || out[pf].toString() === "air density" || out[pf].toString() === "controller efficiency" || out[pf].toString() === "drive cycle" || out[pf].toString() === "gear ratio" || out[pf].toString() === "gravitational acceleration" || out[pf].toString() === "road surface coefficient" || out[pf].toString() === "tire radius" || out[pf].toString() === "vehicle frontal area" || out[pf].toString() === "vehicle mass" || out[pf].toString() === "vehicle model")
-                            {
-                                console.log("multi term " + out[pf] + " score " + measure);
-                            }
-                            // console.log("word " + posnoums[p] + " in document #" + i + " has a TF-IDF value of " + measure);
-                            // console.log("multi term " + out[pf] + " score " + measure);
-                            asd.push(measure);
+                            currentscore.push(measure);
                         });
-                        nounnoun.push({word: out[pf], score: asd});
+                        tfidfnp.scores.push({term: nounphrasesimple[p], score: currentscore});
                     }
-
-                    nounnoun.sort(function (a, b)
+                    tfidfnp.scores.sort(function (a, b)
                     {
                         return parseFloat(b.score) - parseFloat(a.score);
                     });
-                    // console.log(nounnoun);
+                    for (i = 0; i < tfidfnp.scores.length; i++)
+                    {
+                    // console.log(tfidfterms.scores[i].term);
+                        if (tfidfnp.scores[i].term.toLowerCase() === "air density" || tfidfnp.scores[i].term.toLowerCase() === "controller efficiency" || tfidfnp.scores[i].term.toLowerCase() === "gear ratio" || tfidfnp.scores[i].term.toLowerCase() === "gravitational acceleration" || tfidfnp.scores[i].term.toLowerCase() === "road surface coefficient" || tfidfnp.scores[i].term.toLowerCase() === "tire radius" || tfidfnp.scores[i].term.toLowerCase() === "vehicle frontal area" || tfidfnp.scores[i].term.toLowerCase() === "vehicle mass" || tfidfnp.scores[i].term.toLowerCase() === "vehicle model")
+                        {
+                            // console.log(tfidfnp.scores[i].term + " " + i + " score: " + tfidfnp.scores[i].score[0]);
+                        }
+                    }
                     var auxiliaryscorearray = [];
+                    var auxiliaryscore = 0;
+                    for (var oso = 0; oso < tfidfnp.scores.length; oso++)
+                    {
+                        auxiliaryscore = 0;
+                        for (i = 0; i < tfidfnp.scores[oso].score.length; i++)
+                        {
+                            auxiliaryscore += tfidfnp.scores[oso].score[i];
+                        }
+                        auxiliaryscorearray.push((auxiliaryscore / 5));
+                    }
+                    var sorted = [];
+                    for (i = 0; i < tfidfnp.scores.length; i++)
+                    {
+                    // console.log(tfidfterms.scores[i].term);
+                        if (tfidfnp.scores[i].term.toLowerCase() === "air density" || tfidfnp.scores[i].term.toLowerCase() === "controller efficiency" || tfidfnp.scores[i].term.toLowerCase() === "gear ratio" || tfidfnp.scores[i].term.toLowerCase() === "gravitational acceleration" || tfidfnp.scores[i].term.toLowerCase() === "road surface coefficient" || tfidfnp.scores[i].term.toLowerCase() === "tire radius" || tfidfnp.scores[i].term.toLowerCase() === "vehicle frontal area" || tfidfnp.scores[i].term.toLowerCase() === "vehicle mass" || tfidfnp.scores[i].term.toLowerCase() === "vehicle model")
+                        {
+                            // console.log(tfidfnp.scores[i].term + " " + i + " score: " + auxiliaryscorearray[i]);
+                        }
+                      sorted.push({term: tfidfnp.scores[i].term, score: auxiliaryscorearray[i]});
+                    }
+                    sorted.sort(function (a, b)
+                    {
+                        return parseFloat(b.score) - parseFloat(a.score);
+                    });
+                    for (i = 0; i < sorted.length; i++)
+                    {
+                    // console.log(tfidfterms.scores[i].term);
+                        if (sorted[i].term.toLowerCase() === "air density" || sorted[i].term.toLowerCase() === "controller efficiency" || sorted[i].term.toLowerCase() === "gear ratio" || sorted[i].term.toLowerCase() === "gravitational acceleration" || sorted[i].term.toLowerCase() === "road surface coefficient" || sorted[i].term.toLowerCase() === "tire radius" || sorted[i].term.toLowerCase() === "vehicle frontal area" || sorted[i].term.toLowerCase() === "vehicle mass" || sorted[i].term.toLowerCase() === "vehicle model")
+                        {
+                            console.log(sorted[i].term.toLowerCase() + " " + i + " score: " + sorted[i].score);
+                        }
+                    }
+                    /* var auxiliaryscorearray = [];
                     var auxiliaryscore = 0;
                     for (var oso = 0; oso < score.length; oso++)
                     {
@@ -523,6 +612,7 @@ exports.termextraction = function (req, res)
                         }
                         auxiliaryscorearray.push((auxiliaryscore / 5));
                     }
+                    */
                     /*
                     dbpediaterms = {
                         keywords: []

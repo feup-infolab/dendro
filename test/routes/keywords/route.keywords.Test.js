@@ -175,6 +175,7 @@ describe("Searches DBpedia for important terms", function (done)
     {
         var artigos = [];
         var textprocessado = [];
+        var preprocessing = [];
         it("Should load every pdf and extract their content", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -262,8 +263,8 @@ describe("Searches DBpedia for important terms", function (done)
                     // res.text.should.contain("Introduction");
                     // console.log(artigos[0]);
                     // console.log(JSON.parse(res.text).text);
-                    textprocessado.push(res.text);
-                    artigos[0] = JSON.parse(res.text).text;
+                    preprocessing.push(res.text);
+                    textprocessado.push(JSON.parse(res.text).text);
                     // console.log(artigos[0]);
                     keywordsUtils.preprocessing(artigos[1], agent, function (err, res)
                     {
@@ -271,8 +272,8 @@ describe("Searches DBpedia for important terms", function (done)
                         // res.text.should.contain("Introduction");
                         // console.log(artigos[1]);
                         // console.log(res.text);
-                        textprocessado.push(res.text);
-                        artigos[1] = JSON.parse(res.text).text;
+                        preprocessing.push(res.text);
+                        textprocessado.push(JSON.parse(res.text).text);
                         // console.log(artigos[1]);
                         keywordsUtils.preprocessing(artigos[2], agent, function (err, res)
                         {
@@ -280,8 +281,8 @@ describe("Searches DBpedia for important terms", function (done)
                             // res.text.should.contain("Introduction");
                             // console.log(artigos[2]);
                             // console.log(res.text);
-                            textprocessado.push(res.text);
-                            artigos[2] = JSON.parse(res.text).text;
+                            preprocessing.push(res.text);
+                            textprocessado.push(JSON.parse(res.text).text);
                             // console.log(artigos[2]);
                             keywordsUtils.preprocessing(artigos[3], agent, function (err, res)
                             {
@@ -289,8 +290,8 @@ describe("Searches DBpedia for important terms", function (done)
                                 // res.text.should.contain("Introduction");
                                 // console.log(artigos[3]);
                                 // console.log(res.text);
-                                textprocessado.push(res.text);
-                                artigos[3] = JSON.parse(res.text).text;
+                                preprocessing.push(res.text);
+                                textprocessado.push(JSON.parse(res.text).text);
                                 // console.log(artigos[3]);
                                 keywordsUtils.preprocessing(artigos[4], agent, function (err, res)
                                 {
@@ -298,8 +299,8 @@ describe("Searches DBpedia for important terms", function (done)
                                     // res.text.should.contain("Introduction");
                                     // console.log(artigos[4]);
                                     // console.log(res.text);
-                                    textprocessado.push(res.text);
-                                    artigos[4] = JSON.parse(res.text).text;
+                                    preprocessing.push(res.text);
+                                    textprocessado.push(JSON.parse(res.text).text);
                                     // console.log(artigos[4]);
                                     done();
                                 });
@@ -312,7 +313,7 @@ describe("Searches DBpedia for important terms", function (done)
         var dbpediaterms;
         it("Should extract keywords", function (done)
         {
-            keywordsUtils.termextraction(textprocessado, artigos, agent, function (err, te)
+            keywordsUtils.termextraction(preprocessing, textprocessado, agent, function (err, te)
             {
                 var keyword;
                 te.statusCode.should.equal(200);
