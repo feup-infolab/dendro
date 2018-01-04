@@ -338,7 +338,7 @@ describe("Searches DBpedia for important terms", function (done)
         });
         it("Search terms in dbpedia", function (done)
         {
-            this.timeout(150000);
+            this.timeout(1500000);
             // console.log(agent);
 
             keywordsUtils.dbpedialookup(dbpediaterms, agent, function (err, db)
