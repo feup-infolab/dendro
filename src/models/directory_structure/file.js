@@ -260,12 +260,12 @@ File.prototype.save = function (callback, rename)
                             {
                                 self.reindex(function (err, result)
                                 {
-                                    if (!isNull(err))
+                                    if (isNull(err))
                                     {
                                         return callback(err, self);
                                     }
 
-                                    const msg = "Error reindexing file " + self.uri + " : " + result;
+                                    const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(err, null, 4);
                                     Logger.log("error", msg);
                                     return callback(1, msg);
                                 });
@@ -376,20 +376,30 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
         {
             if (isNull(err))
             {
-                self.unlinkFromParent(function (err, result)
+                self.unindex(function (err, result)
                 {
                     if (isNull(err))
                     {
-                        gfs.connection.delete(self.uri, function (err, result)
+                        self.unlinkFromParent(function (err, result)
                         {
-                            self.deleteThumbnails();
-                            self.deleteDatastoreData();
-                            return callback(err, result);
+                            if (isNull(err))
+                            {
+                                gfs.connection.delete(self.uri, function (err, result)
+                                {
+                                    self.deleteThumbnails();
+                                    self.deleteDatastoreData();
+                                    return callback(err, result);
+                                });
+                            }
+                            else
+                            {
+                                return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
+                            }
                         });
                     }
                     else
                     {
-                        return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
+                        return callback(err, "Error clearing index entry while deleting file " + self.uri + ". Error reported : " + result);
                     }
                 });
             }
@@ -413,23 +423,22 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
 File.prototype.undelete = function (callback, uriOfUserUnDeletingTheFile)
 {
     const self = this;
-    self.updateDescriptors(
-        [
-            new Descriptor({
-                prefixedForm: "ddr:deleted",
-                value: null
-            })
-        ]
-    );
-
-    self.save(function (err, result)
+    if (self.ddr.deleted === true)
     {
-        if (isNull(err))
+        delete self.ddr.deleted;
+        self.save(function (err, result)
         {
-            return callback(null, self);
-        }
-        return callback(err, result);
-    }, true, uriOfUserUnDeletingTheFile);
+            if (isNull(err))
+            {
+                return callback(null, self);
+            }
+            return callback(err, result);
+        }, true, uriOfUserUnDeletingTheFile);
+    }
+    else
+    {
+        callback(null, self);
+    }
 };
 
 File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetadata, includeTempFileLocations, includeOriginalNodes, callback)

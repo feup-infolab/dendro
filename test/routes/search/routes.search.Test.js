@@ -24,8 +24,8 @@ const privateProject = require("../../mockdata/projects/private_project.js");
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const searchUtils = require(Pathfinder.absPathInTestsFolder("utils/search/searchUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 
 const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const projectsData = createProjectsUnit.projectsData;
@@ -357,6 +357,82 @@ describe("/search", function ()
                         {
                             done(err);
                         }
+                    });
+                });
+            });
+        });
+    });
+
+    describe("Search for projects of different visibility (public / private / metadata only), after editing the privacy", function ()
+    {
+        const searchTerms = publicProject.searchTerms;
+
+        it("should NOT find " + publicProject.handle + " by searching for a term present because it becomes private **AFTER EDITING the visibility to private***", function (done)
+        {
+            const privateStatus = "private";
+            const publicStatus = "public";
+            const metadataOnly = "metadata_only";
+
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                // change public to private
+                projectUtils.administer(agent, true, {privacy: privateStatus}, publicProject.handle, function (err, res)
+                {
+                    res.should.have.status(200);
+                    searchUtils.search(true, agent, searchTerms, function (err, res)
+                    {
+                        should.not.exist(err);
+                        res.status.should.equal(200);
+
+                        const hits = JSON.parse(res.text).hits;
+
+                        const publicProjectSearchHit = _.find(hits, function (hit)
+                        {
+                            return hit.ddr.handle === publicProject.handle;
+                        });
+
+                        should.not.exist(publicProjectSearchHit);
+
+                        // change private to metadata_only
+                        projectUtils.administer(agent, true, {privacy: metadataOnly}, publicProject.handle, function (err, res)
+                        {
+                            res.should.have.status(200);
+                            searchUtils.search(true, agent, searchTerms, function (err, res)
+                            {
+                                const hits = JSON.parse(res.text).hits;
+
+                                const publicProjectSearchHit = _.find(hits, function (hit)
+                                {
+                                    return hit.ddr.handle === publicProject.handle;
+                                });
+
+                                should.exist(publicProjectSearchHit);
+
+                                publicProjectSearchHit.dcterms.description.should.equal(publicProject.description);
+                                publicProjectSearchHit.dcterms.title.should.equal(publicProject.title);
+
+                                // change metadata_only to public
+                                projectUtils.administer(agent, true, {privacy: publicStatus}, publicProject.handle, function (err, res)
+                                {
+                                    res.should.have.status(200);
+                                    searchUtils.search(true, agent, searchTerms, function (err, res)
+                                    {
+                                        const hits = JSON.parse(res.text).hits;
+
+                                        const publicProjectSearchHit = _.find(hits, function (hit)
+                                        {
+                                            return hit.ddr.handle === publicProject.handle;
+                                        });
+
+                                        should.exist(publicProjectSearchHit);
+
+                                        publicProjectSearchHit.dcterms.description.should.equal(publicProject.description);
+                                        publicProjectSearchHit.dcterms.title.should.equal(publicProject.title);
+                                        done();
+                                    });
+                                });
+                            });
+                        });
                     });
                 });
             });

@@ -659,8 +659,6 @@ Folder.prototype.restoreFromLocalBackupZipFile = function (zipFileAbsLocation, u
         {
             if (exists)
             {
-                const fs = require("fs");
-
                 fs.readdir(unzippedContentsLocation, function (err, files)
                 {
                     files = InformationElement.removeInvalidFileNames(files);
@@ -884,6 +882,10 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
             if (runningOnRoot)
             {
                 files = _.without(files, Config.packageMetadataFileName);
+                if (replaceExistingFolder)
+                {
+                    self.nie.title = path.basename(absolutePathOfLocalFolder);
+                }
             }
 
             if (files.length > 0)
@@ -1253,7 +1255,6 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                  * Restore metadata values from medatada.json file
                  */
                 const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-                const fs = require("fs");
 
                 fs.exists(metadataFileLocation, function (existsMetadataFile)
                 {
@@ -1268,7 +1269,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                             }
 
                             const node = JSON.parse(data);
-
+                            self.nie.title = path.basename(absPathOfRootFolder);
                             self.loadMetadata(node, function (err, result)
                             {
                                 if (isNull(err))
@@ -1401,18 +1402,20 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
         }
         else
         {
-            self.updateDescriptors(
-                [
-                    new Descriptor({
-                        prefixedForm: "ddr:deleted",
-                        value: true
-                    })
-                ]
-            );
-
+            self.ddr.deleted = true;
             self.save(function (err, result)
             {
-                return callback(err, self);
+                if (isNull(err))
+                {
+                    self.reindex(function (err, result)
+                    {
+                        return callback(err, self);
+                    });
+                }
+                else
+                {
+                    return callback(err, self);
+                }
             }, true, uriOfUserDeletingTheFolder);
         }
     }
@@ -1443,13 +1446,23 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
                         {
                             if (isNull(err))
                             {
-                                self.unlinkFromParent(function (err, result)
+                                self.unindex(function (err, result)
                                 {
                                     if (isNull(err))
                                     {
-                                        return callback(null, self);
+                                        self.unlinkFromParent(function (err, result)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                return callback(null, self);
+                                            }
+                                            return callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
+                                        });
                                     }
-                                    return callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
+                                    else
+                                    {
+                                        return callback(err, "Error clearing descriptors for deleting folder " + self.uri + ". Error reported : " + result);
+                                    }
                                 });
                             }
                             else
@@ -1494,19 +1507,18 @@ Folder.prototype.undelete = function (callback, uriOfUserUnDeletingTheFolder, no
 
     if (notRecursive)
     {
-        self.updateDescriptors(
-            [
-                new Descriptor({
-                    prefixedForm: "ddr:deleted",
-                    value: null
-                })
-            ]
-        );
-
-        self.save(function (err, result)
+        if (self.ddr.deleted === true)
         {
-            return callback(err, result);
-        }, true, uriOfUserUnDeletingTheFolder);
+            delete self.ddr.deleted;
+            self.save(function (err, result)
+            {
+                return callback(err, result);
+            }, true, uriOfUserUnDeletingTheFolder);
+        }
+        else
+        {
+            return callback(null, self);
+        }
     }
     else
     {

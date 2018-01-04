@@ -245,27 +245,74 @@ IndexConnection.prototype.open = function (callback)
     }
 };
 
-IndexConnection.prototype.indexDocument = function (type, document, callback)
+IndexConnection.prototype.deleteDocumentsWithUri = function (uri, callback)
 {
     const self = this;
+    // fetch document from the index that matches the current resource
+    const queryObject = {
+        query: {
+            constant_score: {
+                filter: {
+                    term: {
+                        uri: self.uri
+                    }
+                }
+            }
+        },
+        from: 0,
+        size: 10000
+    };
 
-    if (typeof document._id !== "undefined")
-    {
-        delete document._id;
+    // search in all graphs for resources (generic type)
+    const indexType = IndexConnection.indexTypes.resource;
 
-        self.client.update({
-            index: self.short_name,
-            type: type,
-            body: document
-        }, function (err, data)
+    self.search(
+        indexType,
+        queryObject,
+        function (err, hits)
         {
             if (isNull(err))
             {
-                return callback(null, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
+                async.map(hits, function (hit, cb)
+                {
+                    self.deleteDocument(hit._id, indexType, cb);
+                }, callback);
+            }
+            else
+            {
+                return callback(err, [hits]);
+            }
+        }
+    );
+};
+
+IndexConnection.prototype.indexDocument = function (type, document, callback)
+{
+    const self = this;
+    let msg;
+
+    if (!isNull(document._id))
+    {
+        const documentId = document._id;
+        delete document._id;
+        self.client.update({
+            index: self.short_name,
+            type: type,
+            id: documentId,
+            body: {
+                doc: document
+            },
+            waitForActiveShards: "all",
+            refresh: "true"
+        }, function (err, result)
+        {
+            if (isNull(err))
+            {
+                return callback(null, result);
             }
 
             Logger.log("error", err.stack);
-            return callback(1, "Unable to RE index document " + JSON.stringify(document));
+            return callback(1, "Unable to REindex document " + JSON.stringify(err, null, 4));
         });
     }
     else
@@ -273,12 +320,24 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
         self.client.index({
             index: self.short_name,
             type: type,
-            body: document
+            body: document,
+            waitForActiveShards: "all",
+            refresh: "true"
         }, function (err, data)
         {
             if (isNull(err))
             {
-                return callback(null, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
+                if (!isNull(document._id))
+                {
+                    msg = "Document successfully REindexed:\n" + JSON.stringify(document) + " with ID " + data._id;
+                }
+                else
+                {
+                    msg = "Document successfully indexed:\n" + JSON.stringify(document) + " with ID " + data._id;
+                }
+
+                Logger.log("debug", msg);
+                return callback(null, msg);
             }
 
             Logger.log("error", err.stack);
@@ -295,25 +354,22 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
         return callback(null, "No document to delete");
     }
 
-    self.client.delete(self.short_name,
-        type,
-        documentID,
-        {},
+    self.client.delete(
+        {
+            index: self.short_name,
+            type: type,
+            id: documentID,
+            refresh: "true",
+            waitForActiveShards: "true"
+        },
         function (err, result)
         {
-            return callback(err, result);
-        })
-        .on("data", function (data)
-        {
-            Logger.log("Deleting document... data received : " + data);
-        })
-        .on("done", function (data)
-        {
-            return callback(null, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(data));
-        })
-        .on("error", function (data)
-        {
-            return callback(1, "Unable to delete document " + JSON.stringify(document) + ".  error reported : " + data);
+            if (isNull(err))
+            {
+                return callback(null, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(err));
+            }
+
+            return callback(1, "Unable to delete document " + documentID + ".  error reported : " + JSON.stringify(err));
         });
 };
 

@@ -1857,7 +1857,7 @@ Project.prototype.reindex = function (callback, customGraphUri)
                                 {
                                     async.mapSeries(resources, function (resource, callback)
                                     {
-                                        Logger.log("Folder or File " + resource.uri + " now being reindexed.");
+                                        Logger.log("debug", "Folder or File " + resource.uri + " now being REindexed.");
 
                                         if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
                                         {
@@ -1865,7 +1865,7 @@ Project.prototype.reindex = function (callback, customGraphUri)
                                             {
                                                 if (err)
                                                 {
-                                                    Logger.log("error", "Error reindexing File or folder " + resource.uri + " : " + resource);
+                                                    Logger.log("error", "Error reindexing File or Folder " + resource.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(resource, null, 4));
                                                     failed = true;
                                                 }
 
@@ -1940,7 +1940,7 @@ Project.prototype.reindex = function (callback, customGraphUri)
                 }
             ], function (err, result)
             {
-                callback(err, result);
+                callback(err, self);
             });
         }
         else

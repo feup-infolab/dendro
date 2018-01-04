@@ -492,34 +492,42 @@ Resource.prototype.deleteAllMyTriples = function (callback, customGraphUri)
     // Invalidate cache record for the updated resources
     Cache.getByGraphUri(graphUri).delete(self.uri, function (err, result)
     {
-
-    });
-
-    Config.getDBByGraphUri(customGraphUri).connection.executeViaJDBC(
-        "WITH [0] \n" +
-            "DELETE \n" +
-            "WHERE " +
-            "{ \n" +
-                "[1] ?p ?o \n" +
-            "} \n",
-        [
-            {
-                type: Elements.types.resourceNoEscape,
-                value: graphUri
-            },
-            {
-                type: Elements.types.resource,
-                value: self.uri
-            }
-        ],
-        function (err, results)
+        self.unindex(function (err, result)
         {
             if (isNull(err))
             {
-                return callback(err, results);
+                Config.getDBByGraphUri(graphUri).connection.executeViaJDBC(
+                    "WITH [0] \n" +
+                    "DELETE \n" +
+                    "WHERE " +
+                    "{ \n" +
+                    "   [1] ?p ?o \n" +
+                    "} \n",
+                    [
+                        {
+                            type: Elements.types.resourceNoEscape,
+                            value: graphUri
+                        },
+                        {
+                            type: Elements.types.resource,
+                            value: self.uri
+                        }
+                    ],
+                    function (err, results)
+                    {
+                        if (isNull(err))
+                        {
+                            return callback(err, results);
+                        }
+                        return callback(1, results);
+                    });
             }
-            return callback(1, results);
-        });
+            else
+            {
+                callback(2, err);
+            }
+        }, customGraphUri);
+    });
 };
 
 /**
@@ -1298,7 +1306,14 @@ Resource.prototype.updateDescriptors = function (descriptors, cannotChangeTheseD
         {
             if (descriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
             {
-                self[descriptor.prefix][descriptor.shortName] = descriptor.value;
+                if (descriptor.value === null)
+                {
+                    delete self[descriptor.prefix][descriptor.shortName];
+                }
+                else
+                {
+                    self[descriptor.prefix][descriptor.shortName] = descriptor.value;
+                }
             }
         }
         else
@@ -1538,11 +1553,20 @@ Resource.prototype.reindex = function (callback, customGraphUri)
                 {
                     if (isNull(err))
                     {
-                        const msg = self.uri + " resource successfully reindexed in index " + indexConnection.short_name;
-                        Logger.log("info", msg);
+                        let msg;
+                        if (isNull(id))
+                        {
+                            msg = self.uri + " resource successfully indexed in index " + indexConnection.short_name;
+                        }
+                        else
+                        {
+                            msg = self.uri + " resource successfully REindexed in index " + indexConnection.short_name;
+                        }
+
+                        Logger.log("debug", msg);
                         return callback(null, self);
                     }
-                    const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
+                    const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
                     errorMessages.push(msg);
                     Logger.log("error", msg);
                     return callback(1, errorMessages);
@@ -1578,8 +1602,8 @@ Resource.prototype.unindex = function (callback, customGraphUri)
                 document._id = id;
 
                 indexConnection.deleteDocument(
+                    id,
                     IndexConnection.indexTypes.resource,
-                    document,
                     function (err, result)
                     {
                         if (isNull(err))
@@ -1587,9 +1611,8 @@ Resource.prototype.unindex = function (callback, customGraphUri)
                             infoMessages.push("Resource " + self.uri + "  successfully unindexed in index " + indexConnection.short_name);
                             return callback(null, infoMessages);
                         }
-                        const msg = "Error deleting old document for resource " + self.uri + " error returned " + result + " while unindexing it .";
+                        const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4) + " while unindexing it .";
                         errorMessages.push(msg);
-                        Logger.log("error", msg);
                         return callback(1, errorMessages);
                     });
             }
@@ -1691,8 +1714,7 @@ Resource.findResourcesByTextQuery = function (
         size: maxResultSize,
         sort: [
             "_score"
-        ],
-        version: true
+        ]
     };
 
     Logger.log("debug", "Index Query in JSON : " + JSON.stringify(queryObject, null, 4));
@@ -1748,23 +1770,16 @@ Resource.prototype.restoreFromIndexDocument = function (callback, customGraphUri
     // fetch document from the index that matches the current resource
     const queryObject = {
         query: {
-            filtered: {
-                query: {
-                    match_all: {}
-                },
+            constant_score: {
                 filter: {
                     term: {
-                        "resource.uri": self.uri
+                        uri: self.uri
                     }
                 }
             }
         },
         from: 0,
-        size: 2,
-        sort: [
-            "_score"
-        ],
-        version: true
+        size: 200
     };
 
     indexConnection.search(
