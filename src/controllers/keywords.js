@@ -39,6 +39,158 @@ exports.loadfiles = function (rec, res)
 */
 exports.preprocessing = function (req, res)
 {
+    var nounphrase = function (type, text, res)
+    {
+    /*
+  1. Noun+ Noun,
+  2. (Adj | Noun)+ Noun,
+  3. ((Adj | Noun)+ | ((Adj | Noun)* (NounPrep)?)(Adj| Noun)* ) Noun
+  */
+        var multiterm = [];
+        var tokenize;
+        var current_word = "";
+        var comparision;
+        if (type === "nn")
+        {
+            for (let j = 0; j < text.length; j++)
+            {
+                comparision = text[j];
+                if (comparision.pos.charAt(0) === "N")
+                {
+                    if (comparision.lemma.toString().length < 3)
+                    {
+                        // console.log(comparision.word);
+                    }
+                    else
+                    {
+                        current_word = comparision.lemma;
+                        for (let index2 = j + 1; index2 < text.length; index2++)
+                        {
+                            comparision = text[index2];
+                            if (comparision.pos.charAt(0) === "N")
+                            {
+                                if (comparision.lemma.toString().length < 3)
+                                {
+                                    break;
+                                }
+                                current_word += (" " + comparision.lemma);
+                                multiterm.push(current_word.toLowerCase());
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else if (type === "jj")
+        {
+            for (let j = 0; j < text.length; j++)
+            {
+                comparision = text[j];
+                if (comparision.pos.charAt(0) === "N" || comparision.pos.charAt(0) === "J")
+                {
+                    if (comparision.lemma.toString().length < 3)
+                    {
+                        // console.log(comparision.word);
+                    }
+                    else
+                    {
+                        current_word = comparision.lemma;
+                        for (let index2 = j + 1; index2 < text.length; index2++)
+                        {
+                            comparision = text[index2];
+                            if (comparision.pos.charAt(0) === "N")
+                            {
+                                if (comparision.lemma.toString().length < 3)
+                                {
+                                    break;
+                                }
+                                current_word += (" " + comparision.lemma);
+                                multiterm.push(current_word.toLowerCase());
+                            }
+                            else if (comparision.pos.charAt(0) === "J")
+                            {
+                                if (comparision.lemma.toString().length < 3)
+                                {
+                                    break;
+                                }
+                                if (text[(index2 + 1)].pos.charAt(0) === "N" || text[(index2 + 1)].pos.charAt(0) === "J")
+                                {
+                                    current_word += (" " + comparision.lemma);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /*else
+        {
+            for (let j = 0; j < text.length; j++)
+            {
+                comparision = text[j];
+                if (comparision.pos.charAt(0) === "N" || comparision.pos.charAt(0) === "J")
+                {
+                    if (comparision.lemma.toString().length < 3)
+                    {
+                        // console.log(comparision.word);
+                    }
+                    else
+                    {
+                        current_word = comparision.lemma;
+                        for (let index2 = j + 1; index2 < text.length; index2++)
+                        {
+                            comparision = text[index2];
+                            if (comparision.pos.charAt(0) === "N")
+                            {
+                                if (comparision.lemma.toString().length < 3)
+                                {
+                                    break;
+                                }
+                                current_word += (" " + comparision.lemma);
+                                multiterm.push(current_word.toLowerCase());
+                            }
+                            else if (comparision.pos.charAt(0) === "J")
+                            {
+                                if (comparision.lemma.toString().length < 3)
+                                {
+                                    break;
+                                }
+                                if (text[(index2 + 1)].pos.charAt(0) === "N" || text[(index2 + 1)].pos.charAt(0) === "J")
+                                {
+                                    current_word += (" " + comparision.lemma);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }*/
+        const result = [...new Set(multiterm.map(obj => JSON.stringify(obj)))]
+            .map(str => JSON.parse(str));
+        // console.log(result);
+        return result;
+    };
+
     function hasNumber (myString)
     {
         return /\d/.test(myString);
@@ -50,11 +202,7 @@ exports.preprocessing = function (req, res)
         return str.replace(new RegExp("\\b" + find + "\\b", "gi"), replace);
     }
     var my_corpus = new tm.Corpus([]);
-    // my_corpus.clean();
     my_corpus.addDoc(req.body.text);
-    // my_corpus.toLower();
-    // my_corpus.removeWords(tm.STOPWORDS.EN);
-    // sent = new coreNLP.simple.Sentence(rec.body.text);
     doc = new coreNLP.simple.Document(my_corpus.documents[0]);
     pipeline.annotate(doc)
         .then(doc =>
@@ -62,21 +210,13 @@ exports.preprocessing = function (req, res)
             const sent = doc.toJSON();
             // console.log(sent);
             var text = sent.text;
-            // console.log(sent);
-            // console.log("text: " + text);
-            // sent.parse();
-            // console.log(coreNLP.util.Tree.fromDocument(sent).dump());
-            // var output = JSON.parse(JSON.stringify(sent)).tokens;
             var output = [];
-            // console.log(JSON.parse(JSON.stringify(sent.sentences[0])).tokens);
-            // console.log(output);
-            // console.log(sent.text);
             var comparision;
-            var current_word;
-            var nounphrase = [];
+            var nounphraselist = [];
             var sentences = [];
             for (var i = 0; i < sent.sentences.length; i++)
             {
+                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
                 for (var j = 0; j < JSON.parse(JSON.stringify(sent.sentences[i])).tokens.length; j++)
                 {
                     comparision = JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j];
@@ -103,42 +243,10 @@ exports.preprocessing = function (req, res)
                         {
                             output.push({word: comparision.word, pos: comparision.pos, lemma: comparision.lemma.toString()});
                         }
-                        if (comparision.pos.charAt(0) === "N")
-                        {
-                            if (comparision.lemma.toString().length < 3)
-                            {
-                                // console.log(comparision.word);
-                            }
-                            else
-                            {
-                                current_word = comparision.lemma;
-                                for (var index2 = j + 1; index2 < JSON.parse(JSON.stringify(sent.sentences[i])).tokens.length; index2++)
-                                {
-                                    comparision = JSON.parse(JSON.stringify(sent.sentences[i])).tokens[index2];
-                                    if (comparision.pos.charAt(0) === "N")
-                                    {
-                                        if (comparision.lemma.toString().length < 3)
-                                        {
-                                            break;
-                                        }
-                                        current_word += (" " + comparision.lemma);
-                                        nounphrase.push(current_word);
-                                    }
-                                    else if (index2 === (j + 1))
-                                    {
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
-            nounphrase = [...new Set(nounphrase.map(obj => JSON.stringify(obj)))]
+            nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
             output = [...new Set(output.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -157,7 +265,7 @@ exports.preprocessing = function (req, res)
                 {
                     text: sentences.join(" "),
                     result,
-                    nounphrase
+                    nounphraselist
                 }
             );
         })
@@ -169,58 +277,6 @@ exports.preprocessing = function (req, res)
 
 exports.termextraction = function (req, res)
 {
-    var nounphrase = function (text, nouns, res)
-    {
-        /*
-      1. Noun+ Noun,
-      2. (Adj | Noun)+ Noun,
-      3. ((Adj | Noun)+ | ((Adj | Noun)* (NounPrep)?)(Adj| Noun)* ) Noun
-      */
-        var multiterm = [];
-        var tokenize;
-        var current_word = "";
-        // console.log(text);
-        // console.log(text.length);
-        // console.log("nouns : " + nouns);
-        for (var doc = 0; doc < text.length; doc++)
-        {
-            tokenize = text[doc].split(" ");
-            // console.log("tokenize  " + tokenize);
-            for (var index = 0; index < tokenize.length; index++)
-            {
-                if (nouns.indexOf(tokenize[index]) > -1)
-                {
-                    current_word = tokenize[index];
-                    for (var index2 = index + 1; index2 < tokenize.length; index2++)
-                    {
-                        if (nouns.indexOf(tokenize[index2]) > -1)
-                        {
-                            current_word += (" " + tokenize[index2]);
-                            multiterm.push(current_word);
-                        }
-                        else if (index2 === index + 1)
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
-                // console.log(multiterm);
-            }
-            // console.log(multiterm.length);
-        }
-        const result = [...new Set(multiterm.map(obj => JSON.stringify(obj)))]
-            .map(str => JSON.parse(str));
-        // console.log(result);
-        // console.log(result.length);
-        // console.log(multiterm);
-        // console.log(result);
-        return result;
-    };
-
     var occurences = function (string, subString, allowOverlapping)
     {
         string = String(string);
@@ -300,12 +356,7 @@ exports.termextraction = function (req, res)
                 {
                     return str.split(" ").length;
                 }
-                // console.log("result: " + result[0].path);
-                // console.log("text: " + text);
                 var texti = JSON.parse(text);
-                // console.log("texti: " + texti.text);
-                // var results = JSON.parse(texti.text).result;
-                // console.log("text length: " + texti.text.length);
                 var results = [];
                 var documents = [];
                 var my_corpus = new tm.Corpus([]);
@@ -317,44 +368,27 @@ exports.termextraction = function (req, res)
                     {
                         // console.log(JSON.parse(texti.text[xx]).result);
                         results.push(JSON.parse(texti.text[xx]).result);
-                        nounphrase.push(JSON.parse(texti.text[xx]).nounphrase);
+                        nounphrase.push(JSON.parse(texti.text[xx]).nounphraselist);
                     }
                     for (var yy = 0; yy < texti.documents.length; yy++)
-                    // documents.push(texti.documents);
                     {
-                        // console.log(texti.documents[yy]);
-                        // console.log(texti.documents[yy].toString().length);
-                        // console.log(texti.documents[yy].toString());
                         my_corpus = new tm.Corpus([]);
                         my_corpus.addDoc(texti.documents[yy].toString());
                         // my_corpus.toLower();
                         // my_corpus.removeWords(tm.STOPWORDS.EN);
-                        // console.log(my_corpus.documents[yy].length);
-                        // console.log(my_corpus.documents[yy]);
                         documents.push(my_corpus.documents[0]);
                         documentlength.push(WordCount(my_corpus.documents[0]));
-                        // console.log(my_corpus.documents[0]);
                     }
                 }
                 else
                 {
                     results.push(JSON.parse(texti.text).result);
-                    nounphrase.push(JSON.parse(texti.text).nounphrase);
-                    // console.log(texti.documents.toString().length);
-                    // console.log(texti.documents.toString());
+                    nounphrase.concat(JSON.parse(texti.text).nounphraselist);
                     my_corpus.addDoc(texti.documents.toString());
                     // my_corpus.toLower();
                     // my_corpus.removeWords(tm.STOPWORDS.EN);
-                    // console.log(my_corpus.documents[0].length);
-                    // console.log(my_corpus.documents[0]);
                     documents.push(my_corpus.documents[0]);
-                    // console.log(results);
-                    // console.log(documents);
                 }
-                // for (var h = 0; h < results.length; h++)
-                // {
-                //     console.log(results[h]);
-                // }
                 if (isNull(err))
                 {
                     // console.log("textero" + text);
@@ -413,15 +447,13 @@ exports.termextraction = function (req, res)
                         }
                     }
                     var sum = documentlength.reduce((x, y) => x + y);
-                    // console.log("pos noun " + posnoums.length);
+                    console.log(nounphrasefinal.length);
                     const posnoumssimple = [...new Set(posnoums.map(obj => JSON.stringify(obj)))]
                         .map(str => JSON.parse(str));
                     const nounphrasesimple = [...new Set(nounphrasefinal.map(obj => JSON.stringify(obj)))]
                         .map(str => JSON.parse(str));
-                    // out = nounphrase(documents, posnoumssimple, null);
+                    console.log(nounphrasesimple.length);
 
-                    // console.log(rec.body.documents);
-                    // console.log("posnoumssimple " + posnoumssimple);
                     for (var a = 0; a < documents.length; a++)
                     {
                         if (texti.text.length > 1)
@@ -556,10 +588,7 @@ exports.termextraction = function (req, res)
                         });
                         tfidfnp.scores.push({term: nounphrasesimple[p], score: currentscore});
                     }
-                    tfidfnp.scores.sort(function (a, b)
-                    {
-                        return parseFloat(b.score) - parseFloat(a.score);
-                    });
+
                     for (i = 0; i < tfidfnp.scores.length; i++)
                     {
                     // console.log(tfidfterms.scores[i].term);
@@ -567,52 +596,46 @@ exports.termextraction = function (req, res)
                         {
                             // console.log(tfidfnp.scores[i].term + " " + i + " score: " + tfidfnp.scores[i].score[0]);
                         }
+                        tfidfnp.scores[i].score.sort((a, b) => b - a);
                     }
-                    var auxiliaryscorearray = [];
-                    var auxiliaryscore = 0;
-                    for (var oso = 0; oso < tfidfnp.scores.length; oso++)
+                    console.log(tfidfnp.scores);
+
+                    tfidfnp.scores.sort(function (a, b)
                     {
-                        auxiliaryscore = 0;
-                        for (i = 0; i < tfidfnp.scores[oso].score.length; i++)
-                        {
-                            auxiliaryscore += tfidfnp.scores[oso].score[i];
-                        }
-                        auxiliaryscorearray.push((auxiliaryscore / 5));
-                    }
+                        return parseFloat(b.score) - parseFloat(a.score);
+                    });
+
                     var sorted = [];
                     for (i = 0; i < tfidfnp.scores.length; i++)
                     {
                     // console.log(tfidfterms.scores[i].term);
                         if (tfidfnp.scores[i].term.toLowerCase() === "air density" || tfidfnp.scores[i].term.toLowerCase() === "controller efficiency" || tfidfnp.scores[i].term.toLowerCase() === "gear ratio" || tfidfnp.scores[i].term.toLowerCase() === "gravitational acceleration" || tfidfnp.scores[i].term.toLowerCase() === "road surface coefficient" || tfidfnp.scores[i].term.toLowerCase() === "tire radius" || tfidfnp.scores[i].term.toLowerCase() === "vehicle frontal area" || tfidfnp.scores[i].term.toLowerCase() === "vehicle mass" || tfidfnp.scores[i].term.toLowerCase() === "vehicle model")
                         {
-                            // console.log(tfidfnp.scores[i].term + " " + i + " score: " + auxiliaryscorearray[i]);
+                            console.log(tfidfnp.scores[i].term + " " + i + " score: " + tfidfnp.scores[i].score);
                         }
-                      sorted.push({term: tfidfnp.scores[i].term, score: auxiliaryscorearray[i]});
+                        sorted.push({term: tfidfnp.scores[i].term, score: (tfidfnp.scores[i].score.reduce((a, b) => a + b, 0) / 5)});
                     }
-                    sorted.sort(function (a, b)
+
+                    tfidfnp.scores.sort(function (a, b)
                     {
                         return parseFloat(b.score) - parseFloat(a.score);
                     });
+
+                    /* sorted.sort(function (a, b)
+                    {
+                      return parseFloat(b.score) - parseFloat(a.score);
+                    });
+                    console.log(tfidfnp.scores);
+                    console.log(sorted);
                     for (i = 0; i < sorted.length; i++)
                     {
                     // console.log(tfidfterms.scores[i].term);
-                        if (sorted[i].term.toLowerCase() === "air density" || sorted[i].term.toLowerCase() === "controller efficiency" || sorted[i].term.toLowerCase() === "gear ratio" || sorted[i].term.toLowerCase() === "gravitational acceleration" || sorted[i].term.toLowerCase() === "road surface coefficient" || sorted[i].term.toLowerCase() === "tire radius" || sorted[i].term.toLowerCase() === "vehicle frontal area" || sorted[i].term.toLowerCase() === "vehicle mass" || sorted[i].term.toLowerCase() === "vehicle model")
+                        if (sorted[i].term.toLowerCase() === "air density" || sorted[i].term.toLowerCase() === "aerodynamic drag coefficient" || sorted[i].term.toLowerCase() === "controller efficiency" || sorted[i].term.toLowerCase() === "gear ratio" || sorted[i].term.toLowerCase() === "gravitational acceleration" || sorted[i].term.toLowerCase() === "road surface coefficient" || sorted[i].term.toLowerCase() === "tire radius" || sorted[i].term.toLowerCase() === "vehicle frontal area" || sorted[i].term.toLowerCase() === "vehicle mass" || sorted[i].term.toLowerCase() === "vehicle model")
                         {
-                            console.log(sorted[i].term.toLowerCase() + " " + i + " score: " + sorted[i].score);
+                            console.log(sorted[i].term + " " + i + " score: " + sorted[i].score);
                         }
-                    }
-                    /* var auxiliaryscorearray = [];
-                    var auxiliaryscore = 0;
-                    for (var oso = 0; oso < score.length; oso++)
-                    {
-                        auxiliaryscore = 0;
-                        for (i = 0; i < score[oso].score.length; i++)
-                        {
-                            auxiliaryscore += score[oso].score[i];
-                        }
-                        auxiliaryscorearray.push((auxiliaryscore / 5));
-                    }
-                    */
+                    }*/
+
                     /*
                     dbpediaterms = {
                         keywords: []
