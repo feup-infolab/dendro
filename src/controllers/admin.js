@@ -247,9 +247,9 @@ module.exports.reindex = function (req, res)
         }
     };
 
-    if(req.body.background)
+    if (req.body.background)
     {
-        if(!indexingOperationRunning)
+        if (!indexingOperationRunning)
         {
             indexingOperationRunning = true;
             async.mapSeries(
@@ -277,7 +277,8 @@ module.exports.reindex = function (req, res)
                     {
                         return cb(1, "Index with key " + graph + " not found!");
                     }
-                }, function(err, result){
+                }, function (err, result)
+                {
                     lastIndexingOK = !isNull(err);
                     indexingOperationRunning = false;
                 });
@@ -288,7 +289,7 @@ module.exports.reindex = function (req, res)
                     info_messages: ["Reindexing graphs " + JSON.stringify(graphsToBeIndexed) + " in background. Wait a while until the operation is concluded."],
                     db: Config.db,
                     indexing: indexingOperationRunning,
-                    lastIndexingOK : lastIndexingOK
+                    lastIndexingOK: lastIndexingOK
                 }
             );
         }
@@ -300,7 +301,7 @@ module.exports.reindex = function (req, res)
                     error_messages: ["Reindexing operation is already running. Wait a while until the operation is concluded."],
                     db: Config.db,
                     indexing: indexingOperationRunning,
-                    lastIndexingOK : lastIndexingOK
+                    lastIndexingOK: lastIndexingOK
                 }
             );
         }
@@ -342,7 +343,7 @@ module.exports.reindex = function (req, res)
                             error_messages: [result],
                             db: Config.db,
                             indexing: indexingOperationRunning,
-                            lastIndexingOK : lastIndexingOK
+                            lastIndexingOK: lastIndexingOK
                         }
                     );
                 }

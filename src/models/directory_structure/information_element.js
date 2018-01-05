@@ -570,14 +570,15 @@ InformationElement.prototype.unlinkFromParent = function (callback)
     });
 };
 
-InformationElement.prototype.reindex = function(callback, customGraphUri)
+InformationElement.prototype.reindex = function (callback, customGraphUri)
 {
     const self = this;
 
-    self.canBeIndexed(function(err, canBeIndexed){
-        if(isNull(err))
+    self.canBeIndexed(function (err, canBeIndexed)
+    {
+        if (isNull(err))
         {
-            if(canBeIndexed)
+            if (canBeIndexed)
             {
                 InformationElement.baseConstructor.prototype.reindex.call(self, callback, customGraphUri);
             }
@@ -597,23 +598,24 @@ InformationElement.prototype.canBeIndexed = function (callback)
 {
     const self = this;
 
-    self.getOwnerProject(function(err, project){
-        if(isNull(err))
+    self.getOwnerProject(function (err, project)
+    {
+        if (isNull(err))
         {
             switch (project.ddr.privacyStatus)
             {
-                case "public":
-                    callback(null, true);
-                    break;
-                case "private":
-                    callback(null, false);
-                    break;
-                case "metadata_only":
-                    callback(null, true);
-                    break;
-                default:
-                    callback(null, false);
-                    break;
+            case "public":
+                callback(null, true);
+                break;
+            case "private":
+                callback(null, false);
+                break;
+            case "metadata_only":
+                callback(null, true);
+                break;
+            default:
+                callback(null, false);
+                break;
             }
         }
         else

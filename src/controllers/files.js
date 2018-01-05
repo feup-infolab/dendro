@@ -1440,7 +1440,7 @@ exports.rm = function (req, res)
                     }
                     else
                     {
-                        function deleteFolder (callback)
+                        const deleteFolder = function (callback)
                         {
                             Folder.findByUri(resourceToDelete, function (err, folder)
                             {
@@ -1476,9 +1476,9 @@ exports.rm = function (req, res)
                                     return callback(err, msg);
                                 }
                             });
-                        }
+                        };
 
-                        function deleteFile (callback)
+                        const deleteFile = function (callback)
                         {
                             File.findByUri(resourceToDelete, function (err, file)
                             {
@@ -1509,7 +1509,7 @@ exports.rm = function (req, res)
                                     return callback(err, msg);
                                 }
                             });
-                        }
+                        };
 
                         const sendResponse = function (err, result)
                         {
@@ -1531,10 +1531,12 @@ exports.rm = function (req, res)
                             else
                             {
                                 const msg = "Error deleting " + resourceToDelete + ". Error reported : " + result;
+                                Logger.log("error", msg);
                                 res.status(500).json(
                                     {
                                         result: "error",
-                                        message: msg
+                                        message: msg,
+                                        error: result
                                     }
                                 );
                             }

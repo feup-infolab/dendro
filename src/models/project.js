@@ -1857,12 +1857,11 @@ Project.prototype.reindex = function (callback, customGraphUri)
                                 {
                                     async.mapSeries(resources, function (resource, callback)
                                     {
-                                        if(!isNull(resource))
+                                        if (!isNull(resource))
                                         {
-                                            Logger.log("debug", "Folder or File " + resource.uri + " now being REindexed.");
-
                                             if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
                                             {
+                                                Logger.log("debug", "Folder or File " + resource.uri + " now being REindexed.");
                                                 resource.reindex(function (err, resource)
                                                 {
                                                     if (err)
@@ -1876,6 +1875,7 @@ Project.prototype.reindex = function (callback, customGraphUri)
                                             }
                                             else
                                             {
+                                                Logger.log("debug", "Folder or File " + resource.uri + " now being UNindexed.");
                                                 resource.unindex(function (err, results)
                                                 {
                                                     if (err)
