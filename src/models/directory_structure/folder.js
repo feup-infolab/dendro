@@ -1619,6 +1619,151 @@ Folder.deleteOnLocalFileSystem = function (absPath, callback)
     });
 };
 
+Folder.prototype.forAllChildren = function (
+    resourcePageCallback,
+    checkFunction,
+    finalCallback,
+    customGraphUri,
+    descriptorTypesToRemove,
+    descriptorTypesToExemptFromRemoval,
+    includeArchivedResources,
+)
+{
+    const self = this;
+
+    const dummyReq = {
+        query: {
+            currentPage: 0,
+            pageSize: 10000
+        }
+    };
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const queryArguments = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: graphUri
+        },
+        {
+            type: Elements.types.resourceNoEscape,
+            value: self.uri
+        }
+    ];
+
+    let query =
+        "SELECT DISTINCT ?uri \n" +
+        "FROM [0]\n" +
+        "WHERE \n" +
+        "{ \n";
+
+    /*
+    if(getAllDescendentsAndNotJustChildren)
+    {
+        query += "   [1] nie:hasLogicalPart+ ?uri \n"
+    }
+    else
+    {
+        query += "   [1] nie:hasLogicalPart ?uri\n"
+    }
+    */
+
+    query += "   [1] nie:hasLogicalPart+ ?uri\n";
+
+    if (isNull(includeArchivedResources) || !includeArchivedResources)
+    {
+        query = query + "   FILTER NOT EXISTS { ?uri rdf:type ddr:ArchivedResource }";
+    }
+
+    query = query + "} \n";
+
+    query = DbConnection.paginateQuery(
+        dummyReq,
+        query
+    );
+
+    let resultsSize;
+    async.until(
+        function ()
+        {
+            if (!isNull(checkFunction))
+            {
+                if (!checkFunction())
+                {
+                    return false;
+                }
+                // check function failed, stop querying!
+                finalCallback(1, "Validation condition not met when fetching child resources with pagination. Aborting paginated querying...");
+                return true;
+            }
+
+            if (!isNull(resultsSize))
+            {
+                if (resultsSize > 0)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return true;
+        },
+        function (callback)
+        {
+            db.connection.executeViaJDBC(
+                query,
+                queryArguments,
+                function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        dummyReq.query.currentPage++;
+
+                        results = _.without(results, function(result){
+                            return isNull(result);
+                        });
+
+                        async.mapSeries(results,
+                            function (result, callback)
+                            {
+                                InformationElement.findByUri(result.uri, function (err, completeResource)
+                                {
+                                    if(!isNull(completeResource))
+                                    {
+                                        if (!isNull(descriptorTypesToRemove) && descriptorTypesToRemove instanceof Array)
+                                        {
+                                            completeResource.clearDescriptors(descriptorTypesToExemptFromRemoval, descriptorTypesToRemove);
+                                        }
+
+                                        callback(err, completeResource);
+                                    }
+                                    else
+                                    {
+                                        callback(null, completeResource);
+                                    }
+                                });
+                            },
+                            function (err, results)
+                            {
+                                resultsSize = results.length;
+                                return resourcePageCallback(err, results);
+                            });
+                    }
+                    else
+                    {
+                        return callback(1, "Unable to fetch all child resources from the graph, on page " + dummyReq.query.currentPage);
+                    }
+                }
+            );
+        },
+        function (err, results)
+        {
+            finalCallback(err, "All children of resource " + self.uri + " retrieved via pagination query.");
+        }
+    );
+};
+
 Folder = Class.extend(Folder, InformationElement, "nfo:Folder");
 
 module.exports.Folder = Folder;

@@ -1857,33 +1857,40 @@ Project.prototype.reindex = function (callback, customGraphUri)
                                 {
                                     async.mapSeries(resources, function (resource, callback)
                                     {
-                                        Logger.log("debug", "Folder or File " + resource.uri + " now being REindexed.");
-
-                                        if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                                        if(!isNull(resource))
                                         {
-                                            resource.reindex(function (err, resource)
-                                            {
-                                                if (err)
-                                                {
-                                                    Logger.log("error", "Error reindexing File or Folder " + resource.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(resource, null, 4));
-                                                    failed = true;
-                                                }
+                                            Logger.log("debug", "Folder or File " + resource.uri + " now being REindexed.");
 
-                                                callback(failed, resource);
-                                            }, customGraphUri);
+                                            if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                                            {
+                                                resource.reindex(function (err, resource)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error reindexing File or Folder " + resource.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(resource, null, 4));
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, resource);
+                                                }, customGraphUri);
+                                            }
+                                            else
+                                            {
+                                                resource.unindex(function (err, results)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error unindexing File or folder " + resource.uri + " : " + results);
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, results);
+                                                }, customGraphUri);
+                                            }
                                         }
                                         else
                                         {
-                                            resource.unindex(function (err, results)
-                                            {
-                                                if (err)
-                                                {
-                                                    Logger.log("error", "Error unindexing File or folder " + resource.uri + " : " + results);
-                                                    failed = true;
-                                                }
-
-                                                callback(failed, results);
-                                            }, customGraphUri);
+                                            callback(false, resource);
                                         }
                                     }, function (err, results)
                                     {

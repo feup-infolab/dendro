@@ -19,6 +19,9 @@ const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Pro
 
 let classesToReindex = [User, Project];
 
+let indexingOperationRunning = false;
+let lastIndexingOK;
+
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 module.exports.home = function (req, res)
@@ -244,54 +247,119 @@ module.exports.reindex = function (req, res)
         }
     };
 
-    async.mapSeries(
-        graphsToBeIndexed,
-        function (graph, cb)
+    if(req.body.background)
+    {
+        if(!indexingOperationRunning)
         {
-            if (!isNull(IndexConnection.get(graph)))
-            {
-                const deleteTheIndex = Boolean(_.contains(graphsToDelete, graph));
-                const indexConnection = IndexConnection.get(graph);
-
-                if (!isNull(indexConnection))
+            indexingOperationRunning = true;
+            async.mapSeries(
+                graphsToBeIndexed,
+                function (graph, cb)
                 {
-                    rebuildIndex(function (err, result)
+                    if (!isNull(IndexConnection.get(graph)))
                     {
-                        return cb(err, result);
-                    }, graph, deleteTheIndex);
+                        const deleteTheIndex = Boolean(_.contains(graphsToDelete, graph));
+                        const indexConnection = IndexConnection.get(graph);
+
+                        if (!isNull(indexConnection))
+                        {
+                            rebuildIndex(function (err, result)
+                            {
+                                return cb(err, result);
+                            }, graph, deleteTheIndex);
+                        }
+                        else
+                        {
+                            return cb(2, "Index with key " + graph + " not found 2!");
+                        }
+                    }
+                    else
+                    {
+                        return cb(1, "Index with key " + graph + " not found!");
+                    }
+                }, function(err, result){
+                    lastIndexingOK = !isNull(err);
+                    indexingOperationRunning = false;
+                });
+
+            res.render("admin/home",
+                {
+                    title: "List of available administration operations",
+                    info_messages: ["Reindexing graphs " + JSON.stringify(graphsToBeIndexed) + " in background. Wait a while until the operation is concluded."],
+                    db: Config.db,
+                    indexing: indexingOperationRunning,
+                    lastIndexingOK : lastIndexingOK
+                }
+            );
+        }
+        else
+        {
+            res.render("admin/home",
+                {
+                    title: "List of available administration operations",
+                    error_messages: ["Reindexing operation is already running. Wait a while until the operation is concluded."],
+                    db: Config.db,
+                    indexing: indexingOperationRunning,
+                    lastIndexingOK : lastIndexingOK
+                }
+            );
+        }
+    }
+    else
+    {
+        async.mapSeries(
+            graphsToBeIndexed,
+            function (graph, cb)
+            {
+                if (!isNull(IndexConnection.get(graph)))
+                {
+                    const deleteTheIndex = Boolean(_.contains(graphsToDelete, graph));
+                    const indexConnection = IndexConnection.get(graph);
+
+                    if (!isNull(indexConnection))
+                    {
+                        rebuildIndex(function (err, result)
+                        {
+                            return cb(err, result);
+                        }, graph, deleteTheIndex);
+                    }
+                    else
+                    {
+                        return cb(2, "Index with key " + graph + " not found 2!");
+                    }
                 }
                 else
                 {
-                    return cb(2, "Index with key " + graph + " not found 2!");
+                    return cb(1, "Index with key " + graph + " not found!");
                 }
-            }
-            else
+            }, function (err, result)
             {
-                return cb(1, "Index with key " + graph + " not found!");
-            }
-        }, function (err, result)
-        {
-            if (err)
-            {
-                res.render("admin/home",
-                    {
-                        title: "List of available administration operations",
-                        error_messages: [result],
-                        db: Config.db
-                    }
-                );
-            }
-            else
-            {
-                res.render("admin/home",
-                    {
-                        title: "List of available administration operations",
-                        info_messages: ["Resources successfully indexed for graphs " + JSON.stringify(graphsToBeIndexed)],
-                        db: Config.db
-                    }
-                );
-            }
-        });
+                if (err)
+                {
+                    res.render("admin/home",
+                        {
+                            title: "List of available administration operations",
+                            error_messages: [result],
+                            db: Config.db,
+                            indexing: indexingOperationRunning,
+                            lastIndexingOK : lastIndexingOK
+                        }
+                    );
+                }
+                else
+                {
+                    res.render("admin/home",
+                        {
+                            title: "List of available administration operations",
+                            info_messages: ["Resources successfully indexed for graphs " + JSON.stringify(graphsToBeIndexed)],
+                            db: Config.db,
+                            indexing: indexingOperationRunning,
+                            lastIndexingOK: lastIndexingOK
+                        }
+                    );
+                }
+            });
+    }
 };
 
 module.exports.logs = function (req, res)
