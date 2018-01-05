@@ -555,7 +555,7 @@ Project.createAndInsertFromObject = function (object, callback)
             {
                 const rootFolder = new Folder({
                     nie: {
-                        title: object.ddr.handle + " (root folder)",
+                        title: object.ddr.handle,
                         isLogicalPartOf: newProject.uri
                     },
                     ddr: {
