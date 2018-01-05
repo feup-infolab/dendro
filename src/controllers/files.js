@@ -988,7 +988,7 @@ exports.upload = function (req, res)
                                                                     }
                                                                 });
 
-                                                                newFile.saveWithFileAndContents(file.path, IndexConnection.getDefault(), function (err, newFile)
+                                                                newFile.saveWithFileAndContents(file.path, function (err, newFile)
                                                                 {
                                                                     if (isNull(err))
                                                                     {

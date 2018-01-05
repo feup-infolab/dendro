@@ -1924,7 +1924,7 @@ Project.prototype.reindex = function (callback, customGraphUri)
                     if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
                     {
                         // reindex the Project object itself.
-                        self.baseConstructor.prototype.reindex.call(self, function (err, result)
+                        Project.baseConstructor.prototype.reindex.call(self, function (err, result)
                         {
                             callback(err, result);
                         });
@@ -1932,7 +1932,7 @@ Project.prototype.reindex = function (callback, customGraphUri)
                     else
                     {
                         // unindex the Project object itself.
-                        self.baseConstructor.prototype.unindex.call(self, function (err, result)
+                        Project.baseConstructor.prototype.unindex.call(self, function (err, result)
                         {
                             callback(err, result);
                         });
