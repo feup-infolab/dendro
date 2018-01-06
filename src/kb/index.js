@@ -372,10 +372,8 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
             {
                 return callback(null, "Document with id " + documentID + " does not exist already.");
             }
-            else
-            {
-                return callback(err.status, "Unable to delete document " + documentID + ".  error reported : " + JSON.stringify(err));
-            }
+
+            return callback(err.status, "Unable to delete document " + documentID + ".  error reported : " + JSON.stringify(err));
         });
 };
 
