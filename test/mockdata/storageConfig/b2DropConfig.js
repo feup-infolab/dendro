@@ -4,7 +4,7 @@ const b2dropAccount = require(Pathfinder.absPathInTestsFolder("/mockdata/account
 const b2dropStorage = {
     username: b2dropAccount.username,
     password: b2dropAccount.password,
-    storageType: "b2drop"
+    hasStorageType: "b2drop"
 };
 
 module.exports = b2dropStorage;

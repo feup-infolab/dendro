@@ -135,8 +135,6 @@ Config.mongoDBAuth = getConfigParameter("mongoDBAuth");
 // storage default config
 Config.defaultStorageConfig = getConfigParameter("storageDefault");
 
-
-
 // mysql database for interaction
 
 Config.mySQLHost = getConfigParameter("mySQLHost");
@@ -235,23 +233,20 @@ Config.getDBByHandle = function (dbHandle)
 {
     if (!isNull(dbHandle))
     {
-        const key = _.find(Object.keys(Config.db), function(key){
+        const key = _.find(Object.keys(Config.db), function (key)
+        {
             return Config.db[key].graphHandle === dbHandle;
         });
 
-        if(!isNull(key))
+        if (!isNull(key))
         {
             return Config.db[key];
         }
-        else
-        {
-            return null;
-        }
+
+        return null;
     }
-    else
-    {
-        return Config.db.default;
-    }
+
+    return Config.db.default;
 };
 
 /**

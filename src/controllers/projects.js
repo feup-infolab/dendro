@@ -20,7 +20,6 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const nodemailer = require("nodemailer");
-const db = Config.getDBByID();
 const flash = require("connect-flash");
 const async = require("async");
 
@@ -280,7 +279,7 @@ exports.show = function (req, res)
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private] );
+                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
                 }
 
                 return false;
@@ -897,7 +896,8 @@ exports.new = function (req, res)
 
                         storageConf.save(function (err, result)
                         {
-                            if (isNull(err)) {
+                            if (isNull(err))
+                            {
                                 const projectData = {
                                     dcterms: {
                                         creator: req.user.uri,
@@ -911,7 +911,7 @@ exports.new = function (req, res)
                                         handle: req.body.handle,
                                         privacyStatus: req.body.privacy,
                                         hasStorageConfig: result.uri,
-                                        hasStorageLimit: Config.maxProjectSize, //TODO
+                                        hasStorageLimit: Config.maxProjectSize
                                     },
                                     schema: {
                                         provider: req.body.contact_name,
@@ -922,12 +922,15 @@ exports.new = function (req, res)
                                     }
                                 };
 
-                                Project.createAndInsertFromObject(projectData, function (err, result) {
-                                    if (isNull(err)) {
+                                Project.createAndInsertFromObject(projectData, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
                                         req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
                                         res.redirect("/projects/my");
                                     }
-                                    else {
+                                    else
+                                    {
                                         req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
                                         throw err;
                                     }
@@ -2193,36 +2196,242 @@ exports.delete = function (req, res)
 
 exports.storage = function (req, res)
 {
-    const getStorage = function (callback)
+    const projectUri = req.params.requestedResourceUri;
+
+    const updateProjectStorageConfig = function (project, newStorageConfig, cb)
     {
+        project.deleteStorageConfig(function (err, result)
+        {
+            if (isNull(err))
+            {
+                project.ddr.hasStorageConfig = newStorageConfig.uri;
+                project.save(cb);
+            }
+            else
+            {
+                const msg = "Error deleting old storage configuration for project: " + project.uri + JSON.stringify(result);
+                Logger.log("error", msg);
+                cb(err, msg);
+            }
+        });
+    };
+
+    const updateStorage = function (callback)
+    {
+        let storageType;
+        if (isNull(req.body.storageConfig) || isNull(req.body.storageConfig.ddr) || isNull(req.body.storageConfig.ddr.hasStorageType))
+        {
+            res.status(400).json(
+                {
+                    result: "error",
+                    title: "Invalid request",
+                    message: "Unknown storage type. You are missing the storageConfig object in your request"
+                });
+        }
+        else
+        {
+            storageType = req.body.storageConfig.ddr.hasStorageType;
+        }
+
         Project.findByUri(req.params.requestedResourceUri, function (err, project)
         {
             if (isNull(err))
             {
                 if (!isNull(project) && project instanceof Project)
                 {
-                    let storageUri = project.ddr.hasStorageConfig;
-
-                    StorageConfig.findByUri(storageUri, function (err, storage)
+                    StorageConfig.findByProjectAndType(projectUri, storageType, function (err, currentConfigOfTypeInProject)
                     {
-                        if (!isNull(storage) && storage instanceof StorageConfig)
+                        if (isNull(err))
                         {
-                            callback(null, storage);
+                            if (isNull(currentConfigOfTypeInProject) || !(currentConfigOfTypeInProject instanceof StorageConfig))
+                            {
+                                let newStorageConfig;
+
+                                if (storageType === "local")
+                                {
+                                    newStorageConfig = new StorageConfig({
+                                        ddr: {
+                                            hasStorageType: "local",
+                                            handlesStorageForProject: project.uri
+                                        }
+                                    });
+                                }
+                                else if (storageType === "b2drop")
+                                {
+                                    newStorageConfig = new StorageConfig({
+                                        ddr: {
+                                            hasStorageType: "b2drop",
+                                            hasPassword: req.body.storageConfig.ddr.hasPassword,
+                                            hasUsername: req.body.storageConfig.ddr.hasUsername
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    return res.status(400).json({
+                                        result: "error",
+                                        title: "Error",
+                                        message: "Invalid storage type provided : " + storageType
+                                    });
+                                }
+
+                                newStorageConfig.save(function (err, result)
+                                {
+                                    if (!err)
+                                    {
+                                        updateProjectStorageConfig(project, newStorageConfig, function (err, result)
+                                        {
+                                            if (!err)
+                                            {
+                                                res.status(200).json({
+                                                    result: "ok",
+                                                    title: "Success",
+                                                    message: "Storage configuration updated successfully"
+                                                });
+                                            }
+                                            else
+                                            {
+                                                const msg = "Error updating project after changing storage configuration! " + JSON.stringify(result);
+                                                Logger.log("error", msg);
+                                                res.status(500).json({
+                                                    result: "error",
+                                                    title: "Error",
+                                                    message: msg
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        const msg = "Error updating storage configuration! " + JSON.stringify(result);
+                                        Logger.log("error", msg);
+                                        res.status(500).json({
+                                            result: "error",
+                                            title: "Error",
+                                            message: msg
+                                        });
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                if (storageType === "local")
+                                {
+                                    project.ddr.hasStorageConfig = currentConfigOfTypeInProject.uri;
+                                    updateProjectStorageConfig(project, function (err, result)
+                                    {
+                                        if (!err)
+                                        {
+                                            res.status(200).json({
+                                                result: "ok",
+                                                title: "Success",
+                                                message: "Storage configuration updated successfully"
+                                            });
+                                        }
+                                        else
+                                        {
+                                            const msg = "Error updating storage configuration! " + JSON.stringify(result);
+                                            Logger.log("error", msg);
+                                            res.status(500).json({
+                                                result: "ok",
+                                                title: "Error",
+                                                message: msg
+                                            });
+                                        }
+                                    });
+                                }
+                                else if (storageType === "b2drop")
+                                {
+                                    currentConfigOfTypeInProject.ddr.hasPassword = req.body.storageConfig.hasPassword;
+                                    currentConfigOfTypeInProject.ddr.hasUsername = req.body.storageConfig.hasUsername;
+
+                                    currentConfigOfTypeInProject.save(function (err, result)
+                                    {
+                                        if (!err)
+                                        {
+                                            updateProjectStorageConfig(project, callback);
+                                        }
+                                        else
+                                        {
+                                            const msg = "Error updating storage configuration! " + JSON.stringify(result);
+                                            Logger.log("error", msg);
+                                            res.status(500).json({
+                                                result: "ok",
+                                                title: "Error",
+                                                message: msg
+                                            });
+                                        }
+                                    });
+                                }
+                            }
                         }
                         else
                         {
-                            callback("not a storage", null);
+                            const msg = "Error retrieving storage configuration of project" + project.uri + JSON.stringify(currentConfigOfTypeInProject);
+                            Logger.log("error", msg);
+                            callback(500, msg);
                         }
                     });
                 }
                 else
                 {
-                    callback("not a project", null);
+                    const msg = "Unable to retrieve project " + project.uri + " while retrieving a storage configuration.";
+                    Logger.log("warn", msg);
+                    callback(404, msg);
                 }
             }
             else
             {
-                callback("no project found", null);
+                const msg = "Error occurred while trying to retrieve project " + project.uri + " while retrieving a storage configuration." + JSON.stringify(project);
+                Logger.log("error", msg);
+                callback(500, msg);
+            }
+        });
+    };
+
+    const getStorage = function (callback)
+    {
+        Project.findByUri(projectUri, function (err, project)
+        {
+            if (isNull(err))
+            {
+                if (!isNull(project) && project instanceof Project)
+                {
+                    StorageConfig.findByUri(project.ddr.hasStorageConfig, function (err, storage)
+                    {
+                        if (isNull(err))
+                        {
+                            if (!isNull(storage) && storage instanceof StorageConfig)
+                            {
+                                callback(null, storage);
+                            }
+                            else
+                            {
+                                const msg = "Unable to retrieve storage configuration of project" + project.uri;
+                                Logger.log("warn", msg);
+                                callback(404, msg);
+                            }
+                        }
+                        else
+                        {
+                            const msg = "Error retrieving storage configuration of project" + project.uri + JSON.stringify(storage);
+                            Logger.log("error", msg);
+                            callback(500, msg);
+                        }
+                    });
+                }
+                else
+                {
+                    const msg = "Unable to retrieve project " + projectUri + " while retrieving a storage configuration.";
+                    Logger.log("warn", msg);
+                    callback(404, msg);
+                }
+            }
+            else
+            {
+                const msg = "Error occurred while trying to retrieve project " + project.uri + " while retrieving a storage configuration." + JSON.stringify(project);
+                Logger.log("error", msg);
+                callback(500, msg);
             }
         });
     };
@@ -2231,57 +2440,50 @@ exports.storage = function (req, res)
     {
         getStorage(function (err, storageConfig)
         {
-            if (!err)
+            if (isNull(err))
             {
-                res.status(200).json({storageConfig: storageConfig});
+                res.status(200).json({
+                    result: "ok",
+                    storageConfig: storageConfig
+                });
             }
             else
             {
-                res.status(404);
+                res.status(err).json(
+                    {
+                        result: "error",
+                        title: "Error retrieving storage configuration",
+                        message: storageConfig
+                    });
             }
         });
     }
     else if (req.originalMethod === "POST")
     {
-        getStorage(function(err, storageConfig)
+        if (!isNull(req.body.storageConfig))
         {
-            if (!err)
+            updateStorage(function (err, newStorageConfig)
             {
-
-                let data = req.body.storageConfig;
-
-                let currentKey = "ddr";
-
-                if (storageConfig[currentKey])
+                if (isNull(err))
                 {
-                    let keysInArray = Object.keys(data);
-                    for (var t = 0; t < keysInArray.length; t++)
-                    {
-                        let valueKey = keysInArray[t];
-                        if (!isNull(storageConfig[currentKey][valueKey]))
-                        {
-                            storageConfig[currentKey][valueKey] = data[valueKey];
-                        }
-                    }
+
                 }
-                storageConfig.save(function (err, result)
+                else
                 {
-                    if (!err)
-                    {
-                        res.status(200).json({msg:"OK"});
-                    }
-                    else
-                    {
-                        res.status(400);
-                    }
-                });
-            }
-            else
-            {
-                res.status(401);
-            }
-        });
+                    const msg = "Error retrieving storage configuration! " + JSON.stringify(result);
+                    Logger.log("error", msg);
+                    res.status(500).json({
+                        result: "ok",
+                        title: "Error",
+                        message: msg
+                    });
+                }
+            });
+        }
+        else
+        {
 
+        }
     }
 };
 module.exports = exports;

@@ -1755,9 +1755,32 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
     );
 };
 
-Project.prototype.delete = function (callback)
+Project.prototype.deleteStorageConfig = function (callback, customGraphUri)
 {
     const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
+
+    StorageConfig.findByUri(self.ddr.hasStorageConfig, function (err, config)
+    {
+        if (!isNull(err))
+        {
+            config.deleteAllMyTriples(function (err, result)
+            {
+                callback(err, result);
+            }, graphUri);
+        }
+        else
+        {
+            callback(err, config);
+        }
+    });
+};
+
+Project.prototype.delete = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const deleteProjectTriples = function (callback)
     {
@@ -1776,7 +1799,7 @@ Project.prototype.delete = function (callback)
             [
                 {
                     type: Elements.types.resourceNoEscape,
-                    value: db.graphUri
+                    value: graphUri
                 },
                 {
                     type: Elements.types.resourceNoEscape,
@@ -1788,6 +1811,11 @@ Project.prototype.delete = function (callback)
                 callback(err, result);
             }
         );
+    };
+
+    const deleteStorageConfig = function (callback)
+    {
+        self.deleteStorageConfig(callback);
     };
 
     const deleteProjectFiles = function (callback)
@@ -1809,6 +1837,7 @@ Project.prototype.delete = function (callback)
     async.series([
         clearCacheRecords,
         deleteProjectFiles,
+        deleteStorageConfig,
         deleteProjectTriples
     ], function (err, results)
     {

@@ -1,11 +1,17 @@
-class storage {
-    constructor() {
+class storage
+{
+    constructor ()
+    {
     }
 
-    open(){};
-    close(){};
-    put() {};
-    get() {};
-    delete(){};
-
-};
+    open ()
+    {}
+    close ()
+    {}
+    put ()
+    {}
+    get ()
+    {}
+    delete ()
+    {}
+}

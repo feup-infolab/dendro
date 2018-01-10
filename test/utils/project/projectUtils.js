@@ -1098,7 +1098,8 @@ const getProjectUriFromHandle = function (agent, projectHandle, callback)
     });
 };
 
-const projectStorage = function (modify, agent, projectHandle, callback, storageConfig) {
+const projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
+{
     if (modify && storageConfig)
     {
         agent
@@ -1118,7 +1119,7 @@ const projectStorage = function (modify, agent, projectHandle, callback, storage
                 callback(err, res);
             });
     }
-}
+};
 module.exports = {
     updateMetadataCorrectRoute: updateMetadataCorrectRoute,
     listAllMyProjects: listAllMyProjects,

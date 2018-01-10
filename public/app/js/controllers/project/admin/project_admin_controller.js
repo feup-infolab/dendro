@@ -22,7 +22,7 @@ angular.module("dendroApp.controllers")
     {
         $scope.active_tab = null;
         $scope.contributors = [];
-        $scope.avaiableStorages = ["local", "b2Drop"];
+        $scope.availableStorages = ["local", "b2drop"];
 
         $scope.get_project = function ()
         {
@@ -315,6 +315,7 @@ angular.module("dendroApp.controllers")
                     $scope.show_popup("error", "Error occurred", error.message);
                 });
         };
+
         $scope.get_storage = function ()
         {
             var url = $scope.get_current_url() + "?storage";
@@ -330,19 +331,46 @@ angular.module("dendroApp.controllers")
                 $scope.storage = response.data.storageConfig;
             }).catch(function (error)
             {
-                if (error.message !== null && error.title !== null)
+                if (error.data !== null && error.data.message !== null && error.data.title !== null)
                 {
-                    Utils.show_popup("error", error.title, error.message);
+                    Utils.show_popup("error", error.data.title, error.data.message);
                 }
                 else
                 {
-                    Utils.show_popup("error", "Error occurred", JSON.stringify(error));
+                    Utils.show_popup("error", "Error occurred while fetching the storage options of the project: ", JSON.stringify(error));
                 }
             });
         };
 
-        $scope.onChangeStorageOption = function()
+        $scope.update_storage = function ()
+        {
+            var url = $scope.get_current_url() + "?storage";
+
+            $http({
+                method: "POST",
+                url: url,
+                data: JSON.stringify({ storageConfig: $scope.storage}),
+                contentType: "application/json",
+                headers: {Accept: "application/json"}
+            }).then(function (response)
+            {
+                Utils.show_popup("success", response.data.title, response.data.message);
+                $scope.get_storage();
+            }).catch(function (error)
+            {
+                if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                {
+                    Utils.show_popup("error", error.data.title, error.data.message);
+                }
+                else
+                {
+                    Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                }
+            });
+        };
+
+        $scope.onChangeStorageOption = function ()
         {
             console.log("work value");
-        }
+        };
     });

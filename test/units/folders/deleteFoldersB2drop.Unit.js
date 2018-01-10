@@ -1,10 +1,10 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const chai = require("chai");
-chai.use(require('chai-http'));
+chai.use(require("chai-http"));
 const async = require("async");
 const should = chai.should();
 
@@ -27,38 +27,46 @@ const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folder
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
 
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
+function requireUncached (module)
+{
+    delete require.cache[require.resolve(module)];
+    return require(module);
 }
 
-module.exports.setup = function(finish)
+module.exports.setup = function (finish)
 {
     let addContributorsToProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
-    addContributorsToProjectsUnit.setup(function (err, results) {
-        if(err)
+    addContributorsToProjectsUnit.setup(function (err, results)
+    {
+        if (err)
         {
             finish(err, results);
         }
         else
         {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                if(err)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                if (err)
                 {
                     finish(err, agent);
                 }
                 else
                 {
-                    async.mapSeries(projectsData, function (projectData, cb) {
-                        async.mapSeries(foldersData, function (folderData, cb) {
-                            itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res) {
+                    async.mapSeries(projectsData, function (projectData, cb)
+                    {
+                        async.mapSeries(foldersData, function (folderData, cb)
+                        {
+                            itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
+                            {
                                 cb(err, res);
                             });
-                        }, function (err, results) {
+                        }, function (err, results)
+                        {
                             cb(err, results);
                         });
-                    }, function (err, results) {
+                    }, function (err, results)
+                    {
                         finish(err, results);
                     });
                 }

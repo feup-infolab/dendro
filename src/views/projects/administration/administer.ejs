@@ -297,26 +297,43 @@
             </button>
         </div>
         <div class="tab-pane" id="storage" ng-class="{active: active_tab == 'storage'}">
-            <h4> Currrent Storage </h4>
-            <div class="form-group row">
-                <div class="col-sm-6" style="padding-left: 15px">
-                    <select class="btn btn-default" ng-model="storage.ddr.storageType" ng-init="storage.ddr.storageType=storage.ddr.storageType" ng-change="onChangeStorageOption()">
-                        <option ng-repeat="x in avaiableStorages" value="{{x}}">{{x}}</option>
-                    </select>
+            <h4>Storage options</h4>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="storage_types_dropdown_list" class="control-label">Storage Type</label>
+                        <div class="form-group">
+                            <select class="form-control" id="storage_types_dropdown_list" ng-model="storage.ddr.hasStorageType" ng-init="storage.ddr.hasStorageType=storage.ddr.hasStorageType" ng-change="onChangeStorageOption()">
+                                <option ng-repeat="x in availableStorages" value="{{x}}">{{x}}</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-lg-12">
-                <div class="form-group">
-                    <label for="userB2drop" class="col-sm-2 control-label">Username</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="userB2drop" placeholder="Username" ng-model="storage.ddr.username" name="userB2drop">
+            <div ng-if="storage.ddr.hasStorageType=='b2drop'">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="userB2drop" class="col-sm-2 control-label">B2Drop Username</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="userB2drop" placeholder="Username" ng-model="storage.ddr.username" name="userB2drop">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="passB2drop" class="col-sm-2 control-label">Password</label>
-                    <div class="col-sm-10">
-                        <input type="password" class="form-control" id="passB2drop" placeholder="Password" ng-model="storage.ddr.password" name="passB2drop">
+
+                <br>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="passB2drop" class="col-sm-2 control-label">B2Drop Password</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" id="passB2drop" placeholder="Password" ng-model="storage.ddr.password" name="passB2drop">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -324,7 +341,7 @@
             <div class="row">
                 <div class="form-group">
                     <div class="col-sm-7">
-                        <button class="btn btn-primary" type="button"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save changes
+                        <button class="btn btn-primary" type="button" ng-click="update_storage()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save changes
                         </button>
                     </div>
                 </div>

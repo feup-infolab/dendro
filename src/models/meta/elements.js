@@ -6,7 +6,8 @@ const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-function Elements() {
+function Elements ()
+{
 }
 
 /** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
@@ -40,11 +41,13 @@ Elements.types.stringNoEscape = 10;
 
 Elements.ontologies = {};
 
-Elements.checkIfValidPrefixedResource = function (candidatePrefixedResource) {
+Elements.checkIfValidPrefixedResource = function (candidatePrefixedResource)
+{
     return RegExp("^[a-zA-Z0-9]+:[a-zA-Z0-9]+$").exec(candidatePrefixedResource);
 };
 
-Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor) {
+Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
+{
     let errorMessagesForTypes = {};
     const msgStart = "Error: The value type for the descriptor " + currentDescriptor.prefix + ":" + "(" + currentDescriptor.label + ")" + " should be ";
     errorMessagesForTypes[Elements.types.resourceNoEscape] = msgStart + "an 'URI'";
@@ -62,8 +65,10 @@ Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor) 
     return errorMessagesForTypes[currentDescriptor.type];
 };
 
-Elements.validateDescriptorValueTypes = function (currentDescriptor) {
-    const validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue) {
+Elements.validateDescriptorValueTypes = function (currentDescriptor)
+{
+    const validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue)
+    {
         let typesValidators = {};
         typesValidators[Elements.types.resourceNoEscape] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
         typesValidators[Elements.types.resource] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
@@ -81,15 +86,19 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor) {
     };
 
     // When there are various instances of a descriptor, for example: two dcterms:contributor
-    if (currentDescriptor.value instanceof Array) {
-        for (let i = 0; i !== currentDescriptor.value.length; i++) {
+    if (currentDescriptor.value instanceof Array)
+    {
+        for (let i = 0; i !== currentDescriptor.value.length; i++)
+        {
             let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
-            if (isNull(resultOfValidation) || resultOfValidation === false) {
+            if (isNull(resultOfValidation) || resultOfValidation === false)
+            {
                 return false;
             }
         }
     }
-    else {
+    else
+    {
         // When there is only one instance of a descriptor (for example only one dcterms:abstract)
         return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
     }
@@ -765,9 +774,15 @@ Elements.ontologies.ddr = {
             api_readable: false,
             locked: true
         },
-    storageType:
+    hasStorageType:
         {
             type: Elements.types.string,
+            api_readable: true,
+            locked: true
+        },
+    handlesStorageForProject:
+        {
+            type: Elements.types.resource,
             api_readable: true,
             locked: true
         },
@@ -3221,16 +3236,20 @@ Elements.ontologies.ddiup = {
         }
 };
 
-Elements.setAllElements = function (loadedElements) {
-    for (let i = 0; i < loadedElements.length; i++) {
+Elements.setAllElements = function (loadedElements)
+{
+    for (let i = 0; i < loadedElements.length; i++)
+    {
         let loadedElement = loadedElements[i];
         let prefix = loadedElement.prefix;
         let shortName = loadedElement.shortName;
 
         let existingElement = Elements.ontologies[prefix][shortName];
 
-        for (let k in loadedElement) {
-            if (existingElement[k] === null || typeof existingElement[k] === "undefined") {
+        for (let k in loadedElement)
+        {
+            if (existingElement[k] === null || typeof existingElement[k] === "undefined")
+            {
                 Elements.ontologies[prefix][shortName][k] = loadedElement[k];
             }
         }

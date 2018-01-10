@@ -367,7 +367,7 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
                 {
                     if (isNull(err))
                     {
-                        gfs.connection.delete(self.uri, function (err, result) //TODO storage
+                        gfs.connection.delete(self.uri, function (err, result) // TODO storage
                         {
                             self.deleteThumbnails();
                             self.deleteDatastoreData();
@@ -434,7 +434,7 @@ File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetad
         const tempFilePath = destinationFolderAbsPath + path.sep + self.nie.title;
 
         const writeStream = fs.createWriteStream(tempFilePath);
-        gfs.connection.get(self.uri, writeStream, function (err, result) //TODO storage
+        gfs.connection.get(self.uri, writeStream, function (err, result) // TODO storage
         {
             if (isNull(err))
             {
@@ -451,7 +451,7 @@ File.prototype.writeFileToStream = function (stream, callback)
 
     let writeCallback = function (callback)
     {
-        gfs.connection.get(self.uri, stream, function (err, result) //TODO storage?
+        gfs.connection.get(self.uri, stream, function (err, result) // TODO storage?
         {
             if (isNull(err))
             {
@@ -499,7 +499,7 @@ File.prototype.writeToTempFile = function (callback)
 
                 const fs = require("fs");
                 const writeStream = fs.createWriteStream(tempFilePath);
-                gfs.connection.get(self.uri, writeStream, function (err, result) //TODO storage ?
+                gfs.connection.get(self.uri, writeStream, function (err, result) // TODO storage ?
                 {
                     if (isNull(err))
                     {

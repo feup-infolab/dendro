@@ -60,7 +60,7 @@ IndexConnection._all = {
                                 },
                             last_indexing_date:
                                 {
-                                    type: "date",
+                                    type: "date"
                                 },
                             descriptors:
                                 {
