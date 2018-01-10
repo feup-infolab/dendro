@@ -22,6 +22,7 @@ angular.module("dendroApp.controllers")
     {
         $scope.active_tab = null;
         $scope.contributors = [];
+        $scope.avaiableStorages = ["local", "b2Drop"];
 
         $scope.get_project = function ()
         {
@@ -150,6 +151,7 @@ angular.module("dendroApp.controllers")
                 $scope.clicked_information_tab();
             }
             $scope.get_project();
+            $scope.get_storage();
         };
 
         $scope.get_users_by_text_search = function (typed)
@@ -274,6 +276,12 @@ angular.module("dendroApp.controllers")
             $localStorage.active_tab = $scope.active_tab;
         };
 
+        $scope.clicked_storage_tab = function ()
+        {
+            $scope.active_tab = "storage";
+            $localStorage.active_tab = $scope.active_tab;
+        };
+
         $scope.update_project_settings = function ()
         {
             projectsService.update_project_settings($scope.project)
@@ -307,4 +315,34 @@ angular.module("dendroApp.controllers")
                     $scope.show_popup("error", "Error occurred", error.message);
                 });
         };
+        $scope.get_storage = function ()
+        {
+            var url = $scope.get_current_url() + "?storage";
+
+            $http({
+                method: "GET",
+                url: url,
+                data: JSON.stringify({}),
+                contentType: "application/json",
+                headers: {Accept: "application/json"}
+            }).then(function (response)
+            {
+                $scope.storage = response.data.storageConfig;
+            }).catch(function (error)
+            {
+                if (error.message !== null && error.title !== null)
+                {
+                    Utils.show_popup("error", error.title, error.message);
+                }
+                else
+                {
+                    Utils.show_popup("error", "Error occurred", JSON.stringify(error));
+                }
+            });
+        };
+
+        $scope.onChangeStorageOption = function()
+        {
+            console.log("work value");
+        }
     });
