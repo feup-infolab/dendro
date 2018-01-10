@@ -2164,23 +2164,6 @@ exports.ls_by_name = function (req, res) {
     {
         if (isNull(err) && !isNull(containingFolder))
         {
-            /*
-            containingFolder.getLogicalParts(function (err, children)
-            {
-                if (isNull(err))
-                {
-                    if (!show_deleted)
-                    {
-                        const _ = require("underscore");
-                        children = _.reject(children, function (child)
-                        {
-                            return child.ddr.deleted;
-                        });
-                    }
-
-                    res.json(children);
-                }
-            });*/
             containingFolder.findChildWithDescriptor(new Descriptor({
                 prefixedForm: "nie:title",
                 value: childName
@@ -2196,14 +2179,6 @@ exports.ls_by_name = function (req, res) {
                     }
                     else
                     {
-                        /*if (!show_deleted)
-                        {
-                            const _ = require("underscore");
-                            children = _.reject(children, function (child)
-                            {
-                                return child.ddr.deleted;
-                            });
-                        }*/
                         res.json(children);
                     }
                 }

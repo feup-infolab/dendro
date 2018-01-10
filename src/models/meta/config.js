@@ -105,7 +105,7 @@ Config.virtuosoHost = getConfigParameter("virtuosoHost");
 Config.virtuosoPort = getConfigParameter("virtuosoPort");
 Config.virtuosoISQLPort = getConfigParameter("virtuosoISQLPort");
 Config.virtuosoSQLLogLevel = getConfigParameter("virtuosoSQLLogLevel");
-Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation");
+Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation", false);
 
 Config.virtuosoConnector = (function ()
 {

@@ -88,7 +88,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
 
     if(Config.skipDescriptorValuesValidation === true)
     {
-        Logger.log("info", "Will skip validateDescriptorValueTypes because skipDescriptorValuesValidation is set to true in deployment_configs");
+        Logger.log("debug", "Will skip validateDescriptorValueTypes because skipDescriptorValuesValidation is set to true in deployment_configs");
       return true;
     }
     else
