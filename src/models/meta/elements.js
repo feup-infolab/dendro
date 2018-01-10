@@ -112,6 +112,8 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
         }
         return true;
     }
+
+    //OLD CODE -> before adding the Config.skipDescriptorValuesValidation to the deployment_configs
     /*
     // When there are various instances of a descriptor, for example: two dcterms:contributor
     if (currentDescriptor.value instanceof Array)
@@ -383,8 +385,8 @@ Elements.ontologies.dcterms =
   },
     source:
   {
-      type: Elements.types.resource,
-      control: Controls.url_box
+      type: Elements.types.string,
+      control: Controls.input_box
   },
     spatial:
   {
