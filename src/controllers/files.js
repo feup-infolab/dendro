@@ -344,7 +344,7 @@ exports.serve = function (req, res)
 
                                 res.on("end", function ()
                                 {
-                                    Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr)
+                                    Folder.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
                                     {
                                         if (err)
                                         {
@@ -450,6 +450,9 @@ exports.serve = function (req, res)
 
                                             res.on("end", function ()
                                             {
+                                                const path = require("path");
+                                                const parentFolderPath = path.resolve(writtenFilePath, "..");
+
                                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr)
                                                 {
                                                     if (err)
@@ -986,7 +989,7 @@ exports.upload = function (req, res)
                                                                     }
                                                                 });
 
-                                                                newFile.saveWithFileAndContents(file.path, IndexConnection.getDefault(), function (err, newFile)
+                                                                newFile.saveWithFileAndContents(file.path, function (err, newFile)
                                                                 {
                                                                     if (isNull(err))
                                                                     {
@@ -1440,7 +1443,7 @@ exports.rm = function (req, res)
                     }
                     else
                     {
-                        function deleteFolder (callback)
+                        const deleteFolder = function (callback)
                         {
                             Folder.findByUri(resourceToDelete, function (err, folder)
                             {
@@ -1476,9 +1479,9 @@ exports.rm = function (req, res)
                                     return callback(err, msg);
                                 }
                             });
-                        }
+                        };
 
-                        function deleteFile (callback)
+                        const deleteFile = function (callback)
                         {
                             File.findByUri(resourceToDelete, function (err, file)
                             {
@@ -1509,7 +1512,7 @@ exports.rm = function (req, res)
                                     return callback(err, msg);
                                 }
                             });
-                        }
+                        };
 
                         const sendResponse = function (err, result)
                         {
@@ -1527,15 +1530,16 @@ exports.rm = function (req, res)
                                 Logger.log("error", msg);
                                 res.writeHead(404, msg);
                                 res.end();
-                                return callback(err, msg);
                             }
                             else
                             {
                                 const msg = "Error deleting " + resourceToDelete + ". Error reported : " + result;
+                                Logger.log("error", msg);
                                 res.status(500).json(
                                     {
                                         result: "error",
-                                        message: msg
+                                        message: msg,
+                                        error: result
                                     }
                                 );
                             }
@@ -2225,7 +2229,7 @@ exports.ls_by_name = function (req, res) {
 exports.ls = function (req, res)
 {
     const resourceURI = req.params.requestedResourceUri;
-    let show_deleted = req.query.show_deleted;
+    let showDeleted = req.query.show_deleted;
 
     if (req.params.is_project_root)
     {
@@ -2239,7 +2243,7 @@ exports.ls = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            if (!show_deleted)
+                            if (!showDeleted)
                             {
                                 const _ = require("underscore");
                                 files = _.reject(files, function (file)
@@ -2286,7 +2290,7 @@ exports.ls = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        if (!show_deleted)
+                        if (!showDeleted)
                         {
                             const _ = require("underscore");
                             children = _.reject(children, function (child)

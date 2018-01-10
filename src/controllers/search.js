@@ -1,4 +1,3 @@
-const path = require("path");
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
@@ -13,6 +12,7 @@ const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
 
 const db = Config.getDBByID();
 
@@ -51,80 +51,95 @@ exports.search = function (req, res)
             req.query.pageSize,
             function (err, results)
             {
-                let getSimilarResources = function (resource, callback)
+                if (isNull(err))
                 {
-                    resource.getTextuallySimilarResources(IndexConnection.getDefault(), Config.limits.index.maxResults, function (err, similarResources)
+                    let getSimilarResources = function (resource, callback)
                     {
-                        if (isNull(resource.indexData))
+                        resource.getTextuallySimilarResources(function (err, similarResources)
                         {
-                            resource.indexData = {};
-                        }
+                            if (isNull(resource.indexData))
+                            {
+                                resource.indexData = {};
+                            }
 
-                        resource.indexData.recommendations = similarResources;
-                        return callback(err, resource);
-                    });
-                };
+                            resource.indexData.recommendations = similarResources;
+                            return callback(err, resource);
+                        }, Config.limits.index.maxResults);
+                    };
 
-                async.mapSeries(results, getSimilarResources, function (err, resultsWithSimilarOnes)
-                {
-                    // will be null if the client does not accept html
-                    if (acceptsJSON && !acceptsHTML)
+                    async.mapSeries(results, getSimilarResources, function (err, resultsWithSimilarOnes)
                     {
-                        res.json({
-                            result: "ok",
-                            hits: results
-                        });
-                    }
-                    else
-                    {
-                        let renderParameters = {
-                            title: "Search Results"
-                        };
-
-                        if (!isNull(results) && results.length > 0)
+                        // will be null if the client does not accept html
+                        if (acceptsJSON && !acceptsHTML)
                         {
-                            renderParameters.results = resultsWithSimilarOnes;
-
-                            renderParameters.metadata = _.map(resultsWithSimilarOnes, function (result)
-                            {
-                                return result.getDescriptors(
-                                    [Elements.access_types.private, Elements.access_types.private],
-                                    [Elements.access_types.api_readable]
-                                );
+                            res.json({
+                                result: "ok",
+                                hits: results
                             });
-
-                            renderParameters.types = _.map(resultsWithSimilarOnes, function (result)
-                            {
-                                if (result.isA(File))
-                                {
-                                    return "file";
-                                }
-                                else if (result.isA(Folder))
-                                {
-                                    return "folder";
-                                }
-                                else if (result.isA(User))
-                                {
-                                    return "user";
-                                }
-                                else if (result.isA(Project))
-                                {
-                                    return "project";
-                                }
-                            });
-
-                            renderParameters.currentPage = req.query.currentPage;
-                            renderParameters.pageSize = req.query.pageSize;
                         }
                         else
                         {
-                            renderParameters.results = [];
-                            renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
-                        }
+                            let renderParameters = {
+                                title: "Search Results"
+                            };
 
-                        res.render("search/search", renderParameters);
-                    }
-                });
+                            if (!isNull(results) && results.length > 0)
+                            {
+                                renderParameters.results = resultsWithSimilarOnes;
+
+                                renderParameters.metadata = _.map(resultsWithSimilarOnes, function (result)
+                                {
+                                    return result.getDescriptors(
+                                        [Elements.access_types.private, Elements.access_types.private],
+                                        [Elements.access_types.api_readable]
+                                    );
+                                });
+
+                                renderParameters.types = _.map(resultsWithSimilarOnes, function (result)
+                                {
+                                    if (result.isA(File))
+                                    {
+                                        return "file";
+                                    }
+                                    else if (result.isA(Folder))
+                                    {
+                                        return "folder";
+                                    }
+                                    else if (result.isA(User))
+                                    {
+                                        return "user";
+                                    }
+                                    else if (result.isA(Administrator))
+                                    {
+                                        return "user";
+                                    }
+                                    else if (result.isA(Project))
+                                    {
+                                        return "project";
+                                    }
+                                });
+
+                                renderParameters.currentPage = req.query.currentPage;
+                                renderParameters.pageSize = req.query.pageSize;
+                            }
+                            else
+                            {
+                                renderParameters.results = [];
+                                renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
+                            }
+
+                            res.render("search/search", renderParameters);
+                        }
+                    });
+                }
+                else
+                {
+                    res.status(500).render("search/search", {
+                        title: "Error occurred",
+                        error_messages: [err, results],
+                        results: []
+                    });
+                }
             });
     }
     else

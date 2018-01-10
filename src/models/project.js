@@ -20,6 +20,7 @@ const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
@@ -571,7 +572,25 @@ Project.createAndInsertFromObject = function (object, callback)
 
                         newProject.save(function (err, result)
                         {
-                            return callback(err, result);
+                            if (isNull(err))
+                            {
+                                newProject.reindex(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(err, newProject);
+                                    }
+
+                                    const msg = "Error reindexing resource " + newProject.uri + " : " + result;
+                                    Logger.log("error", msg);
+                                    return callback(1, msg);
+                                });
+                            }
+                            else
+                            {
+                                Logger.log("error", "There was an error re-saving the project " + newProject.ddr.humanReadableURI + " while creating it: " + JSON.stringify(result));
+                                callback(err, result);
+                            }
                         });
                     }
                     else
@@ -1813,6 +1832,129 @@ Project.prototype.delete = function (callback)
     ], function (err, results)
     {
         callback(err, results);
+    });
+};
+
+Project.prototype.reindex = function (callback, customGraphUri)
+{
+    const self = this;
+    let failed;
+
+    self.getRootFolder(function (err, rootFolder)
+    {
+        if (isNull(err))
+        {
+            async.series([
+                function (callback)
+                {
+                    // reindex the entire directory structure
+                    rootFolder.forAllChildren(
+                        function (err, resources)
+                        {
+                            if (isNull(err))
+                            {
+                                if (resources.length > 0)
+                                {
+                                    async.mapSeries(resources, function (resource, callback)
+                                    {
+                                        if (!isNull(resource))
+                                        {
+                                            if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                                            {
+                                                Logger.log("debug", "Folder or File " + resource.uri + " now being REindexed.");
+                                                resource.reindex(function (err, resource)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error reindexing File or Folder " + resource.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(resource, null, 4));
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, resource);
+                                                }, customGraphUri);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("debug", "Folder or File " + resource.uri + " now being UNindexed.");
+                                                resource.unindex(function (err, results)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error unindexing File or folder " + resource.uri + " : " + results);
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, results);
+                                                }, customGraphUri);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            callback(false, resource);
+                                        }
+                                    }, function (err, results)
+                                    {
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Errors occurred indexing all children of " + self.uri + " for reindexing : " + resources);
+                                            failed = true;
+                                        }
+
+                                        return callback(failed, null);
+                                    });
+                                }
+                                else
+                                {
+                                    return callback(failed, null);
+                                }
+                            }
+                            else
+                            {
+                                failed = true;
+                                return callback(failed, "Error fetching children of " + self.uri + " for reindexing : " + resources);
+                            }
+                        },
+                        function ()
+                        {
+                            return failed;
+                        },
+                        function (err)
+                        {
+                            return callback(err, null);
+                        },
+                        true,
+                        customGraphUri
+                    );
+                },
+                function (callback)
+                {
+                    if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                    {
+                        // reindex the Project object itself.
+                        Project.baseConstructor.prototype.reindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        // unindex the Project object itself.
+                        Project.baseConstructor.prototype.unindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                }
+            ], function (err, result)
+            {
+                callback(err, self);
+            });
+        }
+        else
+        {
+            Logger.log("error", "Unable to fetch root folder of project " + self.uri + " while reindexing it.");
+            callback(err, rootFolder);
+        }
     });
 };
 

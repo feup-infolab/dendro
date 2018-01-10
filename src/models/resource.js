@@ -198,7 +198,7 @@ Resource.exists = function (uri, callback, customGraphUri)
         });
 };
 
-Resource.for_all = function (
+Resource.forAll = function (
     resourcePageCallback,
     checkFunction,
     finalCallback,
@@ -492,34 +492,42 @@ Resource.prototype.deleteAllMyTriples = function (callback, customGraphUri)
     // Invalidate cache record for the updated resources
     Cache.getByGraphUri(graphUri).delete(self.uri, function (err, result)
     {
-
-    });
-
-    Config.getDBByGraphUri(customGraphUri).connection.executeViaJDBC(
-        "WITH [0] \n" +
-            "DELETE \n" +
-            "WHERE " +
-            "{ \n" +
-                "[1] ?p ?o \n" +
-            "} \n",
-        [
-            {
-                type: Elements.types.resourceNoEscape,
-                value: graphUri
-            },
-            {
-                type: Elements.types.resource,
-                value: self.uri
-            }
-        ],
-        function (err, results)
+        self.unindex(function (err, result)
         {
             if (isNull(err))
             {
-                return callback(err, results);
+                Config.getDBByGraphUri(graphUri).connection.executeViaJDBC(
+                    "WITH [0] \n" +
+                    "DELETE \n" +
+                    "WHERE " +
+                    "{ \n" +
+                    "   [1] ?p ?o \n" +
+                    "} \n",
+                    [
+                        {
+                            type: Elements.types.resourceNoEscape,
+                            value: graphUri
+                        },
+                        {
+                            type: Elements.types.resource,
+                            value: self.uri
+                        }
+                    ],
+                    function (err, results)
+                    {
+                        if (isNull(err))
+                        {
+                            return callback(err, results);
+                        }
+                        return callback(1, results);
+                    });
             }
-            return callback(1, results);
-        });
+            else
+            {
+                callback(2, err);
+            }
+        }, customGraphUri);
+    });
 };
 
 /**
@@ -1298,7 +1306,14 @@ Resource.prototype.updateDescriptors = function (descriptors, cannotChangeTheseD
         {
             if (descriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
             {
-                self[descriptor.prefix][descriptor.shortName] = descriptor.value;
+                if (descriptor.value === null)
+                {
+                    delete self[descriptor.prefix][descriptor.shortName];
+                }
+                else
+                {
+                    self[descriptor.prefix][descriptor.shortName] = descriptor.value;
+                }
             }
         }
         else
@@ -1476,13 +1491,15 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
         });
 };
 
-Resource.prototype.reindex = function (indexConnection, callback)
+Resource.prototype.reindex = function (callback, customGraphUri)
 {
     const self = this;
-    const infoMessages = [];
     const errorMessages = [];
 
     const results = self.getPublicDescriptorsForAPICalls();
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
     let descriptors = [];
 
@@ -1510,23 +1527,6 @@ Resource.prototype.reindex = function (indexConnection, callback)
             });
         }
     }
-
-    // Remove all non-textual values from index
-    /* const validator = require("validator");
-    descriptors = _.filter(descriptors, function (descriptor)
-    {
-        const value = descriptor.object;
-        const resourceUriRegex = Resource.getResourceRegex("[^/]+");
-        if (typeof value !== "string")
-        {
-            return false;
-        }
-
-        return !validator.isURL(value) &&
-                !validator.toDate(value) &&
-                !value.match(resourceUriRegex);
-    });*/
-
     const document = {
         uri: self.uri,
         graph: indexConnection.uri,
@@ -1537,7 +1537,7 @@ Resource.prototype.reindex = function (indexConnection, callback)
     // Logger.log("Reindexing resource " + self.uri);
     // Logger.log("Document: \n" + JSON.stringify(document, null, 4));
 
-    self.getIndexDocumentId(indexConnection, function (err, id)
+    self.getIndexDocumentId(function (err, id)
     {
         if (isNull(err))
         {
@@ -1553,10 +1553,20 @@ Resource.prototype.reindex = function (indexConnection, callback)
                 {
                     if (isNull(err))
                     {
-                        infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.short_name);
-                        return callback(null, infoMessages);
+                        let msg;
+                        if (isNull(id))
+                        {
+                            msg = self.uri + " resource successfully indexed in index " + indexConnection.short_name;
+                        }
+                        else
+                        {
+                            msg = self.uri + " resource successfully REindexed in index " + indexConnection.short_name;
+                        }
+
+                        Logger.log("debug", msg);
+                        return callback(null, self);
                     }
-                    const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
+                    const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
                     errorMessages.push(msg);
                     Logger.log("error", msg);
                     return callback(1, errorMessages);
@@ -1567,28 +1577,80 @@ Resource.prototype.reindex = function (indexConnection, callback)
             errorMessages.push("Error getting document id for resource " + self.uri + " error returned " + id);
             return callback(1, errorMessages);
         }
+    }, customGraphUri);
+};
+
+Resource.prototype.unindex = function (callback, customGraphUri)
+{
+    const self = this;
+
+    const document = {
+        uri: self.uri
+    };
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
+
+    self.getIndexDocumentId(function (err, id)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(id))
+            {
+                document._id = id;
+
+                indexConnection.deleteDocument(
+                    id,
+                    IndexConnection.indexTypes.resource,
+                    function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            const msg = "Resource " + self.uri + "  successfully unindexed in index " + indexConnection.short_name;
+                            Logger.log("debug", msg);
+                            return callback(null, self);
+                        }
+
+                        const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4) + " while unindexing it .";
+                        Logger.log("error", msg);
+                        return callback(1, self);
+                    });
+            }
+            else
+            {
+                // resource does not not exist in the index, just return without error, no need to remove it.
+                return callback(null, self);
+            }
+        }
+        else
+        {
+            const msg = "Error getting document id for resource " + self.uri + " error returned " + id + " while unindexing it .";
+            Logger.log("error", msg);
+            return callback(1, msg);
+        }
     });
 };
 
-Resource.prototype.getIndexDocumentId = function (indexConnection, callback)
+Resource.prototype.getIndexDocumentId = function (callback, customGraphUri)
 {
     let self = this;
 
-    self.restoreFromIndexDocument(indexConnection, function (err, restoredResource)
+    self.restoreFromIndexDocument(function (err, restoredResource)
     {
         if (!isNull(self.indexData))
         {
             return callback(err, self.indexData.id);
         }
         return callback(err, null);
-    });
+    }, customGraphUri);
 };
 
-Resource.prototype.getTextuallySimilarResources = function (indexConnection, maxResultSize, callback)
+Resource.prototype.getTextuallySimilarResources = function (callback, maxResultSize, customGraphUri)
 {
     let self = this;
+    const indexConnection = IndexConnection.getByGraphUri(customGraphUri);
 
-    self.getIndexDocumentId(indexConnection, function (err, id)
+    self.getIndexDocumentId(function (err, id)
     {
         if (isNull(err))
         {
@@ -1653,15 +1715,14 @@ Resource.findResourcesByTextQuery = function (
         size: maxResultSize,
         sort: [
             "_score"
-        ],
-        version: true
+        ]
     };
 
-    // var util = require('util');
-    // util.debug("Query in JSON : " + util.inspect(queryObject));
+    Logger.log("debug", "Index Query in JSON : " + JSON.stringify(queryObject, null, 4));
 
     indexConnection.search(
-        IndexConnection.indexTypes.resource, // search in all graphs for resources (generic type)
+        // search in all graphs for resources (generic type)
+        IndexConnection.indexTypes.resource,
         queryObject,
         function (err, results)
         {
@@ -1700,34 +1761,31 @@ Resource.restoreFromIndexResults = function (hits)
     return results;
 };
 
-Resource.prototype.restoreFromIndexDocument = function (indexConnection, callback)
+Resource.prototype.restoreFromIndexDocument = function (callback, customGraphUri)
 {
     let self = this;
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
     // fetch document from the index that matches the current resource
     const queryObject = {
         query: {
-            filtered: {
-                query: {
-                    match_all: {}
-                },
+            constant_score: {
                 filter: {
                     term: {
-                        "resource.uri": self.uri
+                        uri: self.uri
                     }
                 }
             }
         },
         from: 0,
-        size: 2,
-        sort: [
-            "_score"
-        ],
-        version: true
+        size: 200
     };
 
     indexConnection.search(
-        IndexConnection.indexTypes.resource, // search in all graphs for resources (generic type)
+        // search in all graphs for resources (generic type)
+        IndexConnection.indexTypes.resource,
         queryObject,
         function (err, hits)
         {

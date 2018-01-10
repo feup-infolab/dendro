@@ -21,17 +21,8 @@ global.tests = {};
 
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
-// Indexing
-require(Pathfinder.absPathInTestsFolder("/routes/admin/reindex/routes.admin.reindex.Test.js"));
-
-// Search
-require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
-
-// Restore a folder Tests
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__restore/routes.project.publicProject.data.testFolder1.__restore.Test.js"));
-
 // TODO
-// THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
+// // THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
 // // PUBLIC PROJECT FOLDER LEVEL CALCULATE CKAN REPOSITORY DIFFS
 // require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.publicProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js"));
 //
@@ -50,6 +41,15 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/tes
 // // PRIVATE PROJECT FOLDER LEVEL EXPORT TO CKAN TESTS
 // require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/folderExportCkan/__export_to_repository/routes.project.privateProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js"));
 // END *** THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
+
+// Indexing
+require(Pathfinder.absPathInTestsFolder("/routes/admin/reindex/routes.admin.reindex.Test.js"));
+
+// Search
+require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
+
+// Restore a folder Tests
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__restore/routes.project.publicProject.data.testFolder1.__restore.Test.js"));
 
 // administer projects
 require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
@@ -70,10 +70,11 @@ require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/avatar/routes.us
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
 
+// PROJECTS
 require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
-/* require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js")); */
+require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
 
 /* require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
  require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js")); */

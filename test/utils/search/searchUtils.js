@@ -1,6 +1,6 @@
 exports.search = function (jsonOnly, agent, queryString, cb)
 {
-    const path = "/search?q=" + queryString;
+    const path = "/search?q=" + queryString + "&pageSize=200";
     if (jsonOnly)
     {
         agent

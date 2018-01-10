@@ -217,9 +217,35 @@
                                 </div>
                             </div>
                         <% } %>
-                        <input type="submit" value="Reindex" class="btn btn-primary">
 
                         <p class="help-block">Select the graphs you want to reindex</p>
+
+                        <br>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label for="index_in_background_checkbox">Run operation in background</label>
+                                <input type="checkbox" id="index_in_background_checkbox" name="background" value="1" checked>
+                                <div class="help-block">Runs the reindexing in the background. You have to refresh this page to know when it is finished, but you can continue working.</div>
+                            </div>
+                        </div>
+
+                        <% if(!locals.indexing) { %>
+                            <input type="submit" value="Reindex" class="btn btn-primary">
+                        <% } else { %>
+                            <div class="label label-default" id="indexing_running_badge">Indexing operation already running. Please wait<i class="fa fa fa-cog faa-spin animated"></i></div>
+                            <input type="submit" value="Reindex" class="btn btn-primary" disabled>
+                        <% } %>
+
+                        <br>
+                        <% if(locals.lastIndexingOK === true) { %>
+                        <div class="label label-success" id="indexing_running_badge">Last indexing result: OK</div>
+                        <% } else if(locals.lastIndexingOK === false) { %>
+                        <div class="label label-warning" id="indexing_running_badge">Last indexing result: Failed</div>
+                        <% } else { %>
+                        <div class="label label-default" id="indexing_running_badge">Last indexing result: Unknown</div>
+                        <% }  %>
+
+
                     </form>
                 </div>
             </div>

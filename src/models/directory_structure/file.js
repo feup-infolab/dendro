@@ -1,6 +1,7 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
+const XLSX = require("xlsx");
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -258,10 +259,23 @@ File.prototype.save = function (callback, rename)
                         {
                             if (isNull(err))
                             {
-                                return callback(null, self);
+                                self.reindex(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(err, self);
+                                    }
+
+                                    const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(err, null, 4);
+                                    Logger.log("error", msg);
+                                    return callback(1, msg);
+                                });
                             }
-                            Logger.log("error", "Error adding child file descriptors : " + result);
-                            return callback(1, "Error adding child file descriptors : " + result);
+                            else
+                            {
+                                Logger.log("error", "Error adding child file descriptors : " + result);
+                                return callback(1, "Error adding child file descriptors : " + result);
+                            }
                         });
                     }
                     else
@@ -281,7 +295,7 @@ File.prototype.save = function (callback, rename)
     });
 };
 
-File.prototype.saveWithFileAndContents = function (localFilePath, indexConnectionToReindexContents, callback)
+File.prototype.saveWithFileAndContents = function (localFilePath, callback, customGraphUri)
 {
     const self = this;
     const _ = require("underscore");
@@ -305,7 +319,7 @@ File.prototype.saveWithFileAndContents = function (localFilePath, indexConnectio
         },
         function (callback)
         {
-            self.reindex(indexConnectionToReindexContents, callback);
+            self.reindex(callback, customGraphUri);
         },
         function (callback)
         {
@@ -363,20 +377,30 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
         {
             if (isNull(err))
             {
-                self.unlinkFromParent(function (err, result)
+                self.unindex(function (err, result)
                 {
                     if (isNull(err))
                     {
-                        gfs.connection.delete(self.uri, function (err, result)
+                        self.unlinkFromParent(function (err, result)
                         {
-                            self.deleteThumbnails();
-                            self.deleteDatastoreData();
-                            return callback(err, result);
+                            if (isNull(err))
+                            {
+                                gfs.connection.delete(self.uri, function (err, result)
+                                {
+                                    self.deleteThumbnails();
+                                    self.deleteDatastoreData();
+                                    return callback(err, result);
+                                });
+                            }
+                            else
+                            {
+                                return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
+                            }
                         });
                     }
                     else
                     {
-                        return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
+                        return callback(err, "Error clearing index entry while deleting file " + self.uri + ". Error reported : " + result);
                     }
                 });
             }
@@ -400,23 +424,22 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
 File.prototype.undelete = function (callback, uriOfUserUnDeletingTheFile)
 {
     const self = this;
-    self.updateDescriptors(
-        [
-            new Descriptor({
-                prefixedForm: "ddr:deleted",
-                value: null
-            })
-        ]
-    );
-
-    self.save(function (err, result)
+    if (self.ddr.deleted === true)
     {
-        if (isNull(err))
+        delete self.ddr.deleted;
+        self.save(function (err, result)
         {
-            return callback(null, self);
-        }
-        return callback(err, result);
-    }, true, uriOfUserUnDeletingTheFile);
+            if (isNull(err))
+            {
+                return callback(null, self);
+            }
+            return callback(err, result);
+        }, true, uriOfUserUnDeletingTheFile);
+    }
+    else
+    {
+        callback(null, self);
+    }
 };
 
 File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetadata, includeTempFileLocations, includeOriginalNodes, callback)
@@ -671,98 +694,97 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         });
     };
 
-    const xlsxFileParser = function (filePath, callback)
+    function safe_decode_range (range)
     {
-        const XLSX = require("xlsx");
-
-        function safe_decode_range (range)
+        let o = {s: {c: 0, r: 0}, e: {c: 0, r: 0}};
+        let idx = 0, i = 0, cc = 0;
+        let len = range.length;
+        for (idx = 0; i < len; ++i)
         {
-            let o = {s: {c: 0, r: 0}, e: {c: 0, r: 0}};
-            let idx = 0, i = 0, cc = 0;
-            let len = range.length;
-            for (idx = 0; i < len; ++i)
-            {
-                if ((cc = range.charCodeAt(i) - 64) < 1 || cc > 26) break;
-                idx = 26 * idx + cc;
-            }
-            o.s.c = --idx;
-
-            for (idx = 0; i < len; ++i)
-            {
-                if ((cc = range.charCodeAt(i) - 48) < 0 || cc > 9) break;
-                idx = 10 * idx + cc;
-            }
-            o.s.r = --idx;
-
-            if (i === len || range.charCodeAt(++i) === 58)
-            {
-                o.e.c = o.s.c; o.e.r = o.s.r; return o;
-            }
-
-            for (idx = 0; i !== len; ++i)
-            {
-                if ((cc = range.charCodeAt(i) - 64) < 1 || cc > 26) break;
-                idx = 26 * idx + cc;
-            }
-            o.e.c = --idx;
-
-            for (idx = 0; i !== len; ++i)
-            {
-                if ((cc = range.charCodeAt(i) - 48) < 0 || cc > 9) break;
-                idx = 10 * idx + cc;
-            }
-            o.e.r = --idx;
-            return o;
+            if ((cc = range.charCodeAt(i) - 64) < 1 || cc > 26) break;
+            idx = 26 * idx + cc;
         }
-        function getHeaders (sheet)
+        o.s.c = --idx;
+
+        for (idx = 0; i < len; ++i)
         {
-            let header = 0, offset = 1;
-            let hdr = [];
-            let o = {};
-            if (sheet === null || sheet["!ref"] === null) return [];
-            let range = o.range !== undefined ? o.range : sheet["!ref"];
-            let r;
-            if (o.header === 1) header = 1;
-            else if (o.header === "A") header = 2;
-            else if (Array.isArray(o.header)) header = 3;
-            switch (typeof range)
+            if ((cc = range.charCodeAt(i) - 48) < 0 || cc > 9) break;
+            idx = 10 * idx + cc;
+        }
+        o.s.r = --idx;
+
+        if (i === len || range.charCodeAt(++i) === 58)
+        {
+            o.e.c = o.s.c; o.e.r = o.s.r; return o;
+        }
+
+        for (idx = 0; i !== len; ++i)
+        {
+            if ((cc = range.charCodeAt(i) - 64) < 1 || cc > 26) break;
+            idx = 26 * idx + cc;
+        }
+        o.e.c = --idx;
+
+        for (idx = 0; i !== len; ++i)
+        {
+            if ((cc = range.charCodeAt(i) - 48) < 0 || cc > 9) break;
+            idx = 10 * idx + cc;
+        }
+        o.e.r = --idx;
+        return o;
+    }
+
+    function getHeaders (sheet)
+    {
+        let header = 0, offset = 1;
+        let hdr = [];
+        let o = {};
+        if (sheet === null || sheet["!ref"] === null) return [];
+        let range = o.range !== undefined ? o.range : sheet["!ref"];
+        let r;
+        if (o.header === 1) header = 1;
+        else if (o.header === "A") header = 2;
+        else if (Array.isArray(o.header)) header = 3;
+        switch (typeof range)
+        {
+        case "string":
+            r = safe_decode_range(range);
+            break;
+        case "number":
+            r = safe_decode_range(sheet["!ref"]);
+            r.s.r = range;
+            break;
+        default:
+            r = range;
+        }
+        if (header > 0) offset = 0;
+        let rr = XLSX.utils.encode_row(r.s.r);
+        let cols = new Array(r.e.c - r.s.c + 1);
+        for (let C = r.s.c; C <= r.e.c; ++C)
+        {
+            cols[C] = XLSX.utils.encode_col(C);
+            let val = sheet[cols[C] + rr];
+            switch (header)
             {
-            case "string":
-                r = safe_decode_range(range);
+            case 1:
+                hdr.push(C);
                 break;
-            case "number":
-                r = safe_decode_range(sheet["!ref"]);
-                r.s.r = range;
+            case 2:
+                hdr.push(cols[C]);
+                break;
+            case 3:
+                hdr.push(o.header[C - r.s.c]);
                 break;
             default:
-                r = range;
+                if (isNull(val)) continue;
+                hdr.push(XLSX.utils.format_cell(val));
             }
-            if (header > 0) offset = 0;
-            let rr = XLSX.utils.encode_row(r.s.r);
-            let cols = new Array(r.e.c - r.s.c + 1);
-            for (let C = r.s.c; C <= r.e.c; ++C)
-            {
-                cols[C] = XLSX.utils.encode_col(C);
-                let val = sheet[cols[C] + rr];
-                switch (header)
-                {
-                case 1:
-                    hdr.push(C);
-                    break;
-                case 2:
-                    hdr.push(cols[C]);
-                    break;
-                case 3:
-                    hdr.push(o.header[C - r.s.c]);
-                    break;
-                default:
-                    if (val === undefined) continue;
-                    hdr.push(XLSX.utils.format_cell(val));
-                }
-            }
-            return hdr;
         }
+        return hdr;
+    }
 
+    const xlsxFileParser = function (filePath, callback)
+    {
         let workbook;
         try
         {
@@ -770,6 +792,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         }
         catch (error)
         {
+            Logger.log("error", error);
             return callback(error);
         }
 
@@ -798,6 +821,82 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         {
             callback(err, result);
         });
+    };
+
+    const xlsFileParser = function (filePath, callback)
+    {
+        let workbook;
+        let formats = ["biff8", "biff5", "biff2", "xlml"];
+        let failed = true;
+
+        const handleWorkbook = function (workbook)
+        {
+            const sheetNamesWithIndexes = workbook.SheetNames.map(function (name, index)
+            {
+                return {index: index, name: name};
+            });
+
+            async.mapLimit(sheetNamesWithIndexes, 1, function (sheetNameAndIndex, callback)
+            {
+                let sheetName = sheetNameAndIndex.name;
+                let sheetIndex = sheetNameAndIndex.index;
+
+                let sheet = workbook.Sheets[sheetName];
+                let sheetHeader = getHeaders(sheet);
+
+                let sheetJSON = XLSX.utils.sheet_to_json(sheet, {raw: true});
+
+                for (let i = 0; i < sheetJSON.length; i++)
+                {
+                    delete sheetJSON[i].__proto__.__rowNum__;
+                }
+
+                dataStoreWriter.updateDataFromArrayOfObjects(sheetJSON, callback, sheetName, sheetIndex, sheetHeader);
+            }, function (err, result)
+            {
+                callback(err, result);
+            });
+        };
+
+        for (let i = 0; i < formats.length; i++)
+        {
+            let format = formats[i];
+            try
+            {
+                workbook = XLSX.readFile(filePath, {
+                    format: format
+                });
+
+                handleWorkbook(workbook);
+
+                failed = false;
+            }
+            catch (error)
+            {
+                Logger.log("error", error.message);
+            }
+        }
+
+        if (failed)
+        {
+            const xlsjs = require("xlsjs");
+            workbook = xlsjs.readFile(filePath);
+            handleWorkbook(workbook);
+
+            // const exceltojson = require("xls-to-json-lc");
+            // exceltojson({
+            //     input: filePath,
+            //     output: null
+            //     //sheet: "sheetname",  // specific sheetname inside excel file (if you have multiple sheets)
+            //     //lowerCaseHeaders:true //to convert all excel headers to lowr case in json
+            // }, function(err, result) {
+            //     if(err) {
+            //         console.error(err);
+            //     } else {
+            //         dataStoreWriter.updateDataFromArrayOfObjects(result, callback, "Sheet1", "1", getHeaders(result));
+            //     }
+            // });
+        }
     };
 
     const csvFileParser = function (filePath, callback)
@@ -881,7 +980,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
      */
 
     const dataFileParsers = {
-        xls: xlsxFileParser,
+        xls: xlsFileParser,
         xlsx: xlsxFileParser,
         ods: xlsxFileParser,
         csv: csvFileParser
