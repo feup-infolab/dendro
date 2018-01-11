@@ -1,5 +1,6 @@
 const humanize = require("humanize");
 const Pathfinder = global.Pathfinder;
+const path = require("path");
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -1177,6 +1178,8 @@ exports.restore = function (req, res)
                                 });
                             }
 
+                            folder.nie.title = path.basename(restoreInfo[0].name, path.extname(restoreInfo[0].name));
+
                             User.findByUri(req.user, function (err, user)
                             {
                                 if (isNull(err) && user instanceof User)
@@ -2151,6 +2154,51 @@ exports.mkdir = function (req, res)
     {
         return res.status(400).send("HTML Request not valid for this route.");
     }
+};
+
+exports.ls_by_name = function (req, res) {
+    const resourceURI = req.params.requestedResourceUri;
+    let show_deleted = req.query.show_deleted;
+    let childName = req.query.title;
+    Folder.findByUri(resourceURI, function (err, containingFolder)
+    {
+        if (isNull(err) && !isNull(containingFolder))
+        {
+            containingFolder.findChildWithDescriptor(new Descriptor({
+                prefixedForm: "nie:title",
+                value: childName
+            }), function (err, children) {
+                if(isNull(err))
+                {
+                    if(isNull(children))
+                    {
+                        res.status(404).json({
+                            result: "Error",
+                            error: "Child with name : " + childName + " is not a children of " + containingFolder.uri
+                        });
+                    }
+                    else
+                    {
+                        res.json(children);
+                    }
+                }
+                else
+                {
+                    res.status(500).json({
+                        result: "Error",
+                        error: JSON.stringify(children)
+                    });
+                }
+            });
+        }
+        else
+        {
+            res.status(404).json({
+                result: "Error",
+                error: "Non-existent folder. Is this a file instead of a folder? : " + resourceURI
+            });
+        }
+    });
 };
 
 exports.ls = function (req, res)
