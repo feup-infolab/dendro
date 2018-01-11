@@ -329,6 +329,7 @@ angular.module("dendroApp.controllers")
             }).then(function (response)
             {
                 $scope.storage = response.data.storageConfig;
+                
             }).catch(function (error)
             {
                 if (error.data !== null && error.data.message !== null && error.data.title !== null)
@@ -340,6 +341,8 @@ angular.module("dendroApp.controllers")
                     Utils.show_popup("error", "Error occurred while fetching the storage options of the project: ", JSON.stringify(error));
                 }
             });
+
+
         };
 
         $scope.update_storage = function ()
@@ -356,6 +359,7 @@ angular.module("dendroApp.controllers")
             {
                 Utils.show_popup("success", response.data.title, response.data.message);
                 $scope.get_storage();
+
             }).catch(function (error)
             {
                 if (error.data !== null && error.data.message !== null && error.data.title !== null)
@@ -367,10 +371,5 @@ angular.module("dendroApp.controllers")
                     Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
                 }
             });
-        };
-
-        $scope.onChangeStorageOption = function ()
-        {
-            console.log("work value");
         };
     });

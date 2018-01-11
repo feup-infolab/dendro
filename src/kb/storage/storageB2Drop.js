@@ -1,4 +1,4 @@
-const B2DropShare = require("node-b2drop").B2DropShare;
+const B2Drop = require("node-b2drop").B2Drop;
 
 // TODO metadata
 
@@ -14,9 +14,19 @@ class storageB2Drop extends storage
 
     open (callback)
     {
-        this.connection = B2DropShare(this.shareLink, this.password);
+        this.connection = B2Drop(this.shareLink, this.password);
 
-        return callback(null);
+        this.connection.login(function (err, response)
+        {
+            if (err)
+            {
+                return callback("Failed to LogIn");
+            }
+            if (response && response.statusCode === 200)
+            {
+                return callback(null);
+            }
+        });
     }
 
     close (callback)
