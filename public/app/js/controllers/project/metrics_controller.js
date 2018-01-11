@@ -129,10 +129,12 @@ angular.module('dendroApp.controllers')
 
                 var depositsSet =[deposit,deposit2,deposit3,deposit4,deposit5,deposit6,deposit7];
                 setTimeline(depositsSet);
+                setGraphs(depositsSet);
 
                 //$scope.startDeposits();
 
             };
+
 
             $scope.updateData = function () {
                 $scope.data = $scope.data.map(function (data) {
@@ -214,8 +216,8 @@ angular.module('dendroApp.controllers')
                     event.title = "Deposit at " + deposits[i].platformsUsed;
                     event.content = "Deposit created at " + deposits[i].repository + " was created by "+ deposits[i].user + " on the "
                             + depositDate.date()+ "/"
-                            + depositDate.month()+"/" + depositDate.year(); + " for the "+ deposits[i].projectTitle + " project.";7
-                    event.shortDate = depositDate.date()+ " of "+ depositDate.month("String");
+                            + (depositDate.month()+1) +"/" + depositDate.year(); + " for the "+ deposits[i].projectTitle + " project.";7
+                    event.shortDate = depositDate.date()+ " of "+ depositDate.month();
 
                     if (deposits[i].platformsUsed === "CKAN"){
                         event.badgeClass = "ckan";
@@ -255,7 +257,34 @@ angular.module('dendroApp.controllers')
                     }
                 }
             }
+
             $scope.events = [];
+
+
+            function setGraphs(deposits) {
+                var platforms = new Map();
+                platforms.set("Zenodo" ,0);
+                platforms.set("CKAN",0);
+                platforms.set("EUDAT B2Share",0,);
+                platforms.set("Figshare",0,);
+                platforms.set("DSpace",0,);
+                platforms.set("EPrints",0);
+
+                for (let i =0; i < deposits.length; i++){
+                    let event = {};
+                    var depositDate =moment(deposits[i].date,"YYYY-MM-DDTHH:mmZ");
+                    $scope.labels.push(moment().month(depositDate.month()).format('MMMM'));
+                    console.log(platforms);
+                       //platforms.get(deposits[i].platformsUsed++);
+                        console.log(platforms.get(deposits[i].platformsUsed));
+                        platforms.set(deposits[i].platformsUsed, platforms.get(deposits[i].platformsUsed + 1));
+                        console.log(platforms);
+                }
+            }
+
+
+
+
 
 
 
