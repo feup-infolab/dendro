@@ -1,11 +1,14 @@
-let GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
+const Pathfinder = global.Pathfinder;
 
-class storageGridFs extends storage
+const GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
+const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
+
+class StorageGridFs extends Storage
 {
-    constructor (mongodbHost, mongodbPort, collectionName, username, password)
+    constructor (username, password, mongodbHost, mongodbPort, collectionName)
     {
         super();
-        this.connection = GridFSConnection(mongodbHost, mongodbPort, collectionName, username, password);
+        this.connection = new GridFSConnection(mongodbHost, mongodbPort, collectionName, username, password);
     }
 
     open (callback)
@@ -33,3 +36,5 @@ class storageGridFs extends storage
         this.connection.delete(fileUri, callback, customBucket);
     }
 }
+
+module.exports.StorageGridFs = StorageGridFs;

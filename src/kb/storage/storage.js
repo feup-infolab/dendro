@@ -1,9 +1,7 @@
-class storage
+class Storage
 {
-    constructor ()
-    {
-    }
-
+    constructor()
+    {}
     open ()
     {}
     close ()
@@ -15,3 +13,5 @@ class storage
     delete ()
     {}
 }
+
+module.exports.Storage = Storage;

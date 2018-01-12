@@ -1,20 +1,21 @@
-const B2Drop = require("node-b2drop").B2Drop;
+const Pathfinder = global.Pathfinder;
 
-// TODO metadata
+const B2Drop = require("@feup-infolab/node-b2drop").B2Drop;
+const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
 
-class storageB2Drop extends storage
+class StorageB2Drop extends Storage
 {
-    constructor (shareLink, password)
+    constructor (username, password)
     {
         super();
 
-        this.shareLink = shareLink;
+        this.username = username;
         this.password = password;
     }
 
     open (callback)
     {
-        this.connection = B2Drop(this.shareLink, this.password);
+        this.connection = B2Drop(this.username, this.password);
 
         this.connection.login(function (err, response)
         {
@@ -50,3 +51,5 @@ class storageB2Drop extends storage
         this.connection.delete(fileUri, callback);
     }
 }
+
+module.exports.StorageB2drop = StorageB2Drop;
