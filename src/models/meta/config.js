@@ -105,6 +105,7 @@ Config.virtuosoHost = getConfigParameter("virtuosoHost");
 Config.virtuosoPort = getConfigParameter("virtuosoPort");
 Config.virtuosoISQLPort = getConfigParameter("virtuosoISQLPort");
 Config.virtuosoSQLLogLevel = getConfigParameter("virtuosoSQLLogLevel");
+Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation", false);
 
 Config.virtuosoConnector = (function ()
 {
@@ -283,18 +284,19 @@ Config.getDBByGraphUri = function (graphUri)
         {
             if (Config.db.hasOwnProperty(dbKey))
             {
-                if (Config.db.graphUri[graphUri] === graphUri)
+                if (!isNull(Config.db[dbKey]))
                 {
-                    Config.db_by_uri[graphUri] = Config.db[dbKey];
-                    return Config.db_by_uri[graphUri];
+                    if (Config.db[dbKey].graphUri === graphUri)
+                    {
+                        Config.db_by_uri[graphUri] = Config.db[dbKey];
+                        return Config.db_by_uri[graphUri];
+                    }
                 }
             }
         }
     }
-    else
-    {
-        return Config.db.default;
-    }
+
+    return Config.db.default;
 };
 
 Config.getGFSByID = function (gfsID)

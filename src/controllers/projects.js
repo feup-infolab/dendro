@@ -985,7 +985,7 @@ exports.new = function (req, res)
                                     else
                                     {
                                         req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
-                                        throw err;
+                                        throw result;
                                     }
                                 });
                             }
@@ -1015,6 +1015,8 @@ exports.administer = function (req, res)
     const viewVars = {
         title: "Administration Area"
     };
+
+    let reindexAtTheEnd = false;
 
     const sendResponse = function (viewPath, viewVars, jsonResponse, statusCode)
     {
@@ -1106,6 +1108,12 @@ exports.administer = function (req, res)
                         if (!isNull(req.body.privacy) && req.body.privacy !== "")
                         {
                             viewVars.privacy = req.body.privacy;
+
+                            if (project.ddr.privacyStatus !== req.body.privacy)
+                            {
+                                reindexAtTheEnd = true;
+                            }
+
                             switch (req.body.privacy)
                             {
                             case "public":
@@ -1310,11 +1318,27 @@ exports.administer = function (req, res)
                         });
                     };
 
+                    let reindexIfNeeded = function (project, callback)
+                    {
+                        if (reindexAtTheEnd)
+                        {
+                            project.reindex(function (err, project)
+                            {
+                                return callback(err, project);
+                            });
+                        }
+                        else
+                        {
+                            return callback(null, project);
+                        }
+                    };
+
                     async.waterfall([
                         updateProjectMetadata,
                         updateProjectContributors,
                         updateProjectSettings,
-                        saveProject
+                        saveProject,
+                        reindexIfNeeded
                     ], function (err, project)
                     {
                         if (isNull(err))

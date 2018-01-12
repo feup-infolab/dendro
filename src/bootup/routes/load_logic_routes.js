@@ -783,6 +783,12 @@ const loadRoutes = function (app, callback)
                         permissions: defaultPermissionsInProjectBranch,
                         authentication_error: "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
                     },
+                    {
+                        queryKeys: ["ls", "title"],
+                        handler: files.ls_by_name,
+                        permissions: defaultPermissionsInProjectBranch,
+                        authentication_error: "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
+                    },
                     // descriptor recommendations
                     {
                         queryKeys: ["metadata_recommendations"],

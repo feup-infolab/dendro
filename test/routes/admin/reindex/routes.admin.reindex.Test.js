@@ -70,6 +70,27 @@ describe("Resource re-indexing page ( /admin/reindex )", function (done)
                     });
             });
         });
+
+        /*
+        it("Should not allow reindexing of an invalid graph", function (done)
+        {
+            userUtils.loginUser(admin.username, admin.password, function (err, agent)
+            {
+                administerUtils.reindexGraphs(agent,
+                    {
+                        graphs_to_reindex: ["dendro_graphIDONOTKNOWYOU", "social_dendro", "notifications_dendro"],
+                        graphs_to_delete: ["dendro_graph", "social_dendro", "notifications_dendro"]
+                    },
+                    function (err, res)
+                    {
+                        res.should.have.status(400);
+                        res.text.should.contain("You are not authorized to perform this operation. You must be a Dendro administrator.");
+                        res.text.should.not.contain("System administration page");
+                        done();
+                    });
+            });
+        });
+        */
     });
 
     describe("Valid cases", function ()

@@ -20,7 +20,8 @@ const projectData = {
         hasStorageType: "local"
     },
     uri: "http://" + Config.host + "/" + metadataProjectHandle,
-    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/metadataonlyprojectcreatedbydemouser1.zip")
+    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/metadataonlyprojectcreatedbydemouser1.zip"),
+    searchTerms: metadataProjectHandle
 };
 
 module.exports = projectData;

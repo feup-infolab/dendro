@@ -1,6 +1,7 @@
 const path = require("path");
 const async = require("async");
 const pm2 = require("pm2");
+const argv = require("yargs").argv;
 let Q = require("q");
 
 const self = this;
@@ -438,17 +439,37 @@ if (process.env.NODE_ENV === "production")
         Config.numCPUs = os.cpus().length;
     }
 
-    // master instance will start the slaves and exit.
-    if (!Config.runningAsSlave)
+    if (!isNull(argv.stop))
     {
-        Logger.log("info", `Starting master process with PID ${process.pid}...`);
-        Logger.log("info", `Using ${Config.numCPUs} app instances...`);
-        startPM2Master();
+        killPM2InstancesIfRunning(function (err)
+        {
+            if (isNull(err))
+            {
+                const msg = "PM2 instances of " + Config.pm2AppName + " ended successfully.";
+                Logger.log("info", msg);
+                process.exit(0);
+            }
+            else
+            {
+                const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
+                Logger.log("warn", msg);
+            }
+        });
     }
     else
     {
-        Logger.log("info", `Starting slave process with PID ${process.pid}...`);
-        startApp();
+        // master instance will start the slaves and exit.
+        if (!Config.runningAsSlave)
+        {
+            Logger.log("info", `Starting master process with PID ${process.pid}...`);
+            Logger.log("info", `Using ${Config.numCPUs} app instances...`);
+            startPM2Master();
+        }
+        else
+        {
+            Logger.log("info", `Starting slave process with PID ${process.pid}...`);
+            startApp();
+        }
     }
 }
 else

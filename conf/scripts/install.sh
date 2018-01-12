@@ -3,6 +3,13 @@
 INITIAL_DIR=`pwd`
 NODE_VERSION=`cat .node-version`
 
+# install text extraction dependencies
+if [ "$(uname)" == "Darwin" ]; then
+    brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
+fi
+
 echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
 
 if [ "$NODE_VERSION" == "" ]

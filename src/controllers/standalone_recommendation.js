@@ -363,7 +363,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     }
                 );
 
-                resource.getTextuallySimilarResources(indexConnection, Config.limits.index.maxResults, function (err, similarResources)
+                resource.getTextuallySimilarResources(function (err, similarResources)
                 {
                     if (!isNull(err) && !isNull(similarResources) && similarResources instanceof Array)
                     {
@@ -392,7 +392,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                         Logger.log("error", error);
                         return callback(1, error);
                     }
-                });
+                }, Config.limits.index.maxResults);
             };
 
             /**

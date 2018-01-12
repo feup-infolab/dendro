@@ -16,7 +16,8 @@ const projectData = {
     storageConfig : {
         hasStorageType: "local"
     },
-    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/privateprojecthtmlcreatedbydemouser1.zip")
+    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/privateprojecthtmlcreatedbydemouser1.zip"),
+    searchTerms: privateProjectHandle
 };
 
 module.exports = projectData;

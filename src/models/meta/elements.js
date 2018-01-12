@@ -5,10 +5,10 @@ const validUrl = require("valid-url");
 const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 function Elements ()
-{
-}
+{}
 
 /** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
 Elements.access_types = {
@@ -67,6 +67,7 @@ Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
 
 Elements.validateDescriptorValueTypes = function (currentDescriptor)
 {
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     const validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue)
     {
         let typesValidators = {};
@@ -85,6 +86,35 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
         return typesValidators[descriptorType];
     };
 
+    if(Config.skipDescriptorValuesValidation === true)
+    {
+        Logger.log("debug", "Will skip validateDescriptorValueTypes because skipDescriptorValuesValidation is set to true in deployment_configs");
+      return true;
+    }
+    else
+    {
+        // When there are various instances of a descriptor, for example: two dcterms:contributor
+        if (currentDescriptor.value instanceof Array)
+        {
+            for (let i = 0; i !== currentDescriptor.value.length; i++)
+            {
+                let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
+                if (isNull(resultOfValidation) || resultOfValidation === false)
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            // When there is only one instance of a descriptor (for example only one dcterms:abstract)
+            return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
+        }
+        return true;
+    }
+
+    //OLD CODE -> before adding the Config.skipDescriptorValuesValidation to the deployment_configs
+    /*
     // When there are various instances of a descriptor, for example: two dcterms:contributor
     if (currentDescriptor.value instanceof Array)
     {
@@ -102,7 +132,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
         // When there is only one instance of a descriptor (for example only one dcterms:abstract)
         return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
     }
-    return true;
+    return true;*/
 };
 
 /**
@@ -111,47 +141,47 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
 
 Elements.ontologies.schema = {
     sharedContent:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            locked: true,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      locked: true,
+      api_readable: true
+  },
     provider:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            locked: true,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      locked: true,
+      api_readable: true
+  },
     telephone:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            locked: true,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      locked: true,
+      api_readable: true
+  },
     address:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            locked: true,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      locked: true,
+      api_readable: true
+  },
     license:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            locked: true,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      locked: true,
+      api_readable: true
+  },
     email:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            locked: true,
-            api_readable: true
-        }
+    {
+        type: Elements.types.string,
+        control: Controls.input_box,
+        locked: true,
+        api_readable: true
+    }
 };
 
 /**
@@ -159,290 +189,290 @@ Elements.ontologies.schema = {
  */
 
 Elements.ontologies.dcterms =
-    {
-        abstract:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        accessRights:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
+{
+    abstract:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    accessRights:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
 
-            },
-        accrualMethod:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        accrualPeriodicity:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        accrualPolicy:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        alternative:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        audience:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        available:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        bibliographicCitation:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        conformsTo:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        contributor:
-            {
-                type: Elements.types.string,
-                control: Controls.url_box,
-                locked_for_projects: true
-            },
-        coverage:
-            {
-                type: Elements.types.string,
-                control: Controls.map
-            },
-        created:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        creator:
-            {
-                type: Elements.types.string,
-                control: Controls.url_box,
-                locked_for_projects: true
-            },
-        date:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        dateAccepted:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        dateCopyrighted:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        dateSubmitted:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        description:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        educationLevel:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        extent:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        format:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        identifier:
-            {
-                type: Elements.types.string,
-                control: Controls.url_box
-            },
-        instructionalMethod:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        issued:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        language:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        license:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        mediator:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        medium:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        modified:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        provenance:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        publisher:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        references:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        relation:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        replaces:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        requires:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        rights:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        rightsHolder:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        source:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        spatial:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        subject:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        SizeOrDuration:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        tableOfContents:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        temporal:
-            {
-                type: Elements.types.date,
-                control: Controls.input_box
-            },
-        type:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        title:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        hasVersion:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        hasPart:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isPartOf:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        hasFormat: {
-            type: Elements.types.string,
-            control: Controls.input_box
-        },
-        isFormatOf:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isReferencedBy:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isReplacedBy:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isRequiredBy:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isVersionOf:
-            {
-                type: Elements.types.string,
-                control: Controls.url_box
-            },
-        valid:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            }
-    };
+  },
+    accrualMethod:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    accrualPeriodicity:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    accrualPolicy:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    alternative:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    audience:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    available:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    bibliographicCitation:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    conformsTo:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    contributor:
+  {
+      type: Elements.types.string,
+      control: Controls.url_box,
+      locked_for_projects: true
+  },
+    coverage:
+  {
+      type: Elements.types.string,
+      control: Controls.map
+  },
+    created:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    creator:
+  {
+      type: Elements.types.string,
+      control: Controls.url_box,
+      locked_for_projects: true
+  },
+    date:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    dateAccepted:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    dateCopyrighted:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    dateSubmitted:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    description:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    educationLevel:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    extent:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    format:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    identifier:
+  {
+      type: Elements.types.string,
+      control: Controls.url_box
+  },
+    instructionalMethod:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    issued:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    language:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    license:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    mediator:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    medium:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    modified:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    provenance:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    publisher:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    references:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    relation:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    replaces:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    requires:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    rights:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    rightsHolder:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    source:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    spatial:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    subject:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    SizeOrDuration:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    tableOfContents:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    temporal:
+  {
+      type: Elements.types.date,
+      control: Controls.input_box
+  },
+    type:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    title:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    hasVersion:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    hasPart:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isPartOf:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    hasFormat: {
+        type: Elements.types.string,
+        control: Controls.input_box
+    },
+    isFormatOf:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isReferencedBy:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isReplacedBy:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isRequiredBy:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isVersionOf:
+  {
+      type: Elements.types.string,
+      control: Controls.url_box
+  },
+    valid:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  }
+};
 
 /**
  * Elements of the FOAF ontology
@@ -2271,10 +2301,10 @@ Elements.ontologies.bdv = {
             control: Controls.date_picker
         },
     projectName:
-        {
-            type: Elements.types.date,
-            control: Controls.date_picker
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
     referenceSystemAuthority:
         {
             type: Elements.types.string,

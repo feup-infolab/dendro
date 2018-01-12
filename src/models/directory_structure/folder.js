@@ -659,8 +659,6 @@ Folder.prototype.restoreFromLocalBackupZipFile = function (zipFileAbsLocation, u
         {
             if (exists)
             {
-                const fs = require("fs");
-
                 fs.readdir(unzippedContentsLocation, function (err, files)
                 {
                     files = InformationElement.removeInvalidFileNames(files);
@@ -884,6 +882,10 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
             if (runningOnRoot)
             {
                 files = _.without(files, Config.packageMetadataFileName);
+                if (replaceExistingFolder)
+                {
+                    self.nie.title = path.basename(absolutePathOfLocalFolder);
+                }
             }
 
             if (files.length > 0)
@@ -1253,7 +1255,6 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                  * Restore metadata values from medatada.json file
                  */
                 const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-                const fs = require("fs");
 
                 fs.exists(metadataFileLocation, function (existsMetadataFile)
                 {
@@ -1268,7 +1269,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                             }
 
                             const node = JSON.parse(data);
-
+                            self.nie.title = path.basename(absPathOfRootFolder);
                             self.loadMetadata(node, function (err, result)
                             {
                                 if (isNull(err))
@@ -1401,18 +1402,20 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
         }
         else
         {
-            self.updateDescriptors(
-                [
-                    new Descriptor({
-                        prefixedForm: "ddr:deleted",
-                        value: true
-                    })
-                ]
-            );
-
+            self.ddr.deleted = true;
             self.save(function (err, result)
             {
-                return callback(err, self);
+                if (isNull(err))
+                {
+                    self.reindex(function (err, result)
+                    {
+                        return callback(err, self);
+                    });
+                }
+                else
+                {
+                    return callback(err, self);
+                }
             }, true, uriOfUserDeletingTheFolder);
         }
     }
@@ -1443,13 +1446,23 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
                         {
                             if (isNull(err))
                             {
-                                self.unlinkFromParent(function (err, result)
+                                self.unindex(function (err, result)
                                 {
                                     if (isNull(err))
                                     {
-                                        return callback(null, self);
+                                        self.unlinkFromParent(function (err, result)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                return callback(null, self);
+                                            }
+                                            return callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
+                                        });
                                     }
-                                    return callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
+                                    else
+                                    {
+                                        return callback(err, "Error clearing descriptors for deleting folder " + self.uri + ". Error reported : " + result);
+                                    }
                                 });
                             }
                             else
@@ -1494,19 +1507,18 @@ Folder.prototype.undelete = function (callback, uriOfUserUnDeletingTheFolder, no
 
     if (notRecursive)
     {
-        self.updateDescriptors(
-            [
-                new Descriptor({
-                    prefixedForm: "ddr:deleted",
-                    value: null
-                })
-            ]
-        );
-
-        self.save(function (err, result)
+        if (self.ddr.deleted === true)
         {
-            return callback(err, result);
-        }, true, uriOfUserUnDeletingTheFolder);
+            delete self.ddr.deleted;
+            self.save(function (err, result)
+            {
+                return callback(err, result);
+            }, true, uriOfUserUnDeletingTheFolder);
+        }
+        else
+        {
+            return callback(null, self);
+        }
     }
     else
     {
@@ -1551,11 +1563,24 @@ Folder.prototype.save = function (callback)
             {
                 if (isNull(err))
                 {
-                    return callback(null, self);
+                    self.reindex(function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            return callback(err, self);
+                        }
+
+                        const msg = "Error reindexing folder " + self.uri + " : " + result;
+                        Logger.log("error", msg);
+                        return callback(1, msg);
+                    });
                 }
-                let errorMessage = "Error saving a folder: " + JSON.stringify(result);
-                Logger.log("error", errorMessage);
-                return callback(1, errorMessage);
+                else
+                {
+                    let errorMessage = "Error saving a folder: " + JSON.stringify(result);
+                    Logger.log("error", errorMessage);
+                    return callback(1, errorMessage);
+                }
             });
         }
         else
@@ -1592,6 +1617,151 @@ Folder.deleteOnLocalFileSystem = function (absPath, callback)
             });
         }
     });
+};
+
+Folder.prototype.forAllChildren = function (
+    resourcePageCallback,
+    checkFunction,
+    finalCallback,
+    customGraphUri,
+    descriptorTypesToRemove,
+    descriptorTypesToExemptFromRemoval,
+    includeArchivedResources,
+)
+{
+    const self = this;
+
+    const dummyReq = {
+        query: {
+            currentPage: 0,
+            pageSize: 10000
+        }
+    };
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const queryArguments = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: graphUri
+        },
+        {
+            type: Elements.types.resourceNoEscape,
+            value: self.uri
+        }
+    ];
+
+    let query =
+        "SELECT DISTINCT ?uri \n" +
+        "FROM [0]\n" +
+        "WHERE \n" +
+        "{ \n";
+
+    /*
+    if(getAllDescendentsAndNotJustChildren)
+    {
+        query += "   [1] nie:hasLogicalPart+ ?uri \n"
+    }
+    else
+    {
+        query += "   [1] nie:hasLogicalPart ?uri\n"
+    }
+    */
+
+    query += "   [1] nie:hasLogicalPart+ ?uri\n";
+
+    if (isNull(includeArchivedResources) || !includeArchivedResources)
+    {
+        query = query + "   FILTER NOT EXISTS { ?uri rdf:type ddr:ArchivedResource }";
+    }
+
+    query = query + "} \n";
+
+    query = DbConnection.paginateQuery(
+        dummyReq,
+        query
+    );
+
+    let resultsSize;
+    async.until(
+        function ()
+        {
+            if (!isNull(checkFunction))
+            {
+                if (!checkFunction())
+                {
+                    return false;
+                }
+                // check function failed, stop querying!
+                finalCallback(1, "Validation condition not met when fetching child resources with pagination. Aborting paginated querying...");
+                return true;
+            }
+
+            if (!isNull(resultsSize))
+            {
+                if (resultsSize > 0)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return true;
+        },
+        function (callback)
+        {
+            db.connection.executeViaJDBC(
+                query,
+                queryArguments,
+                function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        dummyReq.query.currentPage++;
+
+                        results = _.without(results, function(result){
+                            return isNull(result);
+                        });
+
+                        async.mapSeries(results,
+                            function (result, callback)
+                            {
+                                InformationElement.findByUri(result.uri, function (err, completeResource)
+                                {
+                                    if(!isNull(completeResource))
+                                    {
+                                        if (!isNull(descriptorTypesToRemove) && descriptorTypesToRemove instanceof Array)
+                                        {
+                                            completeResource.clearDescriptors(descriptorTypesToExemptFromRemoval, descriptorTypesToRemove);
+                                        }
+
+                                        callback(err, completeResource);
+                                    }
+                                    else
+                                    {
+                                        callback(null, completeResource);
+                                    }
+                                });
+                            },
+                            function (err, results)
+                            {
+                                resultsSize = results.length;
+                                return resourcePageCallback(err, results);
+                            });
+                    }
+                    else
+                    {
+                        return callback(1, "Unable to fetch all child resources from the graph, on page " + dummyReq.query.currentPage);
+                    }
+                }
+            );
+        },
+        function (err, results)
+        {
+            finalCallback(err, "All children of resource " + self.uri + " retrieved via pagination query.");
+        }
+    );
 };
 
 Folder = Class.extend(Folder, InformationElement, "nfo:Folder");

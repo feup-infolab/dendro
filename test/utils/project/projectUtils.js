@@ -81,11 +81,10 @@ module.exports.listAllProjects = function (jsonOnly, agent, cb)
 
 module.exports.getNewProjectPage = function (jsonOnly, agent, cb)
 {
-    const path = "/projects/new";
     if (jsonOnly)
     {
         agent
-            .get(path)
+            .get("/projects/new")
             .set("Accept", "application/json")
             .end(function (err, res)
             {
@@ -95,7 +94,7 @@ module.exports.getNewProjectPage = function (jsonOnly, agent, cb)
     else
     {
         agent
-            .get(path)
+            .get("/projects/new")
             .end(function (err, res)
             {
                 cb(err, res);

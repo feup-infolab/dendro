@@ -75,20 +75,26 @@ module.exports.metadataToText = function (metadata)
     const tempText = self.metadataToTextRec(metadata, level, namespaces, comments);
 
     let namespacesText = "";
-    for (var prefix in namespaces)
+    for (let prefix in namespaces)
     {
-        namespacesText += prefix + ":" + namespaces[prefix] + "\n";
+        if (namespaces.hasOwnProperty(prefix))
+        {
+            namespacesText += prefix + ":" + namespaces[prefix] + "\n";
+        }
     }
 
     let commentsText = "";
-    for (var prefix in comments)
+    for (let prefix in comments)
     {
-        commentsText += prefix + ":" + "\n";
-        for (let shortName in comments[prefix])
+        if (comments.hasOwnProperty(prefix))
         {
-            if (comments[prefix].hasOwnProperty(shortName))
+            commentsText += prefix + ":" + "\n";
+            for (let shortName in comments[prefix])
             {
-                commentsText += " " + comments[prefix][shortName].label + "(" + shortName + ")" + ": " + comments[prefix][shortName].comment + "\n";
+                if (comments[prefix].hasOwnProperty(shortName))
+                {
+                    commentsText += " " + comments[prefix][shortName].label + "(" + shortName + ")" + ": " + comments[prefix][shortName].comment + "\n";
+                }
             }
         }
     }

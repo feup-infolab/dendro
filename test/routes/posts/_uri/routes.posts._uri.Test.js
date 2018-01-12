@@ -271,7 +271,8 @@ describe("Get a specific post information tests", function ()
                         res.body.length.should.equal(5);
                         socialDendroUtils.getPostUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
                         {
-                            res.statusCode.should.equal(200);// index 0 tem de ser o post com o really deleted folder
+                            // index 0 tem de ser o post com o really deleted folder
+                            res.statusCode.should.equal(200);
                             expect(res.body.rdf.type).to.include("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost");
                             res.body.dcterms.title.should.equal(demouser1.username + " deleted folder " + folderName);
                             res.body.ddr.deleted.should.equal(true);
