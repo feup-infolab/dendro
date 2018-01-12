@@ -1230,8 +1230,6 @@ exports.administer = function (req, res)
                                 const userUriRegexp = Resource.getResourceRegex("user");
                                 const userUsernameRegexp = new RegExp(/^[a-zA-Z0-9_]+$/);
 
-                                let contributorFetcher;
-
                                 const getUser = function (identifier, callback)
                                 {
                                     if (!isNull(identifier) && userUriRegexp.test(identifier))
@@ -2280,21 +2278,11 @@ exports.storage = function (req, res)
                 {
                     if (!err)
                     {
-                        res.status(200).json({
-                            result: "ok",
-                            title: "Success",
-                            message: "Storage configuration updated successfully"
-                        });
+                        cb(null, project);
                     }
                     else
                     {
-                        const msg = "Error updating project after changing storage configuration! " + JSON.stringify(result);
-                        Logger.log("error", msg);
-                        res.status(500).json({
-                            result: "error",
-                            title: "Error",
-                            message: msg
-                        });
+                        cb(err, project);
                     }
                 });
             }
@@ -2366,17 +2354,33 @@ exports.storage = function (req, res)
                                     });
                                 }
 
-                                updateProjectStorageConfig(project, newStorageConfig, function (err, result)
-                                {
-                                    callback(err, result);
+                                newStorageConfig.save(function(err, result){
+                                    if(isNull(err))
+                                    {
+                                        updateProjectStorageConfig(project, newStorageConfig, function (err, result)
+                                        {
+                                            callback(err, result);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        callback(err, result);
+                                    }
                                 });
                             }
                             else
                             {
                                 if (storageType === "local")
                                 {
+                                    let newStorageConfig = new StorageConfig({
+                                        ddr: {
+                                            hasStorageType: "local",
+                                            handlesStorageForProject: project.uri
+                                        }
+                                    });
+
                                     project.ddr.hasStorageConfig = currentConfigOfTypeInProject.uri;
-                                    updateProjectStorageConfig(project, function (err, result)
+                                    updateProjectStorageConfig(project, newStorageConfig, function (err, result)
                                     {
                                         if (!err)
                                         {
@@ -2465,7 +2469,7 @@ exports.storage = function (req, res)
                             }
                             else
                             {
-                                const msg = "Unable to retrieve storage configuration of project" + project.uri;
+                                const msg = "Unable to retrieve storage configuration of project " + project.uri;
                                 Logger.log("warn", msg);
                                 callback(404, msg);
                             }
@@ -2520,20 +2524,25 @@ exports.storage = function (req, res)
     {
         if (!isNull(req.body.storageConfig))
         {
-            updateStorage(function (err, newStorageConfig)
+            updateStorage(function (err, updatedProject)
             {
-                if (isNull(err))
+                if (!err)
                 {
-
+                    res.status(200).json({
+                        result: "ok",
+                        title: "Success",
+                        message: "Storage configuration updated successfully"
+                    });
                 }
                 else
                 {
-                    const msg = "Error retrieving storage configuration! " + JSON.stringify(result);
+                    const msg = "Error updating project after changing storage configuration! " + JSON.stringify(updatedProject);
                     Logger.log("error", msg);
                     res.status(500).json({
-                        result: "ok",
+                        result: "error",
                         title: "Error",
-                        message: msg
+                        message: msg,
+                        error: updatedProject
                     });
                 }
             });
