@@ -14,7 +14,7 @@ angular.module("dendroApp.controllers")
             projectsService
         )
         {
-            $scope.availableStorages = ['local', 'b2drop'];
+            $scope.availableStorages = ["local", "b2drop"];
 
             $scope.new_project = {
                 privacy: "private",

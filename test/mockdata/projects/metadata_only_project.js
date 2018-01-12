@@ -16,6 +16,9 @@ const projectData = {
     coverage: "Porto",
     handle: metadataProjectHandle,
     privacy: "metadata_only",
+    storageConfig : {
+        hasStorageType: "local"
+    },
     uri: "http://" + Config.host + "/" + metadataProjectHandle,
     backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/metadataonlyprojectcreatedbydemouser1.zip")
 };

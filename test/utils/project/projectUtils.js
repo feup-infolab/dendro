@@ -17,7 +17,7 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const binaryParser = function (res, cb)
+module.exports.binaryParser = function (res, cb)
 {
     res.setEncoding("binary");
     res.data = "";
@@ -31,7 +31,7 @@ const binaryParser = function (res, cb)
     });
 };
 
-const listAllMyProjects = function (jsonOnly, agent, cb)
+module.exports.listAllMyProjects = function (jsonOnly, agent, cb)
 {
     const path = "/projects/my";
     if (jsonOnly)
@@ -55,7 +55,7 @@ const listAllMyProjects = function (jsonOnly, agent, cb)
     }
 };
 
-const listAllProjects = function (jsonOnly, agent, cb)
+module.exports.listAllProjects = function (jsonOnly, agent, cb)
 {
     const path = "/projects";
     if (jsonOnly)
@@ -79,7 +79,7 @@ const listAllProjects = function (jsonOnly, agent, cb)
     }
 };
 
-const getNewProjectPage = function (jsonOnly, agent, cb)
+module.exports.getNewProjectPage = function (jsonOnly, agent, cb)
 {
     const path = "/projects/new";
     if (jsonOnly)
@@ -103,7 +103,7 @@ const getNewProjectPage = function (jsonOnly, agent, cb)
     }
 };
 
-const createNewProject = function (jsonOnly, agent, projectData, cb)
+module.exports.createNewProject = function (jsonOnly, agent, projectData, cb)
 {
     if (jsonOnly)
     {
@@ -128,7 +128,7 @@ const createNewProject = function (jsonOnly, agent, projectData, cb)
     }
 };
 
-const viewProject = function (jsonOnly, agent, projectHandle, cb)
+module.exports.viewProject = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -153,7 +153,7 @@ const viewProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb)
+module.exports.updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb)
 {
     if (jsonOnly)
     {
@@ -178,7 +178,7 @@ const updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metad
     }
 };
 
-const updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb)
+module.exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb)
 {
     // / project/:handle/data/folderpath?update_metadata
     const path = "/project/" + projectHandle + "/data/" + folderPath + "?update_metadata";
@@ -207,7 +207,7 @@ const updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, fol
     }
 };
 
-const getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb)
+module.exports.getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -231,7 +231,7 @@ const getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHa
     }
 };
 
-const getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb)
+module.exports.getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // recommendation_ontologies
     const path = "/project/" + projectHandle + "?recommendation_ontologies";
@@ -257,7 +257,7 @@ const getRecommendationOntologiesForProject = function (jsonOnly, agent, project
     }
 };
 
-const getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
+module.exports.getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -280,7 +280,7 @@ const getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb)
+module.exports.getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb)
 {
     // http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
     const path = "/project/" + projectHandle + "/data/" + folderPath + "?metadata";
@@ -307,7 +307,7 @@ const getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath
     }
 };
 
-const getProjectMetadata = function (jsonOnly, agent, projectHandle, cb)
+module.exports.getProjectMetadata = function (jsonOnly, agent, projectHandle, cb)
 {
     const path = "/project/" + projectHandle + "?metadata";
     if (jsonOnly)
@@ -334,7 +334,7 @@ const getProjectMetadata = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb)
+module.exports.getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb)
 {
     const path = "/project/" + projectHandle + "?metadata&deep";
     if (jsonOnly)
@@ -361,7 +361,7 @@ const getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb)
+module.exports.removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb)
 {
     getResourceMetadata(jsonOnly, agent, projectHandle, folderPath, function (err, res)
     {
@@ -377,7 +377,7 @@ const removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, fol
     });
 };
 
-const getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
+module.exports.getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
 {
     // project/:handle?version
     const path = "/project/" + projectHandle;
@@ -406,7 +406,7 @@ const getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
     }
 };
 
-const importProjectHTMLPage = function (jsonOnly, agent, cb)
+module.exports.importProjectHTMLPage = function (jsonOnly, agent, cb)
 {
     const path = "/projects/import";
     if (jsonOnly)
@@ -431,7 +431,7 @@ const importProjectHTMLPage = function (jsonOnly, agent, cb)
     }
 };
 
-const importProject = function (jsonOnly, agent, project, cb)
+module.exports.importProject = function (jsonOnly, agent, project, cb)
 {
     console.log("Importing " + project.handle + " from zip file " + project.backup_path);
     // /projects/import
@@ -464,7 +464,7 @@ const importProject = function (jsonOnly, agent, project, cb)
     }
 };
 
-const getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb)
+module.exports.getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/request_access
     const path = "/project/" + projectHandle + "?request_access";
@@ -491,7 +491,7 @@ const getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb
     }
 };
 
-const requestAccessToProject = function (jsonOnly, agent, projectHandle, cb)
+module.exports.requestAccessToProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/request_access
     const path = "/project/" + projectHandle + "?request_access";
@@ -518,7 +518,7 @@ const requestAccessToProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const deleteProject = function (jsonOnly, agent, projectHandle, cb)
+module.exports.deleteProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/delete
     const path = "/project/" + projectHandle + "?delete";
@@ -545,7 +545,7 @@ const deleteProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const undeleteProject = function (jsonOnly, agent, projectHandle, cb)
+module.exports.undeleteProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/undelete
     const path = "/project/" + projectHandle + "?undelete";
@@ -572,7 +572,7 @@ const undeleteProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb)
+module.exports.createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb)
 {
     // /project/:handle?mkdir
     const path = "/project/" + projectHandle;
@@ -602,7 +602,7 @@ const createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, fold
     }
 };
 
-const getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb)
+module.exports.getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb)
 {
     // / project/:handle?recent_changes
     const path = "/project/" + projectHandle + "?recent_changes";
@@ -630,7 +630,7 @@ const getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const administer = function (agent, modify, projectData, projectHandle, cb)
+module.exports.administer = function (agent, modify, projectData, projectHandle, cb)
 {
     if (modify)
     {
@@ -653,7 +653,7 @@ const administer = function (agent, modify, projectData, projectHandle, cb)
     }
 };
 
-const bagit = function (agent, projectHandle, cb)
+module.exports.bagit = function (agent, projectHandle, cb)
 {
     agent
         .get("/project/" + projectHandle + "?bagit")
@@ -665,7 +665,7 @@ const bagit = function (agent, projectHandle, cb)
         });
 };
 
-const getProjectContributors = function (agent, projectHandle, cb)
+module.exports.getProjectContributors = function (agent, projectHandle, cb)
 {
     // project/proj1?get_contributors
     const path = "/project/" + projectHandle + "?get_contributors";
@@ -677,7 +677,7 @@ const getProjectContributors = function (agent, projectHandle, cb)
         });
 };
 
-const getContentsOfFile = function (zipPath, callback)
+module.exports.getContentsOfFile = function (zipPath, callback)
 {
     File.unzip(zipPath, function (err, pathOfUnzippedContents)
     {
@@ -704,13 +704,13 @@ const getContentsOfFile = function (zipPath, callback)
     });
 };
 
-const getProjectBagitMetadataFromBackup = function (pathOfUnzippedContents)
+module.exports.getProjectBagitMetadataFromBackup = function (pathOfUnzippedContents)
 {
     const metadataFilePath = path.join(pathOfUnzippedContents, "bag-info.txt");
     return fs.readFileSync(metadataFilePath, "utf8");
 };
 
-const getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectHandle)
+module.exports.getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectHandle)
 {
     const metadataFilePath = path.join(pathOfUnzippedContents, "data", projectHandle, "metadata.json");
     metadataContents = fs.readFileSync(metadataFilePath, "utf8");
@@ -840,7 +840,7 @@ const getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectH
     return metadataContents;
 };
 
-const metadataMatchesBackup = function (project, bodyBuffer, callback)
+module.exports.metadataMatchesBackup = function (project, bodyBuffer, callback)
 {
     const parseBagItMetadata = function (result)
     {
@@ -944,7 +944,7 @@ const metadataMatchesBackup = function (project, bodyBuffer, callback)
         });
 };
 
-const contentsMatchBackup = function (project, bodyBuffer, callback)
+module.exports.contentsMatchBackup = function (project, bodyBuffer, callback)
 {
     const fs = require("fs");
     const tmp = require("tmp");
@@ -991,7 +991,7 @@ const contentsMatchBackup = function (project, bodyBuffer, callback)
         });
 };
 
-const countProjectTriples = function (projectUri, callback)
+module.exports.countProjectTriples = function (projectUri, callback)
 {
     const self = this;
 
@@ -1035,7 +1035,7 @@ const countProjectTriples = function (projectUri, callback)
         });
 };
 
-const countProjectFilesInGridFS = function (projectUri, callback, customBucket)
+module.exports.countProjectFilesInGridFS = function (projectUri, callback, customBucket)
 {
     const self = this;
 
@@ -1084,7 +1084,7 @@ const countProjectFilesInGridFS = function (projectUri, callback, customBucket)
     });
 };
 
-const getProjectUriFromHandle = function (agent, projectHandle, callback)
+module.exports.getProjectUriFromHandle = function (agent, projectHandle, callback)
 {
     listAllMyProjects(true, agent, function (err, res)
     {
@@ -1098,7 +1098,7 @@ const getProjectUriFromHandle = function (agent, projectHandle, callback)
     });
 };
 
-const projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
+module.exports.projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
 {
     if (modify && storageConfig)
     {
@@ -1119,39 +1119,4 @@ const projectStorage = function (modify, agent, projectHandle, callback, storage
                 callback(err, res);
             });
     }
-};
-module.exports = {
-    updateMetadataCorrectRoute: updateMetadataCorrectRoute,
-    listAllMyProjects: listAllMyProjects,
-    listAllProjects: listAllProjects,
-    getNewProjectPage: getNewProjectPage,
-    createNewProject: createNewProject,
-    viewProject: viewProject,
-    updateMetadataWrongRoute: updateMetadataWrongRoute,
-    getMetadataRecomendationsForProject: getMetadataRecomendationsForProject,
-    getProjectRootContent: getProjectRootContent,
-    getResourceMetadata: getResourceMetadata,
-    removeDescriptorFromFolder: removeDescriptorFromFolder,
-    getProjectRecentChanges: getProjectRecentChanges,
-    getProjectVersion: getProjectVersion,
-    importProjectHTMLPage: importProjectHTMLPage,
-    importProject: importProject,
-    getRequestProjectAccessPage: getRequestProjectAccessPage,
-    requestAccessToProject: requestAccessToProject,
-    deleteProject: deleteProject,
-    undeleteProject: undeleteProject,
-    createFolderInProjectRoot: createFolderInProjectRoot,
-    administer: administer,
-    bagit: bagit,
-    getProjectContributors: getProjectContributors,
-    getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
-    getProjectMetadata: getProjectMetadata,
-    getProjectBagitMetadata: getProjectBagitMetadataFromBackup,
-    getProjectMetadataDeep: getProjectMetadataDeep,
-    contentsMatchBackup: contentsMatchBackup,
-    metadataMatchesBackup: metadataMatchesBackup,
-    countProjectTriples: countProjectTriples,
-    countProjectFilesInGridFS: countProjectFilesInGridFS,
-    getProjectUriFromHandle: getProjectUriFromHandle,
-    projectStorage: projectStorage
 };
