@@ -897,7 +897,6 @@ exports.new = function (req, res)
                     }
                     else
                     {
-                        let storageConf;
 
                         try{
                             // this condition is to prevent user-provided values overriding

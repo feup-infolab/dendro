@@ -12,7 +12,8 @@ const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Cl
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-
+const StorageB2Drop = require(Pathfinder.absPathInSrcFolder("/kb/storage/storageB2Drop.js"));
+const StorageGridFs = require(Pathfinder.absPathInSrcFolder("kb/storage/storageGridFs.js")).StorageGridFs;
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
@@ -367,11 +368,21 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
                 {
                     if (isNull(err))
                     {
-                        gfs.connection.delete(self.uri, function (err, result) // TODO storage
+                        self.getProjectStorage(function (err, result)
                         {
-                            self.deleteThumbnails();
-                            self.deleteDatastoreData();
-                            return callback(err, result);
+                            if (isNull(err))
+                            {
+                                result.delete(self.uri, function (err, result)
+                                {
+                                    self.deleteThumbnails();
+                                    self.deleteDatastoreData();
+                                    return callback(err, result);
+                                });
+                            }
+                            else
+                            {
+                                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
+                            }
                         });
                     }
                     else
@@ -434,13 +445,24 @@ File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetad
         const tempFilePath = destinationFolderAbsPath + path.sep + self.nie.title;
 
         const writeStream = fs.createWriteStream(tempFilePath);
-        gfs.connection.get(self.uri, writeStream, function (err, result) // TODO storage
+
+        self.getProjectStorage(function (err, result)
         {
             if (isNull(err))
             {
-                return callback(null, tempFilePath);
+                result.get(self.uri, writeStream, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        return callback(null, tempFilePath);
+                    }
+                    return callback(1, result);
+                });
             }
-            return callback(1, result);
+            else
+            {
+                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
+            }
         });
     });
 };
@@ -451,13 +473,33 @@ File.prototype.writeFileToStream = function (stream, callback)
 
     let writeCallback = function (callback)
     {
-        gfs.connection.get(self.uri, stream, function (err, result) // TODO storage?
+        self.getProjectStorage(function (err, result)
         {
             if (isNull(err))
             {
-                return callback(null);
+                result.open(function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        result.get(self.uri, stream, function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                return callback(null);
+                            }
+                            return callback(1, result);
+                        });
+                    }
+                    else
+                    {
+                        return callback(1, result);
+                    }
+                });
             }
-            return callback(1, result);
+            else
+            {
+                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
+            }
         });
     };
 
@@ -499,13 +541,34 @@ File.prototype.writeToTempFile = function (callback)
 
                 const fs = require("fs");
                 const writeStream = fs.createWriteStream(tempFilePath);
-                gfs.connection.get(self.uri, writeStream, function (err, result) // TODO storage ?
+
+                self.getProjectStorage(function (err, result)
                 {
                     if (isNull(err))
                     {
-                        return callback(null, tempFilePath);
+                        result.open(function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                result.get(self.uri, writeStream, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(null, tempFilePath);
+                                    }
+                                    return callback(1, result);
+                                });
+                            }
+                            else
+                            {
+                                return callback(1, result);
+                            }
+                        });
                     }
-                    return callback(1, result);
+                    else
+                    {
+                        return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
+                    }
                 });
             };
 
@@ -581,7 +644,6 @@ File.prototype.getThumbnail = function (size, callback)
 File.prototype.loadFromLocalFile = function (localFile, callback)
 {
     const self = this;
-    const tmp = require("tmp");
     const fs = require("fs");
 
     self.getOwnerProject(function (err, ownerProject)
@@ -590,24 +652,43 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
         if (isNull && ownerProject instanceof Project)
         {
             /** SAVE FILE**/
-            gfs.connection.put(
-                self.uri,
-                fs.createReadStream(localFile),
-                function (err, result)
+            self.getProjectStorage(function (err, result)
+            {
+                if (isNull(err))
                 {
-                    if (isNull(err))
+                    result.open(function (err, result)
                     {
-                        return callback(null, self);
-                    }
+                        if (isNull(err))
+                        {
+                            result.put(self.uri,
+                                fs.createReadStream(localFile),
+                                function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(null, self);
+                                    }
 
-                    Logger.log("Error [" + err + "] saving file in GridFS :" + result);
-                    return callback(err, result);
-                },
-                {
-                    project: ownerProject,
-                    type: "nie:File"
+                                    Logger.log("Error [" + err + "] saving file in GridFS :" + result);
+                                    return callback(err, result);
+                                },
+                                {
+                                    project: ownerProject,
+                                    type: "nie:File"
+                                }
+                            );
+                        }
+                        else
+                        {
+                            return callback(true, result);
+                        }
+                    });
                 }
-            );
+                else
+                {
+                    return callback(true, result);
+                }
+            });
         }
         else
         {
@@ -1261,6 +1342,49 @@ File.prototype.generateThumbnails = function (callback)
     {
         callback(null);
     }
+};
+
+File.prototype.getProjectStorage = function (callback)
+{
+    const self = this;
+
+    self.getOwnerProject(function (err, ownerProject)
+    {
+        if (isNull(err))
+        {
+            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+            if (isNull && ownerProject instanceof Project)
+            {
+                const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
+
+                StorageConfig.findByUri(ownerProject.ddr.hasStorageConfig, function (err, config)
+                {
+                    if (isNull(err))
+                    {
+                        if (config.ddr.hasStorageType === "local")
+                        {
+                            const storageLocal = new StorageGridFs(Config.defaultStorageConfig.username, Config.defaultStorageConfig.password,
+                                Config.defaultStorageConfig.host, Config.defaultStorageConfig.port, Config.defaultStorageConfig.collectionName);
+                            return callback(null, storageLocal);
+                        }
+                        else if (config.ddr.hasStorageType === "b2drop")
+                        {
+                            const storageB2drop = new StorageB2Drop(config.ddr.username, config.ddr.password);
+                            return callback(null, storageB2drop);
+                        }
+
+                        return callback(true, "unknown storage type");
+                    }
+
+                    return callback(true, "project file with no storageConfig");
+                });
+            }
+        }
+        else
+        {
+            return callback(true, "file with no project");
+        }
+    });
 };
 
 // File.prototype.moveToFolder = function(newParentFolder, callback)
