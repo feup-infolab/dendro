@@ -13,6 +13,9 @@ const projectData = {
     coverage: "Porto",
     handle: publicProjectHandle,
     privacy: "public",
+    storageConfig : {
+        hasStorageType: "local"
+    },
     backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/publicprojecthtmlcreatedbydemouser1.zip")
 };
 

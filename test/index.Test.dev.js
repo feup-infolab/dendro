@@ -16,6 +16,12 @@ global.tests = {};
 
 // uncomment the first time you run the tests after installing dendro
 // require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
+
 require(Pathfinder.absPathInTestsFolder("/routes/projects/storageConfig.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/admin/reindex/routes.admin.reindex.Test.js"));
+

@@ -8,19 +8,70 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const db = Config.getDBByID();
 
-function StorageConfig (object)
+let StorageConfig = function (object)
 {
     const self = this;
-    self.addURIAndRDFType(object, "storageConfig", StorageConfig);
-    StorageConfig.baseConstructor.call(this, object);
 
-    self.copyOrInitDescriptors(object);
+    const initObject = function()
+    {
+        self.addURIAndRDFType(object, "storageConfig", StorageConfig);
+        StorageConfig.baseConstructor.call(self, object);
 
-    const now = new Date();
+        self.copyOrInitDescriptors(object);
 
-    self.ddr.created = now.toISOString();
+        if(isNull(self.ddr.created))
+        {
+            const now = new Date();
+            self.ddr.created = now.toISOString();
+        }
 
-    return self;
+        return self;
+    };
+
+    if(!isNull(object.ddr) && object.ddr.hasStorageType === "b2drop")
+    {
+        if(!object.ddr.hasPassword || !object.ddr.hasUsername)
+        {
+            throw new Error("Invalid b2drop storage config when creating a storage configuration. Missing ddr.hasPassword or ddr.hasUsername in parameter object.");
+        }
+        else
+        {
+            initObject();
+        }
+    }
+    else if(!isNull(object.ddr) && object.ddr.hasStorageType === "local")
+    {
+        initObject();
+
+        if(isNull(self.ddr.hasUsername))
+        {
+            self.ddr.hasUsername = Config.defaultStorageConfig.username;
+        }
+
+        if(isNull(self.ddr.hasPassword))
+        {
+            self.ddr.hasPassword = Config.defaultStorageConfig.password;
+        }
+
+        if(isNull(self.ddr.hasHost))
+        {
+            self.ddr.hasHost = Config.defaultStorageConfig.host;
+        }
+
+        if(isNull(self.ddr.hasPort))
+        {
+            self.ddr.hasPort = Config.defaultStorageConfig.port;
+        }
+
+        if(isNull(self.ddr.hasPort))
+        {
+            self.ddr.hasCollectionName = Config.defaultStorageConfig.collectionName;
+        }
+    }
+    else
+    {
+        throw new Error("Invalid storage type for creating a storage configuration: " + object.ddr.hasStorageType);
+    }
 }
 
 StorageConfig.findByProject = function (projectUri, callback, customGraphUri)
