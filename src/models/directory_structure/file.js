@@ -10,7 +10,6 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const StorageB2Drop = require(Pathfinder.absPathInSrcFolder("/kb/storage/storageB2Drop.js"));
 const StorageGridFs = require(Pathfinder.absPathInSrcFolder("kb/storage/storageGridFs.js")).StorageGridFs;
@@ -837,7 +836,9 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
                     hdr.push(o.header[C - r.s.c]);
                     break;
                 default:
-                    if (val === undefined) continue;
+                    if (isNull(val)){
+                        continue;
+                    }
                     hdr.push(XLSX.utils.format_cell(val));
                 }
             }
@@ -1016,14 +1017,32 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
                 if (!err)
                 {
                     self.ddr.hasDataContent = true;
-                    self.save(function (err, result)
-                    {
-                        callback(err, result);
+                    markDataOK(function(err, result){
+                        if(isNull(err))
+                        {
+                            self.save(function (err, result)
+                            {
+                                callback(err, result);
+                            });
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
                     });
                 }
                 else
                 {
-                    callback(err, results);
+                    markErrorProcessingData(err, function(err, result){
+                        if(isNull(err))
+                        {
+                            callback(err, result);
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
+                    });
                 }
             });
         });
