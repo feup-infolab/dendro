@@ -992,7 +992,7 @@ exports.new = function (req, res)
                             }
                             else
                             {
-                                req.flash("error", "Error creating storageConfig " + storageConfig.ddr.host);
+                                req.flash("error", "Error creating storageConfig " + storageConf.ddr.host);
                                 throw err;
                             }
                         });
@@ -1164,15 +1164,15 @@ exports.administer = function (req, res)
                     {
                         const updateStorageLimit = function (callback)
                         {
-                            if (!isNull(req.body.storage_limit))
+                            if (!isNull(req.body.storageConfig_limit))
                             {
                                 try
                                 {
-                                    req.body.storage_limit = parseInt(req.body.storage_limit);
+                                    req.body.storageConfig_limit = parseInt(req.body.storageConfig_limit);
                                 }
                                 catch (e)
                                 {
-                                    return callback(true, "Invalid storage limit value " + req.body.storage_limit + " specified. It must be an integer number. ");
+                                    return callback(true, "Invalid storage limit value " + req.body.storageConfig_limit + " specified. It must be an integer number. ");
                                 }
 
                                 User.findByUri(req.user.uri, function (err, user)
@@ -1185,11 +1185,11 @@ exports.administer = function (req, res)
                                             // otherwise the user is limited to the maximum project size in the development_configs.json file
                                             if (isAdmin)
                                             {
-                                                project.ddr.hasStorageLimit = req.body.storage_limit;
+                                                project.ddr.hasStorageLimit = req.body.storageConfig_limit;
                                             }
                                             else
                                             {
-                                                project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize);
+                                                project.ddr.hasStorageLimit = Math.min(req.body.storageConfig_limit, Config.maxProjectSize);
                                             }
 
                                             return callback(null, project);

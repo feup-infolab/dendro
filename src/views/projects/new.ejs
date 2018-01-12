@@ -194,23 +194,24 @@
                 <div class="panel-body">
                     <div class="control-group has-feedback">
                         <label for="storage_types_dropdown_list" class="control-label">Storage Type</label>
-                        <select class="form-control" id="storage_types_dropdown_list" ng-model="project.storage.hasStorageType" ng-init="project.storage.hasStorageType = 'local'">
-                            <option ng-repeat="x in availableStorages" value="{{x}}">{{x}}</option>
+                        {{new_project.storage.hasStorageType}}
+                        <select class="form-control" id="storage_types_dropdown_list" ng-model="new_project.storageConfig.hasStorageType">
+                            <option ng-repeat="storage in availableStorages" value="{{storage}}">{{storage}}</option>
                         </select>
                         <p class="help-block">The location where data its stored </p>
                     </div>
 
-                    <div ng-if="project.storage.hasStorageType=='b2drop'">
+                    <div ng-if="new_project.storageConfig.hasStorageType=='b2drop'">
                         <div class="control-group">
                             <label for="userB2drop" class="control-label">B2Drop Username</label>
-                            <input type="text" class="form-control" id="userB2drop" placeholder="Username" ng-model="project.storage.username" name="userB2drop" >
+                            <input type="text" class="form-control" id="userB2drop" placeholder="Username" ng-model="new_project.storageConfig.hasUsername" name="userB2drop" >
                         </div>
 
                         <br>
 
                         <div class="control-group">
                             <label for="passB2drop" class="control-label">B2Drop Password</label>
-                            <input type="password" class="form-control" id="passB2drop"  placeholder="Password" ng-model="project.storage.password" name="passB2drop">
+                            <input type="password" class="form-control" id="passB2drop"  placeholder="Password" ng-model="new_project.storageConfig.hasPassword" name="passB2drop">
                         </div>
                     </div>
                 </div>
