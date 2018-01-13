@@ -1,4 +1,5 @@
 const slug = require("slug");
+const async = require("async");
 
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -22,13 +23,13 @@ class StorageB2Drop extends Storage
         const self = this;
         self.username = username;
         self.password = password;
-        self.prefix = StorageB2Drop.getRootFolderName() + "/" + slug(Config.baseUri);
+        self.prefix = StorageB2Drop.getRootFolderName() + "/" + slug(Config.baseUri, "_");
     }
 
     _getB2DropPath (fileUri)
     {
         const self = this;
-        return self.prefix + "/" + slug(fileUri);
+        return "/" + self.prefix + "/" + slug(fileUri, "_");
     }
 
     open (callback)
@@ -41,8 +42,9 @@ class StorageB2Drop extends Storage
             if (isNull(err))
             {
                 const rootFolderPath = "/" + StorageB2Drop.getRootFolderName();
+                const projectFolderPath = "/" + self.prefix;
 
-                const seeIfRootFolderExists = function (callback)
+                const seeIfFolderExists = function (folderPath, callback)
                 {
                     self.connection.getDirectoryContents(rootFolderPath, function (err, response)
                     {
@@ -68,7 +70,7 @@ class StorageB2Drop extends Storage
                     });
                 };
 
-                const createRootFolder = function (callback)
+                const createRootFolder = function (folderPath, callback)
                 {
                     self.connection.createFolder(rootFolderPath, function (err, response)
                     {
@@ -83,24 +85,26 @@ class StorageB2Drop extends Storage
                     });
                 };
 
-                seeIfRootFolderExists(function (err, exists)
-                {
-                    if (err)
+                async.map([rootFolderPath, projectFolderPath], function(folderPath, callback){
+                    seeIfFolderExists(folderPath, function(err, exists)
                     {
-                        return callback(err, "Failed check if the root folder in B2Share exists");
-                    }
-                    else
-                    {
-                        if (!exists)
+                        if (err)
                         {
-                            createRootFolder(callback);
+                            return callback(err, "Failed check if the folder "+folderPath+" in B2Share exists");
                         }
                         else
                         {
-                            return callback(null);
+                            if (!exists)
+                            {
+                                createRootFolder(folderPath, callback);
+                            }
+                            else
+                            {
+                                return callback(null);
+                            }
                         }
-                    }
-                });
+                    });
+                }, callback);
             }
             else
             {
@@ -120,8 +124,12 @@ class StorageB2Drop extends Storage
     put (fileUri, inputStream, callback)
     {
         const self = this;
-        self.connection.put(self._getB2DropPath(fileUri), inputStream, function(err, result){
-            callback(err, result);
+
+        inputStream.on("open", function () {
+            const targetFilePath = self._getB2DropPath(fileUri);
+            self.connection.put(targetFilePath, inputStream, function(err, result){
+                callback(err, result);
+            });
         });
     }
 
