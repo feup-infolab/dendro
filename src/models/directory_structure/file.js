@@ -472,13 +472,23 @@ File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetad
         {
             if (isNull(err))
             {
-                result.get(self.uri, writeStream, function (err, result)
+                result.open(function (err, result)
                 {
                     if (isNull(err))
                     {
-                        return callback(null, tempFilePath);
+                        result.get(self.uri, writeStream, function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                return callback(null, tempFilePath);
+                            }
+                            return callback(1, result);
+                        });
                     }
-                    return callback(1, result);
+                    else
+                    {
+                        return callback(1, result);
+                    }
                 });
             }
             else

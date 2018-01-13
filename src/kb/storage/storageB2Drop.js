@@ -13,7 +13,7 @@ class StorageB2Drop extends Storage
 {
     static getRootFolderName ()
     {
-        return "dendro_data";
+        return "/dendro_data";
     }
 
     constructor (username, password)
@@ -29,7 +29,7 @@ class StorageB2Drop extends Storage
     _getB2DropPath (fileUri)
     {
         const self = this;
-        return "/" + self.prefix + "/" + slug(fileUri, "_");
+        return "/dendro_data/teste" + "/" + slug(fileUri, "_") + ".dat";
     }
 
     open (callback)
