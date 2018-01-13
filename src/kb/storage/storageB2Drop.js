@@ -29,7 +29,7 @@ class StorageB2Drop extends Storage
     _getB2DropPath (fileUri)
     {
         const self = this;
-        return "/dendro_data/teste" + "/" + slug(fileUri, "_") + ".dat";
+        return self.prefix + "/" + slug(fileUri, "_") + ".dat";
     }
 
     open (callback)
@@ -41,70 +41,9 @@ class StorageB2Drop extends Storage
         {
             if (isNull(err))
             {
-                const rootFolderPath = "/" + StorageB2Drop.getRootFolderName();
-                const projectFolderPath = "/" + self.prefix;
-
-                const seeIfFolderExists = function (folderPath, callback)
-                {
-                    self.connection.getDirectoryContents(rootFolderPath, function (err, response)
-                    {
-                        if (err)
-                        {
-                            if(err.status === 404)
-                            {
-                                return callback(null, false);
-                            }
-                            else
-                            {
-                                return callback(err, response);
-                            }
-                        }
-                        else if (response && response instanceof Array)
-                        {
-                            return callback(null, true);
-                        }
-                        else
-                        {
-                            return callback(1, "Invalid response from server when fetching contents of the B2Drop root folder!");
-                        }
-                    });
-                };
-
-                const createRootFolder = function (folderPath, callback)
-                {
-                    self.connection.createFolder(rootFolderPath, function (err, response)
-                    {
-                        if (err)
-                        {
-                            return callback("Failed to LogIn");
-                        }
-                        if (response && response.statusCode === 200)
-                        {
-                            return callback(null);
-                        }
-                    });
-                };
-
-                async.map([rootFolderPath, projectFolderPath], function(folderPath, callback){
-                    seeIfFolderExists(folderPath, function(err, exists)
-                    {
-                        if (err)
-                        {
-                            return callback(err, "Failed check if the folder "+folderPath+" in B2Share exists");
-                        }
-                        else
-                        {
-                            if (!exists)
-                            {
-                                createRootFolder(folderPath, callback);
-                            }
-                            else
-                            {
-                                return callback(null);
-                            }
-                        }
-                    });
-                }, callback);
+                self.connection.createFolder(self.prefix, function(err, result){
+                    callback(err, result);
+                });
             }
             else
             {
