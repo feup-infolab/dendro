@@ -30,9 +30,9 @@ let StorageConfig = function (object)
 
     if(!isNull(object.ddr) && object.ddr.hasStorageType === "b2drop")
     {
-        if(!object.ddr.hasPassword || !object.ddr.hasUsername)
+        if(!object.ddr.password || !object.ddr.username)
         {
-            throw new Error("Invalid b2drop storage config when creating a storage configuration. Missing ddr.hasPassword or ddr.hasUsername in parameter object.");
+            throw new Error("Invalid b2drop storage config when creating a storage configuration. Missing ddr.password or ddr.username in parameter object.");
         }
         else
         {
@@ -43,14 +43,14 @@ let StorageConfig = function (object)
     {
         initObject();
 
-        if(isNull(self.ddr.hasUsername))
+        if(isNull(self.ddr.username))
         {
-            self.ddr.hasUsername = Config.defaultStorageConfig.username;
+            self.ddr.username = Config.defaultStorageConfig.username;
         }
 
-        if(isNull(self.ddr.hasPassword))
+        if(isNull(self.ddr.password))
         {
-            self.ddr.hasPassword = Config.defaultStorageConfig.password;
+            self.ddr.password = Config.defaultStorageConfig.password;
         }
 
         if(isNull(self.ddr.hasHost))

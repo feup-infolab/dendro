@@ -898,6 +898,7 @@ exports.new = function (req, res)
                     else
                     {
 
+                        let storageConf;
                         try{
                             // this condition is to prevent user-provided values overriding
                             // the local storage authentication credentials
@@ -915,8 +916,8 @@ exports.new = function (req, res)
                                 storageConf = new StorageConfig({
                                     ddr: {
                                         hasStorageType: req.body.storageConfig.hasStorageType,
-                                        hasUsername: req.body.storageConfig.hasUsername,
-                                        hasPassword: req.body.storageConfig.hasPassword
+                                        username: req.body.storageConfig.username,
+                                        password: req.body.storageConfig.password
                                     }
                                 });
                             }
@@ -947,7 +948,7 @@ exports.new = function (req, res)
                             }
                         }
 
-                        storageConf.save(function (err, result)
+                        storageConf.save(function (err, savedConfiguration)
                         {
                             if (isNull(err))
                             {
@@ -963,7 +964,7 @@ exports.new = function (req, res)
                                     ddr: {
                                         handle: req.body.handle,
                                         privacyStatus: req.body.privacy,
-                                        hasStorageConfig: result.uri,
+                                        hasStorageConfig: savedConfiguration.uri,
                                         hasStorageLimit: Config.maxProjectSize
                                     },
                                     schema: {
@@ -2363,8 +2364,8 @@ exports.storage = function (req, res)
                                     newStorageConfig = new StorageConfig({
                                         ddr: {
                                             hasStorageType: "b2drop",
-                                            hasPassword: req.body.storageConfig.ddr.hasPassword,
-                                            hasUsername: req.body.storageConfig.ddr.hasUsername
+                                            password: req.body.storageConfig.ddr.password,
+                                            username: req.body.storageConfig.ddr.username
                                         }
                                     });
                                 }
@@ -2427,8 +2428,8 @@ exports.storage = function (req, res)
                                 }
                                 else if (storageType === "b2drop")
                                 {
-                                    currentConfigOfTypeInProject.ddr.hasPassword = req.body.storageConfig.hasPassword;
-                                    currentConfigOfTypeInProject.ddr.hasUsername = req.body.storageConfig.hasUsername;
+                                    currentConfigOfTypeInProject.ddr.password = req.body.storageConfig.password;
+                                    currentConfigOfTypeInProject.ddr.username = req.body.storageConfig.username;
 
                                     currentConfigOfTypeInProject.save(function (err, result)
                                     {

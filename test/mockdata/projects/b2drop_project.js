@@ -17,8 +17,8 @@ const projectData = {
     privacy: "public",
     storageConfig : {
         hasStorageType: "b2drop",
-        hasUsername: "joaorosilva@gmail.com",
-        hasPassword: "bxf8f-4P8WP-HbCiT-eDX5t-LfGZb"
+        username: "joaorosilva@gmail.com",
+        password: "bxf8f-4P8WP-HbCiT-eDX5t-LfGZb"
     },
     uri: "http://" + Config.host + "/" + b2dropProjectHandle
 };

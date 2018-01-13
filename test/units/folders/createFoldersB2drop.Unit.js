@@ -17,27 +17,20 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjectsB2Drop.Unit.js"));
+const createProjectB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjectB2Drop.Unit.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
 
-const projectsData = createProjectsUnit.projectsData;
+const b2dropProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
+const projectsData = [b2dropProjectData];
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
-
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
 
 module.exports.setup = function (finish)
 {
-    let addContributorsToProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-
-    addContributorsToProjectsUnit.setup(function (err, results)
+    createProjectB2DropUnit.setup(function (err, results)
     {
         if (err)
         {

@@ -12,7 +12,7 @@ const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const StorageB2Drop = require(Pathfinder.absPathInSrcFolder("/kb/storage/storageB2Drop.js"));
+const StorageB2drop = require(Pathfinder.absPathInSrcFolder("/kb/storage/storageB2Drop.js")).StorageB2drop;
 const StorageGridFs = require(Pathfinder.absPathInSrcFolder("kb/storage/storageGridFs.js")).StorageGridFs;
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
@@ -1477,14 +1477,19 @@ File.prototype.getProjectStorage = function (callback)
                     {
                         if (config.ddr.hasStorageType === "local")
                         {
-                            const storageLocal = new StorageGridFs(Config.defaultStorageConfig.username, Config.defaultStorageConfig.password,
-                                Config.defaultStorageConfig.host, Config.defaultStorageConfig.port, Config.defaultStorageConfig.collectionName);
-                            return callback(null, storageLocal);
+                            const newStorageLocal = new StorageGridFs(
+                                Config.defaultStorageConfig.username,
+                                Config.defaultStorageConfig.password,
+                                Config.defaultStorageConfig.host,
+                                Config.defaultStorageConfig.port,
+                                Config.defaultStorageConfig.collectionName
+                            );
+                            return callback(null, newStorageLocal);
                         }
                         else if (config.ddr.hasStorageType === "b2drop")
                         {
-                            const storageB2drop = new StorageB2Drop(config.ddr.username, config.ddr.password);
-                            return callback(null, storageB2drop);
+                            const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
+                            return callback(null, newStorageB2drop);
                         }
 
                         return callback(true, "unknown storage type");

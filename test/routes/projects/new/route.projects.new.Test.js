@@ -260,7 +260,7 @@ describe("New project tests", function ()
         {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
-            projectUtils.createNewProject(true, agent, privateProject, function (err, res)
+            projectUtils.createNewProject(true, agent, b2dropProject, function (err, res)
             {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");

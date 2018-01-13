@@ -16,17 +16,17 @@
     <span ng-show="new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
 </div>
 
-<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasUsername}">
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.username}">
     <label for="dspace_username">Username</label>
-    <input type="text" ng-model="new_repository.ddr.hasUsername" class="form-control" id="dspace_username" placeholder="DSpace username" required>
+    <input type="text" ng-model="new_repository.ddr.username" class="form-control" id="dspace_username" placeholder="DSpace username" required>
     <p class="help-block">The username is the email that you use in the target DSpace repository. </p>
-    <span ng-show="new_repository.ddr.hasUsername" class="glyphicon glyphicon-ok form-control-feedback"></span>
-    <span ng-show="!new_repository.ddr.hasUsername" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.username" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.username" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
 <div class="form-group">
     <label for="dspace_repository_password">Password</label>
-    <input type="password" ng-model="new_repository.ddr.hasPassword" class="form-control" id="dspace_repository_password" placeholder="DSpace Password">
+    <input type="password" ng-model="new_repository.ddr.password" class="form-control" id="dspace_repository_password" placeholder="DSpace Password">
     <p class="help-block">Your password for the DSpace repository (we will not store this password, we will just pass it on to DSpace for request collections).</p>
 </div>
 <div class="form-group">
@@ -34,8 +34,8 @@
     <div class="row">
         <div class="col-lg-8">
             <button type="button" class="btn btn-primary"
-                    ng-disabled = "new_repository.ddr.hasPassword == null || new_repository.ddr.hasPassword == '' ||
-                    new_repository.ddr.hasUsername == null || new_repository.ddr.hasUsername == '' ||
+                    ng-disabled = "new_repository.ddr.password == null || new_repository.ddr.password == '' ||
+                    new_repository.ddr.username == null || new_repository.ddr.username == '' ||
                     new_repository.ddr.hasExternalUrl == null || !valid_url(new_repository.ddr.hasExternalUrl)"
                     ng-click="get_sword_workspaces(new_repository)" >
                 <span class="glyphicon glyphicon-refresh"></span>

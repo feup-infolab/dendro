@@ -1,5 +1,5 @@
 /**
- * {"ddr":{"hasExternalUrl":"http://demoprints.eprints.org","hasUsername":"nelsonpereira1991","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/eprints","dcterms":{"title":"EPrints"},"foaf":{"nick":"eprints","homepage":"http://www.eprints.org/"},"$$hashKey":"object:145"}},"dcterms":{"title":"eprints export config 1"}}
+ * {"ddr":{"hasExternalUrl":"http://demoprints.eprints.org","username":"nelsonpereira1991","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/eprints","dcterms":{"title":"EPrints"},"foaf":{"nick":"eprints","homepage":"http://www.eprints.org/"},"$$hashKey":"object:145"}},"dcterms":{"title":"eprints export config 1"}}
  */
 
 /*
@@ -9,7 +9,7 @@
 /* const newExportRepoData = {
     ddr: {
         hasExternalUrl: "http://demoprints.eprints.org",
-        hasUsername: "nelsonpereira1991",
+        username: "nelsonpereira1991",
         hasPlatform: {
             uri: "http://127.0.0.1:3001/repository_platform/eprints",
             dcterms: {title: "EPrints"},
@@ -29,7 +29,7 @@ const newExportRepoData = {
     },
     ddr: {
         hasExternalUrl: "http://demoprints.eprints.org",
-        hasUsername: "nelsonpereira1991",
+        username: "nelsonpereira1991",
         hasPlatform: {
             uri: "/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a296",
             foaf: {

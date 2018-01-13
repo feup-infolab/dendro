@@ -1076,7 +1076,7 @@ Elements.ontologies.ddr = {
             api_readable: true,
             control: Controls.url_box
         },
-    hasUsername:
+    username:
         {
             type: Elements.types.string,
             api_readable: true,
