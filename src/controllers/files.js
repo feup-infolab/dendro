@@ -2156,7 +2156,8 @@ exports.mkdir = function (req, res)
     }
 };
 
-exports.ls_by_name = function (req, res) {
+exports.ls_by_name = function (req, res)
+{
     const resourceURI = req.params.requestedResourceUri;
     let show_deleted = req.query.show_deleted;
     let childName = req.query.title;
@@ -2167,10 +2168,11 @@ exports.ls_by_name = function (req, res) {
             containingFolder.findChildWithDescriptor(new Descriptor({
                 prefixedForm: "nie:title",
                 value: childName
-            }), function (err, children) {
-                if(isNull(err))
+            }), function (err, children)
+            {
+                if (isNull(err))
                 {
-                    if(isNull(children))
+                    if (isNull(children))
                     {
                         res.status(404).json({
                             result: "Error",

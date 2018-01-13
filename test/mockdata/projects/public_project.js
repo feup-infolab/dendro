@@ -22,6 +22,6 @@ const projectData = {
     storageConfig: {
         hasStorageType: "local"
     }
-}
+};
 
 module.exports = projectData;

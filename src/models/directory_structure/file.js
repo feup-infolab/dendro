@@ -380,29 +380,32 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
                 self.unindex(function (err, result)
                 {
                     if (isNull(err))
-                    {self.unlinkFromParent(function (err, result)
-                {
-                    if (isNull(err))
                     {
-                        self.getProjectStorage(function (err, result)
+                        self.unlinkFromParent(function (err, result)
                         {
                             if (isNull(err))
                             {
-                                result.delete(self.uri, function (err, result)
-                        {
-                            self.deleteThumbnails();
-                            self.deleteDatastoreData();
-                            return callback(err, result);});
+                                self.getProjectStorage(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        result.delete(self.uri, function (err, result)
+                                        {
+                                            self.deleteThumbnails();
+                                            self.deleteDatastoreData();
+                                            return callback(err, result);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
+                                    }
+                                });
                             }
                             else
                             {
-                                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
+                                return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
                             }
-                        });
-                    }
-                    else
-                    {
-                        return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);}
                         });
                     }
                     else
@@ -671,15 +674,15 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
         if (isNull && ownerProject instanceof Project)
         {
             /** SAVE FILE**/
-            self.getProjectStorage(function (err, result)
+            self.getProjectStorage(function (err, storageConnection)
             {
                 if (isNull(err))
                 {
-                    result.open(function (err, result)
+                    storageConnection.open(function (err, result)
                     {
                         if (isNull(err))
                         {
-                            result.put(self.uri,
+                            storageConnection.put(self.uri,
                                 fs.createReadStream(localFile),
                                 function (err, result)
                                 {
@@ -705,7 +708,7 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
                 }
                 else
                 {
-                    return callback(true, result);
+                    return callback(true, storageConnection);
                 }
             });
         }
@@ -802,64 +805,65 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         }
         o.e.c = --idx;
 
-            for (idx = 0; i !== len; ++i)
-            {
-                if ((cc = range.charCodeAt(i) - 48) < 0 || cc > 9) break;
-                idx = 10 * idx + cc;
-            }
-            o.e.r = --idx;
-            return o;
-        }
-        function getHeaders (sheet)
+        for (idx = 0; i !== len; ++i)
         {
-            let header = 0, offset = 1;
-            let hdr = [];
-            let o = {};
-            if (sheet === null || sheet["!ref"] === null) return [];
-            let range = o.range !== undefined ? o.range : sheet["!ref"];
-            let r;
-            if (o.header === 1) header = 1;
-            else if (o.header === "A") header = 2;
-            else if (Array.isArray(o.header)) header = 3;
-            switch (typeof range)
+            if ((cc = range.charCodeAt(i) - 48) < 0 || cc > 9) break;
+            idx = 10 * idx + cc;
+        }
+        o.e.r = --idx;
+        return o;
+    }
+    function getHeaders (sheet)
+    {
+        let header = 0, offset = 1;
+        let hdr = [];
+        let o = {};
+        if (sheet === null || sheet["!ref"] === null) return [];
+        let range = o.range !== undefined ? o.range : sheet["!ref"];
+        let r;
+        if (o.header === 1) header = 1;
+        else if (o.header === "A") header = 2;
+        else if (Array.isArray(o.header)) header = 3;
+        switch (typeof range)
+        {
+        case "string":
+            r = safe_decode_range(range);
+            break;
+        case "number":
+            r = safe_decode_range(sheet["!ref"]);
+            r.s.r = range;
+            break;
+        default:
+            r = range;
+        }
+        if (header > 0) offset = 0;
+        let rr = XLSX.utils.encode_row(r.s.r);
+        let cols = new Array(r.e.c - r.s.c + 1);
+        for (let C = r.s.c; C <= r.e.c; ++C)
+        {
+            cols[C] = XLSX.utils.encode_col(C);
+            let val = sheet[cols[C] + rr];
+            switch (header)
             {
-            case "string":
-                r = safe_decode_range(range);
+            case 1:
+                hdr.push(C);
                 break;
-            case "number":
-                r = safe_decode_range(sheet["!ref"]);
-                r.s.r = range;
+            case 2:
+                hdr.push(cols[C]);
+                break;
+            case 3:
+                hdr.push(o.header[C - r.s.c]);
                 break;
             default:
-                r = range;
-            }
-            if (header > 0) offset = 0;
-            let rr = XLSX.utils.encode_row(r.s.r);
-            let cols = new Array(r.e.c - r.s.c + 1);
-            for (let C = r.s.c; C <= r.e.c; ++C)
-            {
-                cols[C] = XLSX.utils.encode_col(C);
-                let val = sheet[cols[C] + rr];
-                switch (header)
+                if (isNull(val))
                 {
-                case 1:
-                    hdr.push(C);
-                    break;
-                case 2:
-                    hdr.push(cols[C]);
-                    break;
-                case 3:
-                    hdr.push(o.header[C - r.s.c]);
-                    break;
-                default:
-                    if (isNull(val)){
-                        continue;
-                    }
-                    hdr.push(XLSX.utils.format_cell(val));
+                    continue;
                 }
+                hdr.push(XLSX.utils.format_cell(val));
             }
-            return hdr;
         }
+        return hdr;
+    }
 
     const xlsxFileParser = function (filePath, callback)
     {
@@ -1112,8 +1116,9 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
                 if (!err)
                 {
                     self.ddr.hasDataContent = true;
-                    markDataOK(function(err, result){
-                        if(isNull(err))
+                    markDataOK(function (err, result)
+                    {
+                        if (isNull(err))
                         {
                             self.save(function (err, result)
                             {
@@ -1128,8 +1133,9 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
                 }
                 else
                 {
-                    markErrorProcessingData(err, function(err, result){
-                        if(isNull(err))
+                    markErrorProcessingData(err, function (err, result)
+                    {
+                        if (isNull(err))
                         {
                             callback(err, result);
                         }

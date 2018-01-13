@@ -86,34 +86,32 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
         return typesValidators[descriptorType];
     };
 
-    if(Config.skipDescriptorValuesValidation === true)
+    if (Config.skipDescriptorValuesValidation === true)
     {
         Logger.log("debug", "Will skip validateDescriptorValueTypes because skipDescriptorValuesValidation is set to true in deployment_configs");
-      return true;
-    }
-    else
-    {
-        // When there are various instances of a descriptor, for example: two dcterms:contributor
-        if (currentDescriptor.value instanceof Array)
-        {
-            for (let i = 0; i !== currentDescriptor.value.length; i++)
-            {
-                let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
-                if (isNull(resultOfValidation) || resultOfValidation === false)
-                {
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            // When there is only one instance of a descriptor (for example only one dcterms:abstract)
-            return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
-        }
         return true;
     }
 
-    //OLD CODE -> before adding the Config.skipDescriptorValuesValidation to the deployment_configs
+    // When there are various instances of a descriptor, for example: two dcterms:contributor
+    if (currentDescriptor.value instanceof Array)
+    {
+        for (let i = 0; i !== currentDescriptor.value.length; i++)
+        {
+            let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
+            if (isNull(resultOfValidation) || resultOfValidation === false)
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        // When there is only one instance of a descriptor (for example only one dcterms:abstract)
+        return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
+    }
+    return true;
+
+    // OLD CODE -> before adding the Config.skipDescriptorValuesValidation to the deployment_configs
     /*
     // When there are various instances of a descriptor, for example: two dcterms:contributor
     if (currentDescriptor.value instanceof Array)

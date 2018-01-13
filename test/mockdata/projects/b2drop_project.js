@@ -15,7 +15,7 @@ const projectData = {
     coverage: "Porto",
     handle: b2dropProjectHandle,
     privacy: "public",
-    storageConfig : {
+    storageConfig: {
         hasStorageType: "b2drop",
         username: "joaorosilva@gmail.com",
         password: "bxf8f-4P8WP-HbCiT-eDX5t-LfGZb"

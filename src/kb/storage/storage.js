@@ -1,6 +1,6 @@
 class Storage
 {
-    constructor()
+    constructor ()
     {}
     open ()
     {}

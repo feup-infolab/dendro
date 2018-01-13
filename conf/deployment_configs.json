@@ -107,7 +107,7 @@
             "user": "",
             "password": ""
         },
-        "storageDefault" : {
+        "storageDefaults" : {
           "storageType" : "mongoDB",
           "host": "192.168.56.249",
           "port": "27017",
@@ -497,7 +497,7 @@
             "user": "",
             "password": ""
         },
-        "storageDefault" : {
+        "storageDefaults" : {
           "storageType" : "mongoDB",
           "host": "192.168.56.249",
           "port": "27017",
@@ -882,7 +882,7 @@
             "user": "",
             "password": ""
         },
-        "storageDefault" : {
+        "storageDefaults" : {
           "storageType" : "mongoDB",
           "host": "192.168.56.249",
           "port": "27017",

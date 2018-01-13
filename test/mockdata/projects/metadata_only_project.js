@@ -16,7 +16,7 @@ const projectData = {
     coverage: "Porto",
     handle: metadataProjectHandle,
     privacy: "metadata_only",
-    storageConfig : {
+    storageConfig: {
         hasStorageType: "local"
     },
     uri: "http://" + Config.host + "/" + metadataProjectHandle,

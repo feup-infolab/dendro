@@ -16,7 +16,7 @@ const projectData = {
     coverage: "Porto",
     handle: privateProjectHandle,
     privacy: "private",
-    storageConfig : {
+    storageConfig: {
         hasStorageType: "local"
     },
     uri: "http://" + Config.host + "/" + privateProjectHandle,

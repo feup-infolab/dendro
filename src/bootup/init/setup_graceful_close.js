@@ -244,7 +244,8 @@ const setupGracefulClose = function (app, server, callback)
         process.on("uncaughtException", function (exception)
         {
             Logger.log("error", "Critical error occurred! ");
-            process.nextTick(function(){
+            process.nextTick(function ()
+            {
                 if (!isNull(exception.stack))
                 {
                     Logger.log("error", exception.stack);

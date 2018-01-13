@@ -16,7 +16,7 @@ const projectData = {
     handle: simpleProjectHandle,
     privacy: "public",
     searchTerms: simpleProjectHandle,
-    storageConfig : {
+    storageConfig: {
         hasStorageType: "local"
     },
     uri: "http://" + Config.host + "/" + simpleProjectHandle

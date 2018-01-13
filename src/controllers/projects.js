@@ -771,14 +771,12 @@ exports.new = function (req, res)
                     message: "The project's handle cannot be null or an empty value."
                 });
             }
-            else
-            {
-                return res.status(400).render("projects/new",
-                    {
-                        error_messages: ["The project's handle cannot be null or an empty value."]
-                    }
-                );
-            }
+
+            return res.status(400).render("projects/new",
+                {
+                    error_messages: ["The project's handle cannot be null or an empty value."]
+                }
+            );
         }
         else if (!isNull(req.body.handle) && !req.body.handle.match(/^[0-9a-z]+$/))
         {
@@ -789,14 +787,12 @@ exports.new = function (req, res)
                     message: "Project handle can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "
                 });
             }
-            else
-            {
-                return res.status(400).render("projects/new",
-                    {
-                        error_messages: ["Project handle can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "]
-                    }
-                );
-            }
+
+            return res.status(400).render("projects/new",
+                {
+                    error_messages: ["Project handle can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "]
+                }
+            );
         }
         else if (!req.body.title || req.body.title === "")
         {
@@ -807,14 +803,12 @@ exports.new = function (req, res)
                     message: "Please insert a title for your project."
                 });
             }
-            else
-            {
-                return res.status(400).render("projects/new",
-                    {
-                        error_messages: ["Please insert a title for your project."]
-                    }
-                );
-            }
+
+            return res.status(400).render("projects/new",
+                {
+                    error_messages: ["Please insert a title for your project."]
+                }
+            );
         }
         else if (!req.body.description || req.body.description === "")
         {
@@ -825,14 +819,12 @@ exports.new = function (req, res)
                     message: "Please insert a description for your project."
                 });
             }
-            else
-            {
-                return res.status(400).render("projects/new",
-                    {
-                        error_messages: ["Please insert a description for your project."]
-                    }
-                );
-            }
+
+            return res.status(400).render("projects/new",
+                {
+                    error_messages: ["Please insert a description for your project."]
+                }
+            );
         }
         else if (!req.body.storageConfig || isNull(req.body.storageConfig.hasStorageType))
         {
@@ -843,14 +835,12 @@ exports.new = function (req, res)
                     message: "Please insert a storage type for your project."
                 });
             }
-            else
-            {
-                return res.status(400).render("projects/new",
-                    {
-                        error_messages: ["Please insert a storage type for your project."]
-                    }
-                );
-            }
+
+            return res.status(400).render("projects/new",
+                {
+                    error_messages: ["Please insert a storage type for your project."]
+                }
+            );
         }
         else if (!req.body.privacy || req.body.privacy === "")
         {
@@ -861,18 +851,15 @@ exports.new = function (req, res)
                     message: "Please specify the privacy type for your project."
                 });
             }
-            else
-            {
-                return res.status(400).render("projects/new",
-                    {
-                        error_messages: ["Please specify the privacy type for your project."]
-                    }
-                );
-            }
+
+            return res.status(400).render("projects/new",
+                {
+                    error_messages: ["Please specify the privacy type for your project."]
+                }
+            );
         }
-        else
-        {
-            Project.findByHandle(req.body.handle, function (err, project)
+
+        Project.findByHandle(req.body.handle, function (err, project)
             {
                 if (isNull(err))
                 {
@@ -885,18 +872,16 @@ exports.new = function (req, res)
                                 message: "A project with handle " + req.body.handle + " already exists. Please choose another one."
                             });
                         }
-                        else
-                        {
+                        
                             return res.status(400).render("projects/new",
                                 {
                                     // title : "Register on Dendro",
                                     error_messages: ["A project with handle " + req.body.handle + " already exists. Please choose another one."]
                                 }
                             );
-                        }
+                        
                     }
-                    else
-                    {
+                    
 
                         let storageConf;
                         try{
@@ -937,15 +922,14 @@ exports.new = function (req, res)
                                     error: e
                                 });
                             }
-                            else
-                            {
+                            
                                 return res.status(400).render("projects/new",
                                     {
                                         // title : "Register on Dendro",
                                         error_messages: [msg]
                                     }
                                 );
-                            }
+                            
                         }
 
                         storageConf.save(function (err, savedConfiguration)
@@ -996,7 +980,7 @@ exports.new = function (req, res)
                                 throw err;
                             }
                         });
-                    }
+                    
                 }
                 else
                 {
@@ -1007,7 +991,6 @@ exports.new = function (req, res)
                     );
                 }
             });
-        }
     }
 };
 
@@ -2378,8 +2361,9 @@ exports.storage = function (req, res)
                                     });
                                 }
 
-                                newStorageConfig.save(function(err, result){
-                                    if(isNull(err))
+                                newStorageConfig.save(function (err, result)
+                                {
+                                    if (isNull(err))
                                     {
                                         updateProjectStorageConfig(project, newStorageConfig, function (err, result)
                                         {

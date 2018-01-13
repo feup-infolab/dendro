@@ -12,14 +12,14 @@ let StorageConfig = function (object)
 {
     const self = this;
 
-    const initObject = function()
+    const initObject = function ()
     {
         self.addURIAndRDFType(object, "storageConfig", StorageConfig);
         StorageConfig.baseConstructor.call(self, object);
 
         self.copyOrInitDescriptors(object);
 
-        if(isNull(self.ddr.created))
+        if (isNull(self.ddr.created))
         {
             const now = new Date();
             self.ddr.created = now.toISOString();
@@ -28,9 +28,9 @@ let StorageConfig = function (object)
         return self;
     };
 
-    if(!isNull(object.ddr) && object.ddr.hasStorageType === "b2drop")
+    if (!isNull(object.ddr) && object.ddr.hasStorageType === "b2drop")
     {
-        if(!object.ddr.password || !object.ddr.username)
+        if (!object.ddr.password || !object.ddr.username)
         {
             throw new Error("Invalid b2drop storage config when creating a storage configuration. Missing ddr.password or ddr.username in parameter object.");
         }
@@ -39,31 +39,31 @@ let StorageConfig = function (object)
             initObject();
         }
     }
-    else if(!isNull(object.ddr) && object.ddr.hasStorageType === "local")
+    else if (!isNull(object.ddr) && object.ddr.hasStorageType === "local")
     {
         initObject();
 
-        if(isNull(self.ddr.username))
+        if (isNull(self.ddr.username))
         {
             self.ddr.username = Config.defaultStorageConfig.username;
         }
 
-        if(isNull(self.ddr.password))
+        if (isNull(self.ddr.password))
         {
             self.ddr.password = Config.defaultStorageConfig.password;
         }
 
-        if(isNull(self.ddr.hasHost))
+        if (isNull(self.ddr.hasHost))
         {
             self.ddr.hasHost = Config.defaultStorageConfig.host;
         }
 
-        if(isNull(self.ddr.hasPort))
+        if (isNull(self.ddr.hasPort))
         {
             self.ddr.hasPort = Config.defaultStorageConfig.port;
         }
 
-        if(isNull(self.ddr.hasPort))
+        if (isNull(self.ddr.hasPort))
         {
             self.ddr.hasCollectionName = Config.defaultStorageConfig.collectionName;
         }
@@ -72,7 +72,7 @@ let StorageConfig = function (object)
     {
         throw new Error("Invalid storage type for creating a storage configuration: " + object.ddr.hasStorageType);
     }
-}
+};
 
 StorageConfig.findByProject = function (projectUri, callback, customGraphUri)
 {
