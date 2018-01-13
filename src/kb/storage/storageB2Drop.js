@@ -75,13 +75,17 @@ class StorageB2Drop extends Storage
     get (fileUri, outputStream, callback)
     {
         const self = this;
-        self.connection.get(self._getB2DropPath(fileUri), outputStream, callback);
+        self.connection.get(self._getB2DropPath(fileUri), outputStream, function (err, result) {
+            callback(err,result);
+        });
     }
 
     delete (fileUri, callback)
     {
         const self = this;
-        self.connection.delete(self._getB2DropPath(fileUri), callback);
+        self.connection.delete(self._getB2DropPath(fileUri), function (err, result) {
+            callback(err,result);
+        });
     }
 }
 
