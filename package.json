@@ -166,7 +166,7 @@
     "winston-console-formatter": "^1.0.0-beta.0",
     "winston-daily-rotate-file": "^1.7.2",
     "xls-to-json-lc": "^0.3.4",
-    "xlsjs": "1.0.1",
+    "xlsjs": "0.7.6",
     "xlsx": "^0.11.17",
     "xml-writer": "^1.7.0",
     "xml2js": "^0.4.19",
