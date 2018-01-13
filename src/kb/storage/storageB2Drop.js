@@ -42,7 +42,7 @@ class StorageB2Drop extends Storage
             if (isNull(err))
             {
                 self.connection.createFolder(self.prefix, function(err, result){
-                    callback(err, result);
+                    callback(err, self);
                 });
             }
             else
@@ -72,10 +72,10 @@ class StorageB2Drop extends Storage
         });
     }
 
-    get (fileUri, callback)
+    get (fileUri, outputStream, callback)
     {
         const self = this;
-        self.connection.get(self._getB2DropPath(fileUri), callback);
+        self.connection.get(self._getB2DropPath(fileUri), outputStream, callback);
     }
 
     delete (fileUri, callback)
