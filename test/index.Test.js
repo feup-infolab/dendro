@@ -338,6 +338,11 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/d
  require('./models/kb/db.Test.js');
  */
 
+// PROJECT WITH B2DROP STORAGE
+// test file uploads using b2drop-backed storage
+require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/data/testFolder1/__upload/routes.project.b2dropProject.data.testFolder1.__upload.Test.js"));
+
+// PROJECT WITH LOCAL STORAGE
 // test file uploads
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__upload/routes.project.privateProject.data.testFolder1.__upload.Test.js"));
 

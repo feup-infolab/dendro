@@ -191,7 +191,7 @@
         "debug": {
             "active": true,
             "database": {
-                "log_all_queries": true,
+                "log_all_queries": false,
                 "log_all_cache_queries": false,
                 "log_query_timeouts": false,
                 "log_query_times": false
@@ -255,9 +255,9 @@
         "startup": {
             "load_databases": false,
             "reload_administrators_on_startup": false,
-            "reload_demo_users_on_startup": true,
+            "reload_demo_users_on_startup": false,
             "reload_ontologies_on_startup": true,
-            "clear_session_store": false,
+            "clear_session_store": true,
             "log_bootup_actions": true,
             "destroy_all_graphs": true,
             "destroy_all_indexes": true,
