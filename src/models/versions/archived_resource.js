@@ -28,7 +28,7 @@ function ArchivedResource (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.humanReadableURI = object.ddr.humanReadableURI + "/version/" + object.ddr.newVersionNumber;
+        self.humanReadableURI = self.ddr.isVersionOf + "/version/" + object.ddr.newVersionNumber;
     }
 
     if (!isNull(object.rdf.type))

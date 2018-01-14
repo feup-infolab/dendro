@@ -18,24 +18,6 @@ var async = require("async");
 
 function ManualPost (object)
 {
-    /* ManualPost.baseConstructor.call(this, object);
-    var self = this;
-
-    if(object.uri != null)
-    {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/posts/" + uuid.v4();
-    }
-
-    self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:ManualPost";
-
-    return self; */
-
     const self = this;
     // self.addURIAndRDFType(object, "post", Post);
     self.addURIAndRDFType(object, "post", ManualPost);
@@ -47,7 +29,7 @@ function ManualPost (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
+        self.ddr.humanReadableURI = "/posts/" + newId;
     }
 
     self.ddr.numLikes = 0;

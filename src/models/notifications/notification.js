@@ -17,7 +17,7 @@ function Notification (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + "/notifications/" + uuid.v4();
+        self.ddr.humanReadableURI = "/notifications/" + uuid.v4();
     }
 
     return self;

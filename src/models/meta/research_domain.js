@@ -37,7 +37,7 @@ ResearchDomain.create = function (object, callback)
             {
                 const slug = require("slug");
                 const slugifiedTitle = slug(self.dcterms.title);
-                self.ddr.humanReadableURI = Config.baseUri + "/research_domains/" + slugifiedTitle;
+                self.ddr.humanReadableURI = "/research_domains/" + slugifiedTitle;
             }
             else
             {

@@ -24,7 +24,7 @@ function ExternalRepository (object)
     {
         if (!isNull(object.dcterms.creator) && !isNull(self.dcterms.title))
         {
-            self.humanReadableURI = Config.baseUri + "/external_repository/" + object.dcterms.creator + "/" + slug(self.dcterms.title);
+            self.humanReadableURI = "/external_repository/" + object.dcterms.creator + "/" + slug(self.dcterms.title);
         }
         else
         {

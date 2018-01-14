@@ -21,24 +21,6 @@ var async = require("async");
 
 function FileSystemPost (object)
 {
-    /* FileSystemPost.baseConstructor.call(this, object);
-    var self = this;
-
-    if(object.uri != null)
-    {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/posts/" + uuid.v4();
-    }
-
-    self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:FileSystemPost";
-
-    return self; */
-
     const self = this;
     self.addURIAndRDFType(object, "post", FileSystemPost);
     FileSystemPost.baseConstructor.call(this, object);
@@ -49,7 +31,7 @@ function FileSystemPost (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
+        self.ddr.humanReadableURI = "/posts/" + newId;
     }
 
     return self;

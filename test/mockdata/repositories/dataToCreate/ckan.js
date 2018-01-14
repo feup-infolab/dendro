@@ -134,7 +134,7 @@ const newExportRepoData = {
                 handle: "ckan",
                 created: "2017-10-10T15:19:09.041Z",
                 modified: "2017-10-10T15:19:09.044Z",
-                humanReadableURI: "http://127.0.0.1:3001/repository_platform/ckan"
+                humanReadableURI: "/repository_platform/ckan"
             },
             rdf: {
                 type: [

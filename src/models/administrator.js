@@ -19,7 +19,7 @@ function Administrator (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = db.baseURI + "/administrator/" + self.ddr.username;
+        self.ddr.humanReadableURI = "/administrator/" + self.ddr.username;
     }
 
     return self;

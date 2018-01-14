@@ -1,7 +1,6 @@
 const humanize = require("humanize");
 const Pathfinder = global.Pathfinder;
 const path = require("path");
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -778,7 +777,6 @@ exports.get_thumbnail = function (req, res)
 
 exports.upload = function (req, res)
 {
-    const async = require("async");
     const fs = require("fs");
 
     const requestedResourceURI = req.params.requestedResourceUri;

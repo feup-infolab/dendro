@@ -706,7 +706,7 @@ const loadRoutes = function (app, callback)
                 }
                 else
                 {
-                    const requestedProjectUrl = Config.baseUri + "/project/" + req.params[0];
+                    const requestedProjectUrl = "/project/" + req.params[0];
                     getResourceUri(requestedProjectUrl, callback);
                 }
             },
@@ -1048,7 +1048,7 @@ const loadRoutes = function (app, callback)
                 }
                 else
                 {
-                    const requestedResource = Config.baseUri + "/project/" + req.params[0] + req.params[1];
+                    const requestedResource = "/project/" + req.params[0] + req.params[1];
                     getResourceUri(requestedResource, callback);
                 }
             },

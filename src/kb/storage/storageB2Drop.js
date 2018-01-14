@@ -41,7 +41,8 @@ class StorageB2Drop extends Storage
         {
             if (isNull(err))
             {
-                self.connection.createFolder(self.prefix, function(err, result){
+                self.connection.createFolder(self.prefix, function (err, result)
+                {
                     callback(err, self);
                 });
             }
@@ -64,9 +65,11 @@ class StorageB2Drop extends Storage
     {
         const self = this;
 
-        inputStream.on("open", function () {
+        inputStream.on("open", function ()
+        {
             const targetFilePath = self._getB2DropPath(fileUri);
-            self.connection.put(targetFilePath, inputStream, function(err, result){
+            self.connection.put(targetFilePath, inputStream, function (err, result)
+            {
                 callback(err, result);
             });
         });
@@ -75,16 +78,18 @@ class StorageB2Drop extends Storage
     get (fileUri, outputStream, callback)
     {
         const self = this;
-        self.connection.get(self._getB2DropPath(fileUri), outputStream, function (err, result) {
-            callback(err,result);
+        self.connection.get(self._getB2DropPath(fileUri), outputStream, function (err, result)
+        {
+            callback(err, result);
         });
     }
 
     delete (fileUri, callback)
     {
         const self = this;
-        self.connection.delete(self._getB2DropPath(fileUri), function (err, result) {
-            callback(err,result);
+        self.connection.delete(self._getB2DropPath(fileUri), function (err, result)
+        {
+            callback(err, result);
         });
     }
 }

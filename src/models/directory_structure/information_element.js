@@ -116,6 +116,100 @@ InformationElement.prototype.getParent = function (callback)
     );
 };
 
+InformationElement.prototype.calculateHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    const getPathTitles = function (callback)
+    {
+        /**
+         *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+         *    (Recursive querying through inference).
+         *   @type {string}
+         */
+        const query =
+            "SELECT ?uri \n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:isLogicalPartOf+ ?uri. \n" +
+            "   ?uri rdf:type ddr:Resource. \n" +
+            "   ?uri rdf:type nfo:Folder \n" +
+            "   ?uri nie:title ?title \n" +
+            "   FILTER NOT EXISTS \n" +
+            "   { \n" +
+            "       ?project ddr:rootFolder ?uri\n" +
+            "   }\n" +
+            "}\n ";
+
+        db.connection.executeViaJDBC(query,
+            [
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: db.graphUri
+                },
+                {
+                    type: Elements.types.resource,
+                    value: self.uri
+                }
+            ],
+            function (err, results)
+            {
+                if (isNull(err))
+                {
+                    if (results instanceof Array)
+                    {
+                        const titlesArray = _.map(results, function (result)
+                        {
+                            return result.title;
+                        });
+
+                        callback(null, titlesArray);
+                    }
+                    else
+                    {
+                        return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
+                    }
+                }
+                else
+                {
+                    return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + results);
+                }
+            }
+        );
+    };
+
+    const getOwnerProjectHandle = function (callback)
+    {
+        self.getOwnerProject(function (err, project)
+        {
+            callback(err, project.ddr.handle);
+        });
+    };
+
+    getOwnerProjectHandle(function (err, handle)
+    {
+        getPathTitles(function (err, titles)
+        {
+            let newHumanReadableUri = [handle].concat(titles).concat([self.nie.title]).join("/");
+            callback(null, newHumanReadableUri);
+        });
+    });
+};
+
+// InformationElement.prototype.save = function (callback)
+// {
+//     const self = this;
+//     self.calculateHumanReadableUri(function (err, newHumanReadableUri)
+//     {
+//         self.ddr.humanReadableURI = newHumanReadableUri;
+//         Resource.prototype.save.call(self, function (err, result)
+//         {
+//             callback(err, result);
+//         });
+//     });
+// };
+
 InformationElement.prototype.getAllParentsUntilProject = function (callback)
 {
     const self = this;
@@ -156,7 +250,6 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
             {
                 if (result instanceof Array)
                 {
-                    const async = require("async");
                     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                     async.mapSeries(result, function (result, callback)
                     {

@@ -27,7 +27,7 @@ function Post (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
+        self.ddr.humanReadableURI = "/posts/" + newId;
     }
 
     self.ddr.numLikes = 0;

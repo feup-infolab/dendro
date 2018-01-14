@@ -33,7 +33,7 @@ Interaction.create = function (object, callback)
         const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
         if (self.ddr.performedBy instanceof Object)
         {
-            self.ddr.humanReadableURI = db.baseURI + "/user/" + self.ddr.performedBy.ddr.username + "/interaction/" + self.ddr.created;
+            self.ddr.humanReadableURI = "/user/" + self.ddr.performedBy.ddr.username + "/interaction/" + self.ddr.created;
             return callback(null, self);
         }
         else if (typeof self.ddr.performedBy === "string")
@@ -42,7 +42,7 @@ Interaction.create = function (object, callback)
             {
                 if (isNull(err) && !isNull(user))
                 {
-                    self.ddr.humanReadableURI = db.baseURI + "/user/" + user.ddr.username + "/interaction/" + self.ddr.created;
+                    self.ddr.humanReadableURI = "/user/" + user.ddr.username + "/interaction/" + self.ddr.created;
                 }
                 else
                 {

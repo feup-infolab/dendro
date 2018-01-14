@@ -37,7 +37,7 @@ function Project (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
+        self.ddr.humanReadableURI = "/project/" + self.ddr.handle;
     }
 
     if (isNull(object.ddr != null))

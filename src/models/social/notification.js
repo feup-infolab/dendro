@@ -19,7 +19,7 @@ function Notification (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + "/notifications/" + newId;
+        self.ddr.humanReadableURI = "/notifications/" + newId;
     }
 
     return self;

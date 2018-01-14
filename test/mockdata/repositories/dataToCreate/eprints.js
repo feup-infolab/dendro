@@ -43,7 +43,7 @@ const newExportRepoData = {
                 handle: "eprints",
                 created: "2017-10-02T12:17:04.105Z",
                 modified: "2017-10-02T12:17:04.106Z",
-                humanReadableURI: "http://" + Config.host + "/repository_platform/eprints"
+                humanReadableURI: "/repository_platform/eprints"
             },
             rdf: {
                 type: [

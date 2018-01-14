@@ -29,7 +29,7 @@ function User (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = db.baseURI + "/user/" + self.ddr.username;
+        self.ddr.humanReadableURI = "/user/" + self.ddr.username;
     }
 
     if (isNull(self.ddr.salt))

@@ -860,137 +860,132 @@ exports.new = function (req, res)
         }
 
         Project.findByHandle(req.body.handle, function (err, project)
+        {
+            if (isNull(err))
             {
-                if (isNull(err))
+                if ((!isNull(project)) && project instanceof Project)
                 {
-                    if ((!isNull(project)) && project instanceof Project)
+                    if (acceptsJSON && !acceptsHTML)
                     {
-                        if (acceptsJSON && !acceptsHTML)
-                        {
-                            return res.status(400).json({
-                                result: "error",
-                                message: "A project with handle " + req.body.handle + " already exists. Please choose another one."
-                            });
-                        }
-                        
-                            return res.status(400).render("projects/new",
-                                {
-                                    // title : "Register on Dendro",
-                                    error_messages: ["A project with handle " + req.body.handle + " already exists. Please choose another one."]
-                                }
-                            );
-                        
-                    }
-                    
-
-                        let storageConf;
-                        try{
-                            // this condition is to prevent user-provided values overriding
-                            // the local storage authentication credentials
-
-                            if(req.body.storageConfig.hasStorageType === "local")
-                            {
-                                storageConf = new StorageConfig({
-                                    ddr: {
-                                        hasStorageType: req.body.storageConfig.hasStorageType
-                                    }
-                                });
-                            }
-                            else if(req.body.storageConfig.hasStorageType === "b2drop")
-                            {
-                                storageConf = new StorageConfig({
-                                    ddr: {
-                                        hasStorageType: req.body.storageConfig.hasStorageType,
-                                        username: req.body.storageConfig.username,
-                                        password: req.body.storageConfig.password
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                throw new Error("Invalid storage type specified : " + req.body.storageConfig.hasStorageType);
-                            }
-                        }
-                        catch(e)
-                        {
-                            const msg = "Invalid parameters provided when setting up the storage for the new project.";
-                            if (acceptsJSON && !acceptsHTML)
-                            {
-                                return res.status(400).json({
-                                    result: "error",
-                                    message: msg,
-                                    error: e
-                                });
-                            }
-                            
-                                return res.status(400).render("projects/new",
-                                    {
-                                        // title : "Register on Dendro",
-                                        error_messages: [msg]
-                                    }
-                                );
-                            
-                        }
-
-                        storageConf.save(function (err, savedConfiguration)
-                        {
-                            if (isNull(err))
-                            {
-                                const projectData = {
-                                    dcterms: {
-                                        creator: req.user.uri,
-                                        title: req.body.title,
-                                        description: req.body.description,
-                                        publisher: req.body.publisher,
-                                        language: req.body.language,
-                                        coverage: req.body.coverage
-                                    },
-                                    ddr: {
-                                        handle: req.body.handle,
-                                        privacyStatus: req.body.privacy,
-                                        hasStorageConfig: savedConfiguration.uri,
-                                        hasStorageLimit: Config.maxProjectSize
-                                    },
-                                    schema: {
-                                        provider: req.body.contact_name,
-                                        telephone: req.body.contact_phone,
-                                        address: req.body.contact_address,
-                                        email: req.body.contact_email,
-                                        license: req.body.license
-                                    }
-                                };
-
-                                Project.createAndInsertFromObject(projectData, function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
-                                        return res.redirect("/projects/my");
-                                    }
-                                    else
-                                    {
-                                        req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
-                                        throw result;
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                req.flash("error", "Error creating storageConfig " + storageConf.ddr.host);
-                                throw err;
-                            }
+                        return res.status(400).json({
+                            result: "error",
+                            message: "A project with handle " + req.body.handle + " already exists. Please choose another one."
                         });
-                    
-                }
-                else
-                {
-                    return res.render("projects/new",
+                    }
+
+                    return res.status(400).render("projects/new",
                         {
-                            error_messages: [project]
+                            // title : "Register on Dendro",
+                            error_messages: ["A project with handle " + req.body.handle + " already exists. Please choose another one."]
                         }
                     );
                 }
-            });
+
+                let storageConf;
+                try
+                {
+                    // this condition is to prevent user-provided values overriding
+                    // the local storage authentication credentials
+
+                    if (req.body.storageConfig.hasStorageType === "local")
+                    {
+                        storageConf = new StorageConfig({
+                            ddr: {
+                                hasStorageType: req.body.storageConfig.hasStorageType
+                            }
+                        });
+                    }
+                    else if (req.body.storageConfig.hasStorageType === "b2drop")
+                    {
+                        storageConf = new StorageConfig({
+                            ddr: {
+                                hasStorageType: req.body.storageConfig.hasStorageType,
+                                username: req.body.storageConfig.username,
+                                password: req.body.storageConfig.password
+                            }
+                        });
+                    }
+                    else
+                    {
+                        throw new Error("Invalid storage type specified : " + req.body.storageConfig.hasStorageType);
+                    }
+                }
+                catch (e)
+                {
+                    const msg = "Invalid parameters provided when setting up the storage for the new project.";
+                    if (acceptsJSON && !acceptsHTML)
+                    {
+                        return res.status(400).json({
+                            result: "error",
+                            message: msg,
+                            error: e
+                        });
+                    }
+
+                    return res.status(400).render("projects/new",
+                        {
+                            // title : "Register on Dendro",
+                            error_messages: [msg]
+                        }
+                    );
+                }
+
+                storageConf.save(function (err, savedConfiguration)
+                {
+                    if (isNull(err))
+                    {
+                        const projectData = {
+                            dcterms: {
+                                creator: req.user.uri,
+                                title: req.body.title,
+                                description: req.body.description,
+                                publisher: req.body.publisher,
+                                language: req.body.language,
+                                coverage: req.body.coverage
+                            },
+                            ddr: {
+                                handle: req.body.handle,
+                                privacyStatus: req.body.privacy,
+                                hasStorageConfig: savedConfiguration.uri,
+                                hasStorageLimit: Config.maxProjectSize
+                            },
+                            schema: {
+                                provider: req.body.contact_name,
+                                telephone: req.body.contact_phone,
+                                address: req.body.contact_address,
+                                email: req.body.contact_email,
+                                license: req.body.license
+                            }
+                        };
+
+                        Project.createAndInsertFromObject(projectData, function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
+                                return res.redirect("/projects/my");
+                            }
+
+                            req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
+                            throw result;
+                        });
+                    }
+                    else
+                    {
+                        req.flash("error", "Error creating storageConfig " + storageConf.ddr.host);
+                        throw err;
+                    }
+                });
+            }
+            else
+            {
+                return res.render("projects/new",
+                    {
+                        error_messages: [project]
+                    }
+                );
+            }
+        });
     }
 };
 

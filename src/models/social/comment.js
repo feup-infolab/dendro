@@ -19,7 +19,7 @@ function Comment (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + "/comments/" + newId;
+        self.ddr.humanReadableURI = "/comments/" + newId;
     }
 
     return self;
