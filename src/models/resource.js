@@ -3935,6 +3935,44 @@ Resource.prototype.getHumanReadableUri = function (callback)
     }
 };
 
+Resource.prototype.refreshHumanReadableUri = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    self.getHumanReadableUri(
+        function (err, newHumanReadableUri)
+        {
+            if (isNull(err))
+            {
+                self.ddr.humanReadableURI = newHumanReadableUri;
+                self.save(function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        callback(err, self);
+                    }
+                    else
+                    {
+                        callback(err, result);
+                    }
+                },
+                false,
+                null,
+                null,
+                null,
+                null,
+                graphUri
+                );
+            }
+            else
+            {
+                callback(1, "Unable to determine new human readable uri for resource " + newResource.uri);
+            }
+        }
+    );
+};
+
 Resource = Class.extend(Resource, Class, "ddr:Resource");
 
 module.exports.Resource = Resource;

@@ -396,9 +396,69 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
     ], callback);
 };
 
-InformationElement.prototype.rename = function (newTitle, callback)
+InformationElement.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
 {
     const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    let failed = false;
+    self.forAllChildren(
+        function (err, resources)
+        {
+            if (isNull(err))
+            {
+                if (resources.length > 0)
+                {
+                    async.mapSeries(resources, function (resource, callback)
+                    {
+                        if (!isNull(resource))
+                        {
+                            resource.refreshHumanReadableUri(callback, graphUri);
+                        }
+                        else
+                        {
+                            callback(false, resource);
+                        }
+                    }, function (err, results)
+                    {
+                        if (err)
+                        {
+                            Logger.log("error", "Errors refreshing human readable URIs of children of " + self.uri + " : " + resources);
+                            failed = true;
+                        }
+
+                        return callback(failed, null);
+                    });
+                }
+                else
+                {
+                    return callback(failed, null);
+                }
+            }
+            else
+            {
+                failed = true;
+                return callback(failed, "Error fetching children of " + self.uri + " for reindexing : " + resources);
+            }
+        },
+        function ()
+        {
+            return failed;
+        },
+        function (err)
+        {
+            return callback(err, null);
+        },
+        true,
+        customGraphUri
+    );
+};
+
+InformationElement.prototype.rename = function (newTitle, callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
     const query =
         "DELETE DATA \n" +
         "{ \n" +
@@ -420,7 +480,7 @@ InformationElement.prototype.rename = function (newTitle, callback)
         [
             {
                 type: Elements.types.resourceNoEscape,
-                value: db.graphUri
+                value: graphUri
             },
             {
                 type: Elements.types.resource,
@@ -435,7 +495,9 @@ InformationElement.prototype.rename = function (newTitle, callback)
         {
             Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
             {
-                return callback(err, result);
+                self.refreshChildrenHumanReadableUris(function(err, result){
+                    return callback(err, result);
+                });
             });
         }, null, null, null, true
     );
@@ -520,20 +582,6 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
         autoRenameIfNeeded,
         function (neededRenaming, callback)
         {
-            // "WITH GRAPH [0] \n" +
-            // "DELETE \n" +
-            // "{ \n" +
-            // deleteString + " \n" +
-            // "} \n" +
-            // "WHERE \n" +
-            // "{ \n" +
-            // deleteString + " \n" +
-            // "} \n" +
-            // "INSERT DATA\n" +
-            // "{ \n" +
-            // insertString + " \n" +
-            // "} \n";
-
             const query =
                 "WITH GRAPH [0] \n" +
                 "DELETE \n" +
@@ -583,6 +631,20 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                             function (callback)
                             {
                                 Cache.getByGraphUri(db.graphUri).delete(oldParent, callback);
+                            },
+
+                            // refresh all human readable URIs on parent, old parent and child...
+                            function (callback)
+                            {
+                                self.refreshChildrenHumanReadableUris(callback);
+                            },
+                            function (callback)
+                            {
+                                newParent.refreshChildrenHumanReadableUris(callback);
+                            },
+                            function (callback)
+                            {
+                                oldParent.refreshChildrenHumanReadableUris(callback);
                             }
                         ], function (err)
                         {

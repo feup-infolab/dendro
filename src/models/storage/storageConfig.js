@@ -53,19 +53,19 @@ let StorageConfig = function (object)
             self.ddr.password = Config.defaultStorageConfig.password;
         }
 
-        if (isNull(self.ddr.hasHost))
+        if (isNull(self.ddr.host))
         {
-            self.ddr.hasHost = Config.defaultStorageConfig.host;
+            self.ddr.host = Config.defaultStorageConfig.host;
         }
 
-        if (isNull(self.ddr.hasPort))
+        if (isNull(self.ddr.port))
         {
-            self.ddr.hasPort = Config.defaultStorageConfig.port;
+            self.ddr.port = Config.defaultStorageConfig.port;
         }
 
-        if (isNull(self.ddr.hasPort))
+        if (isNull(self.ddr.collectionName))
         {
-            self.ddr.hasCollectionName = Config.defaultStorageConfig.collectionName;
+            self.ddr.collectionName = Config.defaultStorageConfig.collectionName;
         }
     }
     else
