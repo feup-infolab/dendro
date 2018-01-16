@@ -22,7 +22,8 @@ Elements.access_types = {
     api_writeable: "api_writeable", // modifiable from the outside world via API calls
     immutable: "immutable", // cannot be changed under ANY circumstance
     unrevertable: "unrevertable", // cannot be fallen back in the a "restore previous version" operation
-    locked_for_projects: "locked_for_projects" // project metadata which cannot be modified using the metadata editor, has to go through the project administrator
+    locked_for_projects: "locked_for_projects", // project metadata which cannot be modified using the metadata editor, has to go through the project administrator
+    append_prefix_dendro_baseuri: "append_prefix_dedro_baseuri" // project attributes that need to append dendro uri when exporting to RDF
 };
 
 Elements.types = {};
@@ -259,7 +260,8 @@ Elements.ontologies.dcterms =
   {
       type: Elements.types.string,
       control: Controls.url_box,
-      locked_for_projects: true
+      locked_for_projects: true,
+      append_prefix_dendro_baseuri: true
   },
     date:
   {
@@ -862,7 +864,8 @@ Elements.ontologies.ddr = {
         control: Controls.input_box,
         private: true,
         locked: true,
-        api_readable: true
+        api_readable: true,
+        append_prefix_dendro_baseuri: true,
     },
     handle: {
         type: Elements.types.string,
@@ -984,7 +987,8 @@ Elements.ontologies.ddr = {
         {
             type: Elements.types.resource,
             control: Controls.url_box,
-            locked: true
+            locked: true,
+            append_prefix_dendro_baseuri: true,
         },
     checksum:
         {
@@ -1462,7 +1466,8 @@ Elements.ontologies.nie = {
             control: Controls.url_box,
             backuppable: true,
             locked: true,
-            api_readable: true
+            api_readable: true,
+            append_prefix_dendro_baseuri: true,
         },
     hasPart:
         {
@@ -1490,7 +1495,8 @@ Elements.ontologies.nie = {
             type: Elements.types.resource,
             backuppable: true,
             locked: true,
-            api_readable: true
+            api_readable: true,
+            append_prefix_dendro_baseuri: true,
         },
     isPartOf:
         {
