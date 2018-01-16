@@ -994,12 +994,12 @@ InformationElement.prototype.getHumanReadableUri = function (callback)
                     }
                     else
                     {
-                        callback(1, "Unable to get parent human readable URI for folder " + self.uri);
+                        callback(1, "Unable to get parent human readable URI for information element " + self.uri);
                     }
                 }
                 else
                 {
-                    callback(1, "Error getting parent human readable URI for folder " + self.uri);
+                    callback(1, "Error getting parent human readable URI for information element " + self.uri);
                 }
             });
         }

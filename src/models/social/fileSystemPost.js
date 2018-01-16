@@ -189,7 +189,7 @@ FileSystemPost.prototype.getHumanReadableUri = function (callback)
     if (isNull(self.ddr.humanReadableURI))
     {
         const newId = uuid.v4();
-        self.ddr.humanReadableURI = "/posts/" + newId;
+        callback(null, "/posts/" + newId);
     }
     else
     {

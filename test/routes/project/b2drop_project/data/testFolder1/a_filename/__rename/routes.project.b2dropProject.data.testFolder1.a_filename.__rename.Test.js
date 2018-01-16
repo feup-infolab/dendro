@@ -218,10 +218,19 @@ describe("B2Drop project testFolder1 ?rename", function ()
     {
         beforeEach(function (done)
         {
-            createFilesUnit.setup(function (err, results)
+            createFoldersB2DropUnit.setup(function (err, results)
             {
                 should.equal(err, null);
-                done();
+                fileUtils.uploadFile(true, agent, b2dropProject.handle, testFolder1.name, txtMockFile, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    fileUtils.downloadFile(true, agent, b2dropProject.handle, testFolder1.name, txtMockFile, function (error, response)
+                    {
+                        should.equal(err, null);
+                        response.statusCode.should.equal(200);
+                        done();
+                    });
+                });
             });
         });
 
@@ -248,8 +257,6 @@ describe("B2Drop project testFolder1 ?rename", function ()
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                const newName = "RenamedFile.txt";
-
                 folderUtils.getFolderContents(true, agent, b2dropProject.handle, testFolder1.name, function (err, res)
                 {
                     res.statusCode.should.equal(200);
@@ -261,6 +268,7 @@ describe("B2Drop project testFolder1 ?rename", function ()
                     should.not.equal(typeof oldFile, "undefined");
                     should.equal(oldFile.nie.title, txtMockFile.name);
 
+                    const newName = "RenamedFile.txt";
                     fileUtils.renameFileByUri(true, agent, oldFile.uri, newName, function (err, res)
                     {
                         res.statusCode.should.equal(200);

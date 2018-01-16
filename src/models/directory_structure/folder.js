@@ -1755,6 +1755,62 @@ Folder.prototype.forAllChildren = function (
     );
 };
 
+Folder.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (!isNull(self.nie))
+    {
+        if (isNull(self.nie.isLogicalPartOf))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.isLogicalPartOf in the object!");
+        }
+        else if (isNull(self.nie.title))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.title in the object!");
+        }
+        else
+        {
+            const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+            Resource.findByUri(self.nie.isLogicalPartOf, function (err, parentResource)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(parentResource))
+                    {
+                        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                        if(parentResource.isA(Project))
+                        {
+                            callback(null, parentResource.ddr.humanReadableURI + "/data");
+                        }
+                        else if(parentResource.isA(Folder))
+                        {
+                            callback(null, parentResource.ddr.humanReadableURI + "/" + self.nie.title);
+                        }
+                        else
+                        {
+                            callback(1, "Invalid parent type detected when trying to get parent human readable URI for folder " + self.uri);
+                        }
+                    }
+                    else
+                    {
+                        callback(1, "Unable to get parent human readable URI for folder " + self.uri);
+                    }
+                }
+                else
+                {
+                    callback(1, "Error getting parent human readable URI for folder " + self.uri);
+                }
+            });
+        }
+    }
+    else
+    {
+        callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
+    }
+};
+
+
 Folder = Class.extend(Folder, InformationElement, "nfo:Folder");
 
 module.exports.Folder = Folder;
