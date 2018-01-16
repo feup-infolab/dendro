@@ -1,6 +1,7 @@
 const b2dropProjectHandle = "b2droproject";
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 
 const projectData = {
     creator: "http://" + Config.host + "/user/demouser1",
@@ -20,7 +21,8 @@ const projectData = {
         username: "joaorosilva@gmail.com",
         password: "bxf8f-4P8WP-HbCiT-eDX5t-LfGZb"
     },
-    uri: "http://" + Config.host + "/" + b2dropProjectHandle
+    uri: "http://" + Config.host + "/" + b2dropProjectHandle,
+    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/b2droproject.zip")
 };
 
 module.exports = projectData;

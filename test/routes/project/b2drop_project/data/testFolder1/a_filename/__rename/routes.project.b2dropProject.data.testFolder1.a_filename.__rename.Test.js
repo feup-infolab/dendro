@@ -255,7 +255,7 @@ describe("B2Drop project testFolder1 ?rename", function ()
 
         it("Should rename " + txtMockFile.name + " with success if the user is logged in as demouser2(a collaborator of the project)", function (done)
         {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 folderUtils.getFolderContents(true, agent, b2dropProject.handle, testFolder1.name, function (err, res)
                 {
@@ -298,8 +298,7 @@ describe("B2Drop project testFolder1 ?rename", function ()
             {
                 async.mapSeries(allFiles, function (file, callback)
                 {
-                    const newName = "RenamedFile";
-                    const newNameWithExtension = newName + "." + file.extension;
+                    const newNameWithExtension = "RenamedFile" + "." + file.extension;
 
                     folderUtils.getFolderContents(true, agent, b2dropProject.handle, testFolder1.name, function (err, res)
                     {

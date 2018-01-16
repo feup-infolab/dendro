@@ -17,7 +17,7 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-module.exports.binaryParser = function (res, cb)
+const binaryParser = module.exports.binaryParser = function (res, cb)
 {
     res.setEncoding("binary");
     res.data = "";
@@ -31,7 +31,7 @@ module.exports.binaryParser = function (res, cb)
     });
 };
 
-module.exports.listAllMyProjects = function (jsonOnly, agent, cb)
+const listAllMyProjects = module.exports.listAllMyProjects = function (jsonOnly, agent, cb)
 {
     const path = "/projects/my";
     if (jsonOnly)
@@ -55,7 +55,7 @@ module.exports.listAllMyProjects = function (jsonOnly, agent, cb)
     }
 };
 
-module.exports.listAllProjects = function (jsonOnly, agent, cb)
+const listAllProjects = module.exports.listAllProjects = function (jsonOnly, agent, cb)
 {
     const path = "/projects";
     if (jsonOnly)
@@ -79,7 +79,7 @@ module.exports.listAllProjects = function (jsonOnly, agent, cb)
     }
 };
 
-module.exports.getNewProjectPage = function (jsonOnly, agent, cb)
+const getNewProjectPage = module.exports.getNewProjectPage = function (jsonOnly, agent, cb)
 {
     if (jsonOnly)
     {
@@ -102,7 +102,7 @@ module.exports.getNewProjectPage = function (jsonOnly, agent, cb)
     }
 };
 
-module.exports.createNewProject = function (jsonOnly, agent, projectData, cb)
+const createNewProject = module.exports.createNewProject = function (jsonOnly, agent, projectData, cb)
 {
     if (jsonOnly)
     {
@@ -127,7 +127,7 @@ module.exports.createNewProject = function (jsonOnly, agent, projectData, cb)
     }
 };
 
-module.exports.viewProject = function (jsonOnly, agent, projectHandle, cb)
+const viewProject = module.exports.viewProject = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -152,7 +152,7 @@ module.exports.viewProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-module.exports.updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb)
+const updateMetadataWrongRoute = module.exports.updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb)
 {
     if (jsonOnly)
     {
@@ -177,7 +177,7 @@ module.exports.updateMetadataWrongRoute = function (jsonOnly, agent, projectHand
     }
 };
 
-module.exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb)
+const updateMetadataCorrectRoute = module.exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb)
 {
     // / project/:handle/data/folderpath?update_metadata
     const path = "/project/" + projectHandle + "/data/" + folderPath + "?update_metadata";
@@ -206,7 +206,7 @@ module.exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHa
     }
 };
 
-module.exports.getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb)
+const getMetadataRecomendationsForProject = module.exports.getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -230,7 +230,7 @@ module.exports.getMetadataRecomendationsForProject = function (jsonOnly, agent, 
     }
 };
 
-module.exports.getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb)
+const getRecommendationOntologiesForProject = module.exports.getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // recommendation_ontologies
     const path = "/project/" + projectHandle + "?recommendation_ontologies";
@@ -256,7 +256,7 @@ module.exports.getRecommendationOntologiesForProject = function (jsonOnly, agent
     }
 };
 
-module.exports.getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
+const getProjectRootContent = module.exports.getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -279,7 +279,7 @@ module.exports.getProjectRootContent = function (jsonOnly, agent, projectHandle,
     }
 };
 
-module.exports.getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb)
+const getResourceMetadata = module.exports.getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb)
 {
     // http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
     const path = "/project/" + projectHandle + "/data/" + folderPath + "?metadata";
@@ -306,7 +306,7 @@ module.exports.getResourceMetadata = function (jsonOnly, agent, projectHandle, f
     }
 };
 
-module.exports.getProjectMetadata = function (jsonOnly, agent, projectHandle, cb)
+const getProjectMetadata = module.exports.getProjectMetadata = function (jsonOnly, agent, projectHandle, cb)
 {
     const path = "/project/" + projectHandle + "?metadata";
     if (jsonOnly)
@@ -333,7 +333,7 @@ module.exports.getProjectMetadata = function (jsonOnly, agent, projectHandle, cb
     }
 };
 
-module.exports.getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb)
+const getProjectMetadataDeep = module.exports.getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb)
 {
     const path = "/project/" + projectHandle + "?metadata&deep";
     if (jsonOnly)
@@ -360,7 +360,7 @@ module.exports.getProjectMetadataDeep = function (jsonOnly, agent, projectHandle
     }
 };
 
-module.exports.removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb)
+const removeDescriptorFromFolder = module.exports.removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb)
 {
     getResourceMetadata(jsonOnly, agent, projectHandle, folderPath, function (err, res)
     {
@@ -376,7 +376,7 @@ module.exports.removeDescriptorFromFolder = function (jsonOnly, agent, projectHa
     });
 };
 
-module.exports.getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
+const getProjectVersion = module.exports.getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
 {
     // project/:handle?version
     const path = "/project/" + projectHandle;
@@ -405,7 +405,7 @@ module.exports.getProjectVersion = function (jsonOnly, agent, projectHandle, ver
     }
 };
 
-module.exports.importProjectHTMLPage = function (jsonOnly, agent, cb)
+const importProjectHTMLPage = module.exports.importProjectHTMLPage = function (jsonOnly, agent, cb)
 {
     const path = "/projects/import";
     if (jsonOnly)
@@ -430,7 +430,7 @@ module.exports.importProjectHTMLPage = function (jsonOnly, agent, cb)
     }
 };
 
-module.exports.importProject = function (jsonOnly, agent, project, cb)
+const importProject = module.exports.importProject = function (jsonOnly, agent, project, cb)
 {
     console.log("Importing " + project.handle + " from zip file " + project.backup_path);
     // /projects/import
@@ -463,7 +463,7 @@ module.exports.importProject = function (jsonOnly, agent, project, cb)
     }
 };
 
-module.exports.getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb)
+const getRequestProjectAccessPage = module.exports.getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/request_access
     const path = "/project/" + projectHandle + "?request_access";
@@ -490,7 +490,7 @@ module.exports.getRequestProjectAccessPage = function (jsonOnly, agent, projectH
     }
 };
 
-module.exports.requestAccessToProject = function (jsonOnly, agent, projectHandle, cb)
+const requestAccessToProject = module.exports.requestAccessToProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/request_access
     const path = "/project/" + projectHandle + "?request_access";
@@ -517,7 +517,7 @@ module.exports.requestAccessToProject = function (jsonOnly, agent, projectHandle
     }
 };
 
-module.exports.deleteProject = function (jsonOnly, agent, projectHandle, cb)
+const deleteProject = module.exports.deleteProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/delete
     const path = "/project/" + projectHandle + "?delete";
@@ -544,7 +544,7 @@ module.exports.deleteProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-module.exports.undeleteProject = function (jsonOnly, agent, projectHandle, cb)
+const undeleteProject = module.exports.undeleteProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/undelete
     const path = "/project/" + projectHandle + "?undelete";
@@ -571,7 +571,7 @@ module.exports.undeleteProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-module.exports.createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb)
+const createFolderInProjectRoot = module.exports.createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb)
 {
     // /project/:handle?mkdir
     const path = "/project/" + projectHandle;
@@ -601,7 +601,7 @@ module.exports.createFolderInProjectRoot = function (jsonOnly, agent, projectHan
     }
 };
 
-module.exports.getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb)
+const getProjectRecentChanges = module.exports.getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb)
 {
     // / project/:handle?recent_changes
     const path = "/project/" + projectHandle + "?recent_changes";
@@ -629,7 +629,7 @@ module.exports.getProjectRecentChanges = function (jsonOnly, agent, projectHandl
     }
 };
 
-module.exports.administer = function (agent, modify, projectData, projectHandle, cb)
+const administer = module.exports.administer = function (agent, modify, projectData, projectHandle, cb)
 {
     if (modify)
     {
@@ -652,7 +652,7 @@ module.exports.administer = function (agent, modify, projectData, projectHandle,
     }
 };
 
-module.exports.bagit = function (agent, projectHandle, cb)
+const bagit = module.exports.bagit = function (agent, projectHandle, cb)
 {
     agent
         .get("/project/" + projectHandle + "?bagit")
@@ -664,7 +664,7 @@ module.exports.bagit = function (agent, projectHandle, cb)
         });
 };
 
-module.exports.getProjectContributors = function (agent, projectHandle, cb)
+const getProjectContributors = module.exports.getProjectContributors = function (agent, projectHandle, cb)
 {
     // project/proj1?get_contributors
     const path = "/project/" + projectHandle + "?get_contributors";
@@ -676,7 +676,7 @@ module.exports.getProjectContributors = function (agent, projectHandle, cb)
         });
 };
 
-module.exports.getContentsOfFile = function (zipPath, callback)
+const getContentsOfFile = module.exports.getContentsOfFile = function (zipPath, callback)
 {
     File.unzip(zipPath, function (err, pathOfUnzippedContents)
     {
@@ -703,13 +703,13 @@ module.exports.getContentsOfFile = function (zipPath, callback)
     });
 };
 
-module.exports.getProjectBagitMetadataFromBackup = function (pathOfUnzippedContents)
+const getProjectBagitMetadataFromBackup = module.exports.getProjectBagitMetadataFromBackup = function (pathOfUnzippedContents)
 {
     const metadataFilePath = path.join(pathOfUnzippedContents, "bag-info.txt");
     return fs.readFileSync(metadataFilePath, "utf8");
 };
 
-module.exports.getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectHandle)
+const getFileTreeMetadataFromBackup = module.exports.getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectHandle)
 {
     const metadataFilePath = path.join(pathOfUnzippedContents, "data", projectHandle, "metadata.json");
     metadataContents = fs.readFileSync(metadataFilePath, "utf8");
@@ -839,7 +839,7 @@ module.exports.getFileTreeMetadataFromBackup = function (pathOfUnzippedContents,
     return metadataContents;
 };
 
-module.exports.metadataMatchesBackup = function (project, bodyBuffer, callback)
+const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (project, bodyBuffer, callback)
 {
     const parseBagItMetadata = function (result)
     {
@@ -943,7 +943,7 @@ module.exports.metadataMatchesBackup = function (project, bodyBuffer, callback)
         });
 };
 
-module.exports.contentsMatchBackup = function (project, bodyBuffer, callback)
+const contentsMatchBackup = module.exports.contentsMatchBackup = function (project, bodyBuffer, callback)
 {
     const fs = require("fs");
     const tmp = require("tmp");
@@ -990,7 +990,7 @@ module.exports.contentsMatchBackup = function (project, bodyBuffer, callback)
         });
 };
 
-module.exports.countProjectTriples = function (projectUri, callback)
+const countProjectTriples = module.exports.countProjectTriples = function (projectUri, callback)
 {
     const self = this;
 
@@ -1034,7 +1034,7 @@ module.exports.countProjectTriples = function (projectUri, callback)
         });
 };
 
-module.exports.countProjectFilesInGridFS = function (projectUri, callback, customBucket)
+const countProjectFilesInGridFS = module.exports.countProjectFilesInGridFS = function (projectUri, callback, customBucket)
 {
     const self = this;
 
@@ -1083,7 +1083,7 @@ module.exports.countProjectFilesInGridFS = function (projectUri, callback, custo
     });
 };
 
-module.exports.getProjectUriFromHandle = function (agent, projectHandle, callback)
+const getProjectUriFromHandle = module.exports.getProjectUriFromHandle = function (agent, projectHandle, callback)
 {
     listAllMyProjects(true, agent, function (err, res)
     {
@@ -1097,7 +1097,7 @@ module.exports.getProjectUriFromHandle = function (agent, projectHandle, callbac
     });
 };
 
-module.exports.projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
+const projectStorage = module.exports.projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
 {
     if (modify && storageConfig)
     {

@@ -1,11 +1,11 @@
 {
     "dev": {
-        "port": 3001,
-        "host": "127.0.0.1:3001",
+        "port": 3002,
+        "host": "127.0.0.1:3002",
         "crypto": {
             "secret": "THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzAIAIMARIA"
         },
-        "baseUri": "http://127.0.0.1:3001",
+        "baseUri": "http://127.0.0.1:3002",
         "environment": "development",
         "skipDescriptorValuesValidation": false,
         "eudatBaseUrl": "https://trng-b2share.eudat.eu",
@@ -253,16 +253,16 @@
             }
         },
         "startup": {
-            "load_databases": false,
+            "load_databases": true,
             "reload_administrators_on_startup": false,
             "reload_demo_users_on_startup": false,
             "reload_ontologies_on_startup": true,
             "clear_session_store": true,
             "log_bootup_actions": true,
-            "destroy_all_graphs": true,
-            "destroy_all_indexes": true,
-            "destroy_files_store": true,
-            "destroy_datastore": true
+            "destroy_all_graphs": false,
+            "destroy_all_indexes": false,
+            "destroy_files_store": false,
+            "destroy_datastore": false
         },
         "baselines": {},
         "logging": {

@@ -19,7 +19,7 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const createFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
+const createFilesB2dropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFilesB2drop.Unit.js"));
 const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
 const allFiles = createFilesUnit.allFiles;
@@ -35,7 +35,7 @@ describe("[File Cut / Move] [B2Drop project] cutFiles ?paste", function ()
         this.timeout(Config.testsTimeout);
         beforeEach(function (done)
         {
-            createFoldersB2DropUnit.setup(function (err, results)
+            createFilesB2dropUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();
@@ -440,7 +440,7 @@ describe("[File Cut / Move] [B2Drop project] cutFiles ?paste", function ()
     {
         beforeEach(function (done)
         {
-            createFilesUnit.setup(function (err, results)
+            createFilesB2dropUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();

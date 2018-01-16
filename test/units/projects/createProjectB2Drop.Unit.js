@@ -5,11 +5,15 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const chai = require("chai");
 chai.use(require("chai-http"));
+const async = require("async");
+const path = require("path");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
 const b2dropProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 
@@ -65,8 +69,28 @@ module.exports.setup = function (finish)
                 {
                     projectUtils.createNewProject(true, agent, b2dropProjectData, function (err, res)
                     {
-                        end();
-                        finish(err, res);
+                        async.mapSeries([b2dropProjectData], function (projectData, cb)
+                        {
+                            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                            {
+                                if (err)
+                                {
+                                    cb(err, agent);
+                                }
+                                else
+                                {
+                                    userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
+                                    {
+                                        cb(err, res);
+                                    });
+                                }
+                            });
+                        }, function (err, results)
+                        {
+                            appUtils.registerStopTimeForUnit(path.basename(__filename));
+                            finish(err, results);
+                            end();
+                        });
                     });
                 }
             });
