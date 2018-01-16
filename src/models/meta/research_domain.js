@@ -24,7 +24,8 @@ function ResearchDomain (object)
 ResearchDomain.create = function (object, callback)
 {
     const self = new ResearchDomain(object);
-    self.getHumanReadableUri(function(err, uri){
+    self.getHumanReadableUri(function (err, uri)
+    {
         self.ddr.humanReadableURI = uri;
         return callback(null, self);
     });

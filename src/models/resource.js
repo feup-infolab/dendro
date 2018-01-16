@@ -1148,6 +1148,24 @@ Resource.prototype.save = function
         });
     };
 
+    const updateHumanReadableURI = function (newResource, cb)
+    {
+        self.getHumanReadableUri(
+            function (err, newHumanReadableUri)
+            {
+                if (isNull(err))
+                {
+                    self.ddr.humanReadableURI = newHumanReadableUri;
+                    cb(null, self);
+                }
+                else
+                {
+                    cb(1, "Unable to determine new human readable uri for resource " + newResource.uri);
+                }
+            }
+        );
+    };
+
     const updateResource = function (currentResource, newResource, cb)
     {
         const newDescriptors = newResource.getDescriptors();
@@ -1207,10 +1225,20 @@ Resource.prototype.save = function
         {
             if (isNull(currentResource))
             {
-                createNewResource(self, function (err, result)
+                updateHumanReadableURI(currentResource, function (err)
                 {
-                    // there was no existing resource with same URI, create a new one and exit immediately
-                    return callback(err, result);
+                    if (isNull(err))
+                    {
+                        createNewResource(self, function (err, result)
+                        {
+                            // there was no existing resource with same URI, create a new one and exit immediately
+                            return callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        return callback(err, "Unable to calculate Human Readable URI when saving new resource " + self.uri);
+                    }
                 });
             }
             else if (saveVersion)
@@ -1252,6 +1280,13 @@ Resource.prototype.save = function
             {
                 cb(null, currentResource, null);
             }
+        },
+        function (currentResource, archivedResource, cb)
+        {
+            updateHumanReadableURI(currentResource, function (err, currentResourceWithNewHumanReadableUri)
+            {
+                cb(err, currentResourceWithNewHumanReadableUri, archivedResource);
+            });
         },
         function (currentResource, archivedResource, cb)
         {
@@ -1883,6 +1918,85 @@ Resource.getUriFromHumanReadableUri = function (humanReadableUri, callback, cust
     }
 };
 
+Resource.getHumanReadableUriFromUri = function (uri, callback, customGraphUri, skipCache)
+{
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const getFromCache = function (callback)
+    {
+        // TODO
+        return callback(null, null);
+    };
+
+    const getFromTripleStore = function (callback)
+    {
+        db.connection.executeViaJDBC(
+            "SELECT ?uri \n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "  [1] ddr:humanReadableURI ?uri \n" +
+            "}\n",
+            [
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: graphUri
+                },
+                {
+                    type: Elements.ontologies.ddr.humanReadableURI.type,
+                    value: uri
+                }
+            ],
+            function (err, results)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(results) && results instanceof Array)
+                    {
+                        if (results.length === 1)
+                        {
+                            return callback(null, results[0].uri);
+                        }
+                        else if (results.length > 1)
+                        {
+                            return callback(1, "[ERROR] There are more than one human readable URI for internal URI  " + uri + " ! They are : " + JSON.stringify(results));
+                        }
+                        return callback(null, null);
+                    }
+                }
+                else
+                {
+                    return callback(err, results);
+                }
+            });
+    };
+
+    if (skipCache)
+    {
+        getFromTripleStore(function (err, resourceUri)
+        {
+            callback(err, resourceUri);
+        });
+    }
+    else
+    {
+        getFromCache(function (err, resourceUri)
+        {
+            if (isNull(err) && !isNull(resourceUri))
+            {
+                callback(null, resourceUri);
+            }
+            else
+            {
+                getFromTripleStore(function (err, resourceUri)
+                {
+                    callback(err, resourceUri);
+                });
+            }
+        });
+    }
+};
+
 /**
  * Will fetch all the data pertaining a resource from the last saved information
  * @param uri Uri of the resource to fetch
@@ -2281,15 +2395,6 @@ Resource.findByPropertyValue = function (
                     value: descriptor.value
                 });
             }
-
-            /* const query =
-                " SELECT DISTINCT ?uri ?value \n" +
-                " FROM [0] \n" +
-                " WHERE \n" +
-                " { \n" +
-                "   [1] ?uri ?value .\n" +
-                " } \n";
-                */
 
             db.connection.executeViaJDBC(
                 "SELECT ?resource_uri ?descriptor_uri ?value\n" +

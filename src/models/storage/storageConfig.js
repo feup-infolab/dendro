@@ -14,7 +14,7 @@ let StorageConfig = function (object)
 
     const initObject = function ()
     {
-        self.addURIAndRDFType(object, "storageConfig", StorageConfig);
+        self.addURIAndRDFType(object, "storage_config", StorageConfig);
         StorageConfig.baseConstructor.call(self, object);
 
         self.copyOrInitDescriptors(object);
@@ -191,6 +191,22 @@ StorageConfig.findByProjectAndType = function (projectUri, storageType, callback
     else
     {
         callback(1, "Project Uri or Storage Type missing when retrieving a storage configuration.");
+    }
+};
+
+StorageConfig.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const uuid = require("uuid");
+        const newId = uuid.v4();
+        callback(null, "/storage_config/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
     }
 };
 

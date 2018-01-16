@@ -1755,31 +1755,6 @@ Folder.prototype.forAllChildren = function (
     );
 };
 
-Folder.prototype.getHumanReadableUri = function(callback)
-{
-    const self = this;
-
-    if (!isNull(self.nie))
-    {
-        if(isNull(self.nie.isLogicalPartOf))
-        {
-            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.isLogicalPartOf in the object!");
-        }
-        else if(isNull(self.nie.title))
-        {
-            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.title in the object!");
-        }
-        else
-        {
-            callback(null, self.nie.isLogicalPartOf + "/" + self.nie.title);
-        }
-    }
-    else
-    {
-        callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
-    }
-};
-
 Folder = Class.extend(Folder, InformationElement, "nfo:Folder");
 
 module.exports.Folder = Folder;

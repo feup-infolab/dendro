@@ -75,7 +75,7 @@ ExternalRepository.findByCreator = function (creatorUri, callback)
         });
 };
 
-ExternalRepository.prototype.getHumanReadableUri = function(callback)
+ExternalRepository.prototype.getHumanReadableUri = function (callback)
 {
     const self = this;
 

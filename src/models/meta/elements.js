@@ -858,7 +858,7 @@ Elements.ontologies.ddr = {
             audit: true
         },
     humanReadableURI: {
-        type: Elements.types.string,
+        type: Elements.types.resourceNoEscape,
         control: Controls.input_box,
         private: true,
         locked: true,
@@ -1071,12 +1071,6 @@ Elements.ontologies.ddr = {
     originallyRecommendedFor:
         {
             type: Elements.types.resource,
-            api_readable: true,
-            control: Controls.url_box
-        },
-    username:
-        {
-            type: Elements.types.string,
             api_readable: true,
             control: Controls.url_box
         },

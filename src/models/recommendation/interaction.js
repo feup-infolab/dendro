@@ -38,7 +38,8 @@ Interaction.create = function (object, callback)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.getHumanReadableUri(function(err, uri){
+        self.getHumanReadableUri(function (err, uri)
+        {
             self.ddr.humanReadableURI = uri;
             return callback(null, self);
         });

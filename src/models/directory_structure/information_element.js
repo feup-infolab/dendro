@@ -961,7 +961,7 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
                     return callback(null, result);
                 }
 
-                const msg = "Error checking if resource " + self.uri + " is contained in " + anotherResourceUri;
+                const msg = "Error checking if resource " + self.uri + " is contained in " + parentResource.uri;
                 Logger.log("error", msg);
                 return callback(err, msg);
             });
@@ -984,7 +984,24 @@ InformationElement.prototype.getHumanReadableUri = function (callback)
         }
         else
         {
-            callback(null, self.nie.isLogicalPartOf + "/" + self.nie.title);
+            Resource.getHumanReadableUriFromUri(self.nie.isLogicalPartOf, function (err, parentHumanReadableUri)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(parentHumanReadableUri))
+                    {
+                        callback(null, parentHumanReadableUri + "/" + self.nie.title);
+                    }
+                    else
+                    {
+                        callback(1, "Unable to get parent human readable URI for folder " + self.uri);
+                    }
+                }
+                else
+                {
+                    callback(1, "Error getting parent human readable URI for folder " + self.uri);
+                }
+            });
         }
     }
     else

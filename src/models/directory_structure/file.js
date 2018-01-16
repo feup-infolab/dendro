@@ -1517,31 +1517,6 @@ File.prototype.getProjectStorage = function (callback)
     });
 };
 
-File.prototype.getHumanReadableUri = function (callback)
-{
-    const self = this;
-
-    if (!isNull(self.nie))
-    {
-        if (isNull(self.nie.isLogicalPartOf))
-        {
-            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.isLogicalPartOf in the object!");
-        }
-        else if (isNull(self.nie.title))
-        {
-            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.title in the object!");
-        }
-        else
-        {
-            callback(null, self.nie.isLogicalPartOf + "/" + self.nie.title);
-        }
-    }
-    else
-    {
-        callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
-    }
-};
-
 File = Class.extend(File, InformationElement, "nfo:FileDataObject");
 
 module.exports.File = File;
