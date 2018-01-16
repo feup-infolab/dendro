@@ -25,13 +25,6 @@ function ManualPost (object)
 
     self.copyOrInitDescriptors(object);
 
-    const newId = uuid.v4();
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = "/posts/" + newId;
-    }
-
     self.ddr.numLikes = 0;
 
     return self;
@@ -54,10 +47,20 @@ ManualPost.buildManualPost = function (userUri, project, postInfo, callback)
     callback(null, newPost);
 };
 
-/*
-ManualPost = Class.extend(ManualPost, Post);
+ManualPost.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
 
-module.exports.ManualPost = ManualPost; */
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        callback(null, "/posts/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
+};
 
 ManualPost = Class.extend(ManualPost, Post, "ddr:ManualPost");
 

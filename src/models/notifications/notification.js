@@ -14,12 +14,6 @@ function Notification (object)
     Notification.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = "/notifications/" + uuid.v4();
-    }
-
     return self;
 }
 
@@ -33,6 +27,21 @@ function Notification (object)
 // userWhoActed -> user who commmented/etc
 // actionType -> comment/like/share
 // status-> read/unread
+
+Notification.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        callback(null, "/notifications/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
+};
 
 Notification = Class.extend(Notification, Resource, "ddr:Notification");
 

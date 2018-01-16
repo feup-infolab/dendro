@@ -13,31 +13,22 @@ function RepositoryPlatform (object)
     const self = this;
     self.addURIAndRDFType(object, "repo_platform", RepositoryPlatform);
     RepositoryPlatform.baseConstructor.call(this, object);
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        const slug = require("slug");
-
-        if (!isNull(object.ddr))
-        {
-            if (isNull(object.ddr.humanReadableURI))
-            {
-                if (!isNull(self.ddr.handle) && !isNull(self.dcterms.title))
-                {
-                    self.ddr.humanReadableURI = "/repository_platform/" + object.ddr.handle;
-                }
-                else
-                {
-                    const error = "Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title";
-                    Logger.log("error", error);
-                    return {error: error};
-                }
-            }
-        }
-    }
-
     return self;
 }
+
+RepositoryPlatform.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.handle))
+    {
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.handle property.");
+    }
+    else
+    {
+        callback(null, "/repository_platform/" + self.ddr.handle);
+    }
+};
 
 RepositoryPlatform = Class.extend(RepositoryPlatform, Resource, "ddr:RepositoryPlatform");
 

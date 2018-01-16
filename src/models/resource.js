@@ -30,11 +30,6 @@ function Resource (object)
         self.rdf.type = object.rdf.type;
     }
 
-    if (!isNull(object.ddr) && !isNull(object.ddr.humanReadableUri))
-    {
-        self.ddr.humanReadableUri = object.ddr.humanReadableUri;
-    }
-
     return self;
 }
 
@@ -3818,6 +3813,21 @@ Resource.getCount = function (callback)
             return callback(err, count);
         }
     );
+};
+
+Resource.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+    const myIdentifier = self.uri.match("/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
+    if (!isNull(myIdentifier) && myIdentifier instanceof Array && myIdentifier.length === 1)
+    {
+        callback(null, "/resource/" + myIdentifier[0].substr(1));
+    }
+    else
+    {
+        callback(1, "Unable to retrieve human-readable URI of resource " + self.uri + " because it has no UUID");
+    }
 };
 
 Resource = Class.extend(Resource, Class, "ddr:Resource");

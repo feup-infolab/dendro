@@ -25,14 +25,6 @@ function MetadataChangePost (object)
     MetadataChangePost.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-
-    const newId = uuid.v4();
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = "/posts/" + newId;
-    }
-
     return self;
 }
 
@@ -214,7 +206,21 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb)
     });
 };
 
-/* MetadataChangePost = Class.extend(MetadataChangePost, Post); */
+MetadataChangePost.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        callback(null, "/posts/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
+};
+
 MetadataChangePost = Class.extend(MetadataChangePost, Post, "ddr:MetadataChangePost");
 
 module.exports.MetadataChangePost = MetadataChangePost;

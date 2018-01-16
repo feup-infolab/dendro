@@ -27,13 +27,6 @@ function FileSystemPost (object)
 
     self.copyOrInitDescriptors(object);
 
-    const newId = uuid.v4();
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = "/posts/" + newId;
-    }
-
     return self;
 }
 
@@ -187,6 +180,21 @@ FileSystemPost.prototype.getResourceInfo = function (callback)
             callback(err, resource);
         }
     }, null, db.graphUri, false, null, null);
+};
+
+FileSystemPost.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        self.ddr.humanReadableURI = "/posts/" + newId;
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
 };
 
 /* FileSystemPost = Class.extend(FileSystemPost, Post); */

@@ -33,11 +33,6 @@ function InformationElement (object)
         {
             self.nie.title = object.nie.title;
         }
-
-        if (isNull(self.ddr.humanReadableURI))
-        {
-            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
-        }
     }
 
     return self;
@@ -196,19 +191,6 @@ InformationElement.prototype.calculateHumanReadableUri = function (callback)
         });
     });
 };
-
-// InformationElement.prototype.save = function (callback)
-// {
-//     const self = this;
-//     self.calculateHumanReadableUri(function (err, newHumanReadableUri)
-//     {
-//         self.ddr.humanReadableURI = newHumanReadableUri;
-//         Resource.prototype.save.call(self, function (err, result)
-//         {
-//             callback(err, result);
-//         });
-//     });
-// };
 
 InformationElement.prototype.getAllParentsUntilProject = function (callback)
 {
@@ -983,6 +965,31 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
                 Logger.log("error", msg);
                 return callback(err, msg);
             });
+    }
+};
+
+InformationElement.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (!isNull(self.nie))
+    {
+        if (isNull(self.nie.isLogicalPartOf))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.isLogicalPartOf in the object!");
+        }
+        else if (isNull(self.nie.title))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.title in the object!");
+        }
+        else
+        {
+            callback(null, self.nie.isLogicalPartOf + "/" + self.nie.title);
+        }
+    }
+    else
+    {
+        callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
     }
 };
 

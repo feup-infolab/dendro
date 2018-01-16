@@ -22,14 +22,6 @@ function Share (object)
     Share.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-
-    const newId = uuid.v4();
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = "/shares/" + newId;
-    }
-
     return self;
 }
 
@@ -37,6 +29,21 @@ Share.buildFromInfo = function (info, callback)
 {
     let newShare = new this(info);
     callback(null, newShare);
+};
+
+Share.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        callback(null, "/shares/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
 };
 
 Share = Class.extend(Share, Post, "ddr:Share");

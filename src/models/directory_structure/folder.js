@@ -28,15 +28,6 @@ function Folder (object)
     self.addURIAndRDFType(object, "folder", Folder);
     Folder.baseConstructor.call(this, object);
 
-    if (
-        isNull(self.ddr) &&
-        isNull(self.ddr.humanReadableURI) &&
-        !isNull(object.nie)
-    )
-    {
-        self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
-    }
-
     self.ddr.fileExtension = "folder";
     self.ddr.hasFontAwesomeClass = "fa-folder";
 
@@ -1762,6 +1753,31 @@ Folder.prototype.forAllChildren = function (
             finalCallback(err, "All children of resource " + self.uri + " retrieved via pagination query.");
         }
     );
+};
+
+Folder.prototype.getHumanReadableUri = function(callback)
+{
+    const self = this;
+
+    if (!isNull(self.nie))
+    {
+        if(isNull(self.nie.isLogicalPartOf))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.isLogicalPartOf in the object!");
+        }
+        else if(isNull(self.nie.title))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.title in the object!");
+        }
+        else
+        {
+            callback(null, self.nie.isLogicalPartOf + "/" + self.nie.title);
+        }
+    }
+    else
+    {
+        callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
+    }
 };
 
 Folder = Class.extend(Folder, InformationElement, "nfo:Folder");

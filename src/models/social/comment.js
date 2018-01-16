@@ -15,15 +15,23 @@ function Comment (object)
 
     self.copyOrInitDescriptors(object);
 
-    const newId = uuid.v4();
+    return self;
+}
+
+Comment.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = "/comments/" + newId;
+        const newId = uuid.v4();
+        callback(null, "/comments/" + newId);
     }
-
-    return self;
-}
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
+};
 
 Comment = Class.extend(Comment, Event, "ddr:Comment");
 

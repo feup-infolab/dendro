@@ -26,37 +26,27 @@ let Interaction = function (object)
 Interaction.create = function (object, callback)
 {
     let self = new Interaction(object);
-    const now = new Date();
+
+    // if(!isNull(object.ddr.created))
+    // {
+    //     self.ddr.created = object.ddr.created;
+    // }
+    // else
+    // {
+    //     self.ddr.created = new Date();
+    // }
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-        if (self.ddr.performedBy instanceof Object)
-        {
-            self.ddr.humanReadableURI = "/user/" + self.ddr.performedBy.ddr.username + "/interaction/" + self.ddr.created;
+        self.getHumanReadableUri(function(err, uri){
+            self.ddr.humanReadableURI = uri;
             return callback(null, self);
-        }
-        else if (typeof self.ddr.performedBy === "string")
-        {
-            User.findByUri(self.ddr.performedBy, function (err, user)
-            {
-                if (isNull(err) && !isNull(user))
-                {
-                    self.ddr.humanReadableURI = "/user/" + user.ddr.username + "/interaction/" + self.ddr.created;
-                }
-                else
-                {
-                    return callback(1, "Unable to fetch user with uri " + self.ddr.performedBy);
-                }
-            });
-        }
-        else
-        {
-            return callback(1, "no author user specified for interaction. " + self.ddr.performedBy);
-        }
+        });
     }
-
-    return callback(null, self);
+    else
+    {
+        return callback(null, self);
+    }
 };
 
 Interaction.all = function (callback, streaming, customGraphUri)
@@ -563,6 +553,32 @@ Interaction.types =
     fill_in_inherited_descriptor: {
         key: "fill_in_inherited_descriptor",
         label: "Fill in inherited descriptor"
+    }
+};
+
+Interaction.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+    const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+    if (self.ddr.performedBy instanceof Object)
+    {
+        return callback(null, "/user/" + self.ddr.performedBy.ddr.username + "/interaction/" + self.ddr.created);
+    }
+    else if (typeof self.ddr.performedBy === "string")
+    {
+        User.findByUri(self.ddr.performedBy, function (err, user)
+        {
+            if (isNull(err) && !isNull(user))
+            {
+                return callback(null, "/user/" + user.ddr.username + "/interaction/" + self.ddr.created);
+            }
+
+            return callback(1, "Unable to get human readable uri for " + self.uri + " because the user in its ddr.performedBy (" + self.ddr.performedBy + ") property was not found");
+        });
+    }
+    else
+    {
+        return callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.performedBy property.");
     }
 };
 

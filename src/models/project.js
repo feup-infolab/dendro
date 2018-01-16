@@ -35,11 +35,6 @@ function Project (object)
     self.addURIAndRDFType(object, "project", Project);
     Project.baseConstructor.call(this, object);
 
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = "/project/" + self.ddr.handle;
-    }
-
     if (isNull(object.ddr != null))
     {
         if (object.ddr.hasStorageLimit)
@@ -1985,6 +1980,20 @@ Project.prototype.reindex = function (callback, customGraphUri)
             callback(err, rootFolder);
         }
     });
+};
+
+Project.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.handle))
+    {
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.handle property.");
+    }
+    else
+    {
+        callback(null, "/project/" + self.ddr.handle);
+    }
 };
 
 Project = Class.extend(Project, Resource, "ddr:Project");

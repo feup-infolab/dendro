@@ -19,11 +19,25 @@ function Administrator (object)
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = "/administrator/" + self.ddr.username;
+
     }
 
     return self;
 }
+
+Administrator.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.username))
+    {
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.username property.");
+    }
+    else
+    {
+        callback(null, "/administrator/" + self.ddr.username);
+    }
+};
 
 Administrator = Class.extend(Administrator, User, "ddr:Administrator");
 

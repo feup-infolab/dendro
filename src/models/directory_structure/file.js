@@ -29,11 +29,6 @@ function File (object)
     {
         self.nie.isLogicalPartOf = object.nie.isLogicalPartOf;
         self.nie.title = object.nie.title;
-
-        if (isNull(self.ddr.humanReadableURI))
-        {
-            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
-        }
     }
 
     const re = /(?:\.([^.]+))?$/;
@@ -1522,56 +1517,30 @@ File.prototype.getProjectStorage = function (callback)
     });
 };
 
-// File.prototype.moveToFolder = function(newParentFolder, callback)
-// {
-//     const self = this;
-//
-//     const oldParent = self.nie.isLogicalPartOf;
-//     const newParent = newParentFolder.uri;
-//
-//     const query =
-//         "DELETE DATA " +
-//         "{ " +
-//         "GRAPH [0] " +
-//         "{ " +
-//         "[1] nie:title ?title . " +
-//         "} " +
-//         "}; " +
-//
-//         "INSERT DATA " +
-//         "{ " +
-//         "GRAPH [0] " +
-//         "{ " +
-//         "[1] nie:title [2] " +
-//         "} " +
-//         "}; ";
-//
-//     db.connection.executeViaJDBC(query,
-//         [
-//             {
-//                 type: Elements.types.resourceNoEscape,
-//                 value: db.graphUri
-//             },
-//             {
-//                 type: Elements.types.resource,
-//                 value: self.uri
-//             },
-//             {
-//                 type: Elements.types.string,
-//                 value: newTitle
-//             }
-//         ],
-//         function(err, result)
-//         {
-//             Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
-//             {
-//                 Cache.getByGraphUri(db.graphUri).delete(newParentFolder.uri, function (err, result)
-//                 {
-//                     return callback(err, result);
-//                 });
-//             });
-//         });
-// };
+File.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (!isNull(self.nie))
+    {
+        if (isNull(self.nie.isLogicalPartOf))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.isLogicalPartOf in the object!");
+        }
+        else if (isNull(self.nie.title))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.title in the object!");
+        }
+        else
+        {
+            callback(null, self.nie.isLogicalPartOf + "/" + self.nie.title);
+        }
+    }
+    else
+    {
+        callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
+    }
+};
 
 File = Class.extend(File, InformationElement, "nfo:FileDataObject");
 
