@@ -287,7 +287,14 @@ Logger.log = function (type, message, printStack)
 
         if (!isNull(Logger.logger))
         {
-            Logger.logger.error(msg);
+            if (message instanceof Object)
+            {
+                Logger.logger.error(JSON.stringify(msg));
+            }
+            else
+            {
+                Logger.logger.error(msg);
+            }
         }
         else
         {
