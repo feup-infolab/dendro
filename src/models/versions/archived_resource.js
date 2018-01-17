@@ -1,210 +1,273 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const db = Config.getDBByID();
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 
 function ArchivedResource (object)
 {
-    ArchivedResource.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "archived_resource", ArchivedResource);
+    ArchivedResource.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
-    if(!isNull(object.rdf.type))
+    self.ddr.isVersionOf = object.ddr.isVersionOf;
+
+    if (!isNull(object.rdf.type))
     {
-        if(object.rdf.type instanceof Array)
+        if (object.rdf.type instanceof Array)
         {
-            self.rdf.type.push("ddr:ArchivedResource");
+            if (!_.contains(object.rdf.type, "ddr:ArchivedResource"))
+            {
+                self.rdf.type = object.rdf.type.concat(["ddr:ArchivedResource"]);
+            }
         }
-        else
+        else if (typeof object.rdf.type === "string")
         {
-            self.rdf.type = [self.rdf.type, "ddr:ArchivedResource"];
+            if (object.rdf.type !== "ddr:ArchivedResource")
+            {
+                self.rdf.type = [object.rdf.type, "ddr:ArchivedResource"];
+            }
         }
-    }
-    else
-    {
-        self.rdf.type = "ddr:ArchivedResource";
     }
 
     const now = new Date();
-    if(isNull(object.dcterms.created))
+    if (isNull(self.ddr.created))
     {
-        self.dcterms.created = now.toISOString();
+        self.ddr.created = now.toISOString();
     }
 
     return self;
 }
 
-ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionNumber, callback)
+ArchivedResource.findByResourceAndVersionNumber = function (resourceUri, versionNumber, callback, customGraphUri)
 {
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
     try
     {
-        versionNumber = parseInt(versionNumber);
-
-        if(!isNull(versionNumber) && typeof versionNumber === 'number' && versionNumber%1 === 0)
+        if (!isNull(versionNumber) && typeof versionNumber === "number" && versionNumber % 1 === 0)
         {
-            const archivedVersionUri = resourceUri + "/version/" + versionNumber;
+            db.connection.executeViaJDBC(
+                "SELECT ?archived_resource\n" +
+                "FROM [0]\n" +
+                "WHERE \n" +
+                "{ \n" +
+                "   ?archived_resource ddr:isVersionOf [1]. \n" +
+                "   ?archived_resource ddr:versionNumber [2]. \n" +
+                "} \n",
 
-            ArchivedResource.findByUri(archivedVersionUri, callback);
+                [
+                    {
+                        type: Elements.types.resourceNoEscape,
+                        value: graphUri
+                    },
+                    {
+                        type: Elements.ontologies.ddr.isVersionOf.type,
+                        value: resourceUri
+                    },
+                    {
+                        type: Elements.ontologies.ddr.versionNumber.type,
+                        value: versionNumber
+                    }
+                ],
+                function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        if (results instanceof Array && results.length === 1)
+                        {
+                            ArchivedResource.findByUri(results[0].archived_resource, callback);
+                        }
+                        else
+                        {
+                            const msg = "Unable to determine the URI of the archived resource version " + versionNumber + " of " + resourceUri;
+                            Logger.log("error", msg);
+                            return callback(1, msg);
+                        }
+                    }
+                    else
+                    {
+                        const msg = "Error finding archived version " + versionNumber + " of resource " + resourceUri + " . Error returned: " + JSON.stringify(results);
+                        Logger.log("error", msg);
+                        return callback(err, msg);
+                    }
+                });
         }
         else
         {
             return callback(1, versionNumber + " is not a valid integer.");
         }
     }
-    catch(ex)
+    catch (ex)
     {
-        return callback(1, versionNumber + " is not a valid integer. Exception reported : "  + ex);
+        return callback(1, versionNumber + " is not a valid integer. Exception reported : " + ex);
     }
 };
 
-ArchivedResource.findByUri = function(uri, callback)
+ArchivedResource.findByUri = function (uri, callback)
 {
-    ArchivedResource.baseConstructor.findByUri(uri, function(err, archivedResource)
+    ArchivedResource.baseConstructor.findByUri(uri, function (err, archivedResource)
     {
-        if(!err && !isNull(archivedResource))
+        if (isNull(err) && !isNull(archivedResource))
         {
-            Change.findByAssociatedRevision(uri, function(err, changes)
+            Change.findByAssociatedRevision(uri, function (err, changes)
             {
-                if(!err)
+                if (isNull(err))
                 {
                     archivedResource = new ArchivedResource(JSON.parse(JSON.stringify(archivedResource)));
                     archivedResource.changes = changes;
                     return callback(null, archivedResource);
                 }
-                else
-                {
-                    return callback(1, archivedResource);
-                }
+                return callback(1, archivedResource);
             });
         }
         else
         {
             const error = "Unable to find archived resource with uri : " + uri;
-            console.error(error);
+            Logger.log("error", error);
             return callback(1, null);
         }
     });
 };
 
-ArchivedResource.prototype.getChanges = function(callback)
+ArchivedResource.prototype.getChanges = function (callback)
 {
     const self = this;
-    Change.findByAssociatedRevision(self.uri, function(err, changes)
+    Change.findByAssociatedRevision(self.uri, function (err, changes)
     {
-        if(!err)
+        if (isNull(err))
         {
             return callback(null, changes);
         }
-        else
-        {
-            return callback(1, changes);
-        }
-
-    })
+        return callback(1, changes);
+    });
 };
 
-ArchivedResource.prototype.getDetailedInformation = function(callback)
+ArchivedResource.prototype.getDetailedInformation = function (callback)
 {
     const self = this;
-
-    const authorUri = self.ddr.versionCreator;
 
     const archivedResource = new ArchivedResource(JSON.parse(JSON.stringify(self)));
     archivedResource.changes = self.changes;
 
-    const getAuthorInformation = function (callback) {
-        User.findByUri(authorUri, function (err, fullVersionCreator) {
-            if (!err) {
-                Descriptor.removeUnauthorizedFromObject(fullVersionCreator, [Config.types.private], [Config.types.api_readable]);
+    const getAuthorInformation = function (cb)
+    {
+        const authorUri = self.ddr.versionCreator;
+        User.findByUri(authorUri, function (err, fullVersionCreator)
+        {
+            if (isNull(err))
+            {
+                Descriptor.removeUnauthorizedFromObject(fullVersionCreator, [Elements.access_types.private], [Elements.access_types.api_readable]);
                 archivedResource.ddr.versionCreator = fullVersionCreator;
-                return callback(null);
+                return cb(null);
             }
-            else {
-                return callback(1);
-            }
+            return cb(1);
         });
     };
 
-    const setHumanReadableDate = function (callback) {
-        const moment = require('moment');
-        const humanReadableDate = moment(archivedResource.dcterms.created);
+    const setHumanReadableDate = function (cb)
+    {
+        const moment = require("moment");
+        const humanReadableDate = moment(archivedResource.ddr.created);
 
-        archivedResource.dcterms.created = humanReadableDate.calendar();
-        return callback(null);
+        archivedResource.ddr.created = humanReadableDate.calendar();
+        return cb(null);
     };
 
-    const getDescriptorInformation = function (callback) {
-        const fetchFullDescriptor = function (change, cb) {
-            Descriptor.findByUri(change.ddr.changedDescriptor, function (err, descriptor) {
-                if (!err) {
+    const getVersionedResourceDetail = function (cb)
+    {
+        Resource.findByUri(self.ddr.isVersionOf, function (err, versionedResource)
+        {
+            if (isNull(err))
+            {
+                archivedResource.ddr.isVersionOf = versionedResource;
+                return cb(null);
+            }
+            return cb(1);
+        });
+    };
+
+    const getDescriptorInformation = function (cb)
+    {
+        const fetchFullDescriptor = function (change, cb)
+        {
+            Descriptor.findByUri(change.ddr.changedDescriptor, function (err, descriptor)
+            {
+                if (isNull(err))
+                {
                     change.ddr.changedDescriptor = descriptor;
                     cb(null, change);
                 }
-                else {
+                else
+                {
                     cb(1, null);
                 }
             });
         };
 
-        if (!isNull(archivedResource.changes)) {
-            async.map(archivedResource.changes, fetchFullDescriptor, function (err, fullChanges) {
-                if (!err) {
-                    archivedResource.changes = fullChanges;
-                    Descriptor.removeUnauthorizedFromObject(archivedResource, [Config.types.private], [Config.types.api_readable]);
-                    return callback(0);
-                }
-                else {
-                    return callback(1, "Unable to fetch descriptor information. Reported Error: " + fullChanges);
-                }
-            });
-        }
-        else {
-            return callback(0);
-        }
-    };
+        if (!isNull(archivedResource.changes))
+        {
+            async.mapSeries(
+                archivedResource.changes,
+                fetchFullDescriptor,
+                function (err, fullChanges)
+                {
+                    if (isNull(err))
+                    {
+                        archivedResource.changes = fullChanges;
+                        Descriptor.removeUnauthorizedFromObject(archivedResource, [Elements.access_types.private], [Elements.access_types.api_readable]);
+                        return cb(null);
+                    }
 
-    const getVersionedResourceDetail = function (callback) {
-        Resource.findByUri(self.ddr.isVersionOf, function (err, versionedResource) {
-            if (!err) {
-                archivedResource.ddr.isVersionOf = versionedResource;
-                return callback(null);
-            }
-            else {
-                return callback(1);
-            }
-        })
+                    return cb(1, "Unable to fetch descriptor information. Reported Error: " + fullChanges);
+                });
+        }
+        else
+        {
+            return cb(null);
+        }
     };
 
     async.series([
         getAuthorInformation,
         setHumanReadableDate,
-        getDescriptorInformation,
-        getVersionedResourceDetail
+        getVersionedResourceDetail,
+        getDescriptorInformation
     ],
-    function(err, result)
+    function (err, result)
     {
         return callback(err, archivedResource);
     });
 };
 
-ArchivedResource = Class.extend(ArchivedResource, Resource);
+ArchivedResource.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.username))
+    {
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.newVersionNumber property.");
+    }
+    else
+    {
+        callback(null, self.ddr.isVersionOf + "/version/" + self.ddr.newVersionNumber);
+    }
+};
+
+ArchivedResource = Class.extend(ArchivedResource, Resource, "ddr:ArchivedResource");
 
 module.exports.ArchivedResource = ArchivedResource;

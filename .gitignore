@@ -32,7 +32,6 @@ build/Release
 node_modules/
 public/bower_components/
 bower_components/
-./conf/
 logs/
 jspm_packages
 
@@ -48,15 +47,18 @@ jspm_packages
 .idea/
 temp/
 
-*.csv
-
 .nyc_output
 build/config.gypi
 .idea/dendro.iml
 
-*.pdf
 running.pid
 
 .vs/dendro/v15/.suo
 .vs/VSWorkspaceState.json
 .vs/slnx.sqlite
+
+profiling/
+
+#ignoring the large file that is generated for export to ckan test
+test/mockdata/files/test_uploads/hugeTxtFile.txt
+.Rproj.user

@@ -1,65 +1,56 @@
 <ul class="list-group" id="file_explorer_area">
-        <%if(locals.breadcrumbs != null && locals.breadcrumbs.length > 0)
-        {
-        %>
-            <a href="#" ng-click="go_up_in_folder_explorer()" class="list-group-item">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h7 class="list-group-item-heading">
-                            <table class="explorer-table">
-                                <tr>
-                                    <td>
-                                        <%if(locals.breadcrumbs[0].show_home)
-                                        {
-                                        %>
-                                            <i class="fa fa-home file_explorer_icon" aria-hidden="true" style="font-size:32px;"></i>
-                                        <%
-                                        }
-                                        else
-                                        {
-                                        %>
-                                            <span class="fa-stack fa-lg file_explorer_icon">
-                                                <i class="fa fa-globe file_explorer_icon" aria-hidden="true" style="font-size:32px;"></i>
-                                            </span>
-                                        <%
-                                        }
-                                        %>
-
-                                    </td>
-                                    <td class="filename-tablecell">
-                                        <%=locals.breadcrumbs[0].title%>
-                                    </td>
-                                </tr>
-                            </table>
-                        </h7>
-                    </div>
+        <a href="<%= locals.go_up_options.uri %>" class="list-group-item">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h7 class="list-group-item-heading">
+                        <table class="explorer-table">
+                            <tr>
+                                <td>
+                                    <div class="parent">
+                                        <%  if(locals.go_up_options.icons[0]){    %>
+                                                <img class="image1_stacked" src="<%= locals.go_up_options.icons[0] %>">
+                                        <%  }%>
+                                        <%  if(locals.go_up_options.icons[1]){  %>
+                                                <img class="image2_stacked" src="<%= locals.go_up_options.icons[1] %>">
+                                        <%  }%>
+                                    </div>
+                                </td>
+                                <td class="filename-tablecell">
+                                    <%= locals.go_up_options.title %>
+                                </td>
+                            </tr>
+                        </table>
+                    </h7>
                 </div>
-            </a>
-        <%
-        }
-        %>
+            </div>
+        </a>
 
         <a ng-repeat="file in shared.folder_contents"
            ng-show="shared.folder_contents != null && (!file.ddr.deleted || shared.showing_deleted_files)"
-           class="list-group-item ng-hide"
            ng-click="clicked_file_explorer_node($index)"
            nc-blur="clear_selected_files()"
            ng-class="{active: file.selected}"
-           href="#">
+           context-menu="menuOptions(file)"
+           href="#"
+           class="list-group-item ng-hide">
                 <div class="row">
                     <div class="col-lg-12">
                         <h7 class="list-group-item-heading">
                             <table class="explorer-table">
                                 <tr>
                                     <td ng-show="shared.multiple_selection_active">
-                                        <input  type="checkbox" ng-model="file.selected" multiple>
+                                        <img src="/images/icons/check_box_uncheck.png" ng-show="!file.selected">
+                                        <img src="/images/icons/check_box.png" ng-show="file.selected">
                                     </td>
-                                    <td>
-                                        <img ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" image-spinner width=32 height=32"/>
+                                    <td class="parent_stacked_image">
+                                        <img class="image1_stacked_file_browser" ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" image-spinner/>
+                                        <img class="image2_stacked_file_browser" src="/images/icons/bullet_yellow.png" ng-if="file.ddr.processingData" image-spinner/>
+                                        <img class="image2_stacked_file_browser" src="/images/icons/bullet_green.png" ng-if="file.ddr.hasDataContent" image-spinner/>
+                                        <img class="image2_stacked_file_browser" src="/images/icons/bullet_orange.png" ng-if="file.ddr.hasDataProcessingError" image-spinner/>
+                                        <img class="image2_stacked_file_browser" src="/images/icons/bin.png" ng-if="file.ddr.deleted" image-spinner/>
                                     </td>
                                     <td class="filename-tablecell">
                                         <small>{{file.nie.title}}</small>
-                                        <span ng-show="file.ddr.deleted" class="label label-warning">Deleted</span>
                                     </td>
                                 </tr>
                             </table>

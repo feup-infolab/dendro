@@ -1,13 +1,15 @@
-exports.recordInteraction= function (jsonOnly, folderUri, projectHandle, interactionData, agent, cb) {
+exports.recordInteraction = function (jsonOnly, folderUri, projectHandle, interactionData, agent, cb)
+{
     const path = folderUri + "?register_interaction";
 
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
             .send(interactionData)
-            .set('Accept', 'application/json')
-            .end(function (err, res) {
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }
@@ -16,7 +18,8 @@ exports.recordInteraction= function (jsonOnly, folderUri, projectHandle, interac
         agent
             .post(path)
             .send(interactionData)
-            .end(function (err, res) {
+            .end(function (err, res)
+            {
                 cb(err, res);
             });
     }

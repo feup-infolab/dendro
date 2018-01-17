@@ -1,111 +1,100 @@
-//follows the DC Terms ontology :
+// follows the DC Terms ontology :
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
-const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const db = Config.getDBByID();
+const gfs = Config.getGFSByID();
 
-const util = require('util');
-const async = require('async');
-const _ = require('underscore');
+const util = require("util");
+const async = require("async");
+const _ = require("underscore");
 
-function Project(object)
+function Project (object)
 {
-    Project.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "project", Project);
+    Project.baseConstructor.call(this, object);
 
-    if(isNull(self.uri))
+    if (isNull(object.ddr != null))
     {
-        self.uri = Config.baseUri + "/project/" + self.ddr.handle;
-    }
+        if (object.ddr.hasStorageLimit)
+        {
+            self.ddr.hasStorageLimit = Config.maxProjectSize;
+        }
 
-    self.rdf.type = "ddr:Project";
+        if (isNull(object.ddr.requiresVerifiedUploads))
+        {
+            self.ddr.requiresVerifiedUploads = false;
+        }
+    }
 
     return self;
 }
 
-Project.prototype.rootFolder = function()
-{
-    const self = this;
-    return db.baseURI + "/project/" + self.ddr.handle + "/data";
-};
-
-Project.prototype.delete = function(callback)
-{
-    const self = this;
-    self.ddr.deleted = true;
-    this.save(callback);
-};
-
-Project.prototype.undelete = function(callback)
-{
-    const self = this;
-    delete self.ddr.deleted;
-    this.save(callback);
-};
-
-Project.prototype.backup = function(callback)
+Project.prototype.backup = function (callback)
 {
     const self = this;
     self.ddr.beingBackedUp = true;
 
-    if(typeof isNull(self.ddr.rootFolder) && !isNull(self.nie.hasLogicalPart))
+    if (typeof isNull(self.ddr.rootFolder) && !isNull(self.nie.hasLogicalPart))
     {
         self.ddr.rootFolder = self.nie.hasLogicalPart;
     }
 
-    self.save(function(err, result){
-        if(!err && result instanceof Project)
+    self.save(function (err, result)
+    {
+        if (isNull(err) && result instanceof Project)
         {
-            if(!isNull(self.ddr.rootFolder))
+            if (!isNull(self.ddr.rootFolder))
             {
-                console.log("Started backup of project " + self.uri);
-                Folder.findByUri(self.ddr.rootFolder, function(err, folder){
-                    if(!err && folder instanceof Folder)
+                Logger.log("Started backup of project " + self.uri);
+                Folder.findByUri(self.ddr.rootFolder, function (err, folder)
+                {
+                    if (isNull(err) && folder instanceof Folder)
                     {
-                        //TODO Add this information
                         const bagItOptions = {
-                            cryptoMethod: 'sha256',
-                            sourceOrganization: self.dcterms.publisher,
-                            organizationAddress: '123 Street',
-                            contactName: 'Contact Name',
-                            contactPhone: '555-555-5555',
-                            contactEmail: 'test@example.org',
-                            externalDescription: 'An example description'
+                            cryptoMethod: "sha256",
+                            sourceOrganization: (self.dcterms.publisher) ? self.dcterms.publisher : "No publisher specified",
+                            organizationAddress: (self.schema.address) ? self.schema.address : "No contact physical address specified",
+                            contactName: (self.schema.provider) ? self.schema.provider : "No contact name specified",
+                            contactPhone: (self.schema.telephone) ? self.schema.telephone : "No contact phone specified",
+                            contactEmail: (self.schema.email) ? self.schema.email : "No contact email specified",
+                            externalDescription: (self.dcterms.description) ? self.dcterms.description : "No project description specified"
                         };
 
                         folder.bagit(
                             bagItOptions,
-                            function(err, result, absolutePathOfFinishedFolder, parentFolderPath){
-                                if(!err)
+                            function (err, result, absolutePathOfFinishedFolder, parentFolderPath)
+                            {
+                                if (isNull(err))
                                 {
-                                    const path = require('path');
+                                    const path = require("path");
 
                                     const finishedZipFileName = "bagit_backup.zip";
                                     const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
-                                    Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function(err, zipFileFullPath){
+
+                                    Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function (err, zipFileFullPath)
+                                    {
                                         return callback(err, zipFileFullPath, parentFolderPath);
                                     }, finishedZipFileName, true);
                                 }
@@ -130,38 +119,36 @@ Project.prototype.backup = function(callback)
     });
 };
 
-Project.addProjectInformations = function(arrayOfProjectsUris, callback)
+Project.addProjectInformations = function (arrayOfProjectsUris, callback)
 {
-    if(arrayOfProjectsUris instanceof Array)
+    if (arrayOfProjectsUris instanceof Array)
     {
-        const getProjectInformation = function (project, callback) {
+        const getProjectInformation = function (project, callback)
+        {
             Project.findByUri(project.uri, callback);
         };
 
-        //get all the information about all the projects
+        // get all the information about all the projects
         // and return the array of projects, complete with that info
-        async.map(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
+        async.mapSeries(arrayOfProjectsUris, getProjectInformation, function (err, projectsToReturn)
         {
-            if(!err)
+            if (isNull(err))
             {
                 return callback(null, projectsToReturn);
             }
-            else
-            {
-                return callback("error fetching project information : " + err, projectsToReturn);
-            }
+            return callback("error fetching project information : " + err, projectsToReturn);
         });
     }
     else
     {
-        //projects var will contain an error message instead of an array of results.
+    // projects var will contain an error message instead of an array of results.
         return callback(1);
     }
 };
 
-Project.allNonPrivate = function(currentUser, callback) {
-
-    //TODO @silvae86 exception for the projects where the current user is either creator or contributor.
+Project.allNonPrivate = function (currentUser, callback)
+{
+    // TODO @silvae86 exception for the projects where the current user is either creator or contributor.
     const query =
         "SELECT * " +
         "FROM [0] " +
@@ -173,36 +160,35 @@ Project.allNonPrivate = function(currentUser, callback) {
         "   } " +
         "} ";
 
-
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.string,
+                type: Elements.ontologies.ddr.privacyStatus.type,
                 value: "private"
             }
         ],
 
-        function(err, projects) {
-
-            if(!err && !isNull(projects) && projects instanceof Array)
+        function (err, projects)
+        {
+            if (isNull(err) && !isNull(projects) && projects instanceof Array)
             {
                 Project.addProjectInformations(projects, callback);
             }
             else
             {
-                //projects var will contain an error message instead of an array of results.
+                // projects var will contain an error message instead of an array of results.
                 return callback(1, projects);
             }
         });
 };
 
-Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
-
-    //TODO @silvae86 exception for the projects where the current user is either creator or contributor.
+Project.allNonPrivateUnlessTheyBelongToMe = function (currentUser, callback)
+{
+    // TODO @silvae86 exception for the projects where the current user is either creator or contributor.
     const query =
         "SELECT DISTINCT(?uri) \n" +
         "FROM [0] \n" +
@@ -222,51 +208,56 @@ Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
         "    UNION\n" +
         "    {\n" +
         "        ?uri rdf:type ddr:Project .\n" +
-        "        ?uri dcterms:contributor  [2]\n" +
+        "        ?uri dcterms:contributor  [3]\n" +
         "    }\n" +
         "}\n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.string,
+                type: Elements.ontologies.ddr.privacyStatus.type,
                 value: "private"
             },
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.ontologies.dcterms.creator.type,
+                value: currentUser.uri
+            },
+            {
+                type: Elements.ontologies.dcterms.contributor.type,
                 value: currentUser.uri
             }
         ],
 
-        function(err, projects) {
-
-            if(!err && !isNull(projects) && projects instanceof Array)
+        function (err, projects)
+        {
+            if (isNull(err) && !isNull(projects) && projects instanceof Array)
             {
                 Project.addProjectInformations(projects, callback);
             }
             else
             {
-                //projects var will contain an error message instead of an array of results.
+                // projects var will contain an error message instead of an array of results.
                 return callback(1, projects);
             }
         });
 };
 
-Project.all = function(callback, req) {
+Project.all = function (callback, req)
+{
     const self = this;
-    Project.baseConstructor.all.call(self, function(err, projects) {
-
-        //projects var will contain an error message instead of an array of results.
+    Project.baseConstructor.all.call(self, function (err, projects)
+    {
+    // projects var will contain an error message instead of an array of results.
         return callback(err, projects);
-
     }, req);
 };
 
-Project.findByHandle = function(handle, callback) {
+Project.findByHandle = function (handle, callback)
+{
     const query =
         "SELECT ?uri \n" +
         "FROM [0] " +
@@ -276,32 +267,33 @@ Project.findByHandle = function(handle, callback) {
         " ?uri ddr:handle [1] " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
 
             {
-                type : DbConnection.resourceNoEscape,
-                value :db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.string,
-                value : handle
+                type: Elements.ontologies.ddr.handle.type,
+                value: handle
             }
         ],
 
-        function(err, project) {
-            if(!err)
+        function (err, project)
+        {
+            if (isNull(err))
             {
-                if(project instanceof Array && project.length > 0)
+                if (project instanceof Array && project.length > 0)
                 {
-                    if(project.length > 1)
+                    if (project.length > 1)
                     {
-                        console.log("Duplicate projects found!! Project handle : " + handle);
+                        Logger.log("Duplicate projects found!! Project handle : " + handle);
                     }
                     else
                     {
                         const projectUri = project[0].uri;
-                        Project.findByUri(projectUri, function(err, project)
+                        Project.findByUri(projectUri, function (err, project)
                         {
                             return callback(err, project);
                         });
@@ -309,20 +301,20 @@ Project.findByHandle = function(handle, callback) {
                 }
                 else
                 {
-                    //project does not exist, return null
-                    return callback(0, null);
+                    // project does not exist, return null
+                    return callback(null, null);
                 }
             }
             else
             {
-                //project var will contain an error message instead of a single-element
+                // project var will contain an error message instead of a single-element
                 // array containing project data.
                 return callback(err, project);
             }
         });
 };
 
-Project.prototype.getCreatorsAndContributors = function(callback)
+Project.prototype.getCreatorsAndContributors = function (callback)
 {
     const self = this;
 
@@ -348,25 +340,25 @@ Project.prototype.getCreatorsAndContributors = function(callback)
         "   } \n" +
         "} \n";
 
-
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : self.uri
+                type: Elements.types.resource,
+                value: self.uri
             }
         ],
-        function(err, contributors) {
-            if(!err)
+        function (err, contributors)
+        {
+            if (isNull(err))
             {
-                if(contributors instanceof Array)
+                if (contributors instanceof Array)
                 {
                     const contributorsToReturn = [];
-                    for(let i = 0; i < contributors.length; i++)
+                    for (let i = 0; i < contributors.length; i++)
                     {
                         const contributor = contributors[i];
                         const aContributor = new User(contributor);
@@ -375,24 +367,16 @@ Project.prototype.getCreatorsAndContributors = function(callback)
 
                     return callback(null, contributorsToReturn);
                 }
-                else
-                {
-                    //project does not exist, return null
-                    return callback(0, null);
-                }
+                // project does not exist, return null
+                return callback(null, null);
             }
-            else
-            {
-                //project var will contain an error message instead of a single-element
-                // array containing project data.
-                return callback(err, [contributors]);
-            }
+            // project var will contain an error message instead of a single-element
+            // array containing project data.
+            return callback(err, [contributors]);
         });
-
-
 };
 
-Project.findByContributor = function(contributor, callback)
+Project.findByContributor = function (contributor, callback)
 {
     const query =
         "SELECT * " +
@@ -406,24 +390,25 @@ Project.findByContributor = function(contributor, callback)
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : contributor
+                type: Elements.ontologies.dcterms.contributor.type,
+                value: contributor
             }
         ],
-        function(err, projects) {
-            if(!err)
+        function (err, projects)
+        {
+            if (isNull(err))
             {
-                if(projects instanceof Array)
+                if (projects instanceof Array)
                 {
                     const projectsToReturn = [];
-                    for(let i = 0; i < projects.length; i++)
+                    for (let i = 0; i < projects.length; i++)
                     {
                         const aProject = new Project(projects[i]);
                         projectsToReturn.push(aProject);
@@ -431,22 +416,17 @@ Project.findByContributor = function(contributor, callback)
 
                     return callback(null, projectsToReturn);
                 }
-                else
-                {
-                    //project does not exist, return null
-                    return callback(0, null);
-                }
+                // project does not exist, return null
+                return callback(null, null);
             }
-            else
-            {
-                //project var will contain an error message instead of a single-element
-                // array containing project data.
-                return callback(err, [projects]);
-            }
+            // project var will contain an error message instead of a single-element
+            // array containing project data.
+            return callback(err, [projects]);
         });
 };
 
-Project.findByCreator = function(creator, callback) {
+Project.findByCreator = function (creator, callback)
+{
     const query =
         "SELECT * " +
         "FROM [0] " +
@@ -460,24 +440,25 @@ Project.findByCreator = function(creator, callback) {
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : creator
+                type: Elements.ontologies.dcterms.creator.type,
+                value: creator
             }
         ],
-        function(err, projects) {
-            if(!err)
+        function (err, projects)
+        {
+            if (isNull(err))
             {
-                if(projects instanceof Array)
+                if (projects instanceof Array)
                 {
                     const projectsToReturn = [];
-                    for(let i = 0; i < projects.length; i++)
+                    for (let i = 0; i < projects.length; i++)
                     {
                         const aProject = new Project(projects[i]);
 
@@ -487,22 +468,16 @@ Project.findByCreator = function(creator, callback) {
 
                     return callback(null, projectsToReturn);
                 }
-                else
-                {
-                    //project does not exist, return null
-                    return callback(0, null);
-                }
+                // project does not exist, return null
+                return callback(null, null);
             }
-            else
-            {
-                //project var will contain an error message instead of a single-element
-                // array containing project data.
-                return callback(err, [projects]);
-            }
+            // project var will contain an error message instead of a single-element
+            // array containing project data.
+            return callback(err, [projects]);
         });
 };
 
-Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
+Project.findByCreatorOrContributor = function (creatorOrContributor, callback)
 {
     const query =
         "SELECT ?uri \n" +
@@ -519,76 +494,105 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : creatorOrContributor
+                type: Elements.ontologies.dcterms.contributor.type,
+                value: creatorOrContributor
             }
         ],
-        function(err, rows) {
-            if(!err)
+        function (err, rows)
+        {
+            if (isNull(err))
             {
-                if(rows instanceof Array)
+                if (rows instanceof Array)
                 {
-                    const getProjectProperties = function (resultRow, cb) {
-                        Project.findByUri(resultRow.uri, function (err, project) {
+                    const getProjectProperties = function (resultRow, cb)
+                    {
+                        Project.findByUri(resultRow.uri, function (err, project)
+                        {
                             cb(err, project);
                         });
                     };
 
-                    async.map(rows, getProjectProperties, function(err, projects)
+                    async.mapSeries(rows, getProjectProperties, function (err, projects)
                     {
                         return callback(err, projects);
                     });
                 }
                 else
                 {
-                    //project does not exist, return null
-                    return callback(0, null);
+                    // project does not exist, return null
+                    return callback(null, null);
                 }
             }
             else
             {
-                //project var will contain an error message instead of a single-element
+                // project var will contain an error message instead of a single-element
                 // array containing project data.
                 return callback(err, [rows]);
             }
-    });
+        });
 };
 
-Project.createAndInsertFromObject = function(object, callback) {
-
+Project.createAndInsertFromObject = function (object, callback)
+{
     const newProject = new Project(object);
-    const projectRootFolderURI = newProject.rootFolder();
-
-    console.log("creating project from object\n" + util.inspect(object));
-
-    newProject.save(function(err, newProject) {
-        if(!err)
+    newProject.save(function (err, newProject)
+    {
+        if (isNull(err))
         {
-            if(newProject instanceof Project)
+            if (newProject instanceof Project)
             {
                 const rootFolder = new Folder({
-                    uri: projectRootFolderURI,
                     nie: {
                         title: object.ddr.handle,
                         isLogicalPartOf: newProject.uri
+                    },
+                    ddr: {
+                        humanReadableURI: newProject.ddr.humanReadableURI + "/data"
                     }
                 });
 
-                rootFolder.save(function(err, result)
+                rootFolder.save(function (err, result)
                 {
-                    newProject.ddr.rootFolder = rootFolder.uri;
-                    newProject.nie.hasLogicalPart = rootFolder.uri;
+                    if (isNull(err))
+                    {
+                        newProject.ddr.rootFolder = rootFolder.uri;
+                        newProject.nie.hasLogicalPart = rootFolder.uri;
 
-                    newProject.save(function(err, result){
+                        newProject.save(function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                newProject.reindex(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(err, newProject);
+                                    }
+
+                                    const msg = "Error reindexing resource " + newProject.uri + " : " + result;
+                                    Logger.log("error", msg);
+                                    return callback(1, msg);
+                                });
+                            }
+                            else
+                            {
+                                Logger.log("error", "There was an error re-saving the project " + newProject.ddr.humanReadableURI + " while creating it: " + JSON.stringify(result));
+                                callback(err, result);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        Logger.log("error", "There was an error saving the root folder of project " + newProject.ddr.humanReadableURI + ": " + JSON.stringify(result));
                         return callback(err, result);
-                    });
+                    }
                 });
             }
             else
@@ -603,23 +607,93 @@ Project.createAndInsertFromObject = function(object, callback) {
     });
 };
 
-Project.prototype.getFirstLevelDirectoryContents = function(callback)
+Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
+{
+    const self = this;
+    const query =
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        " { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:creator [2] \n" +
+        "   } \n" +
+        "   UNION \n" +
+        "   { \n" +
+        "       [1] rdf:type ddr:Project . \n" +
+        "       ?uri dcterms:contributor [3] \n" +
+        "   } \n" +
+        "} \n";
+
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.resource,
+                value: self.uri
+            },
+            {
+                type: Elements.ontologies.dcterms.creator.type,
+                value: userUri
+            },
+            {
+                type: Elements.ontologies.dcterms.contributor.type,
+                value: userUri
+            }
+        ],
+        function (err, properties)
+        {
+            if (!isNull(err))
+            {
+                const errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
+                Logger.log("error", errorMsg);
+            }
+
+            if (properties.length > 0)
+            {
+                callback(err, true);
+            }
+            else
+            {
+                callback(err, false);
+            }
+        });
+};
+
+Project.prototype.getRootFolder = function (callback)
+{
+    const self = this;
+    const folderUri = self.ddr.rootFolder;
+
+    Folder.findByUri(folderUri, callback);
+};
+
+Project.prototype.getFirstLevelDirectoryContents = function (callback)
 {
     const self = this;
 
-    Folder.findByUri(self.rootFolder(), function(err, folder){
-        if(!err && !isNull(folder))
+    self.getRootFolder(function (err, folder)
+    {
+        if (isNull(err))
         {
-            folder.getLogicalParts(function(err, children){
-                if(!err)
+            if (!isNull(folder) && folder instanceof Folder)
+            {
+                folder.getLogicalParts(function (err, children)
                 {
-                    return callback(null, children);
-                }
-                else
-                {
+                    if (isNull(err))
+                    {
+                        return callback(null, children);
+                    }
                     return callback(1, "Error fetching children of project root folder");
-                }
-            });
+                });
+            }
+            else
+            {
+                return callback(1, "unable to retrieve project " + self.ddr.handle + " 's root folder. Error :" + err);
+            }
         }
         else
         {
@@ -631,76 +705,73 @@ Project.prototype.getFirstLevelDirectoryContents = function(callback)
 Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 {
     const self = this;
-    console.log('In getProjectWideFolderFileCreationEvents');
-    console.log('the projectUri is:');
-    //<http://127.0.0.1:3001/project/testproject3/data>
-    //var projectData = projectUri + '/data'; //TODO this is probably wrong
-    const projectData = self.uri + '/data'; //TODO this is probably wrong
-    /*WITH <http://127.0.0.1:3001/dendro_graph>
+    Logger.log("In getProjectWideFolderFileCreationEvents");
+    Logger.log("the projectUri is:");
+    // <http://127.0.0.1:3001/project/testproject3/data>
+    // var projectData = projectUri + '/data'; //TODO this is probably wrong
+    const projectData = self.uri + "/data"; // TODO this is probably wrong
+    /* WITH <http://127.0.0.1:3001/dendro_graph>
      SELECT ?dataUri
      WHERE {
-     ?dataUri dcterms:modified ?date.
+     ?dataUri ddr:modified ?date.
      <http://127.0.0.1:3001/project/testproject3/data> <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#hasLogicalPart> ?dataUri.
      }
      ORDER BY DESC(?date)
      OFFSET 0
-     LIMIT 5*/
+     LIMIT 5 */
 
-    //TODO test query first
+    // TODO test query first
 
     const query =
         "WITH [0] \n" +
         "SELECT ?dataUri \n" +
         "WHERE { \n" +
-        "?dataUri dcterms:modified ?date. \n" +
+        "?dataUri ddr:modified ?date. \n" +
         "[1] nie:hasLogicalPart ?dataUri. \n" +
         "} \n" +
         "ORDER BY DESC(?date) \n";
 
-    //query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+    // query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resourceNoEscape,
-                value : projectData
-            }/*,
+                type: Elements.types.resourceNoEscape,
+                value: projectData
+            }
+        ]),
+        function (err, itemsUri)
+        {
+            if (isNull(err))
             {
-                type : DbConnection.date,
-                value: createdAfterDate
-            }*/
-        ]),//, startingResultPosition, maxResults),
-        function(err, itemsUri) {
-            if(!err)
-            {
-                console.log('itemsUri: ', itemsUri);
+                Logger.log("itemsUri: ", itemsUri);
 
-                async.map(itemsUri, function (itemUri, cb1) {
-                    Resource.findByUri(itemUri.dataUri, function (error, item) {
-                        console.log(item);
-                        //item.get
-                        //TODO get author
+                async.mapSeries(itemsUri, function (itemUri, cb1)
+                {
+                    Resource.findByUri(itemUri.dataUri, function (error, item)
+                    {
+                        Logger.log(item);
+                        // item.get
+                        // TODO get author
                     });
-                }, function (err, fullItems) {
-                    if(!err)
+                }, function (err, fullItems)
+                {
+                    if (isNull(err))
                     {
                         return callback(null, fullItems);
                     }
-                    else
-                    {
-                        const msg = "Error fetching file/folders creation info for project:" + self.uri;
-                        return callback(true, msg);
-                    }
+                    const msg = "Error fetching file/folders creation info for project:" + self.uri;
+                    return callback(true, msg);
                 });
 
                 /*
                 var getVersionDetails = function(result, callback){
                     ArchivedResource.findByUri(result.version, function(err, result){
-                        if(!err)
+                        if(isNull(err))
                         {
                             result.getDetailedInformation(function(err, versionWithDetailedInfo)
                             {
@@ -714,30 +785,31 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function(err, fullVersions){
                     return callback(err, fullVersions);
-                })*/
+                }) */
             }
             else
             {
-                var msg = "Error fetching file/folder change data";
-                console.log(msg);
+                const msg = "Error fetching file/folder change data";
+                Logger.log(msg);
                 return callback(1, msg);
             }
         });
 };
 
-Project.prototype.getRecentProjectWideChangesSocial = function (callback, startingResultPosition, maxResults, createdAfterDate) {
+Project.prototype.getRecentProjectWideChangesSocial = function (callback, startingResultPosition, maxResults, createdAfterDate)
+{
     const self = this;
-    console.log('createdAfterDate:', createdAfterDate);
-    console.log('startingResultPosition: ', startingResultPosition);
-    console.log('maxResults: ', maxResults);
+    Logger.log("createdAfterDate:", createdAfterDate);
+    Logger.log("startingResultPosition: ", startingResultPosition);
+    Logger.log("maxResults: ", maxResults);
 
     let query =
         "WITH [0] \n" +
         "SELECT ?version \n" +
         "WHERE { \n" +
-        "?version dcterms:created ?date. \n" +
+        "?version ddr:created ?date. \n" +
         "filter ( \n" +
         "xsd:dateTime(?date) >= [2]" + "^^xsd:dateTime" + " ). \n" +
         "?version rdf:type ddr:ArchivedResource . \n" +
@@ -749,40 +821,47 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.stringNoEscape,
-                value : self.uri
+                type: Elements.types.stringNoEscape,
+                value: self.uri
             },
             {
-                type : DbConnection.date,
+                type: Elements.types.date,
                 value: createdAfterDate
             }
         ], startingResultPosition, maxResults),
-        function(err, results) {
-            if(!err)
+        function (err, results)
+        {
+            if (isNull(err))
             {
-                const getVersionDetails = function (result, callback) {
-                    ArchivedResource.findByUri(result.version, function (err, result) {
-                        if (!err) {
-                            result.getDetailedInformation(function (err, versionWithDetailedInfo) {
+                const getVersionDetails = function (result, callback)
+                {
+                    ArchivedResource.findByUri(result.version, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            result.getDetailedInformation(function (err, versionWithDetailedInfo)
+                            {
                                 return callback(err, versionWithDetailedInfo);
                             });
                         }
-                        else {
+                        else
+                        {
                             return callback(err, result);
                         }
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function (err, fullVersions)
+                {
                     return callback(err, fullVersions);
-                })
+                });
             }
             else
             {
@@ -791,54 +870,61 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
         });
 };
 
-Project.prototype.getRecentProjectWideChanges = function(callback, startingResultPosition, maxResults)
+Project.prototype.getRecentProjectWideChanges = function (callback, startingResultPosition, maxResults)
 {
     const self = this;
 
     let query =
-        "WITH [0] \n" +
-        "SELECT ?version \n" +
-        "WHERE { \n" +
-        "?version dcterms:created ?date. \n" +
-        "?version rdf:type ddr:ArchivedResource . \n" +
-        " filter ( \n" +
-        "STRSTARTS(STR(?version), [1]) \n" +
-        " ) \n" +
-        "} \n" +
-        "ORDER BY DESC(?date) \n";
+        "WITH [0]\n" +
+        "SELECT ?version\n" +
+        "WHERE {\n" +
+        "   ?version ddr:created ?date.\n" +
+        "   ?version rdf:type ddr:ArchivedResource .\n" +
+        "   ?version ddr:isVersionOf ?resource.\n" +
+        "   ?resource nie:isLogicalPartOf+ ?parent.\n" +
+        "   [1] ddr:rootFolder ?parent.\n" +
+        "}\n" +
+        "ORDER BY DESC(?date)\n";
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
+    db.connection.executeViaJDBC(query,
+        [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.stringNoEscape,
-                value : self.uri
+                type: Elements.types.resourceNoEscape,
+                value: self.uri
             }
-        ], startingResultPosition, maxResults),
-        function(err, results) {
-            if(!err)
+        ],
+        function (err, results)
+        {
+            if (isNull(err))
             {
-                const getVersionDetails = function (result, callback) {
-                    ArchivedResource.findByUri(result.version, function (err, result) {
-                        if (!err) {
-                            result.getDetailedInformation(function (err, versionWithDetailedInfo) {
+                const getVersionDetails = function (result, callback)
+                {
+                    ArchivedResource.findByUri(result.version, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            result.getDetailedInformation(function (err, versionWithDetailedInfo)
+                            {
                                 return callback(err, versionWithDetailedInfo);
                             });
                         }
-                        else {
+                        else
+                        {
                             return callback(err, result);
                         }
                     });
                 };
 
-                async.map(results, getVersionDetails, function(err, fullVersions){
+                async.mapSeries(results, getVersionDetails, function (err, fullVersions)
+                {
                     return callback(err, fullVersions);
-                })
+                });
             }
             else
             {
@@ -847,107 +933,109 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
         });
 };
 
-Project.prototype.getStorageSize = function(callback)
+Project.prototype.getStorageSize = function (callback, customBucket)
 {
     const self = this;
+
+    let collectionName;
+    if (!isNull(customBucket))
+    {
+        collectionName = customBucket;
+    }
+    else
+    {
+        collectionName = "fs.files";
+    }
 
     /**
      * YOU NEED MONGODB 10GEN to run this, or it will give errors.
      */
-    gfs.connection.db.collection("fs.files", function(err, collection) {
-        if(!err)
+    gfs.connection.db.collection(collectionName, function (err, collection)
+    {
+        if (isNull(err))
         {
             collection.aggregate([
                 {
-                    $match: {"metadata.project" : self.uri}
+                    $match: {"metadata.project.uri": self.uri}
                 },
                 {
                     $group:
-                    {
-                        _id : null,
-                        sum : {
-                            $sum: "$length"
-                        }
-                    }
+          {
+              _id: null,
+              sum: {
+                  $sum: "$length"
+              }
+          }
                 }
-            ],function(err, result){
-                if(!err)
+            ], function (err, result)
+            {
+                if (isNull(err))
                 {
-                    if(!isNull(result) && result instanceof Array && result.length === 1 && !isNull(result[0].sum))
+                    if (!isNull(result) && result instanceof Array && result.length === 1 && !isNull(result[0].sum))
                     {
                         return callback(null, result[0].sum);
                     }
-                    else
-                    {
-                        return callback(null, 0);
-                    }
+                    return callback(null, 0);
                 }
-                else
-                {
-                    console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
-                    return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
-                }
+                Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
             });
         }
         else
         {
-            console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
+            Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(collection));
             return callback(1, "Error retrieving files collection : " + collection);
         }
     });
 };
 
-Project.prototype.getFilesCount = function(callback)
+Project.prototype.getFilesCount = function (callback)
 {
     const self = this;
 
     const query =
         "SELECT COUNT(?file) as ?file_count \n" +
         "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE " +
         "{ \n" +
-        " ?file rdf:type nfo:FileDataObject . \n" +
-        " ?file nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        " FILTER NOT EXISTS " +
-        "{ \n" +
-        " ?file ddr:isVersionOf ?some_resource .\n" +
-        "} \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?file rdf:type nfo:FileDataObject . \n" +
+        "       ?file nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n" +
+        "       FILTER NOT EXISTS { \n" +
+        "           ?file ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : self.uri
+                type: Elements.types.resource,
+                value: self.uri
             }
         ],
-        function(err, result)
+        function (err, result)
         {
-            if (!err)
+            if (isNull(err))
             {
-                if(result instanceof Array && result.length > 0)
+                if (result instanceof Array && result.length > 0)
                 {
                     return callback(null, result[0].file_count);
                 }
-                else
-                {
-                    return callback(1, "invalid result retrieved when querying for project file count");
-                }
+                return callback(1, "invalid result retrieved when querying for project file count");
             }
-            else
-            {
-                return callback(err, -1);
-            }
+            return callback(err, -1);
         });
 };
 
-Project.prototype.getMembersCount = function(callback)
+Project.prototype.getMembersCount = function (callback)
 {
     const self = this;
 
@@ -967,89 +1055,79 @@ Project.prototype.getMembersCount = function(callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : self.uri
+                type: Elements.types.resource,
+                value: self.uri
             }
         ],
-        function(err, result)
+        function (err, result)
         {
-            if (!err)
+            if (isNull(err))
             {
-                if(result instanceof Array && result.length > 0)
+                if (result instanceof Array && result.length > 0)
                 {
                     return callback(null, result[0].contributor_count);
                 }
-                else
-                {
-                    return callback(1, "invalid result retrieved when querying for project contributor count");
-                }
+                return callback(1, "invalid result retrieved when querying for project contributor count");
             }
-            else
-            {
-                return callback(err, -1);
-            }
+            return callback(err, -1);
         });
 };
 
-Project.prototype.getFoldersCount = function(callback)
+Project.prototype.getFoldersCount = function (callback)
 {
     const self = this;
 
     const query =
         "SELECT COUNT(?folder) as ?folder_count \n" +
         "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE " +
         "{ \n" +
-        " ?folder rdf:type nfo:Folder . \n" +
-        " ?folder nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        " FILTER NOT EXISTS " +
-        "{ \n" +
-        " ?folder ddr:isVersionOf ?some_resource .\n" +
-        "} \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?folder rdf:type nfo:Folder . \n" +
+        "       ?folder nie:isLogicalPartOf+ [1] . \n" +
+        "       FILTER EXISTS { \n" +
+        "           [1] rdf:type ddr:Project \n" +
+        "       }\n" +
+        "       FILTER NOT EXISTS " +
+        "       { \n" +
+        "           ?folder ddr:isVersionOf ?some_resource .\n" +
+        "       } \n" +
+        "   } \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : self.uri
+                type: Elements.ontologies.nie.isLogicalPartOf.type,
+                value: self.uri
             }
         ],
-        function(err, result)
+        function (err, result)
         {
-            if (!err)
+            if (isNull(err))
             {
-                if(result instanceof Array && result.length > 0)
+                if (result instanceof Array && result.length > 0)
                 {
                     return callback(null, result[0].folder_count);
                 }
-                else
-                {
-                    return callback(1, "invalid result retrieved when querying for project folder count");
-                }
-
+                return callback(1, "invalid result retrieved when querying for project folder count");
             }
-            else
-            {
-                return callback(err, -1);
-            }
+            return callback(err, -1);
         });
 };
 
-Project.prototype.getRevisionsCount = function(callback)
+Project.prototype.getRevisionsCount = function (callback)
 {
     const self = this;
 
@@ -1058,70 +1136,65 @@ Project.prototype.getRevisionsCount = function(callback)
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
-        "{ \n" +
-        " ?revision ddr:isVersionOf ?resource . \n" +
-        " ?resource nie:isLogicalPartOf+ [1] . \n" +
-        " [1] rdf:type ddr:Project . \n" +
-        "} \n" +
+        "   { \n" +
+        "       ?revision ddr:isVersionOf ?resource . \n" +
+        "       ?resource nie:isLogicalPartOf+ [1] . \n" +
+    "           FILTER EXISTS { \n" +
+        "           ?resource rdf:type ddr:Project \n" +
+        "       }\n" +
+        "   } \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : self.uri
+                type: Elements.ontologies.nie.isLogicalPartOf.type,
+                value: self.uri
             }
         ],
-        function(err, result)
+        function (err, result)
         {
-            if (!err)
+            if (isNull(err))
             {
-                if(result instanceof Array && result.length > 0)
+                if (result instanceof Array && result.length > 0)
                 {
                     return callback(null, result[0].revision_count);
                 }
-                else
-                {
-                    return callback(1, "invalid result retrieved when querying for revisions count");
-                }
-
+                return callback(1, "invalid result retrieved when querying for revisions count");
             }
-            else
-            {
-                return callback(err, -1);
-            }
+            return callback(err, -1);
         });
 };
 
-Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowedOntologies)
+Project.prototype.getFavoriteDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
 
     let argumentsArray = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         },
         {
-            type: DbConnection.stringNoEscape,
+            type: Elements.types.stringNoEscape,
             value: self.uri
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.favorite_descriptor_from_quick_list_for_project.key
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key
         }
     ];
 
     const publicOntologies = Ontology.getPublicOntologiesUris();
-    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
+    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -1157,7 +1230,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
     "				   	?favorite_interaction ddr:interactionType [2] . \n" +
     "					?favorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-    "				   	?favorite_interaction dcterms:created ?date_favorited. \n" +
+    "				   	?favorite_interaction ddr:created ?date_favorited. \n" +
     "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
     "				} \n" +
     "			}. \n" +
@@ -1171,7 +1244,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "				   	?unfavorite_interaction ddr:interactionType [3]. \n" +
 
     "				   	?unfavorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-    "				   	?unfavorite_interaction dcterms:created ?date_unfavorited. \n" +
+    "				   	?unfavorite_interaction ddr:created ?date_unfavorited. \n" +
     "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
     "				} \n" +
     "			} \n" +
@@ -1187,17 +1260,17 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "		   	) \n" +
     "		} \n";
 
-    db.connection.execute(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
-        function(err, descriptors)
+        function (err, descriptors)
         {
-            if (!err)
+            if (isNull(err))
             {
-                if(descriptors instanceof Array)
+                if (descriptors instanceof Array)
                 {
                     const fullDescriptors = [];
-                    for(let i = 0; i < descriptors.length; i++)
+                    for (let i = 0; i < descriptors.length; i++)
                     {
                         const d = new Descriptor({
                             uri: descriptors[i].descriptor,
@@ -1215,45 +1288,37 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
 
                     return callback(null, fullDescriptors);
                 }
-                else
-                {
-                    return callback(1, "invalid result retrieved when querying for project's favorite descriptors");
-                }
-
+                return callback(1, "invalid result retrieved when querying for project's favorite descriptors");
             }
-            else
-            {
-                return callback(err, -1);
-            }
+            return callback(err, -1);
         });
 };
 
-Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedOntologies)
+Project.prototype.getHiddenDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
 
     let argumentsArray = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         },
         {
-            type: DbConnection.stringNoEscape,
+            type: Elements.types.stringNoEscape,
             value: self.uri
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.hide_descriptor_from_quick_list_for_project.key
         },
         {
-            type: DbConnection.string,
+            type: Elements.types.string,
             value: Interaction.types.unhide_descriptor_from_quick_list_for_project.key
         }
     ];
 
-
     const publicOntologies = Ontology.getPublicOntologiesUris();
-    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
+    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -1269,7 +1334,6 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
     fromString = fromString + fromElements.fromString;
 
     const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "hidden_descriptor");
-
 
     const query =
         "		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden \n" +
@@ -1291,7 +1355,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "				   	?hiding_interaction ddr:interactionType [2] . \n" +
 
         "					?hiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-        "				   	?hiding_interaction dcterms:created ?date_hidden. \n" +
+        "				   	?hiding_interaction ddr:created ?date_hidden. \n" +
         "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
         "				} \n" +
         "			}. \n" +
@@ -1305,7 +1369,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "				   	?unhiding_interaction ddr:interactionType [3]. \n" +
 
         "				   	?unhiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-        "				   	?unhiding_interaction dcterms:created ?date_unhidden. \n" +
+        "				   	?unhiding_interaction ddr:created ?date_unhidden. \n" +
         "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
         "				} \n" +
         "			} \n" +
@@ -1321,17 +1385,17 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "		   	) \n" +
         "		} \n";
 
-    db.connection.execute(
+    db.connection.executeViaJDBC(
         query,
         argumentsArray,
-        function(err, descriptors)
+        function (err, descriptors)
         {
-            if (!err)
+            if (isNull(err))
             {
-                if(descriptors instanceof Array)
+                if (descriptors instanceof Array)
                 {
                     const fullDescriptors = [];
-                    for(let i = 0; i < descriptors.length; i++)
+                    for (let i = 0; i < descriptors.length; i++)
                     {
                         const d = new Descriptor({
                             uri: descriptors[i].descriptor,
@@ -1349,118 +1413,88 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
 
                     return callback(null, fullDescriptors);
                 }
-                else
-                {
-                    return callback(1, "invalid result retrieved when querying for project's favorite descriptors");
-                }
-
+                return callback(1, "invalid result retrieved when querying for project's favorite descriptors");
             }
-            else
-            {
-                return callback(err, -1);
-            }
+            return callback(err, -1);
         });
 };
 
-Project.prototype.findMetadata = function(callback)
+Project.prototype.findMetadata = function (callback, typeConfigsToRetain)
 {
     const self = this;
 
-    self.getPropertiesFromOntologies(
-        Ontology.getPublicOntologiesUris(),
-        function(err, descriptors)
+    const descriptors = self.getPropertiesFromOntologies(
+        null,
+        typeConfigsToRetain);
+
+    return callback(null,
         {
-            return callback(err,
-                {
-                    descriptors : descriptors,
-                    title : self.dcterms.title
-                }
-            );
+            descriptors: descriptors,
+            title: self.dcterms.title
         }
     );
 };
 
-Project.prototype.findMetadataOfRootFolder = function(callback)
+Project.prototype.findMetadataOfRootFolder = function (callback)
 {
     const self = this;
-    var rootFolder = self.ddr.rootFolder;
 
-    var rootFolder = new Folder({
-        uri : rootFolder
+    const rootFolder = new Folder({
+        uri: self.ddr.rootFolder
     });
 
     rootFolder.findMetadata(callback);
 };
 
-/**
- * Attempts to determine the project of a requested resource based on its uri
- * @param originalRequestUri
- * @param callback
- */
-Project.getOwnerProjectBasedOnUri = function(requestedResource, callback)
+Project.privacy = function (projectUri, callback)
 {
-    let handle = requestedResource.replace(Config.baseUri + "/project/", "");
-    handle = handle.replace(/\?.*/,"");
-    handle = handle.replace(/\/.*$/,"");
-    Project.findByHandle(handle, callback);
-};
-
-
-Project.privacy = function (projectUri, callback) {
-    Project.findByUri(projectUri, function (err, project) {
-        if (!err)
-        {
-            if(isNull(project))
-            {
-                return callback(1, null);
-            }
-            else
-            {
-                privacy = project.ddr.privacyStatus;
-
-                if(!isNull(privacy) && privacy instanceof Array && privacy.length > 0)
-                {
-                    return callback(null, privacy[0].p);
-                }
-                else
-                {
-                    return callback(null, null);
-                }
-            }
-        }
-        else
-        {
-            return callback(1, "Error occurred fetching the privacy status of project " + projectUri + ". Error : " + project);
-        }
-    });
-};
-
-Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
-{
-    const fs = require('fs');
-    const path = require('path');
-
-    fs.stat(absPathOfBagItFolder, function(err, stat)
+    Project.findByUri(projectUri, function (err, project)
     {
         if (isNull(err))
         {
-            if(stat.isDirectory())
+            if (isNull(project))
+            {
+                return callback(1, null);
+            }
+            const privacy = project.ddr.privacyStatus;
+
+            if (!isNull(privacy) && privacy instanceof Array && privacy.length > 0)
+            {
+                return callback(null, privacy[0].p);
+            }
+            return callback(null, null);
+        }
+        return callback(1, "Error occurred fetching the privacy status of project " + projectUri + ". Error : " + project);
+    });
+};
+
+Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
+{
+    const fs = require("fs");
+    const path = require("path");
+
+    fs.stat(absPathOfBagItFolder, function (err, stat)
+    {
+        if (isNull(err))
+        {
+            if (stat.isDirectory())
             {
                 const dataFolder = path.join(absPathOfBagItFolder, "data");
-                fs.stat(dataFolder, function(err, stat)
+                fs.stat(dataFolder, function (err, stat)
                 {
                     if (isNull(err))
                     {
-                        if(stat.isDirectory())
+                        if (stat.isDirectory())
                         {
-                            fs.readdir(dataFolder, function (err, folderContents) {
-                                if(!err)
+                            fs.readdir(dataFolder, function (err, folderContents)
+                            {
+                                if (isNull(err))
                                 {
-                                    if(folderContents instanceof Array && folderContents.length === 1)
+                                    if (!isNull(folderContents) && folderContents instanceof Array && folderContents.length === 1)
                                     {
                                         const childOfDataFolderAbsPath = path.join(dataFolder, folderContents[0]);
 
-                                        fs.stat(childOfDataFolderAbsPath, function(err, stat)
+                                        fs.stat(childOfDataFolderAbsPath, function (err, stat)
                                         {
                                             if (isNull(err))
                                             {
@@ -1470,24 +1504,18 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                                                     {
                                                         if (isNull(err))
                                                         {
-                                                            if(folderContents.indexOf(Config.packageMetadataFileName) >= 0)
+                                                            if (!isNull(folderContents) && folderContents instanceof Array && folderContents.indexOf(Config.packageMetadataFileName) >= 0)
                                                             {
                                                                 return callback(null, true, childOfDataFolderAbsPath);
                                                             }
-                                                            else
-                                                            {
-                                                                return callback(null, false, "There is no " + Config.packageMetadataFileName + " inside the /data subdirectory.");
-                                                            }
+                                                            return callback(null, false, "There is no " + Config.packageMetadataFileName + " inside the /data subdirectory.");
                                                         }
-                                                        else
-                                                        {
-                                                            return callback(err, false, "child of /data contains only one element but is not a directory.");
-                                                        }
+                                                        return callback(err, false, "child of /data contains only one element but is not a directory.");
                                                     });
                                                 }
                                                 else
                                                 {
-                                                    return callback(0, false, "child of /data contains only one element but is not a directory.");
+                                                    return callback(null, false, "child of /data contains only one element but is not a directory.");
                                                 }
                                             }
                                             else
@@ -1498,7 +1526,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                                     }
                                     else
                                     {
-                                        return callback(0, false, "/data folder should contain exactly one directory.");
+                                        return callback(null, false, "/data folder should contain exactly one directory.");
                                     }
                                 }
                                 else
@@ -1509,198 +1537,465 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                         }
                         else
                         {
-                            return callback(0, false, "/data exists but is not a directory.");
+                            return callback(null, false, "/data exists but is not a directory.");
                         }
                     }
-                    else if (err.code === 'ENOENT')
+                    else if (err.code === "ENOENT")
                     {
-                        return callback(0, false, "/data subfolder does not exist.");
+                        return callback(null, false, "/data subfolder does not exist.");
                     }
                 });
             }
             else
             {
-                return callback(0, false, absPathOfBagItFolder + " is not a directory");
+                return callback(null, false, absPathOfBagItFolder + " is not a directory");
             }
         }
-        else if (err.code === 'ENOENT')
+        else if (err.code === "ENOENT")
         {
-            return callback(0, false);
+            return callback(null, false);
         }
     });
 };
 
-Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSize, callback)
+Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, req, callback)
 {
-    const path = require('path');
+    const path = require("path");
 
-    File.estimateUnzippedSize(absPathToZipFile, function(err, size)
+    File.estimateUnzippedSize(absPathToZipFile, function (err, size)
     {
-        if(!err)
+        if (isNull(err))
         {
-            if(size < maxStorageSize)
+            if (!isNaN(size))
             {
-                File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
-                    if(!err)
+                // admin is god, can import as much data as (s)he wants
+                if (size < maxStorageSize || req.user.isAdmin)
+                {
+                    File.unzip(absPathToZipFile, function (err, absPathOfRootFolder)
                     {
-                        Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
+                        if (isNull(err))
                         {
-                            if(!err)
+                            Project.validateBagItFolderStructure(absPathOfRootFolder, function (err, valid, pathToFolderToRestore)
                             {
-                                if(valid)
+                                if (isNull(err))
                                 {
-                                    const metadataFileAbsPath = path.join(pathToFolderToRestore, Config.packageMetadataFileName);
-                                    const metadata = require(metadataFileAbsPath);
-                                    return callback(null, true, metadata);
+                                    if (valid)
+                                    {
+                                        return callback(null, true, pathToFolderToRestore, absPathOfRootFolder);
+                                    }
+                                    return callback(500, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                }
+                                return callback(err, pathToFolderToRestore);
+                            });
+                        }
+                        else
+                        {
+                            const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
+                            return callback(err, msg);
+                        }
+                    });
+                }
+                else
+                {
+                    const filesize = require("file-size");
+                    const difference = maxStorageSize - size;
+
+                    const humanSizeDifference = filesize(difference).human("jedec");
+                    const humanZipFileSize = filesize(size).human("jedec");
+                    const humanMaxStorageSize = filesize(maxStorageSize).human("jedec");
+
+                    const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( " + humanMaxStorageSize + " ) by " + humanSizeDifference;
+                    return callback(err, msg);
+                }
+            }
+            else
+            {
+                return callback(1, "Unable to determine the size of the ZIP File, because the file was corrupted during transfer!");
+            }
+        }
+        else
+        {
+            const msg = "Unable to estimate size of the zip file sent in as the project backup. Error reported: " + absPathToZipFile;
+            return callback(err, msg);
+        }
+    });
+};
+
+Project.prototype.restoreFromFolder = function (
+    absPathOfRootFolder,
+    entityLoadingTheMetadata,
+    attemptToRestoreMetadata,
+    replaceExistingFolder,
+    callback
+)
+{
+    const self = this;
+    const path = require("path");
+    let entityLoadingTheMetadataUri;
+
+    if (!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
+    {
+        entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
+    }
+    else
+    {
+        entityLoadingTheMetadataUri = User.anonymous.uri;
+    }
+
+    const metadataFileAbsPath = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
+    const metadata = require(metadataFileAbsPath);
+
+    self.getRootFolder(function (err, rootFolder)
+    {
+        if (isNull(err))
+        {
+            rootFolder.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function (err, result)
+            {
+                if (isNull(err))
+                {
+                    /**
+                     * Restore metadata values from metadata.json file
+                     */
+                    const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
+                    const fs = require("fs");
+
+                    fs.exists(metadataFileLocation, function (existsMetadataFile)
+                    {
+                        if (attemptToRestoreMetadata && existsMetadataFile)
+                        {
+                            fs.readFile(metadataFileLocation, "utf8", function (err, data)
+                            {
+                                if (err)
+                                {
+                                    Logger.log("Error: " + err);
+                                    return;
+                                }
+
+                                const node = JSON.parse(data);
+
+                                rootFolder.loadMetadata(node, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(null, "Data and metadata restored successfully. Result : " + result);
+                                    }
+                                    return callback(err, "Error restoring metadata for project " + self.uri + " : " + result);
+                                }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable]);
+                            });
+                        }
+                        else
+                        {
+                            return callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
+                        }
+                    });
+                }
+                else
+                {
+                    return callback(err, result);
+                }
+            }, true, entityLoadingTheMetadata);
+        }
+        else
+        {
+            callback(err, rootFolder);
+        }
+    });
+};
+
+Project.prototype.clearCacheRecords = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const pageSize = Config.limits.db.maxResults;
+    let currentPage = 0;
+    let currentResults = [];
+
+    const findMoreMembersOfProject = function (callback)
+    {
+        let findQuery =
+            "SELECT ?part \n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:hasLogicalPart* ?part \n" +
+            "} \n";
+
+        findQuery = DbConnection.addLimitsClauses(findQuery, pageSize * currentPage, pageSize);
+
+        db.connection.executeViaJDBC(findQuery,
+            [
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: graphUri
+                },
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: self.uri
+                }
+
+            ],
+            function (err, results)
+            {
+                callback(err, results);
+            }
+        );
+    };
+
+    async.doUntil(
+        function (callback)
+        {
+            findMoreMembersOfProject(function (err, members)
+            {
+                if (!isNull(err))
+                {
+                    callback(err, members);
+                }
+                else
+                {
+                    currentResults = members;
+                    Cache.getByGraphUri(graphUri).delete(members, function (err, result)
+                    {
+                        callback(err, result);
+                    });
+                }
+            });
+        },
+        function ()
+        {
+            currentPage++;
+            return currentResults.length === 0;
+        },
+        callback
+    );
+};
+
+Project.prototype.deleteStorageConfig = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
+
+    StorageConfig.findByUri(self.ddr.hasStorageConfig, function (err, config)
+    {
+        if (!isNull(err))
+        {
+            config.deleteAllMyTriples(function (err, result)
+            {
+                callback(err, result);
+            }, graphUri);
+        }
+        else
+        {
+            callback(err, config);
+        }
+    });
+};
+
+Project.prototype.delete = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const deleteProjectTriples = function (callback)
+    {
+        const deleteQuery =
+            "DELETE FROM [0]\n" +
+            "{\n" +
+            "    ?resource ?p ?o \n" +
+            "} \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "    ?resource ?p ?o .\n" +
+            "    [1] nie:hasLogicalPart* ?resource\n" +
+            "} \n";
+
+        db.connection.executeViaJDBC(deleteQuery,
+            [
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: graphUri
+                },
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: self.uri
+                }
+            ],
+            function (err, result)
+            {
+                callback(err, result);
+            }
+        );
+    };
+
+    const deleteStorageConfig = function (callback)
+    {
+        self.deleteStorageConfig(callback);
+    };
+
+    const deleteProjectFiles = function (callback)
+    {
+        gfs.connection.deleteByQuery({ "metadata.project.uri": self.uri}, function (err, result)
+        {
+            callback(err, result);
+        });
+    };
+
+    const clearCacheRecords = function (callback)
+    {
+        self.clearCacheRecords(function (err, result)
+        {
+            callback(err, result);
+        });
+    };
+
+    async.series([
+        clearCacheRecords,
+        deleteProjectFiles,
+        deleteStorageConfig,
+        deleteProjectTriples
+    ], function (err, results)
+    {
+        callback(err, results);
+    });
+};
+
+Project.prototype.reindex = function (callback, customGraphUri)
+{
+    const self = this;
+    let failed;
+
+    self.getRootFolder(function (err, rootFolder)
+    {
+        if (isNull(err))
+        {
+            async.series([
+                function (callback)
+                {
+                    // reindex the entire directory structure
+                    rootFolder.forAllChildren(
+                        function (err, resources)
+                        {
+                            if (isNull(err))
+                            {
+                                if (resources.length > 0)
+                                {
+                                    async.mapSeries(resources, function (resource, callback)
+                                    {
+                                        if (!isNull(resource))
+                                        {
+                                            if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                                            {
+                                                Logger.log("debug", "Folder or File " + resource.uri + " now being REindexed.");
+                                                resource.reindex(function (err, resource)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error reindexing File or Folder " + resource.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(resource, null, 4));
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, resource);
+                                                }, customGraphUri);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("debug", "Folder or File " + resource.uri + " now being UNindexed.");
+                                                resource.unindex(function (err, results)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error unindexing File or folder " + resource.uri + " : " + results);
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, results);
+                                                }, customGraphUri);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            callback(false, resource);
+                                        }
+                                    }, function (err, results)
+                                    {
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Errors occurred indexing all children of " + self.uri + " for reindexing : " + resources);
+                                            failed = true;
+                                        }
+
+                                        return callback(failed, null);
+                                    });
                                 }
                                 else
                                 {
-                                    return callback(1, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    return callback(failed, null);
                                 }
                             }
                             else
                             {
-                                return callback(err, pathToFolderToRestore);
+                                failed = true;
+                                return callback(failed, "Error fetching children of " + self.uri + " for reindexing : " + resources);
                             }
+                        },
+                        function ()
+                        {
+                            return failed;
+                        },
+                        function (err)
+                        {
+                            return callback(err, null);
+                        },
+                        true,
+                        customGraphUri
+                    );
+                },
+                function (callback)
+                {
+                    if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                    {
+                        // reindex the Project object itself.
+                        Project.baseConstructor.prototype.reindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
                         });
                     }
                     else
                     {
-                        const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
-                        return callback(err, msg);
+                        // unindex the Project object itself.
+                        Project.baseConstructor.prototype.unindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
                     }
-                });
-            }
-            else
+                }
+            ], function (err, result)
             {
-                const filesize = require('file-size');
-                const difference = maxStorageSize - size;
-
-                const humanSizeDifference = filesize(difference).human('jedec');
-                const humanZipFileSize = filesize(size).human('jedec');
-                const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
-
-                var msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
-                return callback(err, msg);
-            }
-
+                callback(err, self);
+            });
         }
         else
         {
-            var msg = "Unable to estimate size of the zip file sent in as the project backup. Error reported: " + absPathToZipFile;
-            return callback(err, msg);
+            Logger.log("error", "Unable to fetch root folder of project " + self.uri + " while reindexing it.");
+            callback(err, rootFolder);
         }
     });
-
-
 };
 
-Project.restoreFromFolder = function(absPathOfRootFolder,
-                                     entityLoadingTheMetadata,
-                                     attemptToRestoreMetadata,
-                                     replaceExistingFolder,
-                                     callback,
-                                     runningOnRoot
-                            )
+Project.prototype.getHumanReadableUri = function (callback)
 {
     const self = this;
-    const path = require('path');
 
-    if(typeof entityLoadingTheMetadata != null && entityLoadingTheMetadata instanceof User)
+    if (isNull(self.ddr.handle))
     {
-        var entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.handle property.");
     }
     else
     {
-        var entityLoadingTheMetadataUri = User.anonymous.uri;
+        callback(null, "/project/" + self.ddr.handle);
     }
-
-    self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function(err, result){
-        if(!err)
-        {
-            if(runningOnRoot)
-            {
-                /**
-                 * Restore metadata values from metadata.json file
-                 */
-                const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-                const fs = require('fs');
-
-                fs.exists(metadataFileLocation, function (existsMetadataFile) {
-                    if(attemptToRestoreMetadata && existsMetadataFile)
-                    {
-                        fs.readFile(metadataFileLocation, 'utf8', function (err, data) {
-                            if (err) {
-                                console.log('Error: ' + err);
-                                return;
-                            }
-
-                            const node = JSON.parse(data);
-
-                            self.loadMetadata(node, function(err, result){
-                                if(!err)
-                                {
-                                    return callback(null, "Data and metadata restored successfully. Result : " + result);
-                                }
-                                else
-                                {
-                                    return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
-                                }
-                            }, entityLoadingTheMetadataUri, [Config.types.locked],[Config.types.restorable])
-                        });
-                    }
-                    else
-                    {
-                        return callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
-                    }
-                });
-            }
-            else
-            {
-                return callback(null, result);
-            }
-        }
-        else
-        {
-            return callback(err, result);
-        }
-    }, runningOnRoot);
 };
 
-Project.rebaseAllUris = function(structure, newBaseUri)
-{
-    const modifyNode = function (node) {
-        node.resource = Utils.replaceBaseUri(node.resource, newBaseUri);
-
-        for (var i = 0; i < node.metadata.length; i++) {
-            let value = node.metadata[i].value;
-
-            if (value instanceof Array) {
-                for (let j = 0; j < value.length; j++) {
-                    if (Utils.valid_url(value[j])) {
-                        value[j] = Utils.replaceBaseUri(value[j], newBaseUri);
-                    }
-                }
-            }
-            else if (typeof value === "string" && Utils.valid_url(value)) {
-                value = Utils.replaceBaseUri(value, newBaseUri);
-            }
-        }
-
-        if (!isNull(node.children) && node.children instanceof Array) {
-            for (var i = 0; i < node.children.length; i++) {
-                const child = node.children[i];
-                modifyNode(child);
-            }
-        }
-    };
-
-    modifyNode(structure);
-};
-
-
-Project.prefixedRDFType = "ddr:Project";
-
-Project = Class.extend(Project, Resource);
+Project = Class.extend(Project, Resource, "ddr:Project");
 
 module.exports.Project = Project;

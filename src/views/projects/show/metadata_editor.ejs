@@ -1,8 +1,15 @@
-<div class="row">
+<div class="panel panel-default" ng-show="has_editable_metadata()">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            Information about <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
+        </h3>
+    </div>
+    <div class="panel-body">
+
+        <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
 
         <div class="row">
-
             <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
                 <div class="btn-group">
                     <button ng-show="dirty_metadata()"
@@ -108,10 +115,8 @@
         <%- include currently_selected_file.ejs %>
 
         <form id="metadataform" class="form-horizontal navbar-spacer" role="form">
-            <div ng-repeat="descriptor in shared.metadata track by $index">
-                <div class="row">
-                    <ng-include src="'/app/views/projects/show/partials/controls/descriptor_toolbar.html'"></ng-include>
-                </div>
+            <div ng-repeat="descriptor in shared.metadata | filter: only_editable_metadata_descriptors track by $index">
+                <ng-include src="'/app/views/projects/show/partials/controls/descriptor_toolbar.html'"></ng-include>
                 <div ng-switch="descriptor.control">
                     <div ng-switch-when="combo_box">
                         <ng-include src="'/app/views/projects/show/partials/controls/combo_box.html'"></ng-include>
@@ -138,5 +143,17 @@
                 <p/>
             </div>
         </form>
+    </div>
+</div>
+    </div>
+</div>
+<div ng-show="!has_editable_metadata()" class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            Information about <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
+        </h3>
+    </div>
+    <div class="panel-body">
+        There is no information available for this resource.
     </div>
 </div>

@@ -1,0 +1,29 @@
+
+<div class="up-buttons">
+    <div
+         id="upload_restore_droparea_button"
+         ngf-select
+         ngf-drop
+         ng-model="restore_files"
+         ngf-model-invalid="invalidFiles"
+         ngf-model-options="modelOptionsObj"
+         ngf-multiple="multiple"
+         ngf-pattern="pattern"
+         ngf-accept="acceptSelect"
+         ng-disabled="disabled"
+         ngf-capture="capture"
+         ngf-drag-over-class="'btn-success'"
+         ngf-validate="validateObj"
+         ngf-keep="keepDistinct"
+         ngf-fix-orientation="orientation"
+         ngf-max-files="maxFiles"
+         ngf-ignore-invalid="ignoreInvalid"
+         ngf-run-all-validations="runAllValidations"
+         ngf-allow-dir="allowDir"
+         ngf-drop-available="dropAvailable"
+         class="btn btn-primary btn-block">
+            <i class="fa fa-upload" aria-hidden="true"></i>Select File
+        <span ng-show="dropAvailable"> (Or Drag-and-Drop)</span>
+    </div>
+    <br/>
+</div>

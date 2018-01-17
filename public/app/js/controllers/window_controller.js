@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
-    /*
+angular.module("dendroApp.controllers")
+/*
      *  Window controller
      */
-    .controller('windowCtrl', function (
+    .controller("windowCtrl", function (
         $scope,
         $http,
         $filter,
@@ -14,140 +14,257 @@ angular.module('dendroApp.controllers')
         $timeout,
         metadataService,
         windowService,
-        storageService
+        storageService,
+        licensesService,
+        languagesService
     )
-{
-    $scope.get_current_url = function()
     {
-        var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        return newURL;
-    };
-
-    $scope.get_host = function()
-    {
-        var newURL = window.location.protocol + "//" + window.location.host;
-        return newURL;
-    }
-
-    $scope.get_thumbnail_uri = function(uri)
-    {
-        return uri+'?thumbnail&size=icon';
-    };
-
-    $scope.get_filename_icon = function(filename)
-    {
-        var extension = filename.split('.').pop();
-        return $scope.get_extension_icon(extension);
-    };
-
-    $scope.get_extension_icon = function(extension)
-    {
-        return "/images/icons/extensions/file_extension_"+extension+".png";
-    };
-
-    $scope.get_last_section_of_url = function(url)
-    {
-        return url.substr(url.lastIndexOf('/') + 1);
-    };
-
-    $scope.show_popup = function(type, title, message)
-    {
-        windowService.show_popup(type,title,message);
-    };
-
-    $scope.valid_date = function(descriptor)
-    {
-        if(descriptor.value != null)
+        $scope.get_current_url = function ()
         {
-            return windowService.valid_date(descriptor.value);
-        }
-        else
-        {
-            return false;
-        }
-    };
+            var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            return newURL;
+        };
 
-    $scope.set_from_local_storage_and_then_from_value = function(key, value, targetObject, namespace)
-    {
-        var storedValue = storageService.load_from_local_storage(key, targetObject, namespace);
-
-        if(key != null)
+        $scope.get_host = function ()
         {
-            if(storedValue != null)
+            var newURL = window.location.protocol + "//" + window.location.host;
+            return newURL;
+        };
+
+        $scope.get_thumbnail_uri = function (uri)
+        {
+            return uri + "?thumbnail&size=icon";
+        };
+
+        $scope.get_filename_icon = function (filename)
+        {
+            var extension = filename.split(".").pop();
+            return $scope.get_extension_icon(extension);
+        };
+
+        $scope.get_short_filename = function (filename, maxLength)
+        {
+            var length = filename.length;
+
+            if (length > maxLength)
             {
-                if(targetObject != null)
+                var trimmedFileName = filename.substring(0, maxLength);
+                return trimmedFileName + "...";
+            }
+            return filename;
+        };
+
+        $scope.get_extension_icon = function (extension)
+        {
+            return "/images/icons/extensions/file_extension_" + extension + ".png";
+        };
+
+        $scope.get_last_section_of_url = function (url)
+        {
+            return url.substr(url.lastIndexOf("/") + 1);
+        };
+
+        $scope.show_popup = function (type, title, message, delay)
+        {
+            windowService.show_popup(type, title, message, delay);
+        };
+
+        $scope.valid_date = function (descriptor)
+        {
+            if (descriptor.value !== null && descriptor.value instanceof Object)
+            {
+                var numberOfDates = Object.keys(descriptor.value).length;
+                for (var i = 0; i !== numberOfDates; i++)
                 {
-                    if(namespace != null)
+                    var result = windowService.valid_date(descriptor.value[i]);
+                    if (result === false)
                     {
-                        if(targetObject[namespace] != null && targetObject[namespace][key] == null)
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        };
+
+        $scope.save_to_local_storage = function (key, value, namespace)
+        {
+            storageService.save_to_local_storage(key, value, namespace);
+        };
+
+        $scope.set_from_local_storage_and_then_from_value = function (key, value, targetObject, namespace)
+        {
+            var storedValue = storageService.load_from_local_storage(key, targetObject, namespace);
+
+            if (key != null)
+            {
+                if (storedValue != null)
+                {
+                    if (targetObject != null)
+                    {
+                        if (namespace != null)
                         {
-                            targetObject[namespace][key] = value;
+                            if (targetObject[namespace] != null && targetObject[namespace][key] == null)
+                            {
+                                targetObject[namespace][key] = value;
+                            }
+                            else if (targetObject[namespace] == null)
+                            {
+                                targetObject[namespace] = {};
+                                targetObject[namespace][key] = value;
+                            }
                         }
-                        else if(targetObject[namespace] == null)
+                        else
                         {
-                            targetObject[namespace] = {};
-                            targetObject[namespace][key] = value;
+                            if (targetObject[key] == null)
+                            {
+                                targetObject[key] = value;
+                            }
                         }
                     }
                     else
                     {
-                        if(targetObject[key] == null)
+                        if (namespace != null)
                         {
-                            targetObject[key] = value;
+                            if ($scope[namespace] != null && $scope[namespace][key] == null)
+                            {
+                                $scope[namespace][key] = value;
+                            }
+                            else if ($scope[namespace] == null)
+                            {
+                                $scope[namespace] = {};
+                                $scope[namespace][key] = value;
+                            }
+                        }
+                        else
+                        {
+                            $scope[key] = storedValue;
                         }
                     }
                 }
                 else
                 {
-                    if(namespace != null)
+                    if (targetObject != null)
                     {
-                        if($scope[namespace] != null && $scope[namespace][key] == null)
+                        if (namespace != null)
                         {
-                            $scope[namespace][key] = value;
+                            if (targetObject[namespace] != null && targetObject[namespace][key] == null)
+                            {
+                                targetObject[namespace][key] = value;
+                            }
+                            else if (targetObject[namespace] == null)
+                            {
+                                targetObject[namespace] = {};
+                                targetObject[namespace][key] = value;
+                            }
                         }
-                        else if($scope[namespace] == null)
+                        else
                         {
-                            $scope[namespace] = {};
-                            $scope[namespace][key] = value;
+                            if (targetObject[key] == null)
+                            {
+                                targetObject[key] = value;
+                            }
                         }
                     }
                     else
                     {
-                        $scope[key] = storedValue;
+                        if (namespace != null)
+                        {
+                            if ($scope[namespace] == null)
+                            {
+                                $scope[namespace] = {};
+                            }
+
+                            $scope[namespace][key] = value;
+                        }
+                        else
+                        {
+                            $scope[key] = value;
+                        }
                     }
                 }
             }
-            else
+        };
+
+        $scope.valid_word = function (word)
+        {
+            if (word == null || word.length == 0)
             {
-                if(namespace != null)
-                {
-                    if($scope[namespace] == null)
-                    {
-                        $scope[namespace] = {};
-                    }
-
-                    $scope[namespace][key] = value;
-                }
-                else
-                {
-                    $scope[key] = value;
-                }
+                return false;
             }
-        }
-
-    };
-
-    $scope.valid_word = function(word) {
-        if(word == null || word.length == 0)
-        {
-            return false;
-        }
-        else
-        {
             var regexp = /^[0-9a-z]+$/;
             return regexp.test(word);
-        }
+        };
 
-    }
+        $scope.valid_int = function (int)
+        {
+            if (!int || int === "")
+            {
+                return false;
+            }
 
-});
+            try
+            {
+                parseInt(int);
+            }
+            catch (e)
+            {
+                return false;
+            }
+
+            return true;
+        };
+
+        $scope.load_licenses = function ()
+        {
+            var deferred = $q.defer();
+
+            licensesService.get_licenses()
+                .then(function (licenses)
+                {
+                    $scope.licenses = [];
+                    var keys = Object.keys(licenses);
+                    for (var i = 0; i < keys.length; i++)
+                    {
+                        $scope.licenses.push(licenses[keys[i]]);
+                    }
+
+                    deferred.resolve($scope.licenses);
+                });
+
+            return deferred.promise;
+        };
+
+        $scope.load_languages = function ()
+        {
+            var deferred = $q.defer();
+
+            languagesService.get_languages()
+                .then(function (languages)
+                {
+                    $scope.languages = [];
+                    var keys = Object.keys(languages);
+                    for (var i = 0; i < keys.length; i++)
+                    {
+                        $scope.languages.push(languages[keys[i]]);
+                    }
+
+                    deferred.resolve($scope.languages);
+                });
+
+            return deferred.promise;
+        };
+
+        $scope.get_descriptor_by_prefixed_form = function (descriptorsArray, prefixedForm)
+        {
+            var descriptor = _.find(descriptorsArray, function (descriptor)
+            {
+                return descriptor.prefixedForm === prefixedForm;
+            });
+
+            if (!descriptor)
+            {
+                return null;
+            } return descriptor.value;
+        };
+    });

@@ -1,6 +1,6 @@
 <h1>Recent changes</h1>
 <!-- Table -->
-<table class="table change_log_table">
+<table class="table change_log_table" ng-show="shared.recent_versions != null && shared.recent_versions.length > 0">
     <tr>
         <th>
             Time         
@@ -17,7 +17,7 @@
     </tr>
     <tr ng-repeat="recent_version in shared.recent_versions">
         <td>
-            {{recent_version.dcterms.created}}
+            {{recent_version.ddr.created}}
         </td>
         <td>
             <a ng-show="recent_version.ddr.versionCreator != null" href="{{recent_version.ddr.versionCreator.uri}}">
@@ -57,5 +57,9 @@
         </td>
     </tr>
 </table>
+
+<div ng-if="shared.recent_versions === null || shared.recent_versions !== null && shared.recent_versions.length === 0" class="panel panel-info">
+    <div class="panel-body"><h4>There is no history of changes</h4></div>
+</div>
 
 

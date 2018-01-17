@@ -1,37 +1,32 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
+const db = Config.getDBByID();
+
+const async = require("async");
 
 function Change (object)
 {
-    Change.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "change", Change);
+    Change.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
-    self.rdf.type = "ddr:Change";
-
     const now = new Date();
-    self.dcterms.created = now.toISOString();
+    self.ddr.created = now.toISOString();
 
     return self;
 }
 
-Change.findByAssociatedRevision = function(revisionUri, callback)
+Change.findByAssociatedRevision = function (revisionUri, callback)
 {
     const query =
         "WITH [0] \n" +
@@ -41,40 +36,43 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
         "?uri ddr:pertainsTo [1] . \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : revisionUri
+                type: Elements.ontologies.ddr.pertainsTo.type,
+                value: revisionUri
             }
         ],
-        function(err, results) {
-            if(!err)
+        function (err, results)
+        {
+            if (isNull(err))
             {
-                const fetchFullChange = function (changeResultRow, cb) {
-                    Change.findByUri(changeResultRow.uri, function (err, change) {
-                        if (!err) {
+                const fetchFullChange = function (changeResultRow, cb)
+                {
+                    Change.findByUri(changeResultRow.uri, function (err, change)
+                    {
+                        if (isNull(err))
+                        {
                             cb(null, change);
                         }
-                        else {
+                        else
+                        {
                             cb(1, null);
                         }
                     });
                 };
 
-                async.map(results, fetchFullChange, function(err, fullChanges){
-                    if(!err)
+                async.mapSeries(results, fetchFullChange, function (err, fullChanges)
+                {
+                    if (isNull(err))
                     {
                         return callback(null, fullChanges);
                     }
-                    else
-                    {
-                        return callback(1, "Error fetching full changes of the revision " + revisionUri);
-                    }
+                    return callback(1, "Error fetching full changes of the revision " + revisionUri);
                 });
             }
             else
@@ -84,7 +82,7 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
         });
 };
 
-/*Change.prototype.save = function(callback)
+/* Change.prototype.save = function(callback)
 {
     var self = this;
     var changedDescriptor = new Descriptor({
@@ -99,11 +97,11 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
     }
     else
     {
-        console.error("Attempt to record a change on a locked descriptor. debug please. ");
-        return callback(0, null);
+        Logger.log("error","Attempt to record a change on a locked descriptor. debug please. ");
+        return callback(null, null);
     }
-}*/
+} */
 
-Change = Class.extend(Change, Resource);
+Change = Class.extend(Change, Resource, "ddr:Change");
 
 module.exports.Change = Change;

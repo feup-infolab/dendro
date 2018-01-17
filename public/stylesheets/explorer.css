@@ -183,6 +183,34 @@ Animations (uncomment to have animations)
 .social-dendro-btn {
   font-size: 10px;
 }
+.parent_stacked_image {
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.image1_stacked {
+  position: relative;
+  top: 0px;
+  left: 0px;
+}
+.image2_stacked {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+.icon16 {
+  width: 16px;
+  height: 16px;
+}
+.image1_stacked_file_browser {
+  width: 32px;
+  height: 32px;
+}
+.image2_stacked_file_browser {
+  position: absolute;
+  top: -20px;
+  left: 12px;
+}
 .cropArea {
   background: #e4e4e4;
   overflow: hidden;
@@ -208,4 +236,50 @@ Animations (uncomment to have animations)
 .show-author-avatar-partial {
   width: 50%;
   height: 50%;
+}
+.show-avatar-in-project-list {
+  width: 28px;
+  height: 28px;
+}
+.breadcrumb_icon {
+  width: 16px;
+  height: 16px;
+}
+.breadcrumb {
+  background: #f5f5f5;
+  border: 0px solid #f5f5f5;
+  border-radius: 4px;
+  display: block;
+}
+.breadcrumb li {
+  font-size: 14px;
+}
+.breadcrumb a {
+  color: #428bca;
+}
+.breadcrumb a:hover {
+  color: #2a6496;
+}
+.breadcrumb>.active {
+  color: #999;
+}
+.breadcrumb>li+li:before {
+  color: #ccc;
+  content: "\276D\00a0";
+}
+.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+.dendro_config_code_editor {
+  height: 2000px;
+}
+.search_result_accordion_heading a:after {
+  font-family: 'Glyphicons Halflings';
+  content: "\e114";
+  float: right;
+  color: #808080;
+}
+.search_result_accordion_heading a.collapsed:after {
+  content: "\e080";
 }

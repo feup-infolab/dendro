@@ -1,50 +1,26 @@
-//DCTerms ontology : "http://purl.org/dc/elements/1.1/"
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const db = Config.getDBByID();
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const async = require("async");
 
-const async = require('async');
-
-function ExternalRepository (object, creatorUsername)
+function ExternalRepository (object)
 {
-    ExternalRepository.baseConstructor.call(this, object);
     const self = this;
-
-    self.rdf.type = "ddr:ExternalRepository";
-
-    const slug = require('slug');
-
-    if(isNull(object.uri))
-    {
-        if(!isNull(creatorUsername) && !isNull(self.dcterms.title))
-        {
-            self.uri = Config.baseUri + "/external_repository/" + creatorUsername + "/" + slug(self.dcterms.title);
-        }
-        else
-        {
-            const error = "Unable to create an external repository resource without specifying its creator and its dcterms:title";
-            console.error(error);
-            return {error : error};
-        }
-    }
-
+    self.addURIAndRDFType(object, "external_repository", ExternalRepository);
+    ExternalRepository.baseConstructor.call(this, object);
     return self;
 }
 
-ExternalRepository.findByCreator = function(creatorUri, callback)
+ExternalRepository.findByCreator = function (creatorUri, callback)
 {
     const query =
         "SELECT ?uri \n" +
@@ -56,46 +32,69 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
         "} \n" +
         "} \n";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : creatorUri
+                type: Elements.ontologies.dcterms.creator.type,
+                value: creatorUri
             }
         ],
-        function(err, rows) {
-            if(!err)
+        function (err, rows)
+        {
+            if (isNull(err))
             {
-                if(rows instanceof Array)
+                if (rows instanceof Array)
                 {
-                    const getExternalRepository = function (resultRow, cb) {
-                        ExternalRepository.findByUri(resultRow.uri, function (err, externalRepository) {
+                    const getExternalRepository = function (resultRow, cb)
+                    {
+                        ExternalRepository.findByUri(resultRow.uri, function (err, externalRepository)
+                        {
                             cb(err, externalRepository);
                         });
                     };
 
-                    async.map(rows, getExternalRepository, function(err, externalRepositories)
+                    async.mapSeries(rows, getExternalRepository, function (err, externalRepositories)
                     {
                         return callback(err, externalRepositories);
                     });
                 }
                 else
                 {
-                    //external repository does not exist, return null
-                    return callback(0, null);
+                    // external repository does not exist, return null
+                    return callback(null, null);
                 }
             }
             else
             {
                 return callback(err, [rows]);
             }
-    });
+        });
 };
 
-ExternalRepository = Class.extend(ExternalRepository, Resource);
+ExternalRepository.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableUri))
+    {
+        if (!isNull(self.dcterms.creator) && !isNull(self.dcterms.title))
+        {
+            const slug = require("slug");
+            callback(null, "/external_repository/" + object.dcterms.creator + "/" + slug(self.dcterms.title));
+        }
+        else
+        {
+            const error = "Unable to create an external repository resource without specifying its creator and its dcterms:title";
+            Logger.log("error", error);
+            callback(1, error);
+        }
+    }
+};
+
+ExternalRepository = Class.extend(ExternalRepository, Resource, "ddr:ExternalRepository");
 
 module.exports.ExternalRepository = ExternalRepository;

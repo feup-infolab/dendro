@@ -1,59 +1,66 @@
-angular.module('dendroApp.services')
-    .service('storageService', ['$http', '$localStorage',
-        function ($http, $localStorage) {
-
+angular.module("dendroApp.services")
+    .service("storageService", ["$http", "$localStorage",
+        function ($http, $localStorage)
+        {
             this.$storage = $localStorage.$default({});
 
-            this.load_from_local_storage = function(key, targetObject, namespace)
+            this.load_from_local_storage = function (key, targetObject, namespace)
             {
                 var self = this;
-                if(key != null)
+                if (key != null)
                 {
-                    if(namespace != null)
+                    if (namespace != null)
                     {
                         if (targetObject != null)
                         {
-                            if(self.$storage[namespace] != null)
+                            if (self.$storage[namespace] != null)
                             {
-                                if(targetObject[namespace] == null)
+                                if (targetObject[namespace] == null)
                                 {
                                     targetObject[namespace] = {};
                                 }
 
                                 targetObject[namespace][key] = self.$storage[namespace][key];
                             }
+
+                            if (self.$storage[namespace] != null)
+                            {
+                                return self.$storage[namespace][key];
+                            }
+                            return null;
                         }
-                        else
+
+                        if (self.$storage[namespace] != null)
                         {
                             return self.$storage[namespace][key];
                         }
+                        return null;
                     }
-                    else //if(self.$storage[key] != null)
+
+                    if (targetObject != null)
                     {
-                        if(targetObject != null)
-                        {
-                            targetObject[key] = self.$storage[key];
-                        }
-                        else
-                        {
-                            return self.$storage[key];
-                        }
+                        targetObject[key] = self.$storage[key];
+                        return self.$storage[key];
                     }
+
+                    return self.$storage[key];
                 }
+
+                return null;
             };
 
-            this.save_to_local_storage = function(key, value, namespace)
+            this.save_to_local_storage = function (key, value, namespace)
             {
                 var self = this;
 
-                if(self.$storage[namespace] == null)
+                if (self.$storage[namespace] == null)
                 {
                     self.$storage[namespace] = {};
                 }
 
-                if(key != null)
+                if (key != null)
                 {
-                    if(namespace != null)
+                    if (namespace != null)
                     {
                         self.$storage[namespace][key] = value;
                     }
@@ -65,4 +72,3 @@ angular.module('dendroApp.services')
             };
         }
     ]);
-
