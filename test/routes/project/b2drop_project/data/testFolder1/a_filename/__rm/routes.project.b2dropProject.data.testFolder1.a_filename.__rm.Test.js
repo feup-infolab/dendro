@@ -148,10 +148,25 @@ describe("B2Drop project testFolder1 ?rename", function ()
         });
     });
 
+
+    describe("Clean up /project/" + b2dropProject.handle, function ()
+    {
+        it("Should delete project " + b2dropProject.handle, function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                projectUtils.deleteProject(false, agent, b2dropProject.handle, function (err, result)
+                {
+                    should.not.exist(err);
+                    // destroy graphs
+                    done();
+                });
+            });
+        });
+    });
+
     after(function (done)
     {
-        // destroy graphs
-
         appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);

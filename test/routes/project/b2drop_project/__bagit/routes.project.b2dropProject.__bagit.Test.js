@@ -54,12 +54,18 @@ describe("Backup B2Drop-backed project", function ()
 
     after(function (done)
     {
-        // destroy graphs
-
-        appUtils.clearAppState(function (err, data)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
-            should.equal(err, null);
-            done(err);
+            projectUtils.deleteProject(false, agent, b2dropProject.handle, function (err, result)
+            {
+                should.not.exist(err);
+                // destroy graphs
+                appUtils.clearAppState(function (err, data)
+                {
+                    should.equal(err, null);
+                    done(err);
+                });
+            });
         });
     });
 });
