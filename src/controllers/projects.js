@@ -2035,33 +2035,59 @@ exports.import = function (req, res)
 
                                             newProject.updateDescriptors(descriptors);
 
-                                            Project.createAndInsertFromObject(newProject, function (err, newProject)
+                                            // all imported projects will use default storage by default.
+                                            // later we will add parameters for storage in the import screen
+                                            // and projects can be imported directly to any kind of storage
+                                            const storageConf = new StorageConfig({
+                                                ddr: {
+                                                    hasStorageType: "local"
+                                                }
+                                            });
+
+                                            storageConf.save(function (err, newStorageConf)
                                             {
                                                 if (isNull(err))
                                                 {
-                                                    newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
+                                                    newProject.ddr.hasStorageConfig = newStorageConf.uri;
+                                                    Project.createAndInsertFromObject(newProject, function (err, newProject)
                                                     {
                                                         if (isNull(err))
                                                         {
-                                                            delete newProject.ddr.is_being_imported;
-                                                            newProject.save(function (err, result)
+                                                            newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
                                                             {
                                                                 if (isNull(err))
                                                                 {
-                                                                    callback(null,
+                                                                    delete newProject.ddr.is_being_imported;
+                                                                    newProject.save(function (err, result)
+                                                                    {
+                                                                        if (isNull(err))
                                                                         {
-                                                                            result: "ok",
-                                                                            message: "Project imported successfully.",
-                                                                            new_project: newProject.uri
+                                                                            callback(null,
+                                                                                {
+                                                                                    result: "ok",
+                                                                                    message: "Project imported successfully.",
+                                                                                    new_project: newProject.uri
+                                                                                }
+                                                                            );
                                                                         }
-                                                                    );
+                                                                        else
+                                                                        {
+                                                                            callback(500,
+                                                                                {
+                                                                                    result: "error",
+                                                                                    message: "Error marking project restore as complete.",
+                                                                                    error: result
+                                                                                }
+                                                                            );
+                                                                        }
+                                                                    });
                                                                 }
                                                                 else
                                                                 {
                                                                     callback(500,
                                                                         {
                                                                             result: "error",
-                                                                            message: "Error marking project restore as complete.",
+                                                                            message: "Error restoring project contents from unzipped backup folder",
                                                                             error: result
                                                                         }
                                                                     );
@@ -2073,7 +2099,7 @@ exports.import = function (req, res)
                                                             callback(500,
                                                                 {
                                                                     result: "error",
-                                                                    message: "Error restoring project contents from unzipped backup folder",
+                                                                    message: "Error creating new project record before import operation could start",
                                                                     error: result
                                                                 }
                                                             );
@@ -2085,8 +2111,8 @@ exports.import = function (req, res)
                                                     callback(500,
                                                         {
                                                             result: "error",
-                                                            message: "Error creating new project record before import operation could start",
-                                                            error: result
+                                                            message: "Unable to create new local storage configuration when importing a new project.",
+                                                            error: newStorageConf
                                                         }
                                                     );
                                                 }

@@ -396,85 +396,25 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
     ], callback);
 };
 
-InformationElement.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
-{
-    const self = this;
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
-
-    let failed = false;
-    self.forAllChildren(
-        function (err, resources)
-        {
-            if (isNull(err))
-            {
-                if (resources.length > 0)
-                {
-                    async.mapSeries(resources, function (resource, callback)
-                    {
-                        if (!isNull(resource))
-                        {
-                            resource.refreshHumanReadableUri(callback, graphUri);
-                        }
-                        else
-                        {
-                            callback(false, resource);
-                        }
-                    }, function (err, results)
-                    {
-                        if (err)
-                        {
-                            Logger.log("error", "Errors refreshing human readable URIs of children of " + self.uri + " : " + resources);
-                            failed = true;
-                        }
-
-                        return callback(failed, null);
-                    });
-                }
-                else
-                {
-                    return callback(failed, null);
-                }
-            }
-            else
-            {
-                failed = true;
-                return callback(failed, "Error fetching children of " + self.uri + " for reindexing : " + resources);
-            }
-        },
-        function ()
-        {
-            return failed;
-        },
-        function (err)
-        {
-            return callback(err, null);
-        },
-        true,
-        customGraphUri
-    );
-};
-
 InformationElement.prototype.rename = function (newTitle, callback, customGraphUri)
 {
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const query =
-        "DELETE DATA \n" +
+        "WITH [0] \n" +
+        "DELETE \n" +
         "{ \n" +
-        "   GRAPH [0] \n" +
-        "   { \n" +
-        "       [1] nie:title ?title . " +
-        "   } \n" +
-        "}; \n" +
-
-        "INSERT DATA \n" +
+        "   [1] nie:title ?title \n" +
+        "} \n" +
+        "WHERE \n" +
         "{ \n" +
-        "   GRAPH [0] \n" +
-        "   { " +
-        "       [1] nie:title [2] \n" +
-        "   } \n" +
-        "}; \n";
+        "   [1] nie:title ?title \n" +
+        "} \n" +
+        "INSERT \n" +
+        "{ \n" +
+        "   [1] nie:title [2] \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
@@ -493,12 +433,56 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
         ],
         function (err, result)
         {
-            Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+            if (isNull(err))
             {
-                self.refreshChildrenHumanReadableUris(function(err, result){
-                    return callback(err, result);
+                self.nie.title = newTitle;
+                self.refreshHumanReadableUri(function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                self.reindex(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(err, self);
+                                    }
+
+                                    const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(result, null, 4);
+                                    Logger.log("error", msg);
+                                    return callback(1, msg);
+                                });
+                            }
+                            else
+                            {
+                                const msg = "Error invalidating cache for information element : " + self.uri + JSON.stringify(result);
+                                Logger.log("error", msg);
+                                Logger.log("error", JSON.stringify(err));
+                                Logger.log("error", JSON.stringify(result));
+                                return callback(1, msg);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        const msg = "Error refreshing human readable uri of file: " + self.uri + JSON.stringify(result);
+                        Logger.log("error", msg);
+                        Logger.log("error", JSON.stringify(err));
+                        Logger.log("error", JSON.stringify(result));
+                        return callback(1, msg);
+                    }
                 });
-            });
+            }
+            else
+            {
+                Logger.log("error", "Error occurred renaming file or folder " + self.uri);
+                Logger.log("error", JSON.stringify(err));
+                Logger.log("error", JSON.stringify(result));
+                return callback(err, result);
+            }
         }, null, null, null, true
     );
 };

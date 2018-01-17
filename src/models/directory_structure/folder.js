@@ -1810,6 +1810,84 @@ Folder.prototype.getHumanReadableUri = function (callback)
     }
 };
 
+Folder.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    let failed = null;
+    self.forAllChildren(
+        function (err, resources)
+        {
+            if (isNull(err))
+            {
+                if (resources.length > 0)
+                {
+                    async.mapSeries(resources, function (resource, callback)
+                    {
+                        if (!isNull(resource))
+                        {
+                            resource.refreshHumanReadableUri(callback, graphUri);
+                        }
+                        else
+                        {
+                            callback(false, resource);
+                        }
+                    }, function (err, results)
+                    {
+                        if (err)
+                        {
+                            Logger.log("error", "Errors refreshing human readable URIs of children of " + self.uri + " : " + resources);
+                            failed = true;
+                        }
+
+                        return callback(failed, null);
+                    });
+                }
+                else
+                {
+                    return callback(failed, null);
+                }
+            }
+            else
+            {
+                failed = true;
+                return callback(failed, "Error fetching children of " + self.uri + " for reindexing : " + resources);
+            }
+        },
+        function ()
+        {
+            return failed;
+        },
+        function (err)
+        {
+            return callback(err, null);
+        },
+        true,
+        customGraphUri
+    );
+};
+
+Folder.prototype.rename = function(newTitle, callback)
+{
+    const self = this;
+    InformationElement.prototype.rename.call(self, newTitle, function(err, updatedFolder){
+        if(isNull(err))
+        {
+            self.refreshChildrenHumanReadableUris(function (err, result)
+            {
+                return callback(err, result);
+            });
+        }
+        else
+        {
+            Logger.log("error", "Error occurred while renaming a folder!");
+            Logger.log("error", JSON.stringify(err));
+            Logger.log("error", JSON.stringify(result));
+            return callback(err, result);
+        }
+    });
+};
 
 Folder = Class.extend(Folder, InformationElement, "nfo:Folder");
 

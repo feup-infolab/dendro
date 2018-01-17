@@ -799,31 +799,37 @@ Elements.ontologies.ddr = {
     hasStorageConfig:
         {
             type: Elements.types.string,
-            api_readable: false,
+            private: true,
             locked: true
         },
     hasStorageType:
         {
             type: Elements.types.string,
-            api_readable: true,
+            private: true,
             locked: true
         },
     handlesStorageForProject:
         {
             type: Elements.types.resource,
-            api_readable: true,
+            private: true,
             locked: true
         },
     host:
         {
             type: Elements.types.string,
-            api_readable: true,
+            private: true,
             locked: true
         },
     port:
         {
             type: Elements.types.int,
-            api_readable: true,
+            private: true,
+            locked: true
+        },
+    collectionName:
+        {
+            type: Elements.types.string,
+            private: true,
             locked: true
         },
     hasStorageLimit:
@@ -858,7 +864,7 @@ Elements.ontologies.ddr = {
             audit: true
         },
     humanReadableURI: {
-        type: Elements.types.resourceNoEscape,
+        type: Elements.types.string,
         control: Controls.input_box,
         private: true,
         locked: true,

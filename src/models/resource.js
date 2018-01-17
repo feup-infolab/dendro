@@ -1160,7 +1160,11 @@ Resource.prototype.save = function
                 }
                 else
                 {
-                    cb(1, "Unable to determine new human readable uri for resource " + newResource.uri);
+                    const msg = "Unable to determine new human readable uri for resource " + self.uri;
+                    Logger.log("error", msg);
+                    Logger.log("error", err);
+                    Logger.log("error", newHumanReadableUri);
+                    cb(1, msg);
                 }
             }
         );
@@ -1918,82 +1922,92 @@ Resource.getUriFromHumanReadableUri = function (humanReadableUri, callback, cust
     }
 };
 
-Resource.getHumanReadableUriFromUri = function (uri, callback, customGraphUri, skipCache)
+Resource.getHumanReadableUriFromUri = function (machineURI, callback, customGraphUri, skipCache)
 {
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
-
-    const getFromCache = function (callback)
+    if (!isNull(machineURI))
     {
-        // TODO
-        return callback(null, null);
-    };
+        const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-    const getFromTripleStore = function (callback)
-    {
-        db.connection.executeViaJDBC(
-            "SELECT ?uri \n" +
-            "FROM [0] \n" +
-            "WHERE \n" +
-            "{ \n" +
-            "  [1] ddr:humanReadableURI ?uri \n" +
-            "}\n",
-            [
-                {
-                    type: Elements.types.resourceNoEscape,
-                    value: graphUri
-                },
-                {
-                    type: Elements.ontologies.ddr.humanReadableURI.type,
-                    value: uri
-                }
-            ],
-            function (err, results)
-            {
-                if (isNull(err))
-                {
-                    if (!isNull(results) && results instanceof Array)
+        const getFromCache = function (callback)
+        {
+            // TODO
+            return callback(null, null);
+        };
+
+        const getFromTripleStore = function (callback)
+        {
+            db.connection.executeViaJDBC(
+                "SELECT ?human_uri \n" +
+                "FROM [0] \n" +
+                "WHERE \n" +
+                "{ \n" +
+                "  [1] ddr:humanReadableURI ?human_uri \n" +
+                "}\n",
+                [
                     {
-                        if (results.length === 1)
-                        {
-                            return callback(null, results[0].uri);
-                        }
-                        else if (results.length > 1)
-                        {
-                            return callback(1, "[ERROR] There are more than one human readable URI for internal URI  " + uri + " ! They are : " + JSON.stringify(results));
-                        }
-                        return callback(null, null);
+                        type: Elements.types.resourceNoEscape,
+                        value: graphUri
+                    },
+                    {
+                        type: Elements.types.resourceNoEscape,
+                        value: machineURI
                     }
+                ],
+                function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(results) && results instanceof Array)
+                        {
+                            if (results.length === 1)
+                            {
+                                return callback(null, results[0].human_uri);
+                            }
+                            else if (results.length > 1)
+                            {
+                                return callback(1, "[ERROR] There are more than one human readable URI for internal URI  " + machineURI + " ! They are : " + JSON.stringify(results));
+                            }
+
+                            return callback(null, null);
+                        }
+                    }
+                    else
+                    {
+                        return callback(err, results);
+                    }
+                });
+        };
+
+        if (skipCache)
+        {
+            getFromTripleStore(function (err, resourceUri)
+            {
+                callback(err, resourceUri);
+            });
+        }
+        else
+        {
+            getFromCache(function (err, resourceUri)
+            {
+                if (isNull(err) && !isNull(resourceUri))
+                {
+                    callback(null, resourceUri);
                 }
                 else
                 {
-                    return callback(err, results);
+                    getFromTripleStore(function (err, resourceUri)
+                    {
+                        callback(err, resourceUri);
+                    });
                 }
             });
-    };
-
-    if (skipCache)
-    {
-        getFromTripleStore(function (err, resourceUri)
-        {
-            callback(err, resourceUri);
-        });
+        }
     }
     else
     {
-        getFromCache(function (err, resourceUri)
-        {
-            if (isNull(err) && !isNull(resourceUri))
-            {
-                callback(null, resourceUri);
-            }
-            else
-            {
-                getFromTripleStore(function (err, resourceUri)
-                {
-                    callback(err, resourceUri);
-                });
-            }
-        });
+        const msg = "Unable to get a human readable uri when the resource uri is not defined!";
+        Logger.log("error", msg);
+        callback(1, msg);
     }
 };
 

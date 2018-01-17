@@ -1,6 +1,7 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
+const slug = require("slug");
 const XLSX = require("xlsx");
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
@@ -218,9 +219,9 @@ File.deleteOnLocalFileSystem = function (absPathToFile, callback)
 File.prototype.autorename = function ()
 {
     const self = this;
-    const slug = require("slug");
-    let fileNameData = self.nie.title.split(".");
-    self.nie.title = fileNameData[0] + "_Copy_created_" + slug(Date.now(), "_") + "." + fileNameData[1];
+    let extension = path.extname(self.nie.title);
+    let fileName = path.basename(self.nie.title, path.extname(self.nie.title));
+    self.nie.title = fileName + "_Copy_created_" + slug(Date.now(), "_") + extension;
     return self.nie.title;
 };
 
@@ -254,17 +255,20 @@ File.prototype.save = function (callback, rename)
                         {
                             if (isNull(err))
                             {
-                                self.reindex(function (err, result)
+                                if (isNull(err))
                                 {
-                                    if (isNull(err))
+                                    self.reindex(function (err, result)
                                     {
-                                        return callback(err, self);
-                                    }
+                                        if (isNull(err))
+                                        {
+                                            return callback(err, self);
+                                        }
 
-                                    const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(err, null, 4);
-                                    Logger.log("error", msg);
-                                    return callback(1, msg);
-                                });
+                                        const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(result, null, 4);
+                                        Logger.log("error", msg);
+                                        return callback(1, msg);
+                                    });
+                                }
                             }
                             else
                             {
