@@ -1,5 +1,6 @@
 const slug = require("slug");
 const async = require("async");
+const path = require("path");
 
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -23,13 +24,21 @@ class StorageB2Drop extends Storage
         const self = this;
         self.username = username;
         self.password = password;
-        self.prefix = StorageB2Drop.getRootFolderName() + "/" + slug(Config.baseUri, "_");
+
+        let dendroInstanceDataFolder = Config.host;
+
+        if (Config.port)
+        {
+            dendroInstanceDataFolder += ("_" + Config.port);
+        }
+
+        self.prefix = StorageB2Drop.getRootFolderName() + "/" + slug(dendroInstanceDataFolder, "_");
     }
 
-    _getB2DropPath (fileUri)
+    _getB2DropPath (file)
     {
         const self = this;
-        return self.prefix + "/" + slug(fileUri, "_") + ".dat";
+        return self.prefix + file.ddr.humanReadableURI;
     }
 
     open (callback)
@@ -61,33 +70,45 @@ class StorageB2Drop extends Storage
         return callback(null);
     }
 
-    put (fileUri, inputStream, callback)
+    put (file, inputStream, callback)
     {
         const self = this;
 
         inputStream.on("open", function ()
         {
-            const targetFilePath = self._getB2DropPath(fileUri);
-            self.connection.put(targetFilePath, inputStream, function (err, result)
+            const targetFilePath = self._getB2DropPath(file);
+            const parentFolder = path.dirname(targetFilePath);
+
+            self.connection.createFolder(parentFolder, function (err, result)
             {
-                callback(err, result);
+                if (isNull(err))
+                {
+                    self.connection.put(targetFilePath, inputStream, function (err, result)
+                    {
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    callback(err, self);
+                }
             });
         });
     }
 
-    get (fileUri, outputStream, callback)
+    get (file, outputStream, callback)
     {
         const self = this;
-        self.connection.get(self._getB2DropPath(fileUri), outputStream, function (err, result)
+        self.connection.get(self._getB2DropPath(file), outputStream, function (err, result)
         {
             callback(err, result);
         });
     }
 
-    delete (fileUri, callback)
+    delete (file, callback)
     {
         const self = this;
-        self.connection.delete(self._getB2DropPath(fileUri), function (err, result)
+        self.connection.delete(self._getB2DropPath(file), function (err, result)
         {
             callback(err, result);
         });

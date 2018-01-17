@@ -475,7 +475,7 @@ File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetad
                 {
                     if (isNull(err))
                     {
-                        result.get(self.uri, writeStream, function (err, result)
+                        result.get(self, writeStream, function (err, result)
                         {
                             if (isNull(err))
                             {
@@ -512,7 +512,7 @@ File.prototype.writeFileToStream = function (stream, callback)
                 {
                     if (isNull(err))
                     {
-                        result.get(self.uri, stream, function (err, result)
+                        result.get(self, stream, function (err, result)
                         {
                             if (isNull(err))
                             {
@@ -581,7 +581,7 @@ File.prototype.writeToTempFile = function (callback)
                         {
                             if (isNull(err))
                             {
-                                result.get(self.uri, writeStream, function (err, result)
+                                result.get(self, writeStream, function (err, result)
                                 {
                                     if (isNull(err))
                                     {
@@ -691,7 +691,7 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
                     {
                         if (isNull(err))
                         {
-                            storageConnection.put(self.uri,
+                            storageConnection.put(self,
                                 fs.createReadStream(localFile),
                                 function (err, result)
                                 {

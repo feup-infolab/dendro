@@ -21,19 +21,19 @@ class StorageGridFs extends Storage
         this.connection.close(callback);
     }
 
-    put (fileUri, inputStream, callback, metadata, customBucket)
+    put (file, inputStream, callback, metadata, customBucket)
     {
-        this.connection.put(fileUri, inputStream, callback, metadata, customBucket);
+        this.connection.put(file.uri, inputStream, callback, metadata, customBucket);
     }
 
-    get (fileUri, outputStream, callback, customBucket)
+    get (file, outputStream, callback, customBucket)
     {
-        this.connection.get(fileUri, outputStream, callback, customBucket);
+        this.connection.get(file.uri, outputStream, callback, customBucket);
     }
 
-    delete (fileUri, callback, customBucket)
+    delete (file, callback, customBucket)
     {
-        this.connection.delete(fileUri, callback, customBucket);
+        this.connection.delete(file.uri, callback, customBucket);
     }
 }
 
