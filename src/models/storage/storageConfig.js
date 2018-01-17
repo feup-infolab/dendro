@@ -104,18 +104,26 @@ StorageConfig.findByProject = function (projectUri, callback, customGraphUri)
                 {
                     if (results.length > 0)
                     {
-                        async.map(results, function (result, cb)
+                        async.mapSeries(results, function (result, cb)
                         {
                             StorageConfig.findByUri(result.configuration, function (err, config)
                             {
                                 cb(err, config);
                             });
+                        },
+                        function (err, results)
+                        {
+                            callback(err, results);
                         });
                     }
                     else
                     {
                         callback(null, null);
                     }
+                }
+                else
+                {
+                    callback(1, "Unable to retrieve the storage configuration of project " + projectUri);
                 }
             }
             else

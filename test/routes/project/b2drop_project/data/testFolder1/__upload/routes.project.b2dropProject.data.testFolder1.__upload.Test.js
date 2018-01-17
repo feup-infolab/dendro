@@ -11,6 +11,7 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
@@ -513,12 +514,18 @@ describe("Upload files into testFolder1 of b2droproject project", function ()
 
     after(function (done)
     {
-        // destroy graphs
-
-        appUtils.clearAppState(function (err, data)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
-            should.equal(err, null);
-            done(err);
+            projectUtils.deleteProject(false, agent, b2dropProject.handle, function (err, result)
+            {
+                should.not.exist(err);
+                // destroy graphs
+                appUtils.clearAppState(function (err, data)
+                {
+                    should.equal(err, null);
+                    done(err);
+                });
+            });
         });
     });
 });

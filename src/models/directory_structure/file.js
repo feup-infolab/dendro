@@ -13,9 +13,6 @@ const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const StorageB2drop = require(Pathfinder.absPathInSrcFolder("/kb/storage/storageB2Drop.js")).StorageB2drop;
-const StorageGridFs = require(Pathfinder.absPathInSrcFolder("kb/storage/storageGridFs.js")).StorageGridFs;
-const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
 const async = require("async");
@@ -218,10 +215,12 @@ File.deleteOnLocalFileSystem = function (absPathToFile, callback)
 
 File.prototype.autorename = function ()
 {
+    const moment = require("moment");
+    const fileNameDateSection = moment(new Date()).format("YYYY_MM_DD_at_hh_mm_ss");
     const self = this;
     let extension = path.extname(self.nie.title);
     let fileName = path.basename(self.nie.title, path.extname(self.nie.title));
-    self.nie.title = fileName + "_Copy_created_" + slug(Date.now(), "_") + extension;
+    self.nie.title = fileName + "_Copy_created_" + fileNameDateSection + extension;
     return self.nie.title;
 };
 
@@ -243,6 +242,8 @@ File.prototype.save = function (callback, rename)
             {
                 self.autorename();
             }
+
+            const db = Config.getDBByID();
             db.connection.insertDescriptorsForSubject(
                 self.nie.isLogicalPartOf,
                 newDescriptorsOfParent,
@@ -1484,33 +1485,9 @@ File.prototype.getProjectStorage = function (callback)
             const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
             if (isNull && ownerProject instanceof Project)
             {
-                const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
-
-                StorageConfig.findByUri(ownerProject.ddr.hasStorageConfig, function (err, config)
+                ownerProject.getActiveStorageConnection(function (err, connection)
                 {
-                    if (isNull(err))
-                    {
-                        if (config.ddr.hasStorageType === "local")
-                        {
-                            const newStorageLocal = new StorageGridFs(
-                                Config.defaultStorageConfig.username,
-                                Config.defaultStorageConfig.password,
-                                Config.defaultStorageConfig.host,
-                                Config.defaultStorageConfig.port,
-                                Config.defaultStorageConfig.collectionName
-                            );
-                            return callback(null, newStorageLocal);
-                        }
-                        else if (config.ddr.hasStorageType === "b2drop")
-                        {
-                            const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
-                            return callback(null, newStorageB2drop);
-                        }
-
-                        return callback(true, "unknown storage type");
-                    }
-
-                    return callback(true, "project file with no storageConfig");
+                    callback(err, connection);
                 });
             }
         }

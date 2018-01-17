@@ -2,6 +2,7 @@ const Pathfinder = global.Pathfinder;
 
 const GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
 const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 class StorageGridFs extends Storage
 {
@@ -34,6 +35,36 @@ class StorageGridFs extends Storage
     delete (file, callback, customBucket)
     {
         this.connection.delete(file.uri, callback, customBucket);
+    }
+
+    deleteAll (callback)
+    {
+        this.connection.deleteByQuery({}, function (err, result)
+        {
+            if (!err)
+            {
+                Logger.log_boot_message("All files in GridFS storage cleared successfully.");
+            }
+            else
+            {
+                callback(err);
+            }
+        });
+    }
+
+    deleteAllInProject (project, callback)
+    {
+        this.connection.deleteByQuery({"metadata.project.uri": project.uri}, function (err, result)
+        {
+            if (!err)
+            {
+                Logger.log_boot_message("All files in project " + project.uri + " GridFS storage cleared successfully.");
+            }
+            else
+            {
+                callback(err);
+            }
+        });
     }
 }
 

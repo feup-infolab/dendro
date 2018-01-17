@@ -962,12 +962,24 @@ exports.new = function (req, res)
                         {
                             if (isNull(err))
                             {
-                                req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
-                                return res.redirect("/projects/my");
-                            }
+                                storageConf.ddr.handlesStorageForProject = result.uri;
+                                storageConf.save(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
+                                        return res.redirect("/projects/my");
+                                    }
 
-                            req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
-                            throw result;
+                                    req.flash("error", "Error updating storage configuration " + storageConf.uri + "for project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
+                                    throw result;
+                                });
+                            }
+                            else
+                            {
+                                req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
+                                throw result;
+                            }
                         });
                     }
                     else
@@ -2040,7 +2052,8 @@ exports.import = function (req, res)
                                             // and projects can be imported directly to any kind of storage
                                             const storageConf = new StorageConfig({
                                                 ddr: {
-                                                    hasStorageType: "local"
+                                                    hasStorageType: "local",
+                                                    handlesStorageForProject: newProject.uri
                                                 }
                                             });
 
@@ -2369,7 +2382,8 @@ exports.storage = function (req, res)
                                         ddr: {
                                             hasStorageType: "b2drop",
                                             password: req.body.storageConfig.ddr.password,
-                                            username: req.body.storageConfig.ddr.username
+                                            username: req.body.storageConfig.ddr.username,
+                                            handlesStorageForProject: project.uri
                                         }
                                     });
                                 }

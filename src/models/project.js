@@ -1769,7 +1769,7 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
     );
 };
 
-Project.prototype.deleteStorageConfig = function (callback, customGraphUri)
+Project.prototype.getActiveStorageConfig = function (callback, customGraphUri)
 {
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
@@ -1787,6 +1787,99 @@ Project.prototype.deleteStorageConfig = function (callback, customGraphUri)
         else
         {
             callback(err, config);
+        }
+    });
+};
+
+Project.prototype.getActiveStorageConnection = function (callback)
+{
+    const self = this;
+    const StorageB2drop = require(Pathfinder.absPathInSrcFolder("/kb/storage/storageB2Drop.js")).StorageB2drop;
+    const StorageGridFs = require(Pathfinder.absPathInSrcFolder("kb/storage/storageGridFs.js")).StorageGridFs;
+    self.getActiveStorageConfig(function (err, config)
+    {
+        if (isNull(err))
+        {
+            if (config.ddr.hasStorageType === "local")
+            {
+                const newStorageLocal = new StorageGridFs(
+                    Config.defaultStorageConfig.username,
+                    Config.defaultStorageConfig.password,
+                    Config.defaultStorageConfig.host,
+                    Config.defaultStorageConfig.port,
+                    Config.defaultStorageConfig.collectionName
+                );
+
+                newStorageLocal.open(function (err, openConnectionStorage)
+                {
+                    return callback(null, openConnectionStorage);
+                });
+            }
+            else if (config.ddr.hasStorageType === "b2drop")
+            {
+                const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
+                newStorageB2drop.open(function (err, openConnectionStorage)
+                {
+                    return callback(null, openConnectionStorage);
+                });
+            }
+            else
+            {
+                return callback(true, "Unknown storage type");
+            }
+        }
+        else
+        {
+            return callback(true, "project " + self.uri + " has no storageConfig");
+        }
+    });
+};
+
+Project.prototype.deleteActiveStorageConfig = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    self.getActiveStorageConfig(function (err, config)
+    {
+        if (!isNull(err))
+        {
+            config.deleteAllMyTriples(function (err, result)
+            {
+                callback(err, result);
+            }, graphUri);
+        }
+        else
+        {
+            callback(err, config);
+        }
+    });
+};
+
+Project.prototype.deleteAllStorageConfigs = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
+
+    StorageConfig.findByProject(self.uri, function (err, configs)
+    {
+        if (isNull(err))
+        {
+            async.mapSeries(configs, function (config, callback)
+            {
+                config.deleteAllMyTriples(function (err, result)
+                {
+                    callback(err, result);
+                }, graphUri);
+            }, function (err, result)
+            {
+                callback(err);
+            });
+        }
+        else
+        {
+            callback(err, configs);
         }
     });
 };
@@ -1827,16 +1920,26 @@ Project.prototype.delete = function (callback, customGraphUri)
         );
     };
 
-    const deleteStorageConfig = function (callback)
+    const deleteAllStorageConfigs = function (callback)
     {
-        self.deleteStorageConfig(callback);
+        self.deleteAllStorageConfigs(callback);
     };
 
     const deleteProjectFiles = function (callback)
     {
-        gfs.connection.deleteByQuery({ "metadata.project.uri": self.uri}, function (err, result)
+        self.getActiveStorageConnection(function (err, storageConnection)
         {
-            callback(err, result);
+            if (isNull(err))
+            {
+                storageConnection.deleteAllInProject(self, function (err, result)
+                {
+                    callback(err, result);
+                });
+            }
+            else
+            {
+                callback(err, storageConnection);
+            }
         });
     };
 
@@ -1851,7 +1954,7 @@ Project.prototype.delete = function (callback, customGraphUri)
     async.series([
         clearCacheRecords,
         deleteProjectFiles,
-        deleteStorageConfig,
+        deleteAllStorageConfigs,
         deleteProjectTriples
     ], function (err, results)
     {

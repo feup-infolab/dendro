@@ -12,6 +12,16 @@ class Storage
     {}
     delete ()
     {}
+    deleteAll ()
+    {}
+    deleteAllInProject ()
+    {}
+    move ()
+    {}
+    clone ()
+    {}
+    rename ()
+    {}
 }
 
 module.exports.Storage = Storage;

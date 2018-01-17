@@ -1,5 +1,4 @@
 const slug = require("slug");
-const async = require("async");
 const path = require("path");
 
 const Pathfinder = global.Pathfinder;
@@ -111,6 +110,41 @@ class StorageB2Drop extends Storage
         self.connection.delete(self._getB2DropPath(file), function (err, result)
         {
             callback(err, result);
+        });
+    }
+
+    deleteAll (callback)
+    {
+        const self = this;
+        self.connection.delete(self.prefix, function (err, result)
+        {
+            callback(err, result);
+        });
+    }
+
+    deleteAllInProject (project, callback)
+    {
+        const self = this;
+        self.connection.checkIfFolderExists(self._getB2DropPath(project), function (err, exists)
+        {
+            if (isNull(err))
+            {
+                if (exists === true)
+                {
+                    self.connection.delete(self._getB2DropPath(project), function (err, result)
+                    {
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    callback(null, null);
+                }
+            }
+            else
+            {
+                callback(err, exists);
+            }
         });
     }
 }
