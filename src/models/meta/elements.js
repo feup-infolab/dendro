@@ -871,7 +871,7 @@ Elements.ontologies.ddr = {
         private: true,
         locked: true,
         api_readable: true,
-        append_prefix_dendro_baseuri: true,
+        append_prefix_dendro_baseuri: true
     },
     handle: {
         type: Elements.types.string,
