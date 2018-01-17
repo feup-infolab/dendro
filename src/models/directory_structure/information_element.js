@@ -493,8 +493,8 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
     const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
     const self = this;
 
-    const oldParent = self.nie.isLogicalPartOf;
-    const newParent = newParentFolder.uri;
+    const oldParentUri = self.nie.isLogicalPartOf;
+    const newParentUri = newParentFolder.uri;
 
     const autoRenameIfNeeded = function (callback)
     {
@@ -559,7 +559,7 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
             {
                 return callback(err, needsRename);
             }
-        }, null, newParent);
+        }, null, newParentUri);
     };
 
     async.waterfall([
@@ -587,7 +587,7 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                     },
                     {
                         type: Elements.ontologies.nie.hasLogicalPart.type,
-                        value: oldParent
+                        value: oldParentUri
                     },
                     {
                         type: Elements.ontologies.nie.hasLogicalPart.type,
@@ -595,7 +595,7 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                     },
                     {
                         type: Elements.ontologies.nie.hasLogicalPart.type,
-                        value: newParent
+                        value: newParentUri
                     }
                 ],
                 function (err, result)
@@ -610,11 +610,11 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                             },
                             function (callback)
                             {
-                                Cache.getByGraphUri(db.graphUri).delete(newParent, callback);
+                                Cache.getByGraphUri(db.graphUri).delete(newParentUri, callback);
                             },
                             function (callback)
                             {
-                                Cache.getByGraphUri(db.graphUri).delete(oldParent, callback);
+                                Cache.getByGraphUri(db.graphUri).delete(oldParentUri, callback);
                             },
 
                             // refresh all human readable URIs on parent, old parent and child...
@@ -624,11 +624,32 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                             },
                             function (callback)
                             {
-                                newParent.refreshChildrenHumanReadableUris(callback);
+                                newParentFolder.refreshChildrenHumanReadableUris(callback);
                             },
                             function (callback)
                             {
-                                oldParent.refreshChildrenHumanReadableUris(callback);
+                                Folder.findByUri(oldParentUri, function (err, oldParent)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        if (oldParent instanceof Folder)
+                                        {
+                                            oldParent.refreshChildrenHumanReadableUris(callback);
+                                        }
+                                        else
+                                        {
+                                            callback(1, "Old parent folder of information element: " + self.uri + " was not found!");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        const msg = "Error occurred while retrieving old parent folder of information element: " + self.uri;
+                                        Logger.log("error", msg);
+                                        Logger.log("error", err);
+                                        Logger.log("error", oldParent);
+                                        callback(1, msg);
+                                    }
+                                });
                             }
                         ], function (err)
                         {
@@ -1053,6 +1074,20 @@ InformationElement.prototype.getHumanReadableUri = function (callback)
     else
     {
         callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
+    }
+};
+
+InformationElement.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
+{
+    const self = this;
+    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+    if (self.isA(Folder))
+    {
+        Folder.refreshChildrenHumanReadableUris.call(self, callback, customGraphUri);
+    }
+    else
+    {
+        callback(null, self);
     }
 };
 

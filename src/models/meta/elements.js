@@ -994,7 +994,7 @@ Elements.ontologies.ddr = {
             type: Elements.types.resource,
             control: Controls.url_box,
             locked: true,
-            append_prefix_dendro_baseuri: true,
+            append_prefix_dendro_baseuri: true
         },
     checksum:
         {
@@ -1467,7 +1467,7 @@ Elements.ontologies.nie = {
             backuppable: true,
             locked: true,
             api_readable: true,
-            append_prefix_dendro_baseuri: true,
+            append_prefix_dendro_baseuri: true
         },
     hasPart:
         {
@@ -1496,7 +1496,7 @@ Elements.ontologies.nie = {
             backuppable: true,
             locked: true,
             api_readable: true,
-            append_prefix_dendro_baseuri: true,
+            append_prefix_dendro_baseuri: true
         },
     isPartOf:
         {
