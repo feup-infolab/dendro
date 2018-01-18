@@ -2310,28 +2310,19 @@ exports.storage = function (req, res)
 
     const updateProjectStorageConfig = function (project, newStorageConfig, cb)
     {
-        project.deleteStorageConfig(function (err, result)
+        project.ddr.hasStorageConfig = newStorageConfig.uri;
+        project.save(function (err, result)
         {
-            if (isNull(err))
+            if (!err)
             {
-                project.ddr.hasStorageConfig = newStorageConfig.uri;
-                project.save(function (err, result)
-                {
-                    if (!err)
-                    {
-                        cb(null, project);
-                    }
-                    else
-                    {
-                        cb(err, project);
-                    }
-                });
+                cb(null, project);
             }
             else
             {
                 const msg = "Error deleting old storage configuration for project: " + project.uri + JSON.stringify(result);
                 Logger.log("error", msg);
                 cb(err, msg);
+                cb(err, project);
             }
         });
     };

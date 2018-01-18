@@ -1,4 +1,7 @@
-const b2dropProjectHandle = "b2droproject";
+const uuid = require("uuid");
+const slug = require("slug");
+
+const b2dropProjectHandle = "b2droproject" + Math.random().toString(36).substr(2, 5);
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));

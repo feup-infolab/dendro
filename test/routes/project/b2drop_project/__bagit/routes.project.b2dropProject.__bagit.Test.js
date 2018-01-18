@@ -13,6 +13,7 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 
 const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
+const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 
 const createFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
 
@@ -45,7 +46,7 @@ describe("Backup B2Drop-backed project", function ()
                         {
                             should.equal(err, null);
                             done();
-                        });
+                        }, "b2droproject");
                     });
                 });
             });
