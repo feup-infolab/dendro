@@ -18,20 +18,20 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let agent;
 let app;
 
-describe("Private Project delete", function (done)
+describe("B2Drop Project delete", function (done)
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFilesUnit.setup(function (err, results)
+        createFoldersB2DropUnit.setup(function (err, results)
         {
             should.equal(err, null);
             app = global.tests.app;
@@ -40,7 +40,7 @@ describe("Private Project delete", function (done)
         });
     });
 
-    describe("[Invalid Cases] /project/:handle?delete " + privateProject.handle, function ()
+    describe("[Invalid Cases] /project/:handle?delete " + b2dropProject.handle, function ()
     {
         it("Should give an error if an invalid project is specified", function (done)
         {
@@ -60,7 +60,7 @@ describe("Private Project delete", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                projectUtils.deleteProject(true, agent, privateProject.handle, function (err, res)
+                projectUtils.deleteProject(true, agent, b2dropProject.handle, function (err, res)
                 {
                     res.statusCode.should.equal(400);
                     res.text.should.contain("API Request not valid for this route.");
@@ -71,7 +71,7 @@ describe("Private Project delete", function (done)
 
         it("Should give an error when the user is unauthenticated", function (done)
         {
-            projectUtils.deleteProject(false, agent, privateProject.handle, function (err, res)
+            projectUtils.deleteProject(false, agent, b2dropProject.handle, function (err, res)
             {
                 res.statusCode.should.equal(401);
                 done();
@@ -82,7 +82,7 @@ describe("Private Project delete", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
-                projectUtils.deleteProject(false, agent, privateProject.handle, function (err, res)
+                projectUtils.deleteProject(false, agent, b2dropProject.handle, function (err, res)
                 {
                     res.statusCode.should.equal(401);
                     done();
@@ -91,7 +91,7 @@ describe("Private Project delete", function (done)
         });
     });
 
-    describe("[Valid Cases] /project/:handle?delete " + privateProject.handle, function ()
+    describe("[Valid Cases] /project/:handle?delete " + b2dropProject.handle, function ()
     {
         it("Should delete the project if the user is logged in as demouser1 (creator of the project)", function (done)
         {
@@ -125,7 +125,7 @@ describe("Private Project delete", function (done)
                 }, function (err, results)
                 {
                     should.equal(err, null);
-                    projectUtils.deleteProject(false, agent, privateProject.handle, function (err, res)
+                    projectUtils.deleteProject(false, agent, b2dropProject.handle, function (err, res)
                     {
                         res.statusCode.should.equal(200);
 
@@ -136,7 +136,7 @@ describe("Private Project delete", function (done)
                             {
                                 should.equal(err, null);
 
-                                if (aProject.handle === privateProject.handle)
+                                if (aProject.handle === b2dropProject.handle)
                                 {
                                     tripleCount.should.equal(0);
                                 }
@@ -148,7 +148,7 @@ describe("Private Project delete", function (done)
                                 projectUtils.countProjectFilesInGridFS(projectUri, function (err, fileCount)
                                 {
                                     should.equal(err, null);
-                                    if (aProject.handle === privateProject.handle)
+                                    if (aProject.handle === b2dropProject.handle)
                                     {
                                         fileCount.should.equal(0);
                                     }

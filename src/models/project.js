@@ -2,7 +2,6 @@
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -20,12 +19,11 @@ const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
-const util = require("util");
 const async = require("async");
 const _ = require("underscore");
 
@@ -35,7 +33,7 @@ function Project (object)
     self.addURIAndRDFType(object, "project", Project);
     Project.baseConstructor.call(this, object);
 
-    if (isNull(object.ddr != null))
+    if (!isNull(object.ddr))
     {
         if (object.ddr.hasStorageLimit)
         {
@@ -597,7 +595,7 @@ Project.createAndInsertFromObject = function (object, callback)
             }
             else
             {
-                return callback(1, "Statement executed but result was not what was expected. " + result);
+                return callback(1, "Statement executed but result was not what was expected. " + newProject);
             }
         }
         else
@@ -707,18 +705,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
     const self = this;
     Logger.log("In getProjectWideFolderFileCreationEvents");
     Logger.log("the projectUri is:");
-    // <http://127.0.0.1:3001/project/testproject3/data>
-    // var projectData = projectUri + '/data'; //TODO this is probably wrong
-    const projectData = self.uri + "/data"; // TODO this is probably wrong
-    /* WITH <http://127.0.0.1:3001/dendro_graph>
-     SELECT ?dataUri
-     WHERE {
-     ?dataUri ddr:modified ?date.
-     <http://127.0.0.1:3001/project/testproject3/data> <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#hasLogicalPart> ?dataUri.
-     }
-     ORDER BY DESC(?date)
-     OFFSET 0
-     LIMIT 5 */
+    const projectData = self.uri + "/data";
 
     // TODO test query first
 
@@ -750,11 +737,20 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             {
                 Logger.log("itemsUri: ", itemsUri);
 
-                async.mapSeries(itemsUri, function (itemUri, cb1)
+                async.mapSeries(itemsUri, function (itemUri)
                 {
                     Resource.findByUri(itemUri.dataUri, function (error, item)
                     {
-                        Logger.log(item);
+                        if (isNull(error))
+                        {
+                            Logger.log(item);
+                        }
+                        else
+                        {
+                            Logger.log("error", error);
+                            Logger.log("error", item);
+                        }
+
                         // item.get
                         // TODO get author
                     });
@@ -1560,8 +1556,6 @@ Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
 
 Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, req, callback)
 {
-    const path = require("path");
-
     File.estimateUnzippedSize(absPathToZipFile, function (err, size)
     {
         if (isNull(err))
@@ -1820,7 +1814,13 @@ Project.prototype.getActiveStorageConnection = function (callback)
                 const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
                 newStorageB2drop.open(function (err, openConnectionStorage)
                 {
-                    return callback(null, openConnectionStorage);
+                    if (isNull(err))
+                    {
+                        return callback(null, openConnectionStorage);
+                    }
+
+                    Logger.log("error", "Error opening storage connection of type " + config.ddr.hasStorageType + "for project " + self.uri);
+                    return callback(err, openConnectionStorage);
                 });
             }
             else
@@ -1931,10 +1931,17 @@ Project.prototype.delete = function (callback, customGraphUri)
         {
             if (isNull(err))
             {
-                storageConnection.deleteAllInProject(self, function (err, result)
+                if (!isNull(storageConnection) && storageConnection instanceof Storage)
                 {
-                    callback(err, result);
-                });
+                    storageConnection.deleteAllInProject(self, function (err, result)
+                    {
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    callback(1, "Unable to delete files in project " + self.ddr.handle + " because it has an invalid or non-existant connection to the data access adapter.");
+                }
             }
             else
             {

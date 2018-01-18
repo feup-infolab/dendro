@@ -253,7 +253,7 @@
             }
         },
         "startup": {
-            "load_databases": false,
+            "load_databases": true,
             "reload_administrators_on_startup": true,
             "reload_demo_users_on_startup": true,
             "reload_ontologies_on_startup": true,
@@ -262,7 +262,7 @@
             "destroy_all_graphs": true,
             "destroy_all_indexes": true,
             "destroy_files_store": true,
-            "destroy_datastore": false
+            "destroy_datastore": true
         },
         "baselines": {},
         "logging": {
@@ -646,7 +646,7 @@
             "reload_ontologies_on_startup": true,
             "clear_session_store": false,
             "log_bootup_actions": true,
-            "destroy_all_graphs": false,
+            "destroy_all_graphs": true,
             "destroy_all_indexes": false,
             "destroy_datastore": false,
             "destroy_files_store": false

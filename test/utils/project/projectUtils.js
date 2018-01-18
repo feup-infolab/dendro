@@ -886,11 +886,23 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
                 const mockBackupFilePath = project.backup_path;
                 fs.writeFileSync(tempBackupFilePath, bodyBuffer);
 
-                async.mapSeries(
-                    [tempBackupFilePath, mockBackupFilePath],
-                    function (zipFilePath, callback)
+                async.parallel([
+                    function (callback)
                     {
-                        File.unzip(zipFilePath, function (err, pathOfUnzippedContents)
+                        File.unzip(tempBackupFilePath, function (err, pathOfUnzippedContents)
+                        {
+                            projectBagItMetadata = getProjectBagitMetadataFromBackup(pathOfUnzippedContents);
+                            projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, project.handle);
+
+                            callback(null, {
+                                bagitMetadata: projectBagItMetadata,
+                                projectTreeMetadata: projectTreeMetadata
+                            });
+                        });
+                    },
+                    function (callback)
+                    {
+                        File.unzip(mockBackupFilePath, function (err, pathOfUnzippedContents)
                         {
                             projectBagItMetadata = getProjectBagitMetadataFromBackup(pathOfUnzippedContents);
 
@@ -908,41 +920,42 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
                                 projectTreeMetadata: projectTreeMetadata
                             });
                         });
-                    },
-                    function (err, results)
+                    }],
+                function (err, results)
+                {
+                    if (!err)
                     {
-                        if (!err)
+                        const returnedBagitMetadata = parseBagItMetadata(results[0].bagitMetadata);
+                        const mockupBagitMetadata = parseBagItMetadata(results[1].bagitMetadata);
+
+                        const bagitMetadataIsValid = (JSON.stringify(mockupBagitMetadata) === JSON.stringify(returnedBagitMetadata));
+
+                        if (!bagitMetadataIsValid)
                         {
-                            const returnedBagitMetadata = parseBagItMetadata(results[0].bagitMetadata);
-                            const mockupBagitMetadata = parseBagItMetadata(results[1].bagitMetadata);
-                            const bagitMetadataIsValid = (JSON.stringify(mockupBagitMetadata) === JSON.stringify(returnedBagitMetadata));
-
-                            if (!bagitMetadataIsValid)
-                            {
-                                console.log("error", JSON.stringify(returnedBagitMetadata, null, 4));
-                            }
-
-                            const returnedProjectTreeMetadata = results[0].projectTreeMetadata;
-                            const mockupProjectTreeMetadata = results[1].projectTreeMetadata;
-
-                            const deepEqual = require("deep-equal");
-                            const fileTreeMetadataIsValid = deepEqual(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
-
-                            const diff = require("deep-diff").diff;
-                            const fileTreeMetadataDiffs = diff(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
-
-                            if (!fileTreeMetadataIsValid)
-                            {
-                                console.log("error", JSON.stringify(fileTreeMetadataDiffs, null, 4));
-                            }
-
-                            callback(null, bagitMetadataIsValid && fileTreeMetadataIsValid);
+                            console.log("error", JSON.stringify(returnedBagitMetadata, null, 4));
                         }
-                        else
+
+                        const returnedProjectTreeMetadata = results[0].projectTreeMetadata;
+                        const mockupProjectTreeMetadata = results[1].projectTreeMetadata;
+
+                        const deepEqual = require("deep-equal");
+                        const fileTreeMetadataIsValid = deepEqual(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
+
+                        const diff = require("deep-diff").diff;
+                        const fileTreeMetadataDiffs = diff(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
+
+                        if (!fileTreeMetadataIsValid)
                         {
-                            callback(err, results);
+                            console.log("error", JSON.stringify(fileTreeMetadataDiffs, null, 4));
                         }
+
+                        callback(null, bagitMetadataIsValid && fileTreeMetadataIsValid);
                     }
+                    else
+                    {
+                        callback(err, results);
+                    }
+                }
                 );
             }
             else
