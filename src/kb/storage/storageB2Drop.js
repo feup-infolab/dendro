@@ -45,21 +45,29 @@ class StorageB2Drop extends Storage
         const self = this;
         self.connection = new B2Drop(this.username, this.password);
 
-        self.connection.login(function (err, response)
+        if (!isNull(self.connection))
         {
-            if (isNull(err))
+            self.connection.login(function (err, response)
             {
-                self.connection.createFolder(self.prefix, function (err, result)
+                if (isNull(err))
                 {
-                    callback(err, self);
-                });
-            }
-            else
-            {
-                Logger.log("error", "Unable to create root folder in B2Drop");
-                return callback(err, response);
-            }
-        });
+                    self.connection.createFolder(self.prefix, function (err, result)
+                    {
+                        callback(err, self);
+                    });
+                }
+                else
+                {
+                    Logger.log("error", "Unable to create root folder in B2Drop");
+                    return callback(err, response);
+                }
+            });
+        }
+        else
+        {
+            Logger.log("debug", "Connection to B2Drop is already open");
+            callback(null, self);
+        }
     }
 
     close (callback)

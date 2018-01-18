@@ -644,12 +644,12 @@
             "reload_administrators_on_startup": false,
             "reload_demo_users_on_startup": false,
             "reload_ontologies_on_startup": true,
-            "clear_session_store": false,
+            "clear_session_store": true,
             "log_bootup_actions": true,
             "destroy_all_graphs": true,
-            "destroy_all_indexes": false,
-            "destroy_datastore": false,
-            "destroy_files_store": false
+            "destroy_all_indexes": true,
+            "destroy_datastore": true,
+            "destroy_files_store": true
         },
         "baselines": {},
         "logging": {

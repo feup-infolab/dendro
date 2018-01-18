@@ -853,7 +853,9 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     }
                     else
                     {
-                        return cb(1, "Error loading file " + self.uri + " from local file " + localFilePath);
+                        const msg = "Error loading file " + self.uri + " from local file " + localFilePath + " Error reported: " + childFile;
+                        Logger.log("error", msg);
+                        return cb(1, msg);
                     }
                 });
             }
