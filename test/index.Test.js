@@ -71,9 +71,12 @@ require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.us
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
 
 // PROJECTS
-require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js")); // Create projects of different visibilities and storage types
-require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js")); // users project listings
-require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js")); // users project listings
+// Create projects of different visibilities and storage types
+require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
+// users project listings
+require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
+// users project listings
+require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
 
 /* require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
  require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js")); */

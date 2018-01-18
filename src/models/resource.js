@@ -1161,7 +1161,6 @@ Resource.prototype.save = function
                 else
                 {
                     const msg = "Unable to determine new human readable uri for resource " + self.uri;
-                    Logger.log("error", msg);
                     Logger.log("error", err);
                     Logger.log("error", newHumanReadableUri);
                     cb(1, msg);

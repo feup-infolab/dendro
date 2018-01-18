@@ -258,9 +258,9 @@ ArchivedResource.prototype.getHumanReadableUri = function (callback)
 {
     const self = this;
 
-    if (isNull(self.ddr.username))
+    if (isNull(self.ddr.isVersionOf) || isNull(self.ddr.versionNumber))
     {
-        callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.newVersionNumber property.");
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it is missing either the self.ddr.isVersionOf or the self.ddr.versionNumber property.");
     }
     else
     {
