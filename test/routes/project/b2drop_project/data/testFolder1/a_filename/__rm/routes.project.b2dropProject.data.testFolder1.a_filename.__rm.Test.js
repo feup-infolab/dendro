@@ -148,7 +148,6 @@ describe("B2Drop project testFolder1 ?rename", function ()
         });
     });
 
-
     describe("Clean up /project/" + b2dropProject.handle, function ()
     {
         it("Should delete project " + b2dropProject.handle, function (done)

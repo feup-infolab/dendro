@@ -3280,19 +3280,22 @@ Elements.setAllElements = function (loadedElements)
 
         let existingElement = Elements.ontologies[prefix][shortName];
 
-        if(!isNull(existingElement))
+        if (!isNull(existingElement))
         {
             for (let k in loadedElement)
             {
-                if (existingElement[k] === null || typeof existingElement[k] === "undefined")
+                if (loadedElement.hasOwnProperty(k))
                 {
-                    Elements.ontologies[prefix][shortName][k] = loadedElement[k];
+                    if (existingElement[k] === null || typeof existingElement[k] === "undefined")
+                    {
+                        Elements.ontologies[prefix][shortName][k] = loadedElement[k];
+                    }
                 }
             }
         }
         else
         {
-            Logger.log("warn", "Element: " + "Elements.ontologies[" + prefix + "][" + shortName + "]" + " does not exist");
+            Logger.log("warn", "Element: " + "Elements.ontologies[" + prefix + "][" + shortName + "]" + " does not exist. This indicates that either the " + Elements.ontologies[prefix].uri + " ontology is outdated or the elements.js configuration needs to be updated for new elements in the ontology.");
         }
     }
 

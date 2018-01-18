@@ -894,7 +894,7 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
                         {
                             projectBagItMetadata = getProjectBagitMetadataFromBackup(pathOfUnzippedContents);
 
-                            if(!isNull(forcedBackupHandle))
+                            if (!isNull(forcedBackupHandle))
                             {
                                 projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, forcedBackupHandle);
                             }
