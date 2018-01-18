@@ -3280,12 +3280,19 @@ Elements.setAllElements = function (loadedElements)
 
         let existingElement = Elements.ontologies[prefix][shortName];
 
-        for (let k in loadedElement)
+        if(!isNull(existingElement))
         {
-            if (existingElement[k] === null || typeof existingElement[k] === "undefined")
+            for (let k in loadedElement)
             {
-                Elements.ontologies[prefix][shortName][k] = loadedElement[k];
+                if (existingElement[k] === null || typeof existingElement[k] === "undefined")
+                {
+                    Elements.ontologies[prefix][shortName][k] = loadedElement[k];
+                }
             }
+        }
+        else
+        {
+            Logger.log("warn", "Element: " + "Elements.ontologies[" + prefix + "][" + shortName + "]" + " does not exist");
         }
     }
 
