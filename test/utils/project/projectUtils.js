@@ -839,7 +839,7 @@ const getFileTreeMetadataFromBackup = module.exports.getFileTreeMetadataFromBack
     return metadataContents;
 };
 
-const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (project, bodyBuffer, callback)
+const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (project, bodyBuffer, callback, forcedBackupHandle)
 {
     const parseBagItMetadata = function (result)
     {
@@ -893,7 +893,16 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
                         File.unzip(zipFilePath, function (err, pathOfUnzippedContents)
                         {
                             projectBagItMetadata = getProjectBagitMetadataFromBackup(pathOfUnzippedContents);
-                            projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, project.handle);
+
+                            if(!isNull(forcedBackupHandle))
+                            {
+                                projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, forcedBackupHandle);
+                            }
+                            else
+                            {
+                                projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, project.handle);
+                            }
+
                             callback(null, {
                                 bagitMetadata: projectBagItMetadata,
                                 projectTreeMetadata: projectTreeMetadata
