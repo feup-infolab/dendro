@@ -3,7 +3,6 @@ const Pathfinder = global.Pathfinder;
 const GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
 const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 class StorageGridFs extends Storage
 {
@@ -16,12 +15,13 @@ class StorageGridFs extends Storage
     open (callback)
     {
         const self = this;
-        if (isNull(this.connection))
+        if (!self.opened)
         {
-            self.connection.open(function(err, connection)
+            self.connection.open(function (err, connection)
             {
                 self.connection = connection;
-                callback(err, connection);
+                self.opened = true;
+                callback(err, self);
             });
         }
         else
