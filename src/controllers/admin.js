@@ -178,7 +178,7 @@ module.exports.reindex = function (req, res)
                                         {
                                             async.mapSeries(resources, function (resource, callback)
                                             {
-                                                Logger.log("debug", "Resource " + resource.uri + " now being REindexed.");
+                                                Logger.log("silly", "Resource " + resource.uri + " now being REindexed.");
 
                                                 resource.reindex(function (err, results)
                                                 {

@@ -150,109 +150,17 @@ describe("Public project root tests", function ()
 
     describe("/project/" + invalidProject.handle + " NON_EXISTENT PROJECT(default case where the root of the project is shown, without any query)", function ()
     {
-        it("[HTML] should give the project page html with an error if the user is unauthenticated", function (done)
+        it("[HTML] should give the project page html with an error", function (done)
         {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.viewProject(false, agent, invalidProject.handle, function (err, res)
             {
-                res.should.have.status(200);
+                res.should.have.status(404);
                 // Project http://127.0.0.1:3001/project/unknownProjectHandle not found.
-                res.text.should.contain("Project " + "http://" + Config.host + "/project/" + invalidProject.handle + " not found.");
+                res.text.should.contain("Resource not found at uri /project/" + invalidProject.handle);
                 res.text.should.not.contain("Edit mode");
                 done();
-            });
-        });
-
-        it("[HTML] should give the project page html with an error if the user is logged in as demouser1(the project creator)", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                projectUtils.viewProject(false, agent, invalidProject.handle, function (err, res)
-                {
-                    res.should.have.status(200);
-                    // Project http://127.0.0.1:3001/project/unknownProjectHandle not found.
-                    res.text.should.contain("Project " + "http://" + Config.host + "/project/" + invalidProject.handle + " not found.");
-                    res.text.should.not.contain("Edit mode");
-                    done();
-                });
-            });
-        });
-
-        it("[HTML] should give the project page html with an error if the user is logged in as demouser2(a project contributor)", function (done)
-        {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
-            {
-                projectUtils.viewProject(false, agent, invalidProject.handle, function (err, res)
-                {
-                    res.should.have.status(200);
-                    // Project http://127.0.0.1:3001/project/unknownProjectHandle not found.
-                    res.text.should.contain("Project " + "http://" + Config.host + "/project/" + invalidProject.handle + " not found.");
-                    res.text.should.not.contain("Edit mode");
-                    done();
-                });
-            });
-        });
-
-        it("[HTML] should give the project page html with an error if the user is logged in as demouser3(non-creator or non-contributor of the project)", function (done)
-        {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
-            {
-                projectUtils.viewProject(false, agent, invalidProject.handle, function (err, res)
-                {
-                    res.should.have.status(200);
-                    // Project http://127.0.0.1:3001/project/unknownProjectHandle not found.
-                    res.text.should.contain("Project " + "http://" + Config.host + "/project/" + invalidProject.handle + " not found.");
-                    res.text.should.not.contain("Edit mode");
-                    done();
-                });
-            });
-        });
-
-        it("[JSON] should give a 404 error if the user is unauthenticated", function (done)
-        {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-            projectUtils.viewProject(true, agent, invalidProject.handle, function (err, res)
-            {
-                res.should.have.status(404);// -> At the moment it is responding with an html page saying that the project does not exist
-                done();
-            });
-        });
-
-        it("[JSON] should give a 404 error if the user is logged in as demouser1(the project creator)", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                projectUtils.viewProject(true, agent, invalidProject.handle, function (err, res)
-                {
-                    res.should.have.status(404);// -> At the moment it is responding with an html page saying that the project does not exist
-                    done();
-                });
-            });
-        });
-
-        it("[JSON] should give a 404 error if the user is logged in as demouser2(a project contributor)", function (done)
-        {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
-            {
-                projectUtils.viewProject(true, agent, invalidProject.handle, function (err, res)
-                {
-                    res.should.have.status(404);// -> At the moment it is responding with an html page saying that the project does not exist
-                    done();
-                });
-            });
-        });
-
-        it("[JSON] should give a 404 error if the user is logged in as demouser3(non-creator or non-contributor of the project)", function (done)
-        {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
-            {
-                projectUtils.viewProject(true, agent, invalidProject.handle, function (err, res)
-                {
-                    res.should.have.status(404);// -> At the moment it is responding with an html page saying that the project does not exist
-                    done();
-                });
             });
         });
     });

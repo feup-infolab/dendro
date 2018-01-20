@@ -108,7 +108,7 @@ describe("Public project level metadata tests", function ()
                     // Project http://127.0.0.1:3001/project/unknownProjectHandle not found.
                     res.text.should.include("Resource not found at uri");
                     should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);// The hasLogicalParts array in the body response should only be present in the metadata&deep request
+                    // The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -122,7 +122,6 @@ describe("Public project level metadata tests", function ()
                 {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);
 
                     res.body.result.should.equal("not_found");
                     res.body.message.should.be.an("array");
