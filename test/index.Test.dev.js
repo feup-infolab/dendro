@@ -31,4 +31,3 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/_
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/routes.project.publicProject.Test"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/routes.project.privateProject.Test"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/routes.project.metadataonlyProject.Test"));
-

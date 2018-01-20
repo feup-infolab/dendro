@@ -158,7 +158,7 @@ describe("Metadata only project root tests", function ()
             {
                 res.should.have.status(404);
                 // Project http://127.0.0.1:3001/project/unknownProjectHandle not found.
-                res.text.should.contain("Resource not found at uri /project/" + invalidProject.handle);
+                res.text.should.contain("Resource not found at uri");
                 res.text.should.not.contain("Edit mode");
                 done();
             });

@@ -82,8 +82,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.T
  require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js")); */
 require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
 
-/* require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js")); */
-
 // PUBLIC PROJECT
 /* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/request_access/route.projects.publicProject.__request_access.Test.js")); */
 /* require(Pathfinder.absPathInTestsFolder("/routes/project/metadataonly_project/request_access/route.projects.metadataonlyProject.__request_access.Test.js")); */
