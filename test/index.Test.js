@@ -80,8 +80,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new
  require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js")); */
 require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
 
-/* require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js")); */
-
 // PUBLIC PROJECT
 /* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/request_access/route.projects.publicProject.__request_access.Test.js")); */
 /* require(Pathfinder.absPathInTestsFolder("/routes/project/metadataonly_project/request_access/route.projects.metadataonlyProject.__request_access.Test.js")); */
@@ -219,22 +217,22 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__metad
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));
 
 // PUBLIC PROJECT ?metadata&deep TESTS
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__metadata&deep/routes.project.publicProject.__metadata&deep.Test"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__metadata&deep/routes.project.publicProject.__metadata&deep.Test"));
 
- //PRIVATE PROJECT ?metadata&deep TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__metadata&deep/routes.project.privateProject.__metadata&deep.Test"));
+// PRIVATE PROJECT ?metadata&deep TESTS
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__metadata&deep/routes.project.privateProject.__metadata&deep.Test"));
 
- //METADATA ONLY PROJECT ?metadata&deep TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test")); */
+// METADATA ONLY PROJECT ?metadata&deep TESTS
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test"));
 
 // PUBLIC PROJECT ROOT TESTS
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/routes.project.publicProject.Test"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/routes.project.publicProject.Test"));
 
- //PRIVATE PROJECT ROOT TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/routes.project.privateProject.Test"));
+// PRIVATE PROJECT ROOT TESTS
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/routes.project.privateProject.Test"));
 
- //METADATA ONLY PROJECT ROOT TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/routes.project.metadataonlyProject.Test")); */
+// METADATA ONLY PROJECT ROOT TESTS
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/routes.project.metadataonlyProject.Test"));
 
 // PUBLIC PROJECT FOLDER LEVEL ?metadata_recommendations
 /* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__metadata_recommendations/routes.project.publicProject.data.testFolder1.__metadata_recommendations.Test"));

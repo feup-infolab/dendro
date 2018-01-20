@@ -1,6 +1,4 @@
-const path = require("path");
 const Pathfinder = global.Pathfinder;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -13,12 +11,8 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const MetadataChangePost = require(Pathfinder.absPathInSrcFolder("/models/social/metadataChangePost.js")).MetadataChangePost;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 const async = require("async");
 const db_social = Config.getDBByID("social");
-
-const _ = require("underscore");
-const request = require("request");
 
 exports.show_deep = function (req, res)
 {
