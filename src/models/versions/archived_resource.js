@@ -264,7 +264,7 @@ ArchivedResource.prototype.getHumanReadableUri = function (callback)
     }
     else
     {
-        callback(null, self.ddr.isVersionOf + "/version/" + self.ddr.newVersionNumber);
+        callback(null, self.ddr.isVersionOf + "/version/" + self.ddr.versionNumber);
     }
 };
 

@@ -153,7 +153,7 @@ exports.my = function (req, res)
         }
     });
 };
-exports.chsendResponseange_log = function (req, res)
+exports.change_log = function (req, res)
 {
     const fetchVersionsInformation = function (archivedResource, cb)
     {
