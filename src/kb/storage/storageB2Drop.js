@@ -53,13 +53,25 @@ class StorageB2Drop extends Storage
                 {
                     self.connection.createFolder(self.prefix, function (err, result)
                     {
-                        callback(err, self);
+                        if (isNull(err))
+                        {
+                            callback(err, self);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Unable to create root folder in B2Drop!");
+                            Logger.log("error", err);
+                            Logger.log("error", result);
+                            return callback(err, response);
+                        }
                     });
                 }
                 else
                 {
-                    Logger.log("error", "Unable to create root folder in B2Drop");
-                    return callback(err, response);
+                    Logger.log("error", "Error opening connection to b2drop storage!");
+                    Logger.log("error", err);
+                    Logger.log("error", response);
+                    callback(err, self);
                 }
             });
         }
@@ -72,8 +84,6 @@ class StorageB2Drop extends Storage
 
     close (callback)
     {
-        const self = this;
-        self.connection = null;
         return callback(null);
     }
 
@@ -86,37 +96,53 @@ class StorageB2Drop extends Storage
             const targetFilePath = self._getB2DropPath(file);
             const parentFolder = path.dirname(targetFilePath);
 
-            self.connection.createFolder(parentFolder, function (err, result)
+            self.open(function ()
             {
-                if (isNull(err))
+                self.connection.createFolder(parentFolder, function (err, result)
                 {
-                    const async = require("async");
-                    async.series([
-                        function (cb)
-                        {
-                            if (isNull(self.connection))
+                    if (isNull(err))
+                    {
+                        const async = require("async");
+                        async.series([
+                            function (cb)
                             {
-                                self.open(cb);
+                                if (isNull(self.connection))
+                                {
+                                    self.open(cb);
+                                }
+                                else
+                                {
+                                    cb(null);
+                                }
+                            },
+                            function (cb)
+                            {
+                                self.connection.put(targetFilePath, inputStream, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        callback(err, self);
+                                        cb(null);
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", "Error sending file to b2drop storage!");
+                                        Logger.log("error", err);
+                                        Logger.log("error", response);
+                                        callback(err, self);
+                                    }
+                                });
                             }
-                            else
-                            {
-                                cb(null);
-                            }
-                        },
-                        function (cb)
-                        {
-                            self.connection.put(targetFilePath, inputStream, function (err, result)
-                            {
-                                callback(err, result);
-                                cb(null);
-                            });
-                        }
-                    ]);
-                }
-                else
-                {
-                    callback(err, self);
-                }
+                        ]);
+                    }
+                    else
+                    {
+                        Logger.log("error", "Error creating base folder in b2drop storage!");
+                        Logger.log("error", err);
+                        Logger.log("error", result);
+                        callback(err, self);
+                    }
+                });
             });
         });
     }

@@ -1804,34 +1804,18 @@ Project.prototype.getActiveStorageConnection = function (callback)
                     Config.defaultStorageConfig.collectionName
                 );
 
-                newStorageLocal.open(function (err, openConnectionStorage)
-                {
-                    return callback(null, openConnectionStorage);
-                });
+                return callback(null, newStorageLocal);
             }
             else if (config.ddr.hasStorageType === "b2drop")
             {
                 const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
-                newStorageB2drop.open(function (err, openConnectionStorage)
-                {
-                    if (isNull(err))
-                    {
-                        return callback(null, openConnectionStorage);
-                    }
+                return callback(null, newStorageB2drop);
+            }
 
-                    Logger.log("error", "Error opening storage connection of type " + config.ddr.hasStorageType + "for project " + self.uri);
-                    return callback(err, openConnectionStorage);
-                });
-            }
-            else
-            {
-                return callback(true, "Unknown storage type");
-            }
+            return callback(true, "Unknown storage type");
         }
-        else
-        {
-            return callback(true, "project " + self.uri + " has no storageConfig");
-        }
+
+        return callback(true, "project " + self.uri + " has no storageConfig");
     });
 };
 

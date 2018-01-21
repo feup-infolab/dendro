@@ -468,32 +468,22 @@ File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetad
 
         const writeStream = fs.createWriteStream(tempFilePath);
 
-        self.getProjectStorage(function (err, result)
+        self.getProjectStorage(function (err, connection)
         {
             if (isNull(err))
             {
-                result.open(function (err, result)
+                connection.get(self, writeStream, function (err, result)
                 {
                     if (isNull(err))
                     {
-                        result.get(self, writeStream, function (err, result)
-                        {
-                            if (isNull(err))
-                            {
-                                return callback(null, tempFilePath);
-                            }
-                            return callback(1, result);
-                        });
+                        return callback(null, tempFilePath);
                     }
-                    else
-                    {
-                        return callback(1, result);
-                    }
+                    return callback(1, result);
                 });
             }
             else
             {
-                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
+                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + connection);
             }
         });
     });
@@ -505,32 +495,22 @@ File.prototype.writeFileToStream = function (stream, callback)
 
     let writeCallback = function (callback)
     {
-        self.getProjectStorage(function (err, result)
+        self.getProjectStorage(function (err, connection)
         {
             if (isNull(err))
             {
-                result.open(function (err, result)
+                connection.get(self, stream, function (err, result)
                 {
                     if (isNull(err))
                     {
-                        result.get(self, stream, function (err, result)
-                        {
-                            if (isNull(err))
-                            {
-                                return callback(null);
-                            }
-                            return callback(1, result);
-                        });
+                        return callback(null);
                     }
-                    else
-                    {
-                        return callback(1, result);
-                    }
+                    return callback(1, result);
                 });
             }
             else
             {
-                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
+                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + connection);
             }
         });
     };
@@ -574,32 +554,22 @@ File.prototype.writeToTempFile = function (callback)
                 const fs = require("fs");
                 const writeStream = fs.createWriteStream(tempFilePath);
 
-                self.getProjectStorage(function (err, result)
+                self.getProjectStorage(function (err, storageConnection)
                 {
                     if (isNull(err))
                     {
-                        result.open(function (err, result)
+                        storageConnection.get(self, writeStream, function (err, result)
                         {
                             if (isNull(err))
                             {
-                                result.get(self, writeStream, function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        return callback(null, tempFilePath);
-                                    }
-                                    return callback(1, result);
-                                });
+                                return callback(null, tempFilePath);
                             }
-                            else
-                            {
-                                return callback(1, result);
-                            }
+                            return callback(1, result);
                         });
                     }
                     else
                     {
-                        return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
+                        return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + storageConnection);
                     }
                 });
             };
