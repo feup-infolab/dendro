@@ -881,7 +881,8 @@ if (process.env.NODE_ENV === "production")
     if (!isNull(argv.pm2_slave))
     {
         Config.runningAsSlave = true;
-        Config.maxSimultaneousConnectionsToDb = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+        const simultaneousConnections = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+        Config.maxSimultaneousConnectionsToDb = (simultaneousConnections >= 1) ? simultaneousConnections : 1;
     }
 }
 

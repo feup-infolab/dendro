@@ -15,7 +15,7 @@ global.Config = Config;
 global.tests = {};
 
 // uncomment the first time you run the tests after installing dendro
-//require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
+// require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 // PROJECT WITH LOCAL STORAGE
 // test file uploads

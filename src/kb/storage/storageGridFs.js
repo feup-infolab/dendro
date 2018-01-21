@@ -41,7 +41,8 @@ class StorageGridFs extends Storage
     put (file, inputStream, callback, metadata, customBucket)
     {
         const self = this;
-        self.open(function(){
+        self.open(function ()
+        {
             self.connection.put(file.uri, inputStream, callback, metadata, customBucket);
         });
     }
@@ -49,7 +50,8 @@ class StorageGridFs extends Storage
     get (file, outputStream, callback, customBucket)
     {
         const self = this;
-        self.open(function() {
+        self.open(function ()
+        {
             self.connection.get(file.uri, outputStream, callback, customBucket);
         });
     }
@@ -57,7 +59,8 @@ class StorageGridFs extends Storage
     delete (file, callback, customBucket)
     {
         const self = this;
-        self.open(function() {
+        self.open(function ()
+        {
             self.connection.delete(file.uri, callback, customBucket);
         });
     }
@@ -65,7 +68,8 @@ class StorageGridFs extends Storage
     deleteAll (callback)
     {
         const self = this;
-        self.open(function(){
+        self.open(function ()
+        {
             self.connection.deleteByQuery({}, function (err, result)
             {
                 if (!err)
@@ -83,7 +87,8 @@ class StorageGridFs extends Storage
     deleteAllInProject (project, callback)
     {
         const self = this;
-        self.open(function(){
+        self.open(function ()
+        {
             self.connection.deleteByQuery({"metadata.project.uri": project.uri}, function (err, result)
             {
                 if (!err)

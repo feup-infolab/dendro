@@ -92,9 +92,9 @@ class StorageB2Drop extends Storage
                 {
                     const async = require("async");
                     async.series([
-                        function(cb)
+                        function (cb)
                         {
-                            if(isNull(self.connection))
+                            if (isNull(self.connection))
                             {
                                 self.open(cb);
                             }
@@ -103,7 +103,7 @@ class StorageB2Drop extends Storage
                                 cb(null);
                             }
                         },
-                        function(cb)
+                        function (cb)
                         {
                             self.connection.put(targetFilePath, inputStream, function (err, result)
                             {
@@ -124,7 +124,8 @@ class StorageB2Drop extends Storage
     get (file, outputStream, callback)
     {
         const self = this;
-        self.open(function(){
+        self.open(function ()
+        {
             self.connection.get(self._getB2DropPath(file), outputStream, function (err, result)
             {
                 callback(err, result);
@@ -135,8 +136,10 @@ class StorageB2Drop extends Storage
     delete (file, callback)
     {
         const self = this;
-        self.open(function() {
-            self.connection.delete(self._getB2DropPath(file), function (err, result) {
+        self.open(function ()
+        {
+            self.connection.delete(self._getB2DropPath(file), function (err, result)
+            {
                 callback(err, result);
             });
         });
@@ -145,7 +148,8 @@ class StorageB2Drop extends Storage
     deleteAll (callback)
     {
         const self = this;
-        self.open(function(){
+        self.open(function ()
+        {
             self.connection.delete(self.prefix, function (err, result)
             {
                 callback(err, result);
@@ -156,7 +160,8 @@ class StorageB2Drop extends Storage
     deleteAllInProject (project, callback)
     {
         const self = this;
-        self.open(function(){
+        self.open(function ()
+        {
             self.connection.checkIfFolderExists(self._getB2DropPath(project), function (err, exists)
             {
                 if (isNull(err))
