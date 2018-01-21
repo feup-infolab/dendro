@@ -102,14 +102,18 @@ class StorageGridFs extends Storage
         {
             self.connection.deleteByQuery({"metadata.project.uri": project.uri}, function (err, result)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     Logger.log_boot_message("All files in project " + project.uri + " GridFS storage cleared successfully.");
                 }
                 else
                 {
-                    callback(err);
+                    Logger.log("error", "Error deleting all files in project " + project.uri + " !");
+                    Logger.log("error", err);
+                    Logger.log("error", result);
                 }
+
+                callback(err);
             });
         });
     }
