@@ -688,33 +688,23 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
             {
                 if (isNull(err))
                 {
-                    storageConnection.open(function (err, result)
-                    {
-                        if (isNull(err))
+                    storageConnection.put(self,
+                        fs.createReadStream(localFile),
+                        function (err, result)
                         {
-                            storageConnection.put(self,
-                                fs.createReadStream(localFile),
-                                function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        return callback(null, self);
-                                    }
+                            if (isNull(err))
+                            {
+                                return callback(null, self);
+                            }
 
-                                    Logger.log("Error [" + err + "] saving file in GridFS :" + result);
-                                    return callback(err, result);
-                                },
-                                {
-                                    project: ownerProject,
-                                    type: "nie:File"
-                                }
-                            );
-                        }
-                        else
+                            Logger.log("Error [" + err + "] saving file in GridFS :" + result);
+                            return callback(err, result);
+                        },
                         {
-                            return callback(true, result);
+                            project: ownerProject,
+                            type: "nie:File"
                         }
-                    });
+                    );
                 }
                 else
                 {

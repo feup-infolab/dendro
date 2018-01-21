@@ -9,7 +9,8 @@ class StorageGridFs extends Storage
     constructor (username, password, mongodbHost, mongodbPort, collectionName)
     {
         super();
-        this.connection = new GridFSConnection(mongodbHost, mongodbPort, collectionName, username, password);
+        const self = this;
+        self.connection = new GridFSConnection(mongodbHost, mongodbPort, collectionName, username, password);
     }
 
     open (callback)
