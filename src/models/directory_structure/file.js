@@ -373,50 +373,47 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
 
     if (self.ddr.deleted && reallyDelete)
     {
-        self.deleteAllMyTriples(function (err, result)
+        self.getProjectStorage(function (err, result)
         {
             if (isNull(err))
             {
-                self.unindex(function (err, result)
-                {
-                    if (isNull(err))
-                    {
-                        self.unlinkFromParent(function (err, result)
+                result.delete(self.uri, function (err, result) {
+                    self.deleteThumbnails();
+                    self.deleteDatastoreData();
+                    self.unindex(function (err, result) {
+                        if (isNull(err))
                         {
-                            if (isNull(err))
-                            {
-                                self.getProjectStorage(function (err, result)
+                            self.deleteAllMyTriples(function (err, result) {
+                                if (isNull(err))
                                 {
-                                    if (isNull(err))
-                                    {
-                                        result.delete(self.uri, function (err, result)
+                                    self.unlinkFromParent(function (err, result) {
+
+                                        if (isNull(err))
                                         {
-                                            self.deleteThumbnails();
-                                            self.deleteDatastoreData();
-                                            return callback(err, result);
-                                        });
-                                    }
-                                    else
-                                    {
-                                        return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + result);
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        return callback(err, "Error clearing index entry while deleting file " + self.uri + ". Error reported : " + result);
-                    }
+                                            callback(err, result);
+                                        }
+                                        else
+                                        {
+                                            return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    return callback(err, "Error clearing descriptors for deleting file " + self.uri + ". Error reported : " + result);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            return callback(err, "Error clearing index entry while deleting file " + self.uri + ". Error reported : " + result);
+                        }
+                    });
                 });
             }
             else
             {
-                return callback(err, "Error clearing descriptors for deleting file " + self.uri + ". Error reported : " + result);
+                return callback(err, "Error retrieving project storage configuration for resource" + self.uri + ". Error reported : " + result);
             }
         });
     }
@@ -1449,6 +1446,10 @@ File.prototype.getProjectStorage = function (callback)
                 {
                     callback(err, connection);
                 });
+            }
+            else
+            {
+                callback(err, ownerProject);
             }
         }
         else
