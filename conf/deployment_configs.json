@@ -884,7 +884,7 @@
         },
         "storageDefaults" : {
           "storageType" : "mongoDB",
-          "host": "192.168.56.249",
+          "host": "127.0.0.1",
           "port": "27017",
           "collectionName": "127.0.0.1:3002_files",
           "username": "",
