@@ -65,7 +65,7 @@ class StorageB2Drop extends Storage
         }
         else
         {
-            Logger.log("debug", "Connection to B2Drop is already open");
+            // Logger.log("silly", "Connection to B2Drop is already open");
             callback(null, self);
         }
     }
@@ -90,10 +90,28 @@ class StorageB2Drop extends Storage
             {
                 if (isNull(err))
                 {
-                    self.connection.put(targetFilePath, inputStream, function (err, result)
-                    {
-                        callback(err, result);
-                    });
+                    const async = require("async");
+                    async.series([
+                        function(cb)
+                        {
+                            if(isNull(self.connection))
+                            {
+                                self.open(cb);
+                            }
+                            else
+                            {
+                                cb(null);
+                            }
+                        },
+                        function(cb)
+                        {
+                            self.connection.put(targetFilePath, inputStream, function (err, result)
+                            {
+                                callback(err, result);
+                                cb(null);
+                            });
+                        }
+                    ]);
                 }
                 else
                 {
@@ -106,53 +124,60 @@ class StorageB2Drop extends Storage
     get (file, outputStream, callback)
     {
         const self = this;
-        self.connection.get(self._getB2DropPath(file), outputStream, function (err, result)
-        {
-            callback(err, result);
+        self.open(function(){
+            self.connection.get(self._getB2DropPath(file), outputStream, function (err, result)
+            {
+                callback(err, result);
+            });
         });
     }
 
     delete (file, callback)
     {
         const self = this;
-        self.connection.delete(self._getB2DropPath(file), function (err, result)
-        {
-            callback(err, result);
+        self.open(function() {
+            self.connection.delete(self._getB2DropPath(file), function (err, result) {
+                callback(err, result);
+            });
         });
     }
 
     deleteAll (callback)
     {
         const self = this;
-        self.connection.delete(self.prefix, function (err, result)
-        {
-            callback(err, result);
+        self.open(function(){
+            self.connection.delete(self.prefix, function (err, result)
+            {
+                callback(err, result);
+            });
         });
     }
 
     deleteAllInProject (project, callback)
     {
         const self = this;
-        self.connection.checkIfFolderExists(self._getB2DropPath(project), function (err, exists)
-        {
-            if (isNull(err))
+        self.open(function(){
+            self.connection.checkIfFolderExists(self._getB2DropPath(project), function (err, exists)
             {
-                if (exists === true)
+                if (isNull(err))
                 {
-                    self.connection.delete(self._getB2DropPath(project), function (err, result)
+                    if (exists === true)
                     {
-                        callback(err, result);
-                    });
+                        self.connection.delete(self._getB2DropPath(project), function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        callback(null, null);
+                    }
                 }
                 else
                 {
-                    callback(null, null);
+                    callback(err, exists);
                 }
-            }
-            else
-            {
-                callback(err, exists);
-            }
+            });
         });
     }
 }

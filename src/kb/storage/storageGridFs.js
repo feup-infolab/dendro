@@ -26,7 +26,7 @@ class StorageGridFs extends Storage
         }
         else
         {
-            Logger.log("debug", "Connection to GridFS storage is already open");
+            // Logger.log("debug", "Connection to GridFS storage is already open");
             callback(null, self);
         }
     }
@@ -40,50 +40,60 @@ class StorageGridFs extends Storage
     put (file, inputStream, callback, metadata, customBucket)
     {
         const self = this;
-        self.connection.put(file.uri, inputStream, callback, metadata, customBucket);
+        self.open(function(){
+            self.connection.put(file.uri, inputStream, callback, metadata, customBucket);
+        });
     }
 
     get (file, outputStream, callback, customBucket)
     {
         const self = this;
-        self.connection.get(file.uri, outputStream, callback, customBucket);
+        self.open(function() {
+            self.connection.get(file.uri, outputStream, callback, customBucket);
+        });
     }
 
     delete (file, callback, customBucket)
     {
         const self = this;
-        self.connection.delete(file.uri, callback, customBucket);
+        self.open(function() {
+            self.connection.delete(file.uri, callback, customBucket);
+        });
     }
 
     deleteAll (callback)
     {
         const self = this;
-        self.connection.deleteByQuery({}, function (err, result)
-        {
-            if (!err)
+        self.open(function(){
+            self.connection.deleteByQuery({}, function (err, result)
             {
-                Logger.log_boot_message("All files in GridFS storage cleared successfully.");
-            }
-            else
-            {
-                callback(err);
-            }
+                if (!err)
+                {
+                    Logger.log_boot_message("All files in GridFS storage cleared successfully.");
+                }
+                else
+                {
+                    callback(err);
+                }
+            });
         });
     }
 
     deleteAllInProject (project, callback)
     {
         const self = this;
-        self.connection.deleteByQuery({"metadata.project.uri": project.uri}, function (err, result)
-        {
-            if (!err)
+        self.open(function(){
+            self.connection.deleteByQuery({"metadata.project.uri": project.uri}, function (err, result)
             {
-                Logger.log_boot_message("All files in project " + project.uri + " GridFS storage cleared successfully.");
-            }
-            else
-            {
-                callback(err);
-            }
+                if (!err)
+                {
+                    Logger.log_boot_message("All files in project " + project.uri + " GridFS storage cleared successfully.");
+                }
+                else
+                {
+                    callback(err);
+                }
+            });
         });
     }
 }
