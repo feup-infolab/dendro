@@ -336,7 +336,7 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
                     msg = "Document successfully indexed:\n" + JSON.stringify(document) + " with ID " + data._id;
                 }
 
-                Logger.log("debug", msg);
+                Logger.log("silly", msg);
                 return callback(null, msg);
             }
 

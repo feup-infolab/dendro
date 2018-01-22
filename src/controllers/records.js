@@ -400,7 +400,8 @@ exports.update = function (req, res)
                     {
                         res.status(500).json({
                             result: "Error saving new record",
-                            message: updatedResource
+                            message: updatedResource,
+                            error: err
                         });
                     }
                 }, true, changeAuthor, [Elements.access_types.locked], [], [Elements.access_types.audit]);

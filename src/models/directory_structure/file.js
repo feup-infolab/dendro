@@ -1,6 +1,7 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
+const slug = require("slug");
 const XLSX = require("xlsx");
 const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
@@ -11,10 +12,7 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-
-const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
 const async = require("async");
@@ -29,11 +27,6 @@ function File (object)
     {
         self.nie.isLogicalPartOf = object.nie.isLogicalPartOf;
         self.nie.title = object.nie.title;
-
-        if (isNull(self.ddr.humanReadableURI))
-        {
-            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
-        }
     }
 
     const re = /(?:\.([^.]+))?$/;
@@ -222,10 +215,12 @@ File.deleteOnLocalFileSystem = function (absPathToFile, callback)
 
 File.prototype.autorename = function ()
 {
+    const moment = require("moment");
+    const fileNameDateSection = moment(new Date()).format("YYYY_MM_DD_at_hh_mm_ss");
     const self = this;
-    const slug = require("slug");
-    let fileNameData = self.nie.title.split(".");
-    self.nie.title = fileNameData[0] + "_Copy_created_" + slug(Date.now(), "_") + "." + fileNameData[1];
+    let extension = path.extname(self.nie.title);
+    let fileName = path.basename(self.nie.title, path.extname(self.nie.title));
+    self.nie.title = fileName + "_Copy_created_" + fileNameDateSection + extension;
     return self.nie.title;
 };
 
@@ -247,6 +242,8 @@ File.prototype.save = function (callback, rename)
             {
                 self.autorename();
             }
+
+            const db = Config.getDBByID();
             db.connection.insertDescriptorsForSubject(
                 self.nie.isLogicalPartOf,
                 newDescriptorsOfParent,
@@ -259,17 +256,20 @@ File.prototype.save = function (callback, rename)
                         {
                             if (isNull(err))
                             {
-                                self.reindex(function (err, result)
+                                if (isNull(err))
                                 {
-                                    if (isNull(err))
+                                    self.reindex(function (err, result)
                                     {
-                                        return callback(err, self);
-                                    }
+                                        if (isNull(err))
+                                        {
+                                            return callback(err, self);
+                                        }
 
-                                    const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(err, null, 4);
-                                    Logger.log("error", msg);
-                                    return callback(1, msg);
-                                });
+                                        const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(result, null, 4);
+                                        Logger.log("error", msg);
+                                        return callback(1, msg);
+                                    });
+                                }
                             }
                             else
                             {
@@ -373,40 +373,47 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
 
     if (self.ddr.deleted && reallyDelete)
     {
-        self.deleteAllMyTriples(function (err, result)
+        self.getProjectStorage(function (err, result)
         {
             if (isNull(err))
             {
-                self.unindex(function (err, result)
-                {
-                    if (isNull(err))
-                    {
-                        self.unlinkFromParent(function (err, result)
+                result.delete(self.uri, function (err, result) {
+                    self.deleteThumbnails();
+                    self.deleteDatastoreData();
+                    self.unindex(function (err, result) {
+                        if (isNull(err))
                         {
-                            if (isNull(err))
-                            {
-                                gfs.connection.delete(self.uri, function (err, result)
+                            self.deleteAllMyTriples(function (err, result) {
+                                if (isNull(err))
                                 {
-                                    self.deleteThumbnails();
-                                    self.deleteDatastoreData();
-                                    return callback(err, result);
-                                });
-                            }
-                            else
-                            {
-                                return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        return callback(err, "Error clearing index entry while deleting file " + self.uri + ". Error reported : " + result);
-                    }
+                                    self.unlinkFromParent(function (err, result) {
+
+                                        if (isNull(err))
+                                        {
+                                            callback(err, result);
+                                        }
+                                        else
+                                        {
+                                            return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    return callback(err, "Error clearing descriptors for deleting file " + self.uri + ". Error reported : " + result);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            return callback(err, "Error clearing index entry while deleting file " + self.uri + ". Error reported : " + result);
+                        }
+                    });
                 });
             }
             else
             {
-                return callback(err, "Error clearing descriptors for deleting file " + self.uri + ". Error reported : " + result);
+                return callback(err, "Error retrieving project storage configuration for resource" + self.uri + ". Error reported : " + result);
             }
         });
     }
@@ -457,13 +464,24 @@ File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetad
         const tempFilePath = destinationFolderAbsPath + path.sep + self.nie.title;
 
         const writeStream = fs.createWriteStream(tempFilePath);
-        gfs.connection.get(self.uri, writeStream, function (err, result)
+
+        self.getProjectStorage(function (err, connection)
         {
             if (isNull(err))
             {
-                return callback(null, tempFilePath);
+                connection.get(self, writeStream, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        return callback(null, tempFilePath);
+                    }
+                    return callback(1, result);
+                });
             }
-            return callback(1, result);
+            else
+            {
+                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + connection);
+            }
         });
     });
 };
@@ -474,13 +492,23 @@ File.prototype.writeFileToStream = function (stream, callback)
 
     let writeCallback = function (callback)
     {
-        gfs.connection.get(self.uri, stream, function (err, result)
+        self.getProjectStorage(function (err, connection)
         {
             if (isNull(err))
             {
-                return callback(null);
+                connection.get(self, stream, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        return callback(null);
+                    }
+                    return callback(1, result);
+                });
             }
-            return callback(1, result);
+            else
+            {
+                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + connection);
+            }
         });
     };
 
@@ -522,13 +550,24 @@ File.prototype.writeToTempFile = function (callback)
 
                 const fs = require("fs");
                 const writeStream = fs.createWriteStream(tempFilePath);
-                gfs.connection.get(self.uri, writeStream, function (err, result)
+
+                self.getProjectStorage(function (err, storageConnection)
                 {
                     if (isNull(err))
                     {
-                        return callback(null, tempFilePath);
+                        storageConnection.get(self, writeStream, function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                return callback(null, tempFilePath);
+                            }
+                            return callback(1, result);
+                        });
                     }
-                    return callback(1, result);
+                    else
+                    {
+                        return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + storageConnection);
+                    }
                 });
             };
 
@@ -604,7 +643,6 @@ File.prototype.getThumbnail = function (size, callback)
 File.prototype.loadFromLocalFile = function (localFile, callback)
 {
     const self = this;
-    const tmp = require("tmp");
     const fs = require("fs");
 
     self.getOwnerProject(function (err, ownerProject)
@@ -613,24 +651,33 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
         if (isNull && ownerProject instanceof Project)
         {
             /** SAVE FILE**/
-            gfs.connection.put(
-                self.uri,
-                fs.createReadStream(localFile),
-                function (err, result)
+            self.getProjectStorage(function (err, storageConnection)
+            {
+                if (isNull(err))
                 {
-                    if (isNull(err))
-                    {
-                        return callback(null, self);
-                    }
+                    storageConnection.put(self,
+                        fs.createReadStream(localFile),
+                        function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                return callback(null, self);
+                            }
 
-                    Logger.log("Error [" + err + "] saving file in GridFS :" + result);
-                    return callback(err, result);
-                },
-                {
-                    project: ownerProject,
-                    type: "nie:File"
+                            Logger.log("Error [" + err + "] saving file in GridFS :" + result);
+                            return callback(err, result);
+                        },
+                        {
+                            project: ownerProject,
+                            type: "nie:File"
+                        }
+                    );
                 }
-            );
+                else
+                {
+                    return callback(true, storageConnection);
+                }
+            });
         }
         else
         {
@@ -733,7 +780,6 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         o.e.r = --idx;
         return o;
     }
-
     function getHeaders (sheet)
     {
         let header = 0, offset = 1;
@@ -776,7 +822,10 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
                 hdr.push(o.header[C - r.s.c]);
                 break;
             default:
-                if (isNull(val)) continue;
+                if (isNull(val))
+                {
+                    continue;
+                }
                 hdr.push(XLSX.utils.format_cell(val));
             }
         }
@@ -1034,14 +1083,34 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
                 if (!err)
                 {
                     self.ddr.hasDataContent = true;
-                    self.save(function (err, result)
+                    markDataOK(function (err, result)
                     {
-                        callback(err, result);
+                        if (isNull(err))
+                        {
+                            self.save(function (err, result)
+                            {
+                                callback(err, result);
+                            });
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
                     });
                 }
                 else
                 {
-                    callback(err, results);
+                    markErrorProcessingData(err, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            callback(err, result);
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
+                    });
                 }
             });
         });
@@ -1362,56 +1431,33 @@ File.prototype.generateThumbnails = function (callback)
     }
 };
 
-// File.prototype.moveToFolder = function(newParentFolder, callback)
-// {
-//     const self = this;
-//
-//     const oldParent = self.nie.isLogicalPartOf;
-//     const newParent = newParentFolder.uri;
-//
-//     const query =
-//         "DELETE DATA " +
-//         "{ " +
-//         "GRAPH [0] " +
-//         "{ " +
-//         "[1] nie:title ?title . " +
-//         "} " +
-//         "}; " +
-//
-//         "INSERT DATA " +
-//         "{ " +
-//         "GRAPH [0] " +
-//         "{ " +
-//         "[1] nie:title [2] " +
-//         "} " +
-//         "}; ";
-//
-//     db.connection.executeViaJDBC(query,
-//         [
-//             {
-//                 type: Elements.types.resourceNoEscape,
-//                 value: db.graphUri
-//             },
-//             {
-//                 type: Elements.types.resource,
-//                 value: self.uri
-//             },
-//             {
-//                 type: Elements.types.string,
-//                 value: newTitle
-//             }
-//         ],
-//         function(err, result)
-//         {
-//             Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
-//             {
-//                 Cache.getByGraphUri(db.graphUri).delete(newParentFolder.uri, function (err, result)
-//                 {
-//                     return callback(err, result);
-//                 });
-//             });
-//         });
-// };
+File.prototype.getProjectStorage = function (callback)
+{
+    const self = this;
+
+    self.getOwnerProject(function (err, ownerProject)
+    {
+        if (isNull(err))
+        {
+            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+            if (isNull && ownerProject instanceof Project)
+            {
+                ownerProject.getActiveStorageConnection(function (err, connection)
+                {
+                    callback(err, connection);
+                });
+            }
+            else
+            {
+                callback(err, ownerProject);
+            }
+        }
+        else
+        {
+            return callback(true, "file with no project");
+        }
+    });
+};
 
 File = Class.extend(File, InformationElement, "nfo:FileDataObject");
 

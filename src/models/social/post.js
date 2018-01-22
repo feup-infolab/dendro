@@ -22,14 +22,6 @@ function Post (object)
     Post.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-
-    const newId = uuid.v4();
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
-    }
-
     self.ddr.numLikes = 0;
 
     return self;
@@ -252,6 +244,21 @@ Post.prototype.getOwnerProject = function (callback)
             }
         }
     );
+};
+
+Post.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        callback(null, "/posts/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
 };
 
 Post = Class.extend(Post, Event, "ddr:Post");

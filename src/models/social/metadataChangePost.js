@@ -20,37 +20,11 @@ var async = require("async");
 
 function MetadataChangePost (object)
 {
-    /* MetadataChangePost.baseConstructor.call(this, object);
-    var self = this;
-
-    if(object.uri != null)
-    {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/posts/" + uuid.v4();
-    }
-
-    self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:MetadataChangePost";
-
-    return self; */
-
     const self = this;
     self.addURIAndRDFType(object, "post", MetadataChangePost);
     MetadataChangePost.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-
-    const newId = uuid.v4();
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
-    }
-
     return self;
 }
 
@@ -232,7 +206,21 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb)
     });
 };
 
-/* MetadataChangePost = Class.extend(MetadataChangePost, Post); */
+MetadataChangePost.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        callback(null, "/posts/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
+};
+
 MetadataChangePost = Class.extend(MetadataChangePost, Post, "ddr:MetadataChangePost");
 
 module.exports.MetadataChangePost = MetadataChangePost;

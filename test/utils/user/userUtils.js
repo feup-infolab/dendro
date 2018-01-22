@@ -275,25 +275,6 @@ function binaryParser (res, callback)
     });
 }
 
-/* // example mocha test
- it('my test', function(done) {
- request(app)
- .get('/path/to/image.png')
- .expect(200)
- .expect("Content-Type", 'image.png')
- .buffer()
- .parse(binaryParser)
- .end(function(err, res) {
- if (err) return done(err);
-
- // binary response data is in res.body as a buffer
- assert.ok(Buffer.isBuffer(res.body));
- console.log("res=", res.body);
-
- done();
- });
- }); */
-
 exports.getAvatar = function (jsonOnly, username, agent, cb)
 {
     let path = "/user/" + username + "?avatar";

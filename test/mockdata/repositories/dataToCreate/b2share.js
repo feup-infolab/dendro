@@ -47,7 +47,7 @@ const newExportRepoData = {
                 handle: "b2share",
                 created: "2017-10-02T12:17:04.105Z",
                 modified: "2017-10-02T12:17:04.106Z",
-                humanReadableURI: "http://" + Config.host + "/repository_platform/b2share"
+                humanReadableURI: "/repository_platform/b2share"
             },
             rdf: {
                 type: [

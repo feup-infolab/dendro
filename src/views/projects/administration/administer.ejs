@@ -20,6 +20,11 @@
         <li ng-class="{active : active_tab == 'settings'}">
             <a href="#settings" role="tab" data-toggle="tab" ng-click="clicked_settings_tab()">Settings</a>
         </li>
+        <li ng-class="{active : active_tab == 'storage'}">
+            <a href="#storage" role="tab" data-toggle="tab" ng-click="clicked_storage_tab()">Storage</a>
+        </li>
+
+
         <!--<li>
             <a href="#actions" role="tab" data-toggle="tab">Actions</a>
         </li>-->
@@ -194,51 +199,6 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane" id="settings" ng-class="{active : active_tab == 'settings'}">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h4>
-                        Project settings
-                    </h4>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="control-group has-feedback"
-                         ng-class="{'has-success' : valid_int(project.ddr.hasStorageLimit), 'has-warning' : new_project.handle && !valid_int(project.ddr.hasStorageLimit)}">
-                        <label for="storage_limit" class="control-label">Storage Limit (Max <%= Config.maxProjectSize %> bytes)</label>
-                        <input type="text"
-                               class="form-control"
-                               ng-model="project.ddr.hasStorageLimit"
-                               id="storage_limit"
-                               placeholder="Storage limit"
-                               name="storage_limit"
-                       required>
-
-                        <p class="help-block">The maximum storage size of the project in bytes. It cannot exceed <%= Config.maxProjectSize %> bytes.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- <div class="row">
-                <div class="col-lg-12">
-                    <div class="control-group has-feedback">
-                        <label for="verified_uploads" class="control-label">Verified Uploads</label>
-                        <input type="checkbox"
-                               ng-model="project.ddr.requiresVerifiedUploads"
-                               id="verified_uploads"
-                               placeholder="Verified"
-                               name="verified_uploads"
-                               required>
-
-                        <p class="help-block">This will enable or disable verified uploads for this project. Enable this for automatic checksum verification of uploaded files (safer), or disable for faster uploads.</p>
-                    </div>
-                </div>
-            </div>-->
-            <button class="btn btn-primary" type="button" ng-click="update_project_settings()"><i class="fa fa-save" aria-hidden="true"></i>
-                Save changes
-            </button>
-        </div>
         <div class="tab-pane" id="people" ng-class="{active : active_tab == 'people'}">
             <div class="row">
                 <div class="col-lg-12">
@@ -291,6 +251,104 @@
                 </div>
             </div>
         </div>
+        <div class="tab-pane" id="settings" ng-class="{active : active_tab == 'settings'}">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>
+                        Project settings
+                    </h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="control-group has-feedback"
+                         ng-class="{'has-success' : valid_int(project.ddr.hasStorageLimit), 'has-warning' : new_project.handle && !valid_int(project.ddr.hasStorageLimit)}">
+                        <label for="storage_limit" class="control-label">Storage Limit (Max <%= Config.maxProjectSize %> bytes)</label>
+                        <input type="text"
+                               class="form-control"
+                               ng-model="project.ddr.hasStorageLimit"
+                               id="storage_limit"
+                               placeholder="Storage limit"
+                               name="storage_limit"
+                       required>
+
+                        <p class="help-block">The maximum storage size of the project in bytes. It cannot exceed <%= Config.maxProjectSize %> bytes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <div class="row">
+                <div class="col-lg-12">
+                    <div class="control-group has-feedback">
+                        <label for="verified_uploads" class="control-label">Verified Uploads</label>
+                        <input type="checkbox"
+                               ng-model="project.ddr.requiresVerifiedUploads"
+                               id="verified_uploads"
+                               placeholder="Verified"
+                               name="verified_uploads"
+                               required>
+
+                        <p class="help-block">This will enable or disable verified uploads for this project. Enable this for automatic checksum verification of uploaded files (safer), or disable for faster uploads.</p>
+                    </div>
+                </div>
+            </div>-->
+            <button class="btn btn-primary" type="button" ng-click="update_project_settings()"><i class="fa fa-save" aria-hidden="true"></i>
+                Save changes
+            </button>
+        </div>
+        <div class="tab-pane" id="storage" ng-class="{active: active_tab == 'storage'}">
+            <h4>Storage options</h4>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="storage_types_dropdown_list" class="control-label">Storage Type</label>
+                        <div class="form-group">
+                            <select class="form-control" id="storage_types_dropdown_list" ng-model="storage.ddr.hasStorageType">
+                                <option ng-repeat="x in availableStorages" value="{{x}}">{{x}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-if="storage.ddr.hasStorageType=='b2drop'">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="userB2drop" class="col-sm-2 control-label">B2Drop Username</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="userB2drop" placeholder="Username" ng-model="storage.ddr.username" name="userB2drop" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="passB2drop" class="col-sm-2 control-label">B2Drop Password</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" id="passB2drop"  placeholder="Password" ng-model="storage.ddr.password" name="passB2drop">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-sm-7">
+                        <button class="btn btn-primary" type="button" ng-click="update_storage()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
         <!--
         <div class="tab-pane" id="metadata_quality" ng-class="{active : active_tab == 'metadataquality'}">
             <div class="row">

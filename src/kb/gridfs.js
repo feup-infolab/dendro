@@ -25,58 +25,61 @@ GridFSConnection.prototype.open = function (callback, customBucket)
 {
     const self = this;
 
-    if (!isNull(self.gfs))
+    if (isNull(self.gfs))
     {
-        return callback(1, "Database connection is already open");
-    }
-    const mongo = require("mongodb");
-    const Grid = require("gridfs-stream");
-    const slug = require("slug");
+        const mongo = require("mongodb");
+        const Grid = require("gridfs-stream");
+        const slug = require("slug");
 
-    const db = new mongo.Db(slug(self.collectionName, "_"), new mongo.Server(
-        self.hostname,
-        self.port,
-        {
-            auto_reconnect: false,
-            poolSize: 4
-        }),
-    {
-        w: "majority",
-        safe: false,
-        strict: false
-    }
-    );
-
-    // make sure the db instance is open before passing into `Grid`
-    db.open(function (err)
-    {
-        if (isNull(err))
-        {
-            let collectionName;
-            if (!isNull(customBucket))
+        const db = new mongo.Db(slug(self.collectionName, "_"), new mongo.Server(
+            self.hostname,
+            self.port,
             {
-                collectionName = customBucket;
+                auto_reconnect: false,
+                poolSize: 4
+            }),
+        {
+            w: "majority",
+            safe: false,
+            strict: false
+        }
+        );
+
+        // make sure the db instance is open before passing into `Grid`
+        db.open(function (err)
+        {
+            if (isNull(err))
+            {
+                let collectionName;
+                if (!isNull(customBucket))
+                {
+                    collectionName = customBucket;
+                }
+                else
+                {
+                    collectionName = "fs.files";
+                }
+                db.collection(collectionName).ensureIndex("uri", function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        self.db = db;
+                        self.gfs = Grid(db, mongo);
+                        return callback(null, self);
+                    }
+                    callback(err, self);
+                });
             }
             else
             {
-                collectionName = "fs.files";
+                return callback(1, err);
             }
-            db.collection(collectionName).ensureIndex("uri", function (err, result)
-            {
-                if (isNull(err))
-                {
-                    self.db = db;
-                    self.gfs = Grid(db, mongo);
-                    return callback(null, self);
-                }
-                callback(err, self);
-            });
-        }
-        else
-        {
-            return callback(1, err);
-        }
-    });
+        });
+    }
+    else
+    {
+        return callback(null, self);
+    }
 };
 
 GridFSConnection.prototype.close = function (cb)

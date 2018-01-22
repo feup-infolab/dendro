@@ -82,6 +82,57 @@ module.exports.uploadFile = function (acceptsJSON, agent, projectHandle, folderN
     }
 };
 
+module.exports.uploadFileToProjectRoot = function (acceptsJSON, agent, projectHandle, file, cb)
+{
+    const targetUrl = "/project/" + projectHandle + "?upload";
+
+    /* if(acceptsJSON)
+    {
+        agent
+            .post(targetUrl)
+            .send({ md5_checksum: file.md5})
+            .set("Accept", "application/json")
+            .attach('file', file.location)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(targetUrl)
+            .send({ md5_checksum: file.md5})
+            .attach('file', file.location)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    } */
+
+    if (acceptsJSON)
+    {
+        agent
+            .post(targetUrl)
+            .field("md5_checksum", file.md5)
+            .set("Accept", "application/json")
+            .attach("file", file.location)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(targetUrl)
+            .field("md5_checksum", file.md5)
+            .attach("file", file.location)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports.downloadFileByUri = function (acceptsJSON, agent, uri, cb)
 {
     const targetUrl = uri + "?download";
@@ -147,6 +198,31 @@ module.exports.downloadDataByUriInCSV = function (agent, uri, cb, sheet, skip, p
         {
             cb(err, res);
         });
+};
+
+module.exports.downloadFileFromProjectRoot = function (acceptsJSON, agent, projectHandle, file, cb)
+{
+    const targetUrl = "/project/" + projectHandle + "/data/" + file.name + "?download";
+
+    if (acceptsJSON)
+    {
+        agent
+            .get(targetUrl)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(targetUrl)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
 };
 
 module.exports.downloadFile = function (acceptsJSON, agent, projectHandle, folderName, file, cb)

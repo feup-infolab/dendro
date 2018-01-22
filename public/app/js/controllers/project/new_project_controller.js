@@ -14,14 +14,18 @@ angular.module("dendroApp.controllers")
             projectsService
         )
         {
+            $scope.availableStorages = ["local", "b2drop"];
+
             $scope.new_project = {
-                privacy: "private"
+                privacy: "private",
+                storageConfig: {
+                    hasStorageType: "local"
+                }
             };
 
             $scope.create_project = function (new_project)
             {
                 new_project.language = new_project.language.alpha2;
-
                 projectsService.create_new_project(new_project)
                     .then(function (result)
                     {

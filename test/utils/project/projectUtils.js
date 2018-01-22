@@ -17,7 +17,7 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const binaryParser = function (res, cb)
+const binaryParser = module.exports.binaryParser = function (res, cb)
 {
     res.setEncoding("binary");
     res.data = "";
@@ -31,7 +31,7 @@ const binaryParser = function (res, cb)
     });
 };
 
-const listAllMyProjects = function (jsonOnly, agent, cb)
+const listAllMyProjects = module.exports.listAllMyProjects = function (jsonOnly, agent, cb)
 {
     const path = "/projects/my";
     if (jsonOnly)
@@ -55,7 +55,7 @@ const listAllMyProjects = function (jsonOnly, agent, cb)
     }
 };
 
-const listAllProjects = function (jsonOnly, agent, cb)
+const listAllProjects = module.exports.listAllProjects = function (jsonOnly, agent, cb)
 {
     const path = "/projects";
     if (jsonOnly)
@@ -79,7 +79,7 @@ const listAllProjects = function (jsonOnly, agent, cb)
     }
 };
 
-const getNewProjectPage = function (jsonOnly, agent, cb)
+const getNewProjectPage = module.exports.getNewProjectPage = function (jsonOnly, agent, cb)
 {
     if (jsonOnly)
     {
@@ -102,7 +102,7 @@ const getNewProjectPage = function (jsonOnly, agent, cb)
     }
 };
 
-const createNewProject = function (jsonOnly, agent, projectData, cb)
+const createNewProject = module.exports.createNewProject = function (jsonOnly, agent, projectData, cb)
 {
     if (jsonOnly)
     {
@@ -127,7 +127,7 @@ const createNewProject = function (jsonOnly, agent, projectData, cb)
     }
 };
 
-const viewProject = function (jsonOnly, agent, projectHandle, cb)
+const viewProject = module.exports.viewProject = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -152,7 +152,7 @@ const viewProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb)
+const updateMetadataWrongRoute = module.exports.updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb)
 {
     if (jsonOnly)
     {
@@ -177,7 +177,7 @@ const updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metad
     }
 };
 
-const updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb)
+const updateMetadataCorrectRoute = module.exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb)
 {
     // / project/:handle/data/folderpath?update_metadata
     const path = "/project/" + projectHandle + "/data/" + folderPath + "?update_metadata";
@@ -206,7 +206,7 @@ const updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, fol
     }
 };
 
-const getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb)
+const getMetadataRecomendationsForProject = module.exports.getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -230,7 +230,7 @@ const getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHa
     }
 };
 
-const getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb)
+const getRecommendationOntologiesForProject = module.exports.getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // recommendation_ontologies
     const path = "/project/" + projectHandle + "?recommendation_ontologies";
@@ -256,7 +256,7 @@ const getRecommendationOntologiesForProject = function (jsonOnly, agent, project
     }
 };
 
-const getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
+const getProjectRootContent = module.exports.getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -279,7 +279,7 @@ const getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb)
+const getResourceMetadata = module.exports.getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb)
 {
     // http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
     const path = "/project/" + projectHandle + "/data/" + folderPath + "?metadata";
@@ -306,7 +306,7 @@ const getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath
     }
 };
 
-const getProjectMetadata = function (jsonOnly, agent, projectHandle, cb)
+const getProjectMetadata = module.exports.getProjectMetadata = function (jsonOnly, agent, projectHandle, cb)
 {
     const path = "/project/" + projectHandle + "?metadata";
     if (jsonOnly)
@@ -333,7 +333,7 @@ const getProjectMetadata = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb)
+const getProjectMetadataDeep = module.exports.getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb)
 {
     const path = "/project/" + projectHandle + "?metadata&deep";
     if (jsonOnly)
@@ -360,7 +360,7 @@ const getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb)
+const removeDescriptorFromFolder = module.exports.removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb)
 {
     getResourceMetadata(jsonOnly, agent, projectHandle, folderPath, function (err, res)
     {
@@ -376,7 +376,7 @@ const removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, fol
     });
 };
 
-const getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
+const getProjectVersion = module.exports.getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
 {
     // project/:handle?version
     const path = "/project/" + projectHandle;
@@ -405,7 +405,7 @@ const getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
     }
 };
 
-const importProjectHTMLPage = function (jsonOnly, agent, cb)
+const importProjectHTMLPage = module.exports.importProjectHTMLPage = function (jsonOnly, agent, cb)
 {
     const path = "/projects/import";
     if (jsonOnly)
@@ -430,7 +430,7 @@ const importProjectHTMLPage = function (jsonOnly, agent, cb)
     }
 };
 
-const importProject = function (jsonOnly, agent, project, cb)
+const importProject = module.exports.importProject = function (jsonOnly, agent, project, cb)
 {
     console.log("Importing " + project.handle + " from zip file " + project.backup_path);
     // /projects/import
@@ -463,7 +463,7 @@ const importProject = function (jsonOnly, agent, project, cb)
     }
 };
 
-const getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb)
+const getRequestProjectAccessPage = module.exports.getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/request_access
     const path = "/project/" + projectHandle + "?request_access";
@@ -490,7 +490,7 @@ const getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb
     }
 };
 
-const requestAccessToProject = function (jsonOnly, agent, projectHandle, cb)
+const requestAccessToProject = module.exports.requestAccessToProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/request_access
     const path = "/project/" + projectHandle + "?request_access";
@@ -517,7 +517,7 @@ const requestAccessToProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const deleteProject = function (jsonOnly, agent, projectHandle, cb)
+const deleteProject = module.exports.deleteProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/delete
     const path = "/project/" + projectHandle + "?delete";
@@ -544,7 +544,7 @@ const deleteProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const undeleteProject = function (jsonOnly, agent, projectHandle, cb)
+const undeleteProject = module.exports.undeleteProject = function (jsonOnly, agent, projectHandle, cb)
 {
     // /project/:handle/undelete
     const path = "/project/" + projectHandle + "?undelete";
@@ -571,7 +571,7 @@ const undeleteProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb)
+const createFolderInProjectRoot = module.exports.createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb)
 {
     // /project/:handle?mkdir
     const path = "/project/" + projectHandle;
@@ -601,7 +601,7 @@ const createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, fold
     }
 };
 
-const getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb)
+const getProjectRecentChanges = module.exports.getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb)
 {
     // / project/:handle?recent_changes
     const path = "/project/" + projectHandle + "?recent_changes";
@@ -629,7 +629,7 @@ const getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const administer = function (agent, modify, projectData, projectHandle, cb)
+const administer = module.exports.administer = function (agent, modify, projectData, projectHandle, cb)
 {
     if (modify)
     {
@@ -652,7 +652,7 @@ const administer = function (agent, modify, projectData, projectHandle, cb)
     }
 };
 
-const bagit = function (agent, projectHandle, cb)
+const bagit = module.exports.bagit = function (agent, projectHandle, cb)
 {
     agent
         .get("/project/" + projectHandle + "?bagit")
@@ -664,7 +664,7 @@ const bagit = function (agent, projectHandle, cb)
         });
 };
 
-const getProjectContributors = function (agent, projectHandle, cb)
+const getProjectContributors = module.exports.getProjectContributors = function (agent, projectHandle, cb)
 {
     // project/proj1?get_contributors
     const path = "/project/" + projectHandle + "?get_contributors";
@@ -676,7 +676,7 @@ const getProjectContributors = function (agent, projectHandle, cb)
         });
 };
 
-const getContentsOfFile = function (zipPath, callback)
+const getContentsOfFile = module.exports.getContentsOfFile = function (zipPath, callback)
 {
     File.unzip(zipPath, function (err, pathOfUnzippedContents)
     {
@@ -703,13 +703,13 @@ const getContentsOfFile = function (zipPath, callback)
     });
 };
 
-const getProjectBagitMetadataFromBackup = function (pathOfUnzippedContents)
+const getProjectBagitMetadataFromBackup = module.exports.getProjectBagitMetadataFromBackup = function (pathOfUnzippedContents)
 {
     const metadataFilePath = path.join(pathOfUnzippedContents, "bag-info.txt");
     return fs.readFileSync(metadataFilePath, "utf8");
 };
 
-const getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectHandle)
+const getFileTreeMetadataFromBackup = module.exports.getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectHandle)
 {
     const metadataFilePath = path.join(pathOfUnzippedContents, "data", projectHandle, "metadata.json");
     metadataContents = fs.readFileSync(metadataFilePath, "utf8");
@@ -839,7 +839,7 @@ const getFileTreeMetadataFromBackup = function (pathOfUnzippedContents, projectH
     return metadataContents;
 };
 
-const metadataMatchesBackup = function (project, bodyBuffer, callback)
+const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (project, bodyBuffer, callback, forcedBackupHandle)
 {
     const parseBagItMetadata = function (result)
     {
@@ -886,54 +886,76 @@ const metadataMatchesBackup = function (project, bodyBuffer, callback)
                 const mockBackupFilePath = project.backup_path;
                 fs.writeFileSync(tempBackupFilePath, bodyBuffer);
 
-                async.mapSeries(
-                    [tempBackupFilePath, mockBackupFilePath],
-                    function (zipFilePath, callback)
+                async.parallel([
+                    function (callback)
                     {
-                        File.unzip(zipFilePath, function (err, pathOfUnzippedContents)
+                        File.unzip(tempBackupFilePath, function (err, pathOfUnzippedContents)
                         {
                             projectBagItMetadata = getProjectBagitMetadataFromBackup(pathOfUnzippedContents);
                             projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, project.handle);
+
                             callback(null, {
                                 bagitMetadata: projectBagItMetadata,
                                 projectTreeMetadata: projectTreeMetadata
                             });
                         });
                     },
-                    function (err, results)
+                    function (callback)
                     {
-                        if (!err)
+                        File.unzip(mockBackupFilePath, function (err, pathOfUnzippedContents)
                         {
-                            const returnedBagitMetadata = parseBagItMetadata(results[0].bagitMetadata);
-                            const mockupBagitMetadata = parseBagItMetadata(results[1].bagitMetadata);
-                            const bagitMetadataIsValid = (JSON.stringify(mockupBagitMetadata) === JSON.stringify(returnedBagitMetadata));
+                            projectBagItMetadata = getProjectBagitMetadataFromBackup(pathOfUnzippedContents);
 
-                            if (!bagitMetadataIsValid)
+                            if (!isNull(forcedBackupHandle))
                             {
-                                console.log("error", JSON.stringify(returnedBagitMetadata, null, 4));
+                                projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, forcedBackupHandle);
+                            }
+                            else
+                            {
+                                projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, project.handle);
                             }
 
-                            const returnedProjectTreeMetadata = results[0].projectTreeMetadata;
-                            const mockupProjectTreeMetadata = results[1].projectTreeMetadata;
+                            callback(null, {
+                                bagitMetadata: projectBagItMetadata,
+                                projectTreeMetadata: projectTreeMetadata
+                            });
+                        });
+                    }],
+                function (err, results)
+                {
+                    if (!err)
+                    {
+                        const returnedBagitMetadata = parseBagItMetadata(results[0].bagitMetadata);
+                        const mockupBagitMetadata = parseBagItMetadata(results[1].bagitMetadata);
 
-                            const deepEqual = require("deep-equal");
-                            const fileTreeMetadataIsValid = deepEqual(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
+                        const bagitMetadataIsValid = (JSON.stringify(mockupBagitMetadata) === JSON.stringify(returnedBagitMetadata));
 
-                            const diff = require("deep-diff").diff;
-                            const fileTreeMetadataDiffs = diff(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
-
-                            if (!fileTreeMetadataIsValid)
-                            {
-                                console.log("error", JSON.stringify(fileTreeMetadataDiffs, null, 4));
-                            }
-
-                            callback(null, bagitMetadataIsValid && fileTreeMetadataIsValid);
-                        }
-                        else
+                        if (!bagitMetadataIsValid)
                         {
-                            callback(err, results);
+                            console.log("error", JSON.stringify(returnedBagitMetadata, null, 4));
                         }
+
+                        const returnedProjectTreeMetadata = results[0].projectTreeMetadata;
+                        const mockupProjectTreeMetadata = results[1].projectTreeMetadata;
+
+                        const deepEqual = require("deep-equal");
+                        const fileTreeMetadataIsValid = deepEqual(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
+
+                        const diff = require("deep-diff").diff;
+                        const fileTreeMetadataDiffs = diff(returnedProjectTreeMetadata, mockupProjectTreeMetadata);
+
+                        if (!fileTreeMetadataIsValid)
+                        {
+                            console.log("error", JSON.stringify(fileTreeMetadataDiffs, null, 4));
+                        }
+
+                        callback(null, bagitMetadataIsValid && fileTreeMetadataIsValid);
                     }
+                    else
+                    {
+                        callback(err, results);
+                    }
+                }
                 );
             }
             else
@@ -943,7 +965,7 @@ const metadataMatchesBackup = function (project, bodyBuffer, callback)
         });
 };
 
-const contentsMatchBackup = function (project, bodyBuffer, callback)
+const contentsMatchBackup = module.exports.contentsMatchBackup = function (project, bodyBuffer, callback)
 {
     const fs = require("fs");
     const tmp = require("tmp");
@@ -990,7 +1012,7 @@ const contentsMatchBackup = function (project, bodyBuffer, callback)
         });
 };
 
-const countProjectTriples = function (projectUri, callback)
+const countProjectTriples = module.exports.countProjectTriples = function (projectUri, callback)
 {
     const self = this;
 
@@ -1034,7 +1056,7 @@ const countProjectTriples = function (projectUri, callback)
         });
 };
 
-const countProjectFilesInGridFS = function (projectUri, callback, customBucket)
+const countProjectFilesInGridFS = module.exports.countProjectFilesInGridFS = function (projectUri, callback, customBucket)
 {
     const self = this;
 
@@ -1083,7 +1105,7 @@ const countProjectFilesInGridFS = function (projectUri, callback, customBucket)
     });
 };
 
-const getProjectUriFromHandle = function (agent, projectHandle, callback)
+const getProjectUriFromHandle = module.exports.getProjectUriFromHandle = function (agent, projectHandle, callback)
 {
     listAllMyProjects(true, agent, function (err, res)
     {
@@ -1097,37 +1119,25 @@ const getProjectUriFromHandle = function (agent, projectHandle, callback)
     });
 };
 
-module.exports = {
-    updateMetadataCorrectRoute: updateMetadataCorrectRoute,
-    listAllMyProjects: listAllMyProjects,
-    listAllProjects: listAllProjects,
-    getNewProjectPage: getNewProjectPage,
-    createNewProject: createNewProject,
-    viewProject: viewProject,
-    updateMetadataWrongRoute: updateMetadataWrongRoute,
-    getMetadataRecomendationsForProject: getMetadataRecomendationsForProject,
-    getProjectRootContent: getProjectRootContent,
-    getResourceMetadata: getResourceMetadata,
-    removeDescriptorFromFolder: removeDescriptorFromFolder,
-    getProjectRecentChanges: getProjectRecentChanges,
-    getProjectVersion: getProjectVersion,
-    importProjectHTMLPage: importProjectHTMLPage,
-    importProject: importProject,
-    getRequestProjectAccessPage: getRequestProjectAccessPage,
-    requestAccessToProject: requestAccessToProject,
-    deleteProject: deleteProject,
-    undeleteProject: undeleteProject,
-    createFolderInProjectRoot: createFolderInProjectRoot,
-    administer: administer,
-    bagit: bagit,
-    getProjectContributors: getProjectContributors,
-    getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
-    getProjectMetadata: getProjectMetadata,
-    getProjectBagitMetadata: getProjectBagitMetadataFromBackup,
-    getProjectMetadataDeep: getProjectMetadataDeep,
-    contentsMatchBackup: contentsMatchBackup,
-    metadataMatchesBackup: metadataMatchesBackup,
-    countProjectTriples: countProjectTriples,
-    countProjectFilesInGridFS: countProjectFilesInGridFS,
-    getProjectUriFromHandle: getProjectUriFromHandle
+const projectStorage = module.exports.projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
+{
+    if (modify && storageConfig)
+    {
+        agent
+            .post("/project/" + projectHandle + "?storage")
+            .send({storageConfig: storageConfig})
+            .end(function (err, res)
+            {
+                callback(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get("/project/" + projectHandle + "?storage")
+            .end(function (err, res)
+            {
+                callback(err, res);
+            });
+    }
 };

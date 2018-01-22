@@ -133,6 +133,9 @@ Config.mongoDbCollectionName = getConfigParameter("mongoDbCollectionName");
 Config.mongoDBSessionStoreCollection = getConfigParameter("mongoDBSessionStoreCollection");
 Config.mongoDbVersion = getConfigParameter("mongoDbVersion");
 Config.mongoDBAuth = getConfigParameter("mongoDBAuth");
+// storage default config
+Config.defaultStorageConfig = getConfigParameter("storageDefaults");
+Config.defaultStorageConfig.port = parseInt(Config.defaultStorageConfig.port);
 
 // mysql database for interaction
 
@@ -878,7 +881,8 @@ if (process.env.NODE_ENV === "production")
     if (!isNull(argv.pm2_slave))
     {
         Config.runningAsSlave = true;
-        Config.maxSimultaneousConnectionsToDb = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+        const simultaneousConnections = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+        Config.maxSimultaneousConnectionsToDb = (simultaneousConnections >= 1) ? simultaneousConnections : 1;
     }
 }
 

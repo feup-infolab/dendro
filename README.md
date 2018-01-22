@@ -2,25 +2,11 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=feup-infolab/dendro&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&utm_medium=referral&utm_content=feup-infolab/dendro&utm_campaign=Badge_Coverage)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
-[![Code Climate](https://codeclimate.com/github/feup-infolab/dendro/badges/gpa.svg)](https://codeclimate.com/github/feup-infolab/dendro)
-[![Issue Count](https://codeclimate.com/github/feup-infolab/dendro/badges/issue_count.svg)](https://codeclimate.com/github/feup-infolab/dendro)
 [![Chat on gitter](https://img.shields.io/gitter/room/badges/shields.svg)](https://gitter.im/feup-infolab/dendro)
 
-#	Welcome to Dendro
+## What is Dendro?
 
 ![dendro UI](https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png "Dendro UI")
-
-## Demo instance
-
-[DEMO](http://dendro.fe.up.pt/demo)
-
-If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
-
-## How to install
-
-[Installation](https://github.com/feup-infolab/dendro-install)
-
-## What is Dendro?
 
 Dendro is a collaborative file storage and description platform designed to support users in collecting and describing data, with its roots in research data management. It does not intend to replace existing research data repositories, because it is placed before the moment of deposit in a data repository. 
 
@@ -47,6 +33,16 @@ We are also implementing an altmetrics module and a soclal extension that can he
 The software will be a core component of the [UPorto](https://sigarra.up.pt/up/pt/web_base.gera_pagina?p_pagina=home) and [INESC-TEC](https://www.inesctec.pt/) Research Data Management workflow by 2018 as per the TAIL project, funded by the Portuguese FCT (Fundação para a Ciência e Tecnologia). As such, we are working hard to make it production-ready. This means writing extensive automatic tests which complement the existing usage tests with actual researchers. 
 
 The code is freely available online and we welcome more user testing scenarios, user feedback and development contributions. You are free to use Dendro to build any service for your research group or institution and pull requests are welcome.
+
+## Demo instance
+
+[DEMO](http://dendro.fe.up.pt/demo)
+
+If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
+
+## How to install
+
+[Installation](https://github.com/feup-infolab/dendro-install)
 
 ## Who is building Dendro?
 

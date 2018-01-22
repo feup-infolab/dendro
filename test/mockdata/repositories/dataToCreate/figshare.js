@@ -49,7 +49,7 @@ const newExportRepoData = {
                 handle: "figshare",
                 created: "2017-10-02T12:17:04.105Z",
                 modified: "2017-10-02T12:17:04.106Z",
-                humanReadableURI: "http://" + Config.host + "/repository_platform/figshare"
+                humanReadableURI: "/repository_platform/figshare"
             },
             rdf: {
                 type: [

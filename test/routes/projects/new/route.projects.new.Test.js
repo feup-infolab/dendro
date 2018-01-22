@@ -16,6 +16,7 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 
 const publicProjectHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
 const metadataOnlyHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
@@ -252,6 +253,35 @@ describe("New project tests", function ()
             });
         });
     });
+
+    describe("[POST] with project handle: " + b2dropProject.handle + " [/projects/new]", function ()
+    {
+        it("[JSON] Should show an error when trying to create the b2share-backed project unauthenticated", function (done)
+        {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+            projectUtils.createNewProject(true, agent, b2dropProject, function (err, res)
+            {
+                res.statusCode.should.equal(401);
+                res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
+                done();
+            });
+        });
+
+        it("[JSON] Should get a status code of 200 when creating b2share-backed project logged in as demouser1", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                projectUtils.createNewProject(true, agent, b2dropProject, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.projects.length.should.equal(7);
+                    done();
+                });
+            });
+        });
+    });
+
     after(function (done)
     {
         // destroy graphs

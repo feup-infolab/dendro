@@ -1,5 +1,5 @@
 /*
- {"dcterms":{"title":"ckan export config 1"},"ddr":{"hasExternalUrl":"http://demo.ckan.org","hasUsername":"nelsonpereira1991","hasOrganization":"infolab-devs","hasAPIKey":"b193a37e-de06-4b08-90db-a3cdc7ffad0f","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/ckan","dcterms":{"title":"CKAN"},"foaf":{"nick":"ckan","homepage":"http://ckan.org"},"$$hashKey":"object:143"}}}
+ {"dcterms":{"title":"ckan export config 1"},"ddr":{"hasExternalUrl":"http://demo.ckan.org","username":"nelsonpereira1991","hasOrganization":"infolab-devs","hasAPIKey":"b193a37e-de06-4b08-90db-a3cdc7ffad0f","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/ckan","dcterms":{"title":"CKAN"},"foaf":{"nick":"ckan","homepage":"http://ckan.org"},"$$hashKey":"object:143"}}}
  */
 
 const Pathfinder = global.Pathfinder;
@@ -13,7 +13,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
     dcterms: {title: "ckan2"},
     ddr: {
         hasExternalUrl: "http://192.168.33.60:5000",
-        hasUsername: "nelsonpereira1991",
+        username: "nelsonpereira1991",
         hasOrganization: "organization-test1",
         hasAPIKey: "6a50a8d3-44ce-4825-b3c7-9bca1c57165f",
         hasPlatform: {
@@ -32,7 +32,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
     },
     ddr:{
         hasExternalUrl:"http://192.168.33.60:5000",
-        hasUsername:"nelsonpereira1991",
+        username:"nelsonpereira1991",
         hasOrganization:"organization-test1",
         hasAPIKey:"6a50a8d3-44ce-4825-b3c7-9bca1c57165f",
         hasPlatform:{
@@ -118,7 +118,7 @@ const newExportRepoData = {
     },
     ddr: {
         hasExternalUrl: "http://dendro-prd.fe.up.pt",
-        hasUsername: "nelsonpereira1991",
+        username: "nelsonpereira1991",
         hasOrganization: "organization-test1",
         hasAPIKey: "15f8dac8-6f95-4318-ae5d-9b390088484c",
         hasPlatform: {
@@ -134,7 +134,7 @@ const newExportRepoData = {
                 handle: "ckan",
                 created: "2017-10-10T15:19:09.041Z",
                 modified: "2017-10-10T15:19:09.044Z",
-                humanReadableURI: "http://127.0.0.1:3001/repository_platform/ckan"
+                humanReadableURI: "/repository_platform/ckan"
             },
             rdf: {
                 type: [

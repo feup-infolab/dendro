@@ -27,11 +27,6 @@ function User (object)
 
     self.copyOrInitDescriptors(object);
 
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = db.baseURI + "/user/" + self.ddr.username;
-    }
-
     if (isNull(self.ddr.salt))
     {
         const bcrypt = require("bcryptjs");
@@ -1511,8 +1506,22 @@ User.removeAllAdmins = function (callback)
     });
 };
 
+User.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.username))
+    {
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.username property.");
+    }
+    else
+    {
+        callback(null, "/user/" + self.ddr.username);
+    }
+};
+
 User.anonymous = {
-    uri: "http://dendro.fe.up.pt/user/anonymous"
+    uri: "/user/anonymous"
 };
 
 User = Class.extend(User, Resource, "ddr:User");
