@@ -11,8 +11,8 @@
     "npm": "5.5.1"
   },
   "scripts": {
-    "preinstall": "npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install pm2 -g && npm install -g npm-check-updates",
-    "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
+    "preinstall": "nodengine",
+    "postinstall": "nodengine; npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
     "prestart": "",
     "prestop": "",
     "pretest": "",

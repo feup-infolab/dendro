@@ -53,7 +53,10 @@ else
     chown -R "$(whoami)" ~/.nvm
 
     #install preliminary dependencies
-    #npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
+    npm i -g nodengine &&
+    nodengine &&
+    npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install pm2 -g && npm install -g npm-check-updates
+    # npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
     #npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
 
     #install dependencies. Will also run bower install whenever needed
