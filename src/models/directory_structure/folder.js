@@ -28,15 +28,6 @@ function Folder (object)
     self.addURIAndRDFType(object, "folder", Folder);
     Folder.baseConstructor.call(this, object);
 
-    if (
-        isNull(self.ddr) &&
-        isNull(self.ddr.humanReadableURI) &&
-        !isNull(object.nie)
-    )
-    {
-        self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
-    }
-
     self.ddr.fileExtension = "folder";
     self.ddr.hasFontAwesomeClass = "fa-folder";
 
@@ -862,7 +853,9 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     }
                     else
                     {
-                        return cb(1, "Error loading file " + self.uri + " from local file " + localFilePath);
+                        const msg = "Error loading file " + self.uri + " from local file " + localFilePath + " Error reported: " + childFile;
+                        Logger.log("error", msg);
+                        return cb(1, msg);
                     }
                 });
             }
@@ -1762,6 +1755,140 @@ Folder.prototype.forAllChildren = function (
             finalCallback(err, "All children of resource " + self.uri + " retrieved via pagination query.");
         }
     );
+};
+
+Folder.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (!isNull(self.nie))
+    {
+        if (isNull(self.nie.isLogicalPartOf))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.isLogicalPartOf in the object!");
+        }
+        else if (isNull(self.nie.title))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.title in the object!");
+        }
+        else
+        {
+            const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+            Resource.findByUri(self.nie.isLogicalPartOf, function (err, parentResource)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(parentResource))
+                    {
+                        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                        if(parentResource.isA(Project))
+                        {
+                            callback(null, parentResource.ddr.humanReadableURI + "/data");
+                        }
+                        else if(parentResource.isA(Folder))
+                        {
+                            callback(null, parentResource.ddr.humanReadableURI + "/" + self.nie.title);
+                        }
+                        else
+                        {
+                            callback(1, "Invalid parent type detected when trying to get parent human readable URI for folder " + self.uri);
+                        }
+                    }
+                    else
+                    {
+                        callback(1, "Unable to get parent human readable URI for folder " + self.uri);
+                    }
+                }
+                else
+                {
+                    callback(1, "Error getting parent human readable URI for folder " + self.uri);
+                }
+            });
+        }
+    }
+    else
+    {
+        callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
+    }
+};
+
+Folder.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    let failed = null;
+    self.forAllChildren(
+        function (err, resources)
+        {
+            if (isNull(err))
+            {
+                if (resources.length > 0)
+                {
+                    async.mapSeries(resources, function (resource, callback)
+                    {
+                        if (!isNull(resource))
+                        {
+                            resource.refreshHumanReadableUri(callback, graphUri);
+                        }
+                        else
+                        {
+                            callback(false, resource);
+                        }
+                    }, function (err, results)
+                    {
+                        if (err)
+                        {
+                            Logger.log("error", "Errors refreshing human readable URIs of children of " + self.uri + " : " + resources);
+                            failed = true;
+                        }
+
+                        return callback(failed, null);
+                    });
+                }
+                else
+                {
+                    return callback(failed, null);
+                }
+            }
+            else
+            {
+                failed = true;
+                return callback(failed, "Error fetching children of " + self.uri + " for reindexing : " + resources);
+            }
+        },
+        function ()
+        {
+            return failed;
+        },
+        function (err)
+        {
+            return callback(err, null);
+        },
+        true,
+        customGraphUri
+    );
+};
+
+Folder.prototype.rename = function(newTitle, callback)
+{
+    const self = this;
+    InformationElement.prototype.rename.call(self, newTitle, function(err, updatedFolder){
+        if(isNull(err))
+        {
+            self.refreshChildrenHumanReadableUris(function (err, result)
+            {
+                return callback(err, result);
+            });
+        }
+        else
+        {
+            Logger.log("error", "Error occurred while renaming a folder!");
+            Logger.log("error", JSON.stringify(err));
+            Logger.log("error", JSON.stringify(result));
+            return callback(err, result);
+        }
+    });
 };
 
 Folder = Class.extend(Folder, InformationElement, "nfo:Folder");

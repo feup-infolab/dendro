@@ -71,10 +71,12 @@ require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.us
 require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
 
 // PROJECTS
-require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
+// Create projects of different visibilities and storage types
 require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
+// users project listings
+require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
+// users project listings
+require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
 
 /* require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
  require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js")); */
@@ -337,6 +339,14 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/d
  require('./models/kb/db.Test.js');
  */
 
+// PROJECT WITH B2DROP STORAGE
+require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/data/testFolder1/__upload/routes.project.b2dropProject.data.testFolder1.__upload.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/data/testFolder1/a_filename/__rename/routes.project.b2dropProject.data.testFolder1.a_filename.__rename.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/data/testFolder1/a_filename/__cut/routes.project.b2dropProject.data.testFolder1.a_filename.__cut.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/__bagit/routes.project.b2dropProject.__bagit.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/__delete/routes.project.b2dropProject.__delete.Test.js"));
+
+// PROJECT WITH LOCAL STORAGE
 // test file uploads
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__upload/routes.project.privateProject.data.testFolder1.__upload.Test.js"));
 

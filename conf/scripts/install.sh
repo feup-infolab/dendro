@@ -3,6 +3,13 @@
 INITIAL_DIR=`pwd`
 NODE_VERSION=`cat .nvmrc`
 
+# install text extraction dependencies
+if [ "$(uname)" == "Darwin" ]; then
+    brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
+fi
+
 echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
 
 if [ "$NODE_VERSION" == "" ]
@@ -46,7 +53,11 @@ else
     chown -R "$(whoami)" ~/.nvm
 
     #install preliminary dependencies
-    npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
+    npm i -g nodengine &&
+    nodengine &&
+    npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install pm2 -g && npm install -g npm-check-updates
+    # npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
+    #npm i -g nodengine && npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
 
     #install dependencies. Will also run bower install whenever needed
     npm install #this is needed when running npm install with sudo to install global modules

@@ -16,12 +16,12 @@
     <span ng-show="new_repository.ddr.hasExternalUrl && !valid_base_address(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
 </div>
 
-<div ng-show="valid_base_address(new_repository.ddr.hasExternalUrl)" class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasUsername}">
+<div ng-show="valid_base_address(new_repository.ddr.hasExternalUrl)" class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.username}">
     <label for="ckan_username">Username</label>
-    <input type="text" ng-model="new_repository.ddr.hasUsername" class="form-control" id="ckan_username" placeholder="CKAN username" required>
+    <input type="text" ng-model="new_repository.ddr.username" class="form-control" id="ckan_username" placeholder="CKAN username" required>
     <p class="help-block">The username you use in the target CKAN repository. For example, if your profile page is <a ng-href="{{new_repository.ddr.hasExternalUrl + '/user/demouser' | trustAsResourceUrl}}">{{new_repository.ddr.hasExternalUrl + '/user/demouser'}}</a>, your username will be <b>demouser</b>.</p>
-    <span ng-show="new_repository.ddr.hasUsername" class="glyphicon glyphicon-ok form-control-feedback"></span>
-    <span ng-show="!new_repository.ddr.hasUsername" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.username" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.username" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
 <div ng-show="valid_base_address(new_repository.ddr.hasExternalUrl)" class="control-group has-feedback" ng-class="{'has-success' : valid_organization(new_repository.ddr.hasOrganization), 'has-warning' : new_repository.ddr.hasOrganization && !valid_organization(new_repository.ddr.hasOrganization)}">
@@ -47,7 +47,7 @@
 </button>
 <button type="submit"
         ng-click="create_new_repository_bookmark(new_repository)"
-        ng-disabled="!(new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl) && new_repository.ddr.hasUsername && valid_organization(new_repository.ddr.hasOrganization))"
+        ng-disabled="!(new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl) && new_repository.ddr.username && valid_organization(new_repository.ddr.hasOrganization))"
         class="btn btn-primary pull-right">
     <i class="fa fa-bookmark fa-lg"></i>Save new bookmark
 </button>

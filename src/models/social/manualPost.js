@@ -18,37 +18,12 @@ var async = require("async");
 
 function ManualPost (object)
 {
-    /* ManualPost.baseConstructor.call(this, object);
-    var self = this;
-
-    if(object.uri != null)
-    {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/posts/" + uuid.v4();
-    }
-
-    self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:ManualPost";
-
-    return self; */
-
     const self = this;
     // self.addURIAndRDFType(object, "post", Post);
     self.addURIAndRDFType(object, "post", ManualPost);
     ManualPost.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-
-    const newId = uuid.v4();
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
-    }
 
     self.ddr.numLikes = 0;
 
@@ -72,10 +47,20 @@ ManualPost.buildManualPost = function (userUri, project, postInfo, callback)
     callback(null, newPost);
 };
 
-/*
-ManualPost = Class.extend(ManualPost, Post);
+ManualPost.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
 
-module.exports.ManualPost = ManualPost; */
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        callback(null, "/posts/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
+};
 
 ManualPost = Class.extend(ManualPost, Post, "ddr:ManualPost");
 

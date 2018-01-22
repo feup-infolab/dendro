@@ -90,8 +90,8 @@ export_to_repository_sword = function (req, res)
                                             files: files,
                                             collectionRef: targetRepository.ddr.hasSwordCollectionUri,
                                             repositoryType: targetRepository.ddr.hasPlatform.foaf.nick,
-                                            user: targetRepository.ddr.hasUsername,
-                                            password: targetRepository.ddr.hasPassword,
+                                            user: targetRepository.ddr.username,
+                                            password: targetRepository.ddr.password,
                                             serviceDocRef: serviceDocumentRef
                                         };
 
@@ -1251,8 +1251,8 @@ exports.sword_collections = function (req, res)
         serviceDocumentRef = targetRepository.ddr.hasExternalUrl + Config.swordConnection.EprintsServiceDocument;
     }
     const options = {
-        user: targetRepository.ddr.hasUsername,
-        password: targetRepository.ddr.hasPassword,
+        user: targetRepository.ddr.username,
+        password: targetRepository.ddr.password,
         serviceDocRef: serviceDocumentRef
     };
     swordConnection.listCollections(options, function (err, message, collections)

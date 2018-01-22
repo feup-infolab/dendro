@@ -26,7 +26,7 @@ const validateNewBookmarkRequest = function (req, res)
         });
         return false;
     }
-    else if (isNull(req.body.ddr.hasUsername) && req.body.ddr.hasPlatform.foaf.nick !== "figshare" && req.body.ddr.hasPlatform.foaf.nick !== "zenodo" && req.body.ddr.hasPlatform.foaf.nick !== "b2share")
+    else if (isNull(req.body.ddr.username) && req.body.ddr.hasPlatform.foaf.nick !== "figshare" && req.body.ddr.hasPlatform.foaf.nick !== "zenodo" && req.body.ddr.hasPlatform.foaf.nick !== "b2share")
     {
         res.status(400).json({
             result: "error",
@@ -155,8 +155,8 @@ expected format :
             title : "CKAN Demo Repository"
         },
         ddr: {
-            hasPassword : "DVet1658",
-            hasUsername : "ricardoamorim",
+            password : "DVet1658",
+            username : "ricardoamorim",
             hasExternalUrl : "http://demo.ckan.org",
             hasPlatform : {
                 uri : "http://dendro.fe.up.pt/repository_platforms/ckan",
@@ -223,7 +223,7 @@ exports.new = function (req, res)
                                     creator: req.user.uri
                                 },
                                 ddr: {
-                                    hasUsername: req.body.ddr.hasUsername,
+                                    username: req.body.ddr.username,
                                     hasPlatform: repo_platform.uri,
                                     hasExternalUri: req.body.ddr.hasExternalUrl,
                                     hasSwordCollectionLabel: req.body.ddr.hasSwordCollectionLabel,
@@ -308,7 +308,7 @@ returned format :
             title : "CKAN Demo Repository"
         },
         ddr: {
-            hasUsername : "ricardoamorim",
+            username : "ricardoamorim",
             hasExternalUrl : "http://demo.ckan.org",
             hasPlatform : {
                 uri : "http://dendro.fe.up.pt/repository_platforms/ckan",
@@ -479,8 +479,8 @@ exports.delete = function (req, res)
          homepage : "http://ckan.org"
      },
      ddr: {
-         hasPassword : "DVet1658",
-         hasUsername : "ricardoamorim",
+         password : "DVet1658",
+         username : "ricardoamorim",
          hasExternalUrl : "http://demo.ckan.org",
          hasPlatform : {
              uri : "http://dendro.fe.up.pt/repository_platforms/ckan",

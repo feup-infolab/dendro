@@ -1,7 +1,6 @@
 const humanize = require("humanize");
 const Pathfinder = global.Pathfinder;
 const path = require("path");
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -778,7 +777,6 @@ exports.get_thumbnail = function (req, res)
 
 exports.upload = function (req, res)
 {
-    const async = require("async");
     const fs = require("fs");
 
     const requestedResourceURI = req.params.requestedResourceUri;
@@ -2798,10 +2796,23 @@ exports.rename = function (req, res)
                 {
                     if (!isNull(ie))
                     {
-                        let parsePath = require("parse-filepath");
-                        const parsed = parsePath(ie.nie.title);
+                        if (ie.isA(File))
+                        {
+                            ie = new File(ie);
+                        }
+                        else
+                        {
+                            ie = new Folder(ie);
+                        }
 
-                        ie.nie.title = newName + parsed.ext;
+                        if (isNull(ie.ddr.fileExtension) || ie.ddr.fileExtension === "folder" || ie.ddr.fileExtension === "")
+                        {
+                            ie.nie.title = newName;
+                        }
+                        else
+                        {
+                            ie.nie.title = newName + "." + ie.ddr.fileExtension;
+                        }
 
                         ie.needsRenaming(function (err, shouldRename)
                         {
@@ -2809,7 +2820,7 @@ exports.rename = function (req, res)
                             {
                                 if (shouldRename === false)
                                 {
-                                    ie.save(function (err, result)
+                                    ie.rename(ie.nie.title, function (err, result)
                                     {
                                         if (isNull(err))
                                         {
