@@ -1,13 +1,12 @@
-angular.module('dendroApp.controllers')
-    /**
+angular.module("dendroApp.controllers")
+/**
      *  Metadata editor controller
      */
-    .controller('descriptorInteractionsRecordingCtrl', function (
+    .controller("descriptorInteractionsRecordingCtrl", function (
         $scope,
         interactionsService,
         filesService
-    ) {
+    )
+    {
 
-
-    })
-;
+    });

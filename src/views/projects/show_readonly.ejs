@@ -10,7 +10,7 @@
 
     <% if( project.ddr.privacyStatus == "public" ) { %>
         <div class="row">
-            <div class="col-xs-6 col-sm-3" ng-controller="fileBrowserCtrl" ng-init="init()">
+            <div class="col-xs-6 col-sm-3" ng-controller="fileExplorerCtrl" ng-init="init()">
                 <h4>Folder</h4>
                 <div class="row">
                     <div class="col-xs-12">
@@ -19,43 +19,24 @@
                         <button id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-success': shared.multiple_selection_active}" class="btn btn-sm fa fa-check-square-o" ng-click="toggle_multiple_selection()" onmouseover="$(this).addClass('btn-primary');" onmouseout="$(this).removeClass('btn-primary');"></button>
                     </div>
                 </div>
-                <h4>Selection</h4>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <button ng-show="shared.multiple_selection_active && file_explorer_selected_something()" id="clear_selection_button" class="btn btn-sm fa fa-ban" ng-click="clear_selection_and_get_parent_metadata()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                        <button ng-disabled="!file_explorer_selected_something()"
-                                id="download_selection_button"
-                                class="btn btn-sm fa fa-download"
-                                ng-click="download_selected_items()"
-                                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                        <button ng-disabled="!file_explorer_selected_something()"
-                                id="backup_selection_button"
-                                class="btn btn-sm fa fa-archive"
-                                ng-click="backup_selected_items()"
-                                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                    </div>
-                </div>
 
                 <script type="text/javascript">
-                    $('#download_folder_button').tooltip({title : "<h1>Download</h1>Download the current folder" , html: true});
-                    $('#backup_button').tooltip({title : "<h1>Backup</h1>Download the current folder, including information", html:true});
-                    $('#toggle_multiple_selection').tooltip({title : "<h1>Select several</h1>Select several files", html:true});
-                    $('#clear_selection_button').tooltip({title : "<h1>Deselect</h1>Deselect items", html:true});
-                    $('#download_selection_button').tooltip({title : "<h1>Download</h1>Download the selected items" , html: true});
-                    $('#backup_selection_button').tooltip({title : "<h1>Backup</h1>Backup the selected items" , html: true});
+                    $('#download_folder_button').tooltip({title : "<h4>Download</h4>Download the current folder" , html: true});
+                    $('#backup_button').tooltip({title : "<h4>Backup</h4>Download the current folder, including information", html:true});
+                    $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several files", html:true});
+                    $('#clear_selection_button').tooltip({title : "<h4>Deselect</h4>Deselect items", html:true});
+                    $('#download_selection_button').tooltip({title : "<h4>Download</h4>Download the selected items" , html: true});
+                    $('#backup_selection_button').tooltip({title : "<h4>Backup</h4>Backup the selected items" , html: true});
                 </script>
 
                 <br>
                 <%- include show/file_explorer.ejs %>
             </div>
             <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
-                <div ng-if="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
+                <div ng-if="shared.is_a_file">
                     <%- include show/file_preview.ejs %>
                 </div>
-                <div class="alert alert-info" ng-show="(shared.selected_file == null && shared.metadata == null)">
-                    Select one of the resource on the file explorer to view its metadata.
-                </div>
-
+                <br/>
                 <%- include show/metadata_viewer.ejs %>
             </div>
         </div>

@@ -2,7 +2,7 @@
 
 <div class="content" ng-controller="ontologiesCtrl"  ng-init="init(false)">
     <h1 class="header">
-        All Descriptor Sets
+        All Ontologies
     </h1>
 
     <div class="alert alert-info" ng-if="getting_ontologies == false && public_ontologies.length == 0">
@@ -10,7 +10,7 @@
     </div>
 
     <div class="alert alert-info" ng-if="getting_ontologies" >
-        Fetching list of descriptor sets...
+        Fetching list of ontologies...
     </div>
 
     <table class="table table-striped" ng-if="getting_ontologies == false && all_ontologies.length > 0" style="table-layout:fixed">

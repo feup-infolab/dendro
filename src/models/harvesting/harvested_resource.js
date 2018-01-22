@@ -1,20 +1,16 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const db = Config.getDBByID();
 
-function HarvestedResource(object)
+function HarvestedResource (object)
 {
     HarvestedResource.baseConstructor.call(this, object);
 
@@ -23,8 +19,6 @@ function HarvestedResource(object)
     self.ddr.lastHarvested = object.ddr.lastHarvested;
     self.ddr.md5Checksum = object.ddr.md5Checksum;
     self.ddr.sourceRepository = object.ddr.sourceRepository;
-
-    self.rdf.type = "ddr:HarvestedResource";
 
     return self;
 }
@@ -36,68 +30,71 @@ function HarvestedResource(object)
  * @param callback function to call after the resource is saved
  */
 
-HarvestedResource.prototype.save = function(indexConnection, callback) {
+HarvestedResource.prototype.save = function (callback, customGraphUri)
+{
     const self = this;
     let metadataInsertionString = "";
     let argumentCount = 6;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
     const argumentsArray =
-        [
-            {
-                type: DbConnection.resourceNoEscape,
-                value: db.graphUri
-            },
-            {
-                type: DbConnection.resource,
-                value: self.uri
-            },
-            {
-                type: DbConnection.resource,
-                value: self.sourceRepository.uri
-            },
-            {
-                type: DbConnection.date,
-                value: self.timestamp
-            },
-            {
-                type: DbConnection.string,
-                value: self.md5Checksum
-            },
-            {
-                type: DbConnection.string,
-                value: self.md5Checksum
-            }
-        ];
+    [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        },
+        {
+            type: Elements.types.resource,
+            value: self.uri
+        },
+        {
+            type: Elements.types.resource,
+            value: self.sourceRepository.uri
+        },
+        {
+            type: Elements.types.date,
+            value: self.timestamp
+        },
+        {
+            type: Elements.types.string,
+            value: self.md5Checksum
+        },
+        {
+            type: Elements.types.string,
+            value: self.md5Checksum
+        }
+    ];
 
-    for(let i = 0; i < self.metadata.length; i++)
+    for (let i = 0; i < self.metadata.length; i++)
     {
         const metadataDescriptor = self.metadata[i];
 
-        if(!isNull(metadataDescriptor.namespace) && !isNull(metadataDescriptor.element))
+        if (!isNull(metadataDescriptor.namespace) && !isNull(metadataDescriptor.element))
         {
-
             let predicate = null;
 
-            if(isNull(metadataDescriptor.qualifier))
+            if (isNull(metadataDescriptor.qualifier))
             {
                 predicate = {
-                    value : metadataDescriptor.namespace + ":" + metadataDescriptor.element,
-                    type : DbConnection.prefixedResource
-                }
+                    value: metadataDescriptor.namespace + ":" + metadataDescriptor.element,
+                    type: Elements.types.prefixedResource
+                };
             }
             else
             {
                 predicate = {
-                    value : metadataDescriptor.namespace + ":" + metadataDescriptor.qualifier,
-                    type : DbConnection.prefixedResource
-                }
+                    value: metadataDescriptor.namespace + ":" + metadataDescriptor.qualifier,
+                    type: Elements.types.prefixedResource
+                };
             }
 
-            metadataInsertionString = metadataInsertionString + "[1] ["+ argumentCount +"] ["+ (argumentCount+1) +"] .\n";
+            metadataInsertionString = metadataInsertionString + "[1] [" + argumentCount + "] [" + (argumentCount + 1) + "] .\n";
 
             const object = {
                 value: metadataDescriptor.value,
-                type: DbConnection.string
+                type: Elements.types.string
             };
 
             argumentsArray.push(predicate);
@@ -107,8 +104,7 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
         }
     }
 
-
-    //TODO CACHE
+    // TODO CACHE
     const fullQueryString =
         " DELETE FROM [0]\n" +
         "{ \n" +
@@ -139,36 +135,32 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
         "} \n" +
         "} \n";
 
-    db.connection.execute(
+    db.connection.executeViaJDBC(
         fullQueryString,
         argumentsArray,
-        function(err, result)
+        function (err, result)
         {
-            if(!err)
+            if (isNull(err))
             {
-                self.reindex(indexConnection, function(err, result)
+                self.reindex(indexConnection, function (err, result)
                 {
-                    if(!err)
+                    if (isNull(err))
                     {
-                        return callback(null, "Metadata successfully inserted for resource : "+ self.uri + " Virtuoso error : " + result);
+                        return callback(null, "Metadata successfully inserted for resource : " + self.uri + " Virtuoso error : " + result);
                     }
-                    else
-                    {
-                        const error = "Error indexing harvested resource with uri " + self.uri + ". Error reported: " + result;
-                        console.error(error);
-                        return callback(1, error);
-                    }
-
+                    const error = "Error indexing harvested resource with uri " + self.uri + ". Error reported: " + result;
+                    Logger.log("error", error);
+                    return callback(1, error);
                 });
             }
             else
             {
-                return callback(1, "Error inserting metadata for resource : "+ self.uri + " : Virtuoso error : "+ result);
+                return callback(1, "Error inserting metadata for resource : " + self.uri + " : Virtuoso error : " + result);
             }
-        }
+        }, null, null, null, true
     );
 };
 
-HarvestedResource = Class.extend(HarvestedResource, Resource);
+HarvestedResource = Class.extend(HarvestedResource, Resource, "ddr:HarvestedResource");
 
 module.exports.HarvestedResource = HarvestedResource;

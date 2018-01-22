@@ -1,65 +1,54 @@
-const async = require('async');
+const async = require("async");
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const db = Config.getDBByID();
 
-function ResearchDomain (object, callback)
+function ResearchDomain (object)
 {
-    ResearchDomain.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "research_domain", ResearchDomain);
+    ResearchDomain.baseConstructor.call(this, object);
 
-    self.rdf.type = ResearchDomain.prefixedRDFType;
-
-    const now = new Date();
-
-    if(isNull(object.dcterms))
-    {
-        self.dcterms = {
-            created : now.toISOString()
-        }
-    }
-    else
-    {
-        if(isNull(object.dcterms.created))
-        {
-            self.dcterms.created = now.toISOString();
-        }
-        else
-        {
-            self.dcterms.created = object.dcterms.created;
-        }
-    }
-
-    if(isNull(self.uri))
-    {
-        if(typeof self.dcterms.title === "string")
-        {
-            const slug = require('slug');
-            const slugified_title = slug(self.dcterms.title);
-            self.uri = db.baseURI+"/research_domains/"+slugified_title;
-            return callback(null, self);
-        }
-        else
-        {
-            return callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
-        }
-    }
-    else
-    {
-        return callback(0, self);
-    }
+    self.copyOrInitDescriptors(object);
+    return self;
 }
-ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results)
+
+ResearchDomain.create = function (object, callback)
+{
+    const self = new ResearchDomain(object);
+
+    if (!isNull(self.ddr) && isNull(self.ddr.humanReadableName))
+    {
+        if (!isNull(object.ddr) && !isNull(object.ddr.humanReadableURI))
+        {
+            self.ddr.humanReadableURI = object.ddr.humanReadableURI;
+        }
+        else
+        {
+            if (typeof self.dcterms.title === "string")
+            {
+                const slug = require("slug");
+                const slugifiedTitle = slug(self.dcterms.title);
+                self.ddr.humanReadableURI = Config.baseUri + "/research_domains/" + slugifiedTitle;
+            }
+            else
+            {
+                return callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
+            }
+        }
+    }
+
+    return callback(null, self);
+};
+ResearchDomain.findByTitleOrDescription = function (query, callback, maxResults)
 {
     var query =
         "WITH [0] \n" +
@@ -69,46 +58,49 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         "   {\n" +
         "      ?uri rdf:type ddr:ResearchDomain . \n" +
         "      ?uri dcterms:title ?title .\n" +
-        "      FILTER regex(?title, \"" + query +"\", \"i\")  \n" +
+        "      FILTER regex(?title, \"" + query + "\", \"i\")  \n" +
         "   }\n" +
         "   UNION \n" +
         "   {\n" +
         "       ?uri rdf:type ddr:ResearchDomain . \n" +
         "       ?uri dcterms:description ?description .\n" +
-        "       FILTER regex(?description, \"" + query +"\", \"i\")  \n" +
+        "       FILTER regex(?description, \"" + query + "\", \"i\")  \n" +
         "   } \n" +
         "} \n";
 
     const queryArguments = [
         {
-            type: DbConnection.resourceNoEscape,
+            type: Elements.types.resourceNoEscape,
             value: db.graphUri
         }
     ];
 
-    if(typeof max_results !== "undefined" && typeof max_results === "number")
+    if (typeof maxResults !== "undefined" && typeof maxResults === "number")
     {
         query = query + "LIMIT [1]";
 
         queryArguments.push({
-            type : DbConnection.int,
-            value : max_results
-        })
+            type: Elements.types.int,
+            value: maxResults
+        });
     }
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         queryArguments,
-        function(err, results)
+        function (err, results)
         {
-            if (!err)
+            if (isNull(err))
             {
-                const fetchResearchDomain = function (result, callback) {
-                    ResearchDomain.findByUri(result.uri, function (err, domain) {
+                const fetchResearchDomain = function (result, callback)
+                {
+                    ResearchDomain.findByUri(result.uri, function (err, domain)
+                    {
                         return callback(err, domain);
                     });
                 };
 
-                async.map(results, fetchResearchDomain, function(err, researchDomains){
+                async.mapSeries(results, fetchResearchDomain, function (err, researchDomains)
+                {
                     return callback(err, researchDomains);
                 });
             }
@@ -119,8 +111,6 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         });
 };
 
-ResearchDomain.prefixedRDFType = "ddr:ResearchDomain";
-
-ResearchDomain = Class.extend(ResearchDomain, Resource);
+ResearchDomain = Class.extend(ResearchDomain, Resource, "ddr:ResearchDomain");
 
 module.exports.ResearchDomain = ResearchDomain;

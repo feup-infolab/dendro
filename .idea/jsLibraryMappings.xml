@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <includedPredefinedLibrary name="Node.js Core" />
+    <excludedPredefinedLibrary name="dendro/src/export_libs/b2share/node_modules" />
+    <excludedPredefinedLibrary name="dendro/src/export_libs/zenodo/node_modules" />
   </component>
 </project>

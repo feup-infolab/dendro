@@ -28,7 +28,18 @@
 
 <div class="row">
     <div class="controls col-lg-12">
-        <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{descriptor.value}}&zoom=13&size=500x200&sensor=false">
+        <div ng-switch="getTypeOfOfData(descriptor.value)">
+            <div ng-switch-when='object'>
+                <div ng-repeat="descriptorValue in descriptor.value track by $index">
+                    <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{descriptorValue}}&zoom=13&size=500x200&sensor=false">
+                </div>
+            </div>
+
+            <div ng-switch-default>
+                <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{descriptor.value}}&zoom=13&size=500x200&sensor=false">
+            </div>
+        </div>
+        <!--<img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{descriptor.value}}&zoom=13&size=500x200&sensor=false">-->
     </div>
 </div>
 
@@ -38,7 +49,17 @@
     <div class="controls col-xs-12">
         <div class="input-group col-lg-11">
             <div  class="control-value-read-only">
-                {{descriptor.value}}
+                <div ng-switch="getTypeOfOfData(descriptor.value)">
+                    <div ng-switch-when='object'>
+                        <div ng-repeat="descriptorValue in descriptor.value track by $index">
+                            {{descriptorValue}}
+                        </div>
+                    </div>
+
+                    <div ng-switch-default>
+                        {{descriptor.value}}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

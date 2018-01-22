@@ -1,0 +1,106 @@
+<div>
+    <div class="media">
+        <div class="media-left">
+            <div class="text-center">
+                <img class="img-circle show-avatar-in-create-post" ng-src='{{loggedUser.uri}}?avatar'>
+                <p>{{loggedUser.ddr.username}}</p>
+            </div>
+        </div>
+
+
+        <script type="text/javascript">
+
+            function validate_form ()
+            {
+                $('#new_manual_post_form').parsley().validate("validationGroup");
+                if ($('#new_manual_post_form').parsley().isValid()) {
+                    //console.log('valid')
+                    $('#submit_new_post_button').prop("disabled", false );
+                } else {
+                    //console.log('not valid');
+                    $('#submit_new_post_button').prop( "disabled", true );
+                }
+            }
+
+            $( document ).ready(function() {
+                $(function () {
+                    Parsley
+                        .addValidator('validateProjectSelector',{
+                            requirementType: "string",
+                            validateString: function (value, invalidCase) {
+                                let chooseProjectOption = $("#choosingProjectID").get(0);
+                                return chooseProjectOption.options[chooseProjectOption.options.selectedIndex].label !== invalidCase;
+                            },
+                            messages: {
+                                en: 'Choose a valid project',
+                                pt: 'Escolha um projeto válido'
+                            }
+                        }
+                    );
+
+                    $("#choosingProjectID").click(function () {
+                        $('#new_manual_post_form').parsley().validate();
+                        if ($('#new_manual_post_form').parsley().isValid()) {
+                            console.log('valid');
+                            $('#submit_new_post_button').prop("disabled", false);
+                        } else {
+                            console.log('not valid');
+                            $('#choosingProjectID').focus();
+                            $('#submit_new_post_button').prop("disabled", true);
+                        }
+                    });
+
+                    $("#newPostTitleID").on('input', function () {
+                        $('#new_manual_post_form').parsley().validate();
+                        if ($('#new_manual_post_form').parsley().isValid()) {
+                            console.log('valid');
+                            $('#submit_new_post_button').prop("disabled", false);
+                        } else {
+                            console.log('not valid');
+                            $('#submit_new_post_button').prop("disabled", true);
+                            $('#newPostTitleID').focus();
+                        }
+                    });
+
+                    $("#newPostContentID").on('input', function () {
+                        $('#new_manual_post_form').parsley().validate();
+                        if ($('#new_manual_post_form').parsley().isValid()) {
+                            console.log('valid');
+                            $('#submit_new_post_button').prop("disabled", false);
+                        } else {
+                            console.log('not valid');
+                            $('#submit_new_post_button').prop("disabled", true);
+                            $('#newPostContentID').focus();
+                        }
+                    });
+
+                    $('#submit_new_post_button').on('click', function() {
+                        $('#new_manual_post_form').parsley().reset();
+                        $('#submit_new_post_button').prop( "disabled", true );
+                    });
+                });
+            });
+        </script>
+
+        <div class="media-body">
+            <form id="new_manual_post_form">
+                <div>
+                    <div ng-show="showCreatePostContent">
+                        <select ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" class="form-control" id="choosingProjectID" ng-init="projectChosen"
+                                ng-model="$parent.projectChosen" ng-options="userProject.name for userProject in userProjects" data-parsley-group="validationGroup" data-parsley-validate-project-selector="Select the Project">
+                        </select>
+                        <input ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" type="text" class="form-control" aria-label="postTitle" id="newPostTitleID" ng-model="$parent.newPostTitle" placeholder="The title of your post" data-parsley-required="true" data-parsley-group="validationGroup">
+                    </div>
+
+                    <textarea ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" id="newPostContentID" ng-model="$parent.newPostContent" placeholder="What are you thinking ?" data-parsley-required="true" data-parsley-group="validationGroup"></textarea>
+
+                    <div ng-show="showCreatePostContent">
+                        <button id="submit_new_post_button" type="button" class="btn btn-primary" ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" ng-click="createNewManualPost();" disabled>Create</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</div>

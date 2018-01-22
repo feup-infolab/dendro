@@ -1,127 +1,49 @@
-//complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
+// complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const async = require("async");
+const _ = require("underscore");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+const db = Config.getDBByID();
 
 function InformationElement (object)
 {
-    InformationElement.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "information_element", InformationElement);
+    InformationElement.baseConstructor.call(this, object);
 
-    if(isNull(self.uri))
+    if (!isNull(object.nie))
     {
-        self.uri = object.nie.isLogicalPartOf + "/" + object.nie.title;
-    }
-
-    if(!isNull(object.nie))
-    {
-        if(!isNull(object.nie.isLogicalPartOf))
+        if (!isNull(object.nie.isLogicalPartOf))
         {
             self.nie.isLogicalPartOf = object.nie.isLogicalPartOf;
         }
 
-        if(!isNull(object.nie.title))
+        if (!isNull(object.nie.title))
         {
             self.nie.title = object.nie.title;
         }
-    }
 
-    self.rdf.type = "nie:InformationElement";
+        if (isNull(self.ddr.humanReadableURI))
+        {
+            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
+        }
+    }
 
     return self;
 }
 
-InformationElement.getType = function(resourceURI, callback)
-{
-    const self = this;
-
-    const query =
-        "SELECT * " +
-        "FROM [0] " +
-        "WHERE " +
-        "{ " +
-        " [1] rdf:type ?type . " +
-        "} ";
-
-    db.connection.execute(query,
-        [
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db.graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value: resourceURI
-            }
-        ],
-
-        function(err, types) {
-            if(isNull(err))
-            {
-                if(types instanceof Array)
-                {
-                    const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                    const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-
-                    if(types.length === 0)
-                    {
-                        return callback(1,"Unable to retrieve Information Element's type, error 1");
-                    }
-                    else
-                    {
-                        //an information element can be a folder and a project simultaneously...?
-                        //TODO not consistent, fix later
-
-                        let hasCalledBack = false;
-
-                        for(let i = 0; i < types.length; i++)
-                        {
-                            const type = types[i].type;
-
-                            if(type === Folder.rdfType)
-                            {
-                                return callback(null, Folder);
-                                return;
-                            }
-                            else if(type === File.rdfType)
-                            {
-                                return callback(null, File);
-                                return;
-                            }
-                        }
-
-                        if(!hasCalledBack)
-                        {
-                            return callback(1,"Unable to retrieve Information Element's type, error 2");
-                        }
-                    }
-                }
-                else
-                {
-                    return callback(1,"Unable to retrieve Information Element's type");
-                }
-            }
-            else
-            {
-                return callback(err, types);
-            }
-        });
-};
-
-InformationElement.prototype.getParent = function(callback)
+InformationElement.prototype.getParent = function (callback)
 {
     const self = this;
 
@@ -141,124 +63,112 @@ InformationElement.prototype.getParent = function(callback)
         " } \n" +
         "} ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],
-        function(err, results) {
-            if(!err)
+        function (err, results)
+        {
+            if (isNull(err))
             {
-                if(results instanceof Array)
+                if (results instanceof Array)
                 {
-                    if(results.length === 1)
+                    if (results.length === 1)
                     {
                         const result = results[0];
-                        if(!isNull(results[0].parent_folder))
+                        if (!isNull(results[0].parent_folder))
                         {
                             result.uri = result.parent_folder;
-                            const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                            const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                             let parent = new Folder(result);
-                            return callback(null,parent);
+                            return callback(null, parent);
                         }
-                        else if(!isNull(result[0].parent_project))
+                        else if (!isNull(result[0].parent_project))
                         {
                             result.uri = result.parent_project;
-                            const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+                            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
                             let parent = new Project(result);
-                            return callback(null,parent);
+                            return callback(null, parent);
                         }
-                        else
-                        {
-                            return callback(1,"There was an error calculating the parent of resource " + self.uri);
-                        }
+
+                        return callback(1, "There was an error calculating the parent of resource " + self.uri);
                     }
-                    else if(results.length === 0)
+                    else if (results.length === 0)
                     {
-                        return callback(0, "There is no parent of " + self.uri);
+                        return callback(null, "There is no parent of " + self.uri);
                     }
-                    else
-                    {
-                        return callback(1, "ERROR : There is more than one parent to " + self.uri + " !");
-                    }
+
+                    return callback(1, "ERROR : There is more than one parent to " + self.uri + " !");
                 }
-                else
-                {
-                    return callback(1, "Invalid result set or no parent found when querying for the parent of" + self.uri);
-                }
+
+                return callback(1, "Invalid result set or no parent found when querying for the parent of" + self.uri);
             }
-            else
-            {
-                return callback(1, "Error reported when querying for the parent of" + self.uri + " . Error was ->" + result);
-            }
+
+            return callback(1, "Error reported when querying for the parent of" + self.uri + " . Error was ->" + results);
         }
     );
 };
 
-InformationElement.prototype.getOwnerProjectFromUri = function()
-{
-    const self = this;
-
-    const leadingPart = self.uri.match(new RegExp("http://[\/]*.*/project\/"));
-    let ownerProject = self.uri.replace(leadingPart, "");
-    if(!isNull(ownerProject) && !isNull(leadingPart))
-    {
-        ownerProject = ownerProject.replace(new RegExp("\/.*"), "");
-        ownerProject = leadingPart + ownerProject;
-    }
-
-    return ownerProject;
-};
-
-
-InformationElement.prototype.getOwnerProject = function(callback)
+InformationElement.prototype.getAllParentsUntilProject = function (callback)
 {
     const self = this;
 
     /**
-* Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
-* (Recursive querying through inference).
-* @type {string}
-*/
+     *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+     *    (Recursive querying through inference).
+     *   @type {string}
+     */
     const query =
         "SELECT ?uri \n" +
         "FROM [0] \n" +
         "WHERE \n" +
-        "{ " +
-        "[1] nie:isLogicalPartOf+ ?uri. " +
-        "?uri rdf:type ddr:Project. " +
-        "} ";
+        "{ \n" +
+        "   [1] nie:isLogicalPartOf+ ?uri. \n" +
+        "   ?uri rdf:type ddr:Resource. \n" +
+        "   ?uri rdf:type nfo:Folder \n" +
+        "   FILTER NOT EXISTS \n" +
+        "   { \n" +
+        "       ?project ddr:rootFolder ?uri\n" +
+        "   }\n" +
+        "}\n ";
 
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
             }
         ],
-        function(err, result) {
-            if(!err)
+        function (err, result)
+        {
+            if (isNull(err))
             {
-                if(result instanceof Array && result.length === 1)
+                if (result instanceof Array)
                 {
-                    var result = result[0];
-                    const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-                    const parent = new Project(result);
-                    return callback(null,parent);
+                    const async = require("async");
+                    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                    async.mapSeries(result, function (result, callback)
+                    {
+                        Folder.findByUri(result.uri, function (err, parentFolder)
+                        {
+                            return callback(err, parentFolder);
+                        });
+                    }, callback);
                 }
                 else
                 {
-                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent PROJECT of" + self.uri);
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
                 }
             }
             else
@@ -269,72 +179,372 @@ InformationElement.prototype.getOwnerProject = function(callback)
     );
 };
 
-InformationElement.prototype.rename = function(newTitle, callback)
+InformationElement.prototype.getOwnerProject = function (callback)
 {
     const self = this;
 
-    //an update is made through a delete followed by an insert
-    // http://www.w3.org/TR/2013/REC-sparql11-update-20130321/#insertData
-
-    //TODO CACHE DONE
+    /**
+    *   Note the sign (*) on the nie:isLogicalPartOf* of the query below.
+    *    (Recursive querying through inference).
+    *   @type {string}
+    */
     const query =
-        "DELETE DATA " +
-        "{ " +
-        "GRAPH [0] " +
-        "{ " +
-        "[1] nie:title ?title . " +
-        "} " +
-        "}; " +
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:isLogicalPartOf+ ?uri \n" +
+        "   FILTER EXISTS { \n" +
+        "       ?uri rdf:type ddr:Project \n" +
+        "   }\n" +
+        "} ";
 
-        "INSERT DATA " +
-        "{ " +
-        "GRAPH [0] " +
-        "{ " +
-        "[1] nie:title [2] " +
-        "} " +
-        "}; ";
-
-    db.connection.execute(query,
+    db.connection.executeViaJDBC(query,
         [
             {
-                type: DbConnection.resourceNoEscape,
+                type: Elements.types.resourceNoEscape,
                 value: db.graphUri
             },
             {
-                type: DbConnection.resource,
+                type: Elements.types.resource,
                 value: self.uri
-            },
-            {
-                type: DbConnection.string,
-                value: newTitle
             }
         ],
-        function(err, result) {
-            redis.connection.delete(self.uri, function(err, result){
-                return callback(err, result);
-            });
+        function (err, result)
+        {
+            if (isNull(err))
+            {
+                if (result instanceof Array && result.length === 1)
+                {
+                    const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                    Project.findByUri(result[0].uri, function (err, project)
+                    {
+                        callback(err, project);
+                    });
+                }
+                else
+                {
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
+                }
+            }
+            else
+            {
+                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
+            }
         }
     );
 };
 
-InformationElement.prototype.unlinkFromParent = function(callback)
+InformationElement.prototype.needsRenaming = function (callback, newTitle, parentUri)
 {
     const self = this;
-    self.getParent(function(err, parent){
-        if(!err)
+    const getParent = function (callback)
+    {
+        if (isNull(parentUri))
         {
-            if(parent instanceof Object && !isNull(parent.nie))
+            parentUri = self.nie.isLogicalPartOf;
+        }
+        const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+
+        Folder.findByUri(parentUri, function (err, parentFolder)
+        {
+            if (isNull(err))
+            {
+                if (parentFolder instanceof Folder)
+                {
+                    callback(err, parentFolder);
+                }
+                else
+                {
+                    Project.findByUri(parentUri, function (err, parentProject)
+                    {
+                        if (isNull(err))
+                        {
+                            if (parentProject instanceof Project)
+                            {
+                                callback(err, parentProject);
+                            }
+                            else
+                            {
+                                callback(true, "Error: Parent (with uri: " + parentUri + ") of :" + self.uri + " is neither a folder nor project");
+                            }
+                        }
+                        else
+                        {
+                            callback(err, parentProject);
+                        }
+                    });
+                }
+            }
+            else
+            {
+                callback(err, parentFolder);
+            }
+        });
+    };
+
+    const getChildrenOfParent = function (parent, callback)
+    {
+        parent.getLogicalParts(callback);
+    };
+
+    const renameIfChildExistsWithSameName = function (children, callback)
+    {
+        let shouldRename = false;
+        if (isNull(newTitle))
+        {
+            newTitle = self.nie.title;
+        }
+
+        const childrenWithTheSameName = _.find(children, function (child)
+        {
+            // return child.nie.title === self.nie.title && child.uri !== self.uri && child.ddr.deleted !== true;
+            return child.nie.title === newTitle && child.uri !== self.uri && child.ddr.deleted !== true;
+        });
+
+        if (
+            !isNull(childrenWithTheSameName) && Array.isArray(childrenWithTheSameName) && childrenWithTheSameName.length > 0 ||
+            !isNull(childrenWithTheSameName) && childrenWithTheSameName instanceof Object
+        )
+        {
+            shouldRename = true;
+        }
+
+        callback(null, shouldRename);
+    };
+
+    async.waterfall([
+        getParent,
+        getChildrenOfParent,
+        renameIfChildExistsWithSameName
+    ], callback);
+};
+
+InformationElement.prototype.rename = function (newTitle, callback)
+{
+    const self = this;
+    const query =
+        "DELETE DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       [1] nie:title ?title . " +
+        "   } \n" +
+        "}; \n" +
+
+        "INSERT DATA \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { " +
+        "       [1] nie:title [2] \n" +
+        "   } \n" +
+        "}; \n";
+
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.resource,
+                value: self.uri
+            },
+            {
+                type: Elements.ontologies.nie.title.type,
+                value: newTitle
+            }
+        ],
+        function (err, result)
+        {
+            Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+            {
+                return callback(err, result);
+            });
+        }, null, null, null, true
+    );
+};
+
+InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
+{
+    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+    const self = this;
+
+    const oldParent = self.nie.isLogicalPartOf;
+    const newParent = newParentFolder.uri;
+
+    const autoRenameIfNeeded = function (callback)
+    {
+        self.needsRenaming(function (err, needsRename)
+        {
+            if (isNull(err))
+            {
+                if (needsRename === true)
+                {
+                    File.findByUri(self.uri, function (err, file)
+                    {
+                        if (isNull(err))
+                        {
+                            if (!isNull(file))
+                            {
+                                file.autorename();
+                                file.save(function (err, result)
+                                {
+                                    callback(err, result);
+                                });
+                            }
+                            else
+                            {
+                                Folder.findByUri(self.uri, function (err, folder)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        if (!isNull(folder))
+                                        {
+                                            folder.autorename();
+                                            folder.save(function (err, result)
+                                            {
+                                                callback(err, result);
+                                            });
+                                        }
+                                        else
+                                        {
+                                            let errorMessage = "Error: The InformationElement: " + self.uri + " is neither a folder nor a file";
+                                            Logger.log("error", errorMessage);
+                                            return callback(true, errorMessage);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        return callback(err, folder);
+                                    }
+                                });
+                            }
+                        }
+                        else
+                        {
+                            return callback(err, file);
+                        }
+                    });
+                }
+                else
+                {
+                    return callback(err, needsRename);
+                }
+            }
+            else
+            {
+                return callback(err, needsRename);
+            }
+        }, null, newParent);
+    };
+
+    async.waterfall([
+        autoRenameIfNeeded,
+        function (neededRenaming, callback)
+        {
+            // "WITH GRAPH [0] \n" +
+            // "DELETE \n" +
+            // "{ \n" +
+            // deleteString + " \n" +
+            // "} \n" +
+            // "WHERE \n" +
+            // "{ \n" +
+            // deleteString + " \n" +
+            // "} \n" +
+            // "INSERT DATA\n" +
+            // "{ \n" +
+            // insertString + " \n" +
+            // "} \n";
+
+            const query =
+                "WITH GRAPH [0] \n" +
+                "DELETE \n" +
+                "{ \n" +
+                "   [1] nie:hasLogicalPart [2]. \n" +
+                "   [2] nie:isLogicalPartOf [1] \n" +
+                "} \n" +
+                "INSERT \n" +
+                "{ \n" +
+                "   [3] nie:hasLogicalPart [2]. \n" +
+                "   [2] nie:isLogicalPartOf [3] \n" +
+                "} \n";
+
+            db.connection.executeViaJDBC(query,
+                [
+                    {
+                        type: Elements.types.resourceNoEscape,
+                        value: db.graphUri
+                    },
+                    {
+                        type: Elements.ontologies.nie.hasLogicalPart.type,
+                        value: oldParent
+                    },
+                    {
+                        type: Elements.ontologies.nie.hasLogicalPart.type,
+                        value: self.uri
+                    },
+                    {
+                        type: Elements.ontologies.nie.hasLogicalPart.type,
+                        value: newParent
+                    }
+                ],
+                function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        // invalidate caches on parent, old parent and child...
+                        async.series([
+                            function (callback)
+                            {
+                                Cache.getByGraphUri(db.graphUri).delete(self.uri, callback);
+                            },
+                            function (callback)
+                            {
+                                Cache.getByGraphUri(db.graphUri).delete(newParent, callback);
+                            },
+                            function (callback)
+                            {
+                                Cache.getByGraphUri(db.graphUri).delete(oldParent, callback);
+                            }
+                        ], function (err)
+                        {
+                            return callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        return callback(err, result);
+                    }
+                }, null, null, null, true);
+        }
+    ], function (err, results)
+    {
+        callback(err, results);
+    });
+};
+
+InformationElement.prototype.unlinkFromParent = function (callback)
+{
+    const self = this;
+    self.getParent(function (err, parent)
+    {
+        if (isNull(err))
+        {
+            if (parent instanceof Object && !isNull(parent.nie))
             {
                 let parentParts = parent.nie.hasLogicalPart;
 
-                //remove myself from parent.
-                if(parentParts instanceof Array)
+                // remove myself from parent.
+                if (parentParts instanceof Array)
                 {
                     parentParts = _.without(parentParts, [self.uri]);
                 }
                 else
                 {
-                    if(parentParts === self.uri)
+                    if (parentParts === self.uri)
                     {
                         parentParts = null;
                     }
@@ -342,37 +552,95 @@ InformationElement.prototype.unlinkFromParent = function(callback)
 
                 parent.nie.hasLogicalPart = parentParts;
 
-                //Save modified parts, now with myself removed from them.
-                parent.save(function(err, result){
+                // Save modified parts, now with myself removed from them.
+                parent.save(function (err, result)
+                {
                     return callback(err, result);
                 });
             }
             else
             {
-                return callback(0, self.uri +" already has no parent.");
+                return callback(null, self.uri + " already has no parent.");
             }
         }
         else
         {
-            return callback(1, "Unable to retrieve the parent of "+ self.uri +" for unlinking it. Error reported by database : " + parent);
+            return callback(1, "Unable to retrieve the parent of " + self.uri + " for unlinking it. Error reported by database : " + parent);
         }
     });
 };
 
-InformationElement.prototype.isHiddenOrSystem = function()
+InformationElement.prototype.reindex = function (callback, customGraphUri)
 {
     const self = this;
 
-    if(isNull(self.nie) || isNull(self.nie.title))
+    self.canBeIndexed(function (err, canBeIndexed)
+    {
+        if (isNull(err))
+        {
+            if (canBeIndexed)
+            {
+                InformationElement.baseConstructor.prototype.reindex.call(self, callback, customGraphUri);
+            }
+            else
+            {
+                InformationElement.baseConstructor.prototype.unindex.call(self, callback, customGraphUri);
+            }
+        }
+        else
+        {
+            callback(err, canBeIndexed);
+        }
+    });
+};
+
+InformationElement.prototype.canBeIndexed = function (callback)
+{
+    const self = this;
+
+    self.getOwnerProject(function (err, project)
+    {
+        if (isNull(err))
+        {
+            switch (project.ddr.privacyStatus)
+            {
+            case "public":
+                callback(null, true);
+                break;
+            case "private":
+                callback(null, false);
+                break;
+            case "metadata_only":
+                callback(null, true);
+                break;
+            default:
+                callback(null, false);
+                break;
+            }
+        }
+        else
+        {
+            const msg = "Error while checking privacy of project that owns resource " + self.uri;
+            Logger.log("error", msg);
+            callback(1, msg);
+        }
+    });
+};
+
+InformationElement.prototype.isHiddenOrSystem = function ()
+{
+    const self = this;
+
+    if (isNull(self.nie) || isNull(self.nie.title))
     {
         return false;
     }
 
-    for(let i = 0; i < Config.systemOrHiddenFilesRegexes.length; i++)
+    for (let i = 0; i < Config.systemOrHiddenFilesRegexes.length; i++)
     {
         const regex = new RegExp(Config.systemOrHiddenFilesRegexes[i]);
 
-        if(self.nie.title.match(regex))
+        if (self.nie.title.match(regex))
         {
             return true;
         }
@@ -381,20 +649,21 @@ InformationElement.prototype.isHiddenOrSystem = function()
     return false;
 };
 
-InformationElement.removeInvalidFileNames = function(fileNamesArray)
+InformationElement.removeInvalidFileNames = function (fileNamesArray)
 {
-    const _ = require('underscore');
+    const _ = require("underscore");
 
     const validFiles = [];
 
-    _.each(fileNamesArray, function(fileName){
+    _.each(fileNamesArray, function (fileName)
+    {
         const ie = new InformationElement({
             nie: {
                 title: fileName
             }
         });
 
-        if(!ie.isHiddenOrSystem())
+        if (!ie.isHiddenOrSystem())
         {
             validFiles.push(fileName);
         }
@@ -403,144 +672,227 @@ InformationElement.removeInvalidFileNames = function(fileNamesArray)
     return validFiles;
 };
 
-
-InformationElement.findByParentAndName = function(parentURI, name, callback)
+InformationElement.isSafePath = function (absPath, callback)
 {
-    const self = this;
-
-    const ie = Object.create(self.prototype).constructor({
-        nie: {
-            isLogicalPartOf: parentURI,
-            title: name
+    let fs = require("fs");
+    fs.realpath(absPath, function (err, realPath)
+    {
+        function b_in_a (b, a)
+        {
+            return (b.indexOf(a) === 0);
         }
-    });
 
-    self.findByUri(ie.uri, callback);
+        const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];
+
+        for (let i = 0; i < validDirs.length; i++)
+        {
+            if (b_in_a(realPath, validDirs[i]))
+            {
+                return callback(null, true);
+            }
+        }
+
+        Logger.log("error", "Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
+        return callback(null, false);
+    });
 };
 
-InformationElement.prototype.findMetadata = function(callback){
-    const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-    const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder")).Folder;
+InformationElement.prototype.findMetadata = function (callback, typeConfigsToRetain, recursive)
+{
+    const async = require("async");
 
     const self = this;
-    InformationElement.findByUri(self.uri, function(err, resource){
-        if(!err){
-            if(!isNull(resource))
+    InformationElement.findByUri(self.uri, function (err, resource)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(resource))
             {
-                resource.getPropertiesFromOntologies(
-                    Ontology.getPublicOntologiesUris(),
-                    function(err, descriptors)
+                const metadataResult = {
+                    title: resource.nie.title,
+                    descriptors: resource.getDescriptors([Elements.access_types.private], [Elements.access_types.api_readable], typeConfigsToRetain),
+                    file_extension: resource.ddr.fileExtension,
+                    hasLogicalParts: []
+                };
+
+                if (!isNull(resource.ddr) && !isNull(resource.ddr.metadataQuality))
+                {
+                    metadataResult.metadata_quality = resource.ddr.metadataQuality;
+                }
+                else
+                {
+                    metadataResult.metadata_quality = 0;
+                }
+
+                if (isNull(err))
+                {
+                    resource.getLogicalParts(function (err, children)
                     {
-                        if(!err)
+                        if (isNull(err))
                         {
-                            //remove locked descriptors
-                            for(let i = 0 ; i < descriptors.length ; i++)
+                            const _ = require("underscore");
+                            children = _.reject(children, function (child)
                             {
-                                if(descriptors[i].locked)
-                                {
-                                    descriptors.splice(i, 1);
-                                    i--;
-                                }
-                            }
+                                return child.ddr.deleted;
+                            });
 
-                            Folder.findByUri(resource.uri, function(err, folder) {
-                                const metadataResult = {
-                                    title: resource.nie.title,
-                                    descriptors: descriptors,
-                                    file_extension: resource.ddr.fileExtension,
-                                    hasLogicalParts: []
-                                };
-
-                                if(!isNull(folder.ddr) && !isNull(folder.ddr.metadataQuality))
+                            if (children.length > 0)
+                            {
+                                if (recursive)
                                 {
-                                    metadataResult.metadata_quality = folder.ddr.metadataQuality;
+                                    // 1st parameter in async.each() is the array of items
+                                    async.each(children,
+                                        // 2nd parameter is the function that each item is passed into
+                                        function (child, callback)
+                                        {
+                                            // Call an asynchronous function
+                                            child.findMetadataRecursive(function (err, result2)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    metadataResult.hasLogicalParts.push(result2);
+                                                    return callback(null);
+                                                }
+                                                Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                                return callback(err);
+                                            }, typeConfigsToRetain);
+                                        },
+                                        // 3rd parameter is the function call when everything is done
+                                        function (err)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                // All tasks are done now
+                                                return callback(null, metadataResult);
+                                            }
+                                            return callback(true, null);
+                                        }
+                                    );
                                 }
                                 else
                                 {
-                                    metadataResult.metadata_quality = 0;
-                                }
-
-                                if(!err){
-
-                                    folder.getLogicalParts(function (err, children) {
-                                        if (!err) {
-                                            const _ = require('underscore');
-                                            children = _.reject(children, function (child) {
-                                                return child.ddr.deleted;
+                                    // 1st parameter in async.each() is the array of items
+                                    async.each(children,
+                                        // 2nd parameter is the function that each item is passed into
+                                        function (child, callback)
+                                        {
+                                            // Call an asynchronous function
+                                            metadataResult.hasLogicalParts.push({
+                                                title: child.nie.title
                                             });
-
-                                            if (children.length > 0) {
-
-                                                const async = require("async");
-
-                                                // 1st parameter in async.each() is the array of items
-                                                async.each(children,
-                                                    // 2nd parameter is the function that each item is passed into
-                                                    function(child, callback){
-                                                        // Call an asynchronous function
-                                                        metadataResult.hasLogicalParts.push({
-                                                            'title':child.nie.title
-                                                        });
-                                                        return callback(null);
-                                                    },
-                                                    // 3rd parameter is the function call when everything is done
-                                                    function(err){
-                                                        if(!err) {
-                                                            // All tasks are done now
-                                                            return callback(false, metadataResult);
-                                                        }
-                                                        else{
-                                                            return callback(true, null);
-                                                        }
-                                                    }
-                                                );
+                                            return callback(null);
+                                        },
+                                        // 3rd parameter is the function call when everything is done
+                                        function (err)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                // All tasks are done now
+                                                return callback(null, metadataResult);
                                             }
-                                            else {
-                                                return callback(false, metadataResult);
-                                            }
-                                        }
-                                        else {
-                                            console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
+
                                             return callback(true, null);
                                         }
-                                    });
+                                    );
                                 }
-                                else {
-                                    console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                                    return callback(false, metadataResult);
-                                }
-
-                            });
+                            }
+                            else
+                            {
+                                return callback(null, metadataResult);
+                            }
                         }
                         else
                         {
-
-                            console.error("[findMetadataRecursive] error accessing properties from ontologies in " + self.uri);
-
-                            return callback(true, [descriptors]);
+                            Logger.log("info", "[Information Element find metadata] error accessing logical parts of folder " + resource.nie.title);
+                            return callback(true, null);
                         }
                     });
+                }
+                else
+                {
+                    Logger.log("info", "[Information Element find metadata] " + resource.nie.title + " is not a folder.");
+                    return callback(null, metadataResult);
+                }
             }
             else
             {
-                var msg = self.uri + " does not exist in Dendro.";
-                console.error(msg);
+                const msg = self.uri + " does not exist in Dendro.";
+                Logger.log("error", msg);
 
                 return callback(true, msg);
             }
         }
         else
         {
-            var msg = "Error fetching " + self.uri + " from the Dendro platform.";
-            console.error(msg);
+            const msg = "Error fetching " + self.uri + " from the Dendro platform.";
+            Logger.log("error", msg);
 
             return callback(true, msg);
         }
-    });
+    }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_readable]);
 };
 
-InformationElement.rdfType = "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#FileDataObject";
+InformationElement.prototype.containedIn = function (parentResource, callback, customGraphUri)
+{
+    const self = this;
 
-InformationElement = Class.extend(InformationElement, Resource);
+    if (parentResource.uri === self.uri)
+    {
+        callback(null, true);
+    }
+    else
+    {
+        const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+        db.connection.executeViaJDBC(
+            "WITH [0]\n" +
+            "ASK \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   {\n" +
+            "       [2] nie:isLogicalPartOf+ [1]. \n" +
+            "       [1] nie:hasLogicalPart+ [2]. \n" +
+            "   }\n" +
+            "} \n",
+
+            [
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: graphUri
+                },
+                {
+                    type: Elements.ontologies.nie.isLogicalPartOf.type,
+                    value: parentResource.uri
+                },
+                {
+                    type: Elements.ontologies.nie.hasLogicalPart.type,
+                    value: self.uri
+                }
+            ],
+            function (err, result)
+            {
+                if (isNull(err))
+                {
+                    if (result instanceof Array)
+                    {
+                        if (result.length === 0)
+                        {
+                            return callback(null, false);
+                        }
+
+                        return callback(null, true);
+                    }
+
+                    return callback(null, result);
+                }
+
+                const msg = "Error checking if resource " + self.uri + " is contained in " + anotherResourceUri;
+                Logger.log("error", msg);
+                return callback(err, msg);
+            });
+    }
+};
+
+InformationElement = Class.extend(InformationElement, Resource, "nie:InformationElement");
 
 module.exports.InformationElement = InformationElement;

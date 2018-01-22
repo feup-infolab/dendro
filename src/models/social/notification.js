@@ -1,52 +1,35 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const uuid = require('uuid');
-
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const db_social = function () {
-    return GLOBAL.db.social;
-}();
-
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const uuid = require("uuid");
 
 function Notification (object)
 {
-    Notification.baseConstructor.call(this, object);
     const self = this;
+    self.addURIAndRDFType(object, "notification", Notification);
+    Notification.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
-    self.rdf.type = "ddr:Notification";
+    const newId = uuid.v4();
 
-    if(!isNull(object.uri))
+    if (isNull(self.ddr.humanReadableURI))
     {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/notifications/" + uuid.v4();
+        self.ddr.humanReadableURI = Config.baseUri + "/notifications/" + newId;
     }
 
     return self;
 }
 
-//postURI/fileVersionUri
-//postUriAuthor/fileVersionUriAuthor
-//userWhoActed
-//actionType -> Like, Comment, Share
+// postURI/fileVersionUri
+// postUriAuthor/fileVersionUriAuthor
+// userWhoActed
+// actionType -> Like, Comment, Share
 
-Notification = Class.extend(Notification, Resource);
+Notification = Class.extend(Notification, Resource, "ddr:Notification");
 
 module.exports.Notification = Notification;

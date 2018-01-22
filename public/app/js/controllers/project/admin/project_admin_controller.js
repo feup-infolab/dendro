@@ -1,8 +1,8 @@
-angular.module('dendroApp.controllers')
+angular.module("dendroApp.controllers")
 /**
  *  Project administration controller
  */
-    .controller('projectAdminCtrl', function (
+    .controller("projectAdminCtrl", function (
         $scope,
         $http,
         $filter,
@@ -23,33 +23,70 @@ angular.module('dendroApp.controllers')
         $scope.active_tab = null;
         $scope.contributors = [];
 
-        $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
-
-        $scope.get_project = function()
+        $scope.get_project = function ()
         {
-            var url = $scope.get_current_url()+"?metadata&deep=true";
+            var url = $scope.get_current_url();
 
             $http({
-                method: 'GET',
+                method: "GET",
                 url: url,
                 data: JSON.stringify({}),
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
-            }).then(function(response) {
-                //console.log(data);
-                $scope.project = response.data;
+                headers: {Accept: "application/json"}
+            }).then(function (response)
+            {
+                var descriptors = response.data.descriptors;
 
-                for(var i = 0; i < $scope.project.descriptors.length; i++)
-                {
-                    var descriptor = $scope.project.descriptors[i];
-                    if(descriptor.prefixedForm == "ddr:deleted" && descriptor.value == true)
-                    {
-                        project.deleted = true;
+                $scope.project = {
+                    dcterms: {
+                        creator: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:creator"),
+                        title: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:title"),
+                        description: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:description"),
+                        publisher: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:publisher"),
+                        language: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:language"),
+                        coverage: $scope.get_descriptor_by_prefixed_form(descriptors, "dcterms:coverage")
+                    },
+                    ddr: {
+                        handle: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:handle"),
+                        privacyStatus: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:privacyStatus"),
+                        hasStorageLimit: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:hasStorageLimit"),
+                        requiresVerifiedUploads: $scope.get_descriptor_by_prefixed_form(descriptors, "ddr:requiresVerifiedUploads")
+                    },
+                    schema: {
+                        provider: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:provider"),
+                        telephone: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:telephone"),
+                        address: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:address"),
+                        email: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:email"),
+                        license: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:license")
                     }
+                };
+
+                $scope.load_licenses()
+                    .then(function (licenses)
+                    {
+                        $scope.project.schema.license = _.find(licenses, function (license)
+                        {
+                            return license.title === $scope.project.schema.license;
+                        });
+                    });
+
+                $scope.load_languages()
+                    .then(function (languages)
+                    {
+                        $scope.project.dcterms.language = _.find(languages, function (language)
+                        {
+                            return language.alpha2 === $scope.project.dcterms.language;
+                        });
+                    });
+
+                if ($scope.get_descriptor_by_prefixed_form("ddr:deleted") === true)
+                {
+                    $scope.project.deleted = true;
                 }
             })
-                .catch(function(error){
-                    if(error.message != null && error.title != null)
+                .catch(function (error)
+                {
+                    if (error.message != null && error.title != null)
                     {
                         Utils.show_popup("error", error.title, error.message);
                     }
@@ -62,24 +99,31 @@ angular.module('dendroApp.controllers')
 
         $scope.delete_project = function ()
         {
-            //TODO ugly, convert this to the standard representation with the namespace (to enable if(project.ddr.deleted) ) later
+            // TODO ugly, convert this to the standard representation with the namespace (to enable if(project.ddr.deleted) ) later
 
-            if($scope.project != null && $scope.project.descriptors != null)
+            if ($scope.project != null && $scope.project.descriptors != null)
             {
-                if(project.deleted)
-                    var uri = $scope.get_current_url() + "/undelete";
+                var uri;
+                if ($scope.project.deleted)
+                {
+                    uri = $scope.get_current_url() + "?undelete";
+                }
                 else
-                    var uri = $scope.get_current_url() + "/delete";
+                {
+                    uri = $scope.get_current_url() + "?delete";
+                }
 
-                //console.log("deleting " + get_current_url() + " via url " + uri);
+                // console.log("deleting " + get_current_url() + " via url " + uri);
 
                 $http.post(uri)
-                    .then(function(response) {
+                    .then(function (response)
+                    {
                         var data = response.data;
                         Utils.show_popup("success", data.title, data.message);
                     })
-                    .catch(function(error){
-                        if(error.message != null && error.title != null)
+                    .catch(function (error)
+                    {
+                        if (error.message != null && error.title != null)
                         {
                             Utils.show_popup("error", error.title, error.message);
                         }
@@ -91,40 +135,48 @@ angular.module('dendroApp.controllers')
             }
         };
 
-        $scope.project_data_uri = function(node){
-            node.uri = $scope.get_current_url() + '/data';
+        $scope.project_data_uri = function (node)
+        {
+            node.uri = $scope.get_current_url() + "/data";
         };
 
-        $scope.init = function(contributors)
+        $scope.init = function (contributors)
         {
             $scope.get_contributors(contributors);
             $scope.active_tab = $localStorage.active_tab;
-            //return $location.url();
+
+            if (!$scope.active_tab)
+            {
+                $scope.clicked_information_tab();
+            }
+            $scope.get_project();
         };
 
-        $scope.get_users_by_text_search = function(typed) {
+        $scope.get_users_by_text_search = function (typed)
+        {
             var current_url = $scope.get_calling_uri();
             return usersService.get_users_by_text_search(current_url, typed);
         };
 
-        $scope.select_user_from_autocomplete = function(suggestion, model, label)
+        $scope.select_user_from_autocomplete = function (suggestion, model, label)
         {
-            if(suggestion != null){
+            if (suggestion != null)
+            {
                 $scope.contributors[this.$index].info = suggestion;
             }
         };
 
-        $scope.get_calling_uri = function(queryParametersString, uri)
+        $scope.get_calling_uri = function (queryParametersString, uri)
         {
-            if(uri != null)
+            if (uri != null)
             {
                 uri = uri + queryParametersString;
             }
             else
             {
-                if(queryParametersString != null)
+                if (queryParametersString != null)
                 {
-                    if($scope.shared.selected_file != null)
+                    if ($scope.shared.selected_file != null)
                     {
                         uri = $scope.shared.selected_file.uri + queryParametersString;
                     }
@@ -141,37 +193,46 @@ angular.module('dendroApp.controllers')
 
             return uri;
         };
-        
 
-        $scope.get_contributors = function(contributors){
-            if(contributors != "") {
+        $scope.get_contributors = function (contributors)
+        {
+            if (contributors != "")
+            {
                 var names = contributors.split(",");
                 projectsService.get_contributors(names)
-                    .then(function(response){
+                    .then(function (response)
+                    {
                         var users = response.contributors;
                         $scope.contributors = [];
-                        for (var i in users) {
-                            $scope.contributors.push({"info": users[i], "remove": false});
+                        for (var i in users)
+                        {
+                            $scope.contributors.push({info: users[i], remove: false});
                         }
                     });
-
             }
         };
 
-        $scope.add_new_contributor = function(){
-            $scope.contributors.push({"info":{ddr: {username: ""}}, "remove": false});
+        $scope.add_new_contributor = function ()
+        {
+            $scope.contributors.push({info: {ddr: {username: ""}}, remove: false});
+        };
 
-        }
-
-        $scope.update_contributors = function(){
+        $scope.update_contributors = function ()
+        {
             var contributors = [];
-            for (var i = 0; i < $scope.contributors.length; i++){
+            for (var i = 0; i < $scope.contributors.length; i++)
+            {
                 var person = $scope.contributors[i];
-                if(!person.remove){
-                    if(person.info.ddr.username != "") {
-                        if (person.info.uri){
+                if (!person.remove)
+                {
+                    if (person.info.ddr.username != "")
+                    {
+                        if (person.info.uri)
+                        {
                             contributors.push(person.info.uri);
-                        }else{
+                        }
+                        else
+                        {
                             contributors.push(person.info.ddr.username);
                         }
                     }
@@ -179,29 +240,71 @@ angular.module('dendroApp.controllers')
             }
 
             projectsService.update_contributors(contributors)
-                .then(function (result){
+                .then(function (result)
+                {
                     location.reload();
                     $scope.show_popup("success", "Success", "Project updated");
-                }).catch(function (error){
-                $scope.show_popup("error", "Error", error.message);
-            });
+                }).catch(function (error)
+                {
+                    $scope.show_popup("error", "Error", error.message);
+                });
         };
 
-        $scope.clicked_information_tab = function()
+        $scope.clicked_information_tab = function ()
         {
-            $scope.active_tab = 'information';
+            $scope.active_tab = "information";
             $localStorage.active_tab = $scope.active_tab;
         };
 
-        $scope.clicked_metadataquality_tab = function()
+        $scope.clicked_metadataquality_tab = function ()
         {
-            $scope.active_tab = 'metadataquality';
+            $scope.active_tab = "metadataquality";
             $localStorage.active_tab = $scope.active_tab;
         };
 
-        $scope.clicked_people_tab = function()
+        $scope.clicked_people_tab = function ()
         {
-            $scope.active_tab = 'people';
+            $scope.active_tab = "people";
             $localStorage.active_tab = $scope.active_tab;
+        };
+
+        $scope.clicked_settings_tab = function ()
+        {
+            $scope.active_tab = "settings";
+            $localStorage.active_tab = $scope.active_tab;
+        };
+
+        $scope.update_project_settings = function ()
+        {
+            projectsService.update_project_settings($scope.project)
+                .then(function (response)
+                {
+                    $scope.show_popup("success", "Project settings updated", response.message);
+                    $scope.get_project();
+                })
+                .catch(function (error)
+                {
+                    $scope.show_popup("error", "Error occurred", error.message);
+                });
+        };
+
+        $scope.update_project_metadata = function ()
+        {
+            if ($scope.project.schema.license && $scope.project.dcterms.language)
+            {
+                $scope.project.schema.license = $scope.project.schema.license.title;
+                $scope.project.dcterms.language = $scope.project.dcterms.language.alpha2;
+            }
+
+            projectsService.update_metadata($scope.project)
+                .then(function (response)
+                {
+                    $scope.show_popup("success", "Project Updated", response.message);
+                    $scope.get_project();
+                })
+                .catch(function (error)
+                {
+                    $scope.show_popup("error", "Error occurred", error.message);
+                });
         };
     });

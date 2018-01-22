@@ -1,197 +1,281 @@
-const Config = function () {
-    return GLOBAL.Config;
-}();
+const path = require("path");
+const _ = require("underscore");
+const async = require("async");
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const Notification = require('../models/notifications/notification.js').Notification;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
+const Notification = require("../models/notifications/notification.js").Notification;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const DbConnection = require("../kb/db.js").DbConnection;
-const _ = require('underscore');
 
-const async = require('async');
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const db_notifications = function () {
-    return GLOBAL.db.notifications;
-}();
+const db = Config.getDBByID();
 
-const app = require('../app');
+const db_notifications = Config.getDBByID("notifications");
 
-//Get user notifications for a specific user, ordered by date
-exports.get_unread_user_notifications = function (req ,res) {
+const app = require("../app");
 
-    const userUri = req.user.uri;
+// Get user notifications for a specific user, ordered by date
+exports.get_unread_user_notifications = function (req, res)
+{
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
-    if(userUri)
+    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
-        let query =
-            "WITH [0] \n" +
-            "SELECT ?uri \n" +
-            "WHERE {\n" +
-            "?uri rdf:type ddr:Notification. \n" +
-            "?uri ddr:resourceAuthorUri [1]. \n" +
-            "?uri dcterms:modified ?date. \n" +
-            "?uri foaf:status \"unread\". \n" +
-            "} \n" +
-            "ORDER BY DESC(?date)";
+        const userUri = req.user.uri;
 
-        query = DbConnection.addLimitsClauses(query, null, null);
+        if (!isNull(userUri))
+        {
+            let query =
+                "WITH [0] \n" +
+                "SELECT ?uri \n" +
+                "WHERE {\n" +
+                "?uri rdf:type ddr:Notification. \n" +
+                "?uri ddr:resourceAuthorUri [1]. \n" +
+                "?uri ddr:modified ?date. \n" +
+                "?uri foaf:status \"unread\". \n" +
+                "} \n" +
+                "ORDER BY DESC(?date)";
 
-        db.connection.execute(query,
-            DbConnection.pushLimitsArguments([
+            query = DbConnection.addLimitsClauses(query, null, null);
+
+            db.connection.executeViaJDBC(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type: Elements.types.resourceNoEscape,
+                        value: db_notifications.graphUri
+                    },
+                    {
+                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
+                        value: userUri
+                    }
+                ]),
+                function (err, notifications)
                 {
-                    type : DbConnection.resourceNoEscape,
-                    value: db_notifications.graphUri
-                },
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value: userUri
-                }
-            ]),
-            function(err, notifications) {
-                if(!err)
-                {
-                    res.json(notifications);
-                }
-                else
-                {
-                    const errorMsg = "Error fetching User's unread notifications ";
-                    res.status(500).json({
-                        result: "Error",
-                        message: errorMsg + JSON.stringify(notifications)
-                    });
-                }
+                    if (isNull(err))
+                    {
+                        res.json(notifications);
+                    }
+                    else
+                    {
+                        const errorMsg = "Error fetching User's unread notifications ";
+                        res.status(500).json({
+                            result: "Error",
+                            message: errorMsg + JSON.stringify(notifications)
+                        });
+                    }
+                });
+        }
+        else
+        {
+            const errorMsg = "Invalid user when searching for notifications";
+            res.status(500).json({
+                result: "Error",
+                message: errorMsg
             });
+        }
     }
     else
     {
-        var errorMsg = "Invalid user when searching for notifications";
-        res.status(500).json({
+        const msg = "This method is only accessible via HTML. Accept:\"text/html\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
+        res.status(400).json({
             result: "Error",
-            message: errorMsg
+            message: msg
         });
     }
 };
 
-exports.get_notification_info = function (req, res) {
-    const userUri = req.user.uri;
-    const notificationUri = req.query.notificationUri;
+exports.get_notification_info = function (req, res)
+{
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
-    if(userUri && notificationUri)
+    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
-        let query =
-            "WITH [0] \n" +
-            "SELECT ?actionType ?userWhoActed ?resourceTargetUri ?modified ?shareURI\n" +
-            "WHERE { \n" +
-            "[1] ddr:actionType ?actionType. \n" +
-            "[1] ddr:userWhoActed ?userWhoActed. \n" +
-            "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
-            "[1] ddr:resourceAuthorUri [2]. \n" +
-            "[1] dcterms:modified ?modified. \n" +
-            "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n" +
-            "} \n";
+        const userUri = req.user.uri;
+        const notificationUri = req.query.notificationUri;
 
-        query = DbConnection.addLimitsClauses(query, null, null);
+        if (!isNull(userUri) && !isNull(notificationUri))
+        {
+            let query =
+                "WITH [0] \n" +
+                "SELECT ?actionType ?userWhoActed ?resourceTargetUri ?modified ?shareURI\n" +
+                "WHERE { \n" +
+                "[1] ddr:actionType ?actionType. \n" +
+                "[1] ddr:userWhoActed ?userWhoActed. \n" +
+                "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
+                "[1] ddr:resourceAuthorUri [2]. \n" +
+                "[1] ddr:modified ?modified. \n" +
+                "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n" +
+                "} \n";
 
-        db.connection.execute(query,
-            DbConnection.pushLimitsArguments([
+            query = DbConnection.addLimitsClauses(query, null, null);
+
+            db.connection.executeViaJDBC(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type: Elements.types.resourceNoEscape,
+                        value: db_notifications.graphUri
+                    },
+                    {
+                        type: Elements.types.resourceNoEscape,
+                        value: notificationUri
+                    },
+                    {
+                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
+                        value: userUri
+                    }
+                ]),
+                function (err, notification)
                 {
-                    type : DbConnection.resourceNoEscape,
-                    value: db_notifications.graphUri
-                },
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value: notificationUri
-                },
-                {
-                    type: DbConnection.resourceNoEscape,
-                    value: userUri
-                }
-            ]),
-            function(err, notification) {
-                if(!err)
-                {
-                    res.json(notification);
-                }
-                else
-                {
-                    const errorMsg = "Error getting info from a User's notification";
-                    res.status(500).json({
-                        result: "Error",
-                        message: errorMsg
-                    });
-                }
+                    if (isNull(err))
+                    {
+                        if (notification.length > 0)
+                        {
+                            res.json(notification);
+                        }
+                        else
+                        {
+                            const errorMsg = "Invalid notification uri";
+                            res.status(404).json({
+                                result: "Error",
+                                message: errorMsg
+                            });
+                        }
+                    }
+                    else
+                    {
+                        const errorMsg = "Error getting info from a User's notification";
+                        res.status(500).json({
+                            result: "Error",
+                            message: errorMsg
+                        });
+                    }
+                });
+        }
+        else
+        {
+            const errorMsg = "Invalid user and notification Uri";
+            res.status(500).json({
+                result: "Error",
+                message: errorMsg
             });
+        }
     }
     else
     {
-        var errorMsg = "Invalid user and notification Uri";
-        res.status(500).json({
+        const msg = "This method is only accessible via HTML. Accept:\"text/html\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
+        res.status(400).json({
             result: "Error",
-            message: errorMsg
+            message: msg
         });
     }
 };
 
-//Deletes a user's notification
-exports.delete = function (req, res) {
-    const userUri = req.user.uri;
-    const notificationUri = req.query.notificationUri;
-    
-    if(userUri && notificationUri)
+// Deletes a user's notification
+exports.delete = function (req, res)
+{
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
-        let query =
-            "WITH [0] \n" +
-            "DELETE { [1] ?p ?v} \n" +
-            "WHERE { \n" +
-            "[1] ?p ?v. \n" +
-            "[1] ddr:resourceAuthorUri [2]. \n" +
-            "} \n";
+        const userUri = req.user.uri;
+        const notificationUri = req.query.notificationUri;
 
-        query = DbConnection.addLimitsClauses(query, null, null);
+        if (!isNull(userUri) && !isNull(notificationUri))
+        {
+            let query =
+                "WITH [0] \n" +
+                "DELETE { [1] ?p ?v} \n" +
+                "WHERE { \n" +
+                "[1] ?p ?v. \n" +
+                "[1] ddr:resourceAuthorUri [2]. \n" +
+                "} \n";
 
-        db.connection.execute(query,
-            DbConnection.pushLimitsArguments([
+            query = DbConnection.addLimitsClauses(query, null, null);
+
+            db.connection.executeViaJDBC(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type: Elements.types.resourceNoEscape,
+                        value: db_notifications.graphUri
+                    },
+                    {
+                        type: Elements.types.resourceNoEscape,
+                        value: notificationUri
+                    },
+                    {
+                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
+                        value: userUri
+                    }
+                ]),
+                function (err, result)
                 {
-                    type : DbConnection.resourceNoEscape,
-                    value: db_notifications.graphUri
-                },
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value: notificationUri
-                },
-                {
-                    type: DbConnection.resourceNoEscape,
-                    value: userUri
-                }
-            ]),
-            function(err, result) {
-                if(!err)
-                {
-                    res.json({
-                        result : "OK",
-                        message : "Notification successfully deleted"
-                    });
-                }
-                else
-                {
-                    const errorMsg = "Error deleting a User's notification";
-                    res.status(500).json({
-                        result: "Error",
-                        message: errorMsg
-                    });
-                }
+                    if (isNull(err))
+                    {
+                        Notification.exists(req.query.notificationUri, function (err, exists)
+                        {
+                            if (isNull(err))
+                            {
+                                if (!isNull(exists) && !exists)
+                                {
+                                    res.json({
+                                        result: "OK",
+                                        message: "Notification successfully deleted"
+                                    });
+                                }
+                                else
+                                {
+                                    const errorMsg = "Unable to delete the notification. It still exists after trying to delete.";
+                                    res.status(500).json({
+                                        result: "Error",
+                                        message: errorMsg
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                const errorMsg = "Error checking a User's notification: error validating if the notification was deleted or not.";
+                                res.status(500).json({
+                                    result: "Error",
+                                    message: errorMsg
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        const errorMsg = "Error deleting a User's notification";
+                        res.status(500).json({
+                            result: "Error",
+                            message: errorMsg
+                        });
+                    }
+                });
+        }
+        else
+        {
+            const errorMsg = "Missing required field notification Uri";
+            res.status(500).json({
+                result: "Error",
+                message: errorMsg
             });
+        }
     }
     else
     {
-        var errorMsg = "Invalid user and notification Uri";
-        res.status(500).json({
+        const msg = "This method is only accessible via HTML. Accept:\"text/html\" header is missing or is not the only Accept type";
+        req.flash("error", "Invalid Request");
+        res.status(400).json({
             result: "Error",
-            message: errorMsg
+            message: msg
         });
     }
 };
-
-

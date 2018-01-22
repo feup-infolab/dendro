@@ -1,0 +1,77 @@
+<div class="panel-body">
+    <div class="media">
+
+        <div class="media-left">
+            <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
+        </div>
+
+        <div class="media-left text-center social-dendro-metadata-thumbnail">
+            <!--<img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">-->
+            <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].changesInfo.isVersionOf.uri}}?thumbnail">
+            <!--<a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>-->
+            <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].changesInfo.isVersionOf.uri}}"> {{postsContents[postUri].changesInfo.isVersionOf.nie.title}}   </a>
+        </div>
+
+        <div ng-if="postsContents[postUri].changesInfo.isVersionOf" class="media-body">
+            <div class="text-center postNumChanges">
+                <div class="progress" style="height: 10px;">
+                    <div data-toggle="tooltip" data-placement="top" title="{{postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded}}" class="progress-bar progress-bar-success" style="width: {{100 * (postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded / postsContents[postUri].changesInfo.numberOfChanges)}}%">
+                        <!--<span class="sr-only">35% Complete (success)</span>-->
+                        <!--<p> {{postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded}} </p>-->
+                    </div>
+                    <div  data-toggle="tooltip" data-placement="top" title="{{postsContents[postUri].changesInfo.hasNumberOfDescriptorsEdited}}" class="progress-bar progress-bar-info progress-bar-striped" style="width: {{100 * (postsContents[postUri].changesInfo.hasNumberOfDescriptorsEdited / postsContents[postUri].changesInfo.numberOfChanges)}}%">
+                        <!--<span class="sr-only">20% Complete (info)</span>-->
+                        <!--<p> {{postsContents[postUri].changesInfo.hasNumberOfDescriptorsEdited}} </p>-->
+                    </div>
+                    <div data-toggle="tooltip" data-placement="top" title="{{postsContents[postUri].changesInfo.hasNumberOfDescriptorsDeleted}}" class="progress-bar progress-bar-danger" style="width: {{100 * (postsContents[postUri].changesInfo.hasNumberOfDescriptorsDeleted / postsContents[postUri].changesInfo.numberOfChanges)}}%">
+                        <!--<span class="sr-only">10% Complete (danger)</span>-->
+                        <!--<p> {{postsContents[postUri].changesInfo.hasNumberOfDescriptorsDeleted}} </p>-->
+                    </div>
+                </div>
+            </div>
+
+            <div class="postContent">
+                <div ng-if="postsContents[postUri].changesInfo.editChanges">
+                    <div ng-repeat="editChange in postsContents[postUri].changesInfo.editChanges | orderBy: 'dcterms.created' track by $index">
+                        <!--<p><span class="label label-info">EDITED </span> {{editChange.ddr.changedDescriptor}} : {{editChange.ddr.newValue}}</p>-->
+                        <p><span class="label label-info">EDITED </span> {{editChange.prefixedForm}} : {{editChange.ddr.newValue}}</p>
+                    </div>
+                </div>
+
+                <div ng-if="postsContents[postUri].changesInfo.addChanges">
+                    <div ng-repeat="addChange in postsContents[postUri].changesInfo.addChanges | orderBy: 'dcterms.created' track by $index">
+                        <!--<p><span class="label label-success">ADDED </span> {{addChange.ddr.changedDescriptor}} : {{addChange.ddr.newValue}}</p>-->
+                        <p><span class="label label-success">ADDED </span> {{addChange.prefixedForm}} : {{addChange.ddr.newValue}}</p>
+                    </div>
+                </div>
+
+                <div ng-if="postsContents[postUri].changesInfo.deleteChanges">
+                    <div ng-repeat="deleteChange in postsContents[postUri].changesInfo.deleteChanges | orderBy: 'dcterms.created' track by $index">
+                        <!--<p><span class="label label-danger">DELETED </span> {{deleteChange.ddr.changedDescriptor}}</p>-->
+                        <p><span class="label label-danger">DELETED </span> {{deleteChange.prefixedForm}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-right" id="seeDetails">
+                <a ng-href="{{postsContents[postUri].schema.sharedContent}}"> <span class="label label-info">See full information </span>  </a>
+            </div>
+        </div>
+
+
+        <div ng-if="!postsContents[postUri].changesInfo.isVersionOf" class="media-body">
+            <div class="postContent">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-danger" style="width: 100%">
+                        <p>The folder/file referenced in this post no longer exists. It was deleted</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-right" id="seeDetails">
+                <a ng-href="{{postsContents[postUri].schema.sharedContent}}"> <span class="label label-info">See full information </span>  </a>
+            </div>
+        </div>
+
+    </div>
+</div>

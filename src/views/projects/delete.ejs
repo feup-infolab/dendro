@@ -1,0 +1,73 @@
+<%- include ../layout/header.ejs %>
+
+<div>
+    <h1 class="page-header">
+        Delete a project
+    </h1>
+
+    <form action="" method="POST">
+        <div class="panel panel-danger">
+            <div class="panel-heading"><strong>Really delete project?</strong></div>
+            <div class="panel-body text-center" >
+                <h4 class="page-header">
+                    Are you REALLY SURE you want to completely delete project "<%=project.ddr.handle%>"? There is no way to recover any data or metadata after this operation!
+                </h4>
+                <h5>
+                    Identifier: <a href="<%=project.uri%>"><%=project.uri%></a>
+                </h5>
+                <h5>
+                    Handle: <%=project.ddr.handle%>
+                </h5>
+                <h5>
+                    Description: <%=(project.dcterms.description)? project.dcterms.description: "No description available"%>
+                </h5>
+                <h5>
+                    Title: <%=(project.dcterms.title)? project.dcterms.title: "No description available"%>
+                </h5>
+
+                <div class="control-group has-feedback">
+                    <label for="handle" class="control-label"></label>
+                    <input type="hidden" value="<%=project.ddr.handle%>" name="delete">
+                    <input type="text"
+                           class="form-control"
+                           id="handle"
+                           placeholder="Handle"
+                           required>
+
+                    <p class="help-block danger">To confirm the delete operation, type the handle of the project in this box</p>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-danger btn-large"
+                        id="delete_project_button"
+                        disabled
+                        >
+                    <i class="fa fa-bomb"></i>
+                    Delete the project
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <script type="text/javascript">
+        $('#handle').on('input propertychange paste', function() {
+            unlock_delete_button('<%=project.ddr.handle%>');
+        });
+
+        function unlock_delete_button (project_handle)
+        {
+            var text = $("#handle").val();
+            if(text === project_handle)
+            {
+                $("#delete_project_button").prop('disabled', false);
+            }
+            else
+            {
+                $("#delete_project_button").prop('disabled', true);
+            }
+        }
+
+    </script>
+
+    <%- include ../layout/footer.ejs %>
+</div>

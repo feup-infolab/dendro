@@ -64,8 +64,7 @@
 <script type="text/javascript" src="/bower_components/reclinejs/src/model.js"></script>
 <script type="text/javascript" src="/bower_components/reclinejs/src/backend.memory.js"></script>
 <script type="text/javascript" src="/bower_components/reclinejs/src/backend.dataproxy.js"></script>
-<script type="text/javascript" src="http://okfnlabs.org/recline.backend.gdocs/backend.gdocs.js"></script>
-<!-- <script type="text/javascript" src="/bower_components/reclinejs/src/backend.csv.js"></script> -->
+<script type="text/javascript" src="/bower_components/reclinejs/src/backend.csv.js"></script>
 
 <!-- views -->
 <script type="text/javascript" src="/bower_components/reclinejs/src/view.grid.js"></script>
@@ -82,9 +81,7 @@
 <script type="text/javascript" src="/bower_components/reclinejs/src/widget.fields.js"></script>
 <script type="text/javascript" src="/bower_components/reclinejs/src/view.multiview.js"></script>
 
-<div>
-    <div><h4>File Preview Area</h4></div>
-
+<div ng-if="!shared.selected_file.ddr.hasDataProcessingError && !shared.data_processing_error">
     <div class="row" ng-if="!preview_available()">
         <br/>
         <div class="col-xs-12">
@@ -93,6 +90,25 @@
             </div>
         </div>
     </div>
-    <div id="data-viewer" class="row" ng-if="preview_available()">
+    <div class="row" ng-if="preview_available()">
+        <br/>
+        <div id="data-viewer" class="col-xs-12">
+        </div>
+    </div>
+</div>
+<div ng-if="shared.selected_file.ddr.hasDataProcessingError || shared.data_processing_error">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">Dendro tried to extract the data from this file, but there was an error</h3>
+        </div>
+        <div class="panel-body" ng-if="shared.selected_file.ddr.hasDataProcessingError">
+            {{shared.selected_file.ddr.hasDataProcessingError}}
+        </div>
+        <div class="panel-body" ng-if="shared.data_processing_error">
+            {{shared.data_processing_error}}
+        </div>
+        <div class="panel-footer">
+            <strong>Tip:</strong> File previews are only available for files that have a first line of headers. All values in the headers must be alphanumeric, without dots and other strange characters.
+        </div>
     </div>
 </div>
