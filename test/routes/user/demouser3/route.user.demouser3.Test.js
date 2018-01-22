@@ -17,7 +17,7 @@ describe("/user/demouser3", function (done)
     this.timeout(Config.testsTimeout);
     const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
     const falseUser = "demouser404";
-    
+
     before(function (done)
     {
         createUserUnit.setup(function (err, results)

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 INITIAL_DIR=`pwd`
-NODE_VERSION=`cat .node-version`
+NODE_VERSION=`cat .nvmrc`
 
 echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
 

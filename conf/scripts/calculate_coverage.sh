@@ -3,7 +3,7 @@
 mysql_database_to_create=$1
 mysql_username=$2
 mysql_root_password=$3
-NODE_VERSION=`cat .node-version`
+NODE_VERSION=`cat .nvmrc`
 
 
 #install NVM, Node 6.10, Node Automatic Version switcher
