@@ -36,6 +36,7 @@
     "remote_debug": "nodengine; node app.js --debug=5858"
   },
   "dependencies": {
+    "@feup-infolab/node-b2drop": "^1.0.2",
     "@feup-infolab/node-b2share-v2": "^3.0.1",
     "JSONStream": "^1.3.1",
     "archiver": "^2.1.0",
