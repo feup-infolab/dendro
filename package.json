@@ -12,12 +12,11 @@
   },
   "scripts": {
     "preinstall": "nodengine",
-    "postinstall": "nodengine; npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
-    "prestart": "",
-    "prestop": "",
-    "pretest": "",
-    "stop": "nodengine; node src/app.js --stop",
-    "start": "nodengine; node src/app.js",
+    "prestart": "nodengine",
+    "prestop": "nodengine",
+    "pretest": "nodengine",
+    "stop": "node src/app.js --stop",
+    "start": "node src/app.js",
     "restart": "npm run stop && npm start",
     "reinstall": "npm cache clean --force && rm -rf node_modules && npm install",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js --ui bdd --bail --exit",
@@ -33,7 +32,8 @@
     "fix-server": "eslint --fix ./src/** --config ./src/.eslintrc.json",
     "fix-tests": "eslint --fix ./test/** --config ./test/.eslintrc.json --quiet",
     "fix-client": "eslint --fix ./public/app/** --config ./public/app/.eslintrc.json",
-    "remote_debug": "nodengine; node app.js --debug=5858"
+    "remote_debug": "nodengine; node app.js --debug=5858",
+    "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls"
   },
   "dependencies": {
     "@feup-infolab/node-b2drop": "^1.0.2",
