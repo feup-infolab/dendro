@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 INITIAL_DIR=`pwd`
-NODE_VERSION=`cat .node-version`
+NODE_VERSION=`cat .nvmrc`
 
 # install text extraction dependencies
 if [ "$(uname)" == "Darwin" ]; then
