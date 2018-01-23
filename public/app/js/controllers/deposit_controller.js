@@ -1,15 +1,11 @@
 angular.module('dendroApp.controllers', [])
 /**
- *  Project administration controller
+ *  Deposit registry controller
  */
     .controller('depositCtrl', function (
         $scope,
         $http,
-        $filter,
-        $q,
-        $location,
-        $log,
-        $sce,
+        listings,
         focus,
         preview,
         $localStorage,
@@ -105,49 +101,30 @@ angular.module('dendroApp.controllers', [])
                     }
                   ]
                 }
-
-                /*offset: 0,
-                limit: 10,
-                system: {
-                  ckan: true,
-                  b2drop: false,
-                  all: true,
-                }*/
-
         };
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
         $scope.init = function(){
 
-            $scope.getRegistry();
+            $scope.getRegistry(true);
         };
 
-        $scope.getRegistry = function(filters){
-            let url = $scope.get_current_url();
-            url += "deposits/latest";
-            const params = $scope.parseFilter();
+        $scope.getRegistry = function(change){
 
-            $http({
-                method: "GET",
-                url: url,
-                params: params,
-                contentType: "application/json",
-                headers: {"Accept": "application/json"}
-            }).then(function(response){
+            const handle = function(data, change){
+              //if data checks out
+              $scope.offset++;
+              $scope.totalDeposits = 0;
 
-                //TODO check if empty and show something else if it is and disable scrolling function
+              let deposits = data.deposits;
+              for(let i = 0; i < deposits.length; i++){
+                deposits[i].date = moment(deposits[i].date).fromNow();
+              }
+              $scope.deposits = deposits;
 
-                //if data checks out
-                $scope.offset++;
-
-                let deposits = response.data.deposits;
-                for(let i = 0; i < deposits.length; i++){
-                    deposits[i].date = moment(deposits[i].date).fromNow();
-                }
-                $scope.deposits = deposits;
-
-                const repository = response.data.repositories;
+              if(change && data.repositories instanceof Array){
+                const repository = data.repositories;
                 if($scope.search.repositories == null || $scope.search.repositories == undefined){
                   $scope.search.repositories = {
                     type: "checkbox",
@@ -161,67 +138,24 @@ angular.module('dendroApp.controllers', [])
                       name: repo.repository,
                       count: repo.count,
                       value: true
-                    })
+                    });
+                    $scope.totalDeposits += repo.count;
                   }
-                }
-
-            }).catch(function(error){
-                console.log(error);
-            });
-        };
-
-        $scope.parseFilter = function(){
-            let search = {};
-            for(item in $scope.search){
-              if($scope.search[item].value !== null && $scope.search[item].value !== ""){
-                if($scope.search[item].type === "dropdown"){
-                  search[$scope.search[item].key] = $scope.search[item].selected;
-                }else {
-                  search[$scope.search[item].key] = $scope.search[item].value;
                 }
               }
             }
-            return search;
+
+            let url = $scope.get_current_url();
+            url += "deposits/latest";
+            listings.get_listing($scope, url, $scope.page, $scope.offset, $scope.search, change, handle);
+
         };
+
+        $scope.changePage = function(pageNumber){
+
+        }
 
         $scope.deposits = [];
-
-
-        $scope.get_project = function()
-        {
-            var url = $scope.get_current_url()+"?metadata&deep=true";
-
-            $http({
-                method: 'GET',
-                url: url,
-                data: JSON.stringify({}),
-                contentType: "application/json",
-                headers: {'Accept': "application/json"}
-            }).then(function(response) {
-                //console.log(data);
-                $scope.project = response.data;
-
-                for(var i = 0; i < $scope.project.descriptors.length; i++)
-                {
-                    var descriptor = $scope.project.descriptors[i];
-                    if(descriptor.prefixedForm == "ddr:deleted" && descriptor.value == true)
-                    {
-                        project.deleted = true;
-                    }
-                }
-            })
-                .catch(function(error){
-                    if(error.message != null && error.title != null)
-                    {
-                        Utils.show_popup("error", error.title, error.message);
-                    }
-                    else
-                    {
-                        Utils.show_popup("error", "Error occurred", JSON.stringify(error));
-                    }
-                });
-        };
-
 
     })
     .directive("searchBar", function (
@@ -235,7 +169,10 @@ angular.module('dendroApp.controllers', [])
           link: function(scope, elem, attr){
             scope.attr = function(){
               return attr.searchmodel;
-            }
+            };
+            scope.update = function(){
+              return attr.searchfunction;
+            };
           }
         };
     });

@@ -24,4 +24,20 @@
             <input ng-if="!item.list" ng-model="item.value" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="{{item.type}}">
         </td>
     </tr>
+    <tr class="form-group sidebar-item" >
+        <td>
+            Deposits per page
+        </td>
+        <td>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                {{page}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#" ng-click="page = 5; getRegistry()">5</a></li>
+                <li><a href="#" ng-click="page = 10; getRegistry()">10</a></li>
+                <li><a href="#" ng-click="page = 20; getRegistry()">20</a></li>
+                <li><a href="#" ng-click="page = 50; getRegistry()">50</a></li>
+            </ul>
+        </td>
+    </tr>
 </table>
