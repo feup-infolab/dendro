@@ -17,8 +17,9 @@ angular.module('dendroApp.controllers', [])
     )
     {
         $scope.active_tab = null;
-        $scope.offset = 0;
-        $scope.page = 10;
+        $scope.offset = 1;
+        $scope.page = 5;
+        $scope.totalDeposits = 0;
 
         $scope.search =  {
                 creator: {
@@ -114,7 +115,7 @@ angular.module('dendroApp.controllers', [])
 
             const handle = function(data, change){
               //if data checks out
-              $scope.offset++;
+              //$scope.offset++;
               $scope.totalDeposits = 0;
 
               let deposits = data.deposits;
@@ -124,6 +125,8 @@ angular.module('dendroApp.controllers', [])
               $scope.deposits = deposits;
 
               if(change && data.repositories instanceof Array){
+                $scope.totalDeposits = 0;
+
                 const repository = data.repositories;
                 if($scope.search.repositories == null || $scope.search.repositories == undefined){
                   $scope.search.repositories = {
@@ -139,21 +142,25 @@ angular.module('dendroApp.controllers', [])
                       count: repo.count,
                       value: true
                     });
-                    $scope.totalDeposits += repo.count;
+                    $scope.totalDeposits += parseInt(repo.count);
                   }
+                  $scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
+                  console.log("oioiooioioioioioioio\n" + $scope.totalDeposits);
                 }
               }
             }
 
             let url = $scope.get_current_url();
             url += "deposits/latest";
-            listings.get_listing($scope, url, $scope.page, $scope.offset, $scope.search, change, handle);
+            listings.get_listing($scope, url, $scope.page, $scope.offset - 1, $scope.search, change, handle);
 
         };
 
         $scope.changePage = function(pageNumber){
 
         }
+
+
 
         $scope.deposits = [];
 
@@ -175,4 +182,25 @@ angular.module('dendroApp.controllers', [])
             };
           }
         };
-    });
+    })
+  .directive("pageNavigation", function(
+
+  ){
+    return {
+      restrict: "ACE",
+      scope: true,
+      replace: true,
+      templateUrl: "/app/views/search/dynamic_pagination.ejs",
+      link: function(scope, elem, attr){
+        scope.max = function(){
+          return attr.maximum;
+        };
+        scope.update = function(){
+          return attr.searchfunction;
+        };
+        scope.current = function () {
+          return attr.current;
+        };
+      }
+    };
+  });

@@ -1,0 +1,16 @@
+<div>
+    <button ng-if="$eval(current()) - 3 > -100">&#8592</button>
+    <button ng-if="$eval(current()) - 3 > -100">1</button>
+
+    <button ng-if="$eval(current()) - 4 > -100">...</button>
+
+    <button ng-if="$eval(current()) - 2 > -100">{{$eval(current()) - 2}}</button>
+    <button ng-if="$eval(current()) - 1 > -100">{{$eval(current()) - 1}}</button>
+    <button>{{$eval(current())}}</button>
+    <button ng-if="$eval(current()) + 1 < 500">{{$eval(current()) + 1}}</button>
+    <button ng-if="$eval(current()) + 2 < 500">{{$eval(current()) + 2}}</button>
+
+    <button ng-if="$eval(current()) + 4 < 500">...</button>
+    <button ng-if="$eval(current()) + 3 < 500">{{$eval(max())}}</button>
+    <button ng-if="$eval(current()) + 3 < 500">&#8594</button>
+</div>

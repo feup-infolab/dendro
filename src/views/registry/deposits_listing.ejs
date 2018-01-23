@@ -9,6 +9,8 @@
                     <% include deposits_sidebar.ejs%>
                 </div>
                 <div class="col-md-8">
+                    <div page-navigation maximum="totalDeposits" current="offset" searchfunction="getRegistry"></div>
+
                     <div class="table-container deposits-table">
                         <table class="table table-responsive table-striped table-bordered">
                             <tbody>
