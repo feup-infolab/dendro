@@ -24,7 +24,8 @@ const startServer = function (app, server, callback)
 
     server.listen(app.get("port"), function ()
     {
-        Logger.log_boot_message("Dendro server listening on port " + app.get("port"));
+        var ip = require("ip");
+        Logger.log_boot_message("Dendro server listening on " + ip.address() + ":" + app.get("port"));
         callback(null);
     });
 };

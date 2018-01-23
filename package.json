@@ -96,6 +96,7 @@
     "humanize": "0.0.9",
     "identicon.js": "^2.3.1",
     "install": "^0.10.2",
+    "ip": "^1.1.5",
     "it-optional": "^0.1.0",
     "jdbc": "^0.6.0",
     "jsdom": "^11.3.0",

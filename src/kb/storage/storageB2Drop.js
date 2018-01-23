@@ -37,7 +37,17 @@ class StorageB2Drop extends Storage
     _getB2DropPath (file)
     {
         const self = this;
-        return self.prefix + file.ddr.humanReadableURI;
+        if (typeof file === "string")
+        {
+            return self.prefix + file;
+        }
+        else if (file instanceof Object && !isNull(file.ddr))
+        {
+            return self.prefix + file.ddr.humanReadableURI;
+        }
+
+        Logger.log("error", "Unable to determine the B2drop path uri of resource " + self.uri);
+        return null;
     }
 
     open (callback)
