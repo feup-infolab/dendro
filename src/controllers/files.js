@@ -970,7 +970,9 @@ exports.upload = function (req, res)
                                             {
                                                 if (isNull(err))
                                                 {
-                                                    if (totalSize + storageSize < project.ddr.hasStorageLimit)
+                                                    const storageLimit = (project.ddr.hasStorageLimit) ? project.ddr.hasStorageLimit : Config.maxProjectSize;
+
+                                                    if (totalSize + storageSize < storageLimit)
                                                     {
                                                         async.mapSeries(files, function (file, callback)
                                                         {

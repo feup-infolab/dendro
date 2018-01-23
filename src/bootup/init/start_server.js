@@ -5,7 +5,11 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const startServer = function (app, server, callback)
 {
-    app.use(timeout("5s"));
+    // 5 min timeout
+    const minutesTimeout = 5;
+    const timeoutMillisecs = minutesTimeout * 60 * 1000;
+
+    app.use(timeout(minutesTimeout + "s"));
 
     const haltOnTimedout = function (req, res, next)
     {
@@ -16,6 +20,8 @@ const startServer = function (app, server, callback)
     };
 
     app.use(haltOnTimedout);
+    server.setTimeout(timeoutMillisecs);
+
     server.listen(app.get("port"), function ()
     {
         Logger.log_boot_message("Dendro server listening on port " + app.get("port"));
