@@ -44,11 +44,12 @@ angular.module("dendroApp.services")
                 this.uploadUsingUpload = function (file, upload_url, resumable, chunkSize)
                 {
                     var url = URI(upload_url);
-                    var keys = Object.keys(file);
+                    var keys = Object.keys(JSON.parse(JSON.stringify(file)));
 
-                    for (var key in file)
+                    for (var i = 0; i < keys.length; i++)
                     {
-                        if (file.hasOwnProperty(key))
+                        var key = keys[i];
+                        if (file.hasOwnProperty(key) && typeof file !== "function")
                         {
                             url.addSearch(key, file[key]);
                         }
