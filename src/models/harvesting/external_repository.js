@@ -84,7 +84,7 @@ ExternalRepository.prototype.getHumanReadableUri = function (callback)
         if (!isNull(self.dcterms.creator) && !isNull(self.dcterms.title))
         {
             const slug = require("slug");
-            callback(null, "/external_repository/" + object.dcterms.creator + "/" + slug(self.dcterms.title));
+            callback(null, "/external_repository/" + self.dcterms.creator + "/" + slug(self.dcterms.title));
         }
         else
         {
