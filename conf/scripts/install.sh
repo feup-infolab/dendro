@@ -17,15 +17,15 @@ then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
 else
-    chown -R "$(whoami)" ~/.avn
-    chown -R "$(whoami)" ~/.nvm
+    chown -R "$(whoami)" "$HOME/.avn"
+    chown -R "$(whoami)" "$HOME/.nvm"
 
     #install NVM, Node, Node Automatic Version switcher
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash &&
     export NVM_DIR="$HOME/.nvm" &&
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && # This loads nvm
 
-    source ~/.bash_profile
+    source $HOME/.bash_profile
     nvm install "$NODE_VERSION"
     nvm use "$NODE_VERSION"
 
@@ -49,8 +49,8 @@ else
     rm -rf node_modules
     rm -rf package-lock.json
 
-    chown -R "$(whoami)" ~/.avn
-    chown -R "$(whoami)" ~/.nvm
+    chown -R "$(whoami)" "$HOME/.avn"
+    chown -R "$(whoami)" "$HOME/.nvm"
 
     #install preliminary dependencies
     npm i -g nodengine &&
