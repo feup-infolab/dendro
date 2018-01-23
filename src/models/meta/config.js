@@ -686,7 +686,7 @@ if (isNull(Config.iconableFileExtensions))
 }
 
 Config.thumbnails = {
-    thumbnail_format_extension: "gif",
+    thumbnail_format_extension: "jpg",
     // every attribute of the size_parameters must be listed here for iteration TODO fix later
     sizes: ["big", "medium", "small", "icon"],
     size_parameters:

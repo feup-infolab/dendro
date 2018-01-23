@@ -377,17 +377,20 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
         {
             if (isNull(err))
             {
-                result.delete(self.uri, function (err, result) {
+                result.delete(self.uri, function (err, result)
+                {
                     self.deleteThumbnails();
                     self.deleteDatastoreData();
-                    self.unindex(function (err, result) {
+                    self.unindex(function (err, result)
+                    {
                         if (isNull(err))
                         {
-                            self.deleteAllMyTriples(function (err, result) {
+                            self.deleteAllMyTriples(function (err, result)
+                            {
                                 if (isNull(err))
                                 {
-                                    self.unlinkFromParent(function (err, result) {
-
+                                    self.unlinkFromParent(function (err, result)
+                                    {
                                         if (isNull(err))
                                         {
                                             callback(err, result);
@@ -1332,63 +1335,66 @@ File.prototype.generateThumbnails = function (callback)
     let self = this;
     const generateThumbnail = function (localFile, ownerProject, sizeTag, cb)
     {
-        let easyimg = require("easyimage");
         const fileName = path.basename(localFile, path.extname(localFile));
         const parentDir = path.dirname(localFile);
-        const thumbnailFile = path.join(parentDir, fileName + "_thumbnail_" + sizeTag + "." + Config.thumbnails.thumbnail_format_extension);
+        const thumbnailFile = path.join(parentDir, fileName + "_thumbnail_" + sizeTag + ".jpg");
         const fs = require("fs");
+        const sharp = require("sharp");
 
-        easyimg.resize(
+        sharp(localFile)
+            .resize(
+                Config.thumbnails.size_parameters[sizeTag].width,
+                Config.thumbnails.size_parameters[sizeTag].height
+            )
+            .jpeg()
+            .toFile(thumbnailFile, function (err)
             {
-                src: localFile,
-                dst: thumbnailFile,
-                width: Config.thumbnails.size_parameters[sizeTag].width,
-                height: Config.thumbnails.size_parameters[sizeTag].height,
-                x: 0,
-                y: 0
-            }).then(function (image)
-        {
-            Logger.log("Resized and cropped: " + image.width + " x " + image.height);
-
-            // TODO
-            gfs.connection.put(
-                self.uri + "?thumbnail&size=" + sizeTag,
-                fs.createReadStream(thumbnailFile),
-                function (err, result)
+                if (isNull(err))
                 {
-                    if (!isNull(err))
-                    {
-                        const msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
-                        Logger.log("error", msg);
-                        cb(err, msg);
-                    }
-                    else
-                    {
-                        cb(null, null);
-                    }
-                },
-                {
-                    project: ownerProject,
-                    type: "nie:File",
-                    thumbnail: true,
-                    thumbnailOf: self.uri,
-                    size: sizeTag
+                    Logger.log("Resized and cropped: " + Config.thumbnails.size_parameters[sizeTag].width + " x " + Config.thumbnails.size_parameters[sizeTag].height);
+                    gfs.connection.put(
+                        self.uri + "?thumbnail&size=" + sizeTag,
+                        fs.createReadStream(thumbnailFile),
+                        function (err, result)
+                        {
+                            if (!isNull(err))
+                            {
+                                const msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
+                                Logger.log("error", msg);
+                                cb(err, msg);
+                            }
+                            else
+                            {
+                                cb(null, null);
+                            }
+                        },
+                        {
+                            project: ownerProject,
+                            type: "nie:File",
+                            thumbnail: true,
+                            thumbnailOf: self.uri,
+                            size: sizeTag
+                        }
+                    );
                 }
-            );
-        })
-            .catch(function (err)
-            {
-                return callback(err, Number("Error saving thumbnail for file ") + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr imagemagick dependencies installed in the server.\nIf you are on a Mac, you need XQuartz and all other dependencies: run this command: brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext" + err);
+                else
+                {
+                    const msg = "Error saving thumbnail for file " + self.uri + ".";
+                    Logger.log("error", msg);
+                    const util = require("util");
+                    Logger.log("error", util.inspect(err));
+                    return callback(err, msg);
+                }
             });
     };
 
-    if (_.contains(Config.thumbnailableExtensions, self.ddr.fileExtension))
+    if (!isNull(Config.thumbnailableExtensions) && !isNull(Config.thumbnailableExtensions[self.ddr.fileExtension]))
     {
         self.getOwnerProject(function (err, project)
         {
             if (isNull(err))
             {
-                if (!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension]))
+                if (!isNull(Config.thumbnailableExtensions) && !isNull(Config.thumbnailableExtensions[self.ddr.fileExtension]))
                 {
                     self.writeToTempFile(function (err, tempFileAbsPath)
                     {
@@ -1396,7 +1402,7 @@ File.prototype.generateThumbnails = function (callback)
                         {
                             async.mapSeries(Config.thumbnails.sizes, function (thumbnailSize, callback)
                             {
-                                generateThumbnail(tempFileAbsPath, project.uri, thumbnailSize, callback);
+                                generateThumbnail(tempFileAbsPath, project, thumbnailSize, callback);
                             },
                             function (err, results)
                             {
