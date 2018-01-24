@@ -173,7 +173,7 @@ Deposit.createQuery = function(params, callback){
     if(params.offset){
         variables.push({
             type: Elements.types.string,
-            value: params.offset
+            value: params.offset * params.limit
         });
     } else{
         variables.push({
@@ -283,7 +283,8 @@ Deposit.getAllRepositories = function(params, callback){
       "{ \n" +
       "   ?uri rdf:type ddr:Registry . \n" +
       "   ?uri ddr:hasExternalUri ?repository . \n" +
-      "   ?uri ddr:exportedFromProject ?projused . \n";
+      "   ?uri ddr:exportedFromProject ?projused . \n" +
+      "  ";
 
     const ending = "} \n" +
       "GROUP BY ?repository";

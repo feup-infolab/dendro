@@ -5,7 +5,7 @@ angular.module("dendroApp.factories")
   .factory("listings", function ($http)
   {
     return {
-      get_listing: function($scope, uri, limit, page, filters, change, callback){
+      getListing: function($scope, uri, limit, page, filters, change, callback){
         if(filters){
           let params = this.parseParams(filters);
           params.new_listing = change;

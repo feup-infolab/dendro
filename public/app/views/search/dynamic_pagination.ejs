@@ -1,16 +1,17 @@
-<div>
-    <button ng-if="$eval(current()) - 3 > -100">&#8592</button>
-    <button ng-if="$eval(current()) - 3 > -100">1</button>
+<div align="center">
+    <button ng-click="$eval(previous())" ng-if="$eval(current()) - 1 > 0">&#8592</button>
+    <button ng-click="$eval(change(1))" ng-if="$eval(current()) - 3 > 0">1</button>
 
-    <button ng-if="$eval(current()) - 4 > -100">...</button>
+    <button ng-if="$eval(current()) - 4 > 0">...</button>
 
-    <button ng-if="$eval(current()) - 2 > -100">{{$eval(current()) - 2}}</button>
-    <button ng-if="$eval(current()) - 1 > -100">{{$eval(current()) - 1}}</button>
+    <button ng-click="$eval(change($eval(current()) - 2))" ng-if="$eval(current()) - 2 > 0">{{$eval(current()) - 2}}</button>
+    <button ng-click="$eval(previous())" ng-if="$eval(current()) - 1 > 0">{{$eval(current()) - 1}}</button>
     <button>{{$eval(current())}}</button>
-    <button ng-if="$eval(current()) + 1 < 500">{{$eval(current()) + 1}}</button>
-    <button ng-if="$eval(current()) + 2 < 500">{{$eval(current()) + 2}}</button>
+    <button ng-click="$eval(next())" ng-if="$eval(current()) + 1 <= $eval(max())">{{$eval(current()) + 1}}</button>
+    <button ng-click="$eval(change($eval(current()) + 2))" ng-if="$eval(current()) + 2 <= $eval(max())">{{$eval(current()) + 2}}</button>
 
-    <button ng-if="$eval(current()) + 4 < 500">...</button>
-    <button ng-if="$eval(current()) + 3 < 500">{{$eval(max())}}</button>
-    <button ng-if="$eval(current()) + 3 < 500">&#8594</button>
+    <button ng-if="$eval(current()) + 4 <= $eval(max())">...</button>
+
+    <button ng-click="$eval(change($eval(max())))" ng-if="$eval(current()) + 3 <= $eval(max())">{{$eval(max())}}</button>
+    <button ng-click="$eval(next())" ng-if="$eval(current()) + 1 <= $eval(max())">&#8594</button>
 </div>

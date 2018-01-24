@@ -114,52 +114,74 @@ angular.module('dendroApp.controllers', [])
         $scope.getRegistry = function(change){
 
             const handle = function(data, change){
-              //if data checks out
-              //$scope.offset++;
+              $scope.offset = 1;
+              $scope.updateDeposits(data);
               $scope.totalDeposits = 0;
 
-              let deposits = data.deposits;
-              for(let i = 0; i < deposits.length; i++){
-                deposits[i].date = moment(deposits[i].date).fromNow();
-              }
-              $scope.deposits = deposits;
-
               if(change && data.repositories instanceof Array){
-                $scope.totalDeposits = 0;
 
                 const repository = data.repositories;
-                if($scope.search.repositories == null || $scope.search.repositories == undefined){
-                  $scope.search.repositories = {
-                    type: "checkbox",
-                    list: true,
-                    label: "Repository Used",
-                    key: "repositories",
-                    value: []
-                  }
-                  for(let repo of repository){
-                    $scope.search.repositories.value.push({
-                      name: repo.repository,
-                      count: repo.count,
-                      value: true
-                    });
-                    $scope.totalDeposits += parseInt(repo.count);
-                  }
-                  $scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
-                  console.log("oioiooioioioioioioio\n" + $scope.totalDeposits);
+                $scope.search.repositories = {
+                  type: "checkbox",
+                  list: true,
+                  label: "Repository Used",
+                  key: "repositories",
+                  change: false,
+                  value: []
+                }
+                for(let repo of repository){
+                  $scope.search.repositories.value.push({
+                    name: repo.repository,
+                    count: repo.count,
+                    value: true,
+                  });
+                  $scope.totalDeposits += parseInt(repo.count);
+                }
+              } else {
+                for(let repo of $scope.search.repositories.value){
+                  if(repo.value === true)
+                  $scope.totalDeposits += parseInt(repo.count);
                 }
               }
+              $scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
             }
 
             let url = $scope.get_current_url();
             url += "deposits/latest";
-            listings.get_listing($scope, url, $scope.page, $scope.offset - 1, $scope.search, change, handle);
+            listings.getListing($scope, url, $scope.page, $scope.offset - 1, $scope.search, change, handle);
 
         };
 
-        $scope.changePage = function(pageNumber){
-
+        $scope.updateDeposits = function(data){
+          let deposits = data.deposits;
+          for(let i = 0; i < deposits.length; i++){
+            deposits[i].date = moment(deposits[i].date).fromNow();
+          }
+          $scope.deposits = deposits;
         }
 
+        $scope.changePage = function(pageNumber){
+          let url = $scope.get_current_url();
+          url += "deposits/latest";
+          listings.getListing($scope, url, $scope.page, pageNumber - 1, $scope.search, false, $scope.updateDeposits);
+          $scope.offset = pageNumber;
+        }
+
+        $scope.nextPage = function(){
+          let url = $scope.get_current_url();
+          url += "deposits/latest";
+          listings.getListing($scope, url, $scope.page, ++$scope.offset - 1, $scope.search, false, $scope.updateDeposits);
+        }
+        $scope.previousPage = function(){
+          let url = $scope.get_current_url();
+          url += "deposits/latest";
+          listings.getListing($scope, url, $scope.page, --$scope.offset - 1, $scope.search, false, $scope.updateDeposits);
+        }
+
+        $scope.showPerPage = function(amount){
+          $scope.page = amount;
+          $scope.getRegistry();
+        }
 
 
         $scope.deposits = [];
@@ -177,8 +199,10 @@ angular.module('dendroApp.controllers', [])
             scope.attr = function(){
               return attr.searchmodel;
             };
-            scope.update = function(){
-              return attr.searchfunction;
+            scope.update = function (change) {
+              if(change == false)
+                return attr.searchfunction + "(false)";
+              else return attr.searchfunction + "(true)";
             };
           }
         };
@@ -195,8 +219,14 @@ angular.module('dendroApp.controllers', [])
         scope.max = function(){
           return attr.maximum;
         };
-        scope.update = function(){
-          return attr.searchfunction;
+        scope.change = function(page){
+          return attr.changepage + "(" + page + ")";
+        };
+        scope.next = function(){
+          return attr.nextpage + "()";
+        };
+        scope.previous = function(){
+          return attr.previouspage + "()";
         };
         scope.current = function () {
           return attr.current;
