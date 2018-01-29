@@ -138,6 +138,31 @@ exports.getFolderContentsByUri = function (jsonOnly, agent, folderURI, cb)
     }
 };
 
+module.exports.ls_by_name = function (jsonOnly, agent, currentFolderURI, childName, cb) {
+    const path = currentFolderURI + "?ls&title=" + childName;
+    if (jsonOnly)
+    {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 exports.backupFolder = function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb)
 {
     const path = "/project/" + projectHandle + "/data/" + targetFolderInProject + folderName + "?backup";
