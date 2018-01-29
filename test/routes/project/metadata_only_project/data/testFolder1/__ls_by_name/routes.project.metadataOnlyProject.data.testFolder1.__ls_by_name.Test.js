@@ -161,6 +161,18 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
                 });
             });
         });
+
+        it("Should give an error if the title for the child folder is not specified even if the user is logged in as a creator or collaborator on the project", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                folderUtils.ls_by_name(true, agent, testFolder1Data.uri, null, function (err, res)
+                {
+                    res.statusCode.should.equal(404);
+                    done();
+                });
+            });
+        });
     });
 
     after(function (done)

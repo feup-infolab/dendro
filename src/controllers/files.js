@@ -2162,6 +2162,22 @@ exports.ls_by_name = function (req, res)
     let show_deleted = req.query.show_deleted;
     let childName = req.query.title;
 
+    if(isNull(childName))
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "The requestedResourceUri parameter is required"
+        });
+    }
+
+    if(isNull(resourceURI))
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "The title query parameter is required"
+        });
+    }
+
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
