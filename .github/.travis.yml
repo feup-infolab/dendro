@@ -1,9 +1,9 @@
-language: javascript
+language: node_js
 
 services:
   - docker
 
-node:
+node_js:
   - "8.9.0"
 
 env:
@@ -12,7 +12,7 @@ env:
     - RUNNING_IN_TRAVIS=true
 
 install:
-  - /bin/bash -c ./conf/scripts/install.sh
+  - ${TRAVIS_BUILD_DIR}/conf/scripts/install.sh
 
 before_script:
   - docker run --name elasticsearch-dendro -d -p 9200:9200 elasticsearch:2.3.3
