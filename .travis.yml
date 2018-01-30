@@ -1,5 +1,7 @@
 language: node_js
 
+sudo: true
+
 services:
   - docker
 
@@ -17,12 +19,14 @@ install:
 cache:
   directories:
     - node_modules
+    - public/bower_components
 
 before_script:
-  - docker stop $(docker ps -a -q)
-  - docker rm -f $(docker ps -a -q)
-  - docker rmi -f $(docker ps -a -q)
+  - docker stop $(docker ps -a -q) || true
+  - docker rm -f $(docker ps -a -q) || true
+  - docker rmi -f $(docker ps -a -q) || true
 
+  - sudo service mysql stop
   - docker run --name elasticsearch-dendro -d -p 9200:9200 elasticsearch:2.3.3
   - docker run --name mysql-dendro -d -p 3306:3306 mysql:5.7.21
   - docker run --name mongo-dendro -d -p 27017:27017 mongo:3.4.10
