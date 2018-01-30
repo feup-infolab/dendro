@@ -40,7 +40,7 @@ else
         activeConfigKey = "travis_buildserver_test";
         Logger.log("info", "Running in TRAVIS server detected. RUNNING_IN_TRAVIS environment var is " + process.env.RUNNING_IN_TRAVIS);
     }
-    else if(process.env.NODE_ENV==="test")
+    else if (process.env.NODE_ENV === "test")
     {
         activeConfigKey = "test";
         Logger.log("info", "Running in test environment detected");
@@ -54,9 +54,9 @@ else
 
 const activeConfig = configs[activeConfigKey];
 
-if(isNull(activeConfig))
+if (isNull(activeConfig))
 {
-    Logger.log("error", "There is no configuration with key "+activeConfigKey+"in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.");
+    Logger.log("error", "There is no configuration with key " + activeConfigKey + "in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.");
 }
 
 const getConfigParameter = function (parameter, defaultValue)

@@ -28,7 +28,7 @@ before_script:
 
   - sudo service mysql stop
   - docker run --name elasticsearch-dendro -d -p 9200:9200 elasticsearch:2.3.3
-  - docker run --name mysql-dendro -d -p 3306:3306 mysql:5.7.21
+  - docker run --name mysql-dendro -d -e MYSQL_ROOT_PASSWORD=r00t -p 3306:3306 mysql:8.0.3
   - docker run --name mongo-dendro -d -p 27017:27017 mongo:3.4.10
   - docker run --name redis-dendro-default -d -p 6780:6780 redis:3.2.11
   - docker run --name redis-dendro-social -d -p 6781:6780 redis:3.2.11
@@ -47,6 +47,6 @@ after_success:
 
 
 after_script:
-  - docker stop $(docker ps -a -q)
-  - docker rm -f $(docker ps -a -q)
-  - docker rmi -f $(docker ps -a -q)
+  - docker stop $(docker ps -a -q) || true
+  - docker rm -f $(docker ps -a -q) || true
+  - docker rmi -f $(docker ps -a -q) || true

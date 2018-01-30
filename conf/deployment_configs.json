@@ -1280,7 +1280,7 @@
         "mySQLPort": "3306",
         "mySQLAuth": {
             "user": "root",
-            "password": "r00t_p4ssw0rd"
+            "password": "r00t"
         },
         "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
         "maxUploadSize": 2147483648,
