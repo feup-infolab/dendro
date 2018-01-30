@@ -102,7 +102,7 @@ angular.module("dendroApp.controllers")
                         self.files = files;
 
                         $scope.formUpload = false;
-                        if (self.files != null)
+                        if (self.files !== null)
                         {
                             // make files array for not multiple to be able to be used in ng-repeat in the ui
                             if (!angular.isArray(self.files))

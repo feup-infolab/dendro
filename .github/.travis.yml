@@ -1,0 +1,39 @@
+language: javascript
+
+services:
+  - docker
+
+node:
+  - "8.9.0"
+
+env:
+  global:
+    - NVM_DIR="${TRAVIS_BUILD_DIR}"
+    - RUNNING_IN_TRAVIS=true
+
+install:
+  - /bin/bash -c ./conf/scripts/install.sh
+
+before_script:
+  - docker run --name elasticsearch-dendro -d -p 9200:9200 elasticsearch:2.3.3
+  - docker run --name mysql-dendro -d -p 3306:3306 mysql:5.7.21
+  - docker run --name mongo-dendro -d -p 27017:27017 mongo:3.4.10
+  - docker run --name redis-dendro-default -d -p 6780:6780 redis:3.2.11
+  - docker run --name redis-dendro-social -d -p 6781:6780 redis:3.2.11
+  - docker run --name redis-dendro-notifications -d -p 6782:6780 redis:3.2.11
+
+  - docker build -t virtuoso-dendro:virtuoso-7.2.4-loaded-with-ontologies ./conf/dockerfiles/virtuoso-7.2.4-loaded-with-ontologies
+  - docker run --name virtuoso-dendro -p 8890:8890 -p 1111:1111 -e SPARQL_UPDATE=true -d virtuoso-dendro:virtuoso-7.2.4-loaded-with-ontologies
+  - docker exec virtuoso-dendro /bin/bash -c "isql-v -U dba -P dba < \$HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql"
+
+script:
+  - npm run calculate-coverage
+
+after_success:
+  - npm run report-coverage
+
+
+after_script:
+  - docker stop $(docker ps -a -q)
+  - docker rm -f $(docker ps -a -q)
+  - docker rmi -f $(docker ps -a -q)
