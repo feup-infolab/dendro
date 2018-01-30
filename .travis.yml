@@ -14,6 +14,10 @@ env:
 install:
   - ${TRAVIS_BUILD_DIR}/conf/scripts/install.sh
 
+cache:
+  directories:
+    - node_modules
+
 before_script:
   - docker run --name elasticsearch-dendro -d -p 9200:9200 elasticsearch:2.3.3
   - docker run --name mysql-dendro -d -p 3306:3306 mysql:5.7.21
