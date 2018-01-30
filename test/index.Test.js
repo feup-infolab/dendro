@@ -390,8 +390,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/posts/share/routes.posts.share.
 
 require(Pathfinder.absPathInTestsFolder("/routes/posts/shares/routes.posts.shares.Test.js"));
 
-// TODO uncomment this test after this pull request
-//require(Pathfinder.absPathInTestsFolder("/routes/posts/count/routes.posts.count.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/posts/count/routes.posts.count.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/posts/_uri/routes.posts._uri.Test.js"));
 
