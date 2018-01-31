@@ -17,6 +17,9 @@ global.tests = {};
 // uncomment the first time you run the tests after installing dendro
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
+// nuke orphan resources tests /admin/nuke_orphan_resources
+require(Pathfinder.absPathInTestsFolder("/routes/admin/nuke_orphan_resources/routes.admin.nukeOrphanResources.Test.js"));
+
 // test file moving
 require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js"));
 

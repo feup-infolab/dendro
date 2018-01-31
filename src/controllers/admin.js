@@ -625,11 +625,11 @@ nukeOrphanResourcesAuxFunction = function (callback) {
                 {
                     if(isNull(files))
                     {
-                        return callback(null, 0);
+                        return callback(null, []);
                     }
                     else if(files.length <= 0)
                     {
-                        return callback(null, 0);
+                        return callback(null, []);
                     }
                     else
                     {
@@ -644,7 +644,7 @@ nukeOrphanResourcesAuxFunction = function (callback) {
                                 {
                                     if(isNull(resource))
                                     {
-                                        resourcesToDeleteInStorage.push(fileUri);
+                                        resourcesToDeleteInStorage.push(file.filename);
                                     }
                                 }
                                 cb(err, resource);
@@ -665,7 +665,8 @@ nukeOrphanResourcesAuxFunction = function (callback) {
                                         Logger.log("error", message);
                                         callback(err, result);
                                     }
-                                }, "fs.files")
+                                })
+                                //}, "fs.files") // TODO HELP @jrocha if I uncomment this line and comment the above line -> the orphan resource is not found in gridfs and I don't know why
                             }
                             else
                             {
@@ -698,7 +699,8 @@ module.exports.nukeOrphanResources = function (req, res) {
             res.json({
                 result: "ok",
                 message: "Destroyed " + info.length + " orphan resources successfully.",
-                nukedResources: Serializers.dataToJSON(info)
+                //nukedResources: Serializers.dataToJSON(info)
+                nukedResources: info
             });
         }
         else
