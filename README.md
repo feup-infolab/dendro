@@ -1,4 +1,4 @@
-[![Build Status](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/master/badge/icon)](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/master/)
+[![Build Status](https://travis-ci.org/feup-infolab/dendro.svg?branch=master)](https://travis-ci.org/feup-infolab/dendro)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=feup-infolab/dendro&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&utm_medium=referral&utm_content=feup-infolab/dendro&utm_campaign=Badge_Coverage)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
