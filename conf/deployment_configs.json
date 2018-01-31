@@ -387,7 +387,19 @@
                 "button_text": "Sign-in with SIGARRA"
             }
         },
-        "numCPUs": 4
+        "numCPUs": 4,
+        "docker": {
+          "active": true,
+          "containers": [
+            "elasticsearch-dendro",
+            "mysql-dendro",
+            "mongo-dendro",
+            "redis-dendro-default",
+            "redis-dendro-social",
+            "redis-dendro-notifications",
+            "virtuoso-dendro"
+          ]
+        }
     },
     "test": {
         "port": 3002,
@@ -772,7 +784,19 @@
                 "button_text": "Sign-in with SIGARRA"
             }
         },
-        "numCPUs": 1
+        "numCPUs": 1,
+        "docker": {
+          "active": true,
+          "containers": [
+            "elasticsearch-dendro",
+            "mysql-dendro",
+            "mongo-dendro",
+            "redis-dendro-default",
+            "redis-dendro-social",
+            "redis-dendro-notifications",
+            "virtuoso-dendro"
+          ]
+        }
     },
     "jenkins_buildserver_test": {
         "port": 3001,
@@ -1157,7 +1181,19 @@
                 "button_text": "Sign-in with SIGARRA"
             }
         },
-        "numCPUs": 1
+        "numCPUs": 1,
+        "docker": {
+          "active": true,
+          "containers": [
+            "elasticsearch-dendro",
+            "mysql-dendro",
+            "mongo-dendro",
+            "redis-dendro-default",
+            "redis-dendro-social",
+            "redis-dendro-notifications",
+            "virtuoso-dendro"
+          ]
+        }
     },
     "travis_buildserver_test": {
         "port": 3001,
@@ -1542,6 +1578,19 @@
                 "button_text": "Sign-in with SIGARRA"
             }
         },
-        "numCPUs": 1
+        "numCPUs": 1,
+        "docker": {
+          "active": true,
+          "containers": [
+
+            "mysql-dendro",
+            "mongo-dendro",
+            "redis-dendro-default",
+            "redis-dendro-social",
+            "redis-dendro-notifications",
+            "virtuoso-dendro",
+            "elasticsearch-dendro"
+          ]
+        }
     }
 }

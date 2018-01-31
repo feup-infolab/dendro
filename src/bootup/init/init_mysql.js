@@ -151,10 +151,8 @@ const initMySQL = function (app, callback)
                     {
                         return callback("Unable to create table " + tableForRecommendations + " in MySQL ");
                     }
-                    else
-                    {
-                        poolOK(connection);
-                    }
+
+                    poolOK(connection);
                 });
             }
             else

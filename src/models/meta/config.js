@@ -881,6 +881,7 @@ Config.regex_routes = {
 
 Config.authentication = getConfigParameter("authentication");
 Config.numCPUs = getConfigParameter("numCPUs");
+Config.docker = getConfigParameter("docker");
 
 if (process.env.NODE_ENV === "production")
 {

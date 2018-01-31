@@ -189,6 +189,11 @@ const startApp = function ()
             },
             function (callback)
             {
+                // start docker containers
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_docker.js")).initDockerContainers(self.app, callback);
+            },
+            function (callback)
+            {
                 // setup virtuoso
                 require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtuoso.js")).initVirtuoso(self.app, callback);
             },

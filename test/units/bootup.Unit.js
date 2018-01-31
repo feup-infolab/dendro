@@ -9,6 +9,7 @@ chai.use(chaiHttp);
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/snapshot_manager.js")).DockerCheckpointManager;
 
 const should = chai.should();
 function requireUncached (module)
@@ -52,7 +53,19 @@ module.exports.setup = function (finish)
                     global.tests.app = appInfo.app;
                     global.tests.server = appInfo.server;
                     end();
-                    finish(err, res);
+                    should.not.exist(err);
+
+                    if (Config.docker.active)
+                    {
+                        DockerCheckpointManager.createOrRestoreCheckpoint("bootupUnit", function (err, result)
+                        {
+                            finish(err, result);
+                        });
+                    }
+                    else
+                    {
+                        finish(err, res);
+                    }
                 });
         })
         .catch(function (error)
