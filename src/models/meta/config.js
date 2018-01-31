@@ -20,34 +20,44 @@ const activeConfigFilePath = Pathfinder.absPathInApp("conf/active_deployment_con
 const configs = JSON.parse(fs.readFileSync(configsFilePath, "utf8"));
 
 let activeConfigKey;
-if (process.env.NODE_ENV === "test")
+
+const argv = require("yargs").argv;
+
+if (argv.config)
+{
+    Logger.log("info", "Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
+    activeConfigKey = argv.config;
+}
+else
 {
     if (process.env.RUNNING_IN_JENKINS)
     {
         activeConfigKey = "jenkins_buildserver_test";
-        Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
+        Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS environment var is " + process.env.RUNNING_IN_JENKINS);
     }
-    else
+    else if (process.env.RUNNING_IN_TRAVIS)
+    {
+        activeConfigKey = "travis_buildserver_test";
+        Logger.log("info", "Running in TRAVIS server detected. RUNNING_IN_TRAVIS environment var is " + process.env.RUNNING_IN_TRAVIS);
+    }
+    else if (process.env.NODE_ENV === "test")
     {
         activeConfigKey = "test";
         Logger.log("info", "Running in test environment detected");
     }
-}
-else
-{
-    const argv = require("yargs").argv;
-
-    if (argv.config)
-    {
-        activeConfigKey = argv.config;
-    }
     else
     {
         activeConfigKey = JSON.parse(fs.readFileSync(activeConfigFilePath, "utf8")).key;
+        Logger.log("info", "Running with deployment config " + activeConfigKey);
     }
 }
 
 const activeConfig = configs[activeConfigKey];
+
+if (isNull(activeConfig))
+{
+    Logger.log("error", "There is no configuration with key " + activeConfigKey + "in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.");
+}
 
 const getConfigParameter = function (parameter, defaultValue)
 {
