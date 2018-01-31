@@ -40,9 +40,11 @@ before_script:
   - docker exec virtuoso-dendro /bin/bash -c "isql-v -U dba -P dba < \$HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql"
 
 script:
+  - nvm use 8.9.0
   - npm run calculate-coverage
 
 after_success:
+  - nvm use 8.9.0
   - npm run report-coverage
 
 
