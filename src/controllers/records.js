@@ -121,7 +121,8 @@ exports.show = function (req, res)
                 {
                     if (!isNull(requestedResource))
                     {
-                        requestedResource.findMetadataRecursive(function (err, result)
+                        let recursive = false;
+                        requestedResource.findMetadata(function (err, result)
                         {
                             if (isNull(err))
                             {
@@ -153,7 +154,7 @@ exports.show = function (req, res)
                                     error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                                 });
                             }
-                        }, true);
+                        }, true, recursive);
                     }
                     else
                     {
