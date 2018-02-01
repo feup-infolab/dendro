@@ -1301,7 +1301,7 @@ User.prototype.getAvatarFromGridFS = function (callback)
     const tmp = require("tmp");
     const fs = require("fs");
     let avatarUri = self.getAvatarUri();
-    if (avatarUri)
+    if (!isNull(avatarUri))
     {
         let ext = avatarUri.split(".").pop();
 
@@ -1393,9 +1393,10 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
                                     return callback(null, result);
                                 },
                                 {
-                                    self: self.uri,
+                                    avatarOf: self.uri,
                                     fileExtension: extension,
-                                    type: "nie:File"
+                                    type: "nie:File",
+                                    avatar: true
                                 }
                             );
                         });
