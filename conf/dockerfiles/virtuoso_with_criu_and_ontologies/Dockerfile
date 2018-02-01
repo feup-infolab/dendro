@@ -8,8 +8,10 @@ RUN apt-get install -y pkg-config python-ipaddr iproute2 libcap-dev libnet1-dev
 RUN apt-get install -y asciidoc xmlto --no-install-recommends
 RUN git clone https://github.com/checkpoint-restore/criu.git $HOME/criu
 WORKDIR $HOME/criu
+RUN apt-get install -y build-essential
 RUN make -C $HOME/criu
 RUN make install -C $HOME/criu
+
 #load ontologies
 RUN rm -rf $HOME/dendro-install
 RUN git clone https://github.com/feup-infolab/dendro-install.git $HOME/dendro-install
