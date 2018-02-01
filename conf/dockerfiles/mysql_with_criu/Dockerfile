@@ -1,13 +1,13 @@
 FROM mysql:8.0.3
 
 # install criu for container snapshotting and restoring
-RUN apt-get -y -qq install git
-
 RUN apt-get update
-RUN apt-get install -y git protobuf-c-compiler libprotobuf-c0-dev protobuf-compiler libprotobuf-dev:amd64 gcc build-essential bsdmainutils python git-core asciidoc make htop git curl supervisor cgroup-lite libapparmor-dev libseccomp-dev libprotobuf-dev libprotobuf-c0-dev protobuf-c-compiler protobuf-compiler python-protobuf libnl-3-dev libcap-dev libaio-dev apparmor
-RUN git clone https://github.com/xemul/criu.git criu
-RUN cd criu
-RUN make clean
-RUN make
-RUN make install
+RUN apt-get install -y git wget
+RUN apt-get install -y libprotobuf-dev libprotobuf-c0-dev protobuf-c-compiler protobuf-compiler python-protobuf libnl-3-dev libcap-dev
+RUN apt-get install -y pkg-config python-ipaddr iproute2 libcap-dev libnet1-dev
+RUN apt-get install -y asciidoc xmlto --no-install-recommends
+RUN git clone https://github.com/checkpoint-restore/criu.git $HOME/criu
+WORKDIR $HOME/criu
+RUN make -C $HOME/criu
+RUN make install -C $HOME/criu
 

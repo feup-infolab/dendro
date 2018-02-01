@@ -1,12 +1,23 @@
 #!/usr/bin/env bash
 
-#install or boot containers
-docker run --name elasticsearch-dendro -d -p 9200:9200 elasticsearch:2.3.3
-docker run --name mysql-dendro -d -e MYSQL_ROOT_PASSWORD=r00t -p 3306:3306 mysql:8.0.3
-docker run --name mongo-dendro -d -p 27017:27017 mongo:3.4.10
-docker run --name redis-dendro-default -d -p 6780:6780 redis:3.2.11
-docker run --name redis-dendro-social -d -p 6781:6780 redis:3.2.11
-docker run --name redis-dendro-notifications -d -p 6782:6780 redis:3.2.11
-docker build -t virtuoso-dendro:virtuoso-7.2.4-loaded-with-ontologies ./conf/dockerfiles/virtuoso-7.2.4-loaded-with-ontologies
+#install and boot containers
+docker build -t virtuoso:7.2.2-dendro-v0.3 ./conf/dockerfiles/virtuoso_with_criu_and_ontologies
+docker run --name virtuoso-dendro -p 8890:8890 -p 1111:1111 -e SPARQL_UPDATE=true -d virtuoso:7.2.2-dendro-v0.3
 
-docker run --name virtuoso-dendro -p 8890:8890 -p 1111:1111 -e SPARQL_UPDATE=true -d virtuoso-dendro:virtuoso-7.2.4-loaded-with-ontologies
+docker build -t elasticsearch:2.3.3-dendro-v0.3 ./conf/dockerfiles/elasticsearch_with_criu
+docker run --name elasticsearch-dendro -p 9200:9200 elasticsearch-dendro -d elasticsearch:2.3.3-dendro-v0.3
+
+docker build -t mysql:8.0.3-dendro-v0.3 ./conf/dockerfiles/mysql_with_criu
+docker run --name mysql-dendro -p 9200:9200 mysql-dendro -d mysql:8.0.3-dendro-v0.3
+
+docker build -t mongo:3.4.10-dendro-v0.3 ./conf/dockerfiles/mongo_with_criu
+docker run --name mongo-dendro -p 9200:9200 mongo-dendro -d mongo:3.4.10-dendro-v0.3
+
+docker build -t redis:3.2.11-dendro-v0.3 ./conf/dockerfiles/redis_with_criu
+docker run --name redis-dendro-default -p 9200:9200 mysql-dendro -d redis:3.2.11-dendro-v0.3
+
+docker build -t redis:3.2.11-dendro-v0.3 ./conf/dockerfiles/redis_with_criu
+docker run --name redis-dendro-social -p 9200:9200 mysql-dendro -d redis:3.2.11-dendro-v0.3
+
+docker build -t redis:3.2.11-dendro-v0.3 ./conf/dockerfiles/redis_with_criu
+docker run --name redis-dendro-notifications -p 9200:9200 mysql-dendro -d redis:3.2.11-dendro-v0.3

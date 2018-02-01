@@ -2,20 +2,22 @@ FROM tenforce/virtuoso:1.2.0-virtuoso7.2.4
 
 # install criu for container snapshotting and restoring
 RUN apt-get update
-RUN apt-get install -y git protobuf-c-compiler libprotobuf-c0-dev protobuf-compiler libprotobuf-dev:amd64 gcc build-essential bsdmainutils python git-core asciidoc make htop git curl supervisor cgroup-lite libapparmor-dev libseccomp-dev libprotobuf-dev libprotobuf-c0-dev protobuf-c-compiler protobuf-compiler python-protobuf libnl-3-dev libcap-dev libaio-dev apparmor
-RUN git clone https://github.com/xemul/criu.git criu
-RUN cd criu
-RUN make clean
-RUN make
-RUN make install
-
-#sleep 15 seconds to allow virtuoso to come online before loading ontologies
-RUN sleep 15
-
+RUN apt-get install -y git wget
+RUN apt-get install -y libprotobuf-dev libprotobuf-c0-dev protobuf-c-compiler protobuf-compiler python-protobuf libnl-3-dev libcap-dev
+RUN apt-get install -y pkg-config python-ipaddr iproute2 libcap-dev libnet1-dev
+RUN apt-get install -y asciidoc xmlto --no-install-recommends
+RUN git clone https://github.com/checkpoint-restore/criu.git $HOME/criu
+WORKDIR $HOME/criu
+RUN make -C $HOME/criu
+RUN make install -C $HOME/criu
 #load ontologies
 RUN rm -rf $HOME/dendro-install
 RUN git clone https://github.com/feup-infolab/dendro-install.git $HOME/dendro-install
-RUN isql-v -U dba -P dba < \$HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql
+
+# start virtuoso and load ontologies
+RUN /bin/sh -c "/usr/local/virtuoso-opensource/bin/virtuoso-t -f -c /usr/local/virtuoso-opensource/var/lib/virtuoso/db/virtuoso.ini &" && sleep 20 && isql-v -U dba -P dba < $HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql
+
+RUN which criu
 
 EXPOSE 8890
 
