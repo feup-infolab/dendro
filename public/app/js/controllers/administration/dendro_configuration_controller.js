@@ -30,10 +30,6 @@ angular.module("dendroApp.controllers")
 
         $scope.nukeOrphanResources = function () {
             dendroConfigurationService.nukeOrphanResources()
-                /*.then(function (data)
-                {
-                    $scope.nukedResources = data;
-                });*/
                 .then(function (data)
                 {
                     Utils.show_popup("success", "Nuked", data.message);
@@ -43,7 +39,7 @@ angular.module("dendroApp.controllers")
                 {
                     Utils.show_popup("error", "Error", "Error nuking orphan resources in gridfs");
                     Utils.show_popup("error", "Error", JSON.stringify(error));
-                    $scope.nukedResources = data;
+                    $scope.nukedResources = error;
                 });
         };
 
