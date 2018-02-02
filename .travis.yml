@@ -13,13 +13,13 @@ env:
     - NVM_DIR="${TRAVIS_BUILD_DIR}"
     - RUNNING_IN_TRAVIS=true
 
-install:
-  -
-
 cache:
   directories:
     - node_modules
     - public/bower_components
+
+install:
+  - ${TRAVIS_BUILD_DIR}/conf/scripts/install.sh
 
 before_script:
   - sudo service mysql stop
