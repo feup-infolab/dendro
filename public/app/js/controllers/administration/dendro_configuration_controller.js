@@ -29,6 +29,8 @@ angular.module("dendroApp.controllers")
         };
 
         $scope.nukeOrphanResources = function () {
+            $scope.orphanResources = null;
+            $scope.nukedResources = null;
             dendroConfigurationService.nukeOrphanResources()
                 .then(function (data)
                 {
@@ -40,6 +42,23 @@ angular.module("dendroApp.controllers")
                     Utils.show_popup("error", "Error", "Error nuking orphan resources in gridfs");
                     Utils.show_popup("error", "Error", JSON.stringify(error));
                     $scope.nukedResources = error;
+                });
+        };
+
+        $scope.listOrphanResources = function () {
+            $scope.orphanResources = null;
+            $scope.nukedResources = null;
+            dendroConfigurationService.listOrphanResources()
+                .then(function (data)
+                {
+                    Utils.show_popup("success", "Orphans:", data.message);
+                    $scope.orphanResources = data;
+                })
+                .catch(function (error)
+                {
+                    Utils.show_popup("error", "Error", "Error Looking for orphan resources in gridfs");
+                    Utils.show_popup("error", "Error", JSON.stringify(error));
+                    $scope.orphanResources = error;
                 });
         };
 
