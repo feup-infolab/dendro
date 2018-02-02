@@ -36,4 +36,14 @@ exports.reindexGraphs = function (agent, graphs, cb)
         });
 };
 
+exports.nukeOrphanResources = function (agent, cb) {
+    agent
+        .post("/admin/nuke_orphan_resources")
+        .set("Accept", "application/json")
+        .end(function (err, res)
+        {
+            cb(err, res);
+        });
+};
+
 module.exports = exports;

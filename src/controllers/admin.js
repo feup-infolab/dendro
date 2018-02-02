@@ -16,11 +16,15 @@ const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
+const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
 
 let classesToReindex = [User, Project];
 
 let indexingOperationRunning = false;
 let lastIndexingOK;
+
+const gfs = Config.getGFSByID();
 
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
@@ -599,4 +603,112 @@ module.exports.restartServer = function (req, res)
             message: "This Dendro is not in production mode. The process.env.NODE_ENV is set as " + process.env.NODE_ENV
         });
     }
+};
+
+
+
+
+nukeOrphanResourcesAuxFunction = function (callback) {
+    //look for all resources in gridfs
+    // for each see if they are in virtuoso graph
+        //if true -> do nothing
+        //if false -> delete resource in gridfs
+
+    //use file.delete with really delete to really delete in gridfs
+    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
+    mongoClient.connect(function (err, mongoDb)
+    {
+        if (isNull(err) && !isNull(mongoDb))
+        {
+            mongoClient.getNonAvatarNorThumbnailFiles(mongoDb, function (err, files) {
+                if(isNull(err))
+                {
+                    if(isNull(files))
+                    {
+                        return callback(null, []);
+                    }
+                    else if(files.length <= 0)
+                    {
+                        return callback(null, []);
+                    }
+                    else
+                    {
+                        //Resource.findByUri
+                        //resource.delete -> is not possible because resource is null when it does not exist in the graph
+                        let resourcesToDeleteInStorage = [];
+                        async.mapSeries(files, function (file, cb)
+                        {
+                            Resource.findByUri(file.filename, function (err, resource)
+                            {
+                                if(isNull(err))
+                                {
+                                    if(isNull(resource))
+                                    {
+                                        resourcesToDeleteInStorage.push(file.filename);
+                                    }
+                                }
+                                cb(err, resource);
+                            });
+                        }, function (err, result)
+                        {
+                            if(!isNull(resourcesToDeleteInStorage) && resourcesToDeleteInStorage.length > 0)
+                            {
+                                let constructedQuery = { "filename": { $in: resourcesToDeleteInStorage } };
+                                gfs.connection.deleteByQuery(constructedQuery, function (err, result) {
+                                    if(isNull(err))
+                                    {
+                                        callback(err, resourcesToDeleteInStorage)
+                                    }
+                                    else
+                                    {
+                                        const message = "Error at nuking orphan resources: " + JSON.stringify(result);
+                                        Logger.log("error", message);
+                                        callback(err, result);
+                                    }
+                                })
+                                //}, "fs.files") // TODO HELP @jrocha if I uncomment this line and comment the above line -> the orphan resource is not found in gridfs and I don't know why
+                            }
+                            else
+                            {
+                                callback(err, []);
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    const message = "Error at getNonAvatarNorThumbnailFiles: " + JSON.stringify(fileUris);
+                    Logger.log("error", message);
+                    return callback(err, message);
+                }
+            });
+        }
+        else
+        {
+            const msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
+            Logger.log("error", msg);
+            return callback(err, msg);
+        }
+    });
+};
+
+module.exports.nukeOrphanResources = function (req, res) {
+    nukeOrphanResourcesAuxFunction(function (err, info) {
+        if(isNull(err))
+        {
+            res.json({
+                result: "ok",
+                message: "Destroyed " + info.length + " orphan resources successfully.",
+                //nukedResources: Serializers.dataToJSON(info)
+                nukedResources: info
+            });
+        }
+        else
+        {
+            res.status(500).json({
+                result: "error",
+                message: JSON.stringify(info)
+            });
+        }
+    });
 };

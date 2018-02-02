@@ -274,6 +274,9 @@ Animations (uncomment to have animations)
 .dendro_config_code_editor {
   height: 2000px;
 }
+.nuke_orphan_resouces_viewer {
+  height: 500px;
+}
 .search_result_accordion_heading a:after {
   font-family: 'Glyphicons Halflings';
   content: "\e114";

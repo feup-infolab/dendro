@@ -313,7 +313,7 @@ GridFSConnection.prototype.deleteByQuery = function (query, callback, customBuck
                                 {
                                     return callback(null, "Files successfully deleted after query " + JSON.stringify(query));
                                 }
-                                return callback(err, "Error verifying deletion of files after query " + JSON.stringify(query) + ". Error reported " + count);
+                                return callback(true, "Error verifying deletion of files after query " + JSON.stringify(query) + ". Error reported " + count);
                             });
                         }
                         else

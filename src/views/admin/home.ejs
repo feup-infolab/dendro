@@ -248,6 +248,32 @@
 
                     </form>
                 </div>
+
+                <!-- nuke orphan resources -->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h4>
+                            Nuke all orphan resources from gridfs
+                        </h4>
+
+                        <button ng-click="nukeOrphanResources()" class="btn btn-sm btn-danger">Nuke orphan resources in gridfs</button>
+                        <div class="help-block">Deletes all resources in gridfs that do not exist in triple store graph
+                            <br/>
+                            <!--<strong>Be sure to keep a backup to restore in via SSH if your configuration ends up with errors! If there are errors, Dendro will FAIL to start up!</strong>-->
+                        </div>
+
+                        <h4>
+                            Nuke status:
+                        </h4>
+
+                        <div class="nuke_orphan_resouces_viewer"
+                             ng-model="nukedResources" ng-readonly="true" ui-ace="{
+                          useWrapMode : true,
+                          theme:'twilight',
+                          mode: 'json',
+                        }"></div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="tab-pane" id="view_server_configuration" ng-class="{active : active_tab == 'view_server_configurations'}">
