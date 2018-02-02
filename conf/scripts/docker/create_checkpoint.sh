@@ -1,35 +1,30 @@
 #!/usr/bin/env bash
 
+SCRIPTS_DIR="$(pwd)/conf/scripts"
+DOCKER_SCRIPTS_DIR="$(pwd)/conf/scripts/docker"
 DOCKERFILES_DIR="$(pwd)/conf/dockerfiles"
-CHECKPOINT_NAME=$(uuidgen)
+
+if "$1" == ""; then
+    DATE=`date '+%Y-%m-%d %H:%M:%S'`
+    CHECKPOINT_NAME=$DATE
+else
+    CHECKPOINT_NAME="$1"
+fi
+
+echo "Creating checkpoint $CHECKPOINT_NAME..."
+
 CHECKPOINT_FOLDER=$(pwd)/data/$CHECKPOINT_NAME
 RUNNING_FOLDER=$(pwd)/data/current
-
 
 rm -rf $CHECKPOINT_FOLDER
 
 ##stop all containers
-#
-docker pause virtuoso-dendro
-docker pause elasticsearch-dendro
-docker pause virtuoso-dendro
-docker pause mysql-dendro
-docker pause mongo-dendro
-docker pause redis-dendro-default
-docker pause redis-dendro-social
-docker pause redis-dendro-notifications
+exec $DOCKER_SCRIPTS_DIR/pause_containers.sh
 
 # create copy of folder
 cp -R $RUNNING_FOLDER $CHECKPOINT_FOLDER
 
 ## start containers with the volumes mounted
-docker unpause virtuoso-dendro
-docker unpause elasticsearch-dendro
-docker unpause virtuoso-dendro
-docker unpause mysql-dendro
-docker unpause mongo-dendro
-docker unpause redis-dendro-default
-docker unpause redis-dendro-social
-docker unpause redis-dendro-notifications
+exec $DOCKER_SCRIPTS_DIR/unpause_containers.sh
 
 echo "$CHECKPOINT_NAME"

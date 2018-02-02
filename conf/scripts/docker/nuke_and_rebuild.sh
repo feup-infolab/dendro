@@ -8,6 +8,7 @@ DOCKERFILES_DIR="$(pwd)/conf/dockerfiles"
 eval $DOCKER_SCRIPTS_DIR/destroy_images.sh
 
 #remove all data
+#docker system prune -a -f
 docker system prune -f
 rm -rf data/current
 
@@ -22,3 +23,6 @@ mkdir -p data/current/redis-notifications
 
 # Build images again
 eval "$DOCKER_SCRIPTS_DIR/build_images.sh"
+
+#start new containers
+eval "$DOCKER_SCRIPTS_DIR/start_containers.sh"

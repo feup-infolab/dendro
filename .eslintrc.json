@@ -1,0 +1,14 @@
+{
+  "extends": "strict-standard",
+
+  "rules": {
+    "semi": [2, "always"],
+    "brace-style":[2, "allman"],
+    "no-warning-comments": "warn",
+    "no-console": "warn",
+    "no-shadow": "warn",
+    "indent": [2, 4],
+    "strict": "warn",
+    "quotes": ["error", "double", { "allowTemplateLiterals": true }]
+  }
+}

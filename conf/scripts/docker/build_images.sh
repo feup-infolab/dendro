@@ -18,20 +18,12 @@ docker build \
     -t virtuoso:7.2.2-dendro-v0.3 \
     "$DOCKERFILES_DIR/virtuoso_with_criu_and_ontologies"
 
-#LOAD ONTOLOGIES BECAUSE EITHER I OR THE THE DOCKERFILE ARE TOO STUPID TO DO THAT EFFECTIVELY, THANK YOU DOCKER
-mkdir -p $RUNNING_FOLDER/virtuoso
-docker run --name virtuoso-dendro \
-    -p 8890:8890 \
-    -p 1111:1111 \
-    -e SPARQL_UPDATE=true \
-    -v $RUNNING_FOLDER/virtuoso:/data \
-    -d virtuoso:7.2.2-dendro-v0.3 || docker start virtuoso-dendro
-
+docker run --name virtuoso-dendro -p 8890:8890 -p 1111:1111 -e SPARQL_UPDATE=true -d virtuoso:7.2.2-dendro-v0.3
 sleep 30
 docker exec virtuoso-dendro /bin/bash -c "isql-v -U dba -P dba < \$HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql"
+sleep 30
 docker stop virtuoso-dendro
-
-#####
+docker commit virtuoso-dendro virtuoso-7.2.2-dendro-v0.3
 
 docker build \
     -t elasticsearch:2.3.3-dendro-v0.3 \
