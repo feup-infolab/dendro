@@ -45,6 +45,11 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 // nuke orphan resources tests /admin/nuke_orphan_resources
 require(Pathfinder.absPathInTestsFolder("/routes/admin/nuke_orphan_resources/routes.admin.nukeOrphanResources.Test.js"));
 
+//test ls_by_name
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__ls_by_name/routes.project.publicProject.data.testFolder1.__ls_by_name.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__ls_by_name/routes.project.privateProject.data.testFolder1.__ls_by_name.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__ls_by_name/routes.project.metadataOnlyProject.data.testFolder1.__ls_by_name.Test.js"));
+
 // Indexing
 require(Pathfinder.absPathInTestsFolder("/routes/admin/reindex/routes.admin.reindex.Test.js"));
 

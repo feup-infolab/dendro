@@ -1667,15 +1667,59 @@ Resource.prototype.unindex = function (callback, customGraphUri)
 Resource.prototype.getIndexDocumentId = function (callback, customGraphUri)
 {
     let self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
-    self.restoreFromIndexDocument(function (err, restoredResource)
-    {
-        if (!isNull(self.indexData))
+    // fetch document from the index that matches the current resource
+    const queryObject = {
+        query: {
+            constant_score: {
+                filter: {
+                    term: {
+                        uri: self.uri
+                    }
+                }
+            }
+        },
+        from: 0,
+        size: 200
+    };
+
+    indexConnection.search(
+        // search in all graphs for resources (generic type)
+        IndexConnection.indexTypes.resource,
+        queryObject,
+        function (err, hits)
         {
-            return callback(err, self.indexData.id);
+            if (isNull(err))
+            {
+                if (!isNull(hits) && hits instanceof Array && hits.length > 0)
+                {
+                    if (hits.length > 1)
+                    {
+                        Logger.log("error", "Duplicate document in index detected for resource !!! Fix it " + self.uri);
+                    }
+                    let hit = hits[0];
+                    if(isNull(hit._id))
+                    {
+                        let message = "_id value is missing when looking for the index document id for " + self.uri;
+                        Logger.log("error", message);
+                        return callback(1, message);
+                    }
+                    else
+                    {
+                        return callback(null, hit._id);
+                    }
+                }
+                else
+                {
+                    // Resource was not previously indexed
+                    return callback(null, null);
+                }
+            }
+            return callback(1, [hits]);
         }
-        return callback(err, null);
-    }, customGraphUri);
+    );
 };
 
 Resource.prototype.getTextuallySimilarResources = function (callback, maxResultSize, customGraphUri)

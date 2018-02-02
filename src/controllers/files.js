@@ -2161,46 +2161,76 @@ exports.ls_by_name = function (req, res)
     const resourceURI = req.params.requestedResourceUri;
     let show_deleted = req.query.show_deleted;
     let childName = req.query.title;
-    Folder.findByUri(resourceURI, function (err, containingFolder)
+
+    if(isNull(childName))
     {
-        if (isNull(err) && !isNull(containingFolder))
+        return res.status(400).json({
+            result: "error",
+            message: "The requestedResourceUri parameter is required"
+        });
+    }
+
+    if(isNull(resourceURI))
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "The title query parameter is required"
+        });
+    }
+
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    if (!acceptsJSON && acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message: "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        Folder.findByUri(resourceURI, function (err, containingFolder)
         {
-            containingFolder.findChildWithDescriptor(new Descriptor({
-                prefixedForm: "nie:title",
-                value: childName
-            }), function (err, children)
+            if (isNull(err) && !isNull(containingFolder))
             {
-                if (isNull(err))
+                containingFolder.findChildWithDescriptor(new Descriptor({
+                    prefixedForm: "nie:title",
+                    value: childName
+                }), function (err, children)
                 {
-                    if (isNull(children))
+                    if (isNull(err))
                     {
-                        res.status(404).json({
-                            result: "Error",
-                            error: "Child with name : " + childName + " is not a children of " + containingFolder.uri
-                        });
+                        if (isNull(children))
+                        {
+                            res.status(404).json({
+                                result: "Error",
+                                message: "Child with name : " + childName + " is not a children of " + containingFolder.uri
+                            });
+                        }
+                        else
+                        {
+                            res.json(children);
+                        }
                     }
                     else
                     {
-                        res.json(children);
+                        res.status(500).json({
+                            result: "Error",
+                            message: JSON.stringify(children)
+                        });
                     }
-                }
-                else
-                {
-                    res.status(500).json({
-                        result: "Error",
-                        error: JSON.stringify(children)
-                    });
-                }
-            });
-        }
-        else
-        {
-            res.status(404).json({
-                result: "Error",
-                error: "Non-existent folder. Is this a file instead of a folder? : " + resourceURI
-            });
-        }
-    });
+                });
+            }
+            else
+            {
+                res.status(404).json({
+                    result: "Error",
+                    message: "Non-existent folder. Is this a file instead of a folder? : " + resourceURI
+                });
+            }
+        });
+    }
 };
 
 exports.ls = function (req, res)
