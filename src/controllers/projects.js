@@ -1665,6 +1665,9 @@ exports.stats = function (req, res)
                     project.getStorageSize(function (err, storageSize)
                     {
                         if (isNull(err))
+
+
+
                         {
                             return callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize);
                         }
@@ -2499,6 +2502,7 @@ exports.storage = function (req, res)
                         {
                             if (!isNull(storage) && storage instanceof StorageConfig)
                             {
+                                storage.clearDescriptors([Elements.access_types.locked],[Elements.access_types.api_readable]);
                                 callback(null, storage);
                             }
                             else
