@@ -17,8 +17,9 @@ DockerCheckpointManager._checkpoints = {};
 
 DockerCheckpointManager.startAllContainers = function ()
 {
-    return childProcess.execSync(startContainersScript, {
-        cwd: Pathfinder.absPathInApp("/")
+    return childProcess.execSync(`/bin/bash -c "${startContainersScript}"`, {
+        cwd: Pathfinder.appDir,
+        stdio: [0, 1, 2]
     });
 };
 
@@ -36,9 +37,9 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
     }
     else
     {
-        childProcess.execSync(createCheckpointScript, {
-            cwd: Pathfinder.absPathInApp("/"),
-            input: checkpointName
+        childProcess.execSync(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
+            cwd: Pathfinder.appDir,
+            stdio: [0, 1, 2]
         });
 
         Logger.log("info", "Saved snapshot with name" + checkpointName);
@@ -50,9 +51,9 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
 {
     if (DockerCheckpointManager._checkpoints[checkpointName])
     {
-        childProcess.execSync(restoreCheckpointScript, {
-            cwd: Pathfinder.absPathInApp("/"),
-            input: checkpointName
+        childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript}" ${checkpointName}`, {
+            cwd: Pathfinder.appDir,
+            stdio: [0, 1, 2]
         });
 
         Logger.log("info", "Restored snapshot with name" + checkpointName + " of Docker container " + checkpointName);

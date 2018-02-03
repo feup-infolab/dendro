@@ -13,6 +13,7 @@ const initDockerContainers = function (app, callback)
         try
         {
             DockerCheckpointManager.startAllContainers();
+            callback(null);
         }
         catch (e)
         {

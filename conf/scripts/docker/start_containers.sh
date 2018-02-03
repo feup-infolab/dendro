@@ -15,12 +15,6 @@ mkdir -p $RUNNING_FOLDER/redis-social
 mkdir -p $RUNNING_FOLDER/redis-notifications
 
 # start containers with the volumes mounted
-#docker run --name virtuoso-dendro \
-#    -p 8890:8890 \
-#    -p 1111:1111 \
-#    -e SPARQL_UPDATE=true \
-#    -v $RUNNING_FOLDER/virtuoso:/data \
-#    -d joaorosilva/virtuoso-7.2.2-dendro-v0.3 || docker start virtuoso-dendro-remote
 
 docker run --name elasticsearch-dendro \
     -p 9200:9200 \
@@ -28,9 +22,8 @@ docker run --name elasticsearch-dendro \
     -e "discovery.type=single-node" \
     -e "http.host=0.0.0.0" \
     -e "transport.host=127.0.0.1" \
-    -v $RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch/data \
-    -d docker.elastic.co/elasticsearch/elasticsearch:6.1.3 || docker start elasticsearch-dendro
-#-Des.network.host=0.0.0.0
+    -v "$RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch/data" \
+    -d elasticsearch:2.4.6 || docker start elasticsearch-dendro
 
 docker run --name virtuoso-dendro \
     -p 8890:8890 \
@@ -38,7 +31,7 @@ docker run --name virtuoso-dendro \
     -e SPARQL_UPDATE=true \
     -e "NumberOfBuffers=$((32*85000))" \
     -v "$RUNNING_FOLDER/virtuoso:/data" \
-    -d virtuoso:7.2.2-dendro-v0.3 || docker start virtuoso-dendro
+    -d tenforce/virtuoso:1.2.0-virtuoso7.2.4 || docker start virtuoso-dendro
 
 docker run --name mysql-dendro \
     -p 3306:3306 \
@@ -68,3 +61,14 @@ docker run --name redis-dendro-notifications \
     -d redis:3.2.11 || docker start redis-dendro-notifications
 
 docker ps
+
+
+#docker run --name virtuoso-dendro \
+#    -p 8890:8890 \
+#    -p 1111:1111 \
+#    -e SPARQL_UPDATE=true \
+#    -v $RUNNING_FOLDER/virtuoso:/data \
+#    -d joaorosilva/virtuoso-7.2.2-dendro-v0.3 || docker start virtuoso-dendro-remote
+
+#for elasticsearch
+#-Des.network.host=0.0.0.0

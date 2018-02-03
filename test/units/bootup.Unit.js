@@ -58,7 +58,7 @@ module.exports.setup = function (finish)
                     if (Config.docker.active)
                     {
                         DockerCheckpointManager.createOrRestoreCheckpoint("bootupUnit");
-                        finish(err, result);
+                        finish(err, res);
                     }
                     else
                     {

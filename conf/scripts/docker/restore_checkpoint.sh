@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-if "$1" == ""; then
+if [ "$1" == "" ]
+then
     DATE=`date '+%Y-%m-%d %H:%M:%S'`
     CHECKPOINT_NAME=$DATE
 else

@@ -19,13 +19,6 @@ docker build \
     -t virtuoso:7.2.4-dendro-v0.3 \
     "$DOCKERFILES_DIR/virtuoso_with_criu_and_ontologies"
 
-docker run --name virtuoso-dendro -p 8890:8890 -p 1111:1111 -e SPARQL_UPDATE=true -d virtuoso:7.2.4-dendro-v0.3
-sleep 30
-docker exec virtuoso-dendro /bin/bash -c "isql-v -U dba -P dba < \$HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql && \
-                                          echo \"shutdown();\" | isql-v -U dba -P dba"
-docker commit virtoso-dendro virtuoso:7.2.4-dendro-v0.3-ontologies-loaded
-docker stop virtuoso-dendro
-
 #docker build \
 #    -t elasticsearch:5.6.6-dendro-v0.3 \
 #    "$DOCKERFILES_DIR/elasticsearch_with_criu"

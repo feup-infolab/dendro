@@ -4,7 +4,8 @@ SCRIPTS_DIR="$(pwd)/conf/scripts"
 DOCKER_SCRIPTS_DIR="$(pwd)/conf/scripts/docker"
 DOCKERFILES_DIR="$(pwd)/conf/dockerfiles"
 
-if "$1" == ""; then
+if [ "$1" == "" ]
+then
     DATE=`date '+%Y-%m-%d %H:%M:%S'`
     CHECKPOINT_NAME=$DATE
 else
@@ -19,12 +20,15 @@ RUNNING_FOLDER=$(pwd)/data/current
 rm -rf $CHECKPOINT_FOLDER
 
 ##stop all containers
-exec $DOCKER_SCRIPTS_DIR/pause_containers.sh
+echo "Pausing all containers..."
+eval "$DOCKER_SCRIPTS_DIR/pause_containers.sh"
 
 # create copy of folder
+echo "Copying $RUNNING_FOLDER -> $CHECKPOINT_FOLDER"
 cp -R $RUNNING_FOLDER $CHECKPOINT_FOLDER
 
 ## start containers with the volumes mounted
-exec $DOCKER_SCRIPTS_DIR/unpause_containers.sh
+echo "UnPausing all containers..."
+eval "$DOCKER_SCRIPTS_DIR/unpause_containers.sh"
 
-echo "$CHECKPOINT_NAME"
+echo "$CHECKPOINT_NAME done!"
