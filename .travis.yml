@@ -27,6 +27,7 @@ before_script:
   - docker rm -f $(docker ps -a -q) || true
   - docker rmi -f $(docker ps -a -q) || true
   - ${TRAVIS_BUILD_DIR}/conf/scripts/docker/nuke_and_rebuild.sh
+  - ${TRAVIS_BUILD_DIR}/conf/scripts/docker/start_containers.sh
 
 script:
   - nvm use 8.9.0

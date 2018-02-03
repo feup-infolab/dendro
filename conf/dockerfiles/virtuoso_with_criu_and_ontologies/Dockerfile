@@ -1,5 +1,4 @@
 FROM tenforce/virtuoso:1.2.0-virtuoso7.2.4
-SHELL ["/bin/bash", "-c"]
 
 #load ontologies
 
@@ -10,7 +9,8 @@ RUN git clone https://github.com/feup-infolab/dendro-install.git $HOME/dendro-in
 
 RUN /bin/sh -c "virtuoso-t -f &" && \
     sleep 30 && \
-    isql-v -U "dba" -P "dba" < $HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql
+    isql-v -U "dba" -P "dba" < $HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql && \
+    echo "shutdown();" | isql-v -U "dba" -P "dba"
 
 EXPOSE 8890
 EXPOSE 1111

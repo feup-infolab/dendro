@@ -26,13 +26,19 @@ docker run --name virtuoso-dendro \
     -p 8890:8890 \
     -p 1111:1111 \
     -e SPARQL_UPDATE=true \
+    -e "NumberOfBuffers=$((32*85000))" \
     -v $RUNNING_FOLDER/virtuoso:/data \
     -d virtuoso:7.2.2-dendro-v0.3 || docker start virtuoso-dendro
 
-docker run --name elasticsearch-dendro \
+docker run \
     -p 9200:9200 \
+    -p 9300:9300 \
+    -e "discovery.type=single-node" \
+    -e "http.host=0.0.0.0" \
+    -e "transport.host=127.0.0.1" \
     -v $RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch \
-    -d elasticsearch:2.3.3 || docker start elasticsearch-dendro
+    -d docker.elastic.co/elasticsearch/elasticsearch:6.1.3 \
+    -Des.network.host=0.0.0.0 || docker start elasticsearch-dendro
 
 docker run --name mysql-dendro \
     -p 3306:3306 \

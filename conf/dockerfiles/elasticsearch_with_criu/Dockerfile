@@ -1,4 +1,4 @@
-FROM elasticsearch:2.3.3
+FROM elasticsearch:5.6.6
 
 ## install criu for container snapshotting and restoring
 #RUN apt-get update
@@ -13,3 +13,4 @@ FROM elasticsearch:2.3.3
 #RUN make install -C $HOME/criu
 
 EXPOSE 9200
+EXPOSE 9300
