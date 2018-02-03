@@ -22,49 +22,49 @@ mkdir -p $RUNNING_FOLDER/redis-notifications
 #    -v $RUNNING_FOLDER/virtuoso:/data \
 #    -d joaorosilva/virtuoso-7.2.2-dendro-v0.3 || docker start virtuoso-dendro-remote
 
-docker run --name virtuoso-dendro \
-    -p 8890:8890 \
-    -p 1111:1111 \
-    -e SPARQL_UPDATE=true \
-    -e "NumberOfBuffers=$((32*85000))" \
-    -v $RUNNING_FOLDER/virtuoso:/data \
-    -d virtuoso:7.2.2-dendro-v0.3 || docker start virtuoso-dendro
-
-docker run \
+docker run --name elasticsearch-dendro \
     -p 9200:9200 \
     -p 9300:9300 \
     -e "discovery.type=single-node" \
     -e "http.host=0.0.0.0" \
     -e "transport.host=127.0.0.1" \
-    -v $RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch \
-    -d docker.elastic.co/elasticsearch/elasticsearch:6.1.3 \
-    -Des.network.host=0.0.0.0 || docker start elasticsearch-dendro
+    -v $RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch/data \
+    -d docker.elastic.co/elasticsearch/elasticsearch:6.1.3 || docker start elasticsearch-dendro
+#-Des.network.host=0.0.0.0
+
+docker run --name virtuoso-dendro \
+    -p 8890:8890 \
+    -p 1111:1111 \
+    -e SPARQL_UPDATE=true \
+    -e "NumberOfBuffers=$((32*85000))" \
+    -v "$RUNNING_FOLDER/virtuoso:/data" \
+    -d virtuoso:7.2.2-dendro-v0.3 || docker start virtuoso-dendro
 
 docker run --name mysql-dendro \
     -p 3306:3306 \
-    -v $RUNNING_FOLDER/mysql:/var/lib/mysql \
+    -e MYSQL_ROOT_PASSWORD=r00t \
+    -v "$RUNNING_FOLDER/mysql:/var/lib/mysql" \
     -d mysql:8.0.3 || docker start mysql-dendro
-
 
 docker run --name mongo-dendro \
     -p 27017:27017 \
-    -v $RUNNING_FOLDER/mongo:/data/db \
+    -v "$RUNNING_FOLDER/mongo:/data/db" \
     -d mongo:3.4.10 || docker start mongo-dendro
 
 
 docker run --name redis-dendro-default \
     -p 6781:6780 \
-    -v $RUNNING_FOLDER/redis-default:/data \
+    -v "$RUNNING_FOLDER/redis-default:/data" \
     -d redis:3.2.11 || docker start redis-dendro-default
 
 docker run --name redis-dendro-social \
     -p 6782:6780 \
-    -v $RUNNING_FOLDER/redis-default:/data \
+    -v "$RUNNING_FOLDER/redis-default:/data" \
     -d redis:3.2.11 || docker start redis-dendro-social
 
 docker run --name redis-dendro-notifications \
     -p 6783:6780 \
-    -v $RUNNING_FOLDER/redis-default:/data \
+    -v "$RUNNING_FOLDER/redis-default:/data" \
     -d redis:3.2.11 || docker start redis-dendro-notifications
 
 docker ps
