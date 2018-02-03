@@ -10,15 +10,16 @@ const initDockerContainers = function (app, callback)
 {
     if (Config.docker.active)
     {
-        DockerCheckpointManager.startAllContainers(function (err, results)
+        try
         {
-            if (!isNull(err))
-            {
-                const msg = "Unable to start docker containers!" + JSON.stringify(results);
-                Logger.log("error", msg);
-            }
-            callback(err);
-        });
+            DockerCheckpointManager.startAllContainers();
+        }
+        catch (e)
+        {
+            const msg = "Unable to start docker containers!" + JSON.stringify(e);
+            Logger.log("error", msg);
+            callback(e, msg);
+        }
     }
     else
     {

@@ -179,7 +179,6 @@
     "codeclimate-test-reporter": "^0.5.0",
     "coveralls": "^3.0.0",
     "cross-env": "^5.1.1",
-    "dockerode": "^2.5.3",
     "eslint": "^4.11.0",
     "eslint-config-standard": "^11.0.0-beta.0",
     "eslint-config-strict-standard": "^3.0.1",
