@@ -42,6 +42,9 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 // require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/folderExportCkan/__export_to_repository/routes.project.privateProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js"));
 // END *** THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
 
+// list orphan resources tests /admin/list_orphan_resources
+require(Pathfinder.absPathInTestsFolder("/routes/admin/list_orphan_resources/routes.admin.listOrphanResources.Test.js"));
+
 // nuke orphan resources tests /admin/nuke_orphan_resources
 require(Pathfinder.absPathInTestsFolder("/routes/admin/nuke_orphan_resources/routes.admin.nukeOrphanResources.Test.js"));
 
