@@ -31,6 +31,7 @@ let odsMockFileUri;
 let app;
 let agent;
 
+
 checkFileExistsInGridFs = function (fileUri, callback) {
     const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
     let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
@@ -51,7 +52,7 @@ checkFileExistsInGridFs = function (fileUri, callback) {
     });
 };
 
-describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resources )", function (done)
+describe("Administration list orphan resources tests ( /admin/list_orphan_resources )", function (done)
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
@@ -86,11 +87,11 @@ describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resour
     });
     describe("Invalid cases", function ()
     {
-        it("Should not allow nuking orphan resources without being logged in", function (done)
+        it("Should not allow listing orphan resources without being logged in", function (done)
         {
             app = global.tests.app;
             agent = chai.request.agent(app);
-            administerUtils.nukeOrphanResources(agent,
+            administerUtils.listOrphanResources(agent,
                 function (err, res)
                 {
                     res.should.have.status(401);
@@ -99,11 +100,11 @@ describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resour
                 });
         });
 
-        it("Should not allow nuking orphan resources without being logged in as an administrator", function (done)
+        it("Should not allow listing orphan resources without being logged in as an administrator", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                administerUtils.nukeOrphanResources(agent,
+                administerUtils.listOrphanResources(agent,
                     function (err, res)
                     {
                         res.should.have.status(401);
@@ -116,24 +117,24 @@ describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resour
 
     describe("Valid cases", function ()
     {
-        it("[CASE: NO RESOURCES NUKED] Should allow allow nuking orphan resources if the user is an administrator", function (done)
+        it("[CASE: NO ORPHAN RESOURCES] Should allow listing orphan resources if the user is an administrator", function (done)
         {
             userUtils.loginUser(admin.username, admin.password, function (err, agent)
             {
-                administerUtils.nukeOrphanResources(
+                administerUtils.listOrphanResources(
                     agent,
                     function (err, res)
                     {
                         res.should.have.status(200);
-                        res.body.message.should.equal("Destroyed 0 orphan resources successfully.");
-                        res.body.nukedResources.should.be.instanceof(Array);
-                        res.body.nukedResources.length.should.equal(0);
+                        res.body.message.should.equal("There are 0 orphan resources in gridfs!");
+                        res.body.orphanResources.should.be.instanceof(Array);
+                        res.body.orphanResources.length.should.equal(0);
                         done();
                     });
             });
         });
 
-        it("[CASE: 1 RESOURCE NUKED] Should allow allow nuking orphan resources if the user is an administrator", function (done)
+        it("[CASE: 1  TWO ORPHAN RESOURCES FOUND] Should allow allow listing orphan resources if the user is an administrator", function (done)
         {
             userUtils.loginUser(admin.username, admin.password, function (err, agent)
             {
@@ -153,31 +154,37 @@ describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resour
                 }, function (err, result)
                 {
                     should.equal(err, null);
-                    administerUtils.nukeOrphanResources(
+                    administerUtils.listOrphanResources(
                         agent,
                         function (err, res)
                         {
                             res.should.have.status(200);
-                            res.body.message.should.equal("Destroyed 2 orphan resources successfully.");
-                            res.body.nukedResources.should.be.instanceof(Array);
-                            res.body.nukedResources.length.should.equal(2);
+                            res.body.message.should.equal("There are 2 orphan resources in gridfs!");
+                            res.body.orphanResources.should.be.instanceof(Array);
+                            res.body.orphanResources.length.should.equal(2);
+                            res.body.orphanResources.should.contain(txtMockFileUri);
+                            res.body.orphanResources.should.contain(zipMockFileUri);
+                            res.body.orphanResources.should.not.contain(odsMockFileUri);
                             fileUtils.downloadFileByUri(true, agent, txtMockFileUri, function (error, res)
                             {
+                                //The txt file is still orphan
                                 res.statusCode.should.equal(404);
                                 fileUtils.downloadFileByUri(true, agent, zipMockFileUri, function (error, res)
                                 {
+                                    //The zip file is still orphan
                                     res.statusCode.should.equal(404);
                                     fileUtils.downloadFileByUri(true, agent, odsMockFileUri, function (error, res)
                                     {
+                                        //The ods file is not an orphan
                                         res.statusCode.should.equal(200);
                                         checkFileExistsInGridFs(txtMockFileUri, function (err, files) {
                                             should.equal(err, null);
-                                            //The txt file is orphan and was deleted in gridfs
-                                            files.length.should.equal(0);
+                                            //The txt file is orphan but was not deleted in gridfs-> because this is only the list endpoint
+                                            files.length.should.equal(1);
                                             checkFileExistsInGridFs(zipMockFileUri, function (err, files) {
                                                 should.equal(err, null);
-                                                //The zip file is orphan and was deleted in gridfs
-                                                files.length.should.equal(0);
+                                                //The zip file is orphan but was not deleted gridfs -> because this is only the list endpoint
+                                                files.length.should.equal(1);
                                                 checkFileExistsInGridFs(odsMockFileUri, function (err, files) {
                                                     should.equal(err, null);
                                                     //The ods file is not an orphan

@@ -253,25 +253,52 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <h4>
-                            Nuke all orphan resources from gridfs
+                            Orphan Resources
                         </h4>
+
+                        <h5>--Resources that no longer exist in the triple store, but for some reason still exist in the Gridfs storage--</h5>
+
+
+                        <button ng-click="listOrphanResources()" class="btn btn-sm btn-warning">List all orphan resources in gridfs</button>
+                        <div class="help-block">List all resources in gridfs that do not exist in triple store graph
+                            <br/>
+                            <strong>Run This before attempting to nuke any orphan resources!!!</strong>
+                        </div>
 
                         <button ng-click="nukeOrphanResources()" class="btn btn-sm btn-danger">Nuke orphan resources in gridfs</button>
                         <div class="help-block">Deletes all resources in gridfs that do not exist in triple store graph
                             <br/>
-                            <!--<strong>Be sure to keep a backup to restore in via SSH if your configuration ends up with errors! If there are errors, Dendro will FAIL to start up!</strong>-->
+                            <strong>Be sure to run 'List all orphan resources in gridfs' first!</strong>
                         </div>
 
-                        <h4>
-                            Nuke status:
-                        </h4>
 
-                        <div class="nuke_orphan_resouces_viewer"
-                             ng-model="nukedResources" ng-readonly="true" ui-ace="{
-                          useWrapMode : true,
-                          theme:'twilight',
-                          mode: 'json',
-                        }"></div>
+                        <div ng-show="orphanResources">
+                            <h4>
+                                Orphan list:
+                            </h4>
+
+                            <div class="nuke_orphan_resouces_viewer"
+                                 ng-model="orphanResources" ng-readonly="true" ui-ace="{
+                                  useWrapMode : true,
+                                  theme:'twilight',
+                                  mode: 'json',
+                                }">
+                            </div>
+                        </div>
+
+                        <div ng-show="nukedResources">
+                            <h4>
+                                Nuke status:
+                            </h4>
+
+                            <div class="nuke_orphan_resouces_viewer"
+                                 ng-model="nukedResources" ng-readonly="true" ui-ace="{
+                                  useWrapMode : true,
+                                  theme:'twilight',
+                                  mode: 'json',
+                                }">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -607,14 +607,7 @@ module.exports.restartServer = function (req, res)
 
 
 
-
-nukeOrphanResourcesAuxFunction = function (callback) {
-    //look for all resources in gridfs
-    // for each see if they are in virtuoso graph
-        //if true -> do nothing
-        //if false -> delete resource in gridfs
-
-    //use file.delete with really delete to really delete in gridfs
+listOrphanResourcesAux = function (callback) {
     let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
     mongoClient.connect(function (err, mongoDb)
     {
@@ -651,27 +644,7 @@ nukeOrphanResourcesAuxFunction = function (callback) {
                             });
                         }, function (err, result)
                         {
-                            if(!isNull(resourcesToDeleteInStorage) && resourcesToDeleteInStorage.length > 0)
-                            {
-                                let constructedQuery = { "filename": { $in: resourcesToDeleteInStorage } };
-                                gfs.connection.deleteByQuery(constructedQuery, function (err, result) {
-                                    if(isNull(err))
-                                    {
-                                        callback(err, resourcesToDeleteInStorage)
-                                    }
-                                    else
-                                    {
-                                        const message = "Error at nuking orphan resources: " + JSON.stringify(result);
-                                        Logger.log("error", message);
-                                        callback(err, result);
-                                    }
-                                })
-                                //}, "fs.files") // TODO HELP @jrocha if I uncomment this line and comment the above line -> the orphan resource is not found in gridfs and I don't know why
-                            }
-                            else
-                            {
-                                callback(err, []);
-                            }
+                            callback(err, resourcesToDeleteInStorage);
                         });
                     }
                 }
@@ -692,22 +665,80 @@ nukeOrphanResourcesAuxFunction = function (callback) {
     });
 };
 
-module.exports.nukeOrphanResources = function (req, res) {
-    nukeOrphanResourcesAuxFunction(function (err, info) {
+nukeOrphanResourcesAuxFunction = function (callback) {
+    //look for all resources in gridfs
+    // for each see if they are in virtuoso graph
+        //if true -> do nothing
+        //if false -> delete resource in gridfs
+    listOrphanResourcesAux(function (err, files)
+    {
+        if(isNull(err))
+        {
+            if(!isNull(files) && files.length > 0)
+            {
+                let constructedQuery = { "filename": { $in: files } };
+                gfs.connection.deleteByQuery(constructedQuery, function (err, result) {
+                    if(isNull(err))
+                    {
+                        callback(err, files)
+                    }
+                    else
+                    {
+                        const message = "Error at nuking orphan resources: " + JSON.stringify(result);
+                        Logger.log("error", message);
+                        callback(err, result);
+                    }
+                })
+            }
+            else
+            {
+                callback(err, []);
+            }
+        }
+        else
+        {
+            callback(err, files);
+        }
+    })
+};
+
+
+module.exports.listOrphanResources = function (req, res) {
+    listOrphanResourcesAux(function (err, files)
+    {
         if(isNull(err))
         {
             res.json({
                 result: "ok",
-                message: "Destroyed " + info.length + " orphan resources successfully.",
-                //nukedResources: Serializers.dataToJSON(info)
-                nukedResources: info
+                message: "There are " + files.length + " orphan resources in gridfs!",
+                orphanResources: files
             });
         }
         else
         {
             res.status(500).json({
                 result: "error",
-                message: JSON.stringify(info)
+                message: JSON.stringify(files)
+            });
+        }
+    })
+};
+
+module.exports.nukeOrphanResources = function (req, res) {
+    nukeOrphanResourcesAuxFunction(function (err, files) {
+        if(isNull(err))
+        {
+            res.json({
+                result: "ok",
+                message: "Destroyed " + files.length + " orphan resources successfully.",
+                nukedResources: files
+            });
+        }
+        else
+        {
+            res.status(500).json({
+                result: "error",
+                message: JSON.stringify(files)
             });
         }
     });
