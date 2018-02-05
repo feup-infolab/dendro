@@ -8,6 +8,7 @@ const childProcess = require("child_process");
 const startContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/start_containers.sh");
 const createCheckpointScript = Pathfinder.absPathInApp("/conf/scripts/docker/create_checkpoint.sh");
 const restoreCheckpointScript = Pathfinder.absPathInApp("/conf/scripts/docker/restore_checkpoint.sh");
+const restartContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/restart_containers.sh");
 
 const DockerCheckpointManager = function ()
 {
@@ -72,6 +73,28 @@ DockerCheckpointManager.createOrRestoreCheckpoint = function (checkpointName)
     }
 
     return DockerCheckpointManager.restoreCheckpoint(checkpointName);
+};
+
+DockerCheckpointManager.restartAllContainers = function (onlyOnce)
+{
+    if (onlyOnce)
+    {
+        if (!DockerCheckpointManager._restartedOnce)
+        {
+            childProcess.execSync(`/bin/bash -c "${restartContainersScript}"`, {
+                cwd: Pathfinder.appDir,
+                stdio: [0, 1, 2]
+            });
+            DockerCheckpointManager._restartedOnce = true;
+        }
+    }
+    else
+    {
+        childProcess.execSync(`/bin/bash -c "${restartContainersScript}"`, {
+            cwd: Pathfinder.appDir,
+            stdio: [0, 1, 2]
+        });
+    }
 };
 
 module.exports.DockerCheckpointManager = DockerCheckpointManager;
