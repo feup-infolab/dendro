@@ -31,18 +31,24 @@ angular.module("dendroApp.controllers")
         $scope.nukeOrphanResources = function () {
             $scope.orphanResources = null;
             $scope.nukedResources = null;
-            dendroConfigurationService.nukeOrphanResources()
-                .then(function (data)
+            bootbox.confirm("DO YOU REALLY WANT TO NUKE THE ORPHAN RESOURCES?", function (confirmed)
+            {
+                if(confirmed)
                 {
-                    Utils.show_popup("success", "Nuked", data.message);
-                    $scope.nukedResources = data;
-                })
-                .catch(function (error)
-                {
-                    Utils.show_popup("error", "Error", "Error nuking orphan resources in gridfs");
-                    Utils.show_popup("error", "Error", JSON.stringify(error));
-                    $scope.nukedResources = error;
-                });
+                    dendroConfigurationService.nukeOrphanResources()
+                        .then(function (data)
+                        {
+                            Utils.show_popup("success", "Nuked", data.message);
+                            $scope.nukedResources = data;
+                        })
+                        .catch(function (error)
+                        {
+                            Utils.show_popup("error", "Error", "Error nuking orphan resources in gridfs");
+                            Utils.show_popup("error", "Error", JSON.stringify(error));
+                            $scope.nukedResources = JSON.stringify(error);
+                        });
+                }
+            });
         };
 
         $scope.listOrphanResources = function () {
@@ -58,7 +64,7 @@ angular.module("dendroApp.controllers")
                 {
                     Utils.show_popup("error", "Error", "Error Looking for orphan resources in gridfs");
                     Utils.show_popup("error", "Error", JSON.stringify(error));
-                    $scope.orphanResources = error;
+                    $scope.orphanResources = JSON.stringify(error);
                 });
         };
 

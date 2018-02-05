@@ -718,7 +718,7 @@ module.exports.listOrphanResources = function (req, res) {
         {
             res.status(500).json({
                 result: "error",
-                message: files
+                message: JSON.stringify(files)
             });
         }
     })
@@ -738,7 +738,7 @@ module.exports.nukeOrphanResources = function (req, res) {
         {
             res.status(500).json({
                 result: "error",
-                message: files
+                message: JSON.stringify(files)
             });
         }
     });
