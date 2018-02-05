@@ -1439,7 +1439,7 @@
                 "elasticsearch_connection_log_type": ""
             },
             "tests": {
-                "log_unit_completion_and_startup": false
+                "log_unit_completion_and_startup": true
             },
             "memory": {
                 "dump_snapshots": false

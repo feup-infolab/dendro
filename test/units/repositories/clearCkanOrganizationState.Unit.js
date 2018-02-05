@@ -9,6 +9,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -34,7 +35,7 @@ module.exports.setup = function (project, finish)
         else
         {
             console.log("---------- RUNNING UNIT clearCkanOrganizationState for: " + project.handle + " ----------");
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
+            unitUtils.start(__filename);
             ckanTestUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
             {
                 if (err)
@@ -64,18 +65,18 @@ module.exports.setup = function (project, finish)
                         {
                             if (data.error.name[0] === "Group name already exists in database")
                             {
-                                appUtils.registerStopTimeForUnit(path.basename(__filename));
+                                unitUtils.stop(__filename);
                                 finish(null, data);
                             }
                             else
                             {
-                                appUtils.registerStopTimeForUnit(path.basename(__filename));
+                                unitUtils.stop(__filename);
                                 finish(err, data);
                             }
                         }
                         else
                         {
-                            appUtils.registerStopTimeForUnit(path.basename(__filename));
+                            unitUtils.stop(__filename);
                             finish(err, data);
                         }
                     });

@@ -9,6 +9,7 @@ const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repositor
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
@@ -48,7 +49,7 @@ module.exports.setup = function (project, finish)
             // procurar para todos os projetos as pastas da root e fazer upload de um ficheiro
             /* async.mapSeries(projects, function (project, cb) { */
             console.log("---------- RUNNING UNIT uploadFileToProjectFolders.Unit for: " + project.handle + " ----------");
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
+            unitUtils.start(__filename);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 if (err)

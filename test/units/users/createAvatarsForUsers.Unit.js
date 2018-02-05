@@ -38,7 +38,7 @@ const end = function ()
 
 module.exports.setup = function (finish)
 {
-    start();
+    unitUtils.start(path.basename(__filename));
     const usersData = [demouser1, demouser2, demouser3];
     let createUsersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 

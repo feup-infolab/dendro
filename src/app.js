@@ -3,6 +3,8 @@ const async = require("async");
 const pm2 = require("pm2");
 const argv = require("yargs").argv;
 let Q = require("q");
+let serverListening = Q.defer();
+let connectionsEstablished = Q.defer();
 
 const self = this;
 
@@ -26,24 +28,6 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
-let serverListeningPromise = Q.defer();
-
-const reloadPM2Slave = exports.reloadPM2Slave = function (cb)
-{
-    pm2.connect(function (err)
-    {
-        if (err)
-        {
-            console.error(err);
-            process.exit(2);
-        }
-
-        pm2.gracefulReload(function (err)
-        {
-
-        });
-    });
-};
 
 const killPM2InstancesIfRunning = exports.killPM2InstancesIfRunning = function (cb)
 {
@@ -125,6 +109,18 @@ const initLogger = function ()
     }
 };
 
+const runIfMaster = function (initFunction, app, callback)
+{
+    if (!Config.runningAsSlave)
+    {
+        initFunction(app, callback);
+    }
+    else
+    {
+        callback(null);
+    }
+};
+
 const startApp = function ()
 {
     Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
@@ -148,27 +144,71 @@ const startApp = function ()
     Logger.log_boot_message("Starting Dendro support services...");
 
     /**
-     * Module dependencies.
-     */
+         * Module dependencies.
+         */
 
     let express = require("express");
 
     /**
-     * Promise for reporting the bootup operation.
-     */
+         * Promise for reporting the bootup operation.
+         */
 
     self.app = express();
 
-    const runIfMaster = function (initFunction, app, callback)
+    const initConnections = function (callback)
     {
-        if (!Config.runningAsSlave)
+        async.waterfall([
+            function (callback)
+            {
+                // start docker containers
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_docker.js")).initDockerContainers(self.app, callback);
+            },
+            function (callback)
+            {
+                // setup virtuoso
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtuoso.js")).initVirtuoso(self.app, callback);
+            },
+            function (callback)
+            {
+                // setup caches
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_cache.js")).initCache(self.app, callback);
+            },
+            function (callback)
+            {
+                // init_elasticsearch
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_elasticsearch.js")).initElasticSearch(self.app, callback);
+            },
+            function (callback)
+            {
+                // init gridfs
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_gridfs.js")).initGridFS(self.app, callback);
+            },
+            function (callback)
+            {
+                // init MySQL Connection pool
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_mysql.js")).initMySQL(self.app, callback);
+            },
+            function (callback)
+            {
+                // connect to descriptor recommender
+                require(Pathfinder.absPathInSrcFolder("bootup/init/connect_to_recommender.js")).connectToRecommender(self.app, callback);
+            }
+        ], function (err, results)
         {
-            initFunction(app, callback);
-        }
-        else
-        {
-            callback(null);
-        }
+            if (isNull(err))
+            {
+                connectionsEstablished.resolve({app: self.app});
+            }
+            else
+            {
+                connectionsEstablished.reject({
+                    err: err,
+                    result: results
+                });
+            }
+
+            callback(err);
+        });
     };
 
     /**
@@ -189,69 +229,25 @@ const startApp = function ()
             },
             function (callback)
             {
-                // start docker containers
-                require(Pathfinder.absPathInSrcFolder("bootup/init/init_docker.js")).initDockerContainers(self.app, callback);
+                initConnections(callback);
             },
             function (callback)
             {
-                // setup virtuoso
-                require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtuoso.js")).initVirtuoso(self.app, callback);
-            },
-            function (callback)
-            {
-                // setup caches
-                require(Pathfinder.absPathInSrcFolder("bootup/init/init_cache.js")).initCache(self.app, callback);
-            },
-            function (callback)
-            {
-                // destroy graphs if needed
-                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs, self.app, callback);
+                if (process.env.NODE_ENV !== "test")
+                {
+                    module.exports.seedDatabases(callback);
+                }
+                else
+                {
+                    callback(null);
+                }
             },
             function (callback)
             {
                 // setup passport
                 require(Pathfinder.absPathInSrcFolder("bootup/init/setup_passport.js")).setupPassport(self.app, callback);
             },
-            function (callback)
-            {
-                // load ontologies from database
-                require(Pathfinder.absPathInSrcFolder("bootup/load/load_ontologies.js")).loadOntologies(self.app, callback);
-            },
-            function (callback)
-            {
-                // load or save repository platforms on the database
-                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/load_repository_platforms.js")).loadRepositoryPlatforms, self.app, callback);
-            },
-            function (callback)
-            {
-                // load Descriptor Information
-                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/load_descriptor_information.js")).loadDescriptorInformation, self.app, callback);
-            },
-            function (callback)
-            {
-                // init_elasticsearch
-                require(Pathfinder.absPathInSrcFolder("bootup/init/init_elasticsearch.js")).initElasticSearch(self.app, callback);
-            },
-            function (callback)
-            {
-                // create search indexes on elasticsearch if needed
-                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
-            },
-            function (callback)
-            {
-                // init gridfs
-                require(Pathfinder.absPathInSrcFolder("bootup/init/init_gridfs.js")).initGridFS(self.app, callback);
-            },
-            function (callback)
-            {
-                // init MySQL Connection pool
-                require(Pathfinder.absPathInSrcFolder("bootup/init/init_mysql.js")).initMySQL(self.app, callback);
-            },
-            function (callback)
-            {
-                // connect to descriptor recommender
-                require(Pathfinder.absPathInSrcFolder("bootup/init/connect_to_recommender.js")).connectToRecommender(self.app, callback);
-            },
+
             function (callback)
             {
                 // init temporary files directory
@@ -261,16 +257,6 @@ const startApp = function ()
             {
                 // init folder for temporary files
                 require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder(self.app, callback);
-            },
-            function (callback)
-            {
-                // clear files storage
-                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/clear_files_storage.js")).clearFilesStorage, self.app, callback);
-            },
-            function (callback)
-            {
-                // clear datastore
-                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/clear_datastore.js")).clearDataStore, self.app, callback);
             },
             function (callback)
             {
@@ -309,11 +295,11 @@ const startApp = function ()
         });
     };
 
-    /**
-     * After initialization, load initial data
-     */
+        /**
+         * After initialization, load initial data
+         */
 
-    const loadData = function (callback)
+    const loadInitialUsersData = function (callback)
     {
         async.waterfall([
             function (callback)
@@ -333,9 +319,9 @@ const startApp = function ()
         );
     };
 
-    /**
-     * Bring up Web Server
-     */
+        /**
+         * Bring up Web Server
+         */
 
     const startWebServer = function (callback)
     {
@@ -400,7 +386,7 @@ const startApp = function ()
         {
             if (Config.startup.load_databases)
             {
-                loadData(cb);
+                loadInitialUsersData(cb);
             }
             else
             {
@@ -415,11 +401,11 @@ const startApp = function ()
     {
         if (isNull(err))
         {
-            serverListeningPromise.resolve({server: self.server, app: self.app});
+            serverListening.resolve({server: self.server, app: self.app});
         }
         else
         {
-            serverListeningPromise.reject({
+            serverListening.reject({
                 err: err,
                 result: result
             });
@@ -490,4 +476,46 @@ else
     });
 }
 
-exports.serverListening = serverListeningPromise.promise;
+module.exports.seedDatabases = function (callback)
+{
+    async.series([
+        function (callback)
+        {
+            // destroy graphs if needed
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs, self.app, callback);
+        },
+        function (callback)
+        {
+            // load ontologies from database
+            require(Pathfinder.absPathInSrcFolder("bootup/load/load_ontologies.js")).loadOntologies(self.app, callback);
+        },
+        function (callback)
+        {
+            // load or save repository platforms on the database
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/load_repository_platforms.js")).loadRepositoryPlatforms, self.app, callback);
+        },
+        function (callback)
+        {
+            // load Descriptor Information
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/load_descriptor_information.js")).loadDescriptorInformation, self.app, callback);
+        },
+        function (callback)
+        {
+            // create search indexes on elasticsearch if needed
+            require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
+        },
+        function (callback)
+        {
+            // clear files storage
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/clear_files_storage.js")).clearFilesStorage, self.app, callback);
+        },
+        function (callback)
+        {
+            // clear datastore
+            runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/clear_datastore.js")).clearDataStore, self.app, callback);
+        }
+    ], callback);
+};
+
+module.exports.serverListening = serverListening.promise;
+module.exports.connectionsEstablished = connectionsEstablished.promise;

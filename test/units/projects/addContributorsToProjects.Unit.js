@@ -15,6 +15,7 @@ const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folder
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
@@ -50,18 +51,18 @@ const end = function ()
 
 module.exports.setup = function (finish)
 {
-    start();
+    unitUtils.start(path.basename(__filename));
 
     createProjectsUnit.setup(function (err, results)
     {
         if (err)
         {
             finish(err, results);
-            end();
+            unitUtils.start(__filename);
         }
         else
         {
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
+            unitUtils.registerStartTimeForUnit(path.basename(__filename));
             async.mapSeries(projectsData, function (projectData, cb)
             {
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -80,9 +81,8 @@ module.exports.setup = function (finish)
                 });
             }, function (err, results)
             {
-                appUtils.registerStopTimeForUnit(path.basename(__filename));
                 finish(err, results);
-                end();
+                unitUtils.end(__filename);
             });
         }
     });

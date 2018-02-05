@@ -12,6 +12,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
@@ -42,7 +43,7 @@ module.exports.setup = function (project, finish)
         else
         {
             console.log("---------- RUNNING UNIT exportFoldersToCkanRepository for: " + project.handle + " ----------");
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
+            unitUtils.start(__filename);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 if (err)
@@ -98,7 +99,7 @@ module.exports.setup = function (project, finish)
                                     }, function (err, results)
                                     {
                                         /* cb(err, results); */
-                                        appUtils.registerStopTimeForUnit(path.basename(__filename));
+                                        unitUtils.stop(__filename);
                                         finish(err, results);
                                     });
                                 });

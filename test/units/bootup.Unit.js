@@ -9,6 +9,7 @@ chai.use(chaiHttp);
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/snapshot_manager.js")).DockerCheckpointManager;
 
 const should = chai.should();
@@ -18,58 +19,59 @@ function requireUncached (module)
     return require(module);
 }
 
-const start = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".green);
-        console.log("[Boot up Unit] Booting Dendro test instance...".green);
-        console.log("**********************************************".green);
-    }
-};
-
-const end = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".blue);
-        console.log("[Boot up Unit] Complete".blue);
-        console.log("**********************************************".blue);
-    }
-};
-
 module.exports.setup = function (finish)
 {
-    appUtils.registerStartTimeForUnit(path.basename(__filename));
-    start();
-    requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
-        .serverListening.then(function (appInfo)
-        {
-            chai.request(appInfo.app)
-                .get("/")
-                .end((err, res) =>
-                {
-                    appUtils.registerStopTimeForUnit(path.basename(__filename));
-                    global.tests.app = appInfo.app;
-                    global.tests.server = appInfo.server;
-                    end();
-                    should.not.exist(err);
+    unitUtils.start(path.basename(__filename));
 
-                    if (Config.docker.active)
-                    {
-                        DockerCheckpointManager.restartAllContainers(true);
-                        DockerCheckpointManager.createOrRestoreCheckpoint("bootupUnit");
-                        finish(err, res);
-                    }
-                    else
-                    {
-                        finish(err, res);
-                    }
-                });
-        })
-        .catch(function (error)
+    unitUtils.loadCheckpointAndRun(
+        path.basename(__filename),
+        function (callback)
         {
-            end();
-            finish(error);
+            requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
+                .connectionsEstablished.then(function (appInfo)
+                {
+                    requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
+                        .seedDatabases(function(err, results)
+                        {
+                            if(!err)
+                            {
+                                callback(null, appInfo);
+                            }
+                            else
+                            {
+                                callback(err, results);
+                            }
+                        });
+                })
+                .catch(function (error)
+                {
+                    unitUtils.end(path.basename(__filename));
+                    callback(null, error);
+                    finish(error);
+                });
+        },
+        function (err)
+        {
+            // do not load databases because the state was loaded from docker snapshot
+            requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
+                .serverListening.then(function (appInfo)
+                {
+                    chai.request(appInfo.app)
+                        .get("/")
+                        .end((err, res) =>
+                        {
+                            global.tests.app = appInfo.app;
+                            global.tests.server = appInfo.server;
+                            unitUtils.start(__filename);
+                            should.not.exist(err);
+
+                            finish(err, res);
+                        });
+                })
+                .catch(function (error)
+                {
+                    unitUtils.end(path.basename(__filename));
+                    finish(error);
+                });
         });
 };

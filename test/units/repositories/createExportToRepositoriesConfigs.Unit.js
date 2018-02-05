@@ -7,6 +7,7 @@ const path = require("path");
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -37,7 +38,7 @@ module.exports.setup = function (project, finish)
         else
         {
             console.log("---------- RUNNING UNIT createExportToRepositoriesConfigs for: " + project.handle + " ----------");
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
+            unitUtils.start(__filename);
             async.mapSeries(dataToCreateExportConfigs, function (dataConfig, cb)
             {
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -56,7 +57,7 @@ module.exports.setup = function (project, finish)
                 });
             }, function (err, results)
             {
-                appUtils.registerStopTimeForUnit(path.basename(__filename));
+                unitUtils.stop(__filename);
                 finish(err, results);
             });
         }

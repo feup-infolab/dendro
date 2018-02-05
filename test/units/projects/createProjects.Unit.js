@@ -12,6 +12,7 @@ const path = require("path");
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -32,62 +33,41 @@ function requireUncached (module)
     return require(module);
 }
 
-const start = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".green);
-        console.log("[Create Projects Unit] Setting up projects...".green);
-        console.log("**********************************************".green);
-    }
-};
-
-const end = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".blue);
-        console.log("[Create Projects Unit] Complete...".blue);
-        console.log("**********************************************".blue);
-    }
-};
-
 module.exports.setup = function (finish)
 {
-    start();
+    unitUtils.start(path.basename(__filename));
     let createUsersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
     createUsersUnit.setup(function (err, results)
     {
         if (err)
         {
-            end();
             finish(err, results);
         }
         else
         {
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
+            unitUtils.start(__filename);
             async.mapSeries(projectsData, function (projectData, cb)
             {
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)
                     {
-                        end();
+                        unitUtils.end(__filename);
                         cb(err, agent);
                     }
                     else
                     {
                         projectUtils.createNewProject(true, agent, projectData, function (err, res)
                         {
-                            end();
+                            unitUtils.end(__filename);
                             cb(err, res);
                         });
                     }
                 });
             }, function (err, results)
             {
-                appUtils.registerStopTimeForUnit(path.basename(__filename));
+                unitUtils.end(__filename);
                 finish(err, results);
             });
         }

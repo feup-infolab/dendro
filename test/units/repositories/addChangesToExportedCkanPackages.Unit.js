@@ -15,6 +15,7 @@ const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.
 const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
 const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -45,7 +46,7 @@ module.exports.setup = function (project, finish)
         else
         {
             console.log("---------- RUNNING UNIT addChangesToExportedCkanPackages for: " + project.handle + " ----------");
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
+            unitUtils.start(__filename);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 if (err)
@@ -95,7 +96,7 @@ module.exports.setup = function (project, finish)
                                             repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res)
                                             {
                                                 /* cb(err, res); */
-                                                appUtils.registerStopTimeForUnit(path.basename(__filename));
+                                                unitUtils.end(__filename);
                                                 finish(err, res);
                                             });
                                         });

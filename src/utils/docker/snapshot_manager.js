@@ -69,10 +69,12 @@ DockerCheckpointManager.createOrRestoreCheckpoint = function (checkpointName)
 {
     if (!DockerCheckpointManager.checkpointExists(checkpointName))
     {
-        return DockerCheckpointManager.createCheckpoint(checkpointName);
+        DockerCheckpointManager.createCheckpoint(checkpointName);
+        return false;
     }
 
-    return DockerCheckpointManager.restoreCheckpoint(checkpointName);
+    DockerCheckpointManager.restoreCheckpoint(checkpointName);
+    return true;
 };
 
 DockerCheckpointManager.restartAllContainers = function (onlyOnce)

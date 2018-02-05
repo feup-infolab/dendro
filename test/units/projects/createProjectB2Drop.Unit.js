@@ -45,7 +45,7 @@ const end = function ()
 
 module.exports.setup = function (finish)
 {
-    start();
+    unitUtils.start(path.basename(__filename));
     let createUsersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
     createUsersUnit.setup(function (err, results)
@@ -53,7 +53,7 @@ module.exports.setup = function (finish)
         // should.equal(err, null);
         if (err)
         {
-            end();
+            unitUtils.end(path.basename(__filename));
             finish(err, results);
         }
         else
@@ -62,7 +62,7 @@ module.exports.setup = function (finish)
             {
                 if (err)
                 {
-                    end();
+                    unitUtils.end(path.basename(__filename));
                     finish(err, agent);
                 }
                 else
@@ -89,7 +89,7 @@ module.exports.setup = function (finish)
                         {
                             appUtils.registerStopTimeForUnit(path.basename(__filename));
                             finish(err, results);
-                            end();
+                            unitUtils.end(path.basename(__filename));
                         });
                     });
                 }

@@ -13,6 +13,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
@@ -49,7 +50,7 @@ module.exports.setup = function (project, finish)
         }
         else
         {
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
+            unitUtils.start(__filename);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 if (err)
@@ -66,7 +67,7 @@ module.exports.setup = function (project, finish)
                         });
                     }, function (err, results)
                     {
-                        appUtils.registerStopTimeForUnit(path.basename(__filename));
+                        unitUtils.end(__filename);
                         finish(err, results);
                     });
                 }
