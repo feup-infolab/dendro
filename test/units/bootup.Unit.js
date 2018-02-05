@@ -10,7 +10,7 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/snapshot_manager.js")).DockerCheckpointManager;
+const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
 
 const should = chai.should();
 function requireUncached (module)
@@ -31,9 +31,9 @@ module.exports.setup = function (finish)
                 .connectionsEstablished.then(function (appInfo)
                 {
                     requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
-                        .seedDatabases(function(err, results)
+                        .seedDatabases(function (err, results)
                         {
-                            if(!err)
+                            if (!err)
                             {
                                 callback(null, appInfo);
                             }
@@ -41,6 +41,8 @@ module.exports.setup = function (finish)
                             {
                                 callback(err, results);
                             }
+
+                            unitUtils.end(path.basename(__filename));
                         });
                 })
                 .catch(function (error)
@@ -62,10 +64,9 @@ module.exports.setup = function (finish)
                         {
                             global.tests.app = appInfo.app;
                             global.tests.server = appInfo.server;
-                            unitUtils.start(__filename);
                             should.not.exist(err);
-
                             finish(err, res);
+                            unitUtils.end(path.basename(__filename));
                         });
                 })
                 .catch(function (error)

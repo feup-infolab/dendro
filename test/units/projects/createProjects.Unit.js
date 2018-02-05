@@ -46,29 +46,26 @@ module.exports.setup = function (finish)
         }
         else
         {
-            unitUtils.start(__filename);
             async.mapSeries(projectsData, function (projectData, cb)
             {
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)
                     {
-                        unitUtils.end(__filename);
                         cb(err, agent);
                     }
                     else
                     {
                         projectUtils.createNewProject(true, agent, projectData, function (err, res)
                         {
-                            unitUtils.end(__filename);
                             cb(err, res);
                         });
                     }
                 });
             }, function (err, results)
             {
-                unitUtils.end(__filename);
                 finish(err, results);
+                unitUtils.end(__filename);
             });
         }
     });

@@ -25,46 +25,44 @@ module.exports.allFiles = filesData;
 
 module.exports.setup = function (finish)
 {
-    createFoldersB2DropUnit.setup(function (err, results)
-    {
-        if (err)
+    unitUtils.loadCheckpointAndRun(
+        path.basename(__filename),
+        function ()
         {
-            finish(err, results);
-        }
-        else
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                if (err)
-                {
-                    finish(err, agent);
+            createFoldersB2DropUnit.setup(function (err, results) {
+                if (err) {
+                    finish(err, results);
                 }
-                else
-                {
-                    async.mapSeries(projectsData, function (projectData, cb)
-                    {
-                        async.mapSeries(foldersData, function (folderData, cb)
-                        {
-                            async.mapSeries(filesData, function (file, cb)
-                            {
-                                fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, file, function (err, res)
-                                {
-                                    cb(err, res);
+                else {
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                        if (err) {
+                            finish(err, agent);
+                        }
+                        else {
+                            async.mapSeries(projectsData, function (projectData, cb) {
+                                async.mapSeries(foldersData, function (folderData, cb) {
+                                    async.mapSeries(filesData, function (file, cb) {
+                                        fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, file, function (err, res) {
+                                            cb(err, res);
+                                        });
+                                    }, function (err, results) {
+                                        cb(err, results);
+                                    });
+                                }, function (err, results) {
+                                    cb(err, results);
                                 });
-                            }, function (err, results)
-                            {
-                                cb(err, results);
+                            }, function (err, results) {
+                                finish(err, results);
                             });
-                        }, function (err, results)
-                        {
-                            cb(err, results);
-                        });
-                    }, function (err, results)
-                    {
-                        finish(err, results);
+                        }
                     });
                 }
             });
+        },
+        function ()
+        {
+            unitUtils.end(__filename);
+            finish(err, results);
         }
-    });
+    );
 };

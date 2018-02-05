@@ -14,164 +14,154 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
-const start = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".green);
-        console.log("[Create Users Unit] Creating new users...".green);
-        console.log("**********************************************".green);
-    }
-};
-
-const end = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".blue);
-        console.log("[Create Users Unit] Complete".blue);
-        console.log("**********************************************".blue);
-    }
-};
-
 module.exports.setup = function (finish)
 {
     unitUtils.start(path.basename(__filename));
-    let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
-    bootupUnit.setup(function (err, results)
-    {
-        if (err)
+    unitUtils.loadCheckpointAndRun(
+        path.basename(__filename),
+        function ()
         {
-            end();
-            finish(err, results);
-        }
-        else
-        {
-            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-            const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
+            let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
-            const createUser = function (user, callback)
+            bootupUnit.setup(function (err, results)
             {
-                User.createAndInsertFromObject({
-                    foaf: {
-                        mbox: user.mbox,
-                        firstName: user.firstname,
-                        surname: user.surname
-                    },
-                    ddr: {
-                        username: user.username,
-                        password: user.password
-                    }
-                },
-                function (err, newUser)
+                if (err)
                 {
-                    if (isNull(err) && newUser != null)
-                    {
-                        callback(null, newUser);
-                    }
-                    else
-                    {
-                        console.log("[ERROR] Error creating new demo User at createUsers.Unit " + JSON.stringify(user));
-                        callback(err, user);
-                    }
-                });
-            };
-            const makeAdmin = function (newAdministrator, callback)
-            {
-                const username = newAdministrator.username;
-                const password = newAdministrator.password;
-                const mbox = newAdministrator.mbox;
-                const firstname = newAdministrator.firstname;
-                const surname = newAdministrator.surname;
+                    finish(err, results);
+                }
+                else
+                {
+                    const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+                    const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
 
-                Administrator.findByUsername(username, function (err, administrator)
-                {
-                    if (isNull(err) && administrator !== null)
+                    const createUser = function (user, callback)
                     {
-                        callback(err, administrator);
-                    }
-                    else
-                    {
-                        Administrator.createAndInsertFromObject({
+                        User.createAndInsertFromObject({
                             foaf: {
-                                mbox: mbox,
-                                firstName: firstname,
-                                surname: surname
+                                mbox: user.mbox,
+                                firstName: user.firstname,
+                                surname: user.surname
                             },
                             ddr: {
-                                username: username,
-                                password: password
+                                username: user.username,
+                                password: user.password
                             }
                         },
                         function (err, newUser)
                         {
-                            if (isNull(err) && newUser !== null && newUser instanceof Administrator)
+                            if (isNull(err) && newUser != null)
                             {
-                                callback(err, null);
+                                callback(null, newUser);
                             }
                             else
                             {
-                                const msg = "Error creating new Administrator at createUsers.Unit" + JSON.stringify(newUser);
-                                console.log("error", msg);
-                                callback(err, msg);
+                                console.log("[ERROR] Error creating new demo User at createUsers.Unit " + JSON.stringify(user));
+                                callback(err, user);
                             }
                         });
-                    }
-                });
-            };
+                    };
+                    const makeAdmin = function (newAdministrator, callback)
+                    {
+                        const username = newAdministrator.username;
+                        const password = newAdministrator.password;
+                        const mbox = newAdministrator.mbox;
+                        const firstname = newAdministrator.firstname;
+                        const surname = newAdministrator.surname;
 
-            unitUtils.start(__filename);
-            async.mapSeries(Config.demo_mode.users, createUser, function (err, results)
-            {
-                if (isNull(err))
-                {
-                    async.series([
-                        function (callback)
+                        Administrator.findByUsername(username, function (err, administrator)
                         {
-                            Administrator.deleteAll(callback);
-                        },
-                        function (callback)
-                        {
-                            async.mapSeries(Config.administrators, makeAdmin, function (err)
+                            if (isNull(err) && administrator !== null)
                             {
-                                if (isNull(err))
+                                callback(err, administrator);
+                            }
+                            else
+                            {
+                                Administrator.createAndInsertFromObject({
+                                    foaf: {
+                                        mbox: mbox,
+                                        firstName: firstname,
+                                        surname: surname
+                                    },
+                                    ddr: {
+                                        username: username,
+                                        password: password
+                                    }
+                                },
+                                function (err, newUser)
                                 {
-                                    console.log("info", "Admins successfully loaded at createUsers.Unit.");
-                                }
-                                else
-                                {
-                                    console.log("[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
-                                }
+                                    if (isNull(err) && newUser !== null && newUser instanceof Administrator)
+                                    {
+                                        callback(err, null);
+                                    }
+                                    else
+                                    {
+                                        const msg = "Error creating new Administrator at createUsers.Unit" + JSON.stringify(newUser);
+                                        console.log("error", msg);
+                                        callback(err, msg);
+                                    }
+                                });
+                            }
+                        });
+                    };
 
-                                callback(err);
-                            });
-                        }
-                    ],
-                    function (err, results)
+                    async.mapSeries(Config.demo_mode.users, createUser, function (err, results)
                     {
                         if (isNull(err))
                         {
-                            unitUtils.end(__filename);
-                            finish(err, results);
+                            async.series([
+                                function (callback)
+                                {
+                                    Administrator.deleteAll(callback);
+                                },
+                                function (callback)
+                                {
+                                    async.mapSeries(Config.administrators, makeAdmin, function (err)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            console.log("info", "Admins successfully loaded at createUsers.Unit.");
+                                        }
+                                        else
+                                        {
+                                            console.log("[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
+                                        }
+
+                                        callback(err);
+                                    });
+                                }
+                            ],
+                            function (err, results)
+                            {
+                                if (isNull(err))
+                                {
+                                    unitUtils.end(__filename);
+                                    finish(err, results);
+                                }
+                                else
+                                {
+                                    const msg = "Error creating Admins at createUsers.Unit";
+                                    console.log("error", msg);
+                                    unitUtils.end(__filename);
+                                    finish(err, results);
+                                }
+                            });
                         }
                         else
                         {
-                            const msg = "Error creating Admins at createUsers.Unit";
+                            var msg = "Error creating users at createUsers.Unit";
                             console.log("error", msg);
                             unitUtils.end(__filename);
                             finish(err, results);
                         }
                     });
                 }
-                else
-                {
-                    var msg = "Error creating users at createUsers.Unit";
-                    console.log("error", msg);
-                    unitUtils.end(__filename);
-                    finish(err, results);
-                }
             });
+        },
+        function ()
+        {
+            unitUtils.end(__filename);
+            finish(err, results);
         }
-    });
+    );
 };

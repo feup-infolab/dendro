@@ -19,8 +19,9 @@ DockerCheckpointManager._checkpoints = {};
 DockerCheckpointManager.startAllContainers = function ()
 {
     return childProcess.execSync(`/bin/bash -c "${startContainersScript}"`, {
-        cwd: Pathfinder.appDir,
-        stdio: [0, 1, 2]
+        cwd: Pathfinder.appDir
+        // ,
+        // stdio: [0, 1, 2]
     });
 };
 
@@ -39,8 +40,7 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
     else
     {
         childProcess.execSync(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
-            cwd: Pathfinder.appDir,
-            stdio: [0, 1, 2]
+            cwd: Pathfinder.appDir
         });
 
         Logger.log("info", "Saved snapshot with name" + checkpointName);
@@ -53,8 +53,7 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
     if (DockerCheckpointManager._checkpoints[checkpointName])
     {
         childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript}" ${checkpointName}`, {
-            cwd: Pathfinder.appDir,
-            stdio: [0, 1, 2]
+            cwd: Pathfinder.appDir
         });
 
         Logger.log("info", "Restored snapshot with name" + checkpointName + " of Docker container " + checkpointName);
@@ -84,8 +83,7 @@ DockerCheckpointManager.restartAllContainers = function (onlyOnce)
         if (!DockerCheckpointManager._restartedOnce)
         {
             childProcess.execSync(`/bin/bash -c "${restartContainersScript}"`, {
-                cwd: Pathfinder.appDir,
-                stdio: [0, 1, 2]
+                cwd: Pathfinder.appDir
             });
             DockerCheckpointManager._restartedOnce = true;
         }
@@ -93,8 +91,7 @@ DockerCheckpointManager.restartAllContainers = function (onlyOnce)
     else
     {
         childProcess.execSync(`/bin/bash -c "${restartContainersScript}"`, {
-            cwd: Pathfinder.appDir,
-            stdio: [0, 1, 2]
+            cwd: Pathfinder.appDir
         });
     }
 };

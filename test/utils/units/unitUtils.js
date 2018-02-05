@@ -1,7 +1,8 @@
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null")).isNull;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/snapshot_manager.js")).DockerCheckpointManager;
+const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const path = require("path");
 const async = require("async");
 
@@ -99,11 +100,23 @@ exports.loadCheckpointAndRun = function (checkpointName, initializationFunctionI
                     initializationFunctionIfNotCached(function (err)
                     {
                         loadedFromCheckpoint = DockerCheckpointManager.createOrRestoreCheckpoint(checkpointName);
-                        callback(err);
+                        if(loadedFromCheckpoint)
+                        {
+                            const msg = "Something went wrong. Tried to create checkpoint " + checkpointName + ", but the operation says that the checkpoint was restored instead of created??";
+                            Logger.log("error", msg);
+                            callback(1, msg);
+                        }
+                        else
+                        {
+                            const msg = "Checkpoint " + checkpointName + " CREATED successfully";
+                            Logger.log("info", msg);
+                            callback(1, msg);
+                        }
                     });
                 }
                 else
                 {
+                    Logger.log("info", "Checkpoint " + checkpointName + " RESTORED successfully.");
                     callback(null);
                 }
             }
