@@ -1,26 +1,20 @@
 process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const should = chai.should();
 const path = require("path");
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
@@ -31,50 +25,57 @@ const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder("mockd
 const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
 const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
 const folderMissingDescriptors = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderMissingDescriptors.js"));
+const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2, folderExportCkan, folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs, folderExportedCkanCkanDiffs, folderMissingDescriptors];
 
-module.exports.setup = function (project, finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class CreateFoldersSingleProject extends TestUnit
 {
-    let addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-
-    addContributorsToProjectsUnit.setup(function (err, results)
+    static init (callback)
     {
-        if (err)
+        let addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+
+        addContributorsToProjectsUnit.init(function (err, results)
         {
-            finish(err, results);
-        }
-        else
-        {
-            unitUtils.start(path.basename(__filename));
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            if (err)
             {
-                if (err)
+                callback(err, results);
+            }
+            else
+            {
+                unitUtils.start(path.basename(__filename));
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
-                    finish(err, agent);
-                }
-                else
-                {
-                    async.mapSeries(foldersData, function (folderData, cb)
+                    if (err)
                     {
-                        itemUtils.createFolder(true, agent, project.handle, folderData.pathInProject, folderData.name, function (err, res)
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        async.mapSeries(foldersData, function (folderData, cb)
                         {
-                            if (!isNull(err))
+                            itemUtils.createFolder(true, agent, publicProject.handle, folderData.pathInProject, folderData.name, function (err, res)
                             {
-                                cb(err, results);
-                            }
-                            else
-                            {
-                                cb(null, results);
-                            }
+                                if (!isNull(err))
+                                {
+                                    cb(err, results);
+                                }
+                                else
+                                {
+                                    cb(null, results);
+                                }
+                            });
+                        }, function (err, results)
+                        {
+                            unitUtils.end(__filename);
+                            callback(err, results);
                         });
-                    }, function (err, results)
-                    {
-                        unitUtils.end(__filename);
-                        finish(err, results);
-                    });
-                }
-            });
-        }
-    });
-};
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = CreateFoldersSingleProject;

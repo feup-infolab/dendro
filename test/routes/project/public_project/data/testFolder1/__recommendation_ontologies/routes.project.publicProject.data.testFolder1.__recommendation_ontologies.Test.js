@@ -30,7 +30,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.setup(function (err, results)
+        addMetadataToFoldersUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

@@ -18,16 +18,12 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 const zipFileForRestoreFolder = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipForFolderRestore.js"));
 const restoreFolderWithAZipInside = require(Pathfinder.absPathInTestsFolder("mockdata/files/restoreFolderWithAZipInside.js"));
 const restoreFolderWithOnlyOneFileInside = require(Pathfinder.absPathInTestsFolder("mockdata/files/restoreFolderWithOnlyOneFile.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
-const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const addMetadataToFoldersInPublicProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
 
 describe("Public project testFolder1 level restore folder tests", function ()
 {
@@ -37,7 +33,7 @@ describe("Public project testFolder1 level restore folder tests", function ()
     let restoredFolderName = "folderDebug";
     before(function (done)
     {
-        addMetadataToFoldersSingleProjectUnit.setup(publicProject, function (err, results)
+        addMetadataToFoldersInPublicProjectUnit.init(function (err, results)
         {
             try
             {

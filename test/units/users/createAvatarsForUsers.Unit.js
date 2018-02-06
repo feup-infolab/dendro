@@ -14,42 +14,48 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
 
-module.exports.setup = function (finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class CreateAvatarsForUsers extends TestUnit
 {
-    unitUtils.start(path.basename(__filename));
-    const usersData = [demouser1, demouser2, demouser3];
-    let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
-
-    createUsersUnit.setup(function (err, results)
+    static init (callback)
     {
-        if (isNull(err))
+        unitUtils.start(path.basename(__filename));
+        const usersData = [demouser1, demouser2, demouser3];
+        let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+
+        createUsersUnit.init(function (err, results)
         {
-            async.mapSeries(usersData, function (userData, cb)
+            if (isNull(err))
             {
-                userUtils.loginUser(userData.username, userData.password, function (err, agent)
+                async.mapSeries(usersData, function (userData, cb)
                 {
-                    if (err)
+                    userUtils.loginUser(userData.username, userData.password, function (err, agent)
                     {
-                        return cb(err, agent);
-                    }
-                    userUtils.uploadAvatar(false, agent, userData.avatar, function (err, res)
-                    {
-                        return cb(err, res);
+                        if (err)
+                        {
+                            return cb(err, agent);
+                        }
+                        userUtils.uploadAvatar(false, agent, userData.avatar, function (err, res)
+                        {
+                            return cb(err, res);
+                        });
                     });
-                });
-            }, function (err, results)
-            {
-                if (isNull(err))
+                }, function (err, results)
                 {
-                    return finish(null);
-                }
-                unitUtils.end(path.basename(__filename));
-                return finish(err, results);
-            });
-        }
-        else
-        {
-            return finish(err, results);
-        }
-    });
-};
+                    if (isNull(err))
+                    {
+                        return callback(null);
+                    }
+                    unitUtils.end(path.basename(__filename));
+                    return callback(err, results);
+                });
+            }
+            else
+            {
+                return callback(err, results);
+            }
+        });
+    }
+}
+
+module.exports = CreateAvatarsForUsers;

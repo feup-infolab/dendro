@@ -29,7 +29,7 @@ describe("Private project testFolder2 level undelete tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        deleteFoldersUnit.setup(function (err, results)
+        deleteFoldersUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

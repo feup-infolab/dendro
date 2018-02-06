@@ -31,7 +31,7 @@ describe("B2Drop project testFolder1 ?rename", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersB2DropUnit.setup(function (err, results)
+        createFoldersB2DropUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

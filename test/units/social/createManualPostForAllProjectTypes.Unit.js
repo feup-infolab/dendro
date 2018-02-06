@@ -14,53 +14,59 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
-module.exports.setup = function (finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class CreateManuaLPostForAllProjectTypes extends TestUnit
 {
-    let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-    const projectsData = createProjectsUnit.projectsData;
-
-    let uploadFilesAndAddMetadataUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/uploadFilesAndAddMetadata.Unit.js"));
-    let manualPostMockData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMock.js"));
-
-    uploadFilesAndAddMetadataUnit.setup(function (err, results)
+    static init (callback)
     {
-        if (!isNull(err))
+        let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+        const projectsData = createProjectsUnit.projectsData;
+
+        let uploadFilesAndAddMetadataUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/uploadFilesAndAddMetadata.Unit.js"));
+        let manualPostMockData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMock.js"));
+
+        uploadFilesAndAddMetadataUnit.init(function (err, results)
         {
-            finish(err, results);
-        }
-        else
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            if (!isNull(err))
             {
-                if (!isNull(err))
+                callback(err, results);
+            }
+            else
+            {
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
-                    finish(err, agent);
-                }
-                else
-                {
-                    async.mapSeries(projectsData, function (projectData, cb)
+                    if (!isNull(err))
                     {
-                        projectUtils.getProjectUriFromHandle(agent, projectData.handle, function (err, res)
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        async.mapSeries(projectsData, function (projectData, cb)
                         {
-                            if (isNull(err))
+                            projectUtils.getProjectUriFromHandle(agent, projectData.handle, function (err, res)
                             {
-                                let projectUri = res;
-                                socialDendroUtils.createManualPostInProject(true, agent, projectUri, manualPostMockData, function (err, res)
+                                if (isNull(err))
+                                {
+                                    let projectUri = res;
+                                    socialDendroUtils.createManualPostInProject(true, agent, projectUri, manualPostMockData, function (err, res)
+                                    {
+                                        cb(err, res);
+                                    });
+                                }
+                                else
                                 {
                                     cb(err, res);
-                                });
-                            }
-                            else
-                            {
-                                cb(err, res);
-                            }
+                                }
+                            });
+                        }, function (err, results)
+                        {
+                            callback(err, results);
                         });
-                    }, function (err, results)
-                    {
-                        finish(err, results);
-                    });
-                }
-            });
-        }
-    });
-};
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = CreateManuaLPostForAllProjectTypes;

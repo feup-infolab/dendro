@@ -22,7 +22,7 @@ describe("/ontologies/all", function ()
 
     before(function (done)
     {
-        addBootUpUnit.setup(function (err, results)
+        addBootUpUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

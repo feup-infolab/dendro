@@ -40,7 +40,7 @@ describe("Export metadata only project testFolder1 level to repositories tests",
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createExportToRepositoriesConfig.setup(function (err, results)
+        createExportToRepositoriesConfig.init(function (err, results)
         {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)

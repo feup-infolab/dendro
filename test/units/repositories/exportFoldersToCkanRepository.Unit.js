@@ -21,14 +21,15 @@ let foldersToExport = [];
 let ckanData;
 
 // TODO chamar a createExportToRepositoriesConfigs.Unit.js
-module.exports.setup = function (project, finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+module.exports.setup = function (finish)
 {
     let createExportToRepositoriesConfig = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-    createExportToRepositoriesConfig.setup(project, function (err, results)
+    createExportToRepositoriesConfig.init(project, function (err, results)
     {
         if (err)
         {
-            finish(err, results);
+            callback(err, results);
         }
         else
         {
@@ -38,7 +39,7 @@ module.exports.setup = function (project, finish)
             {
                 if (err)
                 {
-                    finish(err, agent);
+                    callback(err, agent);
                 }
                 else
                 {
@@ -90,13 +91,13 @@ module.exports.setup = function (project, finish)
                                     {
                                         /* cb(err, results); */
                                         unitUtils.stop(__filename);
-                                        finish(err, results);
+                                        callback(err, results);
                                     });
                                 });
                             }
                         });
                         /* }, function (err, results) {
-                            finish(err, results);
+                            callback(err, results);
                         }); */
                     });
                 }

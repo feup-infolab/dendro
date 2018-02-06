@@ -34,50 +34,51 @@ let addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTest
 let createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const foldersData = createFoldersUnit.foldersData;
 
-function requireUncached (module)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends TestUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
-module.exports.setup = function (finish)
-{
-    addMetadataToFoldersUnit.setup(function (err, results)
+    static init (callback)
     {
-        if (err)
+        addMetadataToFoldersUnit.init(function (err, results)
         {
-            finish(err, results);
-        }
-        else
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            if (err)
             {
-                if (err)
+                callback(err, results);
+            }
+            else
+            {
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
-                    finish(err, agent);
-                }
-                else
-                {
-                    async.mapSeries(projectsData, function (projectData, cb)
+                    if (err)
                     {
-                        async.mapSeries(foldersData, function (folderData, cb)
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        async.mapSeries(projectsData, function (projectData, cb)
                         {
-                            async.mapSeries(filesData, function (fileData, cb)
+                            async.mapSeries(foldersData, function (folderData, cb)
                             {
-                                fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, fileData, function (err, res)
+                                async.mapSeries(filesData, function (fileData, cb)
                                 {
-                                    if (isNull(err))
+                                    fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, fileData, function (err, res)
                                     {
-                                        const newFileUri = JSON.parse(res.text)[0].uri;
-                                        itemUtils.updateItemMetadataByUri(true, agent, newFileUri, fileData.metadata, function (err, res)
+                                        if (isNull(err))
+                                        {
+                                            const newFileUri = JSON.parse(res.text)[0].uri;
+                                            itemUtils.updateItemMetadataByUri(true, agent, newFileUri, fileData.metadata, function (err, res)
+                                            {
+                                                cb(err, res);
+                                            });
+                                        }
+                                        else
                                         {
                                             cb(err, res);
-                                        });
-                                    }
-                                    else
-                                    {
-                                        cb(err, res);
-                                    }
+                                        }
+                                    });
+                                }, function (err, results)
+                                {
+                                    cb(err, results);
                                 });
                             }, function (err, results)
                             {
@@ -85,14 +86,13 @@ module.exports.setup = function (finish)
                             });
                         }, function (err, results)
                         {
-                            cb(err, results);
+                            callback(err, results);
                         });
-                    }, function (err, results)
-                    {
-                        finish(err, results);
-                    });
-                }
-            });
-        }
-    });
-};
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = CreateAllFoldersAndAllFilesInsideThemWithMetadata;

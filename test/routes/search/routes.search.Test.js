@@ -42,7 +42,7 @@ describe("/search", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createProjectsUnit.setup(function (err, results)
+        createProjectsUnit.init(function (err, results)
         {
             async.mapSeries(projectsData, function (projectData, cb)
             {

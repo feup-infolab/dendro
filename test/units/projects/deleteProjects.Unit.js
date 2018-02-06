@@ -16,36 +16,42 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const projectsData = createProjectsUnit.projectsData;
 
-module.exports.setup = function (finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class DeleteProjects extends TestUnit
 {
-    createProjectsUnit.setup(function (err, results)
+    static init (callback)
     {
-        if (err)
+        createProjectsUnit.init(function (err, results)
         {
-            finish(err, results);
-        }
-        else
-        {
-            async.mapSeries(projectsData, function (projectData, cb)
+            if (err)
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                callback(err, results);
+            }
+            else
+            {
+                async.mapSeries(projectsData, function (projectData, cb)
                 {
-                    if (err)
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                     {
-                        cb(err, agent);
-                    }
-                    else
-                    {
-                        projectUtils.deleteProject(true, agent, projectData.handle, function (err, res)
+                        if (err)
                         {
-                            cb(err, res);
-                        });
-                    }
+                            cb(err, agent);
+                        }
+                        else
+                        {
+                            projectUtils.deleteProject(true, agent, projectData.handle, function (err, res)
+                            {
+                                cb(err, res);
+                            });
+                        }
+                    });
+                }, function (err, results)
+                {
+                    callback(err, results);
                 });
-            }, function (err, results)
-            {
-                finish(err, results);
-            });
-        }
-    });
-};
+            }
+        });
+    }
+}
+
+module.exports = DeleteProjects;

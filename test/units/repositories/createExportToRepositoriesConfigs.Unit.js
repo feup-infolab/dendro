@@ -18,40 +18,46 @@ const zenodo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/da
 
 const dataToCreateExportConfigs = [b2share, ckan, dspace, eprints, figshare, zenodo];
 
-module.exports.setup = function (project, finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class CreateExportToRepositoriesConfigs extends TestUnit
 {
-    let clearCkanOrganizationStateUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/clearCkanOrganizationState.Unit.js"));
-    clearCkanOrganizationStateUnit.setup(project, function (err, results)
+    static init (callback)
     {
-        if (err)
+        let clearCkanOrganizationStateUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/clearCkanOrganizationState.Unit.js"));
+        clearCkanOrganizationStateUnit.init(project, function (err, results)
         {
-            finish(err, results);
-        }
-        else
-        {
-            console.log("---------- RUNNING UNIT createExportToRepositoriesConfigs for: " + project.handle + " ----------");
-            unitUtils.start(__filename);
-            async.mapSeries(dataToCreateExportConfigs, function (dataConfig, cb)
+            if (err)
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                callback(err, results);
+            }
+            else
+            {
+                console.log("---------- RUNNING UNIT createExportToRepositoriesConfigs for: " + project.handle + " ----------");
+                unitUtils.start(__filename);
+                async.mapSeries(dataToCreateExportConfigs, function (dataConfig, cb)
                 {
-                    if (err)
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                     {
-                        cb(err, agent);
-                    }
-                    else
-                    {
-                        repositoryUtils.createExportConfig(true, agent, dataConfig, function (err, res)
+                        if (err)
                         {
-                            cb(err, res);
-                        });
-                    }
+                            cb(err, agent);
+                        }
+                        else
+                        {
+                            repositoryUtils.createExportConfig(true, agent, dataConfig, function (err, res)
+                            {
+                                cb(err, res);
+                            });
+                        }
+                    });
+                }, function (err, results)
+                {
+                    unitUtils.stop(__filename);
+                    callback(err, results);
                 });
-            }, function (err, results)
-            {
-                unitUtils.stop(__filename);
-                finish(err, results);
-            });
-        }
-    });
-};
+            }
+        });
+    }
+}
+
+module.exports = CreateExportToRepositoriesConfigs;

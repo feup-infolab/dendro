@@ -1,20 +1,15 @@
 process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const should = chai.should();
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjectsB2Drop.Unit.js"));
@@ -27,44 +22,50 @@ const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folder
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
 
-module.exports.setup = function (finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class DeleteFoldersB2Drop extends TestUnit
 {
-    let addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-
-    addContributorsToProjectsUnit.setup(function (err, results)
+    static init (callback)
     {
-        if (err)
+        let addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+
+        addContributorsToProjectsUnit.init(function (err, results)
         {
-            finish(err, results);
-        }
-        else
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            if (err)
             {
-                if (err)
+                callback(err, results);
+            }
+            else
+            {
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
-                    finish(err, agent);
-                }
-                else
-                {
-                    async.mapSeries(projectsData, function (projectData, cb)
+                    if (err)
                     {
-                        async.mapSeries(foldersData, function (folderData, cb)
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        async.mapSeries(projectsData, function (projectData, cb)
                         {
-                            itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
+                            async.mapSeries(foldersData, function (folderData, cb)
                             {
-                                cb(err, res);
+                                itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
+                                {
+                                    cb(err, res);
+                                });
+                            }, function (err, results)
+                            {
+                                cb(err, results);
                             });
                         }, function (err, results)
                         {
-                            cb(err, results);
+                            callback(err, results);
                         });
-                    }, function (err, results)
-                    {
-                        finish(err, results);
-                    });
-                }
-            });
-        }
-    });
-};
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = DeleteFoldersB2Drop;

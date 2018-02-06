@@ -17,29 +17,20 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 const filesData = [txtMockFile];
 
-
-
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
-module.exports.setup = function (finish)
+module.exports.setup = function (callback)
 {
     let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
     const projectsData = createProjectsUnit.projectsData;
 
     let addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-    let createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
     const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
     const foldersData = [testFolder1];
 
-    addMetadataToFoldersUnit.setup(function (err, results)
+    addMetadataToFoldersUnit.init(function (err, results)
     {
         if (err)
         {
-            finish(err, results);
+            callback(err, results);
         }
         else
         {
@@ -47,7 +38,7 @@ module.exports.setup = function (finish)
             {
                 if (err)
                 {
-                    finish(err, agent);
+                    callback(err, agent);
                 }
                 else
                 {
@@ -81,7 +72,7 @@ module.exports.setup = function (finish)
                         });
                     }, function (err, results)
                     {
-                        finish(err, results);
+                        callback(err, results);
                     });
                 }
             });

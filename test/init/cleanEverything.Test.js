@@ -31,7 +31,7 @@ describe("Initial clean-up...", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        bootupUnit.setup(function (err, results)
+        bootupUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

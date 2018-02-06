@@ -26,7 +26,7 @@ describe("Administration panel tests ( /admin )", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createUsersUnit.setup(function (err, res)
+        createUsersUnit.init(function (err, res)
         {
             should.equal(err, null);
             app = global.tests.app;

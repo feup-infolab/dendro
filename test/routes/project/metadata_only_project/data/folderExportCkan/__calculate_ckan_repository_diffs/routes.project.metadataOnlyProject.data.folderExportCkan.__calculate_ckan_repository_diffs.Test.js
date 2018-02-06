@@ -58,7 +58,7 @@ describe("Calculate metadata only project folderExportCkan level ckan respositor
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        exportFoldersToCkanRepositoryUnit.setup(metadataProject, function (err, results)
+        exportFoldersToCkanRepositoryUnit.init(metadataProject, function (err, results)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

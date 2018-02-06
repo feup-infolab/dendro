@@ -22,16 +22,16 @@ const zenodo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/da
 
 const dataToCreateExportConfigs = [b2share, ckan, dspace, eprints, figshare, zenodo];
 
-
 // chamar a addMetadataToFolders.unit
-module.exports.setup = function (project, finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+module.exports.setup = function (finish)
 {
-    let addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
-    addMetadataToFoldersSingleProjectUnit.setup(project, function (err, results)
+    let addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
+    addMetadataToFoldersSingleProjectUnit.init(project, function (err, results)
     {
         if (err)
         {
-            finish(err, results);
+            callback(err, results);
         }
         else
         {
@@ -62,13 +62,13 @@ module.exports.setup = function (project, finish)
                         {
                             /* cb(err, results); */
                             appUtils.registerStopTimeForUnit(path.basename(__filename));
-                            finish(err, results);
+                            callback(err, results);
                         });
                     });
                 }
             });
             /* }, function (err, results) {
-                finish(err, results);
+                callback(err, results);
             }); */
         }
     });

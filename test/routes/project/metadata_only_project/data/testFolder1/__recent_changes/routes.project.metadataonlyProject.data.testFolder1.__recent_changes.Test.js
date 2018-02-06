@@ -31,7 +31,7 @@ describe("Metadata only project testFolder1 level recent changes", function ()
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        addMetadataToFoldersUnit.setup(function (err, results)
+        addMetadataToFoldersUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

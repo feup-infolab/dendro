@@ -6,8 +6,6 @@ chai.use(chaiHttp);
 const checkChai = require("check-chai");
 chai.use(checkChai);
 
-const fs = require("fs");
-const path = require("path");
 const async = require("async");
 const Config = global.Config;
 
@@ -15,10 +13,7 @@ const should = chai.should();
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-
-const md5File = require("md5-file");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -29,25 +24,18 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser4 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser4"));
 const demouser5 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser5"));
 
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 const Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
 describe("Administer projects", function (done)
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createProjectsUnit.setup(function (err, res)
+        createProjectsUnit.init(function (err, res)
         {
             chai.check(done, function ()
             {

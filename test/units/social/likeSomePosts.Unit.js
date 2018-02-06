@@ -12,38 +12,37 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-function requireUncached (module)
+class LikeSomePosts extends TestUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
+    static init (callback)
+    {
+        let shareSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
+        shareSomePostsUnit.init(function (err, postURIToLike)
+        {
+            if (err)
+            {
+                callback(err, postURIToLike);
+            }
+            else
+            {
+                userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+                {
+                    if (err)
+                    {
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        socialDendroUtils.likeAPost(true, agent, postURIToLike, function (err, res)
+                        {
+                            // callback(err, res);
+                            callback(err, postURIToLike);
+                        });
+                    }
+                });
+            }
+        });
+    }
 }
 
-module.exports.setup = function (finish)
-{
-    let shareSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
-    shareSomePostsUnit.setup(function (err, postURIToLike)
-    {
-        if (err)
-        {
-            finish(err, postURIToLike);
-        }
-        else
-        {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
-            {
-                if (err)
-                {
-                    finish(err, agent);
-                }
-                else
-                {
-                    socialDendroUtils.likeAPost(true, agent, postURIToLike, function (err, res)
-                    {
-                        // finish(err, res);
-                        finish(err, postURIToLike);
-                    });
-                }
-            });
-        }
-    });
-};
+module.exports = LikeSomePosts;

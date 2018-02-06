@@ -14,51 +14,50 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const shareMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/shareMock"));
 
-function requireUncached (module)
+class ShareSomePosts extends TestUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
+    static init (callback)
+    {
+        let createManualPostForAllProjectTypesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createManualPostForAllProjectTypes.Unit.js"));
+        createManualPostForAllProjectTypesUnit.init(function (err, results)
+        {
+            if (err)
+            {
+                callback(err, results);
+            }
+            else
+            {
+                userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+                {
+                    if (err)
+                    {
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        // TODO do the get posts request obtain a uri of a post then share it
+                        let pageNumber = 1;
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                        {
+                            if (isNull(err))
+                            {
+                                let postURI = res.body[0].uri;// para ter acesso nas outras units a seguir
+                                socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
+                                {
+                                    // callback(err, res);
+                                    callback(err, postURI);
+                                });
+                            }
+                            else
+                            {
+                                callback(err, res);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
 }
 
-module.exports.setup = function (finish)
-{
-    let createManualPostForAllProjectTypesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createManualPostForAllProjectTypes.Unit.js"));
-    createManualPostForAllProjectTypesUnit.setup(function (err, results)
-    {
-        if (err)
-        {
-            finish(err, results);
-        }
-        else
-        {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
-            {
-                if (err)
-                {
-                    finish(err, agent);
-                }
-                else
-                {
-                    // TODO do the get posts request obtain a uri of a post then share it
-                    let pageNumber = 1;
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
-                    {
-                        if (isNull(err))
-                        {
-                            let postURI = res.body[0].uri;// para ter acesso nas outras units a seguir
-                            socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
-                            {
-                                // finish(err, res);
-                                finish(err, postURI);
-                            });
-                        }
-                        else
-                        {
-                            finish(err, res);
-                        }
-                    });
-                }
-            });
-        }
-    });
-};
+module.exports = ShareSomePosts;

@@ -51,7 +51,7 @@ describe("Calculate public project folderExportCkan level ckan respository diffs
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        exportFoldersToCkanRepositoryUnit.setup(publicProject, function (err, results)
+        exportFoldersToCkanRepositoryUnit.init(function (err, results)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

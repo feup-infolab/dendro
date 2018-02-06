@@ -27,50 +27,56 @@ const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("
 
 const projectsData = module.exports.projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData, projectCreatedByDemoUser3];
 
-module.exports.setup = function (finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class CreateProjects extends TestUnit
 {
-    unitUtils.loadCheckpointAndRun(
-        path.basename(__filename),
-        function (err, restoreMessage)
-        {
-            unitUtils.start(path.basename(__filename), restoreMessage);
-            let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
-
-            createUsersUnit.setup(function (err, results)
+    static init (callback)
+    {
+        unitUtils.loadCheckpointAndRun(
+            path.basename(__filename),
+            function (err, restoreMessage)
             {
-                if (err)
+                unitUtils.start(path.basename(__filename), restoreMessage);
+                let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+
+                createUsersUnit.init(function (err, results)
                 {
-                    finish(err, results);
-                }
-                else
-                {
-                    async.mapSeries(projectsData, function (projectData, cb)
+                    if (err)
                     {
-                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                        callback(err, results);
+                    }
+                    else
+                    {
+                        async.mapSeries(projectsData, function (projectData, cb)
                         {
-                            if (err)
+                            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                             {
-                                cb(err, agent);
-                            }
-                            else
-                            {
-                                projectUtils.createNewProject(true, agent, projectData, function (err, res)
+                                if (err)
                                 {
-                                    cb(err, res);
-                                });
-                            }
+                                    cb(err, agent);
+                                }
+                                else
+                                {
+                                    projectUtils.createNewProject(true, agent, projectData, function (err, res)
+                                    {
+                                        cb(err, res);
+                                    });
+                                }
+                            });
+                        }, function (err, results)
+                        {
+                            callback(err, results);
+                            unitUtils.end(__filename);
                         });
-                    }, function (err, results)
-                    {
-                        finish(err, results);
-                        unitUtils.end(__filename);
-                    });
-                }
+                    }
+                });
+            },
+            function ()
+            {
+                unitUtils.end(__filename);
+                callback(err, results);
             });
-        },
-        function ()
-        {
-            unitUtils.end(__filename);
-            finish(err, results);
-        });
-};
+    }
+}
+
+module.exports = CreateProjects;

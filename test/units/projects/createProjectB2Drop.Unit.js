@@ -17,58 +17,63 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 
 const b2dropProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 
-module.exports.setup = function (finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class CreateProjectB2Drop extends TestUnit
 {
-    unitUtils.start(path.basename(__filename));
-    let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
-
-    createUsersUnit.setup(function (err, results)
+    static init (callback)
     {
-        // should.equal(err, null);
-        if (err)
-        {
-            unitUtils.end(path.basename(__filename));
-            finish(err, results);
-        }
-        else
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                if (err)
-                {
-                    unitUtils.end(path.basename(__filename));
-                    finish(err, agent);
-                }
-                else
-                {
-                    projectUtils.createNewProject(true, agent, b2dropProjectData, function (err, res)
-                    {
-                        async.mapSeries([b2dropProjectData], function (projectData, cb)
-                        {
-                            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-                            {
-                                if (err)
-                                {
-                                    cb(err, agent);
-                                }
-                                else
-                                {
-                                    userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
-                                    {
-                                        cb(err, res);
-                                    });
-                                }
-                            });
-                        }, function (err, results)
-                        {
-                            appUtils.registerStopTimeForUnit(path.basename(__filename));
-                            finish(err, results);
-                            unitUtils.end(path.basename(__filename));
-                        });
-                    });
-                }
-            });
-        }
-    });
-};
+        unitUtils.start(path.basename(__filename));
+        let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
+        createUsersUnit.init(function (err, results)
+        {
+            // should.equal(err, null);
+            if (err)
+            {
+                unitUtils.end(path.basename(__filename));
+                callback(err, results);
+            }
+            else
+            {
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                {
+                    if (err)
+                    {
+                        unitUtils.end(path.basename(__filename));
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        projectUtils.createNewProject(true, agent, b2dropProjectData, function (err, res)
+                        {
+                            async.mapSeries([b2dropProjectData], function (projectData, cb)
+                            {
+                                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                                {
+                                    if (err)
+                                    {
+                                        cb(err, agent);
+                                    }
+                                    else
+                                    {
+                                        userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
+                                        {
+                                            cb(err, res);
+                                        });
+                                    }
+                                });
+                            }, function (err, results)
+                            {
+                                appUtils.registerStopTimeForUnit(path.basename(__filename));
+                                callback(err, results);
+                                unitUtils.end(path.basename(__filename));
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = CreateProjectB2Drop;

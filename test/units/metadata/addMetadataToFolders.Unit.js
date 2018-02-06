@@ -1,7 +1,6 @@
 process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
@@ -15,56 +14,56 @@ const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
-function requireUncached (module)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class AddMetadataToFolders extends TestUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
-module.exports.setup = function (finish)
-{
-    let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-    const projectsData = createProjectsUnit.projectsData;
-
-    let createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-    const foldersData = createFoldersUnit.foldersData;
-
-    createFoldersUnit.setup(function (err, results)
+    static init (callback)
     {
-        if (err)
+        let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+        const projectsData = createProjectsUnit.projectsData;
+
+        let createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+        const foldersData = createFoldersUnit.foldersData;
+
+        createFoldersUnit.init(function (err, results)
         {
-            finish(err, results);
-        }
-        else
-        {
-            unitUtils.start(path.basename(__filename));
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            if (err)
             {
-                if (err)
+                callback(err, results);
+            }
+            else
+            {
+                unitUtils.start(path.basename(__filename));
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
-                    finish(err, agent);
-                }
-                else
-                {
-                    async.mapSeries(projectsData, function (projectData, cb)
+                    if (err)
                     {
-                        async.mapSeries(foldersData, function (folderData, cb)
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        async.mapSeries(projectsData, function (projectData, cb)
                         {
-                            itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, folderData.metadata, function (err, res)
+                            async.mapSeries(foldersData, function (folderData, cb)
                             {
-                                cb(err, res);
+                                itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, folderData.metadata, function (err, res)
+                                {
+                                    cb(err, res);
+                                });
+                            }, function (err, results)
+                            {
+                                cb(err, results);
                             });
                         }, function (err, results)
                         {
-                            cb(err, results);
+                            unitUtils.end(__filename);
+                            callback(err, results);
                         });
-                    }, function (err, results)
-                    {
-                        unitUtils.end(__filename);
-                        finish(err, results);
-                    });
-                }
-            });
-        }
-    });
-};
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = AddMetadataToFolders;

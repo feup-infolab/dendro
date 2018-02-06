@@ -9,21 +9,20 @@ const async = require("async");
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-
-const projectsData = createProjectsUnit.projectsData;
-const foldersData = createFoldersUnit.foldersData;
-
 const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class DeleteFolders extends TestUnit
+class AddMetadataToFoldersPublicProject extends TestUnit
 {
     static init (callback)
     {
-        createFoldersUnit.init(function (err, results)
+        let createFoldersPublicProject = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersPublicProject.Unit.js"));
+        const foldersData = createFoldersPublicProject.foldersData;
+        const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+
+        createFoldersPublicProject.init(function (err, results)
         {
             if (err)
             {
@@ -31,6 +30,7 @@ class DeleteFolders extends TestUnit
             }
             else
             {
+                unitUtils.start(__filename);
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)
@@ -39,20 +39,15 @@ class DeleteFolders extends TestUnit
                     }
                     else
                     {
-                        async.mapSeries(projectsData, function (projectData, cb)
+                        async.mapSeries(foldersData, function (folderData, cb)
                         {
-                            async.mapSeries(foldersData, function (folderData, cb)
+                            itemUtils.updateItemMetadata(true, agent, project.handle, folderData.name, folderData.metadata, function (err, res)
                             {
-                                itemUtils.deleteItem(true, agent, projectData.handle, folderData.name, function (err, res)
-                                {
-                                    cb(err, res);
-                                });
-                            }, function (err, results)
-                            {
-                                cb(err, results);
+                                cb(err, res);
                             });
                         }, function (err, results)
                         {
+                            unitUtils.end(__filename);
                             callback(err, results);
                         });
                     }
@@ -62,4 +57,4 @@ class DeleteFolders extends TestUnit
     }
 }
 
-module.exports = DeleteFolders;
+module.exports = AddMetadataToFoldersPublicProject;

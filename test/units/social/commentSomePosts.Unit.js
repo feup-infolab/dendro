@@ -12,31 +12,37 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const commentMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/commentMock"));
 
-module.exports.setup = function (finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class CommentSomePosts extends TestUnit
 {
-    let likeSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/likeSomePosts.Unit.js"));
-    likeSomePostsUnit.setup(function (err, postURIToShare)
+    static init (callback)
     {
-        if (err)
+        let likeSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/likeSomePosts.Unit.js"));
+        likeSomePostsUnit.init(function (err, postURIToShare)
         {
-            finish(err, postURIToShare);
-        }
-        else
-        {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            if (err)
             {
-                if (err)
+                callback(err, postURIToShare);
+            }
+            else
+            {
+                userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
                 {
-                    finish(err, agent);
-                }
-                else
-                {
-                    socialDendroUtils.commentAPost(true, agent, postURIToShare, commentMock.commentMsg, function (err, res)
+                    if (err)
                     {
-                        finish(err, res);
-                    });
-                }
-            });
-        }
-    });
-};
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        socialDendroUtils.commentAPost(true, agent, postURIToShare, commentMock.commentMsg, function (err, res)
+                        {
+                            callback(err, res);
+                        });
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = CommentSomePosts;

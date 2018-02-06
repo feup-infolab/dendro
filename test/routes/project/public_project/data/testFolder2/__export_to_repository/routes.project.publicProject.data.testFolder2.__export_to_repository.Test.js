@@ -40,7 +40,7 @@ describe("Export public project testFolder2 level to repositories tests", functi
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createExportToRepositoriesConfig.setup(function (err, results)
+        createExportToRepositoriesConfig.init(function (err, results)
         {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)

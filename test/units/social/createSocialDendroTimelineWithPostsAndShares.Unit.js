@@ -6,18 +6,18 @@ const chai = require("chai");
 chai.use(require("chai-http"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
 
-function requireUncached (module)
+class CreateSocialDendroTimelineWithPostsAndShares extends TestUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
+    init (finish)
+    {
+        let commentSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/commentSomePosts.Unit.js"));
+        commentSomePostsUnit.init(function (err, results)
+        {
+            callback(err, results);
+        });
+    }
 }
 
-module.exports.setup = function (finish)
-{
-    let commentSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/commentSomePosts.Unit.js"));
-    commentSomePostsUnit.setup(function (err, results)
-    {
-        finish(err, results);
-    });
-};
+module.exports = CreateSocialDendroTimelineWithPostsAndShares;

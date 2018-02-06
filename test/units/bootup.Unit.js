@@ -2,69 +2,72 @@ process.env.NODE_ENV = "test";
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const colors = require("colors");
 const path = require("path");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
 
 const should = chai.should();
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-module.exports.setup = function (finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class BootupUnit extends TestUnit
 {
-    const app = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js"));
-    unitUtils.loadCheckpointAndRun(
-        path.basename(__filename),
-        function (err, restoreMessage)
-        {
-            unitUtils.start(path.basename(__filename), restoreMessage);
-            requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
-                .connectionsEstablished.then(function (appInfo)
-                {
-                    app.seedDatabases(function (err, results)
-                    {
-                        if (!err)
-                        {
-                            finish(null, appInfo);
-                        }
-                        else
-                        {
-                            finish(err, results);
-                        }
-
-                        unitUtils.end(path.basename(__filename));
-                    });
-                })
-                .catch(function (error)
-                {
-                    unitUtils.end(path.basename(__filename));
-                    finish(error);
-                });
-        },
-        function (err)
-        {
-            // do not load databases because the state was loaded from docker snapshot
-            app.serverListening.then(function (appInfo)
+    static init (callback)
+    {
+        const app = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js"));
+        unitUtils.loadCheckpointAndRun(
+            path.basename(__filename),
+            function (err, restoreMessage)
             {
-                chai.request(appInfo.app)
-                    .get("/")
-                    .end((err, res) =>
+                unitUtils.start(path.basename(__filename), restoreMessage);
+                appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
+                    .connectionsEstablished.then(function (appInfo)
                     {
-                        global.tests.app = appInfo.app;
-                        global.tests.server = appInfo.server;
-                        should.not.exist(err);
-                        finish(err, res);
+                        app.seedDatabases(function (err, results)
+                        {
+                            if (!err)
+                            {
+                                callback(null, appInfo);
+                            }
+                            else
+                            {
+                                callback(err, results);
+                            }
+
+                            unitUtils.end(path.basename(__filename));
+                        });
+                    })
+                    .catch(function (error)
+                    {
                         unitUtils.end(path.basename(__filename));
+                        callback(error);
                     });
-            })
-                .catch(function (error)
+            },
+            function (err)
+            {
+                // do not load databases because the state was loaded from docker snapshot
+                app.serverListening.then(function (appInfo)
                 {
-                    unitUtils.end(path.basename(__filename));
-                    finish(error);
-                });
-        });
-};
+                    chai.request(appInfo.app)
+                        .get("/")
+                        .end((err, res) =>
+                        {
+                            global.tests.app = appInfo.app;
+                            global.tests.server = appInfo.server;
+                            should.not.exist(err);
+                            callback(err, res);
+                            unitUtils.end(path.basename(__filename));
+                        });
+                })
+                    .catch(function (error)
+                    {
+                        unitUtils.end(path.basename(__filename));
+                        callback(error);
+                    });
+            });
+    }
+}
+
+module.exports = BootupUnit;

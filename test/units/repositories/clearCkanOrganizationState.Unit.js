@@ -8,66 +8,72 @@ const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils
 const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
 const ckanOrganizationData = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckanOrganizationData"));
 
-module.exports.setup = function (project, finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class ClearCkanOrganizationState extends TestUnit
 {
-    console.log("At clearCkanOrganizationStateUnit");
-    let uploadFileToProjectFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
-    uploadFileToProjectFoldersUnit.setup(project, function (err, results)
+    static init (callback)
     {
-        if (err)
+        console.log("At clearCkanOrganizationStateUnit");
+        let uploadFileToProjectFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
+        uploadFileToProjectFoldersUnit.init(project, function (err, results)
         {
-            finish(err, results);
-        }
-        else
-        {
-            console.log("---------- RUNNING UNIT clearCkanOrganizationState for: " + project.handle + " ----------");
-            unitUtils.start(__filename);
-            ckanTestUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
+            if (err)
             {
-                if (err)
+                callback(err, results);
+            }
+            else
+            {
+                console.log("---------- RUNNING UNIT clearCkanOrganizationState for: " + project.handle + " ----------");
+                unitUtils.start(__filename);
+                ckanTestUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
                 {
-                    Logger.log("error", "Error deleting all packages from ckan organization");
-                    finish(err, data);
-                }
-                else
-                {
-                    /* ckanTestUtils.deleteCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
-                        if(err)
-                        {
-                            finish(err, data);
-                        }
-                        else
-                        {
-                            ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
-                                finish(err, data);
-                            })
-                        }
-                    }) */
-
-                    console.log("Deleted all packages from ckan organization successfully");
-                    ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
+                    if (err)
                     {
-                        if (err)
-                        {
-                            if (data.error.name[0] === "Group name already exists in database")
+                        Logger.log("error", "Error deleting all packages from ckan organization");
+                        callback(err, data);
+                    }
+                    else
+                    {
+                        /* ckanTestUtils.deleteCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
+                            if(err)
                             {
-                                unitUtils.stop(__filename);
-                                finish(null, data);
+                                callback(err, data);
+                            }
+                            else
+                            {
+                                ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
+                                    callback(err, data);
+                                })
+                            }
+                        }) */
+
+                        console.log("Deleted all packages from ckan organization successfully");
+                        ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
+                        {
+                            if (err)
+                            {
+                                if (data.error.name[0] === "Group name already exists in database")
+                                {
+                                    unitUtils.stop(__filename);
+                                    callback(null, data);
+                                }
+                                else
+                                {
+                                    unitUtils.stop(__filename);
+                                    callback(err, data);
+                                }
                             }
                             else
                             {
                                 unitUtils.stop(__filename);
-                                finish(err, data);
+                                callback(err, data);
                             }
-                        }
-                        else
-                        {
-                            unitUtils.stop(__filename);
-                            finish(err, data);
-                        }
-                    });
-                }
-            });
-        }
-    });
-};
+                        });
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = ClearCkanOrganizationState;

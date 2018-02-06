@@ -29,7 +29,7 @@ describe("Metadata only project testFolder1 level (default case) tests", functio
 {
     before(function (done)
     {
-        addMetadataToFoldersUnit.setup(function (err, results)
+        addMetadataToFoldersUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

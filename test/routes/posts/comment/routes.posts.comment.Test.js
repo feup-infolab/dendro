@@ -37,7 +37,7 @@ describe("Comment a specific post tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
+        createSocialDendroTimelineWithPostsAndSharesUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

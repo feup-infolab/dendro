@@ -21,39 +21,44 @@ const projectsData = createProjectsUnit.projectsData;
 const foldersData = createFoldersUnit.foldersData;
 const filesData = [txtMockFile, zipMockFile];
 
-module.exports.allFiles = filesData;
-
-module.exports.setup = function (finish)
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+class CreateFilesTestUnit extends TestUnit
 {
-    unitUtils.loadCheckpointAndRun(
-        path.basename(__filename),
-        function ()
-        {
-            createFoldersUnit.setup(function (err, results)
+    static init (callback)
+    {
+        unitUtils.loadCheckpointAndRun(
+            path.basename(__filename),
+            function ()
             {
-                if (err)
+                createFoldersUnit.init(function (err, results)
                 {
-                    finish(err, results);
-                }
-                else
-                {
-                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    if (err)
                     {
-                        if (err)
+                        callback(err, results);
+                    }
+                    else
+                    {
+                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                         {
-                            finish(err, agent);
-                        }
-                        else
-                        {
-                            async.mapSeries(projectsData, function (projectData, cb)
+                            if (err)
                             {
-                                async.mapSeries(foldersData, function (folderData, cb)
+                                callback(err, agent);
+                            }
+                            else
+                            {
+                                async.mapSeries(projectsData, function (projectData, cb)
                                 {
-                                    async.mapSeries(filesData, function (file, cb)
+                                    async.mapSeries(foldersData, function (folderData, cb)
                                     {
-                                        fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, file, function (err, res)
+                                        async.mapSeries(filesData, function (file, cb)
                                         {
-                                            cb(err, res);
+                                            fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, file, function (err, res)
+                                            {
+                                                cb(err, res);
+                                            });
+                                        }, function (err, results)
+                                        {
+                                            cb(err, results);
                                         });
                                     }, function (err, results)
                                     {
@@ -61,21 +66,22 @@ module.exports.setup = function (finish)
                                     });
                                 }, function (err, results)
                                 {
-                                    cb(err, results);
+                                    callback(err, results);
                                 });
-                            }, function (err, results)
-                            {
-                                finish(err, results);
-                            });
-                        }
-                    });
-                }
-            });
-        },
-        function ()
-        {
-            unitUtils.end(__filename);
-            finish(err, results);
-        }
-    );
-};
+                            }
+                        });
+                    }
+                });
+            },
+            function ()
+            {
+                unitUtils.end(__filename);
+                callback(err, results);
+            }
+        );
+    }
+}
+
+CreateFilesTestUnit.allFiles = filesData;
+
+module.exports = CreateFilesTestUnit;
