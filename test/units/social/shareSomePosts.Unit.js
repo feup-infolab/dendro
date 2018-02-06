@@ -5,16 +5,12 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const chai = require("chai");
 chai.use(require("chai-http"));
-const async = require("async");
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const shareMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/shareMock"));
 
@@ -26,7 +22,7 @@ function requireUncached (module)
 
 module.exports.setup = function (finish)
 {
-    let createManualPostForAllProjectTypesUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/social/createManualPostForAllProjectTypes.Unit.js"));
+    let createManualPostForAllProjectTypesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createManualPostForAllProjectTypes.Unit.js"));
     createManualPostForAllProjectTypesUnit.setup(function (err, results)
     {
         if (err)

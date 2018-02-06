@@ -27,15 +27,9 @@ const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folder
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
 
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
 module.exports.setup = function (finish)
 {
-    let addContributorsToProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+    let addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
     addContributorsToProjectsUnit.setup(function (err, results)
     {

@@ -1,13 +1,8 @@
 process.env.NODE_ENV = "test";
 
 const _ = require("underscore");
-const chai = require("chai");
-const slug = require("slug");
-const should = chai.should();
+
 const Pathfinder = global.Pathfinder;
-const path = require("path");
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const async = require("async");
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
@@ -27,15 +22,9 @@ const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/fil
 
 let ckanData;
 
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
 module.exports.setup = function (project, finish)
 {
-    const exportFoldersToCkanRepositoryUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
+    const exportFoldersToCkanRepositoryUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 
     exportFoldersToCkanRepositoryUnit.setup(project, function (err, results)
     {

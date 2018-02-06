@@ -2,11 +2,8 @@ process.env.NODE_ENV = "test";
 
 const _ = require("underscore");
 const chai = require("chai");
-const should = chai.should();
 const Pathfinder = global.Pathfinder;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const path = require("path");
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const async = require("async");
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
@@ -15,7 +12,6 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
 
 const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanNoDiffs.js"));
 const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
@@ -24,16 +20,10 @@ let foldersToExport = [];
 
 let ckanData;
 
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
 // TODO chamar a createExportToRepositoriesConfigs.Unit.js
 module.exports.setup = function (project, finish)
 {
-    let createExportToRepositoriesConfig = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+    let createExportToRepositoriesConfig = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
     createExportToRepositoriesConfig.setup(project, function (err, results)
     {
         if (err)

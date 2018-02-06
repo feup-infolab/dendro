@@ -932,7 +932,7 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
 
                         if (!bagitMetadataIsValid)
                         {
-                            console.log("error", JSON.stringify(returnedBagitMetadata, null, 4));
+                            Logger.log("error", JSON.stringify(returnedBagitMetadata, null, 4));
                         }
 
                         const returnedProjectTreeMetadata = results[0].projectTreeMetadata;
@@ -946,7 +946,7 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
 
                         if (!fileTreeMetadataIsValid)
                         {
-                            console.log("error", JSON.stringify(fileTreeMetadataDiffs, null, 4));
+                            Logger.log("error", JSON.stringify(fileTreeMetadataDiffs, null, 4));
                         }
 
                         callback(null, bagitMetadataIsValid && fileTreeMetadataIsValid);
@@ -992,8 +992,8 @@ const contentsMatchBackup = module.exports.contentsMatchBackup = function (proje
                         {
                             if (result1 !== result2)
                             {
-                                console.log("error", result1);
-                                console.log("error", result2);
+                                Logger.log("error", result1);
+                                Logger.log("error", result2);
                             }
 
                             callback(null, result1 === result2);
@@ -1093,13 +1093,13 @@ const countProjectFilesInGridFS = module.exports.countProjectFilesInGridFS = fun
                         }
                         return callback(null, 0);
                     }
-                    console.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                    Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                     return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                 });
         }
         else
         {
-            console.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+            Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
             return callback(1, "Error retrieving files collection : " + collection);
         }
     });

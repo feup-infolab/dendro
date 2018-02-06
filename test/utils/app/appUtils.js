@@ -130,7 +130,7 @@ const printRoutesLog = function (routesLog)
 {
     if (isNull(routesLog))
     {
-        console.log("error", "ERROR: CANNOT PRINT ROUTES LOG. UNITS LOG IS NULL");
+        Logger.log("error", "ERROR: CANNOT PRINT ROUTES LOG. UNITS LOG IS NULL");
     }
     else
     {

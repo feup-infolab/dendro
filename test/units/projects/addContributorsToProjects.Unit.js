@@ -23,67 +23,48 @@ const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFol
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = createFoldersUnit.foldersData;
 
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
-const start = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".green);
-        console.log("[Adding contributors unit] Adding contributors to projects...".green);
-        console.log("**********************************************".green);
-    }
-};
-
-const end = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".blue);
-        console.log("[Adding contributors unit] Complete.".blue);
-        console.log("**********************************************".blue);
-    }
-};
-
 module.exports.setup = function (finish)
 {
-    unitUtils.start(path.basename(__filename));
-
-    createProjectsUnit.setup(function (err, results)
-    {
-        if (err)
+    unitUtils.loadCheckpointAndRun(
+        path.basename(__filename),
+        function (err, restoreMessage)
         {
-            finish(err, results);
-            unitUtils.start(__filename);
-        }
-        else
-        {
-            unitUtils.registerStartTimeForUnit(path.basename(__filename));
-            async.mapSeries(projectsData, function (projectData, cb)
+            unitUtils.start(path.basename(__filename));
+            createProjectsUnit.setup(function (err, results)
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                if (err)
                 {
-                    if (err)
+                    finish(err, results);
+                }
+                else
+                {
+                    async.mapSeries(projectsData, function (projectData, cb)
                     {
-                        cb(err, agent);
-                    }
-                    else
-                    {
-                        userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
+                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                         {
-                            cb(err, res);
+                            if (err)
+                            {
+                                cb(err, agent);
+                            }
+                            else
+                            {
+                                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
+                                {
+                                    cb(err, res);
+                                });
+                            }
                         });
-                    }
-                });
-            }, function (err, results)
-            {
-                finish(err, results);
-                unitUtils.end(__filename);
+                    }, function (err, results)
+                    {
+                        finish(err, results);
+                        unitUtils.end(__filename);
+                    });
+                }
             });
-        }
-    });
+        },
+        function ()
+        {
+            unitUtils.end(__filename);
+            finish(err, results);
+        });
 };

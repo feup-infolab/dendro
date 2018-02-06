@@ -2,26 +2,23 @@ process.env.NODE_ENV = "test";
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null")).isNull;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
-const should = chai.should();
 const async = require("async");
-const colors = require("colors");
 const path = require("path");
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 module.exports.setup = function (finish)
 {
-    unitUtils.start(path.basename(__filename));
-
     unitUtils.loadCheckpointAndRun(
         path.basename(__filename),
-        function ()
+        function (err, restoreMessage)
         {
+            unitUtils.start(path.basename(__filename), restoreMessage);
             let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
             bootupUnit.setup(function (err, results)
@@ -97,7 +94,7 @@ module.exports.setup = function (finish)
                                     else
                                     {
                                         const msg = "Error creating new Administrator at createUsers.Unit" + JSON.stringify(newUser);
-                                        console.log("error", msg);
+                                        Logger.log("error", msg);
                                         callback(err, msg);
                                     }
                                 });
@@ -120,11 +117,11 @@ module.exports.setup = function (finish)
                                     {
                                         if (isNull(err))
                                         {
-                                            console.log("info", "Admins successfully loaded at createUsers.Unit.");
+                                            Logger.log("info", "Admins successfully loaded at createUsers.Unit.");
                                         }
                                         else
                                         {
-                                            console.log("[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
+                                            Logger.log("error", "[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
                                         }
 
                                         callback(err);
@@ -141,7 +138,7 @@ module.exports.setup = function (finish)
                                 else
                                 {
                                     const msg = "Error creating Admins at createUsers.Unit";
-                                    console.log("error", msg);
+                                    Logger.log("error", msg);
                                     unitUtils.end(__filename);
                                     finish(err, results);
                                 }
@@ -150,7 +147,7 @@ module.exports.setup = function (finish)
                         else
                         {
                             var msg = "Error creating users at createUsers.Unit";
-                            console.log("error", msg);
+                            Logger.log("error", msg);
                             unitUtils.end(__filename);
                             finish(err, results);
                         }

@@ -43,7 +43,7 @@ function requireUncached (module)
 
 module.exports.setup = function (finish)
 {
-    let addContributorsToProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+    let addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
     addContributorsToProjectsUnit.setup(function (err, results)
     {

@@ -6,25 +6,39 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const path = require("path");
 const async = require("async");
 
-exports.start = function (unitFilePath)
+exports.start = function (unitFilePath, customMessage)
 {
     unitFilePath = path.basename(unitFilePath);
     if (Config.debug.tests.log_unit_completion_and_startup)
     {
         console.log("**********************************************".green);
-        console.log(("[Start] " + unitFilePath + "...").green);
+        if (!customMessage)
+        {
+            console.log(("[Start] " + unitFilePath + "...").green);
+        }
+        else
+        {
+            console.log(("[Start] " + customMessage).green);
+        }
         console.log("**********************************************".green);
         exports.registerStartTimeForUnit(unitFilePath);
     }
 };
 
-exports.end = function (unitFilePath)
+exports.end = function (unitFilePath, customMessage)
 {
     unitFilePath = path.basename(unitFilePath);
     if (Config.debug.tests.log_unit_completion_and_startup)
     {
         console.log("**********************************************".yellow);
-        console.log(("[End] " + unitFilePath + "...").yellow);
+        if (!customMessage)
+        {
+            console.log(("[End] " + unitFilePath + "...").yellow);
+        }
+        else
+        {
+            console.log(("[End] " + customMessage).yellow);
+        }
         console.log("**********************************************".yellow);
         exports.registerStopTimeForUnit(unitFilePath);
     }
@@ -92,38 +106,31 @@ exports.loadCheckpointAndRun = function (checkpointName, initializationFunctionI
     {
         checkpointExists = DockerCheckpointManager.checkpointExists(checkpointName);
 
-        async.series([
-            function (callback)
+        if (!checkpointExists)
+        {
+            initializationFunctionIfNotCached(function (err)
             {
-                if (!checkpointExists)
+                loadedFromCheckpoint = DockerCheckpointManager.createOrRestoreCheckpoint(checkpointName);
+                if (loadedFromCheckpoint)
                 {
-                    initializationFunctionIfNotCached(function (err)
-                    {
-                        loadedFromCheckpoint = DockerCheckpointManager.createOrRestoreCheckpoint(checkpointName);
-                        if(loadedFromCheckpoint)
-                        {
-                            const msg = "Something went wrong. Tried to create checkpoint " + checkpointName + ", but the operation says that the checkpoint was restored instead of created??";
-                            Logger.log("error", msg);
-                            callback(1, msg);
-                        }
-                        else
-                        {
-                            const msg = "Checkpoint " + checkpointName + " CREATED successfully";
-                            Logger.log("info", msg);
-                            callback(1, msg);
-                        }
-                    });
+                    const msg = "Something went wrong. Tried to create checkpoint " + checkpointName + ", but the operation says that the checkpoint was restored instead of created??";
+                    Logger.log("error", msg);
+                    callback(1, msg);
                 }
                 else
                 {
-                    Logger.log("info", "Checkpoint " + checkpointName + " RESTORED successfully.");
-                    callback(null);
+                    const msg = "Checkpoint " + checkpointName + " CREATED successfully";
+                    Logger.log("info", msg);
+                    callback(null, msg);
                 }
-            }
-        ], function (err, results)
+            });
+        }
+        else
         {
-            callback(err, results);
-        });
+            const msg = "Checkpoint " + checkpointName + " RESTORED successfully.";
+            Logger.log("info", msg);
+            callback(null, msg);
+        }
     }
     else
     {

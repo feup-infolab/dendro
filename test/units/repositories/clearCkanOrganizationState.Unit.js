@@ -1,31 +1,17 @@
 process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
-const async = require("async");
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const path = require("path");
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-
 const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
 const ckanOrganizationData = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckanOrganizationData"));
-
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
 
 module.exports.setup = function (project, finish)
 {
     console.log("At clearCkanOrganizationStateUnit");
-    let uploadFileToProjectFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
+    let uploadFileToProjectFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
     uploadFileToProjectFoldersUnit.setup(project, function (err, results)
     {
         if (err)
@@ -40,7 +26,7 @@ module.exports.setup = function (project, finish)
             {
                 if (err)
                 {
-                    console.log("error", "Error deleting all packages from ckan organization");
+                    Logger.log("error", "Error deleting all packages from ckan organization");
                     finish(err, data);
                 }
                 else
