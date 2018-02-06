@@ -9,6 +9,7 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const contentDisposition = require('content-disposition');
 
 const async = require("async");
 const fs = require("fs");
@@ -556,7 +557,7 @@ exports.get_avatar = function (req, res)
 
         res.writeHead(200, {
             "Content-Type": "application/octet-stream",
-            "Content-Disposition": "attachment; filename=" + filename
+            "Content-Disposition": contentDisposition(filename),
         });
 
         fileStream.pipe(res);
@@ -592,7 +593,7 @@ exports.get_avatar = function (req, res)
                             res.writeHead(200, {
                                 "Content-Type": "application/octet-stream",
                                 Connection: "keep-alive",
-                                "Content-Disposition": "attachment; filename=" + filename
+                                "Content-Disposition": contentDisposition(filename),
                             });
 
                             fileStream.pipe(res);
