@@ -54,6 +54,7 @@ angular.module("dendroApp.controllers")
                 {
                     file.imported_project_handle = imported_project_handle;
                     file.imported_project_title = imported_project_title;
+                    file.isAsync = true;
                     $scope.$broadcast(
                         "new_files_to_upload",
                         [file]

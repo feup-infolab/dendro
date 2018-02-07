@@ -20,6 +20,7 @@
             <th>Description</th>
             <th>Creator</th>
             <th>Privacy</th>
+            <th>Status</th>
             <!--<th width="5%"></th>-->
         </tr>
         </thead>
@@ -143,6 +144,25 @@
                         %>
                     </div>
                 </div>
+            </td>
+
+            <td>
+                <%if(project.ddr.is_being_imported) {%>
+                <div>
+                    <span spinner-key="project-being-imported-spinner" us-spinner="{radius:5}"
+                          spinner-start-active="true" style="position: relative"> Restoring</span>
+                </div>
+                <%
+                } else if(project.ddr.hasErrors) {
+                %>
+                <p> Errors : <%=project.ddr.hasErrors%> </p>
+                <%
+                } else {
+                %>
+                <p> Everything good! </p>
+                <%
+                }
+                %>
             </td>
             <!--<td>
                                                     <button type="submit" class="btn btn-default btn-small" onclick="location.href='<%=project.uri%>?recycle_bin'">

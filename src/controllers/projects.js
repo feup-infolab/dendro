@@ -1869,6 +1869,8 @@ exports.import = function (req, res)
 {
     let acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
+    const isAsync = req.query.isAsync;
+    let newProject;
 
     if (req.originalMethod === "GET" && JSON.stringify(req.query) === JSON.stringify({}))
     {
@@ -1921,6 +1923,109 @@ exports.import = function (req, res)
                     });
                 }
                 const uploadedBackupAbsPath = result[0].path;
+
+                const checkIfRequestIsAsync = function (callback)
+                {
+                    // by default the project is private on import
+                    newProject = new Project({
+                        ddr: {
+                            is_being_imported: true,
+                            handle: req.query.imported_project_handle,
+                            privacyStatus: "private"
+                        },
+                        dcterms: {
+                            creator: req.user.uri,
+                            title: req.query.imported_project_title
+                        }
+                    });
+
+                    // all imported projects will use default storage by default.
+                    // later we will add parameters for storage in the import screen
+                    // and projects can be imported directly to any kind of storage
+                    const storageConf = new StorageConfig({
+                        ddr: {
+                            hasStorageType: "local",
+                            handlesStorageForProject: newProject.uri
+                        }
+                    });
+
+                    storageConf.save(function (err, newStorageConf)
+                    {
+                        if (isNull(err))
+                        {
+                            newProject.ddr.hasStorageConfig = newStorageConf.uri;
+                            newProject.save(function (err, nProject)
+                            {
+                                if(isNull(isAsync) || isAsync === false)
+                                {
+                                    if(isNull(err))
+                                    {
+                                        if(isNull(nProject))
+                                        {
+                                            callback(500, {
+                                                result: "error",
+                                                message: ["Could not pre-save a project with handle " + req.query.imported_project_handle]
+                                            });
+                                        }
+                                        else
+                                        {
+                                            callback(err, nProject)
+                                        }
+                                    }
+                                    else
+                                    {
+                                        callback(500, {
+                                            result: "error",
+                                            message: ["Error when pre-saving a project with handle " + req.query.imported_project_handle + ", error: " + JSON.stringify(nProject)]
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    if(isNull(err))
+                                    {
+                                        res.json({
+                                            result: "ok",
+                                            message: "Started a new async project restore successfully.",
+                                            new_project: nProject.uri
+                                        });
+                                        callback(err, nProject);
+                                    }
+                                    else
+                                    {
+                                        return res.status(500).json({
+                                            result: "error",
+                                            message: "Error starting a new async project restore.",
+                                            error: nProject
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                        else
+                        {
+                            if(isNull(isAsync) || isAsync === false)
+                            {
+                                callback(500,
+                                    {
+                                        result: "error",
+                                        message: "Unable to create new local storage configuration when importing a new project.",
+                                        error: newStorageConf
+                                    }
+                                );
+                            }
+                            else
+                            {
+                                return res.status(500).json({
+                                    result: "error",
+                                    message: "Unable to create new local storage configuration when importing a new project.",
+                                    error: newStorageConf
+                                });
+                            }
+                        }
+                    });
+                };
+                
                 const projectHandleCannotExist = function (callback)
                 {
                     Project.findByHandle(req.query.imported_project_handle, function (err, project)
@@ -1950,7 +2055,7 @@ exports.import = function (req, res)
                     });
                 };
 
-                const processImport = function (callback)
+                const processImport = function (createdProject, callback)
                 {
                     const getMetadata = function (absPathOfBagItBackupRootFolder, callback)
                     {
@@ -2033,7 +2138,8 @@ exports.import = function (req, res)
                                         getMetadata(absPathOfUnzippedBagIt, function (descriptors)
                                         {
                                             // by default the project is private on import
-                                            const newProject = new Project({
+                                            //TODO THIS IS NOW COMMENTED
+                                            /*const newProject = new Project({
                                                 ddr: {
                                                     is_being_imported: true,
                                                     handle: req.query.imported_project_handle,
@@ -2043,20 +2149,23 @@ exports.import = function (req, res)
                                                     creator: req.user.uri,
                                                     title: req.query.imported_project_title
                                                 }
-                                            });
+                                            });*/
 
                                             newProject.updateDescriptors(descriptors);
 
                                             // all imported projects will use default storage by default.
                                             // later we will add parameters for storage in the import screen
                                             // and projects can be imported directly to any kind of storage
-                                            const storageConf = new StorageConfig({
+                                            //TODO THIS IS NOW COMMENTED
+                                            /*const storageConf = new StorageConfig({
                                                 ddr: {
                                                     hasStorageType: "local",
                                                     handlesStorageForProject: newProject.uri
                                                 }
-                                            });
+                                            });*/
 
+                                            //TODO THIS IS ALSO NOW COMMENTED
+                                            /*
                                             storageConf.save(function (err, newStorageConf)
                                             {
                                                 if (isNull(err))
@@ -2129,6 +2238,63 @@ exports.import = function (req, res)
                                                         }
                                                     );
                                                 }
+                                            });*/
+
+                                            Project.createAndInsertFromObject(newProject, function (err, newProject)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
+                                                    {
+                                                        if (isNull(err))
+                                                        {
+                                                            delete newProject.ddr.is_being_imported;
+                                                            newProject.save(function (err, result)
+                                                            {
+                                                                if (isNull(err))
+                                                                {
+                                                                    callback(null,
+                                                                        {
+                                                                            result: "ok",
+                                                                            message: "Project imported successfully.",
+                                                                            new_project: newProject.uri
+                                                                        }
+                                                                    );
+                                                                }
+                                                                else
+                                                                {
+                                                                    callback(500,
+                                                                        {
+                                                                            result: "error",
+                                                                            message: "Error marking project restore as complete.",
+                                                                            error: result
+                                                                        }
+                                                                    );
+                                                                }
+                                                            });
+                                                        }
+                                                        else
+                                                        {
+                                                            callback(500,
+                                                                {
+                                                                    result: "error",
+                                                                    message: "Error restoring project contents from unzipped backup folder",
+                                                                    error: result
+                                                                }
+                                                            );
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    callback(500,
+                                                        {
+                                                            result: "error",
+                                                            message: "Error creating new project record before import operation could start",
+                                                            error: result
+                                                        }
+                                                    );
+                                                }
                                             });
                                         });
                                     }
@@ -2166,16 +2332,44 @@ exports.import = function (req, res)
 
                 async.waterfall([
                     projectHandleCannotExist,
+                    checkIfRequestIsAsync,
                     processImport
                 ], function (err, results)
                 {
-                    if (isNull(err))
+                    if(isNull(isAsync) || isAsync === false)
                     {
-                        res.json(results);
+                        if (isNull(err))
+                        {
+                            res.json(results);
+                        }
+                        else
+                        {
+                            res.status(err).json(results);
+                        }
                     }
                     else
                     {
-                        res.status(err).json(results);
+                        if (isNull(err))
+                        {
+                            Logger.log("info", "Project with handle: " + req.query.imported_project_handle + " was successfully restored");
+                            return;
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error restoring a project with handle: " + req.query.imported_project_handle + ", error: " + JSON.stringify(results));
+                            if(!isNull(newProject))
+                            {
+                                delete newProject.ddr.is_being_imported;
+                                newProject.ddr.hasErrors = "There was an error during a project restore, error message : " + JSON.stringify(results);
+                                newProject.save(function (err, result)
+                                {
+                                    if (!isNull(err))
+                                    {
+                                        Logger.log("error", "Error when saving a project error message from a restore operation, error: " + JSON.stringify(result));
+                                    }
+                                });
+                            }
+                        }
                     }
                 });
             }

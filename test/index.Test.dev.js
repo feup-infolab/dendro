@@ -17,6 +17,9 @@ global.tests = {};
 // uncomment the first time you run the tests after installing dendro
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
+// Import projects tests
+require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
+
 // list orphan resources tests /admin/list_orphan_resources
 require(Pathfinder.absPathInTestsFolder("/routes/admin/list_orphan_resources/routes.admin.listOrphanResources.Test.js"));
 
@@ -124,9 +127,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/d
 
 // Archived versions test
 require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
-
-// Import projects tests
-require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
 // Dendro Administration page
 require(Pathfinder.absPathInTestsFolder("/routes/admin/routes.admin.Test.js"));

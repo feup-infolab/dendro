@@ -798,6 +798,12 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    hasErrors:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box,
+            api_readable: true
+        },
     hasStorageConfig:
         {
             type: Elements.types.string,
