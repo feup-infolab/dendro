@@ -9,6 +9,8 @@ class TestUnit
     {
         const self = this;
         const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+        const path = require("path");
+
         unitUtils.loadCheckpointAndRun(
             self.name,
             function (err, restoreMessage)

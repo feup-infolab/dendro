@@ -29,7 +29,7 @@ describe("Public Project mkdir", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addContributorsToProjectsUnit.setup(function (err, results)
+        addContributorsToProjectsUnit.load(function (err, results)
         {
             should.equal(err, null);
             done();

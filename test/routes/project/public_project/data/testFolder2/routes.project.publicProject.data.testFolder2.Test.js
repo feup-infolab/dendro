@@ -30,7 +30,7 @@ describe("Public project testFolder2 level (default case) tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.setup(function (err, results)
+        addMetadataToFoldersUnit.load(function (err, results)
         {
             should.equal(err, null);
             done();

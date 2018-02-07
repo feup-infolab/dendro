@@ -35,7 +35,7 @@ describe("Private project testFolder1 ?rename", function ()
     {
         before(function (done)
         {
-            createFilesUnit.setup(function (err, results)
+            createFilesUnit.load(function (err, results)
             {
                 should.equal(err, null);
                 done();
@@ -197,7 +197,7 @@ describe("Private project testFolder1 ?rename", function ()
     {
         beforeEach(function (done)
         {
-            createFilesUnit.setup(function (err, results)
+            createFilesUnit.load(function (err, results)
             {
                 should.equal(err, null);
                 done();

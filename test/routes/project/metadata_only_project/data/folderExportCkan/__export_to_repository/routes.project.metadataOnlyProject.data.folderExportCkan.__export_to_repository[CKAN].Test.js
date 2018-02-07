@@ -57,7 +57,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        addChangesToExportedCkanPackagesUnit.setup(function (err, results)
+        addChangesToExportedCkanPackagesUnit.load(function (err, results)
         {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)

@@ -33,7 +33,7 @@ describe("Public project testFolder1 level restore folder tests", function ()
     let restoredFolderName = "folderDebug";
     before(function (done)
     {
-        addMetadataToFoldersInPublicProjectUnit.setup(function (err, results)
+        addMetadataToFoldersInPublicProjectUnit.load(function (err, results)
         {
             try
             {

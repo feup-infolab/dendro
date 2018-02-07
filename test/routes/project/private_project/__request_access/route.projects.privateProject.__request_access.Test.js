@@ -30,7 +30,7 @@ describe("Request access to private project", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createProjectsUnit.setup(function (err, results)
+        createProjectsUnit.load(function (err, results)
         {
             should.equal(err, null);
             done();

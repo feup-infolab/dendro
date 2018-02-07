@@ -31,7 +31,7 @@ describe("Metadata Only Project delete", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFilesUnit.setup(function (err, results)
+        createFilesUnit.load(function (err, results)
         {
             should.equal(err, null);
             app = global.tests.app;

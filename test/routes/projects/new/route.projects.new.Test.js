@@ -29,7 +29,7 @@ describe("New project tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createUsersUnit.setup(function (err, res)
+        createUsersUnit.load(function (err, res)
         {
             should.equal(err, null);
             done();

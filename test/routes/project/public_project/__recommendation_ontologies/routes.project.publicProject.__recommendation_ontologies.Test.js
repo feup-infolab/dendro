@@ -28,7 +28,7 @@ describe("Public project level recommendation_ontologies", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.setup(function (err, results)
+        addMetadataToFoldersUnit.load(function (err, results)
         {
             should.equal(err, null);
             done();

@@ -30,7 +30,7 @@ describe("Private project level metadata&deep tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.setup(function (err, results)
+        addMetadataToFoldersUnit.load(function (err, results)
         {
             should.equal(err, null);
             done();

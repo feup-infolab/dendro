@@ -106,24 +106,18 @@ exports.loadCheckpointAndRun = function (checkpointName, initializationFunctionI
     {
         checkpointExists = DockerCheckpointManager.checkpointExists(checkpointName);
 
-        if (!checkpointExists)
-        {
-            initializationFunctionIfNotCached(function (err)
-            {
-                loadedFromCheckpoint = DockerCheckpointManager.createOrRestoreCheckpoint(checkpointName);
-                if (loadedFromCheckpoint)
-                {
-                    const msg = "Something went wrong. Tried to create checkpoint " + checkpointName + ", but the operation says that the checkpoint was restored instead of created??";
-                    Logger.log("error", msg);
-                    callback(1, msg);
-                }
-                else
-                {
-                    const msg = "Checkpoint " + checkpointName + " CREATED successfully";
-                    Logger.log("info", msg);
-                    callback(null, msg);
-                }
-            });
+        if (!checkpointExists) {
+            let loadedFromCheckpoint = DockerCheckpointManager.createOrRestoreCheckpoint(checkpointName);
+            if (loadedFromCheckpoint) {
+                const msg = "Something went wrong. Tried to create checkpoint " + checkpointName + ", but the operation says that the checkpoint was restored instead of created??";
+                Logger.log("error", msg);
+                initializationFunctionIfNotCached(1, msg);
+            }
+            else {
+                const msg = "Checkpoint " + checkpointName + " CREATED successfully";
+                Logger.log("info", msg);
+                initializationFunctionIfNotCached(null, msg);
+            }
         }
         else
         {

@@ -31,7 +31,7 @@ describe("Backup Public project", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFilesUnit.setup(function (err, results)
+        createFilesUnit.load(function (err, results)
         {
             should.equal(err, null);
             done();

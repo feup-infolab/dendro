@@ -30,7 +30,7 @@ describe("Metadata only project testFolder2 level recommendation_ontologies test
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.setup(function (err, results)
+        addMetadataToFoldersUnit.load(function (err, results)
         {
             should.equal(err, null);
             done();
