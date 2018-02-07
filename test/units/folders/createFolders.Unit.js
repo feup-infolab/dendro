@@ -29,14 +29,12 @@ const folderMissingDescriptors = require(Pathfinder.absPathInTestsFolder("mockda
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2, folderExportCkan, folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs, folderExportedCkanCkanDiffs, folderMissingDescriptors];
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class CreateFolders extends TestUnit
+let AddContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+class CreateFolders extends AddContributorsToProjectsUnit
 {
-    static init (callback)
+    load (callback)
     {
-        let addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-
-        addContributorsToProjectsUnit.init(function (err, results)
+        super.load(function (err, results)
         {
             if (err)
             {

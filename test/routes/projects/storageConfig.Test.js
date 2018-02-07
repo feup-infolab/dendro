@@ -39,7 +39,7 @@ describe("Project storageConfig tests", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        projectUnit.init(function (err, results)
+        projectUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

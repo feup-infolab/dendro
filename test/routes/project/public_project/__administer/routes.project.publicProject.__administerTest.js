@@ -35,7 +35,7 @@ describe("Administer projects", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createProjectsUnit.init(function (err, res)
+        createProjectsUnit.setup(function (err, res)
         {
             chai.check(done, function ()
             {

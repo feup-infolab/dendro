@@ -17,15 +17,12 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 
 const b2dropProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class CreateProjectB2Drop extends TestUnit
+let CreateUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+class CreateProjectB2Drop extends CreateUsersUnit
 {
-    static init (callback)
+    load (callback)
     {
-        unitUtils.start(path.basename(__filename));
-        let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
-
-        createUsersUnit.init(function (err, results)
+        super.load(function (err, results)
         {
             // should.equal(err, null);
             if (err)

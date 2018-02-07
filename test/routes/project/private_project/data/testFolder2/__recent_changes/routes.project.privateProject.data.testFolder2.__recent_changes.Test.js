@@ -31,7 +31,7 @@ describe("Private project testFolder2 level recent changes", function ()
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        addMetadataToFoldersUnit.init(function (err, results)
+        addMetadataToFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

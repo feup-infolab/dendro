@@ -12,13 +12,12 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const commentMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/commentMock"));
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class CommentSomePosts extends TestUnit
+let LikeSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/likeSomePosts.Unit.js"));
+class CommentSomePosts extends LikeSomePostsUnit
 {
-    static init (callback)
+    load (callback)
     {
-        let likeSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/likeSomePosts.Unit.js"));
-        likeSomePostsUnit.init(function (err, postURIToShare)
+        LikeSomePostsUnit.init(function (err, postURIToShare)
         {
             if (err)
             {

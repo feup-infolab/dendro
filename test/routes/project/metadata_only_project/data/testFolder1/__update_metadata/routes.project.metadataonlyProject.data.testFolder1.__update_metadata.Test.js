@@ -30,7 +30,7 @@ describe("Metadata only project testFolder1 level update_metadata", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.init(function (err, results)
+        createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

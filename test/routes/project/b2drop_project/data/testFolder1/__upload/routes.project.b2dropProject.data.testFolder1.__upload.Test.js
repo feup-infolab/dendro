@@ -47,7 +47,7 @@ describe("Upload files into testFolder1 of b2droproject project", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersB2DropUnit.init(function (err, results)
+        createFoldersB2DropUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

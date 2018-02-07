@@ -36,7 +36,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
     {
         beforeEach(function (done)
         {
-            createFilesUnit.init(function (err, results)
+            createFilesUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();
@@ -441,7 +441,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
     {
         beforeEach(function (done)
         {
-            createFilesUnit.init(function (err, results)
+            createFilesUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();

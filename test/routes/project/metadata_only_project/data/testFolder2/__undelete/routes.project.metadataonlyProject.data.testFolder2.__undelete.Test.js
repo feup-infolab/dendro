@@ -29,7 +29,7 @@ describe("Metadata only project testFolder2 level undelete tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        deleteFoldersUnit.init(function (err, results)
+        deleteFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

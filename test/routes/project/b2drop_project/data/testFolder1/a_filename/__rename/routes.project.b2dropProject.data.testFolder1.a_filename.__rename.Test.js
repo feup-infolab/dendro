@@ -36,7 +36,7 @@ describe("B2Drop project testFolder1 ?rename", function ()
     {
         before(function (done)
         {
-            createFoldersB2DropUnit.init(function (err, results)
+            createFoldersB2DropUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();
@@ -218,7 +218,7 @@ describe("B2Drop project testFolder1 ?rename", function ()
     {
         beforeEach(function (done)
         {
-            createFoldersB2DropUnit.init(function (err, results)
+            createFoldersB2DropUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 fileUtils.uploadFile(true, agent, b2dropProject.handle, testFolder1.name, txtMockFile, function (err, res)

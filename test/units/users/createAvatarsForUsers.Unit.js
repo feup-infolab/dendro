@@ -14,10 +14,10 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
 class CreateAvatarsForUsers extends TestUnit
 {
-    static init (callback)
+    init (callback)
     {
         unitUtils.start(path.basename(__filename));
         const usersData = [demouser1, demouser2, demouser3];

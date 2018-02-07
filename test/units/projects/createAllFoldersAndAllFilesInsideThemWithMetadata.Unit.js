@@ -30,16 +30,15 @@ const filesData = [csvMockFile, docMockFile, docxMockFile, pdfMockFile, pngMockF
 let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const projectsData = createProjectsUnit.projectsData;
 
-let addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-let createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-const foldersData = createFoldersUnit.foldersData;
+let AddMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+let CreateFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const foldersData = CreateFoldersUnit.foldersData;
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends TestUnit
+class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends AddMetadataToFoldersUnit
 {
-    static init (callback)
+    load (callback)
     {
-        addMetadataToFoldersUnit.init(function (err, results)
+        super.load(function (err, results)
         {
             if (err)
             {

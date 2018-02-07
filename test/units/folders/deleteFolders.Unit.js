@@ -12,18 +12,17 @@ const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const CreateFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const CreateProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
-const projectsData = createProjectsUnit.projectsData;
-const foldersData = createFoldersUnit.foldersData;
+const projectsData = CreateProjectsUnit.projectsData;
+const foldersData = CreateFoldersUnit.foldersData;
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class DeleteFolders extends TestUnit
+class DeleteFolders extends CreateFoldersUnit
 {
-    static init (callback)
+    load (callback)
     {
-        createFoldersUnit.init(function (err, results)
+        super.load(function (err, results)
         {
             if (err)
             {

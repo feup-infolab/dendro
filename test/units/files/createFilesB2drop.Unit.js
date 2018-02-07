@@ -14,73 +14,61 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const createFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
+const CreateFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
 
-const foldersData = createFoldersB2DropUnit.foldersData;
+const foldersData = CreateFoldersB2DropUnit.foldersData;
 const b2dropProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 const projectsData = [b2dropProjectData];
 const filesData = [txtMockFile, zipMockFile];
 
 module.exports.allFiles = filesData;
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class CreateFilesB2drop extends TestUnit
+class CreateFilesB2drop extends CreateFoldersB2DropUnit
 {
-    static init (callback)
+    load (callback)
     {
-        unitUtils.loadCheckpointAndRun(
-            path.basename(__filename),
-            function ()
+        CreateFoldersB2DropUnit.init(function (err, results)
+        {
+            if (err)
             {
-                createFoldersB2DropUnit.init(function (err, results)
+                callback(err, results);
+            }
+            else
+            {
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)
                     {
-                        callback(err, results);
+                        callback(err, agent);
                     }
                     else
                     {
-                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                        async.mapSeries(projectsData, function (projectData, cb)
                         {
-                            if (err)
+                            async.mapSeries(foldersData, function (folderData, cb)
                             {
-                                callback(err, agent);
-                            }
-                            else
-                            {
-                                async.mapSeries(projectsData, function (projectData, cb)
+                                async.mapSeries(filesData, function (file, cb)
                                 {
-                                    async.mapSeries(foldersData, function (folderData, cb)
+                                    fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, file, function (err, res)
                                     {
-                                        async.mapSeries(filesData, function (file, cb)
-                                        {
-                                            fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, file, function (err, res)
-                                            {
-                                                cb(err, res);
-                                            });
-                                        }, function (err, results)
-                                        {
-                                            cb(err, results);
-                                        });
-                                    }, function (err, results)
-                                    {
-                                        cb(err, results);
+                                        cb(err, res);
                                     });
                                 }, function (err, results)
                                 {
-                                    callback(err, results);
+                                    cb(err, results);
                                 });
-                            }
+                            }, function (err, results)
+                            {
+                                cb(err, results);
+                            });
+                        }, function (err, results)
+                        {
+                            callback(err, results);
                         });
                     }
                 });
-            },
-            function ()
-            {
-                unitUtils.end(__filename);
-                callback(err, results);
             }
-        );
+        });
     }
 }
 

@@ -22,7 +22,7 @@ describe("Backup B2Drop-backed project", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersB2DropUnit.init(function (err, results)
+        createFoldersB2DropUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

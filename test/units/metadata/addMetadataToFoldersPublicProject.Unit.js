@@ -11,18 +11,17 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
+let CreateFoldersPublicProject = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersPublicProject.Unit.js"));
+
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const foldersData = CreateFoldersPublicProject.foldersData;
+const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class AddMetadataToFoldersPublicProject extends TestUnit
+class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
 {
-    static init (callback)
+    load (callback)
     {
-        let createFoldersPublicProject = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersPublicProject.Unit.js"));
-        const foldersData = createFoldersPublicProject.foldersData;
-        const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-
-        createFoldersPublicProject.init(function (err, results)
+        super.load(function (err, results)
         {
             if (err)
             {

@@ -25,7 +25,7 @@ describe("List all external repository tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createExportToRepositoriesConfigsUnit.init(function (err, results)
+        createExportToRepositoriesConfigsUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

@@ -19,7 +19,7 @@ describe("[POST] /user_avatar", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createUserUnit.init(function (err, results)
+        createUserUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

@@ -20,7 +20,7 @@ describe("/user/demouser3", function (done)
 
     before(function (done)
     {
-        createUserUnit.init(function (err, results)
+        createUserUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

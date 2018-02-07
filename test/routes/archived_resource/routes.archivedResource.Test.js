@@ -37,7 +37,7 @@ describe("Creation of archived versions", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.init(function (err, results)
+        createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

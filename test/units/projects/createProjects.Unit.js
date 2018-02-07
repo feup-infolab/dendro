@@ -27,55 +27,42 @@ const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("
 
 const projectsData = module.exports.projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData, projectCreatedByDemoUser3];
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class CreateProjects extends TestUnit
+let CreateUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+class CreateProjects extends CreateUsersUnit
 {
-    static init (callback)
+    load (callback)
     {
-        unitUtils.loadCheckpointAndRun(
-            path.basename(__filename),
-            function (err, restoreMessage)
+        super.load(function (err, results)
+        {
+            if (err)
             {
-                unitUtils.start(path.basename(__filename), restoreMessage);
-                let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
-
-                createUsersUnit.init(function (err, results)
-                {
-                    if (err)
-                    {
-                        callback(err, results);
-                    }
-                    else
-                    {
-                        async.mapSeries(projectsData, function (projectData, cb)
-                        {
-                            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-                            {
-                                if (err)
-                                {
-                                    cb(err, agent);
-                                }
-                                else
-                                {
-                                    projectUtils.createNewProject(true, agent, projectData, function (err, res)
-                                    {
-                                        cb(err, res);
-                                    });
-                                }
-                            });
-                        }, function (err, results)
-                        {
-                            callback(err, results);
-                            unitUtils.end(__filename);
-                        });
-                    }
-                });
-            },
-            function ()
-            {
-                unitUtils.end(__filename);
                 callback(err, results);
-            });
+            }
+            else
+            {
+                async.mapSeries(projectsData, function (projectData, cb)
+                {
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    {
+                        if (err)
+                        {
+                            cb(err, agent);
+                        }
+                        else
+                        {
+                            projectUtils.createNewProject(true, agent, projectData, function (err, res)
+                            {
+                                cb(err, res);
+                            });
+                        }
+                    });
+                }, function (err, results)
+                {
+                    callback(err, results);
+                    unitUtils.end(__filename);
+                });
+            }
+        });
     }
 }
 

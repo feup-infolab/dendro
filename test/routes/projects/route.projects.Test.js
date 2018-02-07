@@ -32,7 +32,7 @@ describe("List all projects tests", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addContributorsToProjectsUnit.init(function (err, results)
+        addContributorsToProjectsUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

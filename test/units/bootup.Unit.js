@@ -11,19 +11,49 @@ const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils
 const should = chai.should();
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
+const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
 class BootupUnit extends TestUnit
 {
-    static init (callback)
+    init (callback)
     {
-        const app = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js"));
-        unitUtils.loadCheckpointAndRun(
-            path.basename(__filename),
-            function (err, restoreMessage)
+        super.init(function (err, result)
+        {
+            // do not load databases because the state was loaded from docker snapshot
+            app.serverListening
+                .then(function (appInfo)
+                {
+                    chai.request(appInfo.app)
+                        .get("/")
+                        .end((err, res) =>
+                        {
+                            global.tests.app = appInfo.app;
+                            global.tests.server = appInfo.server;
+                            should.not.exist(err);
+                            callback(err, res);
+                            unitUtils.end(path.basename(__filename));
+                        });
+                })
+                .catch(function (error)
+                {
+                    unitUtils.end(path.basename(__filename));
+                    callback(error);
+                });
+        });
+    }
+
+    load (callback)
+    {
+        super.load(function (err, results)
+        {
+            if (err)
             {
-                unitUtils.start(path.basename(__filename), restoreMessage);
-                appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
-                    .connectionsEstablished.then(function (appInfo)
+                callback(err, results);
+            }
+            else
+            {
+                const app = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js"));
+                appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js")).connectionsEstablished
+                    .then(function (appInfo)
                     {
                         app.seedDatabases(function (err, results)
                         {
@@ -44,29 +74,8 @@ class BootupUnit extends TestUnit
                         unitUtils.end(path.basename(__filename));
                         callback(error);
                     });
-            },
-            function (err)
-            {
-                // do not load databases because the state was loaded from docker snapshot
-                app.serverListening.then(function (appInfo)
-                {
-                    chai.request(appInfo.app)
-                        .get("/")
-                        .end((err, res) =>
-                        {
-                            global.tests.app = appInfo.app;
-                            global.tests.server = appInfo.server;
-                            should.not.exist(err);
-                            callback(err, res);
-                            unitUtils.end(path.basename(__filename));
-                        });
-                })
-                    .catch(function (error)
-                    {
-                        unitUtils.end(path.basename(__filename));
-                        callback(error);
-                    });
-            });
+            }
+        });
     }
 }
 

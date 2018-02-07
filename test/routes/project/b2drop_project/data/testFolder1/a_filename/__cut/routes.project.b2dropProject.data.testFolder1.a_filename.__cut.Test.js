@@ -35,7 +35,7 @@ describe("[File Cut / Move] [B2Drop project] cutFiles ?paste", function ()
         this.timeout(Config.testsTimeout);
         beforeEach(function (done)
         {
-            createFilesB2dropUnit.init(function (err, results)
+            createFilesB2dropUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();
@@ -440,7 +440,7 @@ describe("[File Cut / Move] [B2Drop project] cutFiles ?paste", function ()
     {
         beforeEach(function (done)
         {
-            createFilesB2dropUnit.init(function (err, results)
+            createFilesB2dropUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();

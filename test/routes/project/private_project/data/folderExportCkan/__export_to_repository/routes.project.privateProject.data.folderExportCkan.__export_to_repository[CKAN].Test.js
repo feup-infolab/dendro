@@ -58,7 +58,7 @@ describe("Export private project folderExportCkan level to ckan tests", function
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        addChangesToExportedCkanPackagesUnit.init(privateProject, function (err, results)
+        addChangesToExportedCkanPackagesUnit.setup(privateProject, function (err, results)
         {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)

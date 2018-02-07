@@ -19,7 +19,7 @@ describe("[GET] /user/demouser2?avatar", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createAvatarsForUsersUnit.init(function (err, results)
+        createAvatarsForUsersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

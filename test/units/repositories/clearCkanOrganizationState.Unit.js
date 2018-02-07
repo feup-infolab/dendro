@@ -8,14 +8,14 @@ const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils
 const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
 const ckanOrganizationData = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckanOrganizationData"));
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class ClearCkanOrganizationState extends TestUnit
+const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+
+let UploadFileToProjectFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
+class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
 {
-    static init (callback)
+    load (callback)
     {
-        console.log("At clearCkanOrganizationStateUnit");
-        let uploadFileToProjectFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
-        uploadFileToProjectFoldersUnit.init(project, function (err, results)
+        super.load(function (err, results)
         {
             if (err)
             {
@@ -23,7 +23,7 @@ class ClearCkanOrganizationState extends TestUnit
             }
             else
             {
-                console.log("---------- RUNNING UNIT clearCkanOrganizationState for: " + project.handle + " ----------");
+                console.log("---------- RUNNING UNIT clearCkanOrganizationState for: " + publicProject.handle + " ----------");
                 unitUtils.start(__filename);
                 ckanTestUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
                 {

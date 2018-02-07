@@ -15,7 +15,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const admin = require(Pathfinder.absPathInTestsFolder("mockdata/users/admin"));
 
-const addMetadataToFoldersPublicProject = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
+const AddMetadataToFoldersPublicProject = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
 
 let app;
 let agent;
@@ -25,7 +25,7 @@ describe("Resource re-indexing page ( /admin/reindex )", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersPublicProject.init(function (err, res)
+        AddMetadataToFoldersPublicProject.setup(function (err, res)
         {
             should.equal(err, null);
             app = global.tests.app;

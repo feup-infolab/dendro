@@ -22,14 +22,12 @@ const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folder
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class DeleteFoldersB2Drop extends TestUnit
+let AddContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
 {
-    static init (callback)
+    init (callback)
     {
-        let addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-
-        addContributorsToProjectsUnit.init(function (err, results)
+        AddContributorsToProjectsUnit.init(function (err, results)
         {
             if (err)
             {
@@ -49,7 +47,7 @@ class DeleteFoldersB2Drop extends TestUnit
                         {
                             async.mapSeries(foldersData, function (folderData, cb)
                             {
-                                itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
+                                itemUtils.deleteItem(true, agent, projectData.handle, folderData.name, function (err, res)
                                 {
                                     cb(err, res);
                                 });

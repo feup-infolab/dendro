@@ -17,50 +17,56 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 const filesData = [txtMockFile];
 
-module.exports.setup = function (callback)
+let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const projectsData = createProjectsUnit.projectsData;
+const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const foldersData = [testFolder1];
+
+let AddMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+
+class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
 {
-    let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-    const projectsData = createProjectsUnit.projectsData;
-
-    let addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-    const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-    const foldersData = [testFolder1];
-
-    addMetadataToFoldersUnit.init(function (err, results)
+    load (callback)
     {
-        if (err)
+        super.load(function (err, results)
         {
-            callback(err, results);
-        }
-        else
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            if (err)
             {
-                if (err)
+                callback(err, results);
+            }
+            else
+            {
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
-                    callback(err, agent);
-                }
-                else
-                {
-                    async.mapSeries(projectsData, function (projectData, cb)
+                    if (err)
                     {
-                        async.mapSeries(foldersData, function (folderData, cb)
+                        callback(err, agent);
+                    }
+                    else
+                    {
+                        async.mapSeries(projectsData, function (projectData, cb)
                         {
-                            async.mapSeries(filesData, function (fileData, cb)
+                            async.mapSeries(foldersData, function (folderData, cb)
                             {
-                                fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, fileData, function (err, res)
+                                async.mapSeries(filesData, function (fileData, cb)
                                 {
-                                    if (isNull(err))
+                                    fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, fileData, function (err, res)
                                     {
-                                        itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, fileData.metadata, function (err, res)
+                                        if (isNull(err))
+                                        {
+                                            itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, fileData.metadata, function (err, res)
+                                            {
+                                                cb(err, res);
+                                            });
+                                        }
+                                        else
                                         {
                                             cb(err, res);
-                                        });
-                                    }
-                                    else
-                                    {
-                                        cb(err, res);
-                                    }
+                                        }
+                                    });
+                                }, function (err, results)
+                                {
+                                    cb(err, results);
                                 });
                             }, function (err, results)
                             {
@@ -68,14 +74,13 @@ module.exports.setup = function (callback)
                             });
                         }, function (err, results)
                         {
-                            cb(err, results);
+                            callback(err, results);
                         });
-                    }, function (err, results)
-                    {
-                        callback(err, results);
-                    });
-                }
-            });
-        }
-    });
-};
+                    }
+                });
+            }
+        });
+    }
+}
+
+module.exports = UploadFilesAndAddMetadata;

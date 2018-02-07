@@ -14,7 +14,7 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 
 class LikeSomePosts extends TestUnit
 {
-    static init (callback)
+    init (callback)
     {
         let shareSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
         shareSomePostsUnit.init(function (err, postURIToLike)

@@ -35,7 +35,7 @@ describe("Import projects", function (done)
 
     before(function (done)
     {
-        createUsersUnit.init(function (err, results)
+        createUsersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();
@@ -99,7 +99,7 @@ describe("Import projects", function (done)
     {
         beforeEach(function (done)
         {
-            createUsersUnit.init(function (err, results)
+            createUsersUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();

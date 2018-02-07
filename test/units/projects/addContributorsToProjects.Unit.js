@@ -14,57 +14,45 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const CreateProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
-const projectsData = createProjectsUnit.projectsData;
+const projectsData = CreateProjectsUnit.projectsData;
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js")).TestUnit;
-class AddContributorsToProjects extends TestUnit
+class AddContributorsToProjects extends CreateProjectsUnit
 {
-    static init (callback)
+    load (callback)
     {
-        unitUtils.loadCheckpointAndRun(
-            path.basename(__filename),
-            function (err, restoreMessage)
+        super.load(function (err, results)
+        {
+            if (err)
             {
-                unitUtils.start(path.basename(__filename));
-                createProjectsUnit.init(function (err, results)
-                {
-                    if (err)
-                    {
-                        callback(err, results);
-                    }
-                    else
-                    {
-                        async.mapSeries(projectsData, function (projectData, cb)
-                        {
-                            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-                            {
-                                if (err)
-                                {
-                                    cb(err, agent);
-                                }
-                                else
-                                {
-                                    userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
-                                    {
-                                        cb(err, res);
-                                    });
-                                }
-                            });
-                        }, function (err, results)
-                        {
-                            callback(err, results);
-                            unitUtils.end(__filename);
-                        });
-                    }
-                });
-            },
-            function ()
-            {
-                unitUtils.end(__filename);
                 callback(err, results);
-            });
+            }
+            else
+            {
+                async.mapSeries(projectsData, function (projectData, cb)
+                {
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    {
+                        if (err)
+                        {
+                            cb(err, agent);
+                        }
+                        else
+                        {
+                            userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
+                            {
+                                cb(err, res);
+                            });
+                        }
+                    });
+                }, function (err, results)
+                {
+                    callback(err, results);
+                    unitUtils.end(__filename);
+                });
+            }
+        });
     }
 }
 
