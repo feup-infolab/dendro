@@ -235,7 +235,13 @@ const startApp = function ()
             {
                 if (process.env.NODE_ENV !== "test")
                 {
-                    module.exports.seedDatabases(callback);
+                    module.exports.seedDatabases(function(err, result){
+                        if(!isNull(err))
+                        {
+                            Logger.log("error", result);
+                        }
+                        callback(err);
+                    });
                 }
                 else
                 {
