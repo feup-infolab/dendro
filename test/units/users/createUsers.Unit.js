@@ -15,7 +15,7 @@ let BootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js")
 
 class CreateUsers extends BootupUnit
 {
-   static load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -128,14 +128,13 @@ class CreateUsers extends BootupUnit
                         {
                             if (isNull(err))
                             {
-                                unitUtils.end(__filename);
                                 callback(err, results);
                             }
                             else
                             {
                                 const msg = "Error creating Admins at createUsers.Unit";
                                 Logger.log("error", msg);
-                                unitUtils.end(__filename);
+
                                 callback(err, results);
                             }
                         });
@@ -144,7 +143,7 @@ class CreateUsers extends BootupUnit
                     {
                         var msg = "Error creating users at createUsers.Unit";
                         Logger.log("error", msg);
-                        unitUtils.end(__filename);
+
                         callback(err, results);
                     }
                 });

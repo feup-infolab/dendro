@@ -34,7 +34,7 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
             else
             {
                 console.log("---------- RUNNING UNIT exportFoldersToCkanRepository for: " + project.handle + " ----------");
-                unitUtils.start(__filename);
+
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)

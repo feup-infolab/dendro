@@ -24,7 +24,7 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
             else
             {
                 console.log("---------- RUNNING UNIT clearCkanOrganizationState for: " + publicProject.handle + " ----------");
-                unitUtils.start(__filename);
+
                 ckanTestUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
                 {
                     if (err)

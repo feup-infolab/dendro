@@ -30,7 +30,7 @@ class UploadFileToProjectFolders extends AddMetadataToFoldersSingleProjectUnit
                 // procurar para todos os projetos as pastas da root e fazer upload de um ficheiro
                 /* async.mapSeries(projects, function (project, cb) { */
                 console.log("---------- RUNNING UNIT uploadFileToProjectFolders.Unit for: " + project.handle + " ----------");
-                unitUtils.start(__filename);
+
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)

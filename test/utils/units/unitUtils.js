@@ -4,23 +4,20 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const path = require("path");
-const async = require("async");
 
 exports.start = function (unitFilePath, customMessage)
 {
     unitFilePath = path.basename(unitFilePath);
     if (Config.debug.tests.log_unit_completion_and_startup)
     {
-        console.log("**********************************************".green);
         if (!customMessage)
         {
             console.log(("[Start] " + unitFilePath + "...").green);
         }
         else
         {
-            console.log(("[Start] " + customMessage).green);
+            console.log(("[Start] " + unitFilePath + "..." + customMessage).green);
         }
-        console.log("**********************************************".green);
         exports.registerStartTimeForUnit(unitFilePath);
     }
 };
@@ -30,16 +27,14 @@ exports.end = function (unitFilePath, customMessage)
     unitFilePath = path.basename(unitFilePath);
     if (Config.debug.tests.log_unit_completion_and_startup)
     {
-        console.log("**********************************************".yellow);
         if (!customMessage)
         {
             console.log(("[End] " + unitFilePath + "...").yellow);
         }
         else
         {
-            console.log(("[End] " + customMessage).yellow);
+            console.log(("[Start] " + unitFilePath + "..." + customMessage).yellow);
         }
-        console.log("**********************************************".yellow);
         exports.registerStopTimeForUnit(unitFilePath);
     }
 };

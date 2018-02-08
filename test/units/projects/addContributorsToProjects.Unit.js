@@ -49,7 +49,6 @@ class AddContributorsToProjects extends CreateProjectsUnit
                 }, function (err, results)
                 {
                     callback(err, results);
-                    unitUtils.end(__filename);
                 });
             }
         });

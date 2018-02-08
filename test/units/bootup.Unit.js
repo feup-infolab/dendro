@@ -9,34 +9,35 @@ const Pathfinder = global.Pathfinder;
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const should = chai.should();
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const TestUnit = require(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+const app = require(Pathfinder.absPathInSrcFolder("app.js"));
 
 class BootupUnit extends TestUnit
 {
     static init (callback)
     {
+        const self = this;
+        unitUtils.start(self.name);
         super.init(function (err, result)
         {
-            appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
-                .serverListening.then(function (appInfo)
-                {
-                    chai.request(appInfo.app)
-                        .get("/")
-                        .end((err, res) =>
-                        {
-                            global.tests.app = appInfo.app;
-                            global.tests.server = appInfo.server;
-                            should.not.exist(err);
-                            callback(err, res);
-                            unitUtils.end(path.basename(__filename));
-                        });
-                })
+            app.serverListening.then(function (appInfo)
+            {
+                chai.request(appInfo.app)
+                    .get("/")
+                    .end((err, res) =>
+                    {
+                        global.tests.app = appInfo.app;
+                        global.tests.server = appInfo.server;
+                        should.not.exist(err);
+                        callback(err, res);
+                        unitUtils.end(path.basename(__filename), "Initialization complete.");
+                    });
+            })
                 .catch(function (error)
                 {
-                    unitUtils.end(path.basename(__filename));
+                    Logger.log("error", "Error seeding databases!");
+                    Logger.log("error", JSON.stringify(error));
                     callback(error);
                 });
         });
@@ -44,19 +45,19 @@ class BootupUnit extends TestUnit
 
     static load (callback)
     {
+        const self = this;
         super.load(function (err, results)
         {
-            DockerCheckpointManager.restartAllContainers();
             if (err)
             {
                 callback(err, results);
             }
             else
             {
-                require(Pathfinder.absPathInSrcFolder("app.js")).connectionsEstablished
+                app.connectionsEstablished
                     .then(function (appInfo)
                     {
-                        appInfo.app.seedDatabases(function (err, results)
+                        app.seedDatabases(function (err, results)
                         {
                             if (!err)
                             {
@@ -67,12 +68,13 @@ class BootupUnit extends TestUnit
                                 callback(err, results);
                             }
 
-                            unitUtils.end(path.basename(__filename));
+                            unitUtils.end(self.name, "Database seeding complete.");
                         });
                     })
                     .catch(function (error)
                     {
-                        unitUtils.end(path.basename(__filename));
+                        Logger.log("error", "Error seeding databases!");
+                        Logger.log("error", JSON.stringify(error));
                         callback(error);
                     });
             }

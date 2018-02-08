@@ -31,7 +31,6 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
             }
             else
             {
-                unitUtils.start(__filename);
                 async.mapSeries(dataToCreateExportConfigs, function (dataConfig, cb)
                 {
                     userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

@@ -42,7 +42,6 @@ class CreateFoldersSingleProject extends AddContributorsToProjectsUnit
             }
             else
             {
-                unitUtils.start(path.basename(__filename));
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)
@@ -66,7 +65,6 @@ class CreateFoldersSingleProject extends AddContributorsToProjectsUnit
                             });
                         }, function (err, results)
                         {
-                            unitUtils.end(__filename);
                             callback(err, results);
                         });
                     }
@@ -79,5 +77,7 @@ class CreateFoldersSingleProject extends AddContributorsToProjectsUnit
         super.init(callback);
     }
 }
+
+CreateFoldersSingleProject.foldersData = foldersData;
 
 module.exports = CreateFoldersSingleProject;

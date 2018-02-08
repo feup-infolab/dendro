@@ -27,7 +27,6 @@ class CreateProjectB2Drop extends CreateUsersUnit
             // should.equal(err, null);
             if (err)
             {
-                unitUtils.end(path.basename(__filename));
                 callback(err, results);
             }
             else
@@ -36,7 +35,6 @@ class CreateProjectB2Drop extends CreateUsersUnit
                 {
                     if (err)
                     {
-                        unitUtils.end(path.basename(__filename));
                         callback(err, agent);
                     }
                     else
@@ -63,7 +61,6 @@ class CreateProjectB2Drop extends CreateUsersUnit
                             {
                                 appUtils.registerStopTimeForUnit(path.basename(__filename));
                                 callback(err, results);
-                                unitUtils.end(path.basename(__filename));
                             });
                         });
                     }

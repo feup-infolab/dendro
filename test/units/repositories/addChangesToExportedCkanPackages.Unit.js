@@ -42,7 +42,7 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
                 async.map([publicProject, privateProject, metadataOnlyProject], function (project, callback)
                 {
                     console.log("---------- RUNNING UNIT addChangesToExportedCkanPackages for: " + project.handle + " ----------");
-                    unitUtils.start(__filename);
+
                     userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                     {
                         if (err)
@@ -92,7 +92,7 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
                                                     repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res)
                                                     {
                                                         /* cb(err, res); */
-                                                        unitUtils.end(__filename);
+
                                                         callback(err, res);
                                                     });
                                                 });

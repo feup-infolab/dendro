@@ -19,7 +19,7 @@ global.Config = Config;
 
 global.tests = {};
 
-//require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
+// require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 // TODO
 // // THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH

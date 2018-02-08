@@ -6,6 +6,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const childProcess = require("child_process");
 const startContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/start_containers.sh");
+const stopContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/stop_containers.sh");
 const createCheckpointScript = Pathfinder.absPathInApp("/conf/scripts/docker/create_checkpoint.sh");
 const restoreCheckpointScript = Pathfinder.absPathInApp("/conf/scripts/docker/restore_checkpoint.sh");
 const restartContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/restart_containers.sh");
@@ -19,6 +20,15 @@ DockerCheckpointManager._checkpoints = {};
 DockerCheckpointManager.restartAllContainers = function ()
 {
     return childProcess.execSync(`/bin/bash -c "${restartContainersScript}"`, {
+        cwd: Pathfinder.appDir
+        // ,
+        // stdio: [0, 1, 2]
+    });
+};
+
+DockerCheckpointManager.stopAllContainers = function ()
+{
+    return childProcess.execSync(`/bin/bash -c "${stopContainersScript}"`, {
         cwd: Pathfinder.appDir
         // ,
         // stdio: [0, 1, 2]
@@ -52,7 +62,7 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
             cwd: Pathfinder.appDir
         });
 
-        Logger.log("info", "Saved snapshot with name" + checkpointName);
+        Logger.log("info", "Saved snapshot with name " + checkpointName);
         DockerCheckpointManager._checkpoints[checkpointName] = true;
     }
 };
@@ -65,7 +75,7 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
             cwd: Pathfinder.appDir
         });
 
-        Logger.log("info", "Restored snapshot with name" + checkpointName + " of Docker container " + checkpointName);
+        Logger.log("info", "Restored snapshot with name " + checkpointName + " of Docker container " + checkpointName);
     }
     else
     {
@@ -103,6 +113,7 @@ DockerCheckpointManager.restartAllContainers = function (onlyOnce)
             cwd: Pathfinder.appDir
         });
     }
+    Logger.log("info", "Restarted all containers.");
 };
 
 module.exports.DockerCheckpointManager = DockerCheckpointManager;

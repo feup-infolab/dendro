@@ -45,18 +45,12 @@ const initMySQL = function (app, callback)
 
     createDatabase(function (err, result)
     {
+        let pool;
+
         if (!isNull(err))
         {
             callback(err, result);
         }
-
-        const pool = mysql.createPool({
-            host: Config.mySQLHost,
-            user: Config.mySQLAuth.user,
-            password: Config.mySQLAuth.password,
-            database: Config.mySQLDBName,
-            multipleStatements: true
-        });
 
         const poolOK = function (pool)
         {
@@ -65,10 +59,8 @@ const initMySQL = function (app, callback)
             return callback(null);
         };
 
-        pool.getConnection(function (err, connection)
+        const executeCode = function (err, connection)
         {
-            // const freeConnectionsIndex = pool._freeConnections.indexOf(connection);
-
             if (isNull(err))
             {
                 const checkAndCreateTable = function (tablename, cb)
@@ -157,9 +149,54 @@ const initMySQL = function (app, callback)
             }
             else
             {
-                return callback("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                callback(err, connection);
             }
-        });
+        };
+
+        const handleDisconnect = function (callback)
+        {
+            pool = mysql.createPool({
+                host: Config.mySQLHost,
+                user: Config.mySQLAuth.user,
+                password: Config.mySQLAuth.password,
+                database: Config.mySQLDBName,
+                multipleStatements: true
+            });
+
+            pool.getConnection(function (err, connection)
+            {
+                if (err)
+                {
+                    console.log("error when connecting to db:", err);
+                    setTimeout(function ()
+                    {
+                        handleDisconnect(callback);
+                    }, 2000);
+                }
+                else
+                {
+                    connection.on("error", function (err)
+                    {
+                        console.log("db error", err);
+                        if (err.code === "PROTOCOL_CONNECTION_LOST")
+                        {
+                            handleDisconnect(function (err, result)
+                            {
+                                callback(err, result);
+                            });
+                        }
+                        else
+                        {
+                            return callback("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                        }
+                    });
+
+                    callback(err, connection);
+                }
+            });
+        };
+
+        handleDisconnect(executeCode);
     });
 };
 

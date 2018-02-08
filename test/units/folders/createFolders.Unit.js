@@ -42,7 +42,6 @@ class CreateFolders extends AddContributorsToProjectsUnit
             }
             else
             {
-                unitUtils.start(__filename);
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)
@@ -79,7 +78,6 @@ class CreateFolders extends AddContributorsToProjectsUnit
                             });
                         }, function (err, results)
                         {
-                            unitUtils.end(__filename);
                             callback(err, results);
                         });
                     }

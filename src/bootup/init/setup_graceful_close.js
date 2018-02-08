@@ -185,6 +185,21 @@ const setupGracefulClose = function (app, server, callback)
             cb(null);
         };
 
+        const haltDockerContainers = function (cb)
+        {
+            if (Config.docker && Config.docker.active)
+            {
+                Logger.log("info", "Halting docker containers...");
+                const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+                DockerCheckpointManager.stopAllContainers();
+                cb(null);
+            }
+            else
+            {
+                cb(null);
+            }
+        };
+
         async.series([
             closeVirtuosoConnections,
             closeCacheConnections,
@@ -192,7 +207,8 @@ const setupGracefulClose = function (app, server, callback)
             closeMySQLConnectionPool,
             haltHTTPServer,
             callGarbageCollector,
-            removePIDFile
+            removePIDFile,
+            haltDockerContainers
         ], function (err, results)
         {
             if (!err)

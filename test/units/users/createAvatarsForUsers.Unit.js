@@ -19,7 +19,6 @@ class CreateAvatarsForUsers extends TestUnit
 {
     static load (callback)
     {
-        unitUtils.start(path.basename(__filename));
         const usersData = [demouser1, demouser2, demouser3];
         let createUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
@@ -46,7 +45,7 @@ class CreateAvatarsForUsers extends TestUnit
                     {
                         return callback(null);
                     }
-                    unitUtils.end(path.basename(__filename));
+
                     return callback(err, results);
                 });
             }

@@ -32,7 +32,6 @@ class AddMetadataToFolders extends CreateFoldersUnit
             }
             else
             {
-                unitUtils.start(path.basename(__filename));
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)
@@ -55,7 +54,6 @@ class AddMetadataToFolders extends CreateFoldersUnit
                             });
                         }, function (err, results)
                         {
-                            unitUtils.end(__filename);
                             callback(err, results);
                         });
                     }

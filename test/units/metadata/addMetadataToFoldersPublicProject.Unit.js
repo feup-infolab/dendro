@@ -29,7 +29,6 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
             }
             else
             {
-                unitUtils.start(__filename);
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (err)
@@ -46,7 +45,6 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
                             });
                         }, function (err, results)
                         {
-                            unitUtils.end(__filename);
                             callback(err, results);
                         });
                     }

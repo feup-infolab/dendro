@@ -442,8 +442,8 @@ if (process.env.NODE_ENV === "production")
             }
             else
             {
-                const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
-                Logger.log("warn", msg);
+                const msg = "Did not kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
+                Logger.log("info", msg);
             }
         });
     }
@@ -470,8 +470,8 @@ else
         startApp();
         if (!isNull(err))
         {
-            const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
-            Logger.log("warn", msg);
+            const msg = "Did not kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
+            Logger.log("info", msg);
         }
     });
 }
