@@ -22,15 +22,15 @@ const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.
 const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Private project testFolder2 level ?mkdir", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.load(function (err, results)
+        createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

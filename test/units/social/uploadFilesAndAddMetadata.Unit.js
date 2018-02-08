@@ -17,16 +17,16 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 const filesData = [txtMockFile];
 
-let createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+let createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const projectsData = createProjectsUnit.projectsData;
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const foldersData = [testFolder1];
 
-let AddMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+let AddMetadataToFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 
 class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -80,6 +80,10 @@ class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

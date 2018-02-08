@@ -21,7 +21,7 @@ const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
 
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
 const allFiles = createFilesUnit.filesData;
 
@@ -30,7 +30,7 @@ describe("Private project testFolder1 ?rename", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFilesUnit.load(function (err, results)
+        createFilesUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

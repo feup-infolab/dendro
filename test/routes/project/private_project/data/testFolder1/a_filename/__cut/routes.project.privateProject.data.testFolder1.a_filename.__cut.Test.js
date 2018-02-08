@@ -22,7 +22,7 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
 const allFiles = createFilesUnit.allFiles;
 
@@ -36,7 +36,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
     {
         beforeEach(function (done)
         {
-            createFilesUnit.load(function (err, results)
+            createFilesUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();
@@ -441,7 +441,7 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
     {
         beforeEach(function (done)
         {
-            createFilesUnit.load(function (err, results)
+            createFilesUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();

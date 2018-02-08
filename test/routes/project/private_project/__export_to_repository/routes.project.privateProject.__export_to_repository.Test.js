@@ -23,8 +23,8 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-const createExportToRepositoriesConfig = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createExportToRepositoriesConfig = require(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let b2shareData, ckanData, zenodoData, dspaceData, eprintsData, figshareData;
 

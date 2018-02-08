@@ -24,8 +24,8 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser4 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser4"));
 const demouser5 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser5"));
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 const Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
@@ -35,7 +35,7 @@ describe("Administer projects", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createProjectsUnit.load(function (err, res)
+        createProjectsUnit.setup(function (err, res)
         {
             chai.check(done, function ()
             {

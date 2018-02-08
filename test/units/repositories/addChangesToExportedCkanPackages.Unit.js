@@ -26,10 +26,10 @@ const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/pr
 
 let ckanData;
 
-const ExportFoldersToCkanRepositoryUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
+const ExportFoldersToCkanRepositoryUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -106,6 +106,10 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

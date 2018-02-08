@@ -27,8 +27,8 @@ const metadataOnlyHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/
 const privateProjectHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const projectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+const projectUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const addContributorsToProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
 const b2dropStorageConfig = require(Pathfinder.absPathInTestsFolder("mockdata/storageConfig/b2DropConfig.js"));
 
@@ -39,7 +39,7 @@ describe("Project storageConfig tests", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        projectUnit.load(function (err, results)
+        projectUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

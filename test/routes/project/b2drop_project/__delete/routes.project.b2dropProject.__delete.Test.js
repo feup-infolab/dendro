@@ -19,9 +19,9 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-const createFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const createFoldersB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let agent;
 let app;
@@ -31,7 +31,7 @@ describe("B2Drop Project delete", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersB2DropUnit.load(function (err, results)
+        createFoldersB2DropUnit.setup(function (err, results)
         {
             should.equal(err, null);
             app = global.tests.app;

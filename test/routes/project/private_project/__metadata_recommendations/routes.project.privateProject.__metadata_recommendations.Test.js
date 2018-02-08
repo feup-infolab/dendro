@@ -20,15 +20,15 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const addMetadataToFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Private project level metadata_recommendations", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.load(function (err, results)
+        addMetadataToFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

@@ -12,15 +12,15 @@ const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
-const CreateFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-const CreateProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const CreateFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const CreateProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 const projectsData = CreateProjectsUnit.projectsData;
 const foldersData = CreateFoldersUnit.foldersData;
 
 class DeleteFolders extends CreateFoldersUnit
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -58,6 +58,10 @@ class DeleteFolders extends CreateFoldersUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

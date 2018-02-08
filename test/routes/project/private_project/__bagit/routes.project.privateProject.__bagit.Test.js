@@ -24,14 +24,14 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
 describe("Backup Private project", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFilesUnit.load(function (err, results)
+        createFilesUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

@@ -20,14 +20,14 @@ const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/project
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
-const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const addMetadataToFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 
 describe("Private project testFolder1 level ?change_log", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.load(function (err, results)
+        addMetadataToFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

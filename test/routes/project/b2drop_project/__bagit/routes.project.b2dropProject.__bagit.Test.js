@@ -15,14 +15,14 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 
-const createFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
+const createFoldersB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
 
 describe("Backup B2Drop-backed project", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersB2DropUnit.load(function (err, results)
+        createFoldersB2DropUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

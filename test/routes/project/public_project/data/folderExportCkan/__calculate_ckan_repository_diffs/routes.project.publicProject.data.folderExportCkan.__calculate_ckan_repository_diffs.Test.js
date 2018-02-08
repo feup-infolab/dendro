@@ -33,9 +33,9 @@ const folderMissingDescriptors = require(Pathfinder.absPathInTestsFolder("mockda
 const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
 const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));
 
-const exportFoldersToCkanRepositoryUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
+const exportFoldersToCkanRepositoryUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let createdUnknownRepo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/created_unknown_export_repo.js"));
 let createdCkanConfigInvalidToken = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdCkanWithInvalidToken.js"));
@@ -51,7 +51,7 @@ describe("Calculate public project folderExportCkan level ckan respository diffs
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        exportFoldersToCkanRepositoryUnit.load(function (err, results)
+        exportFoldersToCkanRepositoryUnit.setup(function (err, results)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

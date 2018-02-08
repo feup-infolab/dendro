@@ -12,10 +12,10 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const commentMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/commentMock"));
 
-let LikeSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/likeSomePosts.Unit.js"));
+let LikeSomePostsUnit = require(Pathfinder.absPathInTestsFolder("units/social/likeSomePosts.Unit.js"));
 class CommentSomePosts extends LikeSomePostsUnit
 {
-    load (callback)
+    static load (callback)
     {
         LikeSomePostsUnit.init(function (err, postURIToShare)
         {
@@ -41,6 +41,10 @@ class CommentSomePosts extends LikeSomePostsUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

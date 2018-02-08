@@ -11,7 +11,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
-let CreateFoldersPublicProject = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersPublicProject.Unit.js"));
+let CreateFoldersPublicProject = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersPublicProject.Unit.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const foldersData = CreateFoldersPublicProject.foldersData;
@@ -19,7 +19,7 @@ const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/publi
 
 class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -53,6 +53,10 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

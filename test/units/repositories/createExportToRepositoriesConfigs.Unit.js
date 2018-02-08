@@ -18,10 +18,10 @@ const zenodo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/da
 
 const dataToCreateExportConfigs = [b2share, ckan, dspace, eprints, figshare, zenodo];
 
-let ClearCkanOrganizationStateUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/clearCkanOrganizationState.Unit.js"));
+let ClearCkanOrganizationStateUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/clearCkanOrganizationState.Unit.js"));
 class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -55,6 +55,10 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

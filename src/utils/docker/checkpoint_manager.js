@@ -16,6 +16,15 @@ const DockerCheckpointManager = function ()
 
 DockerCheckpointManager._checkpoints = {};
 
+DockerCheckpointManager.restartAllContainers = function ()
+{
+    return childProcess.execSync(`/bin/bash -c "${restartContainersScript}"`, {
+        cwd: Pathfinder.appDir
+        // ,
+        // stdio: [0, 1, 2]
+    });
+};
+
 DockerCheckpointManager.startAllContainers = function ()
 {
     return childProcess.execSync(`/bin/bash -c "${startContainersScript}"`, {

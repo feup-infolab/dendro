@@ -24,8 +24,8 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createSocialDendroTimelineWithPostsAndSharesUnit = require(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 
 let numberOfPostsForDemouser1Timeline;
 
@@ -35,7 +35,7 @@ describe("Get the number of posts of a specific user timeline tests", function (
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-        createSocialDendroTimelineWithPostsAndSharesUnit.load(function (err, results)
+        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

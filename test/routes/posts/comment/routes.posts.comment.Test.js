@@ -26,8 +26,8 @@ const commentMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/com
 
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createSocialDendroTimelineWithPostsAndSharesUnit = require(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 
 const pageNumber = 1;
 let demouser1PostURIsArray;
@@ -37,7 +37,7 @@ describe("Comment a specific post tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createSocialDendroTimelineWithPostsAndSharesUnit.load(function (err, results)
+        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

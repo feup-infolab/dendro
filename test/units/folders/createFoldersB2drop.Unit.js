@@ -14,7 +14,7 @@ const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const CreateProjectB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjectB2Drop.Unit.js"));
+const CreateProjectB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjectB2Drop.Unit.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
@@ -27,7 +27,7 @@ const foldersData = module.exports.foldersData = [folder, testFolder1, testFolde
 
 class CreateFoldersB2Drop extends CreateProjectB2DropUnit
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -65,6 +65,10 @@ class CreateFoldersB2Drop extends CreateProjectB2DropUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

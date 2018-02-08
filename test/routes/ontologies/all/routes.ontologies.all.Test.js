@@ -11,7 +11,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const ontologiesUtils = require(Pathfinder.absPathInTestsFolder("utils/ontologies/ontologiesUtils.js"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const addBootUpUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+const addBootUpUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
 describe("/ontologies/all", function ()
 {
@@ -22,7 +22,7 @@ describe("/ontologies/all", function ()
 
     before(function (done)
     {
-        addBootUpUnit.load(function (err, results)
+        addBootUpUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

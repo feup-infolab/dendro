@@ -13,12 +13,12 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
-let CreateProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+let CreateProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const projectsData = CreateProjectsUnit.projectsData;
 
 class DeleteProjects extends CreateProjectsUnit
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -50,6 +50,10 @@ class DeleteProjects extends CreateProjectsUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

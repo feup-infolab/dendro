@@ -14,10 +14,10 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const shareMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/shareMock"));
 
-let CreateManualPostForAllProjectTypesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createManualPostForAllProjectTypes.Unit.js"));
+let CreateManualPostForAllProjectTypesUnit = require(Pathfinder.absPathInTestsFolder("units/social/createManualPostForAllProjectTypes.Unit.js"));
 class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -57,6 +57,10 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

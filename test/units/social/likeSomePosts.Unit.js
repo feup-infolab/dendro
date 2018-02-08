@@ -14,9 +14,9 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 
 class LikeSomePosts extends TestUnit
 {
-    init (callback)
+    static init (callback)
     {
-        let shareSomePostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
+        let shareSomePostsUnit = require(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
         shareSomePostsUnit.init(function (err, postURIToLike)
         {
             if (err)
@@ -42,6 +42,10 @@ class LikeSomePosts extends TestUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

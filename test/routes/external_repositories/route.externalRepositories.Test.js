@@ -17,15 +17,15 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const createExportToRepositoriesConfigsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createExportToRepositoriesConfigsUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("List all external repository tests", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createExportToRepositoriesConfigsUnit.load(function (err, results)
+        createExportToRepositoriesConfigsUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

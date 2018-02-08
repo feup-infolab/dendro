@@ -20,10 +20,10 @@ let foldersToExport = [];
 
 let ckanData;
 
-let createExportToRepositoriesConfig = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+let createExportToRepositoriesConfig = require(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
 class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -104,6 +104,10 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

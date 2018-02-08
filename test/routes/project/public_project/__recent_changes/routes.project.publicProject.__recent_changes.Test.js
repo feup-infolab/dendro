@@ -22,8 +22,8 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const addMetadataToFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Public project recent changes", function ()
 {
@@ -31,7 +31,7 @@ describe("Public project recent changes", function ()
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        addMetadataToFoldersUnit.load(function (err, results)
+        addMetadataToFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

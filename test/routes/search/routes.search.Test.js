@@ -27,7 +27,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const projectsData = createProjectsUnit.projectsData;
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
@@ -42,7 +42,7 @@ describe("/search", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createProjectsUnit.load(function (err, results)
+        createProjectsUnit.setup(function (err, results)
         {
             async.mapSeries(projectsData, function (projectData, cb)
             {

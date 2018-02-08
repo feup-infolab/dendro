@@ -1,3 +1,6 @@
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const path = require("path");
+
 class TestUnit
 {
     static init (callback)
@@ -7,18 +10,42 @@ class TestUnit
 
     static load (callback)
     {
-        const self = this;
-        const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-        const path = require("path");
+        callback(null);
+    }
 
-        unitUtils.loadCheckpointAndRun(
+    static setup (callback)
+    {
+        const self = this;
+        unitUtils.loadCheckpoint(
             self.name,
-            function (err, restoreMessage)
+            function (err, loadedCheckpoint)
             {
                 if (!err)
                 {
-                    unitUtils.start(path.basename(__filename), restoreMessage);
-                    callback(err, restoreMessage);
+                    if (loadedCheckpoint)
+                    {
+                        unitUtils.start(path.basename(__filename), "Checkpoint " + self.name + " recovered , running only init function");
+                        self.prototype.init(function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        unitUtils.start(path.basename(__filename), "Checkpoint " + self.name + " does not exist, running load function");
+                        self.init(function (err, result)
+                        {
+                            self.load(function (err, result)
+                            {
+                                unitUtils.createCheckpoint(
+                                    self.name,
+                                    function (err, result)
+                                    {
+                                        callback(err, result);
+                                    });
+                            });
+                        });
+                    }
                 }
                 else
                 {

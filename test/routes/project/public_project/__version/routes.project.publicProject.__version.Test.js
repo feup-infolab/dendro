@@ -15,7 +15,7 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
-const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const addMetadataToFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 const db = appUtilsrequireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 // THIS TEST SHOULD BE DELETED BECAUSE THIS FEATURE DOES NOT EXIST
@@ -24,7 +24,7 @@ describe("Public project ?version tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.load(function (err, results)
+        addMetadataToFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

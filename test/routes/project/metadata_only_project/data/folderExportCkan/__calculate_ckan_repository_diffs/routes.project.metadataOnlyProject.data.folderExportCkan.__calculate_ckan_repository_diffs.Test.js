@@ -36,10 +36,10 @@ const folderMissingDescriptors = require(Pathfinder.absPathInTestsFolder("mockda
 const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
 const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));
 
-// const createExportToRepositoriesConfig = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-const exportFoldersToCkanRepositoryUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
+// const createExportToRepositoriesConfig = require(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+const exportFoldersToCkanRepositoryUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let createdUnknownRepo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/created_unknown_export_repo.js"));
 let createdB2shareConfigInvalidToken = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdB2shareWithInvalidToken.js"));
@@ -58,7 +58,7 @@ describe("Calculate metadata only project folderExportCkan level ckan respositor
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        exportFoldersToCkanRepositoryUnit.load(function (err, results)
+        exportFoldersToCkanRepositoryUnit.setup(function (err, results)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

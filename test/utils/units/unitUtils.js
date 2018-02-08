@@ -98,7 +98,7 @@ exports.registerStopTimeForUnit = function (unitName)
     return global.routesLog;
 };
 
-exports.loadCheckpointAndRun = function (checkpointName, initializationFunctionIfNotCached, callback)
+exports.loadCheckpoint = function (checkpointName, callback)
 {
     let checkpointExists = false;
 
@@ -106,24 +106,23 @@ exports.loadCheckpointAndRun = function (checkpointName, initializationFunctionI
     {
         checkpointExists = DockerCheckpointManager.checkpointExists(checkpointName);
 
-        if (!checkpointExists) {
-            let loadedFromCheckpoint = DockerCheckpointManager.createOrRestoreCheckpoint(checkpointName);
-            if (loadedFromCheckpoint) {
-                const msg = "Something went wrong. Tried to create checkpoint " + checkpointName + ", but the operation says that the checkpoint was restored instead of created??";
-                Logger.log("error", msg);
-                initializationFunctionIfNotCached(1, msg);
+        if (checkpointExists)
+        {
+            try
+            {
+                let checkpointRestored = DockerCheckpointManager.restoreCheckpoint(checkpointName);
+                callback(null, checkpointRestored);
             }
-            else {
-                const msg = "Checkpoint " + checkpointName + " CREATED successfully";
-                Logger.log("info", msg);
-                initializationFunctionIfNotCached(null, msg);
+            catch (e)
+            {
+                callback(e, false);
             }
         }
         else
         {
-            const msg = "Checkpoint " + checkpointName + " RESTORED successfully.";
+            const msg = "Checkpoint " + checkpointName + " does not exist.";
             Logger.log("info", msg);
-            callback(null, msg);
+            callback(null, false);
         }
     }
     else

@@ -11,7 +11,7 @@ const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta",
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-var createAvatarsForUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createAvatarsForUsers.Unit.js"));
+var createAvatarsForUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createAvatarsForUsers.Unit.js"));
 const md5 = require("md5");
 
 describe("[GET] /user/demouser2?avatar", function (done)
@@ -19,7 +19,7 @@ describe("[GET] /user/demouser2?avatar", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createAvatarsForUsersUnit.load(function (err, results)
+        createAvatarsForUsersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

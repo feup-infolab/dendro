@@ -22,14 +22,14 @@ const publicProjectHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata
 const metadataOnlyHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
 const privateProjectHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
-let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+let createUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
 describe("New project tests", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createUsersUnit.load(function (err, res)
+        createUsersUnit.setup(function (err, res)
         {
             should.equal(err, null);
             done();

@@ -19,14 +19,14 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-const uploadFilesAndAddMetadataUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/uploadFilesAndAddMetadata.Unit.js"));
-const createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
-const createAllFoldersAndAllFilesInsideThemWithMetadataUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createAllFoldersAndAllFilesInsideThemWithMetadata.Unit.js"));
+const addMetadataToFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const uploadFilesAndAddMetadataUnit = require(Pathfinder.absPathInTestsFolder("units/social/uploadFilesAndAddMetadata.Unit.js"));
+const createUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+const createAllFoldersAndAllFilesInsideThemWithMetadataUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createAllFoldersAndAllFilesInsideThemWithMetadata.Unit.js"));
 
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 const projectsData = createProjectsUnit.projectsData;
 
 describe("Import projects", function (done)
@@ -35,7 +35,7 @@ describe("Import projects", function (done)
 
     before(function (done)
     {
-        createUsersUnit.load(function (err, results)
+        createUsersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();
@@ -99,7 +99,7 @@ describe("Import projects", function (done)
     {
         beforeEach(function (done)
         {
-            createUsersUnit.load(function (err, results)
+            createUsersUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();

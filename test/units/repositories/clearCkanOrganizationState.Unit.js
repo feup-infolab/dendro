@@ -10,10 +10,10 @@ const ckanOrganizationData = require(Pathfinder.absPathInTestsFolder("mockdata/r
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
-let UploadFileToProjectFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
+let UploadFileToProjectFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
 class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -73,6 +73,10 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

@@ -11,16 +11,17 @@ const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils
 const should = chai.should();
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const TestUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
+const TestUnit = require(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
+const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+
 class BootupUnit extends TestUnit
 {
-    init (callback)
+    static init (callback)
     {
         super.init(function (err, result)
         {
-            // do not load databases because the state was loaded from docker snapshot
-            app.serverListening
-                .then(function (appInfo)
+            appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
+                .serverListening.then(function (appInfo)
                 {
                     chai.request(appInfo.app)
                         .get("/")
@@ -41,21 +42,21 @@ class BootupUnit extends TestUnit
         });
     }
 
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
+            DockerCheckpointManager.restartAllContainers();
             if (err)
             {
                 callback(err, results);
             }
             else
             {
-                const app = appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js"));
-                appUtils.requireUncached(Pathfinder.absPathInSrcFolder("app.js")).connectionsEstablished
+                require(Pathfinder.absPathInSrcFolder("app.js")).connectionsEstablished
                     .then(function (appInfo)
                     {
-                        app.seedDatabases(function (err, results)
+                        appInfo.app.seedDatabases(function (err, results)
                         {
                             if (!err)
                             {

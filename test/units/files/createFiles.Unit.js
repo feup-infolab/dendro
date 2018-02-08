@@ -14,8 +14,8 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const CreateFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const CreateFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = CreateFoldersUnit.foldersData;
@@ -23,7 +23,7 @@ const filesData = [txtMockFile, zipMockFile];
 
 class CreateFilesTestUnit extends CreateFoldersUnit
 {
-    load (callback)
+    static load (callback)
     {
         CreateFoldersUnit.init(function (err, results)
         {
@@ -67,6 +67,11 @@ class CreateFilesTestUnit extends CreateFoldersUnit
                 });
             }
         });
+    }
+
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

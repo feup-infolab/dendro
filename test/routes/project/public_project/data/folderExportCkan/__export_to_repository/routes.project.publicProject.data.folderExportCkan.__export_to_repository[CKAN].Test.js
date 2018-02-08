@@ -43,9 +43,9 @@ const emptyFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/em
 
 let uploadedAndDeletedFileInDendroDataInDB, uploadedFileToCkanDataInDb, emptyFileDataInDb;
 
-const addChangesToExportedCkanPackagesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/addChangesToExportedCkanPackages.Unit.js"));
+const addChangesToExportedCkanPackagesUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/addChangesToExportedCkanPackages.Unit.js"));
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let createdUnknownRepo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/created_unknown_export_repo.js"));
 
@@ -58,7 +58,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        addChangesToExportedCkanPackagesUnit.load(function (err, results)
+        addChangesToExportedCkanPackagesUnit.setup(function (err, results)
         {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)

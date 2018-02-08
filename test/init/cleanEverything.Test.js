@@ -22,9 +22,9 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
 const ontologyPrefix = "foaf";
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+let bootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
 describe("Initial clean-up...", function ()
 {

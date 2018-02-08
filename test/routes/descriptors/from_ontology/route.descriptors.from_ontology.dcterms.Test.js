@@ -25,15 +25,15 @@ const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/project
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
 
-const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const addContributorsToProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Descriptors from dcterms ontology", function (done)
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addContributorsToProjectsUnit.load(function (err, results)
+        addContributorsToProjectsUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

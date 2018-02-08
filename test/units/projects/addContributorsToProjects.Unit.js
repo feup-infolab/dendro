@@ -14,13 +14,13 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
-const CreateProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const CreateProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 const projectsData = CreateProjectsUnit.projectsData;
 
 class AddContributorsToProjects extends CreateProjectsUnit
 {
-    load (callback)
+    static load (callback)
     {
         super.load(function (err, results)
         {
@@ -53,6 +53,10 @@ class AddContributorsToProjects extends CreateProjectsUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

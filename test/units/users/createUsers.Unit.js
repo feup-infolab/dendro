@@ -11,11 +11,11 @@ const async = require("async");
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
-let BootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+let BootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
 class CreateUsers extends BootupUnit
 {
-    load (callback)
+   static load (callback)
     {
         super.load(function (err, results)
         {
@@ -150,6 +150,11 @@ class CreateUsers extends BootupUnit
                 });
             }
         });
+    }
+
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

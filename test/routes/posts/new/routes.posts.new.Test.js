@@ -24,19 +24,19 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProjectData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProjectData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProjectData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-let manualPostMockData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMock.js"));
-let manualPostMockDataMissingTitle = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMockMissingTitle.js"));
-let manualPostMockDataMissingContent = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMockMissingContent.js"));
+const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const privateProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+let manualPostMockData = require(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMock.js"));
+let manualPostMockDataMissingTitle = require(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMockMissingTitle.js"));
+let manualPostMockDataMissingContent = require(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMockMissingContent.js"));
 
 let publicProjectMachineURI;
 let metadataOnlyProjectMachineURI;
 let privateProjectMachineURI;
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createSocialDendroTimelineWithPostsAndSharesUnit = require(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 
 describe("Create a new manual post tests", function ()
 {
@@ -44,7 +44,7 @@ describe("Create a new manual post tests", function ()
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-        createSocialDendroTimelineWithPostsAndSharesUnit.load(function (err, results)
+        createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

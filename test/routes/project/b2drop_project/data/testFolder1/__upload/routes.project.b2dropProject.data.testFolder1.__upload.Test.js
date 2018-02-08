@@ -23,7 +23,7 @@ const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects
 const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const createFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
+const createFoldersB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
 
 const csvMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/csvMockFile.js"));
 const docMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/docMockFile.js"));
@@ -47,7 +47,7 @@ describe("Upload files into testFolder1 of b2droproject project", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersB2DropUnit.load(function (err, results)
+        createFoldersB2DropUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

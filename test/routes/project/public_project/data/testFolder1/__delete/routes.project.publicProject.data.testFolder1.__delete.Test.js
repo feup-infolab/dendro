@@ -21,14 +21,14 @@ const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/project
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const createFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 
 describe("Public project testFolder1 level delete tests", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.load(function (err, results)
+        createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

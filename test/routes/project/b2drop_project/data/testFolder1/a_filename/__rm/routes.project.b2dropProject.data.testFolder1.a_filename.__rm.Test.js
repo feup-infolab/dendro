@@ -21,8 +21,8 @@ const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
 
-const createFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFoldersB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
+const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
 const allFiles = createFilesUnit.filesData;
 
@@ -31,7 +31,7 @@ describe("B2Drop project testFolder1 ?rename", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersB2DropUnit.load(function (err, results)
+        createFoldersB2DropUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

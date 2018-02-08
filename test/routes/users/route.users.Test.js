@@ -14,7 +14,7 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const createUserUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+const createUserUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
 // to review naming before mergin to master
 
@@ -23,7 +23,7 @@ describe("/users", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createUserUnit.load(function (err, results)
+        createUserUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

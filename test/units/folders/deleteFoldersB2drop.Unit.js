@@ -12,7 +12,7 @@ const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjectsB2Drop.Unit.js"));
+const createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjectsB2Drop.Unit.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
@@ -22,10 +22,10 @@ const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folder
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
 
-let AddContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+let AddContributorsToProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
 {
-    init (callback)
+    static init (callback)
     {
         AddContributorsToProjectsUnit.init(function (err, results)
         {
@@ -63,6 +63,10 @@ class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
                 });
             }
         });
+    }
+    static init (callback)
+    {
+        super.init(callback);
     }
 }
 

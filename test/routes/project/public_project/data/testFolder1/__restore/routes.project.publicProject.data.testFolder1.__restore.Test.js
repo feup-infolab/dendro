@@ -23,7 +23,7 @@ const restoreFolderWithAZipInside = require(Pathfinder.absPathInTestsFolder("moc
 const restoreFolderWithOnlyOneFileInside = require(Pathfinder.absPathInTestsFolder("mockdata/files/restoreFolderWithOnlyOneFile.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const addMetadataToFoldersInPublicProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
+const addMetadataToFoldersInPublicProjectUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
 
 describe("Public project testFolder1 level restore folder tests", function ()
 {
@@ -33,7 +33,7 @@ describe("Public project testFolder1 level restore folder tests", function ()
     let restoredFolderName = "folderDebug";
     before(function (done)
     {
-        addMetadataToFoldersInPublicProjectUnit.load(function (err, results)
+        addMetadataToFoldersInPublicProjectUnit.setup(function (err, results)
         {
             try
             {

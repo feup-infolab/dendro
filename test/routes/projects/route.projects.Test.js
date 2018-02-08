@@ -23,8 +23,8 @@ const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/pr
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const addContributorsToProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 // LIST ALL PROJECTS
 describe("List all projects tests", function (done)
@@ -32,7 +32,7 @@ describe("List all projects tests", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addContributorsToProjectsUnit.load(function (err, results)
+        addContributorsToProjectsUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

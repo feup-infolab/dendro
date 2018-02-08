@@ -24,14 +24,14 @@ const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/project
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+const addContributorsToProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
 describe("My Projects", function (done)
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addContributorsToProjectsUnit.load(function (err, results)
+        addContributorsToProjectsUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

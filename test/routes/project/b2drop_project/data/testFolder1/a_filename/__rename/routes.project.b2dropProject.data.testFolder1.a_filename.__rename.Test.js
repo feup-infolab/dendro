@@ -22,8 +22,8 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
-const createFoldersB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
+const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFoldersB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
 
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
@@ -36,7 +36,7 @@ describe("B2Drop project testFolder1 ?rename", function ()
     {
         before(function (done)
         {
-            createFoldersB2DropUnit.load(function (err, results)
+            createFoldersB2DropUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 done();
@@ -218,7 +218,7 @@ describe("B2Drop project testFolder1 ?rename", function ()
     {
         beforeEach(function (done)
         {
-            createFoldersB2DropUnit.load(function (err, results)
+            createFoldersB2DropUnit.setup(function (err, results)
             {
                 should.equal(err, null);
                 fileUtils.uploadFile(true, agent, b2dropProject.handle, testFolder1.name, txtMockFile, function (err, res)

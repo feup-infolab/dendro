@@ -15,8 +15,8 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const admin = require(Pathfinder.absPathInTestsFolder("mockdata/users/admin"));
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+let createUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
 let app;
 let agent;
@@ -26,7 +26,7 @@ describe("Administration panel tests ( /admin )", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createUsersUnit.load(function (err, res)
+        createUsersUnit.setup(function (err, res)
         {
             should.equal(err, null);
             app = global.tests.app;

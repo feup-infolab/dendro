@@ -12,7 +12,7 @@ const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta",
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-var createUserUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+var createUserUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
 describe("[POST] /user/edit", function (done)
 {
@@ -63,7 +63,7 @@ describe("[POST] /user/edit", function (done)
 
     before(function (done)
     {
-        createUserUnit.load(function (err, results)
+        createUserUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();

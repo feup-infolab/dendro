@@ -22,15 +22,15 @@ const metadataProject = require(Pathfinder.absPathInTestsFolder("mockdata/projec
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 describe("Request access to metadata only project", function (done)
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createProjectsUnit.load(function (err, results)
+        createProjectsUnit.setup(function (err, results)
         {
             should.equal(err, null);
             done();
