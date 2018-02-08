@@ -46,9 +46,17 @@
                     %>
                     <form>
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-default" onclick="location.href='<%=project.uri%>'">
-                                <img class="icon16" id="upload_button" src="/images/icons/box_closed.png"> <%= (project.dcterms.title)? project.dcterms.title : project.ddr.handle %>
-                            </button>
+                            <%if(!project.ddr.hasErrors && !project.ddr.is_being_imported)
+                            {
+                            %>
+                                <button type="submit" class="btn btn-default" onclick="location.href='<%=project.uri%>'">
+                                    <img class="icon16" id="upload_button" src="/images/icons/box_closed.png"> <%= (project.dcterms.title)? project.dcterms.title : project.ddr.handle %>
+                                </button>
+                            <%} else {%>
+                                <button style='color:red;text-decoration:line-through' type="submit" class="btn btn-default">
+                                    <img class="icon16" id="upload_button" src="/images/icons/box_closed.png"> <%= (project.dcterms.title)? project.dcterms.title : project.ddr.handle %>
+                                </button>
+                            <%}%>
                             <%
                             if(locals.user != null && locals.user.uri == project.dcterms.creator)
                             {
@@ -62,12 +70,29 @@
                                 if(locals.user != null && locals.user.uri == project.dcterms.creator)
                                 {
                                 %>
+                                <%if(!project.ddr.hasErrors && !project.ddr.is_being_imported)
+                                {
+                                %>
                                 <li>
-                                    <a href="<%=project.uri%>?administer"><i class="fa fa-cog"></i>&nbsp;&nbsp;Administer</a>
+                                    <a href="<%=project.uri%>?administer"><i class="fa fa-cog"></i>Administer</a>
                                 </li>
                                 <li>
-                                    <a href="<%=project.uri%>?bagit"><i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Backup</a>
+                                    <a href="<%=project.uri%>?bagit"><i class="fa fa-file-zip-o"></i>Backup</a>
                                 </li>
+                                <%} else {%>
+                                <li>
+                                    <!--<a href="<%=project.uri%>?administer"><i class="fa fa-cog"></i>&nbsp;&nbsp;Administer</a>-->
+                                    <span style='color:red;text-decoration:line-through'>
+                                        <span style='color:black'><i class="fa fa-cog"></i>Administer</span>
+                                    </span>
+                                </li>
+                                <li>
+                                    <!--<a href="<%=project.uri%>?bagit"><i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Backup</a>-->
+                                    <span style='color:red;text-decoration:line-through'>
+                                        <span style='color:black'><i class="fa fa-file-zip-o"></i>Backup</span>
+                                    </span>
+                                </li>
+                                <%}%>
                                 <li>
                                     <a href="<%=project.uri%>?delete"><i class="fa fa-bomb"></i>&nbsp;&nbsp;Delete</a>
                                 </li>
@@ -149,17 +174,20 @@
             <td>
                 <%if(project.ddr.is_being_imported) {%>
                 <div>
-                    <span spinner-key="project-being-imported-spinner" us-spinner="{radius:5}"
-                          spinner-start-active="true" style="position: relative"> Restoring</span>
+                    <p><i class="fa fa-spinner fa-pulse"></i>Restoring Project!</p>
                 </div>
                 <%
                 } else if(project.ddr.hasErrors) {
                 %>
-                <p> Errors : <%=project.ddr.hasErrors%> </p>
+                <div>
+                    <p><i class="fa fa-exclamation-triangle"></i>Errors : <%=project.ddr.hasErrors%></p>
+                </div>
                 <%
                 } else {
                 %>
-                <p> Everything good! </p>
+                <div>
+                    <p><i class="fa fa-check-circle"></i>Everything good!</p>
+                </div>
                 <%
                 }
                 %>

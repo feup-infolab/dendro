@@ -36,7 +36,8 @@ angular.module("dendroApp.controllers")
                     {
                         if (result instanceof Array && result.length === 1)
                         {
-                            window.location = result[0].data.new_project;
+                            //window.location = result[0].data.new_project;
+                            window.location = "/projects/my";
                         }
                     }
                     else
