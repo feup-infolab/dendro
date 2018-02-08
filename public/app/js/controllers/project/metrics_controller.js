@@ -274,11 +274,7 @@ angular.module('dendroApp.controllers')
                     let event = {};
                     var depositDate =moment(deposits[i].date,"YYYY-MM-DDTHH:mmZ");
                     $scope.labels.push(moment().month(depositDate.month()).format('MMMM'));
-                    console.log(platforms);
-                       //platforms.get(deposits[i].platformsUsed++);
-                        console.log(platforms.get(deposits[i].platformsUsed));
-                        platforms.set(deposits[i].platformsUsed, platforms.get(deposits[i].platformsUsed + 1));
-                        console.log(platforms);
+                    platforms.set(deposits[i].platformsUsed, platforms.get(deposits[i].platformsUsed) + 1 );
                 }
             }
 
