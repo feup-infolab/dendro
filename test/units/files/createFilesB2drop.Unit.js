@@ -27,7 +27,7 @@ class CreateFilesB2drop extends CreateFoldersB2DropUnit
 {
     static load (callback)
     {
-        CreateFoldersB2DropUnit.init(function (err, results)
+        super.init(function (err, results)
         {
             if (err)
             {

@@ -14,15 +14,14 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
 
-const TestUnit = require(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
-class CreateAvatarsForUsers extends TestUnit
+let createUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+class CreateAvatarsForUsers extends createUsersUnit
 {
     static load (callback)
     {
         const usersData = [demouser1, demouser2, demouser3];
-        let createUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
-        createUsersUnit.init(function (err, results)
+        super.init(function (err, results)
         {
             if (isNull(err))
             {

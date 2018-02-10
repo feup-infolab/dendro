@@ -68,4 +68,7 @@ class AddMetadataToFolders extends CreateFoldersUnit
     }
 }
 
+AddMetadataToFolders.foldersData = foldersData;
+AddMetadataToFolders.projectsData = projectsData;
+
 module.exports = AddMetadataToFolders;

@@ -25,7 +25,7 @@ class CreateFilesTestUnit extends CreateFoldersUnit
 {
     static load (callback)
     {
-        CreateFoldersUnit.init(function (err, results)
+        super.init(function (err, results)
         {
             if (err)
             {

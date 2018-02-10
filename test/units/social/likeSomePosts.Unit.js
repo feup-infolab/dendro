@@ -11,13 +11,13 @@ const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+let ShareSomePostsUnit = require(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
 
-class LikeSomePosts extends TestUnit
+class LikeSomePosts extends ShareSomePostsUnit
 {
     static init (callback)
     {
-        let shareSomePostsUnit = require(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
-        shareSomePostsUnit.init(function (err, postURIToLike)
+        super.init(function (err, postURIToLike)
         {
             if (err)
             {

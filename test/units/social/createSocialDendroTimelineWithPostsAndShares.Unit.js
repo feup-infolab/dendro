@@ -8,12 +8,12 @@ chai.use(require("chai-http"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const TestUnit = require(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
 
-class CreateSocialDendroTimelineWithPostsAndShares extends TestUnit
+let CommentSomePostsUnit = require(Pathfinder.absPathInTestsFolder("units/social/commentSomePosts.Unit.js"));
+class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
 {
     static load (callback)
     {
-        let commentSomePostsUnit = require(Pathfinder.absPathInTestsFolder("units/social/commentSomePosts.Unit.js"));
-        commentSomePostsUnit.init(function (err, results)
+        super.load(function (err, results)
         {
             callback(err, results);
         });

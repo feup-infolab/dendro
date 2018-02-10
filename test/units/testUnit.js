@@ -1,6 +1,7 @@
+const Pathfinder = global.Pathfinder;
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
-const path = require("path");
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 class TestUnit
 {
@@ -25,7 +26,7 @@ class TestUnit
                 {
                     if (loadedCheckpoint)
                     {
-                        unitUtils.start(self.name, "Checkpoint " + self.name + " recovered, running only init function");
+                        Logger.log("info", "Checkpoint " + self.name + " recovered, running only init function");
                         self.prototype.init(function (err, result)
                         {
                             callback(err, result);
@@ -33,7 +34,7 @@ class TestUnit
                     }
                     else
                     {
-                        unitUtils.start(self.name, "Checkpoint " + self.name + " does not exist, running load function");
+                        Logger.log("info", "Checkpoint " + self.name + " does not exist, running load function");
                         self.init(function (err, result)
                         {
                             self.load(function (err, result)

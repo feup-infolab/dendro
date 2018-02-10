@@ -16,7 +16,7 @@ exports.start = function (unitFilePath, customMessage)
         }
         else
         {
-            console.log(("[Start] " + unitFilePath + "..." + customMessage).green);
+            console.log(("[Start] " + unitFilePath + ": " + customMessage).green);
         }
         exports.registerStartTimeForUnit(unitFilePath);
     }
@@ -29,11 +29,11 @@ exports.end = function (unitFilePath, customMessage)
     {
         if (!customMessage)
         {
-            console.log(("[End] " + unitFilePath + "...").yellow);
+            console.log(("[End] " + unitFilePath + ".").yellow);
         }
         else
         {
-            console.log(("[Start] " + unitFilePath + "..." + customMessage).yellow);
+            console.log(("[End] " + unitFilePath + ": " + customMessage).yellow);
         }
         exports.registerStopTimeForUnit(unitFilePath);
     }

@@ -27,7 +27,7 @@ const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("moc
 const folderMissingDescriptors = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderMissingDescriptors.js"));
 
 const projectsData = createProjectsUnit.projectsData;
-const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2, folderExportCkan, folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs, folderExportedCkanCkanDiffs, folderMissingDescriptors];
+const foldersData = [folder, testFolder1, testFolder2, folderDemoUser2, folderExportCkan, folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs, folderExportedCkanCkanDiffs, folderMissingDescriptors];
 
 let AddContributorsToProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 class CreateFolders extends AddContributorsToProjectsUnit
@@ -90,5 +90,7 @@ class CreateFolders extends AddContributorsToProjectsUnit
         super.init(callback);
     }
 }
+
+CreateFolders.foldersData = foldersData;
 
 module.exports = CreateFolders;

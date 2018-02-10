@@ -25,7 +25,7 @@ const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("m
 const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
 const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
-const projectsData = module.exports.projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData, projectCreatedByDemoUser3];
+const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData, projectCreatedByDemoUser3];
 
 let CreateUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 class CreateProjects extends CreateUsersUnit
@@ -68,5 +68,7 @@ class CreateProjects extends CreateUsersUnit
         super.init(callback);
     }
 }
+
+CreateProjects.projectsData = projectsData;
 
 module.exports = CreateProjects;

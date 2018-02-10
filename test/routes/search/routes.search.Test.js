@@ -27,8 +27,7 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 
-const createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-const projectsData = createProjectsUnit.projectsData;
+let AddMetadataToFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
@@ -42,51 +41,18 @@ describe("/search", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createProjectsUnit.setup(function (err, results)
+        AddMetadataToFoldersUnit.setup(function (err, results)
         {
-            async.mapSeries(projectsData, function (projectData, cb)
-            {
-                async.mapSeries(foldersData, function (folderData, cb)
-                {
-                    itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
-                    {
-                        if (isNull(err))
-                        {
-                            itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, folderData.metadata, function (err, res)
-                            {
-                                if (!isNull(err))
-                                {
-                                    should.not.exist(err);
-                                    res.statusCode.should.equal(200);
-                                    cb(null, results);
-                                }
-                                else
-                                {
-                                    cb(err, results);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            cb(err, results);
-                        }
-                    });
-                }, function (err, results)
-                {
-                    if (!isNull(err))
-                    {
-                        cb(err, results);
-                    }
-                    else
-                    {
-                        cb(null, results);
-                    }
-                });
-            }, function (err, results)
+            if (!isNull(err))
             {
                 should.not.exist(err);
-                done();
-            });
+                res.statusCode.should.equal(200);
+                done(null);
+            }
+            else
+            {
+                done(err);
+            }
         });
     });
     describe("Generic search inside public projects", function ()

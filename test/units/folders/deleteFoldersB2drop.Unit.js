@@ -27,7 +27,7 @@ class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
 {
     static init (callback)
     {
-        AddContributorsToProjectsUnit.init(function (err, results)
+        super.init(function (err, results)
         {
             if (err)
             {

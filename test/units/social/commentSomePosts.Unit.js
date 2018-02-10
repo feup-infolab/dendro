@@ -17,7 +17,7 @@ class CommentSomePosts extends LikeSomePostsUnit
 {
     static load (callback)
     {
-        LikeSomePostsUnit.init(function (err, postURIToShare)
+        super.init(function (err, postURIToShare)
         {
             if (err)
             {

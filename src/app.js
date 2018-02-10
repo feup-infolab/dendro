@@ -235,8 +235,9 @@ const startApp = function ()
             {
                 if (process.env.NODE_ENV !== "test")
                 {
-                    module.exports.seedDatabases(function(err, result){
-                        if(!isNull(err))
+                    module.exports.seedDatabases(function (err, result)
+                    {
+                        if (!isNull(err))
                         {
                             Logger.log("error", result);
                         }

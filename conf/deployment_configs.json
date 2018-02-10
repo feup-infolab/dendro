@@ -1459,7 +1459,7 @@
         },
         "baselines": {},
         "logging": {
-            "level": "debug",
+            "level": "silly",
             "format": "combined",
             "app_logs_folder": "logs/app",
             "log_all_requests": true,
