@@ -22,6 +22,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
 const async = require("async");
+const contentDisposition = require('content-disposition');
 
 exports.all = function (req, res)
 {
@@ -1492,7 +1493,7 @@ exports.bagit = function (req, res)
 
                             res.writeHead(200,
                                 {
-                                    "Content-disposition": "filename=\"Project " + project.dcterms.title + " (Backup at " + new Date().toISOString() + ").zip" + "\"",
+                                    "Content-disposition": contentDisposition("Project " + project.dcterms.title + " (Backup at " + new Date().toISOString() + ").zip"),
                                     "Content-type": Config.mimeType("zip")
                                 });
 

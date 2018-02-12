@@ -443,7 +443,7 @@ exports.serve = function (req, res)
 
                                             res.writeHead(200,
                                                 {
-                                                    "Content-disposition": "filename=\"" + file.nie.title + "\"",
+                                                    "Content-Disposition": contentDisposition(file.nie.title),
                                                     "Content-type": mimeType
                                                 });
 
@@ -693,7 +693,7 @@ exports.get_thumbnail = function (req, res)
 
                                                 res.writeHead(200,
                                                     {
-                                                        "Content-disposition": "filename=\"" + filename + "\"",
+                                                        "Content-Disposition": contentDisposition(filename),
                                                         "Content-type": mimeType
                                                     });
 
@@ -2415,7 +2415,7 @@ exports.serve_static = function (req, res, pathOfIntendedFileRelativeToProjectRo
 
         res.writeHead(statusCode,
             {
-                "Content-disposition": "filename=\"" + filename + "\"",
+                "Content-Disposition": contentDisposition(filename),
                 "Content-type": mimeType
             });
 
