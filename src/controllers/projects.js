@@ -2139,108 +2139,11 @@ exports.import = function (req, res)
                                         getMetadata(absPathOfUnzippedBagIt, function (descriptors)
                                         {
                                             // by default the project is private on import
-                                            //TODO THIS IS NOW COMMENTED
-                                            /*const newProject = new Project({
-                                                ddr: {
-                                                    is_being_imported: true,
-                                                    handle: req.query.imported_project_handle,
-                                                    privacyStatus: "private"
-                                                },
-                                                dcterms: {
-                                                    creator: req.user.uri,
-                                                    title: req.query.imported_project_title
-                                                }
-                                            });*/
-
                                             newProject.updateDescriptors(descriptors);
 
                                             // all imported projects will use default storage by default.
                                             // later we will add parameters for storage in the import screen
                                             // and projects can be imported directly to any kind of storage
-                                            //TODO THIS IS NOW COMMENTED
-                                            /*const storageConf = new StorageConfig({
-                                                ddr: {
-                                                    hasStorageType: "local",
-                                                    handlesStorageForProject: newProject.uri
-                                                }
-                                            });*/
-
-                                            //TODO THIS IS ALSO NOW COMMENTED
-                                            /*
-                                            storageConf.save(function (err, newStorageConf)
-                                            {
-                                                if (isNull(err))
-                                                {
-                                                    newProject.ddr.hasStorageConfig = newStorageConf.uri;
-                                                    Project.createAndInsertFromObject(newProject, function (err, newProject)
-                                                    {
-                                                        if (isNull(err))
-                                                        {
-                                                            newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
-                                                            {
-                                                                if (isNull(err))
-                                                                {
-                                                                    delete newProject.ddr.is_being_imported;
-                                                                    newProject.save(function (err, result)
-                                                                    {
-                                                                        if (isNull(err))
-                                                                        {
-                                                                            callback(null,
-                                                                                {
-                                                                                    result: "ok",
-                                                                                    message: "Project imported successfully.",
-                                                                                    new_project: newProject.uri
-                                                                                }
-                                                                            );
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            callback(500,
-                                                                                {
-                                                                                    result: "error",
-                                                                                    message: "Error marking project restore as complete.",
-                                                                                    error: result
-                                                                                }
-                                                                            );
-                                                                        }
-                                                                    });
-                                                                }
-                                                                else
-                                                                {
-                                                                    callback(500,
-                                                                        {
-                                                                            result: "error",
-                                                                            message: "Error restoring project contents from unzipped backup folder",
-                                                                            error: result
-                                                                        }
-                                                                    );
-                                                                }
-                                                            });
-                                                        }
-                                                        else
-                                                        {
-                                                            callback(500,
-                                                                {
-                                                                    result: "error",
-                                                                    message: "Error creating new project record before import operation could start",
-                                                                    error: result
-                                                                }
-                                                            );
-                                                        }
-                                                    });
-                                                }
-                                                else
-                                                {
-                                                    callback(500,
-                                                        {
-                                                            result: "error",
-                                                            message: "Unable to create new local storage configuration when importing a new project.",
-                                                            error: newStorageConf
-                                                        }
-                                                    );
-                                                }
-                                            });*/
-
                                             Project.createAndInsertFromObject(newProject, function (err, newProject)
                                             {
                                                 if (isNull(err))
