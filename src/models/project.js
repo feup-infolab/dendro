@@ -1563,7 +1563,7 @@ Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxSt
             if (!isNaN(size))
             {
                 // admin is god, can import as much data as (s)he wants
-                if (size < maxStorageSize || req.user.isAdmin)
+                if (size < maxStorageSize || req.user.isAdmin || req.session.isAdmin)
                 {
                     File.unzip(absPathToZipFile, function (err, absPathOfRootFolder)
                     {
@@ -1599,7 +1599,7 @@ Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxSt
                     const humanMaxStorageSize = filesize(maxStorageSize).human("jedec");
 
                     const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( " + humanMaxStorageSize + " ) by " + humanSizeDifference;
-                    return callback(err, msg);
+                    return callback(true, msg);
                 }
             }
             else

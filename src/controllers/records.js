@@ -12,6 +12,7 @@ const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const MetadataChangePost = require(Pathfinder.absPathInSrcFolder("/models/social/metadataChangePost.js")).MetadataChangePost;
 const async = require("async");
+const contentDisposition = require("content-disposition");
 const db_social = Config.getDBByID("social");
 
 exports.show_deep = function (req, res)
@@ -59,7 +60,7 @@ exports.show_deep = function (req, res)
                                 result.data_processing_error = resource.ddr.hasDataProcessingError;
 
                                 res.set("Content-Type", contentType);
-                                res.set("Content-disposition", "attachment; filename=\"" + resource.nie.title + "\"");
+                                res.set("Content-disposition", contentDisposition(resource.nie.title));
                                 res.send(serializer(result));
                             }
                             else
@@ -144,8 +145,7 @@ exports.show = function (req, res)
                                 result.is_a_file = requestedResource.isA(File);
 
                                 res.set("Content-Type", contentType);
-                                res.set("Content-disposition", "attachment; filename=\"" + requestedResource.nie.title + "\"");
-
+                                res.set("Content-disposition", contentDisposition(requestedResource.nie.title));
                                 res.send(serializer(result));
                             }
                             else

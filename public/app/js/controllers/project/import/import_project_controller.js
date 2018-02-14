@@ -13,6 +13,7 @@ angular.module("dendroApp.controllers")
             "$timeout",
             "uploadsService",
             "windowService",
+            "projectsService",
             "jsonPath",
             function (
                 $scope,
@@ -24,6 +25,7 @@ angular.module("dendroApp.controllers")
                 $timeout,
                 uploadsService,
                 windowService,
+                projectsService,
                 jsonPath
             )
             {
@@ -36,7 +38,8 @@ angular.module("dendroApp.controllers")
                     {
                         if (result instanceof Array && result.length === 1)
                         {
-                            window.location = result[0].data.new_project;
+                            //window.location = result[0].data.new_project;
+                            window.location = "/projects/my";
                         }
                     }
                     else
@@ -54,10 +57,27 @@ angular.module("dendroApp.controllers")
                 {
                     file.imported_project_handle = imported_project_handle;
                     file.imported_project_title = imported_project_title;
-                    $scope.$broadcast(
-                        "new_files_to_upload",
-                        [file]
-                    );
+                    file.isAsync = true;
+
+                    projectsService.get_project_info_by_handle(file.imported_project_handle)
+                        .then(function (response)
+                        {
+                            Utils.show_popup("error", "Project handle already exists!", "Please try another project handle!");
+                        })
+                        .catch(function (error)
+                        {
+                            if(error.status == 404)
+                            {
+                                $scope.$broadcast(
+                                    "new_files_to_upload",
+                                    [file]
+                                );
+                            }
+                            else
+                            {
+                                Utils.show_popup("error", "Error when finding if project handle is unique", JSON.stringify(error));
+                            }
+                        });
                 };
 
                 $scope.init = function ()

@@ -123,7 +123,7 @@
         },
         "mySQLDBName": "dendroVagrantDemo",
         "maxUploadSize": 1073741824,
-        "maxProjectSize": 1073741824,
+        "maxProjectSize": 5368709120,
         "maxSimultaneousConnectionsToDb": 1,
         "dbOperationTimeout": 16000,
         "tempFilesDir": "temp",
