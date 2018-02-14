@@ -1471,7 +1471,7 @@ exports.rm = function (req, res)
                                             return callback(null, msg);
                                         }
                                         return callback(err, result);
-                                    }, userUri, false, req.query.really_delete);
+                                    }, userUri, false, reallyDelete);
                                 }
                                 else
                                 {
