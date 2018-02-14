@@ -14,7 +14,7 @@ const FileSystemPost = require(Pathfinder.absPathInSrcFolder("/models/social/fil
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const contentDisposition = require('content-disposition');
+const contentDisposition = require("content-disposition");
 
 const async = require("async");
 

@@ -12,7 +12,7 @@ const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const MetadataChangePost = require(Pathfinder.absPathInSrcFolder("/models/social/metadataChangePost.js")).MetadataChangePost;
 const async = require("async");
-const contentDisposition = require('content-disposition');
+const contentDisposition = require("content-disposition");
 const db_social = Config.getDBByID("social");
 
 exports.show_deep = function (req, res)

@@ -22,7 +22,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
 const async = require("async");
-const contentDisposition = require('content-disposition');
+const contentDisposition = require("content-disposition");
 
 exports.all = function (req, res)
 {
@@ -1970,7 +1970,7 @@ exports.import = function (req, res)
                                         }
                                         else
                                         {
-                                            callback(err, nProject)
+                                            callback(err, nProject);
                                         }
                                     }
                                     else

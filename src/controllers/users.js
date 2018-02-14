@@ -9,7 +9,7 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const contentDisposition = require('content-disposition');
+const contentDisposition = require("content-disposition");
 
 const async = require("async");
 const fs = require("fs");
