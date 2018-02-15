@@ -948,7 +948,8 @@ Folder.prototype.loadMetadata = function (
     callback,
     entityLoadingTheMetadata,
     excludedDescriptorTypes,
-    exceptionedDescriptorTypes
+    exceptionedDescriptorTypes,
+    restoreIntoTheSameRootFolder
 )
 {
     const self = this;
@@ -990,35 +991,148 @@ Folder.prototype.loadMetadata = function (
         {
             if (!isNull(childNode.children) && childNode.children instanceof Array)
             {
-                Folder.findByUri(childNode.resource, function (err, folder)
+                if(!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder === true)
                 {
-                    if (isNull(err) && !isNull(folder))
+                    Folder.findByUri(childNode.resource, function (err, folder)
                     {
-                        // Sets the parent as the new folder and not the parent specified in the metadata.json file
-                        folder.nie.isLogicalPartOf = self.uri;
-                        folder.loadMetadata(
-                            childNode,
-                            function (err, result)
-                            {
-                                folderCallback(folder, err, result, callback);
-                            },
-                            entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
-                        );
-                    }
-                    else
-                    {
-                        const titleDescriptor = getDescriptor("nie:title", childNode);
-                        self.findChildWithDescriptor(titleDescriptor, function (err, folder)
+                        if (isNull(err) && !isNull(folder))
                         {
-                            if (isNull(err) && !isNull(folder))
+                            // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                            folder.nie.isLogicalPartOf = self.uri;
+                            folder.loadMetadata(
+                                childNode,
+                                function (err, result)
+                                {
+                                    folderCallback(folder, err, result, callback);
+                                },
+                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes, restoreIntoTheSameRootFolder
+                            );
+                        }
+                        else
+                        {
+                            const titleDescriptor = getDescriptor("nie:title", childNode);
+                            self.findChildWithDescriptor(titleDescriptor, function (err, folder)
                             {
-                                // Sets the parent as the new folder and not the parent specified in the metadata.json file
-                                folder.nie.isLogicalPartOf = self.uri;
-                                folder.loadMetadata(
+                                if (isNull(err) && !isNull(folder))
+                                {
+                                    // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                                    folder.nie.isLogicalPartOf = self.uri;
+                                    folder.loadMetadata(
+                                        childNode,
+                                        function (err, result)
+                                        {
+                                            folderCallback(folder, err, result, callback);
+                                        },
+                                        entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes, restoreIntoTheSameRootFolder
+                                    );
+                                }
+                                else
+                                {
+                                    const msg = "Unable to find a folder with title " + titleDescriptor.value;
+                                    Logger.log("error", msg);
+                                    callback(404, msg);
+                                }
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    const titleDescriptor = getDescriptor("nie:title", childNode);
+                    self.findChildWithDescriptor(titleDescriptor, function (err, folder)
+                    {
+                        if (isNull(err) && !isNull(folder))
+                        {
+                            // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                            folder.nie.isLogicalPartOf = self.uri;
+                            folder.loadMetadata(
+                                childNode,
+                                function (err, result)
+                                {
+                                    folderCallback(folder, err, result, callback);
+                                },
+                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes, restoreIntoTheSameRootFolder
+                            );
+                        }
+                        else
+                        {
+                            const msg = "Unable to find a folder with title " + titleDescriptor.value;
+                            Logger.log("error", msg);
+                            callback(404, msg);
+                        }
+                    });
+                }
+            }
+            else
+            {
+                if(!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder == true)
+                {
+                    File.findByUri(childNode.resource, function (err, file)
+                    {
+                        if (isNull(err) && !isNull(file))
+                        {
+                            // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                            file.nie.isLogicalPartOf = self.uri;
+                            file.loadMetadata(
+                                childNode,
+                                function (err, result)
+                                {
+                                    fileCallback(file, err, result, callback);
+                                },
+                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                            );
+                        }
+                        else
+                        {
+                            const titleDescriptor = getDescriptor("nie:title", childNode);
+
+                            self.findChildWithDescriptor(titleDescriptor, function (err, file)
+                            {
+                                if (isNull(err))
+                                {
+                                    if (!isNull(file))
+                                    {
+                                        file.loadMetadata(
+                                            childNode,
+                                            function (err, result)
+                                            {
+                                                fileCallback(file, err, result, callback);
+                                            },
+                                            entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                                        );
+                                    }
+                                    else
+                                    {
+                                        const msg = "Unable to find a folder with title " + titleDescriptor.value;
+                                        Logger.log("error", msg);
+                                        callback(404, msg);
+                                    }
+                                }
+                                else
+                                {
+                                    const msg = "Error finding a folder with title " + titleDescriptor.value + JSON.stringify(file);
+                                    Logger.log("error", msg);
+                                    callback(500, msg);
+                                }
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    const titleDescriptor = getDescriptor("nie:title", childNode);
+
+                    self.findChildWithDescriptor(titleDescriptor, function (err, file)
+                    {
+                        if (isNull(err))
+                        {
+                            if (!isNull(file))
+                            {
+                                file.loadMetadata(
                                     childNode,
                                     function (err, result)
                                     {
-                                        folderCallback(folder, err, result, callback);
+                                        fileCallback(file, err, result, callback);
                                     },
                                     entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
                                 );
@@ -1029,62 +1143,15 @@ Folder.prototype.loadMetadata = function (
                                 Logger.log("error", msg);
                                 callback(404, msg);
                             }
-                        });
-                    }
-                });
-            }
-            else
-            {
-                File.findByUri(childNode.resource, function (err, file)
-                {
-                    if (isNull(err) && !isNull(file))
-                    {
-                        // Sets the parent as the new folder and not the parent specified in the metadata.json file
-                        file.nie.isLogicalPartOf = self.uri;
-                        file.loadMetadata(
-                            childNode,
-                            function (err, result)
-                            {
-                                fileCallback(file, err, result, callback);
-                            },
-                            entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
-                        );
-                    }
-                    else
-                    {
-                        const titleDescriptor = getDescriptor("nie:title", childNode);
-
-                        self.findChildWithDescriptor(titleDescriptor, function (err, file)
+                        }
+                        else
                         {
-                            if (isNull(err))
-                            {
-                                if (!isNull(file))
-                                {
-                                    file.loadMetadata(
-                                        childNode,
-                                        function (err, result)
-                                        {
-                                            fileCallback(file, err, result, callback);
-                                        },
-                                        entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
-                                    );
-                                }
-                                else
-                                {
-                                    const msg = "Unable to find a folder with title " + titleDescriptor.value;
-                                    Logger.log("error", msg);
-                                    callback(404, msg);
-                                }
-                            }
-                            else
-                            {
-                                const msg = "Error finding a folder with title " + titleDescriptor.value + JSON.stringify(file);
-                                Logger.log("error", msg);
-                                callback(500, msg);
-                            }
-                        });
-                    }
-                });
+                            const msg = "Error finding a folder with title " + titleDescriptor.value + JSON.stringify(file);
+                            Logger.log("error", msg);
+                            callback(500, msg);
+                        }
+                    });
+                }
             }
         };
 
@@ -1262,6 +1329,17 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                             }
 
                             const node = JSON.parse(data);
+                            let restoreIntoTheSameRootFolder = false;
+                            if(node.resource === self.uri)
+                            {
+                                Logger.log("info", "This is a restore to the same root folder");
+                                restoreIntoTheSameRootFolder = true;
+                            }
+                            else
+                            {
+                                Logger.log("info", "This is a restore to another root folder");
+                                restoreIntoTheSameRootFolder = false;
+                            }
                             self.nie.title = path.basename(absPathOfRootFolder);
                             self.loadMetadata(node, function (err, result)
                             {
@@ -1270,7 +1348,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                                     return callback(null, "Data and metadata restored successfully. Result : " + result);
                                 }
                                 return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
-                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable]);
+                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable], restoreIntoTheSameRootFolder);
                         });
                     }
                     else
