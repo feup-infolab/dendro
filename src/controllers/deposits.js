@@ -148,6 +148,12 @@ exports.getDeposit = function(req, res){
            const viewVars = {
                title: "Deposit information"
            };
+
+           //not ready yet
+           Deposit.validatePlatformUri(deposit, function(valid, deposit){
+
+           });
+
            deposit.dcterms.date = moment(deposit.dcterms.date).format('LLLL');
            viewVars.deposit = deposit;
            res.render("registry/deposit", viewVars);

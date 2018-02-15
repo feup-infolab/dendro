@@ -5,6 +5,7 @@
 
 const path = require("path");
 const moment = require("moment");
+const request = require("request");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -261,6 +262,39 @@ Deposit.createQuery = function(params, callback){
     db.connection.executeViaJDBC(query,variables, function (err, regs){
             callback(err, regs);
         });
+};
+
+Deposit.validatePlatformUri = function(deposit, callback){
+  //if it has external repository uri
+  if(deposit.ddr.hasExternalUri){
+    const now = moment.now();
+    const lastChecked = moment(deposit.dcterms.modified);
+    //calculate difference
+
+    let difference = now.valueOf() - lastChecked.valueOf();
+
+    if(difference >= 1000000){
+      //make call to the uri and see if request is 404 or not
+      request(deposit.ddr.hasExternalUri, function (error, response, body) {
+        if(error || response.statusCode === 404){
+          callback(false);
+        }else {
+          //status code is acceptable
+          deposit.dcterms.modified = now;
+          deposit.save(function(err, result){
+            if(err){
+              callback(false);
+            }else {
+              callback(true, result);
+            }
+          });
+        }
+      })
+
+    }
+  } else return false;
+
+
 };
 
 Deposit.createAndInsertFromObject = function(object, callback){
