@@ -989,8 +989,11 @@ Folder.prototype.loadMetadata = function (
 
         const loadMetadataForChildFolder = function (childNode, callback)
         {
+            //Child is a folder
             if (!isNull(childNode.children) && childNode.children instanceof Array)
             {
+                //we are restoring a folder into the same original folder
+                //so we can look for the child by uri
                 if(!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder === true)
                 {
                     Folder.findByUri(childNode.resource, function (err, folder)
@@ -1038,6 +1041,11 @@ Folder.prototype.loadMetadata = function (
                 }
                 else
                 {
+                    //we are restoring a folder into a folder other than the original folder
+                    //so we cannot look for the child by the uri specified in the metadata.json file
+                    //as it could ruin the original folder if it still exists in Dendro
+                    //so we need to find the child in the current folder but find it by the title descriptor
+                    //as at this point this parent folder already has the metadata restored in Dendro
                     const titleDescriptor = getDescriptor("nie:title", childNode);
                     self.findChildWithDescriptor(titleDescriptor, function (err, folder)
                     {
@@ -1065,8 +1073,11 @@ Folder.prototype.loadMetadata = function (
             }
             else
             {
+                //Child is a file
                 if(!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder == true)
                 {
+                    //we are restoring a file into the same original folder
+                    //so we can look for the child by uri
                     File.findByUri(childNode.resource, function (err, file)
                     {
                         if (isNull(err) && !isNull(file))
@@ -1120,6 +1131,11 @@ Folder.prototype.loadMetadata = function (
                 }
                 else
                 {
+                    //we are restoring a file into a folder other than the original folder
+                    //so we cannot look for the child by the uri specified in the metadata.json file
+                    //as it could ruin the original file if it still exists in Dendro
+                    //so we need to find the child in the current folder but find it by the title descriptor
+                    //as at this point this parent folder already has the metadata restored in Dendro
                     const titleDescriptor = getDescriptor("nie:title", childNode);
 
                     self.findChildWithDescriptor(titleDescriptor, function (err, file)
