@@ -879,7 +879,7 @@ export_to_repository_b2share = function (req, res)
                                                     draftData.language = "en";
                                                 }
 
-                                                const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUrl, accessToken);
+                                                const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
                                                 b2shareClient.createADraftRecord(draftData, function (err, body)
                                                 {
                                                     if (err)
@@ -1221,11 +1221,11 @@ exports.sword_collections = function (req, res)
     let serviceDocumentRef = null;
     if (targetRepository.ddr.hasPlatform.foaf.nick === "dspace")
     {
-        serviceDocumentRef = targetRepository.ddr.hasExternalUrl + Config.swordConnection.DSpaceServiceDocument;
+        serviceDocumentRef = targetRepository.ddr.hasExternalUri + Config.swordConnection.DSpaceServiceDocument;
     }
     else if (targetRepository.ddr.hasPlatform.foaf.nick === "eprints")
     {
-        serviceDocumentRef = targetRepository.ddr.hasExternalUrl + Config.swordConnection.EprintsServiceDocument;
+        serviceDocumentRef = targetRepository.ddr.hasExternalUri + Config.swordConnection.EprintsServiceDocument;
     }
     const options = {
         user: targetRepository.ddr.hasUsername,
