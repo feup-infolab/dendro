@@ -329,17 +329,19 @@ Deposit.getAllRepositories = function(params, callback){
         value: db.graphUri
       }];
 
+    let i = 1;
+
     if(params.self){
       query +=
         "   { \n" +
         "       { \n" +
-        "         ?uri ddr:privacyStatus [1] . \n" +
+        "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
         "       } \n" +
         "       UNION \n" +
         "       { \n" +
-        "         ?uri ddr:privacyStatus [2] . \n" +
+        "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
         "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-        "         ?projused ?role [3] . \n" +
+        "         ?projused ?role [" + i++ + "] . \n" +
         "       } \n" +
         "   } \n";
 
@@ -357,12 +359,13 @@ Deposit.getAllRepositories = function(params, callback){
           value : params.self
         }]);
     } else{
-      query += "    ?uri ddr:privacyStatus [1]";
+      query += "    ?uri ddr:privacyStatus [" + i++ + "]";
       variables.push({
         type : Elements.ontologies.ddr.privacyStatus.type,
         value : "public"
       });
     }
+
 
     if(params.project){
       query += "  ?projused dcterms:title [" + i++ + "] \n";
