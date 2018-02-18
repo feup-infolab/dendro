@@ -206,6 +206,9 @@ angular.module("dendroApp.controllers")
                         $scope.clear_repository_type();
                         // $scope.get_my_repositories();
                         $scope.show_popup("success", "Success", e.message);
+
+                        //change later but this is not right but will work supposedly
+                        $scope.upload_to_repository(new_repository);
                     },
                     statusCode: $scope.statusCodeDefaults
                 });
@@ -369,6 +372,7 @@ angular.module("dendroApp.controllers")
                             {
                                 $scope.show_popup("success", "Success", "Operation completed successfully.");
                             }
+
                         }
                     }
                     else

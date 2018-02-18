@@ -879,7 +879,7 @@ export_to_repository_b2share = function (req, res)
                                                     draftData.language = "en";
                                                 }
 
-                                                const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
+                                                const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUrl, accessToken);
                                                 b2shareClient.createADraftRecord(draftData, function (err, body)
                                                 {
                                                     if (err)
