@@ -364,8 +364,72 @@ Deposit.getAllRepositories = function(params, callback){
       });
     }
 
+    if(params.project){
+      query += "  ?projused dcterms:title [" + i++ + "] \n";
+      variables.push({
+        type: Elements.ontologies.dcterms.title.type,
+        value: params.project
+      });
+    }
+    if(params.creator){
+      query += "  ?uri dcterms:creator [" + i++ + "] \n";
+      variables.push({
+        type: Elements.ontologies.dcterms.creator.type,
+        value: params.creator
+      });
+    }
+    if(params.platforms){
+      query +=
+        "    VALUES ?platformsUsed {";
 
-    query += ending;
+      for(let j = 0; j < params.platforms.length; j++) {
+        query += "[" + i++ + "] ";
+        variables.push({
+          type: Elements.types.string,
+          value: params.platforms[j]
+        });
+      }
+      query +=
+        "} . \n" +
+        "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+
+
+    }
+    if(params.repositories){
+      query +=
+        "    VALUES ?repository { ";
+
+      for(let j = 0; j < params.repositories.length; j++) {
+        query += "[" + i++ + "] ";
+        variables.push({
+          type: Elements.ontologies.ddr.hasExternalUri.type ,
+          value: params.repositories[j]
+        });
+      }
+      query +=
+        "} . \n" +
+        "    ?uri ddr:hasExternalUri ?repository . \n";
+
+
+    }
+    if(params.dateFrom){
+      query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
+      variables.push({
+        type: Elements.types.string,
+        value: params.dateFrom,
+      });
+    }
+    if(params.dateTo){
+    query += "  FILTER ([" + i++ + "]^^xsd:dateTime > ?date )\n";
+    variables.push({
+      type: Elements.types.string,
+      value: params.dateTo,
+    });
+  }
+
+
+
+  query += ending;
 
       db.connection.executeViaJDBC(query,variables, function (err, regs){
         callback(err, regs);
