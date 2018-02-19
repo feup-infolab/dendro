@@ -1476,7 +1476,7 @@ exports.bagit = function (req, res)
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(baggedContentsZipFileAbsPath);
 
-                            fileStream.on("end", function ()
+                            res.on("finish", function ()
                             {
                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr)
                                 {
@@ -1489,11 +1489,6 @@ exports.bagit = function (req, res)
                                         Logger.log("Deleted " + parentFolderPath);
                                     }
                                 });
-                            });
-
-                            fileStream.on("data", function (chunk)
-                            {
-
                             });
 
                             res.writeHead(200,
@@ -2129,13 +2124,21 @@ exports.import = function (req, res)
                             req,
                             function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
                             {
-                                File.deleteOnLocalFileSystem(uploadedBackupAbsPath, function (err, result)
+                                const parentPath = path.resolve(uploadedBackupAbsPath, "..");
+                                if(!isNull(parentPath))
                                 {
-                                    if (!isNull(err))
+                                    File.deleteOnLocalFileSystem(parentPath, function (err, result)
                                     {
-                                        Logger.log("error", "Error occurred while deleting backup zip file at " + uploadedBackupAbsPath + " : " + JSON.stringify(result));
-                                    }
-                                });
+                                        if (!isNull(err))
+                                        {
+                                            Logger.log("error", "Error occurred while deleting backup zip file at " + parentPath + " : " + JSON.stringify(result));
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " + uploadedBackupAbsPath);
+                                }
 
                                 if (isNull(err))
                                 {
