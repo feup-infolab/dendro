@@ -1,7 +1,9 @@
 const Pathfinder = global.Pathfinder;
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+const path = require("path");
 
 class TestUnit
 {
@@ -18,41 +20,72 @@ class TestUnit
     static setup (callback)
     {
         const self = this;
-        unitUtils.loadCheckpoint(
-            self.name,
-            function (err, loadedCheckpoint)
+        DockerCheckpointManager.deleteAll(true, true);
+        DockerCheckpointManager.nukeAndRebuild(true);
+        const loadedCheckpoint = self.loadCheckpoint();
+
+        if (loadedCheckpoint)
+        {
+            Logger.log("info", "Checkpoint " + self.name + "exists and was recovered. Running only init function.");
+            self.init(function (err, result)
             {
-                if (!err)
+                Logger.log("info", "Ran only init function of " + self.name);
+                callback(err, result);
+            });
+        }
+        else
+        {
+            Logger.log("info", "Checkpoint " + self.name + " does not exist. Will load database...");
+            self.init(function (err, result)
+            {
+                Logger.log("info", "Finished init function of " + self.name);
+                self.load(function (err, result)
                 {
-                    if (loadedCheckpoint)
-                    {
-                        Logger.log("info", "Checkpoint " + self.name + " recovered, running only init function");
-                        self.prototype.init(function (err, result)
-                        {
-                            callback(err, result);
-                        });
-                    }
-                    else
-                    {
-                        Logger.log("info", "Checkpoint " + self.name + " does not exist, running load function");
-                        self.init(function (err, result)
-                        {
-                            self.load(function (err, result)
-                            {
-                                DockerCheckpointManager.createCheckpoint(
-                                    self.name
-                                );
-                                callback(null);
-                            });
-                        });
-                    }
-                }
-                else
-                {
-                    callback(err, restoreMessage);
-                }
-            }
-        );
+                    Logger.log("info", "Finished load function of " + self.name);
+                    callback(null);
+                });
+            });
+        }
+    }
+
+    static markLoadStart (filename)
+    {
+        const self = this;
+        if (!filename)
+        {
+            filename = path.basename(self.name);
+        }
+
+        unitUtils.start(filename, "Seeding database...");
+    }
+
+    static markLoadEnd (filename)
+    {
+        const self = this;
+        if (!filename)
+        {
+            filename = path.basename(self.name);
+        }
+
+        self.createCheckpoint(filename);
+        unitUtils.end(filename, "Database seeding complete.");
+    }
+
+    static createCheckpoint (filename)
+    {
+        const self = this;
+        if (!filename)
+        {
+            filename = self.name;
+        }
+
+        DockerCheckpointManager.createCheckpoint(filename);
+    }
+
+    static loadCheckpoint ()
+    {
+        const self = this;
+        return DockerCheckpointManager.restoreCheckpoint(self.name);
     }
 }
 

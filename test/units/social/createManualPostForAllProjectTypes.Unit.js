@@ -3,6 +3,7 @@ process.env.NODE_ENV = "test";
 const Pathfinder = global.Pathfinder;
 
 const chai = require("chai");
+const path = require("path");
 chai.use(require("chai-http"));
 const async = require("async");
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -24,6 +25,8 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
 {
     static load (callback)
     {
+		        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (!isNull(err))
@@ -59,6 +62,8 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
                             });
                         }, function (err, results)
                         {
+                            self.markLoadEnd(path.basename(__filename));
+
                             callback(err, results);
                         });
                     }

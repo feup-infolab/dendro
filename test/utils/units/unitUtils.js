@@ -1,7 +1,7 @@
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null")).isNull;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const path = require("path");
 
@@ -93,9 +93,10 @@ exports.registerStopTimeForUnit = function (unitName)
     return global.routesLog;
 };
 
-exports.loadCheckpoint = function (checkpointName, callback)
+exports.loadCheckpoint = function (checkpointName)
 {
     let checkpointExists = false;
+    let checkpointLoaded = false;
 
     if (Config.docker.active)
     {
@@ -105,23 +106,19 @@ exports.loadCheckpoint = function (checkpointName, callback)
         {
             try
             {
-                let checkpointRestored = DockerCheckpointManager.restoreCheckpoint(checkpointName);
-                callback(null, checkpointRestored);
+                checkpointLoaded = DockerCheckpointManager.restoreCheckpoint(checkpointName);
             }
             catch (e)
             {
-                callback(e, false);
+                throw e;
             }
         }
         else
         {
             const msg = "Checkpoint " + checkpointName + " does not exist.";
             Logger.log("info", msg);
-            callback(null, false);
         }
     }
-    else
-    {
-        callback(null);
-    }
+
+    return checkpointLoaded;
 };

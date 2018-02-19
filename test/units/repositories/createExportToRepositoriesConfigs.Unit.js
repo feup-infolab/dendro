@@ -1,5 +1,7 @@
 process.env.NODE_ENV = "test";
 
+const path = require("path");
+
 const Pathfinder = global.Pathfinder;
 const async = require("async");
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -23,6 +25,8 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
 {
     static load (callback)
     {
+		        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -49,7 +53,8 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
                     });
                 }, function (err, results)
                 {
-                    unitUtils.stop(__filename);
+                    self.markLoadEnd(path.basename(__filename));
+
                     callback(err, results);
                 });
             }

@@ -190,7 +190,7 @@ const setupGracefulClose = function (app, server, callback)
             if (Config.docker && Config.docker.active)
             {
                 Logger.log("info", "Halting docker containers...");
-                const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+
                 DockerCheckpointManager.stopAllContainers();
                 cb(null);
             }

@@ -5,6 +5,7 @@ const Pathfinder = global.Pathfinder;
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
+const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
@@ -25,9 +26,11 @@ const foldersData = module.exports.foldersData = [folder, testFolder1, testFolde
 let AddContributorsToProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
 {
-    static init (callback)
+    static load (callback)
     {
-        super.init(function (err, results)
+        const self = this;
+        self.markLoadStart(__filename);
+        super.load(function (err, results)
         {
             if (err)
             {
@@ -57,6 +60,8 @@ class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
                             });
                         }, function (err, results)
                         {
+                            self.markLoadEnd(path.basename(__filename));
+
                             callback(err, results);
                         });
                     }

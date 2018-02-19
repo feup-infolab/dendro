@@ -6,6 +6,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
+const path = require("path");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -28,6 +29,8 @@ class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
 {
     static load (callback)
     {
+        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -74,6 +77,8 @@ class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
                             });
                         }, function (err, results)
                         {
+                            self.markLoadEnd(path.basename(__filename));
+
                             callback(err, results);
                         });
                     }

@@ -5,6 +5,7 @@ const Pathfinder = global.Pathfinder;
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
+const path = require("path");
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -21,6 +22,8 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
 {
     static load (callback)
     {
+        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -45,6 +48,8 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
                             });
                         }, function (err, results)
                         {
+                            self.markLoadEnd(path.basename(__filename));
+
                             callback(err, results);
                         });
                     }

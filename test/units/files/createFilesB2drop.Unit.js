@@ -5,6 +5,7 @@ const Pathfinder = global.Pathfinder;
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
+const path = require("path");
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("/utils/app/appUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -27,6 +28,8 @@ class CreateFilesB2drop extends CreateFoldersB2DropUnit
 {
     static load (callback)
     {
+		        const self = this;
+        self.markLoadStart(__filename);
         super.init(function (err, results)
         {
             if (err)
@@ -63,6 +66,8 @@ class CreateFilesB2drop extends CreateFoldersB2DropUnit
                             });
                         }, function (err, results)
                         {
+                            self.markLoadEnd(path.basename(__filename));
+
                             callback(err, results);
                         });
                     }

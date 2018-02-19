@@ -7,9 +7,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const path = require("path");
 
 let BootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
@@ -17,6 +15,8 @@ class CreateUsers extends BootupUnit
 {
     static load (callback)
     {
+        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -98,54 +98,73 @@ class CreateUsers extends BootupUnit
                     });
                 };
 
-                async.mapSeries(Config.demo_mode.users, createUser, function (err, results)
+                function createUsers (callback)
                 {
-                    if (isNull(err))
+                    async.mapSeries(Config.demo_mode.users, createUser, function (err, results)
                     {
-                        async.series([
-                            function (callback)
-                            {
-                                Administrator.deleteAll(callback);
-                            },
-                            function (callback)
-                            {
-                                async.mapSeries(Config.administrators, makeAdmin, function (err)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        Logger.log("info", "Admins successfully loaded at createUsers.Unit.");
-                                    }
-                                    else
-                                    {
-                                        Logger.log("error", "[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
-                                    }
-
-                                    callback(err);
-                                });
-                            }
-                        ],
-                        function (err, results)
+                        if (isNull(err))
                         {
-                            if (isNull(err))
-                            {
-                                callback(err, results);
-                            }
-                            else
-                            {
-                                const msg = "Error creating Admins at createUsers.Unit";
-                                Logger.log("error", msg);
+                            callback(err, results);
+                        }
+                        else
+                        {
+                            var msg = "Error creating users at createUsers.Unit";
+                            Logger.log("error", msg);
+                            callback(1, msg);
+                        }
+                    });
+                }
 
-                                callback(err, results);
-                            }
-                        });
-                    }
-                    else
+                function createAdministrators (callback)
+                {
+                    async.series([
+                        function (callback)
+                        {
+                            Administrator.deleteAll(callback);
+                        },
+                        function (callback)
+                        {
+                            async.mapSeries(Config.administrators, makeAdmin, function (err)
+                            {
+                                if (isNull(err))
+                                {
+                                    Logger.log("info", "Admins successfully loaded at createUsers.Unit.");
+                                }
+                                else
+                                {
+                                    Logger.log("error", "[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
+                                }
+
+                                callback(err);
+                            });
+                        }
+                    ],
+                    function (err, results)
                     {
-                        var msg = "Error creating users at createUsers.Unit";
-                        Logger.log("error", msg);
+                        if (isNull(err))
+                        {
+                            callback(err, results);
+                        }
+                        else
+                        {
+                            const msg = "Error creating Admins at createUsers.Unit";
+                            Logger.log("error", msg);
 
-                        callback(err, results);
+                            callback(err, results);
+                        }
+                    });
+                }
+
+                async.series([
+                    createUsers,
+                    createAdministrators
+                ], function (err, results)
+                {
+                    if (!err)
+                    {
+                        self.markLoadEnd(path.basename(__filename));
                     }
+                    callback(err, results);
                 });
             }
         });

@@ -22,6 +22,8 @@ class AddContributorsToProjects extends CreateProjectsUnit
 {
     static load (callback)
     {
+        const self = this;
+
         super.load(function (err, results)
         {
             if (err)

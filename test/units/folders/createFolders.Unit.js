@@ -6,6 +6,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
+const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
@@ -34,6 +35,8 @@ class CreateFolders extends AddContributorsToProjectsUnit
 {
     static load (callback)
     {
+		        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -78,6 +81,8 @@ class CreateFolders extends AddContributorsToProjectsUnit
                             });
                         }, function (err, results)
                         {
+                            self.markLoadEnd(path.basename(__filename));
+
                             callback(err, results);
                         });
                     }

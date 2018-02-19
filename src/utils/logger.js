@@ -285,7 +285,7 @@ Logger.log = function (type, message, printStack)
             }
         }
 
-        if (!isNull(Logger.logger))
+        if (!isNull(Logger.logger) && !isNull(message))
         {
             if (message instanceof Object)
             {

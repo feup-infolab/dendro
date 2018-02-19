@@ -12,7 +12,7 @@ else
     CHECKPOINT_NAME="$1"
 fi
 
-echo "Creating checkpoint $CHECKPOINT_NAME..."
+echo "$CHECKPOINT_NAME"
 
 CHECKPOINT_FOLDER=$(pwd)/data/$CHECKPOINT_NAME
 RUNNING_FOLDER=$(pwd)/data/current

@@ -68,7 +68,7 @@ docker ps
 #    -p 1111:1111 \
 #    -e SPARQL_UPDATE=true \
 #    -v $RUNNING_FOLDER/virtuoso:/data \
-#    -d joaorosilva/virtuoso-7.2.2-dendro-v0.3 || docker start virtuoso-dendro-remote
+#    -d joaorosilva/virtuoso-7.2.2-dendro || docker start virtuoso-dendro-remote
 
 #for elasticsearch
 #-Des.network.host=0.0.0.0

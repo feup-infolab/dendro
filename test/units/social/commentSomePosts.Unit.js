@@ -4,6 +4,7 @@ const Pathfinder = global.Pathfinder;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
+const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
@@ -17,6 +18,8 @@ class CommentSomePosts extends LikeSomePostsUnit
 {
     static load (callback)
     {
+		        const self = this;
+        self.markLoadStart(__filename);
         super.init(function (err, postURIToShare)
         {
             if (err)
@@ -35,6 +38,8 @@ class CommentSomePosts extends LikeSomePostsUnit
                     {
                         socialDendroUtils.commentAPost(true, agent, postURIToShare, commentMock.commentMsg, function (err, res)
                         {
+                            self.markLoadEnd(path.basename(__filename));
+
                             callback(err, res);
                         });
                     }

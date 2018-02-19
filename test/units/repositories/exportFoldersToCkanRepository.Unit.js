@@ -1,15 +1,13 @@
 process.env.NODE_ENV = "test";
 
 const _ = require("underscore");
-const chai = require("chai");
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const async = require("async");
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -25,6 +23,8 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
 {
     static load (callback)
     {
+        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -89,8 +89,8 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
                                             });
                                         }, function (err, results)
                                         {
-                                            /* cb(err, results); */
-                                            unitUtils.stop(__filename);
+                                            self.markLoadEnd(path.basename(__filename));
+
                                             callback(err, results);
                                         });
                                     });

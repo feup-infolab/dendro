@@ -1,9 +1,9 @@
 process.env.NODE_ENV = "test";
 
+const path = require("path");
+
 const Pathfinder = global.Pathfinder;
 const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
 const ckanOrganizationData = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckanOrganizationData"));
@@ -15,6 +15,8 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
 {
     static load (callback)
     {
+		        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -54,18 +56,19 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
                             {
                                 if (data.error.name[0] === "Group name already exists in database")
                                 {
-                                    unitUtils.stop(__filename);
+                                    self.markLoadEnd(path.basename(__filename));
+
                                     callback(null, data);
                                 }
                                 else
                                 {
-                                    unitUtils.stop(__filename);
                                     callback(err, data);
                                 }
                             }
                             else
                             {
-                                unitUtils.stop(__filename);
+                                self.markLoadEnd(path.basename(__filename));
+
                                 callback(err, data);
                             }
                         });

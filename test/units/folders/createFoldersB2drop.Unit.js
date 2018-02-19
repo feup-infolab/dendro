@@ -6,7 +6,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const should = chai.should();
+const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
@@ -29,6 +29,8 @@ class CreateFoldersB2Drop extends CreateProjectB2DropUnit
 {
     static load (callback)
     {
+		        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -59,6 +61,8 @@ class CreateFoldersB2Drop extends CreateProjectB2DropUnit
                             });
                         }, function (err, results)
                         {
+                            self.markLoadEnd(path.basename(__filename));
+
                             callback(err, results);
                         });
                     }

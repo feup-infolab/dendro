@@ -6,6 +6,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const chai = require("chai");
 chai.use(require("chai-http"));
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
@@ -19,6 +20,8 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
 {
     static load (callback)
     {
+        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -44,7 +47,8 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
                                 let postURI = res.body[0].uri;// para ter acesso nas outras units a seguir
                                 socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
                                 {
-                                    // callback(err, res);
+                                    self.markLoadEnd(path.basename(__filename));
+
                                     callback(err, postURI);
                                 });
                             }

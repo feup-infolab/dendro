@@ -6,6 +6,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
+const path = require("path");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -20,6 +21,8 @@ class DeleteProjects extends CreateProjectsUnit
 {
     static load (callback)
     {
+        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -46,6 +49,8 @@ class DeleteProjects extends CreateProjectsUnit
                     });
                 }, function (err, results)
                 {
+                    self.markLoadEnd(path.basename(__filename));
+
                     callback(err, results);
                 });
             }

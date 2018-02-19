@@ -9,6 +9,7 @@
     "no-shadow": "warn",
     "indent": [2, 4],
     "strict": "warn",
-    "quotes": ["error", "double", { "allowTemplateLiterals": true }]
+    "quotes": ["error", "double", { "allowTemplateLiterals": true }],
+    "no-mixed-spaces-and-tabs": 2
   }
 }

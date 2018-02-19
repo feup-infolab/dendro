@@ -389,7 +389,7 @@
         },
         "numCPUs": 4,
         "docker": {
-          "active": true,
+          "active": false,
           "containers": [
             "elasticsearch-dendro",
             "mysql-dendro",
@@ -786,7 +786,7 @@
         },
         "numCPUs": 1,
         "docker": {
-          "active": true,
+          "active": false,
           "containers": [
             "elasticsearch-dendro",
             "mysql-dendro",
@@ -1183,7 +1183,7 @@
         },
         "numCPUs": 1,
         "docker": {
-          "active": true,
+          "active": false,
           "containers": [
             "elasticsearch-dendro",
             "mysql-dendro",

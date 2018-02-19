@@ -28,10 +28,13 @@ const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("
 const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData, projectCreatedByDemoUser3];
 
 let CreateUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+
 class CreateProjects extends CreateUsersUnit
 {
     static load (callback)
     {
+        const self = this;
+        self.markLoadStart(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -58,6 +61,7 @@ class CreateProjects extends CreateUsersUnit
                     });
                 }, function (err, results)
                 {
+                    self.markLoadEnd(path.basename(__filename));
                     callback(err, results);
                 });
             }
