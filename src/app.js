@@ -375,6 +375,10 @@ const startApp = function ()
             {
                 // add graceful closing methods to release connections on server shutdown, for example
                 require(Pathfinder.absPathInSrcFolder("bootup/init/setup_graceful_close.js")).setupGracefulClose(self.app, self.server, callback);
+            },
+            function (callback)
+            {
+                require(Pathfinder.absPathInSrcFolder("bootup/cron_jobs/delete_old_temp_folders.js")).deleteOldTempFolders(self.app, callback);
             }
         ], function (err, result)
         {
