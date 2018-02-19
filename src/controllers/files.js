@@ -341,7 +341,7 @@ exports.serve = function (req, res)
                                     }
                                 );
 
-                                res.on("end", function ()
+                                fileStream.on("end", function ()
                                 {
                                     Folder.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
                                     {
@@ -447,7 +447,7 @@ exports.serve = function (req, res)
                                                     "Content-type": mimeType
                                                 });
 
-                                            res.on("end", function ()
+                                            fileStream.on("end", function ()
                                             {
                                                 const path = require("path");
                                                 const parentFolderPath = path.resolve(writtenFilePath, "..");
