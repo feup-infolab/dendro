@@ -1581,6 +1581,7 @@
         "numCPUs": 1,
         "docker": {
           "active": true,
+          "reuse_checkpoints": true,
           "containers": [
 
             "mysql-dendro",

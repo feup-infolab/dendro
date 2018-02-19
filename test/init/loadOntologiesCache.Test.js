@@ -29,7 +29,11 @@ describe("Loading ontologies cache only once...", function ()
     this.timeout(Config.testsTimeout);
     it("Should load all ontologies into cache.", function (done)
     {
-        DockerCheckpointManager.deleteAll(true, true);
+        if(!Config.docker.reuse_checkpoints)
+        {
+            DockerCheckpointManager.deleteAll(true, true);
+        }
+
         DockerCheckpointManager.nukeAndRebuild(true);
 
         initVirtuoso(null, function (err, result)

@@ -1,4 +1,8 @@
 const async = require("async");
+const fs = require("fs");
+const path = require("path");
+const _ = require("underscore");
+
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
@@ -18,6 +22,17 @@ const DockerCheckpointManager = function ()
 };
 
 DockerCheckpointManager._checkpoints = {};
+
+if(Config.docker.reuse_checkpoints)
+{
+    const checkpointFolders = fs.readdirSync(dataFolder).filter(function (file) {
+        return fs.statSync(path.join(dataFolder, file)).isDirectory();
+    });
+
+    _.map(checkpointFolders, function(folderName){
+        DockerCheckpointManager._checkpoints[folderName] = true;
+    });
+}
 
 DockerCheckpointManager.stopAllContainers = function ()
 {

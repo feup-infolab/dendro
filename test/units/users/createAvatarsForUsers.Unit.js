@@ -22,7 +22,7 @@ class CreateAvatarsForUsers extends createUsersUnit
 		        const self = this;
         const usersData = [demouser1, demouser2, demouser3];
 
-        self.markLoadStart(__filename);
+        self.startLoad(path.basename(__filename));
         super.init(function (err, results)
         {
             if (isNull(err))
@@ -47,7 +47,7 @@ class CreateAvatarsForUsers extends createUsersUnit
                         return callback(null);
                     }
 
-                    self.markLoadEnd(path.basename(__filename));
+                    self.endLoad(path.basename(__filename));
 
                     callback(err, results);
                 });

@@ -19,7 +19,7 @@ class CommentSomePosts extends LikeSomePostsUnit
     static load (callback)
     {
 		        const self = this;
-        self.markLoadStart(__filename);
+        self.startLoad(path.basename(__filename));
         super.init(function (err, postURIToShare)
         {
             if (err)
@@ -38,7 +38,7 @@ class CommentSomePosts extends LikeSomePostsUnit
                     {
                         socialDendroUtils.commentAPost(true, agent, postURIToShare, commentMock.commentMsg, function (err, res)
                         {
-                            self.markLoadEnd(path.basename(__filename));
+                            self.endLoad(path.basename(__filename));
 
                             callback(err, res);
                         });

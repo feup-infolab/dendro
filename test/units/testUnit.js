@@ -20,8 +20,6 @@ class TestUnit
     static setup (callback)
     {
         const self = this;
-        DockerCheckpointManager.deleteAll(true, true);
-        DockerCheckpointManager.nukeAndRebuild(true);
         const loadedCheckpoint = self.loadCheckpoint();
 
         if (loadedCheckpoint)
@@ -48,27 +46,27 @@ class TestUnit
         }
     }
 
-    static markLoadStart (filename)
+    static startLoad (filename, customIdentifier)
     {
         const self = this;
-        if (!filename)
+        if (!customIdentifier)
         {
-            filename = path.basename(self.name);
+            customIdentifier = path.basename(self.name);
         }
 
-        unitUtils.start(filename, "Seeding database...");
+        unitUtils.start(customIdentifier, "Seeding database...");
     }
 
-    static markLoadEnd (filename)
+    static endLoad (filename, customIdentifier)
     {
         const self = this;
-        if (!filename)
+        if (!customIdentifier)
         {
-            filename = path.basename(self.name);
+            customIdentifier = path.basename(self.name);
         }
 
-        self.createCheckpoint(filename);
-        unitUtils.end(filename, "Database seeding complete.");
+        self.createCheckpoint(customIdentifier);
+        unitUtils.end(customIdentifier, "Database seeding complete.");
     }
 
     static createCheckpoint (filename)

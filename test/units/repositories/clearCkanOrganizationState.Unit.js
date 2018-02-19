@@ -16,7 +16,7 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
     static load (callback)
     {
 		        const self = this;
-        self.markLoadStart(__filename);
+        self.startLoad(path.basename(__filename));
         super.load(function (err, results)
         {
             if (err)
@@ -56,7 +56,7 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
                             {
                                 if (data.error.name[0] === "Group name already exists in database")
                                 {
-                                    self.markLoadEnd(path.basename(__filename));
+                                    self.endLoad(path.basename(__filename));
 
                                     callback(null, data);
                                 }
@@ -67,7 +67,7 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
                             }
                             else
                             {
-                                self.markLoadEnd(path.basename(__filename));
+                                self.endLoad(path.basename(__filename));
 
                                 callback(err, data);
                             }

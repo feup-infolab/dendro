@@ -44,7 +44,7 @@ class BootupUnit extends TestUnit
     static load (callback)
     {
         const self = this;
-        self.markLoadStart(__filename);
+        self.startLoad(path.basename(__filename));
         super.load(function (err, results)
         {
             if (err)
@@ -67,7 +67,7 @@ class BootupUnit extends TestUnit
                                 callback(err, results);
                             }
 
-                            self.markLoadEnd(path.basename(__filename));
+                            self.endLoad(path.basename(__filename));
                         });
                     })
                     .catch(function (error)
