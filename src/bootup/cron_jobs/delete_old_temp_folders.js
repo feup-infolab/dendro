@@ -13,6 +13,7 @@ const deleteOldTempFolders = function (app, callback)
         let resourcesToDelete = null;
         //deletes resources older than two hours inside the temp folder
         //find /Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/temp/ -not -newermt '-7200 seconds' -mindepth 1 -delete
+        //TODO look for a way to do this using nodejs code only -> so that it runs on machines other than macOs and Ubunto
         exec("find " + tmpLocation + " -not -newermt '-7200 seconds' -mindepth 1", function(err, stdout, stderr)
         {
             if(!isNull(err))

@@ -382,7 +382,21 @@ const startApp = function ()
             }
         ], function (err, result)
         {
-            callback(err, result);
+            if(!isNull(err))
+            {
+                if(err === true)
+                {
+                    throw new Error(JSON.stringify(result));
+                }
+                else
+                {
+                    throw new Error(err);
+                }
+            }
+            else
+            {
+                callback(err, result);
+            }
         });
     };
 
