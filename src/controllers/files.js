@@ -1288,6 +1288,37 @@ exports.restore = function (req, res)
     }
 };
 
+
+//TODO not done yet
+exports.copy_paste = function (req, res) {
+  const requestedResourceURI = req.params.requestedResourceUri;
+  //create backup from selected folder
+  InformationElement.findByUri(requestedResourceURI,
+    function (err, ie) {
+      if (isNull(err)) {
+        const path = require("path");
+        if (ie.isA(File)) {
+          File.findByUri(requestedResourceURI, function (err, file) {
+            if (isNull(err)) {
+              const mimeType = Config.mimeType(file.ddr.fileExtension);
+
+              file.writeToTempFile(function (err, writtenFilePath) {
+                if (isNull(err)) {
+                  if (!isNull(writtenFilePath)) {
+
+                    //then create folder for inputting the pasted values?
+                    //restore the zip created from the backup function
+
+                  }
+                }
+              });
+            }
+          });
+        }
+      }
+    });
+};
+
 exports.rm = function (req, res)
 {
     const acceptsHTML = req.accepts("html");

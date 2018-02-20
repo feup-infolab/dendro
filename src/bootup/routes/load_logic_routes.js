@@ -944,6 +944,12 @@ const loadRoutes = function (app, callback)
                         authentication_error: "Permission denied : cannot create new folder because you do not have permissions to edit resources inside this project."
                     },
                     {
+                        queryKeys: ["copy_paste"],
+                        handler: files.copy_paste,
+                        permissions: modificationPermissionsBranch,
+                        authentication_error: "Permission denied : cannot create a copy because you do not have permissions to edit resources inside this project."
+                    },
+                    {
                         queryKeys: ["restore"],
                         handler: files.restore,
                         permissions: modificationPermissionsBranch,
@@ -1412,7 +1418,7 @@ const loadRoutes = function (app, callback)
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
     //TODO William
-    app.get("/deposits/latest", deposits.getDeposits);
+    app.get("/deposits/get_deposits", deposits.getDeposits);
 
     app.get([
             getNonHumanReadableRouteRegex("deposit")

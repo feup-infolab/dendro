@@ -16,7 +16,7 @@ const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConne
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const sendDeposits = function(jsonOnly, params, agent, callback){
-    const path = "deposits/latest";
+    const path = "deposits/get_deposits";
     if(jsonOnly){
         agent
             .get(path)
