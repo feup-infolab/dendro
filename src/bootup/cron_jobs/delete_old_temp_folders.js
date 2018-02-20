@@ -11,7 +11,8 @@ const deleteOldTempFolders = function (app, callback)
     const deleteTempFoldersOlderThen1Day = function (cb) {
         //resources older than two hour
         let resourcesToDelete = null;
-        //deletes resources older than two hours
+        //deletes resources older than two hours inside the temp folder
+        //find /Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/temp/ -not -newermt '-7200 seconds' -mindepth 1 -delete
         exec("find " + tmpLocation + " -not -newermt '-7200 seconds' -mindepth 1", function(err, stdout, stderr)
         {
             if(!isNull(err))
@@ -37,7 +38,6 @@ const deleteOldTempFolders = function (app, callback)
                 });
             }
         });
-        //find /Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/temp/ -not -newermt '-7200 seconds' -mindepth 1 -delete
     };
     try {
         //Every hour
