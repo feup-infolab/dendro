@@ -91,20 +91,28 @@ exports.download = function (req, res)
 
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
+                            const parentPath = path.resolve(writtenFilePath, "..");
 
-                            res.on("end", function ()
+                            res.on("finish", function ()
                             {
-                                File.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
+                                if(!isNull(parentPath))
                                 {
-                                    if (err)
+                                    File.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                     {
-                                        Logger.log("error", "Unable to delete " + writtenFilePath);
-                                    }
-                                    else
-                                    {
-                                        Logger.log("Deleted " + writtenFilePath);
-                                    }
-                                });
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + parentPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + parentPath);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
+                                }
                             });
 
                             fileStream.pipe(res);
@@ -157,25 +165,33 @@ exports.download = function (req, res)
                         {
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
+                            const parentPath = path.resolve(writtenFilePath, "..");
                             res.writeHead(200,
                                 {
                                     "Content-Disposition": contentDisposition(file.nie.title),
                                     "Content-type": mimeType
                                 });
 
-                            res.on("end", function ()
+                            res.on("finish", function ()
                             {
-                                Folder.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
+                                if(!isNull(parentPath))
                                 {
-                                    if (err)
+                                    Folder.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                     {
-                                        Logger.log("error", "Unable to delete " + writtenFilePath);
-                                    }
-                                    else
-                                    {
-                                        Logger.log("Deleted " + writtenFilePath);
-                                    }
-                                });
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + parentPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + parentPath);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " +writtenFilePath);
+                                }
                             });
 
                             fileStream.pipe(res);
@@ -333,6 +349,7 @@ exports.serve = function (req, res)
 
                                 const mimeType = Config.mimeType("zip");
                                 const fileName = folderToDownload.nie.title + ".zip";
+                                const parentPath = path.resolve(writtenFilePath, "..");
 
                                 res.writeHead(200,
                                     {
@@ -341,19 +358,26 @@ exports.serve = function (req, res)
                                     }
                                 );
 
-                                res.on("end", function ()
+                                res.on("finish", function ()
                                 {
-                                    Folder.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
+                                    if(!isNull(parentPath))
                                     {
-                                        if (err)
+                                        Folder.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                         {
-                                            Logger.log("error", "Unable to delete " + writtenFilePath);
-                                        }
-                                        else
-                                        {
-                                            Logger.log("Deleted " + writtenFilePath);
-                                        }
-                                    });
+                                            if (err)
+                                            {
+                                                Logger.log("error", "Unable to delete " + parentPath);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("Deleted " + parentPath);
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
+                                    }
                                 });
 
                                 fileStream.pipe(res);
@@ -447,7 +471,7 @@ exports.serve = function (req, res)
                                                     "Content-type": mimeType
                                                 });
 
-                                            res.on("end", function ()
+                                            res.on("finish", function ()
                                             {
                                                 const path = require("path");
                                                 const parentFolderPath = path.resolve(writtenFilePath, "..");

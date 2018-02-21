@@ -589,11 +589,35 @@ exports.get_avatar = function (req, res)
                         {
                             let fileStream = fs.createReadStream(avatarFilePath);
                             let filename = path.basename(avatarFilePath);
+                            const parentPath = path.resolve(avatarFilePath, "..");
 
                             res.writeHead(200, {
                                 "Content-Type": "application/octet-stream",
                                 Connection: "keep-alive",
                                 "Content-Disposition": contentDisposition(filename),
+                            });
+
+                            res.on("finish", function ()
+                            {
+                                if(!isNull(parentPath))
+                                {
+                                    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+                                    File.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
+                                    {
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + parentPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + parentPath);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " + avatarFilePath);
+                                }
                             });
 
                             fileStream.pipe(res);

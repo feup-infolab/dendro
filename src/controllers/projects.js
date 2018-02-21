@@ -1476,7 +1476,7 @@ exports.bagit = function (req, res)
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(baggedContentsZipFileAbsPath);
 
-                            res.on("end", function ()
+                            res.on("finish", function ()
                             {
                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr)
                                 {
@@ -2124,13 +2124,21 @@ exports.import = function (req, res)
                             req,
                             function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
                             {
-                                File.deleteOnLocalFileSystem(uploadedBackupAbsPath, function (err, result)
+                                const parentPath = path.resolve(uploadedBackupAbsPath, "..");
+                                if(!isNull(parentPath))
                                 {
-                                    if (!isNull(err))
+                                    File.deleteOnLocalFileSystem(parentPath, function (err, result)
                                     {
-                                        Logger.log("error", "Error occurred while deleting backup zip file at " + uploadedBackupAbsPath + " : " + JSON.stringify(result));
-                                    }
-                                });
+                                        if (!isNull(err))
+                                        {
+                                            Logger.log("error", "Error occurred while deleting backup zip file at " + parentPath + " : " + JSON.stringify(result));
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " + uploadedBackupAbsPath);
+                                }
 
                                 if (isNull(err))
                                 {
@@ -2150,6 +2158,14 @@ exports.import = function (req, res)
                                                 {
                                                     newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
                                                     {
+                                                        File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                                        {
+                                                            if (!isNull(err))
+                                                            {
+                                                                Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                                            }
+                                                        });
+
                                                         if (isNull(err))
                                                         {
                                                             delete newProject.ddr.is_being_imported;
@@ -2191,6 +2207,14 @@ exports.import = function (req, res)
                                                 }
                                                 else
                                                 {
+                                                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                                    {
+                                                        if (!isNull(err))
+                                                        {
+                                                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                                        }
+                                                    });
+
                                                     callback(500,
                                                         {
                                                             result: "error",
@@ -2204,6 +2228,13 @@ exports.import = function (req, res)
                                     }
                                     else
                                     {
+                                        File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                        {
+                                            if (!isNull(err))
+                                            {
+                                                Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                            }
+                                        });
                                         callback(400,
                                             {
                                                 result: "error",
@@ -2215,6 +2246,14 @@ exports.import = function (req, res)
                                 }
                                 else
                                 {
+                                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                    {
+                                        if (!isNull(err))
+                                        {
+                                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                        }
+                                    });
+
                                     const msg = "Error restoring zip file to folder : " + valid;
                                     Logger.log("error", msg);
 

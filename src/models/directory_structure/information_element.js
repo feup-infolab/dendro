@@ -817,26 +817,34 @@ InformationElement.removeInvalidFileNames = function (fileNamesArray)
 InformationElement.isSafePath = function (absPath, callback)
 {
     let fs = require("fs");
-    fs.realpath(absPath, function (err, realPath)
+    if(isNull(absPath))
     {
-        function b_in_a (b, a)
-        {
-            return (b.indexOf(a) === 0);
-        }
-
-        const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];
-
-        for (let i = 0; i < validDirs.length; i++)
-        {
-            if (b_in_a(realPath, validDirs[i]))
-            {
-                return callback(null, true);
-            }
-        }
-
         Logger.log("error", "Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
         return callback(null, false);
-    });
+    }
+    else
+    {
+        fs.realpath(absPath, function (err, realPath)
+        {
+            function b_in_a (b, a)
+            {
+                return (b.indexOf(a) === 0);
+            }
+
+            const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];
+
+            for (let i = 0; i < validDirs.length; i++)
+            {
+                if (b_in_a(realPath, validDirs[i]))
+                {
+                    return callback(null, true);
+                }
+            }
+
+            Logger.log("error", "Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
+            return callback(null, false);
+        });
+    }
 };
 
 InformationElement.prototype.findMetadata = function (callback, typeConfigsToRetain, recursive)

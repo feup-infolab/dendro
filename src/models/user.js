@@ -1384,6 +1384,18 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
                                 readStream,
                                 function (err, result)
                                 {
+                                    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+                                    File.deleteOnLocalFileSystem(tempFolderPath, function (err, stdout, stderr)
+                                    {
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + tempFolderPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + tempFolderPath);
+                                        }
+                                    });
                                     if (err)
                                     {
                                         let msg = "Error saving avatar file in GridFS :" + result + " for user " + self.uri;
