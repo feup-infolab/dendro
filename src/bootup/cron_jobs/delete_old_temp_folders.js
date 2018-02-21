@@ -1,4 +1,4 @@
-var CronJob = require('cron').CronJob;
+var CronJob = require("cron").CronJob;
 const Pathfinder = global.Pathfinder;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
@@ -66,7 +66,7 @@ const deleteOldTempFolders = function (app, callback)
                     Logger.log("info", result);
                 }
             });
-        }, null, true, 'America/Los_Angeles');
+        }, null, true, "America/Los_Angeles");
         InformationElement.isSafePath(tmpLocation, function (err, isSafe) {
             if (!err && isSafe)
             {
