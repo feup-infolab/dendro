@@ -67,10 +67,20 @@ const deleteOldTempFolders = function (app, callback)
                 }
             });
         }, null, true, 'America/Los_Angeles');
-        job.start();
-        const jobMsg = "Hourly delete_old_temp_folders job started";
-        Logger.log("info", jobMsg);
-        callback(null, null);
+        InformationElement.isSafePath(tmpLocation, function (err, isSafe) {
+            if (!err && isSafe)
+            {
+                job.start();
+                const jobMsg = "Hourly delete_old_temp_folders job started";
+                Logger.log("info", jobMsg);
+                callback(null, null);
+            }
+            else
+            {
+                const errorMsg = "Error starting Hourly delete_old_temp_folders job: " + "Location " + tmpLocation + " is not a safe path to delete";
+                callback(true, errorMsg);
+            }
+        });
     } catch(ex) {
         const errMsg = "Invalid delete_old_temp_folders job pattern: " + ex.toString();
         Logger.log("error", errMsg);
