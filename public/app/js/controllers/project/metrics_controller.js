@@ -127,7 +127,7 @@ angular.module('dendroApp.controllers')
                     user : "demouser4"
                 };
 
-                var depositsSet =[deposit,deposit2,deposit3,deposit4,deposit5,deposit6,deposit7];
+                var depositsSet =[deposit,deposit2,deposit3,deposit4,deposit5,deposit6,deposit7,deposit7,deposit7,deposit7,deposit7,deposit7,deposit3,deposit4,deposit5];
                 setTimeline(depositsSet);
                 setGraphs(depositsSet);
 
@@ -137,12 +137,8 @@ angular.module('dendroApp.controllers')
 
 
             $scope.updateData = function () {
-                $scope.data = $scope.data.map(function (data) {
-                    return data.map(function (y) {
-                        y = y + Math.random() * 10 - 5;
-                        return parseInt(y < 0 ? 0 : y > 100 ? 100 : y);
-                    });
-                });
+                $scope.type = $scope.type === 'pie' ?
+                    'polarArea' : 'pie';
             };
 
 
@@ -273,9 +269,17 @@ angular.module('dendroApp.controllers')
                 for (let i =0; i < deposits.length; i++){
                     let event = {};
                     var depositDate =moment(deposits[i].date,"YYYY-MM-DDTHH:mmZ");
-                    $scope.labels.push(moment().month(depositDate.month()).format('MMMM'));
+                    //$scope.labels2.push(moment().month(depositDate.month()).format('MMMM'));
                     platforms.set(deposits[i].platformsUsed, platforms.get(deposits[i].platformsUsed) + 1 );
                 }
+                for (var [key, value] of platforms.entries()) {
+                    $scope.labels.push(key);
+                    $scope.data.push(value);
+
+                }
+                console.log($scope.labels);
+
+                console.log($scope.data);
             }
 
 
@@ -286,28 +290,31 @@ angular.module('dendroApp.controllers')
 
             //Chart Block
             $scope.labels = [];
-            $scope.data = [
-                [0,0,0]
+            $scope.data = [];
+
+            $scope.type = 'pie';
+
+            $scope.labels2 = ['September','October', 'November','December'];
+            $scope.data2 = [
+                [5, 3, 7],
+                [5,4,6,8]
             ];
-            $scope.datasetOverride = [{ yAxisID: 'y-axis-1' }, { yAxisID: 'y-axis-2' }];
-            $scope.options = {
-                scales: {
-                    yAxes: [
-                        {
-                            id: 'y-axis-1',
-                            type: 'linear',
-                            display: true,
-                            position: 'left'
-                        },
-                        {
-                            id: 'y-axis-2',
-                            type: 'linear',
-                            display: true,
-                            position: 'right'
-                        }
-                    ]
-                }
-            };
+
+            $scope.datasetOverride = [      {
+                label: "Deposits",
+                borderWidth: 1,
+                type: 'bar'
+            },
+                {
+                    label: "Evolution Line",
+                    borderWidth: 3,
+                    hoverBackgroundColor: "rgba(255,99,132,0.4)",
+                    hoverBorderColor: "rgba(255,99,132,1)",
+                    type: 'line'
+                }];
+
+
+
             $scope.colors = [
                 { // grey
                     backgroundColor: 'rgba(148,159,177,0.2)',

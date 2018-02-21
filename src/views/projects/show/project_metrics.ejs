@@ -4,13 +4,23 @@
 </canvas>
 </div>-->
 
-<div class="metrics" >
-    <canvas id="bar" width="200" height="100" class="chart chart-line" chart-data="data" chart-labels="labels" chart-colors="colours">
-    </canvas>
+
+
+
+<div class="row">
+    <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+        <div class="metrics" >
+            <canvas id="repos" width="200" height="100" class="chart-base" chart-type= "type" chart-data="data" chart-labels="labels" chart-colors="colours">
+            </canvas>
+        </div>
+        <button type="button" class="btn btn-primary pull-right" ng-click="updateData()">Toggle</button>
+
+        <div class="metrics" >
+            <canvas id="depos" width="200" height="100" class="chart-bar" chart-data="data2" chart-dataset-override="datasetOverride"  chart-labels="labels2" chart-colors="colours">
+            </canvas>
+        </div>
 </div>
-
-
-<button type="button" class="btn btn-primary pull-right" ng-click="updateData()">Update</button>
+</div>
 
 <div class="panel panel-info">
     <div class="panel-heading">
@@ -20,10 +30,9 @@
         <div class="container">
             <div class="row">
                 <timeline>
-                    <div class="timeline-badge primary"><a><i class="glyphicon glyphicon-record" rel="tooltip" title="11 hours ago via Twitter" id=""></i></a></div>
                     <timeline-event ng-repeat="event in events" side="">
                         <timeline-badge class="{{event.badgeClass}}">
-                            <i class="glyphicon"> {{event.shortDate}}</i>
+                            <i class="glyphicon {{event.badgeIconClass}}"></i>
 <!--                        <span class="timeline-balloon-date-day">"{{event.shortDate}}"</span>-->
 
                         </timeline-badge>
