@@ -895,7 +895,7 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
                                                     metadataResult.hasLogicalParts.push(result2);
                                                     return callback(null);
                                                 }
-                                                Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                                Logger.log("[findMetadata] error accessing metadata of resource " + self.nie.title);
                                                 return callback(err);
                                             }, typeConfigsToRetain);
                                         },
@@ -945,14 +945,14 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
                         }
                         else
                         {
-                            Logger.log("info", "[Information Element find metadata] error accessing logical parts of folder " + resource.nie.title);
+                            Logger.log("[Information Element find metadata] error accessing logical parts of folder " + resource.nie.title);
                             return callback(true, null);
                         }
                     });
                 }
                 else
                 {
-                    Logger.log("info", "[Information Element find metadata] " + resource.nie.title + " is not a folder.");
+                    Logger.log("[Information Element find metadata] " + resource.nie.title + " is not a folder.");
                     return callback(null, metadataResult);
                 }
             }

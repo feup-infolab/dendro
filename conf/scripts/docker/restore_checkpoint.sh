@@ -17,7 +17,7 @@ RUNNING_FOLDER="$(pwd)/data/current"
 #create a checkpoint of the current state
 CHECKPOINT_OF_CURRENT_STATE=$(eval "$DOCKER_SCRIPTS_DIR/create_checkpoint.sh $(uuidgen)")
 
-echo "Saved current state as checkpoint \"$CHECKPOINT_OF_CURRENT_STATE\" ."
+echo "Saved current state as checkpoint $CHECKPOINT_OF_CURRENT_STATE."
 
 ##stop all containers
 exec $DOCKER_SCRIPTS_DIR/stop_containers.sh
@@ -26,7 +26,10 @@ exec $DOCKER_SCRIPTS_DIR/stop_containers.sh
 rm -rf $RUNNING_FOLDER/*
 cp -R $CHECKPOINT_FOLDER/* $RUNNING_FOLDER
 
-exec $DOCKER_SCRIPTS_DIR/start_containers.sh
+eval "$DOCKER_SCRIPTS_DIR/start_containers.sh"
+
+#wait for mysql and all the others to start up...
+#sleep 20
 
 echo "$CHECKPOINT_OF_CURRENT_STATE"
 

@@ -460,7 +460,7 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                             {
                                 if (isNull(data.error) && data.acknowledged === true)
                                 {
-                                    Logger.log("info", "Index with name " + indexName + " successfully created.");
+                                    Logger.log("Index with name " + indexName + " successfully created.");
                                     callback(null);
                                 }
                                 else

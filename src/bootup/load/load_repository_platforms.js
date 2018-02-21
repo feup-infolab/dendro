@@ -14,30 +14,23 @@ const loadRepositoryPlatforms = function (app, callback)
     const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
     const repositoryPlatformConfigs = JSON.parse(fs.readFileSync(repository_platform_configs_file_path, "utf8"));
 
-    let active_config_key;
-    if (process.env.NODE_ENV === "test")
+    const argv = require("yargs").argv;
+
+    let activeConfigKey;
+    if (argv.config)
     {
-        if (process.env.RUNNING_IN_JENKINS === "1")
-        {
-            active_config_key = "jenkins_buildserver_test";
-            Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
-        }
-        else
-        {
-            active_config_key = "test";
-            Logger.log("info", "Running in test environment detected");
-        }
+        activeConfigKey = argv.config;
     }
     else
     {
-        active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, "utf8")).key;
+        activeConfigKey = JSON.parse(fs.readFileSync(active_config_file_path, "utf8")).key;
     }
 
-    let active_config_for_repositoryPlatforms = repositoryPlatformConfigs[active_config_key];
+    let active_config_for_repositoryPlatforms = repositoryPlatformConfigs[activeConfigKey];
 
     if (isNull(active_config_for_repositoryPlatforms))
     {
-        Logger.log("Invalid active repository platforms configuration key " + active_config_key + ". It is not parametrized in the " + active_config_file_path + " file. Please review the configuration.");
+        Logger.log("Invalid active repository platforms configuration key " + activeConfigKey + ". It is not parametrized in the " + active_config_file_path + " file. Please review the configuration.");
         Logger.log("Using default configuration for repository platforms...");
         active_config_for_repositoryPlatforms = repositoryPlatformConfigs.default;
     }

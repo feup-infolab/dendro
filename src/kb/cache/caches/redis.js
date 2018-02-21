@@ -140,7 +140,7 @@ RedisCache.prototype.get = function (resourceUri, callback)
 
                         return callback(null, JSON.parse(cachedJSON));
                     }
-                    return callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(object) + " from redis cache");
+                    return callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(cachedJSON) + " from redis cache");
                 });
             }
             else

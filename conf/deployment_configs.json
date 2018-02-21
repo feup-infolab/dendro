@@ -1212,7 +1212,7 @@
         "elasticSearchHost": "127.0.0.1",
         "elasticSearchPort": "9200",
         "datastore": {
-            "database": "127.0.0.1:3001_jenkins_test_datastore",
+            "database": "127.0.0.1:3001_travis_test_datastore",
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default",
@@ -1256,7 +1256,7 @@
                 "instances": {
                     "default": {
                         "database": "127.0.0.1:3001",
-                        "collection": "default_cache_jenkins_test",
+                        "collection": "default_cache_travis_test",
                         "clear_on_startup": true,
                         "host": "127.0.0.1",
                         "port": "27017",
@@ -1264,7 +1264,7 @@
                     },
                     "social": {
                         "database": "127.0.0.1:3001",
-                        "collection": "social_cache_jenkins_test",
+                        "collection": "social_cache_travis_test",
                         "clear_on_startup": true,
                         "host": "127.0.0.1",
                         "port": "27017",
@@ -1272,7 +1272,7 @@
                     },
                     "notifications": {
                         "database": "127.0.0.1:3001",
-                        "collection": "notifications_cache_jenkins_test",
+                        "collection": "notifications_cache_travis_test",
                         "clear_on_startup": true,
                         "host": "127.0.0.1",
                         "port": "27017",
@@ -1317,7 +1317,7 @@
             "user": "root",
             "password": "r00t"
         },
-        "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
+        "mySQLDBName": "TRAVISTESTSdendroVagrantDemo",
         "maxUploadSize": 2147483648,
         "maxProjectSize": 5368709120,
         "maxSimultaneousConnectionsToDb": 1,
@@ -1459,7 +1459,7 @@
         },
         "baselines": {},
         "logging": {
-            "level": "silly",
+            "level": "debug",
             "format": "combined",
             "app_logs_folder": "logs/app",
             "log_all_requests": true,
@@ -1583,7 +1583,6 @@
           "active": true,
           "reuse_checkpoints": true,
           "containers": [
-
             "mysql-dendro",
             "mongo-dendro",
             "redis-dendro-default",

@@ -25,7 +25,7 @@ const setupGracefulClose = function (app, server, callback)
     {
         if (!isNull(Config.debug) && Config.debug.active && !isNull(Config.debug.memory) && Config.debug.memory.dump_snapshots)
         {
-            Logger.log("info", "Dumping heap snapshot!");
+            Logger.log("Dumping heap snapshot!");
             const heapdump = require("heapdump");
             const snapshotsFolder = Pathfinder.absPathInApp("profiling/snapshots");
             const snapshotFile = path.join(snapshotsFolder, Date.now() + ".heapsnapshot");
@@ -35,7 +35,7 @@ const setupGracefulClose = function (app, server, callback)
             {
                 if (isNull(err))
                 {
-                    Logger.log("info", "Dumped snapshot at " + filename + "!");
+                    Logger.log("Dumped snapshot at " + filename + "!");
                 }
                 else
                 {
@@ -70,7 +70,7 @@ const setupGracefulClose = function (app, server, callback)
                     dbConfig.connection.close(function (err, result)
                     {
                         exited = true;
-                        Logger.log("info", "Virtuoso connections closed gracefully.");
+                        Logger.log("Virtuoso connections closed gracefully.");
                         if (isNull(err))
                         {
                             cb(null, result);
@@ -98,7 +98,7 @@ const setupGracefulClose = function (app, server, callback)
             {
                 if (!err)
                 {
-                    Logger.log("info", "Closed all cache connections");
+                    Logger.log("Closed all cache connections");
                 }
                 else
                 {
@@ -120,7 +120,7 @@ const setupGracefulClose = function (app, server, callback)
             {
                 if (!err)
                 {
-                    Logger.log("info", "Closed all GridFS connections");
+                    Logger.log("Closed all GridFS connections");
                 }
                 else
                 {
@@ -142,7 +142,7 @@ const setupGracefulClose = function (app, server, callback)
 
                 if (!err)
                 {
-                    Logger.log("info", "Closed MySQL connection pool");
+                    Logger.log("Closed MySQL connection pool");
                 }
                 else
                 {
@@ -155,7 +155,7 @@ const setupGracefulClose = function (app, server, callback)
 
         const haltHTTPServer = function (cb)
         {
-            Logger.log("info", "Halting server...");
+            Logger.log("Halting server...");
             server.close();
             server.destroy();
             cb(null);
@@ -172,15 +172,15 @@ const setupGracefulClose = function (app, server, callback)
 
         const removePIDFile = function (cb)
         {
-            Logger.log("info", "Removing PID file...");
+            Logger.log("Removing PID file...");
             if (process.env.NODE_ENV !== "test")
             {
                 app.pid.remove();
-                Logger.log("info", "Removed PID");
+                Logger.log("Removed PID");
             }
             else
             {
-                Logger.log("info", "No need to remove PID, because this Dendro is running in TEST Mode");
+                Logger.log("No need to remove PID, because this Dendro is running in TEST Mode");
             }
 
             cb(null);
@@ -190,7 +190,7 @@ const setupGracefulClose = function (app, server, callback)
         {
             if (Config.docker && Config.docker.active)
             {
-                Logger.log("info", "Halting docker containers...");
+                Logger.log("Halting docker containers...");
 
                 DockerCheckpointManager.stopAllContainers();
                 cb(null);
@@ -208,20 +208,20 @@ const setupGracefulClose = function (app, server, callback)
             closeMySQLConnectionPool,
             haltHTTPServer,
             callGarbageCollector,
-            removePIDFile,
-            haltDockerContainers
+            removePIDFile
+            // haltDockerContainers
         ], function (err, results)
         {
             if (!err)
             {
-                Logger.log("info", "Freed all resources. Halting Dendro Server now.");
+                Logger.log("Freed all resources. Halting Dendro Server now.");
             }
             else
             {
                 Logger.log("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
             }
 
-            Logger.log("info", "No need to remove PID, because this Dendro is running in TEST Mode");
+            Logger.log("No need to remove PID, because this Dendro is running in TEST Mode");
 
             // don't call cleanup handler again
             callback(err, results);
@@ -252,7 +252,7 @@ const setupGracefulClose = function (app, server, callback)
 
                 app.freeResources(function ()
                 {
-                    Logger.log("info", "Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
+                    Logger.log("Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
                     process.exit(0);
                 });
             });
@@ -278,11 +278,11 @@ const setupGracefulClose = function (app, server, callback)
 
         process.on("exit", function (code)
         {
-            Logger.log("info", `Unknown error occurred! About to exit with code ${code}`);
+            Logger.log(`Unknown error occurred! About to exit with code ${code}`);
 
             app.freeResources(function ()
             {
-                Logger.log("info", "Freed all resources.");
+                Logger.log("Freed all resources.");
                 Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
                 process.exit(code);
             });

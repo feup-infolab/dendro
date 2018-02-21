@@ -365,7 +365,7 @@ const startApp = function ()
                 }
                 else
                 {
-                    Logger.log("info", "Completed initialization. Now running units...");
+                    Logger.log("Completed initialization. Now running units...");
                     return callback(null);
                 }
             },
@@ -444,13 +444,13 @@ if (process.env.NODE_ENV === "production")
             if (isNull(err))
             {
                 const msg = "PM2 instances of " + Config.pm2AppName + " ended successfully.";
-                Logger.log("info", msg);
+                Logger.log(msg);
                 process.exit(0);
             }
             else
             {
                 const msg = "Did not kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
-                Logger.log("info", msg);
+                Logger.log(msg);
             }
         });
     }
@@ -459,13 +459,13 @@ if (process.env.NODE_ENV === "production")
         // master instance will start the slaves and exit.
         if (!Config.runningAsSlave)
         {
-            Logger.log("info", `Starting master process with PID ${process.pid}...`);
-            Logger.log("info", `Using ${Config.numCPUs} app instances...`);
+            Logger.log(`Starting master process with PID ${process.pid}...`);
+            Logger.log(`Using ${Config.numCPUs} app instances...`);
             startPM2Master();
         }
         else
         {
-            Logger.log("info", `Starting slave process with PID ${process.pid}...`);
+            Logger.log(`Starting slave process with PID ${process.pid}...`);
             startApp();
         }
     }
@@ -478,7 +478,7 @@ else
         if (!isNull(err))
         {
             const msg = "Did not kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
-            Logger.log("info", msg);
+            Logger.log(msg);
         }
     });
 }

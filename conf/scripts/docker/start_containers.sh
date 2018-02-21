@@ -60,7 +60,7 @@ docker run --name redis-dendro-notifications \
     -v "$RUNNING_FOLDER/redis-default:/data" \
     -d redis:3.2.11 || docker start redis-dendro-notifications || docker restartredis-dendro-notifications
 
-docker ps
+#docker ps
 
 
 #docker run --name virtuoso-dendro \

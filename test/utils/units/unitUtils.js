@@ -92,33 +92,3 @@ exports.registerStopTimeForUnit = function (unitName)
     /* printRoutesLog(global.routesLog); */
     return global.routesLog;
 };
-
-exports.loadCheckpoint = function (checkpointName)
-{
-    let checkpointExists = false;
-    let checkpointLoaded = false;
-
-    if (Config.docker.active)
-    {
-        checkpointExists = DockerCheckpointManager.checkpointExists(checkpointName);
-
-        if (checkpointExists)
-        {
-            try
-            {
-                checkpointLoaded = DockerCheckpointManager.restoreCheckpoint(checkpointName);
-            }
-            catch (e)
-            {
-                throw e;
-            }
-        }
-        else
-        {
-            const msg = "Checkpoint " + checkpointName + " does not exist.";
-            Logger.log("info", msg);
-        }
-    }
-
-    return checkpointLoaded;
-};

@@ -5,7 +5,6 @@ const _ = require("underscore");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const childProcess = require("child_process");
@@ -17,19 +16,30 @@ const restartContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/re
 const nukeAndRebuildScript = Pathfinder.absPathInApp("/conf/scripts/docker/nuke_and_rebuild.sh");
 const dataFolder = Pathfinder.absPathInApp("/data");
 
+const bufferToString = function (buffer)
+{
+    const { StringDecoder } = require("string_decoder");
+    const decoder = new StringDecoder("utf8");
+
+    const cent = Buffer.from(buffer);
+    return decoder.write(cent);
+};
+
 const DockerCheckpointManager = function ()
 {
 };
 
 DockerCheckpointManager._checkpoints = {};
 
-if(Config.docker.reuse_checkpoints)
+if (Config.docker.reuse_checkpoints)
 {
-    const checkpointFolders = fs.readdirSync(dataFolder).filter(function (file) {
+    const checkpointFolders = fs.readdirSync(dataFolder).filter(function (file)
+    {
         return fs.statSync(path.join(dataFolder, file)).isDirectory();
     });
 
-    _.map(checkpointFolders, function(folderName){
+    _.map(checkpointFolders, function (folderName)
+    {
         DockerCheckpointManager._checkpoints[folderName] = true;
     });
 }
@@ -42,8 +52,8 @@ DockerCheckpointManager.stopAllContainers = function ()
             cwd: Pathfinder.appDir
         });
 
-        Logger.log("debug", output);
-        return output;
+        console.log(bufferToString(output));
+        return bufferToString(output);
     }
 };
 
@@ -55,8 +65,8 @@ DockerCheckpointManager.startAllContainers = function ()
             cwd: Pathfinder.appDir
         });
 
-        Logger.log("debug", output);
-        return output;
+        console.log(bufferToString(output));
+        return bufferToString(output);
     }
 };
 
@@ -78,9 +88,11 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
                 cwd: Pathfinder.appDir
             });
 
-            Logger.log("debug", output);
-            Logger.log("info", "Saved checkpoint with name " + checkpointName);
+            console.log(bufferToString(output));
+            console.log("Saved checkpoint with name " + checkpointName);
             DockerCheckpointManager._checkpoints[checkpointName] = true;
+
+            return bufferToString(output);
         }
     }
 };
@@ -95,8 +107,8 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
                 cwd: Pathfinder.appDir
             });
 
-            Logger.log("debug", output);
-            Logger.log("info", "Restored checkpoint with name " + checkpointName + " of Docker container " + checkpointName);
+            console.log(bufferToString(output));
+            console.log("Restored checkpoint with name " + checkpointName + " of Docker container " + checkpointName);
             return true;
         }
 
@@ -161,8 +173,8 @@ DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
                 cwd: Pathfinder.appDir
             });
 
-            Logger.log("debug", output);
-            return output;
+            console.log(bufferToString(output));
+            return bufferToString(output);
         };
 
         if (onlyOnce)
@@ -178,7 +190,7 @@ DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
             performOperation();
         }
 
-        Logger.log("warn", "Nuked and rebuilt all containers.");
+        console.log("Nuked and rebuilt all containers.");
     }
 };
 
@@ -192,8 +204,8 @@ DockerCheckpointManager.restartAllContainers = function (onlyOnce)
                 cwd: Pathfinder.appDir
             });
 
-            Logger.log("debug", output);
-            return output;
+            console.log(bufferToString(output));
+            return bufferToString(output);
         };
 
         if (onlyOnce)
@@ -208,7 +220,7 @@ DockerCheckpointManager.restartAllContainers = function (onlyOnce)
         {
             performOperation();
         }
-        Logger.log("info", "Restarted all containers.");
+        console.log("Restarted all containers.");
     }
 };
 

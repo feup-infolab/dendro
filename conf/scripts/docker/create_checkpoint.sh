@@ -31,4 +31,4 @@ cp -R $RUNNING_FOLDER $CHECKPOINT_FOLDER
 echo "UnPausing all containers..."
 eval "$DOCKER_SCRIPTS_DIR/unpause_containers.sh"
 
-echo "$CHECKPOINT_NAME done!"
+echo $CHECKPOINT_NAME

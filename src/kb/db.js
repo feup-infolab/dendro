@@ -907,7 +907,7 @@ DbConnection.prototype.close = function (callback)
     {
         if (Object.keys(self.pendingRequests).length > 0)
         {
-            Logger.log("info", "Telling Virtuoso connection " + self.handle + " to abort all queued requests.");
+            Logger.log("Telling Virtuoso connection " + self.handle + " to abort all queued requests.");
             async.mapSeries(Object.keys(self.pendingRequests), function (queryID, cb)
             {
                 if (self.pendingRequests.hasOwnProperty(queryID))
@@ -942,7 +942,7 @@ DbConnection.prototype.close = function (callback)
         }
         else
         {
-            Logger.log("info", "No queued requests in Virtuoso connection " + self.handle + ". Continuing cleanup...");
+            Logger.log("No queued requests in Virtuoso connection " + self.handle + ". Continuing cleanup...");
             callback(null);
         }
     };

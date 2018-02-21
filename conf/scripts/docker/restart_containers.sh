@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
 ## start containers with the volumes mounted
-docker restart virtuoso-dendro &
-docker restart elasticsearch-dendro &
-docker restart mysql-dendro &
-docker restart mongo-dendro &
-docker restart redis-dendro-default &
-docker restart redis-dendro-social &
-docker restart redis-dendro-notifications &
-wait
+docker restart virtuoso-dendro  1> /dev/null
+docker restart elasticsearch-dendro 1> /dev/null
+docker restart mysql-dendro 1> /dev/null
+docker restart mongo-dendro 1> /dev/null
+docker restart redis-dendro-default 1> /dev/null
+docker restart redis-dendro-social 1> /dev/null
+docker restart redis-dendro-notifications 1> /dev/null

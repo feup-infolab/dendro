@@ -95,13 +95,13 @@ Cache.initConnections = function (callback, deleteAllCachedRecords)
                                     }
                                     else
                                     {
-                                        Logger.log("info", "Connected to Redis cache service with ID : " + newRedisConnection.id + " running on " + newRedisConnection.host + ":" + newRedisConnection.port);
+                                        Logger.log("Connected to Redis cache service with ID : " + newRedisConnection.id + " running on " + newRedisConnection.host + ":" + newRedisConnection.port);
 
                                         newRedisCacheConnection.deleteAll(function (err, result)
                                         {
                                             if (isNull(err))
                                             {
-                                                Logger.log("info", "Deleted all cache records on Redis instance " + newRedisConnection.id);
+                                                Logger.log("Deleted all cache records on Redis instance " + newRedisConnection.id);
                                                 Cache.caches[cacheId] = newRedisConnection;
                                                 Cache.cachesByGraphUri[graphUri] = newRedisConnection;
                                                 return callback(null, newRedisConnection);

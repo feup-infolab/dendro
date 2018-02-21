@@ -13,6 +13,8 @@ const Logger = function ()
 
 };
 
+Logger._initialized = false;
+
 Logger.setLogFilePath = function (newLogFilePath)
 {
     Logger.logFilePath = newLogFilePath;
@@ -33,7 +35,7 @@ Logger.getErrorLogFilePath = function ()
     return Logger.errorLogFilePath;
 };
 
-Logger.init = function (startTime, app)
+Logger.init = function (startTime)
 {
     if (isNull(startTime))
     {
@@ -198,6 +200,7 @@ Logger.init = function (startTime, app)
 
             logger.emitErrs = true;
             Logger.logger = logger;
+            Logger._initialized = true;
         }
         else
         {
@@ -254,7 +257,7 @@ Logger.log_boot_message = function (message)
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     if (Config.startup.log_bootup_actions)
     {
-        if (!isNull(Logger.logger))
+        if (!isNull(Logger.logger) && Logger._initialized)
         {
             Logger.logger.info(message);
         }
@@ -285,7 +288,7 @@ Logger.log = function (type, message, printStack)
             }
         }
 
-        if (!isNull(Logger.logger) && !isNull(message))
+        if (!isNull(Logger.logger) && !isNull(message) && Logger._initialized)
         {
             if (message instanceof Object)
             {
@@ -306,7 +309,7 @@ Logger.log = function (type, message, printStack)
 
     if (typeof type === "string" && !isNull(message))
     {
-        if (!isNull(Logger.logger))
+        if (!isNull(Logger.logger) && Logger._initialized)
         {
             if (!isNull(Logger.logger.levels[type]))
             {
@@ -332,7 +335,7 @@ Logger.log = function (type, message, printStack)
     else if (!isNull(type) && typeof type === "string" && isNull(message))
     {
         message = type;
-        if (!isNull(Logger.logger))
+        if (!isNull(Logger.logger) && Logger._initialized)
         {
             Logger.logger.info(message);
         }

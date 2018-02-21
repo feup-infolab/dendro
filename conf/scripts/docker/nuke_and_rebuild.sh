@@ -12,7 +12,7 @@ eval $DOCKER_SCRIPTS_DIR/destroy_images.sh
 echo "Removing all data..."
 #remove all data
 #docker system prune -a -f
-docker system prune -f
+docker system prune -f  1> /dev/null
 rm -rf data/current
 
 echo "Creating new blank folders..."
@@ -34,15 +34,15 @@ eval "$DOCKER_SCRIPTS_DIR/start_containers.sh"
 
 #load ontologies into virtuoso container
 echo "Setting up virtuoso..."
-docker exec virtuoso-dendro /bin/bash -c "git clone https://github.com/feup-infolab/dendro-install \$HOME/dendro-install"
+docker exec virtuoso-dendro /bin/bash -c "git clone https://github.com/feup-infolab/dendro-install \$HOME/dendro-install"  1> /dev/null
 
-sleep 30
+sleep 15
 docker exec virtuoso-dendro /bin/bash -c "isql-v -U dba -P dba < \$HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql && \
-                                          echo \"shutdown();\" | isql-v -U dba -P dba"
+                                          echo \"shutdown();\" | isql-v -U dba -P dba" 1> /dev/null
 
 echo "Commiting virtuoso state..."
-docker commit virtuoso-dendro virtuoso:7.2.4-dendro-ontologies-loaded
+docker commit virtuoso-dendro virtuoso:7.2.4-dendro-ontologies-loaded 1> /dev/null
 
 echo "Restarting virtuoso container..."
-docker restart virtuoso-dendro
+docker restart virtuoso-dendro 1> /dev/null
 sleep 15

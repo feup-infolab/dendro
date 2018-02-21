@@ -25,30 +25,24 @@ const argv = require("yargs").argv;
 
 if (argv.config)
 {
-    Logger.log("info", "Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
+    Logger.log("Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
     activeConfigKey = argv.config;
 }
 else
 {
-    if (process.env.RUNNING_IN_JENKINS)
+    if (argv.config)
     {
-        activeConfigKey = "jenkins_buildserver_test";
-        Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS environment var is " + process.env.RUNNING_IN_JENKINS);
-    }
-    else if (process.env.RUNNING_IN_TRAVIS)
-    {
-        activeConfigKey = "travis_buildserver_test";
-        Logger.log("info", "Running in TRAVIS server detected. RUNNING_IN_TRAVIS environment var is " + process.env.RUNNING_IN_TRAVIS);
+        activeConfigKey = argv.config;
     }
     else if (process.env.NODE_ENV === "test")
     {
         activeConfigKey = "test";
-        Logger.log("info", "Running in test environment detected");
+        Logger.log("Running in test environment detected");
     }
     else
     {
         activeConfigKey = JSON.parse(fs.readFileSync(activeConfigFilePath, "utf8")).key;
-        Logger.log("info", "Running with deployment config " + activeConfigKey);
+        Logger.log("Running with deployment config " + activeConfigKey);
     }
 }
 

@@ -165,7 +165,7 @@ module.exports.reindex = function (req, res)
 
                     async.mapSeries(classesToReindex, function (classToReindex, callback)
                     {
-                        Logger.log("info", "Reindexing all instances of " + classToReindex.leafClass + " ...");
+                        Logger.log("Reindexing all instances of " + classToReindex.leafClass + " ...");
                         const db = Config.getDBByHandle(graphShortName);
                         if (!isNull(db) && !isNull(db.graphUri))
                         {

@@ -145,11 +145,11 @@ Ontology.initAllFromDatabase = function (callback)
                 {
                     if (isNull(ontology))
                     {
-                        Logger.log("info", "Ontology : " + ontologyUri + " not found. Will have to be recorded in database.");
+                        Logger.log("Ontology : " + ontologyUri + " not found. Will have to be recorded in database.");
                     }
                     else
                     {
-                        Logger.log("info", "Ontology : " + ontologyUri + " exists. Reading from database...");
+                        Logger.log("Ontology : " + ontologyUri + " exists. Reading from database...");
                     }
                 }
 
@@ -165,7 +165,7 @@ Ontology.initAllFromDatabase = function (callback)
             {
                 if (isNull(err))
                 {
-                    Logger.log("info", "Loaded ontology with URI : " + ontologyObject.uri + ".");
+                    Logger.log("Loaded ontology with URI : " + ontologyObject.uri + ".");
                 }
                 else
                 {
@@ -418,7 +418,7 @@ Ontology.initAllFromDatabase = function (callback)
             }
             else
             {
-                Logger.log("info", "Ontology " + ontology.uri + " has no elements, skipping validation data fetching!");
+                Logger.log("Ontology " + ontology.uri + " has no elements, skipping validation data fetching!");
                 callback(null, []);
             }
         };
@@ -435,7 +435,7 @@ Ontology.initAllFromDatabase = function (callback)
                             {
                                 if (isNull(err))
                                 {
-                                    Logger.log("info", "Finished loading descriptor information from database");
+                                    Logger.log("Finished loading descriptor information from database");
                                 }
 
                                 return callback(err, loadedOntologies);
@@ -447,7 +447,7 @@ Ontology.initAllFromDatabase = function (callback)
                             {
                                 if (isNull(err))
                                 {
-                                    Logger.log("info", "Finished loading research domain configurations for descriptors from database");
+                                    Logger.log("Finished loading research domain configurations for descriptors from database");
                                 }
 
                                 return callback(err, loadedOntologies);
@@ -459,7 +459,7 @@ Ontology.initAllFromDatabase = function (callback)
                             {
                                 if (isNull(err))
                                 {
-                                    Logger.log("info", "Finished loading validation information (Regex + alternatives) for the descriptors in the database");
+                                    Logger.log("Finished loading validation information (Regex + alternatives) for the descriptors in the database");
                                 }
 
                                 return callback(err, loadedOntologies);

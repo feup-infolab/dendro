@@ -3,7 +3,6 @@ const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils
 
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
-const path = require("path");
 
 class TestUnit
 {
@@ -17,59 +16,36 @@ class TestUnit
         callback(null);
     }
 
-    static setup (callback)
+    static setup (callback, customCheckpointIdentifier)
     {
         const self = this;
-        const loadedCheckpoint = self.loadCheckpoint();
+        const loadedCheckpoint = self.loadCheckpoint(customCheckpointIdentifier);
 
         if (loadedCheckpoint)
         {
-            Logger.log("info", "Checkpoint " + self.name + "exists and was recovered. Running only init function.");
+            Logger.log("Checkpoint " + self.name + "exists and was recovered. Running only init function.");
             self.init(function (err, result)
             {
-                Logger.log("info", "Ran only init function of " + self.name);
+                Logger.log("Ran only init function of " + self.name);
                 callback(err, result);
             });
         }
         else
         {
-            Logger.log("info", "Checkpoint " + self.name + " does not exist. Will load database...");
+            Logger.log("Checkpoint " + self.name + " does not exist. Will load database...");
             self.init(function (err, result)
             {
-                Logger.log("info", "Finished init function of " + self.name);
+                Logger.log("Finished init function of " + self.name);
                 self.load(function (err, result)
                 {
-                    Logger.log("info", "Finished load function of " + self.name);
+                    Logger.log("Finished load function of " + self.name);
                     callback(null);
                 });
             });
         }
     }
 
-    static startLoad (filename, customIdentifier)
-    {
-        const self = this;
-        if (!customIdentifier)
-        {
-            customIdentifier = path.basename(self.name);
-        }
-
-        unitUtils.start(customIdentifier, "Seeding database...");
-    }
-
-    static endLoad (filename, customIdentifier)
-    {
-        const self = this;
-        if (!customIdentifier)
-        {
-            customIdentifier = path.basename(self.name);
-        }
-
-        self.createCheckpoint(customIdentifier);
-        unitUtils.end(customIdentifier, "Database seeding complete.");
-    }
-
-    static createCheckpoint (filename)
+    static startLoad (filename)
     {
         const self = this;
         if (!filename)
@@ -77,13 +53,41 @@ class TestUnit
             filename = self.name;
         }
 
-        DockerCheckpointManager.createCheckpoint(filename);
+        unitUtils.start(filename, "Seeding database...");
     }
 
-    static loadCheckpoint ()
+    static endLoad (filename, customCheckpointIdentifier)
     {
         const self = this;
-        return DockerCheckpointManager.restoreCheckpoint(self.name);
+        if (!customCheckpointIdentifier)
+        {
+            customCheckpointIdentifier = self.name;
+        }
+
+        self.createCheckpoint(customCheckpointIdentifier);
+        unitUtils.end(filename, "Database seeding complete.");
+    }
+
+    static createCheckpoint (customIdentifier)
+    {
+        const self = this;
+        if (!customIdentifier)
+        {
+            customIdentifier = self.name;
+        }
+
+        DockerCheckpointManager.createCheckpoint(customIdentifier);
+    }
+
+    static loadCheckpoint (customIdentifier)
+    {
+        const self = this;
+        if (!customIdentifier)
+        {
+            customIdentifier = self.name;
+        }
+
+        return DockerCheckpointManager.restoreCheckpoint(customIdentifier);
     }
 }
 

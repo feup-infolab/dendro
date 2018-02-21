@@ -6,7 +6,7 @@ const path = require("path");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const should = chai.should();
 
@@ -17,7 +17,6 @@ class BootupUnit extends TestUnit
 {
     static init (callback)
     {
-        const self = this;
         super.init(function (err, result)
         {
             app.serverListening.then(function (appInfo)

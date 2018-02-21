@@ -128,7 +128,7 @@ class CreateUsers extends BootupUnit
                             {
                                 if (isNull(err))
                                 {
-                                    Logger.log("info", "Admins successfully loaded at createUsers.Unit.");
+                                    Logger.log("Admins successfully loaded at createUsers.Unit.");
                                 }
                                 else
                                 {

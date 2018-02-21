@@ -84,7 +84,7 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
                                         {
                                             repositoryUtils.exportFolderByUriToRepository(true, folder.uri, agent, {repository: ckanData}, function (err, res)
                                             {
-                                                Logger.log("info", "exportFolderByUriToRepository res is: " + JSON.stringify(res));
+                                                Logger.log("exportFolderByUriToRepository res is: " + JSON.stringify(res));
                                                 cb(err, res);
                                             });
                                         }, function (err, results)

@@ -3283,7 +3283,7 @@ Resource.prototype.findMetadata = function (callback, typeConfigsToRetain, recur
                                         metadataResult.hasLogicalParts.push(result2);
                                         return callback(null);
                                     }
-                                    Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                    Logger.log("[findMetadata] error accessing metadata of resource " + self.nie.title);
                                     return callback(err);
                                 }, typeConfigsToRetain);
                             },
@@ -3314,7 +3314,7 @@ Resource.prototype.findMetadata = function (callback, typeConfigsToRetain, recur
                                         metadataResult.hasLogicalParts.push(result2);
                                         return callback(null);
                                     }
-                                    Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                    Logger.log("[findMetadata] error accessing metadata of resource " + self.nie.title);
                                     return callback(err);
                                 }, typeConfigsToRetain);
                             },

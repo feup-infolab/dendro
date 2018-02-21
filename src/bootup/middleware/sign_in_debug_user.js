@@ -12,7 +12,7 @@ const signInDebugUser = function (app, callback)
 {
     const signInDebugUser = function (req, res, next)
     {
-    // Logger.log("info", "Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
+    // Logger.log( "Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
 
         if (isNull(req.user))
         {
