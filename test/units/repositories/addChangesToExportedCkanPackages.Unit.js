@@ -112,6 +112,11 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = AddChangesToExportedCKANPackages;

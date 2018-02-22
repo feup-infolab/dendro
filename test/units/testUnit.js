@@ -6,6 +6,11 @@ const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/doc
 
 class TestUnit
 {
+    static shutdown (callback)
+    {
+        callback(null);
+    }
+
     static init (callback)
     {
         callback(null);
@@ -13,6 +18,12 @@ class TestUnit
 
     static load (callback)
     {
+        if (!Config.docker.reuse_checkpoints)
+        {
+            DockerCheckpointManager.deleteAll(true, true);
+            DockerCheckpointManager.nukeAndRebuild(true);
+        }
+
         callback(null);
     }
 
@@ -23,11 +34,18 @@ class TestUnit
 
         if (loadedCheckpoint)
         {
-            Logger.log("Checkpoint " + self.name + "exists and was recovered. Running only init function.");
+            Logger.log("Checkpoint " + self.name + "exists and was recovered.");
             self.init(function (err, result)
             {
                 Logger.log("Ran only init function of " + self.name);
-                callback(err, result);
+                Logger.log("Gracefully restarting app after loading databases in " + self.name);
+                self.shutdown(function (err, result)
+                {
+                    self.init(function (err, result)
+                    {
+                        callback(err, result);
+                    });
+                });
             });
         }
         else
@@ -38,8 +56,13 @@ class TestUnit
                 Logger.log("Finished init function of " + self.name);
                 self.load(function (err, result)
                 {
-                    Logger.log("Finished load function of " + self.name);
-                    callback(null);
+                    Logger.log("Gracefully (re) starting app after loading databases in " + self.name);
+
+                    self.init(function (err, result)
+                    {
+                        Logger.log("Finished load function of " + self.name);
+                        callback(null);
+                    });
                 });
             });
         }

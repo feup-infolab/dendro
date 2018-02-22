@@ -79,6 +79,11 @@ class CreateFilesB2drop extends CreateFoldersB2DropUnit
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = CreateFilesB2drop;

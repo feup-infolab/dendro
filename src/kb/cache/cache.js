@@ -43,40 +43,61 @@ Cache.initConnections = function (callback, deleteAllCachedRecords)
                             if (Config.cache.mongodb.active && !isNull(mongoCacheConfig))
                             {
                                 const newMongoCacheConnection = new MongoDBCache(mongoCacheConfig);
-
-                                newMongoCacheConnection.open(function (err, mongoDBConnection)
-                                {
-                                    if (!isNull(err))
+                                async.retry(
                                     {
-                                        throw new Error("[ERROR] Unable to connect to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.host + ":" + mongoCacheConfig.port + " : " + err);
-                                    }
-                                    else
-                                    {
-                                        Logger.log_boot_message("Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " + mongoDBConnection.host + ":" + mongoDBConnection.port);
-
-                                        if (mongoCacheConfig.clear_on_startup)
+                                        times: 10,
+                                        interval: function (retryCount)
                                         {
-                                            newMongoCacheConnection.deleteAll(function (err, result)
+                                            return 50 * Math.pow(2, retryCount);
+                                        }
+                                    },
+                                    function (callback)
+                                    {
+                                        newMongoCacheConnection.open(function (err, mongoDBConnection)
+                                        {
+                                            if (!isNull(err))
                                             {
-                                                if (isNull(err))
+                                                callback(err);
+                                            }
+                                            else
+                                            {
+                                                Logger.log_boot_message("Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " + mongoDBConnection.host + ":" + mongoDBConnection.port);
+
+                                                if (mongoCacheConfig.clear_on_startup)
+                                                {
+                                                    newMongoCacheConnection.deleteAll(function (err, result)
+                                                    {
+                                                        if (isNull(err))
+                                                        {
+                                                            Cache.caches[cacheId] = newMongoCacheConnection;
+                                                            Cache.cachesByGraphUri[graphUri] = newMongoCacheConnection;
+
+                                                            return callback(null, newMongoCacheConnection);
+                                                        }
+                                                        throw new Error("[ERROR] Unable to delete all cache records on MongoDB instance \"" + newMongoCacheConnection.id + "\" during bootup:\n" + JSON.stringify(result));
+                                                    });
+                                                }
+                                                else
                                                 {
                                                     Cache.caches[cacheId] = newMongoCacheConnection;
                                                     Cache.cachesByGraphUri[graphUri] = newMongoCacheConnection;
 
                                                     return callback(null, newMongoCacheConnection);
                                                 }
-                                                throw new Error("[ERROR] Unable to delete all cache records on MongoDB instance \"" + newMongoCacheConnection.id + "\" during bootup:\n" + JSON.stringify(result));
-                                            });
+                                            }
+                                        });
+                                    }, function (err, newMongoCacheConnection)
+                                    {
+                                        if (err)
+                                        {
+                                            Logger.log("error", "[ERROR] Unable to connect to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.host + ":" + mongoCacheConfig.port + " : " + err);
                                         }
                                         else
                                         {
-                                            Cache.caches[cacheId] = newMongoCacheConnection;
-                                            Cache.cachesByGraphUri[graphUri] = newMongoCacheConnection;
-
-                                            return callback(null, newMongoCacheConnection);
+                                            Logger.log("Connected to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.host + ":" + mongoCacheConfig.port);
                                         }
-                                    }
-                                });
+                                        return callback(err, newMongoCacheConnection);
+                                    });
                             }
 
                             break;

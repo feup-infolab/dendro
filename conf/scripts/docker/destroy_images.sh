@@ -9,10 +9,8 @@ docker rmi -f virtuoso-dendro || true
 docker rmi -f elasticsearch-dendro || true
 docker rmi -f mysql-dendro || true
 docker rmi -f mongo-dendro || true
-docker rmi -f redis-dendro-default || true
-docker rmi -f virtuoso-dendro || true
-docker rmi -f redis-dendro-social || true
-docker rmi -f redis-dendro-notifications || true
-
+#docker rmi -f redis-dendro-default || true
+#docker rmi -f redis-dendro-social || true
+#docker rmi -f redis-dendro-notifications || true
 
 docker ps

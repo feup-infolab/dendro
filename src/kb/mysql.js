@@ -1,8 +1,7 @@
-const path = require("path");
 const mysql = require("mysql");
+const async = require("async");
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
@@ -14,20 +13,29 @@ function DendroMySQLClient (host, port, db, username, password)
     self.db = db;
     self.user = username;
     self.password = password;
+
+    self._databaseExists = false;
 }
 
-DendroMySQLClient.prototype.getConnection = function ()
+DendroMySQLClient.prototype.getConnection = function (omitDatabase)
 {
     const self = this;
     const handleDisconnect = function ()
     {
-        const connection = mysql.createConnection({
+        const parameters = {
             host: self.hostname,
             port: self.port,
-            database: self.db,
             user: self.user,
-            password: self.password
-        });
+            password: self.password,
+            multipleStatements: true
+        };
+
+        if (!omitDatabase)
+        {
+            parameters.database = self.db;
+        }
+
+        const connection = mysql.createConnection(parameters);
 
         connection.on("error", function (err)
         {
@@ -49,53 +57,72 @@ DendroMySQLClient.prototype.getConnection = function ()
 DendroMySQLClient.prototype.createDatabaseIfNotExists = function (callback)
 {
     const self = this;
-    const connection = self.getConnection();
+    const connection = self.getConnection(true);
 
-    connection.connect(
-        function (err, result)
-        {
-            if (isNull(err))
+    if (!self._databaseExists)
+    {
+        self.connect(
+            function (err, result)
             {
-                callback(null);
-            }
-            else
-            {
-                if (err.code === "ER_BAD_DB_ERROR")
+                if (!isNull(err))
+                {
+                    callback(err, result);
+                }
+                else
                 {
                     connection.query("CREATE DATABASE IF NOT EXISTS " + self.db + ";\n", function (err, result)
                     {
                         if (!isNull(err))
                         {
-                            Logger.log("error", "Error creating database in MySQL: " + self.db); // Config.mySQLDBName
+                            Logger.log("error", "Error creating database in MySQL: " + self.db);
                         }
                         connection.end();
+                        self._databaseExists = true;
                         callback(err, result);
                     });
                 }
-                else
-                {
-                    callback(err, result);
-                }
-            }
-        }
-    );
+            },
+            true
+        );
+    }
+    else
+    {
+        callback(null);
+    }
 };
 
-DendroMySQLClient.prototype.connect = function (callback)
+DendroMySQLClient.prototype.connect = function (callback, omitDatabase)
 {
     const self = this;
-    const connection = self.getConnection();
+    const connection = self.getConnection(omitDatabase);
 
-    connection.connect(function (err)
+    const tryToConnect = function (callback)
     {
-        if (err)
+        connection.connect(function (err)
         {
-            Logger.log("Error connecting to MySQL at " + self.hostname + ":" + err.stack);
-            return;
-        }
+            if (err)
+            {
+                Logger.log("Error connecting to MySQL at " + self.hostname + ":" + err.stack);
+                return;
+            }
 
-        Logger.log("Connected to MySQL as id " + connection.threadId);
-        connection.end();
+            Logger.log("Connected to MySQL as id " + connection.threadId);
+            callback(err, connection);
+        });
+    };
+
+    // try calling apiMethod 10 times with linear backoff
+    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+    async.retry({
+        times: 10,
+        interval: function (retryCount)
+        {
+            const msecs = 50 * Math.pow(2, retryCount);
+            Logger.log("Waiting " + msecs / 1000 + " seconds to retry a connection to MySQL...");
+            return msecs;
+        }
+    }, tryToConnect, function (err, result)
+    {
         callback(err);
     });
 };
@@ -112,6 +139,7 @@ DendroMySQLClient.prototype.checkAndCreateInteractionsTable = function (tablenam
             if (result.length > 0)
             {
                 Logger.log_boot_message("Interactions table " + tablename + " exists in the MySQL database.");
+                callback(null);
             }
             else
             {

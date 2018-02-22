@@ -21,9 +21,9 @@ mkdir -p data/current/virtuoso
 mkdir -p data/current/elasticsearch
 mkdir -p data/current/mysql
 mkdir -p data/current/mongo
-mkdir -p data/current/redis-default
-mkdir -p data/current/redis-social
-mkdir -p data/current/redis-notifications
+#mkdir -p data/current/redis-default
+#mkdir -p data/current/redis-social
+#mkdir -p data/current/redis-notifications
 
 # Build images again
 # eval "$DOCKER_SCRIPTS_DIR/build_images.sh"

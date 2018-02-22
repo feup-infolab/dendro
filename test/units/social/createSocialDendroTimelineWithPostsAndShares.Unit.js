@@ -27,6 +27,11 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = CreateSocialDendroTimelineWithPostsAndShares;

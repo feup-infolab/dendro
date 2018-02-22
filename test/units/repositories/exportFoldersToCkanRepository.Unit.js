@@ -109,6 +109,10 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
     {
         super.init(callback);
     }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = ExportFoldersToCkanRepository;

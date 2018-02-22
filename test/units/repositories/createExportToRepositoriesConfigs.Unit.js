@@ -64,6 +64,11 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = CreateExportToRepositoriesConfigs;

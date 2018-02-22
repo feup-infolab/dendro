@@ -51,6 +51,11 @@ class CommentSomePosts extends LikeSomePostsUnit
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = CommentSomePosts;

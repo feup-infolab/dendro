@@ -75,6 +75,10 @@ class CreateProjectB2Drop extends CreateUsersUnit
     {
         super.init(callback);
     }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = CreateProjectB2Drop;

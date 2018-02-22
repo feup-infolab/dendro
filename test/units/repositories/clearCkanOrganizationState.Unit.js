@@ -81,6 +81,11 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = ClearCkanOrganizationState;

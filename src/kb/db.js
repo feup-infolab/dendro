@@ -709,7 +709,7 @@ DbConnection.prototype.create = function (callback)
         {
             if (err)
             {
-                Logger.log("error", JSON.stringify(err));
+                Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err));
                 callback(err, result);
             }
             else
@@ -851,7 +851,7 @@ DbConnection.prototype.create = function (callback)
                             else
                             {
                                 const msg = "Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(parsedBody, null, 4);
-                                Logger.log("error", JSON.stringify(parsedBody));
+                                Logger.log("error", msg);
                                 recordQueryConclusionInLog(queryObject);
                                 popQueueCallback(1, msg);
                                 queryObject.callback(1, "Invalid response from server");
@@ -896,6 +896,58 @@ DbConnection.prototype.create = function (callback)
         {
             callback(err, null);
         }
+    });
+};
+
+DbConnection.prototype.tryToConnect = function (callback)
+{
+    const self = this;
+    const tryToConnect = function (callback)
+    {
+        self.create(function (err, db)
+        {
+            if (isNull(err))
+            {
+                if (isNull(db))
+                {
+                    const msg = "[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
+                    Logger.log_boot_message(msg);
+                    return callback(msg);
+                }
+
+                Logger.log_boot_message("Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+                // set default connection. If you want to add other connections, add them in succession.
+                return callback(null);
+            }
+            callback(1);
+        });
+    };
+
+    // try calling apiMethod 10 times with linear backoff
+    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+    async.retry({
+        times: 10,
+        interval: function (retryCount)
+        {
+            const msecs = 50 * Math.pow(2, retryCount);
+            Logger.log("Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso...");
+            return msecs;
+        }
+    }, tryToConnect, function (err, result)
+    {
+        if (!isNull(err))
+        {
+            const msg = "[ERROR] Error connecting to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
+            Logger.log("error", msg);
+            Logger.log("error", err);
+            Logger.log("error", result);
+        }
+        else
+        {
+            const msg = "Connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + " was established!";
+            Logger.log("info", msg);
+        }
+        callback(err);
     });
 };
 

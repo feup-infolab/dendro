@@ -33,7 +33,7 @@
         "cache": {
             "active": true,
             "redis": {
-                "active": true,
+                "active": false,
                 "instances": {
                     "default": {
                         "host": "192.168.56.249",
@@ -389,16 +389,7 @@
         },
         "numCPUs": 4,
         "docker": {
-          "active": false,
-          "containers": [
-            "elasticsearch-dendro",
-            "mysql-dendro",
-            "mongo-dendro",
-            "redis-dendro-default",
-            "redis-dendro-social",
-            "redis-dendro-notifications",
-            "virtuoso-dendro"
-          ]
+          "active": false
         }
     },
     "test": {
@@ -435,7 +426,7 @@
         "cache": {
             "active": true,
             "redis": {
-                "active": true,
+                "active": false,
                 "instances": {
                     "default": {
                         "host": "192.168.56.249",
@@ -786,16 +777,7 @@
         },
         "numCPUs": 1,
         "docker": {
-          "active": false,
-          "containers": [
-            "elasticsearch-dendro",
-            "mysql-dendro",
-            "mongo-dendro",
-            "redis-dendro-default",
-            "redis-dendro-social",
-            "redis-dendro-notifications",
-            "virtuoso-dendro"
-          ]
+          "active": false
         }
     },
     "jenkins_buildserver_test": {
@@ -832,7 +814,7 @@
         "cache": {
             "active": true,
             "redis": {
-                "active": true,
+                "active": false,
                 "instances": {
                     "default": {
                         "host": "127.0.0.1",
@@ -1183,16 +1165,7 @@
         },
         "numCPUs": 1,
         "docker": {
-          "active": false,
-          "containers": [
-            "elasticsearch-dendro",
-            "mysql-dendro",
-            "mongo-dendro",
-            "redis-dendro-default",
-            "redis-dendro-social",
-            "redis-dendro-notifications",
-            "virtuoso-dendro"
-          ]
+          "active": false
         }
     },
     "travis_buildserver_test": {
@@ -1229,7 +1202,7 @@
         "cache": {
             "active": true,
             "redis": {
-                "active": true,
+                "active": false,
                 "instances": {
                     "default": {
                         "host": "127.0.0.1",
@@ -1581,16 +1554,7 @@
         "numCPUs": 1,
         "docker": {
           "active": true,
-          "reuse_checkpoints": true,
-          "containers": [
-            "mysql-dendro",
-            "mongo-dendro",
-            "redis-dendro-default",
-            "redis-dendro-social",
-            "redis-dendro-notifications",
-            "virtuoso-dendro",
-            "elasticsearch-dendro"
-          ]
+          "reuse_checkpoints": true
         }
     }
 }

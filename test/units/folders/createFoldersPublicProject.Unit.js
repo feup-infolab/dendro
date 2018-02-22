@@ -80,6 +80,10 @@ class CreateFoldersSingleProject extends AddContributorsToProjectsUnit
     {
         super.init(callback);
     }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 CreateFoldersSingleProject.foldersData = foldersData;

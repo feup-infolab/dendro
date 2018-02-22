@@ -214,35 +214,57 @@ IndexConnection.prototype.isInitialized = function ()
 IndexConnection.prototype.open = function (callback)
 {
     const self = this;
-    if (!self.isInitialized())
+    const tryToConnect = function (callback)
     {
-        let serverOptions = {
-            host: self.host + ":" + self.port
-        };
-
-        if (Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
+        if (!self.isInitialized())
         {
-            serverOptions.log = Config.debug.index.elasticsearch_connection_log_type;
-        }
+            let serverOptions = {
+                host: self.host + ":" + self.port
+            };
 
-        if (Config.useElasticSearchAuth)
-        {
-            serverOptions.secure = Config.useElasticSearchAuth;
-            serverOptions.auth = Config.elasticSearchAuthCredentials;
-        }
-
-        self.client = new es.Client(JSON.parse(JSON.stringify(serverOptions))).cluster.client;
-
-        self.client.indices.getMapping()
-            .then(function (mapping)
+            if (Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
             {
-                return callback(null, self);
-            });
-    }
-    else
+                serverOptions.log = Config.debug.index.elasticsearch_connection_log_type;
+            }
+
+            if (Config.useElasticSearchAuth)
+            {
+                serverOptions.secure = Config.useElasticSearchAuth;
+                serverOptions.auth = Config.elasticSearchAuthCredentials;
+            }
+
+            self.client = new es.Client(JSON.parse(JSON.stringify(serverOptions))).cluster.client;
+
+            self.client.indices.getMapping()
+                .then(function (mapping)
+                {
+                    return callback(null, self);
+                });
+        }
+        else
+        {
+            return callback(null, self);
+        }
+    };
+
+    // try calling apiMethod 10 times with linear backoff
+    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+    async.retry({
+        times: 10,
+        interval: function (retryCount)
+        {
+            const msecs = 50 * Math.pow(2, retryCount);
+            Logger.log("Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch...");
+            return msecs;
+        }
+    }, tryToConnect, function (err, result)
     {
-        return callback(null, self);
-    }
+        if (!isNull(err))
+        {
+            Logger.log("error", "Unable to establish a connection to ElasticSearch after several retries. This is a fatal error.");
+        }
+        callback(err, result);
+    });
 };
 
 IndexConnection.prototype.deleteDocumentsWithUri = function (uri, callback)

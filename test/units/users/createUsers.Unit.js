@@ -174,6 +174,10 @@ class CreateUsers extends BootupUnit
     {
         super.init(callback);
     }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = CreateUsers;

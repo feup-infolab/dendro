@@ -68,6 +68,10 @@ class DeleteFolders extends CreateFoldersUnit
     {
         super.init(callback);
     }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = DeleteFolders;

@@ -7,11 +7,13 @@ chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const should = chai.should();
 
 const TestUnit = require(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
-const app = require(Pathfinder.absPathInSrcFolder("app.js"));
+const App = require(Pathfinder.absPathInSrcFolder("bootup/app.js")).App;
+const dendroInstance = new App();
 
 class BootupUnit extends TestUnit
 {
@@ -19,24 +21,39 @@ class BootupUnit extends TestUnit
     {
         super.init(function (err, result)
         {
-            app.serverListening.then(function (appInfo)
+            dendroInstance.startApp(function (err, appInfo)
             {
-                chai.request(appInfo.app)
-                    .get("/")
-                    .end((err, res) =>
-                    {
-                        global.tests.app = appInfo.app;
-                        global.tests.server = appInfo.server;
-                        should.not.exist(err);
-                        callback(err, res);
-                    });
-            })
-                .catch(function (error)
+                if (isNull(err))
+                {
+                    chai.request(appInfo.app)
+                        .get("/")
+                        .end((err, res) =>
+                        {
+                            global.tests.app = appInfo.app;
+                            global.tests.server = appInfo.server;
+                            should.not.exist(err);
+                            callback(err, res);
+                        });
+                }
+                else
                 {
                     Logger.log("error", "Error seeding databases!");
-                    Logger.log("error", JSON.stringify(error));
-                    callback(error);
-                });
+                    Logger.log("error", JSON.stringify(err));
+                    callback(err);
+                }
+            });
+        });
+    }
+
+    static shutdown (callback)
+    {
+        super.shutdown(function (err, result)
+        {
+            //TODO
+            dendroInstance.freeResources(function (err, result)
+            {
+                callback(err);
+            });
         });
     }
 
@@ -52,10 +69,11 @@ class BootupUnit extends TestUnit
             }
             else
             {
-                app.connectionsEstablished
-                    .then(function (appInfo)
+                dendroInstance.initConnections(function (err, appInfo)
+                {
+                    if (isNull(err))
                     {
-                        app.seedDatabases(function (err, results)
+                        dendroInstance.seedDatabases(function (err, results)
                         {
                             if (!err)
                             {
@@ -66,15 +84,25 @@ class BootupUnit extends TestUnit
                                 callback(err, results);
                             }
 
-                            self.endLoad(path.basename(__filename));
+                            self.shutdown(function(err, result){
+                                if(!err)
+                                {
+                                    self.endLoad(path.basename(__filename));
+                                }
+                                else
+                                {
+                                    throw new Error(err);
+                                }
+                            });
                         });
-                    })
-                    .catch(function (error)
+                    }
+                    else
                     {
                         Logger.log("error", "Error seeding databases!");
-                        Logger.log("error", JSON.stringify(error));
-                        callback(error);
-                    });
+                        Logger.log("error", JSON.stringify(err));
+                        callback(err);
+                    }
+                });
             }
         });
     }

@@ -90,6 +90,11 @@ class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = UploadFilesAndAddMetadata;

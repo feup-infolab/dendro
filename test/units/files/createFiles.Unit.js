@@ -78,6 +78,11 @@ class CreateFilesTestUnit extends CreateFoldersUnit
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 CreateFilesTestUnit.allFiles = filesData;

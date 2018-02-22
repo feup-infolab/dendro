@@ -33,6 +33,7 @@ DockerCheckpointManager._checkpoints = {};
 
 if (Config.docker.reuse_checkpoints)
 {
+    console.log("Checking out all Docker containers to see which can be reused...");
     const checkpointFolders = fs.readdirSync(dataFolder).filter(function (file)
     {
         return fs.statSync(path.join(dataFolder, file)).isDirectory();
@@ -48,6 +49,7 @@ DockerCheckpointManager.stopAllContainers = function ()
 {
     if (Config.docker && Config.docker.active)
     {
+        console.log("Stopping all Docker containers.");
         const output = childProcess.execSync(`/bin/bash -c "${stopContainersScript}"`, {
             cwd: Pathfinder.appDir
         });
@@ -61,6 +63,7 @@ DockerCheckpointManager.startAllContainers = function ()
 {
     if (Config.docker && Config.docker.active)
     {
+        console.log("Starting all Docker containers.");
         const output = childProcess.execSync(`/bin/bash -c "${startContainersScript}"`, {
             cwd: Pathfinder.appDir
         });
@@ -82,6 +85,7 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
 {
     if (Config.docker && Config.docker.active)
     {
+        console.log("Creating Docker checkpoint " + checkpointName);
         if (isNull(DockerCheckpointManager._checkpoints[checkpointName]))
         {
             const output = childProcess.execSync(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
@@ -101,6 +105,7 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
 {
     if (Config.docker && Config.docker.active)
     {
+        console.log("Restoring Docker checkpoint " + checkpointName);
         if (DockerCheckpointManager._checkpoints[checkpointName])
         {
             const output = childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript}" ${checkpointName}`, {
@@ -108,7 +113,7 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
             });
 
             console.log(bufferToString(output));
-            console.log("Restored checkpoint with name " + checkpointName + " of Docker container " + checkpointName);
+            console.log("Restored Docker checkpoint with name " + checkpointName + " of Docker containers.");
             return true;
         }
 
@@ -116,25 +121,11 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
     }
 };
 
-DockerCheckpointManager.createOrRestoreCheckpoint = function (checkpointName)
-{
-    if (Config.docker && Config.docker.active)
-    {
-        if (!DockerCheckpointManager.checkpointExists(checkpointName))
-        {
-            DockerCheckpointManager.createCheckpoint(checkpointName);
-            return false;
-        }
-
-        DockerCheckpointManager.restoreCheckpoint(checkpointName);
-        return true;
-    }
-};
-
 DockerCheckpointManager.deleteAll = function (onlyOnce, evenCurrentState)
 {
     if (Config.docker && Config.docker.active)
     {
+        console.log("Deleting all Docker containers.");
         const performOperation = function ()
         {
             const del = require("del");
@@ -167,6 +158,7 @@ DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
 {
     if (Config.docker && Config.docker.active)
     {
+        console.log("Rebuilding all Docker containers.");
         const performOperation = function ()
         {
             const output = childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
@@ -196,6 +188,7 @@ DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
 
 DockerCheckpointManager.restartAllContainers = function (onlyOnce)
 {
+    console.log("Restarting all Docker containers.");
     if (Config.docker && Config.docker.active)
     {
         const performOperation = function ()

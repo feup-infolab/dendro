@@ -13,7 +13,7 @@ let ShareSomePostsUnit = require(Pathfinder.absPathInTestsFolder("units/social/s
 
 class LikeSomePosts extends ShareSomePostsUnit
 {
-    static init (callback)
+    static load (callback)
     {
         const self = this;
         self.startLoad(path.basename(__filename));
@@ -47,6 +47,10 @@ class LikeSomePosts extends ShareSomePostsUnit
     static init (callback)
     {
         super.init(callback);
+    }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
     }
 }
 

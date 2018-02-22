@@ -75,6 +75,10 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
     {
         super.init(callback);
     }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = CreateManuaLPostForAllProjectTypes;

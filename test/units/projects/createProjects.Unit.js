@@ -71,6 +71,10 @@ class CreateProjects extends CreateUsersUnit
     {
         super.init(callback);
     }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 CreateProjects.projectsData = projectsData;

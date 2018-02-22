@@ -61,6 +61,11 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = AddMetadataToFoldersPublicProject;

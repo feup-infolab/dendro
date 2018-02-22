@@ -101,6 +101,11 @@ class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends AddMetadataToFol
     {
         super.init(callback);
     }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = CreateAllFoldersAndAllFilesInsideThemWithMetadata;

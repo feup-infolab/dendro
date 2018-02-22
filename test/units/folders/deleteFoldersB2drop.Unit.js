@@ -73,6 +73,10 @@ class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
     {
         super.init(callback);
     }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
 module.exports = DeleteFoldersB2Drop;
