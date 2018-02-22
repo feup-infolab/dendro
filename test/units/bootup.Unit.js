@@ -50,7 +50,7 @@ class BootupUnit extends TestUnit
         super.shutdown(function (err, result)
         {
             //TODO
-            dendroInstance.freeResources(function (err, result)
+            dendroInstance.app.freeResources(function (err, result)
             {
                 callback(err);
             });

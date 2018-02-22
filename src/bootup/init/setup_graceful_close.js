@@ -133,24 +133,26 @@ const setupGracefulClose = function (app, server, callback)
 
         const closeMySQLConnectionPool = function (cb)
         {
-            Config.getMySQLByID().pool.end(function (err)
-            {
-                if (isNull(err))
-                {
-                    err = null;
-                }
+            // Config.getMySQLByID().pool.end(function (err)
+            // {
+            //     if (isNull(err))
+            //     {
+            //         err = null;
+            //     }
+            //
+            //     if (!err)
+            //     {
+            //         Logger.log("Closed MySQL connection pool");
+            //     }
+            //     else
+            //     {
+            //         Logger.log("error", "Error closing MySQL connection pool");
+            //     }
+            //
+            //     cb(err, null);
+            // });
 
-                if (!err)
-                {
-                    Logger.log("Closed MySQL connection pool");
-                }
-                else
-                {
-                    Logger.log("error", "Error closing MySQL connection pool");
-                }
-
-                cb(err, null);
-            });
+            cb(null, null);
         };
 
         const haltHTTPServer = function (cb)
@@ -208,8 +210,8 @@ const setupGracefulClose = function (app, server, callback)
             closeMySQLConnectionPool,
             haltHTTPServer,
             callGarbageCollector,
-            removePIDFile
-            // haltDockerContainers
+            removePIDFile,
+            haltDockerContainers
         ], function (err, results)
         {
             if (!err)
