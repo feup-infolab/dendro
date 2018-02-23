@@ -2056,6 +2056,7 @@ exports.import = function (req, res)
                     });
                 };
 
+                /*
                 const processImport = function (createdProject, callback)
                 {
                     const getMetadata = function (absPathOfBagItBackupRootFolder, callback)
@@ -2271,15 +2272,55 @@ exports.import = function (req, res)
                             message: "Backup file is not a .zip file"
                         });
                     }
+                };*/
+
+                const launchImportJob = function (createdProject, callback) {
+                    //const agenda = require(Pathfinder.absPathInSrcFolder("/jobs/worker.js"));
+                    //const agenda = require(Pathfinder.absPathInSrcFolder("/jobs/lib/agenda.js"));
+                    let userAndSessionInfo = {
+                      user: req.user,
+                      session: req.session
+                    };
+                    let jobData = {
+                        uploadedBackupAbsPath: uploadedBackupAbsPath,
+                        userAndSessionInfo: userAndSessionInfo,
+                        newProject: createdProject
+                    };
+                    Config.agenda.now("import project", jobData);
+                    callback(null, null);
                 };
 
                 async.waterfall([
                     projectHandleCannotExist,
                     checkIfRequestIsAsync,
-                    processImport
+                    launchImportJob
+                    //processImport
                 ], function (err, results)
                 {
                     if(isNull(isAsync) || isAsync === false)
+                    {
+                        if (isNull(err))
+                        {
+                            res.json(results);
+                        }
+                        else
+                        {
+                            res.status(err).json(results);
+                        }
+                    }
+                    else
+                    {
+                        if (isNull(err))
+                        {
+                            Logger.log("info", "Import job for Project with handle: " + req.query.imported_project_handle + " was successfully started");
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error starting import job for a project with handle: " + req.query.imported_project_handle + ", error: " + JSON.stringify(results));
+                        }
+                    }
+
+                    /*if(isNull(isAsync) || isAsync === false)
                     {
                         if (isNull(err))
                         {
@@ -2313,7 +2354,7 @@ exports.import = function (req, res)
                                 });
                             }
                         }
-                    }
+                    }*/
                 });
             }
             else
