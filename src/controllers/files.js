@@ -95,7 +95,7 @@ exports.download = function (req, res)
 
                             res.on("finish", function ()
                             {
-                                if(!isNull(parentPath))
+                                if (!isNull(parentPath))
                                 {
                                     File.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                     {
@@ -174,7 +174,7 @@ exports.download = function (req, res)
 
                             res.on("finish", function ()
                             {
-                                if(!isNull(parentPath))
+                                if (!isNull(parentPath))
                                 {
                                     Folder.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                     {
@@ -190,7 +190,7 @@ exports.download = function (req, res)
                                 }
                                 else
                                 {
-                                    Logger.log("error", "Could not calculate parent path of: " +writtenFilePath);
+                                    Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
                                 }
                             });
 
@@ -360,7 +360,7 @@ exports.serve = function (req, res)
 
                                 res.on("finish", function ()
                                 {
-                                    if(!isNull(parentPath))
+                                    if (!isNull(parentPath))
                                     {
                                         Folder.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                         {
@@ -2186,7 +2186,7 @@ exports.ls_by_name = function (req, res)
     let show_deleted = req.query.show_deleted;
     let childName = req.query.title;
 
-    if(isNull(childName))
+    if (isNull(childName))
     {
         return res.status(400).json({
             result: "error",
@@ -2194,7 +2194,7 @@ exports.ls_by_name = function (req, res)
         });
     }
 
-    if(isNull(resourceURI))
+    if (isNull(resourceURI))
     {
         return res.status(400).json({
             result: "error",

@@ -28,12 +28,13 @@ angular.module("dendroApp.controllers")
                 });
         };
 
-        $scope.nukeOrphanResources = function () {
+        $scope.nukeOrphanResources = function ()
+        {
             $scope.orphanResources = null;
             $scope.nukedResources = null;
             bootbox.confirm("DO YOU REALLY WANT TO NUKE THE ORPHAN RESOURCES?", function (confirmed)
             {
-                if(confirmed)
+                if (confirmed)
                 {
                     dendroConfigurationService.nukeOrphanResources()
                         .then(function (data)
@@ -51,7 +52,8 @@ angular.module("dendroApp.controllers")
             });
         };
 
-        $scope.listOrphanResources = function () {
+        $scope.listOrphanResources = function ()
+        {
             $scope.orphanResources = null;
             $scope.nukedResources = null;
             dendroConfigurationService.listOrphanResources()

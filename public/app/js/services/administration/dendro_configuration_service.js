@@ -40,7 +40,8 @@ angular.module("dendroApp.services")
                 });
         };
 
-        this.listOrphanResources = function () {
+        this.listOrphanResources = function ()
+        {
             return $http({
                 method: "GET",
                 url: "/admin/list_orphan_resources",

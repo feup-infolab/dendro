@@ -35,16 +35,24 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
             {
                 should.equal(err, null);
                 should.not.equal(agent, null);
-                projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, info) {
+                projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, info)
+                {
                     rootsFoldersForProject = info.body;
                     should.exist(rootsFoldersForProject);
-                    testFolder1Data = _.find(rootsFoldersForProject, function(folder){ return folder.nie.title === testFolder1.name; });
+                    testFolder1Data = _.find(rootsFoldersForProject, function (folder)
+                    {
+                        return folder.nie.title === testFolder1.name;
+                    });
                     should.exist(testFolder1Data);
-                    itemUtils.createFolder(true, agent, metadataProject.handle, testFolder1.name, "folderA", function (err, res) {res.statusCode.should.equal(200);
+                    itemUtils.createFolder(true, agent, metadataProject.handle, testFolder1.name, "folderA", function (err, res)
+                    {
+                        res.statusCode.should.equal(200);
                         res.body.result.should.equal("ok");
                         res.body.new_folder.nie.title.should.equal("folderA");
                         res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                        itemUtils.createFolder(true, agent, metadataProject.handle, testFolder1.name, "folderC", function (err, res) {res.statusCode.should.equal(200);
+                        itemUtils.createFolder(true, agent, metadataProject.handle, testFolder1.name, "folderC", function (err, res)
+                        {
+                            res.statusCode.should.equal(200);
                             res.body.result.should.equal("ok");
                             res.body.new_folder.nie.title.should.equal("folderC");
                             res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
@@ -58,7 +66,6 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
 
     describe("[GET] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/:foldername?ls&title='folderA'", function ()
     {
-
         it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -77,7 +84,8 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
             const app = global.tests.app;
             const agent = chai.request.agent(app);
 
-            folderUtils.getFolderContentsByUri(true, agent, testFolder1Data.uri, function (err, res) {
+            folderUtils.getFolderContentsByUri(true, agent, testFolder1Data.uri, function (err, res)
+            {
                 res.statusCode.should.equal(401);
                 res.body.result.should.equal("error");
                 res.body.message.should.equal("Permission denied : cannot list the contents of this resource because you do not have permissions to access its project.");

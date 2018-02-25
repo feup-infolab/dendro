@@ -31,15 +31,16 @@ let odsMockFileUri;
 let app;
 let agent;
 
-
-checkFileExistsInGridFs = function (fileUri, callback) {
+checkFileExistsInGridFs = function (fileUri, callback)
+{
     const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
     let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
     mongoClient.connect(function (err, mongoDb)
     {
         if (isNull(err) && !isNull(mongoDb))
         {
-            mongoClient.findFileByFilenameOrderedByDate(mongoDb, fileUri,function (err, files) {
+            mongoClient.findFileByFilenameOrderedByDate(mongoDb, fileUri, function (err, files)
+            {
                 callback(err, files);
             });
         }
@@ -81,7 +82,6 @@ describe("Administration list orphan resources tests ( /admin/list_orphan_resour
                         });
                     });
                 });
-
             });
         });
     });
@@ -146,7 +146,8 @@ describe("Administration list orphan resources tests ( /admin/list_orphan_resour
                     {
                         should.equal(err, null);
                         should.not.equal(resource, null);
-                        resource.deleteAllMyTriples(function (err, result) {
+                        resource.deleteAllMyTriples(function (err, result)
+                        {
                             should.equal(err, null);
                             cb(err, result);
                         });
@@ -167,27 +168,30 @@ describe("Administration list orphan resources tests ( /admin/list_orphan_resour
                             res.body.orphanResources.should.not.contain(odsMockFileUri);
                             fileUtils.downloadFileByUri(true, agent, txtMockFileUri, function (error, res)
                             {
-                                //The txt file is still orphan
+                                // The txt file is still orphan
                                 res.statusCode.should.equal(404);
                                 fileUtils.downloadFileByUri(true, agent, zipMockFileUri, function (error, res)
                                 {
-                                    //The zip file is still orphan
+                                    // The zip file is still orphan
                                     res.statusCode.should.equal(404);
                                     fileUtils.downloadFileByUri(true, agent, odsMockFileUri, function (error, res)
                                     {
-                                        //The ods file is not an orphan
+                                        // The ods file is not an orphan
                                         res.statusCode.should.equal(200);
-                                        checkFileExistsInGridFs(txtMockFileUri, function (err, files) {
+                                        checkFileExistsInGridFs(txtMockFileUri, function (err, files)
+                                        {
                                             should.equal(err, null);
-                                            //The txt file is orphan but was not deleted in gridfs-> because this is only the list endpoint
+                                            // The txt file is orphan but was not deleted in gridfs-> because this is only the list endpoint
                                             files.length.should.equal(1);
-                                            checkFileExistsInGridFs(zipMockFileUri, function (err, files) {
+                                            checkFileExistsInGridFs(zipMockFileUri, function (err, files)
+                                            {
                                                 should.equal(err, null);
-                                                //The zip file is orphan but was not deleted gridfs -> because this is only the list endpoint
+                                                // The zip file is orphan but was not deleted gridfs -> because this is only the list endpoint
                                                 files.length.should.equal(1);
-                                                checkFileExistsInGridFs(odsMockFileUri, function (err, files) {
+                                                checkFileExistsInGridFs(odsMockFileUri, function (err, files)
+                                                {
                                                     should.equal(err, null);
-                                                    //The ods file is not an orphan
+                                                    // The ods file is not an orphan
                                                     files.length.should.equal(1);
                                                     done();
                                                 });

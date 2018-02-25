@@ -3,7 +3,6 @@ const chaiHttp = require("chai-http");
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-
 const binaryParser = function (res, cb)
 {
     res.setEncoding("binary");
@@ -588,7 +587,6 @@ module.exports.viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb
             });
     }
 };
-
 
 module.exports.backupFolderByUri = function (jsonOnly, agent, folderUri, cb)
 {

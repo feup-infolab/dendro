@@ -382,9 +382,9 @@ const startApp = function ()
             }
         ], function (err, result)
         {
-            if(!isNull(err))
+            if (!isNull(err))
             {
-                if(err === true)
+                if (err === true)
                 {
                     throw new Error(JSON.stringify(result));
                 }
