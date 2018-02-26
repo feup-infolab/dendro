@@ -80,6 +80,7 @@ module.exports = function (agenda) {
                     userAndSessionInfo,
                     function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
                     {
+                        /*
                         const parentPath = path.resolve(uploadedBackupAbsPath, "..");
                         if(!isNull(parentPath))
                         {
@@ -94,7 +95,7 @@ module.exports = function (agenda) {
                         else
                         {
                             Logger.log("error", "Could not calculate parent path of: " + uploadedBackupAbsPath);
-                        }
+                        }*/
 
                         if (isNull(err))
                         {
