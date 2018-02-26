@@ -6,6 +6,8 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 var async = require("async");
 var natural = require("natural");
+var tokenizer = new natural.WordTokenizer();
+
 var tm = require("text-miner");
 
 const corenlp = require("corenlp");
@@ -42,10 +44,10 @@ exports.preprocessing = function (req, res)
     var nounphrase = function (type, text, res)
     {
     /*
-  1. Noun+ Noun,
-  2. (Adj | Noun)+ Noun,
-  3. ((Adj | Noun)+ | ((Adj | Noun)* (NounPrep)?)(Adj| Noun)* ) Noun
-  */
+      1. Noun+ Noun,
+      2. (Adj | Noun)+ Noun,
+      3. ((Adj | Noun)+ | ((Adj | Noun)* (NounPrep)?)(Adj| Noun)* ) Noun
+    */
         var multiterm = [];
         var tokenize;
         var current_word = "";
@@ -135,7 +137,7 @@ exports.preprocessing = function (req, res)
                 }
             }
         }
-        /*else
+        /* else
         {
             for (let j = 0; j < text.length; j++)
             {
@@ -299,8 +301,30 @@ exports.termextraction = function (req, res)
         }
         return n;
     };
-    function count (list, x)
+    function countnestedterms (x, list)
     {
+        var nested = 0;
+        var nestedlist = [];
+        for (var i = 0; i < list.length; i++)
+        {
+            if (tokenizer.tokenize(list[i]).length > tokenizer.tokenize(x).length)
+            {
+                if (list[i].indexOf(x) > -1)
+                {
+                    nested++;
+                    if (nestedlist.indexOf(list[i]) > -1)
+                    {
+
+                    }
+                    else
+                    {
+                        nestedlist.push(list[i]);
+                    }
+                }
+            }
+        }
+        return {nested: nested, nestedlist: nestedlist};
+
         var c = 0;
         for (var y = 0; y < list.length; y++)
         {
@@ -311,28 +335,64 @@ exports.termextraction = function (req, res)
         }
         return c;
     }
-    var cvalue = function (input, corpus, output)
+    function getcombination (word)
     {
-        for (var j = 0; j < input.length; j++)
+        var combinationwords = [];
+        var multiword;
+        for (var i = 0; i < tokenizer.tokenize(word).length; i++)
         {
-            // console.log(corpus.toString());
-            // console.log(input[j].toString());
-            // console.log(occurences(corpus.toString(), input[j].toString()));
-            // console.log(input[j] + " : " + count(input, input[j]));
+            if ((i + 1) < tokenizer.tokenize(word).length)
+            {
+                combinationwords.push(tokenizer.tokenize(word)[i] + " " + tokenizer.tokenize(word)[i + 1]);
+            }
+        }
+        return combinationwords;
+    }
+    var cvalue = function (input, corpus, ngrams)
+    {
+        var frequency = [];
+        var threshold = [];
+        var substrings = [];
+        var frequencysubstrings = [];
+        var usedwords = [];
+        var maxthreshold = 1.9799738526561383;
+        var i;
+        for (i = 0; i < input.length && tokenizer.tokenize(input[i]).length === ngrams; i++)
+        {
+            frequency[i] = 0;
+            for (var j = 0; j < corpus.length; j++)
+            {
+                frequency[i] += occurences(corpus[j].toLowerCase(), input[i]);
+            }
+            if (frequency[i] > 1 && Math.log2(frequency[i]) >= maxthreshold)
+            {
+                threshold.push({term: input[i], threshold: Math.log2(frequency[i])});
+                substrings = getcombination(input[i]);
+                console.log(substrings);
+                for (var h = 0; h < substrings.length; h++)
+                {
+                    var freq = 0;
+                    for (var k = 0; k < corpus.length; k++)
+                    {
+                        frequency += occurences(corpus[k].toLowerCase(), substrings[h]);
+                        frequencysubstrings = countnestedterms(substrings[h], input);
+                    }
+                    usedwords.push(substrings[h]);
+                }
+            }
         }
         /*
 
-        double log_2_lenD = (Math.log((double)len)/Math.log((double)2));
-        double freqD = (double) freq;
-        double invUniqNestersD = 1D / (double) uniqNesters;
-        double freqNestedD = (double) freqNested;
+          double invUniqNestersD = 1D / (double) uniqNesters;
+          double freqNestedD = (double) freqNested;
 
-        if (uniqNesters == 0) {
-            return log_2_lenD * freqD;
-        } else {
-            return log_2_lenD * (freqD - invUniqNestersD * freqNestedD);
+          if (uniqNesters == 0) {
+              return log_2_lenD * freqD;
+          } else {
+              return log_2_lenD * (freqD - invUniqNestersD * freqNestedD);
 
-         */
+       */
+        return 0;
     };
 
     const uploader = new Uploader();
@@ -447,12 +507,25 @@ exports.termextraction = function (req, res)
                         }
                     }
                     var sum = documentlength.reduce((x, y) => x + y);
-                    console.log(nounphrasefinal.length);
                     const posnoumssimple = [...new Set(posnoums.map(obj => JSON.stringify(obj)))]
                         .map(str => JSON.parse(str));
-                    const nounphrasesimple = [...new Set(nounphrasefinal.map(obj => JSON.stringify(obj)))]
+                    var nounphrasesimple = [...new Set(nounphrasefinal.map(obj => JSON.stringify(obj)))]
                         .map(str => JSON.parse(str));
-                    console.log(nounphrasesimple.length);
+                    nounphrasesimple.sort(function (a, b)
+                    {
+                        return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
+                    });
+                    var trigrams = [];
+                    for (i = 0; i < nounphrasesimple.length; i++)
+                    {
+                        if (tokenizer.tokenize(nounphrasesimple[i]).length <= 3 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
+                        {
+                            trigrams.push(nounphrasesimple[i]);
+                        }
+                    }
+                    console.log("trigrams: " + trigrams.length);
+                    nounphrasesimple = trigrams;
+                    var cvaluetrigrams = cvalue(trigrams, documents, 3);
 
                     for (var a = 0; a < documents.length; a++)
                     {
@@ -554,11 +627,6 @@ exports.termextraction = function (req, res)
                             // console.log("word: " + tfidfterms.scores[i].term + " not a name");
                         }
                     }
-                    // console.log(dbpediaterms);
-                    // console.log("length");
-                    // console.log(showedalreadyscore.length);
-                    // console.log(showedalready.length);
-                    // console.log(pos.length);
                     for (var sa = 0; sa < showedalready.length; sa++)
                     {
                         // console.log(showedalready[sa] + " " + showedalreadyscore[sa] + " doc: " + (doc[sa] + 1) + " pos " + (pos[sa] + 1));
@@ -598,7 +666,6 @@ exports.termextraction = function (req, res)
                         }
                         tfidfnp.scores[i].score.sort((a, b) => b - a);
                     }
-                    console.log(tfidfnp.scores);
 
                     tfidfnp.scores.sort(function (a, b)
                     {
@@ -679,6 +746,7 @@ exports.termextraction = function (req, res)
 
 exports.dbpedialookup = function (req, res)
 {
+    req.setTimeout(150000);
     var search = function (lookup, cb)
     {
         console.log("searching : " + lookup.words);
@@ -698,9 +766,6 @@ exports.dbpedialookup = function (req, res)
             }
         });
     };
-    // var dbsearch = JSON.parse(JSON.parse(JSON.stringify(rec.body.keywords))).words;
-    // var scores = JSON.parse(JSON.parse(JSON.stringify(rec.body.keywords))).measures;
-    // console.log(JSON.parse(rec.body.keywords).dbpediaterms.keywords[0].words);
     var dbpediaresults = JSON.parse(req.body.keywords).dbpediaterms.keywords;
     // var lookup = rec.body;
     /*
