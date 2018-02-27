@@ -1032,8 +1032,8 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
      */
 
     const dataFileParsers = {
-        xls: xlsFileParser,
-        xlsx: xlsxFileParser,
+        //xls: xlsFileParser,
+        //xlsx: xlsxFileParser,
         ods: xlsxFileParser,
         csv: csvFileParser
     };
@@ -1234,19 +1234,19 @@ File.prototype.getSheets = function (callback)
     else
     {
         const result = "File : " + self.uri + " does not have any data associated to it";
-        res.writeHead(400, result);
-        res.end();
+        Logger.log("debug", result);
+        callback(null, []);
     }
 };
 
-File.prototype.pipeData = function (writeStream, skipRows, pageSize, sheetIndex, outputFormat)
+File.prototype.pipeData = function (res, skipRows, pageSize, sheetIndex, outputFormat)
 {
     const self = this;
     if (self.ddr.hasDataContent)
     {
         DataStoreConnection.create(self.uri, function (err, conn)
         {
-            conn.getDataByQuery({}, writeStream, skipRows, pageSize, sheetIndex, outputFormat);
+            conn.getDataByQuery({}, res, skipRows, pageSize, sheetIndex, outputFormat);
         });
     }
     else
