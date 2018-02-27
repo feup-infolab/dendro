@@ -5,8 +5,8 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const startServer = function (app, server, callback)
 {
-    // 5 min timeout
-    const minutesTimeout = 5;
+    // 20 min timeout
+    const minutesTimeout = 20;
     const timeoutMillisecs = minutesTimeout * 60 * 1000;
 
     app.use(timeout(minutesTimeout + "s"));

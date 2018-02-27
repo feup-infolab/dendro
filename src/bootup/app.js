@@ -409,6 +409,10 @@ App.prototype.startApp = function (callback)
                 cb(null);
             }
         },
+        function (callback)
+        {
+            require(Pathfinder.absPathInSrcFolder("bootup/cron_jobs/delete_old_temp_folders.js")).deleteOldTempFolders(self.app, callback);
+        },
         function (cb)
         {
             startWebServer(cb);

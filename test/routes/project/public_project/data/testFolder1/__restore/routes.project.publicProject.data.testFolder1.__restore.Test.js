@@ -1,3 +1,5 @@
+const async = require("async");
+const path = require("path");
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const should = chai.should();
@@ -10,6 +12,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 
@@ -18,11 +21,21 @@ const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const metadataProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 const zipFileForRestoreFolder = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipForFolderRestore.js"));
 const restoreFolderWithAZipInside = require(Pathfinder.absPathInTestsFolder("mockdata/files/restoreFolderWithAZipInside.js"));
 const restoreFolderWithOnlyOneFileInside = require(Pathfinder.absPathInTestsFolder("mockdata/files/restoreFolderWithOnlyOneFile.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
+const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
+// const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
+const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
 const addMetadataToFoldersInPublicProjectUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
 
 describe("Public project testFolder1 level restore folder tests", function ()
@@ -31,6 +44,9 @@ describe("Public project testFolder1 level restore folder tests", function ()
     let testFolder1Data;
     let restoredFolderData;
     let restoredFolderName = "folderDebug";
+    let metadataProjectTestFolder1Data;
+    let metadataProjectRestoredFolderData;
+    let folderDebug3Uri;
     before(function (done)
     {
         addMetadataToFoldersInPublicProjectUnit.setup(function (err, results)
@@ -163,7 +179,7 @@ describe("Public project testFolder1 level restore folder tests", function ()
                 itemUtils.createFolder(true, agent, publicProject.handle, "", "folderDebug3", function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    let folderDebug3Uri = res.body.new_folder.uri;
+                    folderDebug3Uri = res.body.new_folder.uri;
                     itemUtils.itemRestoreFolder(true, agent, folderDebug3Uri, restoreFolderWithAZipInside, function (err, res)
                     {
                         res.statusCode.should.equal(200);
@@ -229,6 +245,96 @@ describe("Public project testFolder1 level restore folder tests", function ()
                             should.exist(fourthRestoredFolderData.nie.hasLogicalPart);
                             expect(fourthRestoredFolderData.nie.hasLogicalPart).to.not.be.an.instanceof(Array);
                             done();
+                        });
+                    });
+                });
+            });
+        });
+
+        it("Should restore restoreFolderWithAZipInside in the metadata_project and the folder should exist in both public and metadata projects independently", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                let folderDebug3ZipData = {};
+                const md5File = require("md5-file");
+                itemUtils.backupFolderByUri(true, agent, folderDebug3Uri, function (err, res)
+                {
+                    should.equal(err, null);
+                    res.statusCode.should.equal(200);
+                    createTempFileFromData(res.body, "folderInProjectMetadata.zip", function (err, filePath)
+                    {
+                        should.equal(err, null);
+                        should.exist(filePath);
+                        folderDebug3ZipData.location = filePath;
+                        folderDebug3ZipData.md5 = md5File.sync(filePath);
+                        itemUtils.createFolder(true, agent, metadataProject.handle, "", "folderInProjectMetadata", function (err, res)
+                        {
+                            res.statusCode.should.equal(200);
+                            let folderInProjectMetadataUri = res.body.new_folder.uri;
+                            // itemUtils.itemRestoreFolder(true, agent, folderInProjectMetadataUri, restoreFolderWithAZipInside, function (err, res)
+                            itemUtils.itemRestoreFolder(true, agent, folderInProjectMetadataUri, folderDebug3ZipData, function (err, res)
+                            {
+                                res.statusCode.should.equal(200);
+                                projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, res)
+                                {
+                                    should.equal(err, null);
+                                    let folderInProjectMetadataData = _.find(res.body, function (folder)
+                                    {
+                                        return folder.nie.title === "folderInProjectMetadata";
+                                    });
+                                    should.not.exist(folderInProjectMetadataData);
+                                    let metadataProjectRestoredFolderData = _.find(res.body, function (folder)
+                                    {
+                                        return folder.uri === folderInProjectMetadataUri;
+                                    });
+                                    should.exist(metadataProjectRestoredFolderData);
+                                    expect(metadataProjectRestoredFolderData.nie.hasLogicalPart).to.be.an.instanceof(Array);
+                                    metadataProjectRestoredFolderData.nie.hasLogicalPart.length.should.equal(3);
+
+                                    fileUtils.downloadFileByUri(true, agent, folderInProjectMetadataUri, function (error, res)
+                                    {
+                                        should.equal(error, null);
+                                        res.statusCode.should.equal(200);
+                                        fileUtils.downloadFileByUri(true, agent, folderDebug3Uri, function (error, res)
+                                        {
+                                            should.equal(error, null);
+                                            res.statusCode.should.equal(200);
+                                            itemUtils.deleteItemByUri(true, agent, folderDebug3Uri, function (err, res)
+                                            {
+                                                should.equal(error, null);
+                                                res.statusCode.should.equal(200);
+                                                // have to delete twice so that the file is really deleted even if the really_delete parameter is set to true
+                                                itemUtils.deleteItemByUri(true, agent, folderDebug3Uri, function (err, res)
+                                                {
+                                                    should.equal(error, null);
+                                                    res.statusCode.should.equal(200);
+                                                    fileUtils.downloadFileByUri(true, agent, folderDebug3Uri, function (error, res)
+                                                    {
+                                                        res.statusCode.should.equal(404);
+                                                        fileUtils.downloadFileByUri(true, agent, folderInProjectMetadataUri, function (error, res)
+                                                        {
+                                                            should.equal(error, null);
+                                                            res.statusCode.should.equal(200);
+                                                            done();
+                                                        });
+                                                    });
+                                                }, true);
+                                            }, true);
+                                        });
+                                    });
+
+                                    /*
+                                    itemUtils.getItemMetadataDeepByUri(true, agent, folderInProjectMetadataUri, function (err, res) {
+                                        should.equal(err, null);
+                                        res.statusCode.should.equal(200);
+                                        itemUtils.getItemMetadataDeepByUri(true, agent, folderDebug3Uri, function (err, res) {
+                                            should.equal(err, null);
+                                            res.statusCode.should.equal(200);
+                                            done();
+                                        });
+                                    });*/
+                                });
+                            });
                         });
                     });
                 });

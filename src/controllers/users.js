@@ -9,6 +9,7 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const contentDisposition = require("content-disposition");
 
 const async = require("async");
 const fs = require("fs");
@@ -272,11 +273,14 @@ exports.me = function (req, res)
 
 exports.set_new_password = function (req, res)
 {
-    let email = req.query.email;
-    let token = req.query.token;
+    let email;
+    let token;
 
     if (req.originalMethod === "GET")
     {
+        email = req.query.email;
+        token = req.query.token;
+
         if (isNull(email) || isNull(token))
         {
             res.render("index",
@@ -347,6 +351,9 @@ exports.set_new_password = function (req, res)
     }
     else if (req.originalMethod === "POST")
     {
+        email = req.body.email;
+        token = req.body.token;
+
         if (isNull(token) || isNull(email))
         {
             res.render("users/set_new_password",
@@ -366,7 +373,7 @@ exports.set_new_password = function (req, res)
 
             if (new_password !== new_password_confirm)
             {
-                res.render("users/set_new_password",
+                res.redirect(`/set_new_password?token=${token}&email=${email}`,
                     {
                         token: token,
                         email: email,
@@ -386,10 +393,11 @@ exports.set_new_password = function (req, res)
                         {
                             res.render("index",
                                 {
-                                    error_messages:
-                  [
-                      "Unknown account with email " + email + "."
-                  ]
+                                    token: token,
+                                    email: email,
+                                    error_messages: [
+                                        "Unknown account with email " + email + "."
+                                    ]
                                 }
                             );
                         }
@@ -401,10 +409,11 @@ exports.set_new_password = function (req, res)
                                 {
                                     res.render("index",
                                         {
-                                            error_messages:
-                      [
-                          "Error resetting password for email : " + email + ". Error description: " + JSON.stringify(result)
-                      ]
+                                            token: token,
+                                            email: email,
+                                            error_messages: [
+                                                "Error resetting password for email : " + email + ". Error description: " + JSON.stringify(result)
+                                            ]
                                         }
                                     );
                                 }
@@ -412,10 +421,11 @@ exports.set_new_password = function (req, res)
                                 {
                                     res.render("index",
                                         {
-                                            info_messages:
-                      [
-                          "Password successfully reset for : " + email + ". You can now login with your new password."
-                      ]
+                                            token: token,
+                                            email: email,
+                                            info_messages: [
+                                                "Password successfully reset for : " + email + ". You can now login with your new password."
+                                            ]
                                         }
                                     );
                                 }
@@ -556,7 +566,7 @@ exports.get_avatar = function (req, res)
 
         res.writeHead(200, {
             "Content-Type": "application/octet-stream",
-            "Content-Disposition": "attachment; filename=" + filename
+            "Content-Disposition": contentDisposition(filename)
         });
 
         fileStream.pipe(res);
@@ -588,11 +598,35 @@ exports.get_avatar = function (req, res)
                         {
                             let fileStream = fs.createReadStream(avatarFilePath);
                             let filename = path.basename(avatarFilePath);
+                            const parentPath = path.resolve(avatarFilePath, "..");
 
                             res.writeHead(200, {
                                 "Content-Type": "application/octet-stream",
                                 Connection: "keep-alive",
-                                "Content-Disposition": "attachment; filename=" + filename
+                                "Content-Disposition": contentDisposition(filename)
+                            });
+
+                            res.on("finish", function ()
+                            {
+                                if (!isNull(parentPath))
+                                {
+                                    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+                                    File.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
+                                    {
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + parentPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + parentPath);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " + avatarFilePath);
+                                }
                             });
 
                             fileStream.pipe(res);

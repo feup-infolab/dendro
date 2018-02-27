@@ -232,12 +232,31 @@ describe("Import projects", function (done)
 
     describe("[POST] [Valid Cases] /projects/import", function ()
     {
+        // The controller function for the import of projects has changed
+        // The dendro webapp now responds to the client right after the project zip is uploaded
+        // If there are any errors after the zip upload stage-> they are show on the projects list page
+        // The user then has to delete the project or try again
+        // This was necessary because some projects being imported were so large that timeouts were occurring
+        // So if there are any errors post upload of the zip file -> the project is now not deleted automatically -> the user is shown a status with an error and error message in the projects list page
+        // this "before" call bellow is needed because in the previous "describe"
+        // In the stub "Should give an error with a status code of 500 when the zip file used to import the project is not in a correct BagIt Format, even though the user is logged in"
+        // The import fails but the error given occurs after the project is already created
+        // So the project privateproject is leftover with an errored stated
+        // This is why this "before" call is needed
+        before(function (done)
+        {
+            createUsersUnit.setup(function (err, results)
+            {
+                should.equal(err, null);
+                done();
+            });
+        });
+
         it("Should import all projects correctly when the user is logged in and the zip file used to import the project is not corrupted", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 should.equal(err, null);
-
                 async.mapSeries(projectsData, function (projectData, callback)
                 {
                     projectUtils.importProject(true, agent, projectData, function (err, res)

@@ -111,7 +111,7 @@
           "storageType" : "mongoDB",
           "host": "192.168.56.249",
           "port": "27017",
-          "collectionName": "127.0.0.1:3002_files",
+          "collectionName": "127.0.0.1:3001_files",
           "username": "",
           "password": ""
         },
@@ -123,7 +123,7 @@
         },
         "mySQLDBName": "dendroVagrantDemo",
         "maxUploadSize": 1073741824,
-        "maxProjectSize": 1073741824,
+        "maxProjectSize": 5368709120,
         "maxSimultaneousConnectionsToDb": 1,
         "dbOperationTimeout": 16000,
         "tempFilesDir": "temp",
@@ -781,12 +781,12 @@
         }
     },
     "jenkins_buildserver_test": {
-        "port": 3001,
-        "host": "127.0.0.1:3001",
+        "port": 3002,
+        "host": "127.0.0.1:3002",
         "crypto": {
             "secret": "adasdasTHF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzH"
         },
-        "baseUri": "http://127.0.0.1:3001",
+        "baseUri": "http://127.0.0.1:3002",
         "environment": "test",
         "skipDescriptorValuesValidation": false,
         "eudatBaseUrl": "https://trng-b2share.eudat.eu",
@@ -797,7 +797,7 @@
         "elasticSearchHost": "127.0.0.1",
         "elasticSearchPort": "9200",
         "datastore": {
-            "database": "127.0.0.1:3001_jenkins_test_datastore",
+            "database": "127.0.0.1:3002_jenkins_test_datastore",
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default",
@@ -806,7 +806,7 @@
             }
         },
         "ontologies_cache": {
-            "database": "127.0.0.1:3001_ontologies",
+            "database": "127.0.0.1:3002_ontologies",
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default"
@@ -840,7 +840,7 @@
                 "active": true,
                 "instances": {
                     "default": {
-                        "database": "127.0.0.1:3001",
+                        "database": "127.0.0.1:3002",
                         "collection": "default_cache_jenkins_test",
                         "clear_on_startup": true,
                         "host": "127.0.0.1",
@@ -848,7 +848,7 @@
                         "id": "default"
                     },
                     "social": {
-                        "database": "127.0.0.1:3001",
+                        "database": "127.0.0.1:3002",
                         "collection": "social_cache_jenkins_test",
                         "clear_on_startup": true,
                         "host": "127.0.0.1",
@@ -856,7 +856,7 @@
                         "id": "social"
                     },
                     "notifications": {
-                        "database": "127.0.0.1:3001",
+                        "database": "127.0.0.1:3002",
                         "collection": "notifications_cache_jenkins_test",
                         "clear_on_startup": true,
                         "host": "127.0.0.1",
@@ -881,8 +881,8 @@
         "virtuosoSQLLogLevel": 3,
         "mongoDBHost": "127.0.0.1",
         "mongoDbPort": "27017",
-        "mongoDbCollectionName": "127.0.0.1:3001_files",
-        "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
+        "mongoDbCollectionName": "127.0.0.1:3002_files",
+        "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",
@@ -1169,12 +1169,12 @@
         }
     },
     "travis_buildserver_test": {
-        "port": 3001,
-        "host": "127.0.0.1:3001",
+        "port": 3002,
+        "host": "127.0.0.1:3002",
         "crypto": {
             "secret": "adasdasTHF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzH"
         },
-        "baseUri": "http://127.0.0.1:3001",
+        "baseUri": "http://127.0.0.1:3002",
         "environment": "test",
         "skipDescriptorValuesValidation": false,
         "eudatBaseUrl": "https://trng-b2share.eudat.eu",
@@ -1185,7 +1185,7 @@
         "elasticSearchHost": "127.0.0.1",
         "elasticSearchPort": "9200",
         "datastore": {
-            "database": "127.0.0.1:3001_travis_test_datastore",
+            "database": "127.0.0.1:3002_travis_test_datastore",
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default",
@@ -1194,7 +1194,7 @@
             }
         },
         "ontologies_cache": {
-            "database": "127.0.0.1:3001_ontologies",
+            "database": "127.0.0.1:3002_ontologies",
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default"
@@ -1228,7 +1228,7 @@
                 "active": true,
                 "instances": {
                     "default": {
-                        "database": "127.0.0.1:3001",
+                        "database": "127.0.0.1:3002",
                         "collection": "default_cache_travis_test",
                         "clear_on_startup": true,
                         "host": "127.0.0.1",
@@ -1236,7 +1236,7 @@
                         "id": "default"
                     },
                     "social": {
-                        "database": "127.0.0.1:3001",
+                        "database": "127.0.0.1:3002",
                         "collection": "social_cache_travis_test",
                         "clear_on_startup": true,
                         "host": "127.0.0.1",
@@ -1244,7 +1244,7 @@
                         "id": "social"
                     },
                     "notifications": {
-                        "database": "127.0.0.1:3001",
+                        "database": "127.0.0.1:3002",
                         "collection": "notifications_cache_travis_test",
                         "clear_on_startup": true,
                         "host": "127.0.0.1",
@@ -1269,8 +1269,8 @@
         "virtuosoSQLLogLevel": 3,
         "mongoDBHost": "127.0.0.1",
         "mongoDbPort": "27017",
-        "mongoDbCollectionName": "127.0.0.1:3001_files",
-        "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
+        "mongoDbCollectionName": "127.0.0.1:3002_files",
+        "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",

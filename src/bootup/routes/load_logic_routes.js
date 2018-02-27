@@ -104,6 +104,8 @@ const loadRoutes = function (app, callback)
     app.post("/admin/config", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.configuration);
     app.post("/admin/restart", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.restartServer);
     app.get("/admin/logs", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.logs);
+    app.post("/admin/nuke_orphan_resources", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.nukeOrphanResources);
+    app.get("/admin/list_orphan_resources", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.listOrphanResources);
 
     // low-level sparql endpoint
     // TODO

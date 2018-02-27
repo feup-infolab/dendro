@@ -63,7 +63,9 @@ const queryObjectToString = function (query, argumentsArray, callback)
                     transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
                     break;
                 case Elements.types.string:
-                    transformedQuery = transformedQuery.replace(pattern, "'''" + currentArgument.value + "'''");
+                    const findAllQuotationMarksRegex = new RegExp("'", "g");
+                    const stringWithEscapedQuotationMarks = currentArgument.value.replace(findAllQuotationMarksRegex, "\\'");
+                    transformedQuery = transformedQuery.replace(pattern, "'''" + stringWithEscapedQuotationMarks + "'''");
                     break;
                 case Elements.types.int:
                     transformedQuery = transformedQuery.replace(pattern, currentArgument.value);

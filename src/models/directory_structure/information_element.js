@@ -817,6 +817,12 @@ InformationElement.removeInvalidFileNames = function (fileNamesArray)
 InformationElement.isSafePath = function (absPath, callback)
 {
     let fs = require("fs");
+    if (isNull(absPath))
+    {
+        Logger.log("error", "Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
+        return callback(null, false);
+    }
+
     fs.realpath(absPath, function (err, realPath)
     {
         function b_in_a (b, a)
