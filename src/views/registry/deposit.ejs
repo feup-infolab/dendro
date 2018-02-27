@@ -31,11 +31,11 @@
         </tr>
         <tr>
             <td>Deposited in repository: </td>
-            <td><%= locals.deposit.ddr.hasExternalUri%></td>
+            <td><%= locals.deposit.ddr.exportedToRepository%></td>
         </tr>
         <tr>
-            <td>Resources deposited: </td>
-            <td><%= locals.deposit.ddr.exportedResource%></td>
+            <td>External deposit: </td>
+            <td><a href="<%= locals.deposit.externalUri%>">Outside Deposit</a></td>
         </tr>
         <tr>
             <td>Exported from parent folder: </td>

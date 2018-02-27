@@ -1974,10 +1974,6 @@ exports.mkdir = function (req, res)
                 if (isNull(err) && !isNull(parentFolder))
                 {
                     const newChildFolder = new Folder({
-                        dcterms:{
-                            title: req.query.mkdir,
-                            creator: req.user.uri
-                        },
                         nie: {
                             title: req.query.mkdir,
                             isLogicalPartOf: parentFolderURI

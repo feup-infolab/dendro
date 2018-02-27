@@ -1289,6 +1289,12 @@ Elements.ontologies.ddr = {
       control: Controls.url_box,
       locked_for_projects: true
   },
+    exportedToRepository:
+  {
+      type: Elements.types.resource,
+      api_readable: true,
+      control: Controls.url_box
+  },
     exportedToPlatform:
   {
       type: Elements.types.string,

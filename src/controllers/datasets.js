@@ -22,6 +22,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const CKAN = require("ckan");
 const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const generalDatasetUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/generalDatasetUtils.js"));
+const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
 
 const async = require("async");
 const nodemailer = require("nodemailer");
@@ -221,8 +222,10 @@ export_to_repository_ckan = function (req, res)
     {
         const requestedResourceUri = req.params.requestedResourceUri;
         const targetRepository = req.body.repository;
+        const privacy = req.body.publicDeposit;
 
-        let overwrite = false;
+
+      let overwrite = false;
         let deleteChangesOriginatedFromCkan = false;
         let propagateDendroChangesIntoCkan = false;
         try
@@ -749,7 +752,8 @@ const export_to_repository_zenodo = function (req, res)
 export_to_repository_b2share = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
-    const targetRepository = req.body.repository;
+    const targetRepository = req.body.repository
+    const privacy = req.body.publicDeposit;
     // targetRepository.ddr.hasExternalUri -> the b2share host url
 
     Folder.findByUri(requestedResourceUri, function (err, folder)
@@ -933,59 +937,87 @@ export_to_repository_b2share = function (req, res)
                                                                     else
                                                                     {
                                                                         generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                                                        let msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
 
-                                                                        if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
-                                                                        {
+                                                                        //create deposit here
+                                                                      const registryData = {
+                                                                        dcterms: {
+                                                                          title: folder.dcterms.title,
+                                                                          creator: folder.dcterms.creator,
+                                                                          identifier: body.data.id,
+                                                                        },
+                                                                        ddr: {
+                                                                          exportedFromProject: project.uri,
+                                                                          exportedFromFolder: folder.uri,
+                                                                          privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+
+                                                                          exportedToRepository: b2shareClient.host,
+                                                                          exportedToPlatform: "EUDAT B2Share",
+                                                                        }
+                                                                      };
+
+                                                                      Deposit.createDepositRegistry(registryData, function(err, result){
+                                                                        if(isNull(err)) {
+
+                                                                          let msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
+
+                                                                          if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
+                                                                          {
+                                                                              //TODO This link is 404
                                                                             msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>";
+                                                                          }
+
+                                                                          /*
+ const msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
+ var recordURL = B2Share.recordPath + "/" + data.body.record_id;
+
+ var client = nodemailer.createTransport("SMTP", {
+ service: 'SendGrid',
+ auth: {
+ user: Config.sendGridUser,
+ pass: Config.sendGridPassword
+ }
+ });
+
+ var email = {
+ from: 'support@dendro.fe.up.pt',
+ to: req.user.foaf.mbox,
+ subject: requestedResourceUri + ' exported',
+ text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
+ };
+
+ client.sendMail(email, function(err, info){
+ if(err)
+ {
+ Logger.log("[NODEMAILER] " + err);
+ flash('error', "Error sending request to user. Please try again later");
+ }
+ else
+ {
+ Logger.log("[NODEMAILER] email sent: " + info);
+ flash('success', "Sent request to project's owner");
+ }
+ });
+ */
+                                                                          /*
+                                                                           res.json(
+                                                                           {
+                                                                           "result": "OK",
+                                                                           "message": msg,
+                                                                           "recordURL": recordURL
+                                                                           }
+                                                                           ); */
+                                                                          res.json(
+                                                                            {
+                                                                              result: "OK",
+                                                                              message: msg
+                                                                            }
+                                                                          );
                                                                         }
 
-                                                                        /*
-                                                                         const msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
-                                                                         var recordURL = B2Share.recordPath + "/" + data.body.record_id;
+                                                                      });
 
-                                                                         var client = nodemailer.createTransport("SMTP", {
-                                                                         service: 'SendGrid',
-                                                                         auth: {
-                                                                         user: Config.sendGridUser,
-                                                                         pass: Config.sendGridPassword
-                                                                         }
-                                                                         });
 
-                                                                         var email = {
-                                                                         from: 'support@dendro.fe.up.pt',
-                                                                         to: req.user.foaf.mbox,
-                                                                         subject: requestedResourceUri + ' exported',
-                                                                         text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
-                                                                         };
 
-                                                                         client.sendMail(email, function(err, info){
-                                                                         if(err)
-                                                                         {
-                                                                         Logger.log("[NODEMAILER] " + err);
-                                                                         flash('error', "Error sending request to user. Please try again later");
-                                                                         }
-                                                                         else
-                                                                         {
-                                                                         Logger.log("[NODEMAILER] email sent: " + info);
-                                                                         flash('success', "Sent request to project's owner");
-                                                                         }
-                                                                         });
-                                                                         */
-                                                                        /*
-                                                                         res.json(
-                                                                         {
-                                                                         "result": "OK",
-                                                                         "message": msg,
-                                                                         "recordURL": recordURL
-                                                                         }
-                                                                         ); */
-                                                                        res.json(
-                                                                            {
-                                                                                result: "OK",
-                                                                                message: msg
-                                                                            }
-                                                                        );
                                                                     }
                                                                 });
                                                             }

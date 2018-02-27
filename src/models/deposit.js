@@ -26,6 +26,9 @@ const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
+const B2ShareClient = require("@feup-infolab/node-b2share-v2");
+
+
 const util = require('util');
 const async = require("async");
 const _ = require("underscore");
@@ -40,9 +43,6 @@ function Deposit(object){
 
     let now = moment().format();
     self.dcterms.date = now;
-    const uuid = require('uuid');
-
-    //self.uri = Config.baseUri + "/deposit/" + uuid.v4();
 
     return self;
 }
@@ -50,7 +50,7 @@ function Deposit(object){
 Deposit.createDepositRegistry = function (object, callback) {
     const newRegistry = new Deposit(object);
 
-    const requestedResourceURI = object.ddr.exportedResource;
+    const requestedResourceURI = object.ddr.exportedFromFolder;
 
     const isResource = function (url)
     {
@@ -58,41 +58,20 @@ Deposit.createDepositRegistry = function (object, callback) {
         return regexp.test(url);
     };
 
-    if(requestedResourceURI instanceof Array && requestedResourceURI.length > 0){
-      const resourceUri = requestedResourceURI[0];
-      if(isResource(resourceUri)){
-        const info = new InformationElement({
-          uri: resourceUri,
-        });
+    if(isResource(requestedResourceURI)){
 
-        info.getOwnerProject(function (err, ie) {
-          newRegistry.ddr.exportedFromProject = ie.uri;
+      console.log("creating registry from deposit\n" + util.inspect(object));
 
-          info.getParent(function(err, ie){
-            newRegistry.ddr.exportedFromFolder = ie.uri;
-            if (isNull(err)) {
+      newRegistry.save(function(err, newRegistry){
+        if(!err){
+          callback(err, newRegistry);
+        } else{
 
-              console.log("creating registry from deposit\n" + util.inspect(object));
-
-              newRegistry.save(function(err, newRegistry){
-                if(!err){
-                  callback(err, newRegistry);
-                } else{
-
-                }
-              });
-            }
-          });
-
-        });
-      }else{
-        return;
-      }
+        }
+      });
     }else{
       return;
     }
-
-
 };
 
 Deposit.createQuery = function(params, callback){
@@ -110,7 +89,7 @@ Deposit.createQuery = function(params, callback){
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
-        "   ?uri ddr:hasExternalUri ?repository . \n" +
+        "   ?uri ddr:exportedToRepository ?repository . \n" +
         "   ?folder nie:title ?folderName . \n";
 
     let i = 1;
@@ -316,7 +295,7 @@ Deposit.getAllRepositories = function(params, callback){
       "WHERE \n" +
       "{ \n" +
       "   ?uri rdf:type ddr:Registry . \n" +
-      "   ?uri ddr:hasExternalUri ?repository . \n" +
+      "   ?uri ddr:exportedToRepository ?repository . \n" +
       "   ?uri ddr:exportedFromProject ?projused . \n" +
       "  ";
 

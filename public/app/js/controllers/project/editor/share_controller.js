@@ -206,9 +206,6 @@ angular.module("dendroApp.controllers")
                         $scope.clear_repository_type();
                         // $scope.get_my_repositories();
                         $scope.show_popup("success", "Success", e.message);
-
-                        //change later but this is not right but will work supposedly
-                        $scope.upload_to_repository(new_repository);
                     },
                     statusCode: $scope.statusCodeDefaults
                 });
@@ -309,13 +306,20 @@ angular.module("dendroApp.controllers")
          * Project stats
          * @param uri
          */
-
-            $scope.upload_to_repository = function (target_repository, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            // TODO William add boolean of public deposit in 2nd
+            $scope.upload_to_repository = function (target_repository, publicDeposit, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
                     repository: target_repository,
                     new_dataset: $scope.new_dataset
                 };
+
+                if (publicDeposit == null || publicDeposit == false)
+                {
+                    payload.publicDeposit = false;
+                } else {
+                    payload.publicDeposit = true;
+                }
 
                 if (overwrite != null)
                 {

@@ -155,6 +155,7 @@ exports.getDeposit = function(req, res){
            });
 
            deposit.dcterms.date = moment(deposit.dcterms.date).format('LLLL');
+           deposit.externalUri = "https://" + deposit.ddr.exportedToRepository + "/records/" + deposit.dcterms.identifier;
            viewVars.deposit = deposit;
            res.render("registry/deposit", viewVars);
        }
