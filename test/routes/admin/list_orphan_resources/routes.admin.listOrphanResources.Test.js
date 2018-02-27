@@ -19,7 +19,6 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const admin = require(Pathfinder.absPathInTestsFolder("mockdata/users/admin"));
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
@@ -58,9 +57,11 @@ describe("Administration list orphan resources tests ( /admin/list_orphan_resour
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        let createFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersSingleProject.Unit.js"));
-        const foldersData = createFoldersSingleProjectUnit.foldersData;
-        addMetadataToFoldersSingleProjectUnit.setup(publicProject, function (err, res)
+        const CreateFoldersPublicProject = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersPublicProject.Unit.js"));
+        const AddMetadataToFoldersInPublicProjectUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
+        const foldersData = CreateFoldersPublicProject.foldersData;
+
+        AddMetadataToFoldersInPublicProjectUnit.setup(publicProject, function (err, res)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
