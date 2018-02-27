@@ -17,6 +17,9 @@ global.tests = {};
 // uncomment the first time you run the tests after installing dendro
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
+//interaction tests
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list/routes.interactions.acceptDescriptorFromQuickList.Test.js"));
+
 // Import projects tests
 require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
