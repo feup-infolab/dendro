@@ -1089,7 +1089,25 @@ InformationElement.prototype.refreshChildrenHumanReadableUris = function (callba
     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
     if (self.isA(Folder))
     {
-        Folder.refreshChildrenHumanReadableUris.call(self, callback, customGraphUri);
+        //Folder.refreshChildrenHumanReadableUris.call(self, callback, customGraphUri);
+        Folder.findByUri(self.uri, function (err, folder)
+        {
+            if(isNull(err))
+            {
+                if(!isNull(folder))
+                {
+                    folder.refreshChildrenHumanReadableUris(callback, customGraphUri);
+                }
+                else
+                {
+                    callback(true, "There is no folder with uri: " + self.uri);
+                }
+            }
+            else
+            {
+                callback(err, folder);
+            }
+        });
     }
     else
     {
