@@ -222,9 +222,6 @@ const setupGracefulClose = function (app, server, callback)
             {
                 Logger.log("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
             }
-
-            Logger.log("No need to remove PID, because this Dendro is running in TEST Mode");
-
             // don't call cleanup handler again
             callback(err, results);
         });
