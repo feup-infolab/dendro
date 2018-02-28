@@ -6,6 +6,8 @@ NODE_VERSION=`cat .nvmrc`
 # install text extraction dependencies
 if [ "$(uname)" == "Darwin" ]; then
     brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext
+    brew tap caskroom/versions
+    brew cask install java8
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
 fi
