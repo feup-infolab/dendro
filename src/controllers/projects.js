@@ -271,6 +271,13 @@ exports.show = function (req, res)
                         {
                             result.is_project_root = true;
                             res.set("Content-Type", contentType);
+                            for (var i = result.descriptors.length - 1; i >= 0; i--)
+                            {
+                                if (!isNull(result.descriptors[i].locked) && isNull(result.descriptors[i].api_writeable) && isNull(result))
+                                {
+                                    result.descriptors.splice(i, 1);
+                                }
+                            }
                             res.send(serializer(result));
                         }
                         else
@@ -1666,8 +1673,6 @@ exports.stats = function (req, res)
                     {
                         if (isNull(err))
 
-
-
                         {
                             return callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize);
                         }
@@ -2296,18 +2301,16 @@ exports.storage = function (req, res)
 
     const validateB2DropLogin = function (username, password, cb)
     {
-        const B2Drop = require("node-b2drop").B2Drop;
+        const B2Drop = require("@feup-infolab/node-b2drop").B2Drop;
         const account = new B2Drop(username, password);
         account.login(function (err, response)
         {
-            if (response && response.statusCode === 200)
+            if (isNull(err) && response && response.statusCode === 200)
             {
-                cb(null, null);
+                return cb(null, null);
             }
-            else
-            {
-                cb(1, "Unable to authenticate in b2drop with the provided credentials!");
-            }
+
+            return cb(1, "Unable to authenticate in b2drop with the provided credentials!");
         });
     };
 
@@ -2369,41 +2372,72 @@ exports.storage = function (req, res)
                                             handlesStorageForProject: project.uri
                                         }
                                     });
+
+                                    newStorageConfig.save(function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            updateProjectStorageConfig(project, newStorageConfig, function (err, result)
+                                            {
+                                                callback(err, result);
+                                            });
+                                        }
+                                        else
+                                        {
+                                            callback(err, result);
+                                        }
+                                    });
                                 }
                                 else if (storageType === "b2drop")
                                 {
-                                    newStorageConfig = new StorageConfig({
-                                        ddr: {
-                                            hasStorageType: "b2drop",
-                                            password: req.body.storageConfig.ddr.password,
-                                            username: req.body.storageConfig.ddr.username,
-                                            handlesStorageForProject: project.uri
+                                    const username = req.body.storageConfig.ddr.username;
+                                    const password = req.body.storageConfig.ddr.password;
+                                    validateB2DropLogin(username, password, function (err, msg)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            newStorageConfig = new StorageConfig({
+                                                ddr: {
+                                                    hasStorageType: "b2drop",
+                                                    password: req.body.storageConfig.ddr.password,
+                                                    username: req.body.storageConfig.ddr.username,
+                                                    handlesStorageForProject: project.uri
+                                                }
+                                            });
+
+                                            newStorageConfig.save(function (err, result)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    updateProjectStorageConfig(project, newStorageConfig, function (err, result)
+                                                    {
+                                                        callback(err, result);
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    callback(err, result);
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            return res.status(400).json({
+                                                result: "error",
+                                                title: "Error",
+                                                message: msg
+                                            });
                                         }
                                     });
                                 }
                                 else
                                 {
-                                    return res.status(400).json({
+                                    return res.status(401).json({
                                         result: "error",
                                         title: "Error",
                                         message: "Invalid storage type provided : " + storageType
                                     });
                                 }
-
-                                newStorageConfig.save(function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        updateProjectStorageConfig(project, newStorageConfig, function (err, result)
-                                        {
-                                            callback(err, result);
-                                        });
-                                    }
-                                    else
-                                    {
-                                        callback(err, result);
-                                    }
-                                });
                             }
                             else
                             {
@@ -2431,7 +2465,7 @@ exports.storage = function (req, res)
                                         {
                                             const msg = "Error updating storage configuration! " + JSON.stringify(result);
                                             Logger.log("error", msg);
-                                            res.status(500).json({
+                                            res.status(401).json({
                                                 result: "ok",
                                                 title: "Error",
                                                 message: msg
@@ -2502,7 +2536,7 @@ exports.storage = function (req, res)
                         {
                             if (!isNull(storage) && storage instanceof StorageConfig)
                             {
-                                storage.clearDescriptors([Elements.access_types.locked],[Elements.access_types.api_readable]);
+                                storage.clearDescriptors([Elements.access_types.locked], [Elements.access_types.api_readable, Elements.access_types.private, Elements.access_types.public]);
                                 callback(null, storage);
                             }
                             else
@@ -2587,7 +2621,12 @@ exports.storage = function (req, res)
         }
         else
         {
-
+            const msg = "Wrong request format";
+            res.status(500).json({
+                result: "error",
+                title: "Error",
+                message: msg
+            });
         }
     }
 };

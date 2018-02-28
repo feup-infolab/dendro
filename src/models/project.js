@@ -1421,6 +1421,7 @@ Project.prototype.findMetadata = function (callback, typeConfigsToRetain)
 
     const descriptors = self.getPropertiesFromOntologies(
         null,
+        null,
         typeConfigsToRetain);
 
     return callback(null,
