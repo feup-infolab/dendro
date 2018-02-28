@@ -19,6 +19,7 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 //interaction tests
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list/routes.interactions.acceptDescriptorFromQuickList.Test.js"));
+return;
 
 // Import projects tests
 require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));

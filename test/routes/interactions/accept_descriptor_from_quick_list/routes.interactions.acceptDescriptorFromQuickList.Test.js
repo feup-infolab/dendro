@@ -54,6 +54,9 @@ let projectRootData = null;
 let dctermsDescriptors = null;
 let dctermsPrefix = "dcterms";
 
+let demouser1InteractionObj = null;
+let demouser2InteractionObj = null;
+
 describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descriptor_from_quick_list", function ()
 {
     this.timeout(Config.testsTimeout);
@@ -79,15 +82,23 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
                         // TODO recommendationCallId and recommendedFor must be added after the unit runs
                         // TODO recommendedFor maybe for a uri of a folder on the root of the project
                         // TODO recommendationCallId is I think from the descriptor associated to the resource
-                        bodyObj = dctermsDescriptors[0];
-                        bodyObj.just_added = true;
-                        bodyObj.added_from_quick_list = true;
-                        //bodyObj.rankingPosition = index;
-                        bodyObj.rankingPosition = 0;
-                        //bodyObj.pageNumber = $scope.recommendations_page;
-                        bodyObj.pageNumber = 2;
-                        bodyObj.interactionType = "accept_descriptor_from_quick_list";
-                        bodyObj.recommendedFor = projectRootData[0].uri;
+                        demouser1InteractionObj = dctermsDescriptors[0];
+                        demouser1InteractionObj.just_added = true;
+                        demouser1InteractionObj.added_from_quick_list = true;
+                        //demouser1InteractionObj.rankingPosition = index;
+                        demouser1InteractionObj.rankingPosition = 0;
+                        //demouser1InteractionObj.pageNumber = $scope.recommendations_page;
+                        demouser1InteractionObj.pageNumber = 2;
+                        demouser1InteractionObj.interactionType = "accept_descriptor_from_quick_list";
+                        demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
+
+                        demouser2InteractionObj = dctermsDescriptors[1];
+                        demouser2InteractionObj.just_added = true;
+                        demouser2InteractionObj.added_from_quick_list = true;
+                        demouser2InteractionObj.rankingPosition = 0;
+                        demouser2InteractionObj.pageNumber = 2;
+                        demouser2InteractionObj.interactionType = "accept_descriptor_from_quick_list";
+                        demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
                         done();
                     });
                 });
@@ -95,54 +106,88 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
         });
     });
 
-    /*
+
     describe("[POST] [Invalid Cases] /interactions/accept_descriptor_from_quick_list", function ()
     {
-
-    });*/
-
-    describe("[POST] [Valid Cases] /interactions/accept_descriptor_from_quick_list", function ()
-    {
-        //Because the current project is a public one
-        it("Should accept and register an interaction when a descriptor is added from the quick list when unauthenticated", function (done)
+        it("Should give an error and not accept and register an interaction when a descriptor is added from the quick list when unauthenticated", function (done)
         {
             const app = global.tests.app;
             let agent = chai.request.agent(app);
-            interactionsUtils.acceptDescriptorFromQuickList(true, agent, bodyObj, function (err, res)
+            interactionsUtils.acceptDescriptorFromQuickList(true, agent, demouser1InteractionObj, function (err, res)
             {
-                should.equal(err, null);
-                res.statusCode.should.equal(200);
-                //TODO SHOULD ALSO BE IN THE MYSQL DATABASE
-                done();
-            });
-        });
-
-        //Because the current project is a public one
-        /*
-        it("Should accept and register an interaction when a descriptor is added from the quick list when logged in as demouser3, who is not a creator or collaborator of the project where the current resource belongs to", function (done)
-        {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
-            {
-                interactionsUtils.acceptDescriptorFromQuickList(true, agent, bodyObj, function (err, res)
-                {
+                should.exist(err);
+                res.statusCode.should.equal(401);
+                //SHOULD NOT BE IN THE MYSQL DATABASE
+                interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                     should.equal(err, null);
-                    res.statusCode.should.equal(200);
-                    //TODO SHOULD ALSO BE IN THE MYSQL DATABASE
+                    should.exist(info);
+                    info[0].nInteractions.should.equal(0);
                     done();
                 });
             });
-        });*/
+        });
 
+        it("Should give an error and not accept and register an interaction when a descriptor is added from the quick list when logged in as demouser3, who is not a creator or collaborator of the project where the current resource belongs to", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                interactionsUtils.acceptDescriptorFromQuickList(true, agent, demouser1InteractionObj, function (err, res)
+                {
+                    should.exist(err);
+                    res.statusCode.should.equal(400);
+                    res.body.message.should.contain("Unable to record interactions for resources of projects of which you are not a creator or contributor.");
+                    //SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        should.equal(err, null);
+                        should.exist(info);
+                        info[0].nInteractions.should.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe("[POST] [Valid Cases] /interactions/accept_descriptor_from_quick_list", function ()
+    {
         it("Should accept and register an interaction when a descriptor is added from the quick list when logged in as demouser1 (the creator of the current project)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                interactionsUtils.acceptDescriptorFromQuickList(true, agent, bodyObj, function (err, res)
+                userUtils.getUserInfo(demouser1.username, true, agent, function (err, res)
                 {
                     should.equal(err, null);
-                    res.statusCode.should.equal(200);
-                    //TODO SHOULD ALSO BE IN THE MYSQL DATABASE
-                    done();
+                    should.exist(res);
+                    should.exist(res.body);
+                    should.exist(res.body.uri);
+                    let demouser1Uri = res.body.uri;
+                    interactionsUtils.acceptDescriptorFromQuickList(true, agent, demouser1InteractionObj, function (err, res)
+                    {
+                        should.equal(err, null);
+                        res.statusCode.should.equal(200);
+                        //SHOULD ALSO BE IN THE MYSQL DATABASE
+                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                            should.equal(err, null);
+                            should.exist(info);
+                            info[0].nInteractions.should.equal(1);
+                            interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                                should.equal(err, null);
+                                should.exist(info);
+                                info.length.should.equal(1);
+                                demouser1InteractionObj.uri.should.not.equal(demouser2InteractionObj.uri);
+                                info[0].executedOver.should.equal(demouser1InteractionObj.uri);
+                                info[0].interactionType.should.equal(demouser1InteractionObj.interactionType);
+                                info[0].originallyRecommendedFor.should.equal(demouser1InteractionObj.recommendedFor);
+                                info[0].pageNumber.should.equal(demouser1InteractionObj.pageNumber);
+                                info[0].performedBy.should.equal(demouser1Uri);
+                                info[0].rankingPosition.should.equal(demouser1InteractionObj.rankingPosition);
+                                info[0].recommendationCallId.should.equal(demouser1InteractionObj.recommendationCallId);
+                                should.exist(info[0].uri);
+                                info[0].uri.should.contain("interaction");
+                                done();
+                            });
+                        });
+                    });
                 });
             });
         });
@@ -151,12 +196,40 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                interactionsUtils.acceptDescriptorFromQuickList(true, agent, bodyObj, function (err, res)
+                userUtils.getUserInfo(demouser2.username, true, agent, function (err, res)
                 {
                     should.equal(err, null);
-                    res.statusCode.should.equal(200);
-                    //TODO SHOULD ALSO BE IN THE MYSQL DATABASE
-                    done();
+                    should.exist(res);
+                    should.exist(res.body);
+                    should.exist(res.body.uri);
+                    let demouser2Uri = res.body.uri;
+                    interactionsUtils.acceptDescriptorFromQuickList(true, agent, demouser2InteractionObj, function (err, res)
+                    {
+                        should.equal(err, null);
+                        res.statusCode.should.equal(200);
+                        //SHOULD ALSO BE IN THE MYSQL DATABASE
+                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                            should.equal(err, null);
+                            should.exist(info);
+                            info[0].nInteractions.should.equal(2);
+                            interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                                should.equal(err, null);
+                                should.exist(info);
+                                info.length.should.equal(1);
+                                demouser1InteractionObj.uri.should.not.equal(demouser2InteractionObj.uri);
+                                info[0].executedOver.should.equal(demouser2InteractionObj.uri);
+                                info[0].interactionType.should.equal(demouser2InteractionObj.interactionType);
+                                info[0].originallyRecommendedFor.should.equal(demouser2InteractionObj.recommendedFor);
+                                info[0].pageNumber.should.equal(demouser2InteractionObj.pageNumber);
+                                info[0].performedBy.should.equal(demouser2Uri);
+                                info[0].rankingPosition.should.equal(demouser2InteractionObj.rankingPosition);
+                                info[0].recommendationCallId.should.equal(demouser2InteractionObj.recommendationCallId);
+                                should.exist(info[0].uri);
+                                info[0].uri.should.contain("interaction");
+                                done();
+                            });
+                        });
+                    });
                 });
             });
         });

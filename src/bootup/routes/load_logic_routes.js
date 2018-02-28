@@ -1385,11 +1385,7 @@ const loadRoutes = function (app, callback)
     });
 
     // interactions
-    const modificationPermissions = [
-        Permissions.settings.role.in_project.contributor,
-        Permissions.settings.role.in_project.creator
-    ];
-    app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, modificationPermissions), interactions.accept_descriptor_from_quick_list);
+    app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.accept_descriptor_from_quick_list);
     app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_project_favorite);
     app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_favorite);
     app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
