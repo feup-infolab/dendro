@@ -94,8 +94,8 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                                                                     }
                                                                     const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
                                                                     Logger.log(msg);
-                                                                    return res.json({
-                                                                        result: "OK",
+                                                                    return res.status(500).json({
+                                                                        result: "Error",
                                                                         message: msg
                                                                     });
                                                                 });
@@ -209,25 +209,35 @@ exports.accept_descriptor_from_quick_list = function (req, res)
     {
         if (req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list.key)
         {
-            const descriptor = new Descriptor({
-                uri: req.body.uri
-            });
-
-            if (descriptor instanceof Descriptor)
+            if(!isNull(req.body.rankingPosition) && Number.isInteger(req.body.rankingPosition))
             {
-                const ontology = new Ontology({
-                    uri: descriptor.ontology
+                const descriptor = new Descriptor({
+                    uri: req.body.uri
                 });
 
-                req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
+                if (descriptor instanceof Descriptor)
+                {
+                    const ontology = new Ontology({
+                        uri: descriptor.ontology
+                    });
 
-                recordInteractionOverAResource(req.user, req.body, req, res);
+                    req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
+
+                    recordInteractionOverAResource(req.user, req.body, req, res);
+                }
+                else
+                {
+                    res.status(500).json({
+                        result: "Error",
+                        message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
+                    });
+                }
             }
             else
             {
                 res.status(500).json({
                     result: "Error",
-                    message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
+                    message: "Invalid ranking position in the request's body. It should be an integer"
                 });
             }
         }
