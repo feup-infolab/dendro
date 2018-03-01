@@ -35,9 +35,7 @@ class LikeSomePosts extends ShareSomePostsUnit
                     {
                         socialDendroUtils.likeAPost(true, agent, postURIToLike, function (err, res)
                         {
-                            self.endLoad(path.basename(__filename));
-
-                            callback(err, postURIToLike);
+                            self.endLoad(path.basename(__filename), callback);
                         });
                     }
                 });

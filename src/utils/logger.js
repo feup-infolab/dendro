@@ -6,7 +6,6 @@ const slug = require("slug");
 const mkdirp = require("mkdirp");
 const path = require("path");
 const winston = require("winston");
-const colors = require("colors");
 
 const Logger = function ()
 {
@@ -35,11 +34,29 @@ Logger.getErrorLogFilePath = function ()
     return Logger.errorLogFilePath;
 };
 
+Logger.destroy = function ()
+{
+    Logger._initialized = false;
+    Logger.logger = null;
+};
+
 Logger.init = function (startTime)
 {
+    if (Logger._initialized)
+    {
+        return;
+    }
+
     if (isNull(startTime))
     {
-        startTime = new Date();
+        if (global.app_startup_time)
+        {
+            startTime = global.app_startup_time;
+        }
+        else
+        {
+            startTime = new Date();
+        }
     }
 
     const moment = require("moment");
@@ -215,6 +232,7 @@ Logger.init = function (startTime)
 
 Logger.add_middlewares = function (app)
 {
+    Logger.init();
     const expressWinston = require("express-winston");
     app.use(
         expressWinston.logger({
@@ -254,6 +272,7 @@ Logger.add_middlewares = function (app)
 
 Logger.log_boot_message = function (message)
 {
+    Logger.init();
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     if (Config.startup.log_bootup_actions)
     {

@@ -465,6 +465,50 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
     });
 };
 
+DbConnection.finishUpAllConnectionsAndClose = function (callback)
+{
+    let exited = false;
+    // we also register another handler if virtuoso connections take too long to close
+    setTimeout(function ()
+    {
+        if (!exited)
+        {
+            Logger.log("error", "[TIMEOUT] Virtuoso did not close all connections in time!");
+            callback(null);
+        }
+    }, Config.dbOperationTimeout);
+
+    async.mapSeries(Object.keys(Config.db), function (dbConfigKey, cb)
+    {
+        const dbConfig = Config.db[dbConfigKey];
+
+        if (!isNull(dbConfig.connection) && dbConfig.connection instanceof DbConnection)
+        {
+            dbConfig.connection.finishUpAndClose(function (err, result)
+            {
+                if (isNull(err))
+                {
+                    Logger.log("Virtuoso connection " + dbConfig.connection.databaseName + " closed gracefully.");
+                    cb(null, result);
+                }
+                else
+                {
+                    Logger.log("error", "Error closing Virtuoso connection " + dbConfig.connection.databaseName + ".");
+                    Logger.log("error", err);
+                    cb(err, result);
+                }
+            });
+        }
+        else
+        {
+            cb(null, null);
+        }
+    }, function (err, result)
+    {
+        callback(err, result);
+    });
+};
+
 DbConnection.addLimitsClauses = function (query, offset, maxResults)
 {
     if (!isNull(offset) &&
@@ -1596,6 +1640,23 @@ DbConnection.prototype.graphExists = function (graphUri, callback)
             return callback(err, null);
         }
     );
+};
+
+DbConnection.prototype.finishUpAndClose = function (callback)
+{
+    const self = this;
+    self.close(function (err, result)
+    {
+        Logger.log("Virtuoso connections closed gracefully.");
+        if (isNull(err))
+        {
+            callback(null, result);
+        }
+        else
+        {
+            callback(null, result);
+        }
+    });
 };
 
 module.exports.DbConnection = DbConnection;

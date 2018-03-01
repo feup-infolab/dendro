@@ -38,31 +38,19 @@ class TestUnit
             self.init(function (err, result)
             {
                 Logger.log("Ran only init function of " + self.name);
-                Logger.log("Gracefully restarting app after loading databases in " + self.name);
-                self.shutdown(function (err, result)
-                {
-                    self.init(function (err, result)
-                    {
-                        callback(err, result);
-                    });
-                });
+                callback(err, result);
             });
         }
         else
         {
             Logger.log("Checkpoint " + self.name + " does not exist. Will load database...");
-            self.init(function (err, result)
+            self.load(function (err, result)
             {
-                Logger.log("Finished init function of " + self.name);
-                self.load(function (err, result)
+                Logger.log("Gracefully starting app again after loading databases in " + self.name);
+                self.init(function (err, result)
                 {
-                    Logger.log("Gracefully (re) starting app after loading databases in " + self.name);
-
-                    self.init(function (err, result)
-                    {
-                        Logger.log("Finished load function of " + self.name);
-                        callback(null);
-                    });
+                    Logger.log("Finished load function of " + self.name);
+                    callback(null);
                 });
             });
         }
@@ -79,7 +67,7 @@ class TestUnit
         unitUtils.start(filename, "Seeding database...");
     }
 
-    static endLoad (filename, customCheckpointIdentifier)
+    static endLoad (filename, callback, customCheckpointIdentifier)
     {
         const self = this;
         if (!customCheckpointIdentifier)
@@ -87,8 +75,22 @@ class TestUnit
             customCheckpointIdentifier = self.name;
         }
 
-        self.createCheckpoint(customCheckpointIdentifier);
-        unitUtils.end(filename, "Database seeding complete.");
+        Logger.log("Halting app after loading databases in " + self.name);
+
+        self.shutdown(function (err, result)
+        {
+            if(!err)
+            {
+                Logger.log("Halted app after loading databases in " + self.name + " for creating a checkpoint.");
+                self.createCheckpoint(customCheckpointIdentifier);
+                callback(err, result);
+            }
+            else
+            {
+                Logger.log("error", "Error halting app after loading databases in " + self.name + " for creating a checkpoint.");
+                callback(err, result);
+            }
+        });
     }
 
     static createCheckpoint (customIdentifier)

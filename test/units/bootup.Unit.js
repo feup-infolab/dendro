@@ -13,7 +13,7 @@ const should = chai.should();
 
 const TestUnit = require(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
 const App = require(Pathfinder.absPathInSrcFolder("bootup/app.js")).App;
-const dendroInstance = new App();
+let dendroInstance;
 
 class BootupUnit extends TestUnit
 {
@@ -21,6 +21,9 @@ class BootupUnit extends TestUnit
     {
         super.init(function (err, result)
         {
+            if(!dendroInstance)
+                dendroInstance = new App();
+
             dendroInstance.startApp(function (err, appInfo)
             {
                 if (isNull(err))
@@ -49,9 +52,10 @@ class BootupUnit extends TestUnit
     {
         super.shutdown(function (err, result)
         {
-            //TODO
-            dendroInstance.app.freeResources(function (err, result)
+            Logger.log("debug", "Starting server shutdown at bootup Unit");
+            dendroInstance.freeResources(function (err, result)
             {
+                Logger.log("debug", "Server shutdown complete at bootup Unit");
                 callback(err);
             });
         });
@@ -61,6 +65,7 @@ class BootupUnit extends TestUnit
     {
         const self = this;
         self.startLoad(path.basename(__filename));
+        dendroInstance = new App();
         super.load(function (err, results)
         {
             if (err)
@@ -83,17 +88,6 @@ class BootupUnit extends TestUnit
                             {
                                 callback(err, results);
                             }
-
-                            self.shutdown(function(err, result){
-                                if(!err)
-                                {
-                                    self.endLoad(path.basename(__filename));
-                                }
-                                else
-                                {
-                                    throw new Error(err);
-                                }
-                            });
                         });
                     }
                     else

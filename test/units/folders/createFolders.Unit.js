@@ -79,9 +79,7 @@ class CreateFolders extends AddContributorsToProjectsUnit
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(path.basename(__filename));
-
-                            callback(err, results);
+                            self.endLoad(path.basename(__filename), callback);
                         });
                     }
                 });

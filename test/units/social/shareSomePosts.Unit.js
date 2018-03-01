@@ -47,9 +47,7 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
                                 let postURI = res.body[0].uri;// para ter acesso nas outras units a seguir
                                 socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
                                 {
-                                    self.endLoad(path.basename(__filename));
-
-                                    callback(err, postURI);
+                                    self.endLoad(path.basename(__filename), callback);
                                 });
                             }
                             else

@@ -162,7 +162,7 @@ class CreateUsers extends BootupUnit
                 {
                     if (!err)
                     {
-                        self.endLoad(path.basename(__filename));
+                        self.endLoad(path.basename(__filename), callback);
                     }
                     callback(err, results);
                 });

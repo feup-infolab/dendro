@@ -93,8 +93,7 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
                                                 {
                                                     repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res)
                                                     {
-                                                        callback(err, res);
-                                                        self.endLoad(path.basename(__filename));
+                                                        self.endLoad(path.basename(__filename), callback);
                                                     });
                                                 });
                                             });

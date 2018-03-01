@@ -38,9 +38,7 @@ class CommentSomePosts extends LikeSomePostsUnit
                     {
                         socialDendroUtils.commentAPost(true, agent, postURIToShare, commentMock.commentMsg, function (err, res)
                         {
-                            self.endLoad(path.basename(__filename));
-
-                            callback(err, res);
+                            self.endLoad(path.basename(__filename), callback);
                         });
                     }
                 });

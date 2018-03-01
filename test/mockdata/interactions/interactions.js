@@ -2,7 +2,6 @@ const path = require("path");
 const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
 const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-
 const demouser1 = require("../users/demouser1.js");
 const folder = require("../folders/folder.js");
 

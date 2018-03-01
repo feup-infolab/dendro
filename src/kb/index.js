@@ -132,7 +132,7 @@ IndexConnection.initAllIndexes = function (callback)
             {
                 const newIndex = IndexConnection.get(key);
 
-                if (!isNull(newIndex) && newIndex.isInitialized())
+                if (!isNull(newIndex))
                 {
                     cb(null, newIndex);
                 }
@@ -205,46 +205,53 @@ IndexConnection.getDefault = function ()
     return IndexConnection.get("dendro_graph");
 };
 
-IndexConnection.prototype.isInitialized = function ()
-{
-    const self = this;
-    return (!isNull(self.client));
-};
-
 IndexConnection.prototype.open = function (callback)
 {
     const self = this;
     const tryToConnect = function (callback)
     {
-        if (!self.isInitialized())
+        let serverOptions = {
+            host: self.host + ":" + self.port
+        };
+
+        if (Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
         {
-            let serverOptions = {
-                host: self.host + ":" + self.port
-            };
-
-            if (Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
-            {
-                serverOptions.log = Config.debug.index.elasticsearch_connection_log_type;
-            }
-
-            if (Config.useElasticSearchAuth)
-            {
-                serverOptions.secure = Config.useElasticSearchAuth;
-                serverOptions.auth = Config.elasticSearchAuthCredentials;
-            }
-
-            self.client = new es.Client(JSON.parse(JSON.stringify(serverOptions))).cluster.client;
-
-            self.client.indices.getMapping()
-                .then(function (mapping)
-                {
-                    return callback(null, self);
-                });
+            serverOptions.log = Config.debug.index.elasticsearch_connection_log_type;
         }
-        else
+
+        if (Config.useElasticSearchAuth)
         {
-            return callback(null, self);
+            serverOptions.secure = Config.useElasticSearchAuth;
+            serverOptions.auth = Config.elasticSearchAuthCredentials;
         }
+
+        self.client = new es.Client(JSON.parse(JSON.stringify(serverOptions))).cluster.client;
+
+        self.client.ping({
+            // undocumented params are appended to the query string
+            hello: "elasticsearch!"
+        }, function (error)
+        {
+            if (error)
+            {
+                callback(error, "elasticsearch cluster is down!");
+            }
+            else
+            {
+                self.client.indices.getMapping()
+                    .then(function (mapping)
+                    {
+                        return callback(null, self);
+                    },
+                    function (error)
+                    {
+                        Logger.log("error", "Error getting elasticSearch mappings");
+                        Logger.log("error", error);
+                        return callback(error, self);
+                    }
+                    );
+            }
+        });
     };
 
     // try calling apiMethod 10 times with linear backoff
@@ -317,53 +324,73 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
     {
         const documentId = document._id;
         delete document._id;
-        self.client.update({
-            index: self.short_name,
-            type: type,
-            id: documentId,
-            body: {
-                doc: document
-            },
-            waitForActiveShards: "all",
-            refresh: "true"
-        }, function (err, result)
+        self.open(function (err)
         {
-            if (isNull(err))
+            if (!err)
             {
-                return callback(null, result);
-            }
+                self.client.update({
+                    index: self.short_name,
+                    type: type,
+                    id: documentId,
+                    body: {
+                        doc: document
+                    },
+                    waitForActiveShards: "all",
+                    refresh: "true"
+                }, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        return callback(null, result);
+                    }
 
-            Logger.log("error", err.stack);
-            return callback(1, "Unable to REindex document " + JSON.stringify(err, null, 4));
+                    Logger.log("error", err.stack);
+                    return callback(1, "Unable to REindex document " + JSON.stringify(err, null, 4));
+                });
+            }
+            else
+            {
+                callback(err, "Unable to connect to elasticsearch for reindexing a document");
+            }
         });
     }
     else
     {
-        self.client.index({
-            index: self.short_name,
-            type: type,
-            body: document,
-            waitForActiveShards: "all",
-            refresh: "true"
-        }, function (err, data)
+        self.open(function (err)
         {
-            if (isNull(err))
+            if (!err)
             {
-                if (!isNull(document._id))
+                self.client.index({
+                    index: self.short_name,
+                    type: type,
+                    body: document,
+                    waitForActiveShards: "all",
+                    refresh: "true"
+                }, function (err, data)
                 {
-                    msg = "Document successfully REindexed:\n" + JSON.stringify(document) + " with ID " + data._id;
-                }
-                else
-                {
-                    msg = "Document successfully indexed:\n" + JSON.stringify(document) + " with ID " + data._id;
-                }
+                    if (isNull(err))
+                    {
+                        if (!isNull(document._id))
+                        {
+                            msg = "Document successfully REindexed:\n" + JSON.stringify(document) + " with ID " + data._id;
+                        }
+                        else
+                        {
+                            msg = "Document successfully indexed:\n" + JSON.stringify(document) + " with ID " + data._id;
+                        }
 
-                Logger.log("silly", msg);
-                return callback(null, msg);
+                        Logger.log("silly", msg);
+                        return callback(null, msg);
+                    }
+
+                    Logger.log("error", err.stack);
+                    return callback(1, "Unable to index document " + JSON.stringify(document));
+                });
             }
-
-            Logger.log("error", err.stack);
-            return callback(1, "Unable to index document " + JSON.stringify(document));
+            else
+            {
+                callback(err, "Unable to connect to elasticsearch for indexing a document");
+            }
         });
     }
 };
@@ -376,27 +403,37 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
         return callback(null, "No document to delete");
     }
 
-    self.client.delete(
+    self.open(function (err)
+    {
+        if (!err)
         {
-            index: self.short_name,
-            type: type,
-            id: documentID,
-            refresh: "true",
-            waitForActiveShards: "true"
-        },
-        function (err, result)
-        {
-            if (isNull(err))
-            {
-                return callback(null, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(err));
-            }
-            else if (err.status === 404)
-            {
-                return callback(null, "Document with id " + documentID + " does not exist already.");
-            }
+            self.client.delete(
+                {
+                    index: self.short_name,
+                    type: type,
+                    id: documentID,
+                    refresh: "true",
+                    waitForActiveShards: "true"
+                },
+                function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        return callback(null, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(err));
+                    }
+                    else if (err.status === 404)
+                    {
+                        return callback(null, "Document with id " + documentID + " does not exist already.");
+                    }
 
-            return callback(err.status, "Unable to delete document " + documentID + ".  error reported : " + JSON.stringify(err));
-        });
+                    return callback(err.status, "Unable to delete document " + documentID + ".  error reported : " + JSON.stringify(err));
+                });
+        }
+        else
+        {
+            callback(err, "Unable to connect to elasticsearch for simple search");
+        }
+    });
 };
 
 IndexConnection.create_all_indexes = function (numberOfShards, numberOfReplicas, deleteIfExists, callback)
@@ -510,20 +547,31 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
 IndexConnection.prototype.delete_index = function (callback)
 {
     const self = this;
-    self.client.indices.delete(
+    self.open(function (err)
+    {
+        if (!err)
         {
-            index: self.short_name
-        }, function (err, data)
-        {
-            if (isNull(err) && !data.error)
-            {
-                return callback(null, "Index with name " + self.short_name + " successfully deleted.");
-            }
+            self.client.indices.delete(
+                {
+                    index: self.short_name
+                }, function (err, data)
+                {
+                    if (isNull(err) && !data.error)
+                    {
+                        return callback(null, "Index with name " + self.short_name + " successfully deleted.");
+                    }
 
-            const error = "Error deleting index : " + JSON.stringify(data);
-            Logger.log("error", error);
-            return callback(error, data.error);
-        });
+                    const error = "Error deleting index : " + JSON.stringify(data);
+                    Logger.log("error", error);
+                    self.client.close();
+                    return callback(error, data.error);
+                });
+        }
+        else
+        {
+            callback(err, "Unable to connect to elasticsearch for deleting index " + self.index);
+        }
+    });
 };
 
 // according to the elasticsearch docs (see below)
@@ -588,21 +636,33 @@ IndexConnection.prototype.search = function (
 {
     let self = this;
 
-    self.client.search(
+    self.open(function (err)
+    {
+        if (!err)
         {
-            index: self.short_name,
-            type: typeName,
-            body: queryObject
-        })
-        .then(function (response)
+            self.client.search(
+                {
+                    index: self.short_name,
+                    type: typeName,
+                    body: queryObject
+                })
+                .then(function (response)
+                {
+                    self.client.close();
+                    return callback(null, response.hits.hits);
+                }, function (error)
+                {
+                    self.client.close();
+                    error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
+                    Logger.log("error", error);
+                    return callback(1, error);
+                });
+        }
+        else
         {
-            return callback(null, response.hits.hits);
-        }, function (error)
-        {
-            error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
-            Logger.log("error", error);
-            return callback(1, error);
-        });
+            callback(err, "Unable to connect to elasticsearch for simple search");
+        }
+    });
 };
 
 IndexConnection.prototype.moreLikeThis = function (
@@ -614,31 +674,43 @@ IndexConnection.prototype.moreLikeThis = function (
 
     if (!isNull(documentId))
     {
-        self.client.search(
-            self.short_name,
-            typeName,
+        self.open(function (err)
+        {
+            if (!err)
             {
-                query: {
-                    more_like_this: {
-                        docs: [
-                            {
-                                _index: self.short_name,
-                                _type: typeName,
-                                _id: documentId
+                self.client.search(
+                    self.short_name,
+                    typeName,
+                    {
+                        query: {
+                            more_like_this: {
+                                docs: [
+                                    {
+                                        _index: self.short_name,
+                                        _type: typeName,
+                                        _id: documentId
+                                    }
+                                ]
                             }
-                        ]
-                    }
-                }
-            })
-            .then(function (data)
+                        }
+                    })
+                    .then(function (data)
+                    {
+                        self.client.close();
+                        return callback(null, data.hits.hits);
+                    }, function (error)
+                    {
+                        self.client.close();
+                        error = "Error fetching documents similar to document with ID : " + documentId + ". Reported error : " + JSON.stringify(error);
+                        Logger.log("error", error);
+                        return callback(1, error);
+                    });
+            }
+            else
             {
-                return callback(null, data.hits.hits);
-            }, function (error)
-            {
-                error = "Error fetching documents similar to document with ID : " + documentId + ". Reported error : " + JSON.stringify(error);
-                Logger.log("error", error);
-                return callback(1, error);
-            });
+                callback(err, "Unable to connect to elasticsearch for finding textually similar documents.");
+            }
+        });
     }
     else
     {
@@ -646,16 +718,6 @@ IndexConnection.prototype.moreLikeThis = function (
         Logger.log("error", error);
         return callback(1, error);
     }
-};
-
-/**
- * Exports
- */
-
-IndexConnection.prototype.transformURIintoVarName = function (uri)
-{
-    const transformedUri = uri.replace(/[^A-z]|[0-9]/g, "_");
-    return transformedUri;
 };
 
 module.exports.IndexConnection = IndexConnection;

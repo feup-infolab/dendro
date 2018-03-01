@@ -61,7 +61,7 @@ describe("Administration list orphan resources tests ( /admin/list_orphan_resour
         const AddMetadataToFoldersInPublicProjectUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
         const foldersData = CreateFoldersPublicProject.foldersData;
 
-        AddMetadataToFoldersInPublicProjectUnit.setup(publicProject, function (err, res)
+        AddMetadataToFoldersInPublicProjectUnit.setup(function (err, res)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

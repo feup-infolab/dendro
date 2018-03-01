@@ -18,9 +18,7 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
         self.startLoad(path.basename(__filename));
         super.load(function (err, results)
         {
-            self.endLoad(path.basename(__filename));
-
-            callback(err, results);
+            self.endLoad(path.basename(__filename), callback);
         });
     }
     static init (callback)

@@ -58,10 +58,6 @@ exports.clearAppState = function (cb)
                 delete global.tests.server;
                 return cb(err, results);
             }, 1000);
-
-            // delete global.tests.app;
-            // delete global.tests.server;
-            // return cb(err, results);
         });
     });
 };

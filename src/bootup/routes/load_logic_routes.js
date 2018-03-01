@@ -173,8 +173,10 @@ const loadRoutes = function (app, callback)
                 }
                 else
                 {
+                    const msg = "Unknown error during authentication while fetching user with username " + username + " : " + err;
+                    Logger.log("error", msg);
                     Logger.log("error", err.stack);
-                    return done("Unknown error during authentication, fetching user with username " + username, null);
+                    return done(err, null);
                 }
             });
         })

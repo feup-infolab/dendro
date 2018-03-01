@@ -59,7 +59,7 @@ describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resour
     {
         let CreateFoldersPublicProject = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersPublicProject.Unit.js"));
         const foldersData = createFoldersSingleProjectUnit.foldersData;
-        CreateFoldersPublicProject.setup(publicProject, function (err, res)
+        CreateFoldersPublicProject.setup(function (err, res)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

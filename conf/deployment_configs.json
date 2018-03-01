@@ -1424,7 +1424,7 @@
             "reload_demo_users_on_startup": false,
             "reload_ontologies_on_startup": false,
             "clear_session_store": false,
-            "log_bootup_actions": false,
+            "log_bootup_actions": true,
             "destroy_all_graphs": true,
             "destroy_all_indexes": true,
             "destroy_datastore": true,
@@ -1554,7 +1554,7 @@
         "numCPUs": 1,
         "docker": {
           "active": true,
-          "reuse_checkpoints": true
+          "reuse_checkpoints": false
         }
     }
 }

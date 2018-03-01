@@ -32,8 +32,7 @@ class LoadOntologies extends TestUnit
                     {
                         loadOntologies(null, function (err, result)
                         {
-                            self.endLoad(path.basename(__filename));
-                            callback(err);
+                            self.endLoad(path.basename(__filename), callback);
                         }, true);
                     });
                 });

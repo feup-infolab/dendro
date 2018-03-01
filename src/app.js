@@ -72,10 +72,13 @@ if (process.env.NODE_ENV === "production")
         }
     }
 }
-else
+// App has to be manually started by units in Test mode.
+else if (process.env.NODE_ENV !== "test")
 {
     dendroInstance.killPM2InstancesIfRunning(function (err)
     {
         dendroInstance.startApp();
     });
 }
+
+callback(null);

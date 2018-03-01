@@ -56,9 +56,7 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
                             {
                                 if (data.error.name[0] === "Group name already exists in database")
                                 {
-                                    self.endLoad(path.basename(__filename));
-
-                                    callback(null, data);
+                                    self.endLoad(path.basename(__filename), callback);
                                 }
                                 else
                                 {
@@ -67,9 +65,7 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
                             }
                             else
                             {
-                                self.endLoad(path.basename(__filename));
-
-                                callback(err, data);
+                                self.endLoad(path.basename(__filename), callback);
                             }
                         });
                     }

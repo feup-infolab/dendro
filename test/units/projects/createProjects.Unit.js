@@ -61,8 +61,7 @@ class CreateProjects extends CreateUsersUnit
                     });
                 }, function (err, results)
                 {
-                    self.endLoad(path.basename(__filename));
-                    callback(err, results);
+                    self.endLoad(path.basename(__filename), callback);
                 });
             }
         });
