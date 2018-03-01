@@ -24,6 +24,7 @@ const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUti
 const generalDatasetUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/generalDatasetUtils.js"));
 const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
 
+const moment = require("moment");
 const async = require("async");
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");

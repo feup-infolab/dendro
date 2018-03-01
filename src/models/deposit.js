@@ -43,6 +43,8 @@ function Deposit(object){
 
     let now = moment().format();
     self.dcterms.date = now;
+    self.ddr.lastVerifiedDate = now;
+    self.ddr.isAvailable = true;
 
     return self;
 }
@@ -245,33 +247,33 @@ Deposit.createQuery = function(params, callback){
 
 Deposit.validatePlatformUri = function(deposit, callback){
   //if it has external repository uri
-  if(deposit.ddr.hasExternalUri){
-    const now = moment.now();
-    const lastChecked = moment(deposit.dcterms.modified);
+  if(deposit.ddr.lastVerifiedDate){
+    const now = moment();
+    const lastChecked = moment(deposit.ddr.lastVerifiedDate);
     //calculate difference
+    const difference = now.diff(lastChecked, "hours");
 
-    let difference = now.valueOf() - lastChecked.valueOf();
-
-    if(difference >= 1000000){
+    if(difference >= 24){
       //make call to the uri and see if request is 404 or not
-      request(deposit.ddr.hasExternalUri, function (error, response, body) {
+      const uri = "https://" + deposit.ddr.exportedToRepository + "/api/records/" + deposit.dcterms.identifier;
+      request(uri, function (error, response, body) {
         if(error || response.statusCode === 404){
-          callback(false);
-        }else {
+          deposit.ddr.isAvailable = false;
+        }else if(response.statusCode === 200){
           //status code is acceptable
-          deposit.dcterms.modified = now;
-          deposit.save(function(err, result){
-            if(err){
-              callback(false);
-            }else {
-              callback(true, result);
-            }
-          });
+          deposit.ddr.isAvailable = true;
         }
+        deposit.ddr.lastVerifiedDate = now.format();
+        deposit.save(function(err, result){
+          if(isNull(err)){
+            callback(result);
+          }else {
+            callback(result);
+          }
+        });
       })
-
-    }
-  } else return false;
+    } else callback(deposit);
+  } else callback(deposit);
 
 
 };

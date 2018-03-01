@@ -19,7 +19,7 @@
         </tr>
         <tr>
             <td>Exported From Project: </td>
-            <td><a href="<%= locals.deposit.ddr.exportedFromProject%>">abcd</a></td>
+            <td><a href="<%= locals.deposit.ddr.exportedFromProject%>"><%=locals.deposit.ddr.exportedFromProject%></a></td>
         </tr>
         <tr>
             <td>Deposit creator: </td>
@@ -35,7 +35,7 @@
         </tr>
         <tr>
             <td>External deposit: </td>
-            <td><a href="<%= locals.deposit.externalUri%>">Outside Deposit</a></td>
+            <td><a href="<%= locals.deposit.externalUri%>">Outside Deposit</a>&nbsp &nbsp<span ng-if="<%=locals.deposit.ddr.isAvailable%>" class="glyphicon glyphicon-thumbs-up"></span><span ng-if="!<%=locals.deposit.ddr.isAvailable%>" class="glyphicon glyphicon-thumbs-down"></span></td>
         </tr>
         <tr>
             <td>Exported from parent folder: </td>

@@ -1300,6 +1300,18 @@ Elements.ontologies.ddr = {
       type: Elements.types.string,
       locked: true,
       control: Controls.input_box
+  },
+    isAvailable:
+  {
+      type: Elements.types.boolean,
+      locked: true,
+      control: Controls.input_box
+  },
+    lastVerifiedDate:
+  {
+    type: Elements.types.string,
+    locked: true,
+    control: Controls.input_box
   }
 };
 
