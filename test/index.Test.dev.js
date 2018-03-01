@@ -19,6 +19,12 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 //interaction tests
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list/routes.interactions.acceptDescriptorFromQuickList.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAProjectFavorite.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAUserFavorite.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAUserAndProjectFavorite.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_manual_list/routes.interactions.acceptDescriptorFromManualList.Test.js"));
+///interactions/accept_descriptor_from_manual_list
 return;
 
 // Import projects tests

@@ -416,6 +416,18 @@ Interaction.types =
         key: "accept_descriptor_from_manual_list",
         positive: true
     },
+    accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite: {
+        key: "accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite",
+        positive: true
+    },
+    accept_descriptor_from_quick_list_while_it_was_a_user_favorite: {
+        key: "accept_descriptor_from_quick_list_while_it_was_a_user_favorite",
+        positive: true
+    },
+    accept_descriptor_from_quick_list_while_it_was_a_project_favorite: {
+        key: "accept_descriptor_from_quick_list_while_it_was_a_project_favorite",
+        positive: true
+    },
     accept_descriptor_from_manual_list_while_it_was_a_project_favorite: {
         key: "accept_descriptor_from_manual_list_while_it_was_a_project_favorite",
         positive: true
