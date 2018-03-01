@@ -4,16 +4,16 @@
     </div>
     <div class="panel-body">
         <div class="col-xs-12 col-md-12" ng-show="file.calculating_md5 && !file.has_error">
-            <span><i class="fa fa-cog faa-spin animated"></i>Calculating MD5 for verified upload... {{file.md5_progress}} %</span>
+            <span><i class="fa fa-cog faa-spin animated"></i>Calculating MD5 for verified upload... {{file.md5_progress()}} % &nbsp;&nbsp;<a onclick="return false;" ng-click="skipValidationAndUpload(file)">Skip</a></span>
 
             <div class="progress thin-progress"
-                 uib-tooltip="{{file.md5_progress}} % -{{file.name}} - size: {{file.size}}B - type: {{file.type}} - MD5 Checksum: {{file.md5}}"
+                 uib-tooltip="{{file.md5_progress()}} % -{{file.name}} - size: {{file.size}}B - type: {{file.type}} - MD5 Checksum: {{file.md5}}"
                  tooltip-placement="top"
                  tooltip-trigger="mouseenter">
                 <div class="progress-bar thin-progress progress-bar-striped"
                      ng-class="{'active' : file.md5_progress < 100, 'progress-bar-success' : file.md5_progress == 100, 'progress-bar-info' : file.md5_progress > 0 && file.md5_progress < 100}"
-                     role="progressbar" aria-valuenow="{{file.md5_progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{file.md5_progress}}%">
-                    <span class="sr-only" ng-hide="file.error">{{file.md5_progress}}% Complete</span>
+                     role="progressbar" aria-valuenow="{{file.md5_progress()}}" aria-valuemin="0" aria-valuemax="100" style="width: {{file.md5_progress()}}%">
+                    <span class="sr-only" ng-hide="file.error">{{file.md5_progress()}}% Complete</span>
                 </div>
             </div>
         </div>

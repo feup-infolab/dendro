@@ -19,6 +19,8 @@ global.tests = {};
 
 // Search
 // require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
+// Import projects tests
+// require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/keywords/route.keywords.Test.js"));
 

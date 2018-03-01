@@ -44,11 +44,12 @@ angular.module("dendroApp.services")
                 this.uploadUsingUpload = function (file, upload_url, resumable, chunkSize)
                 {
                     var url = URI(upload_url);
-                    var keys = Object.keys(file);
+                    var keys = Object.keys(JSON.parse(JSON.stringify(file)));
 
-                    for (var key in file)
+                    for (var i = 0; i < keys.length; i++)
                     {
-                        if (file.hasOwnProperty(key))
+                        var key = keys[i];
+                        if (file.hasOwnProperty(key) && ((typeof file[key] === "string") || typeof file[key] === "boolean"))
                         {
                             url.addSearch(key, file[key]);
                         }
@@ -206,15 +207,11 @@ angular.module("dendroApp.services")
                     return ticketPromise.promise;
                 };
 
-                this.calculate_md5 = function (file, callback, progressCallback)
+                this.calculate_md5 = function (file, callback)
                 {
-                    browserMD5File(file, function (err, md5)
+                    return new BrowserMD5File(file, function (err, md5)
                     {
-                        callback(err, md5); // 97027eb624f85892c69c4bcec8ab0f11
-                    },
-                    function (progress)
-                    {
-                        progressCallback(progress);
+                        callback(err, md5);
                     });
                 };
             }

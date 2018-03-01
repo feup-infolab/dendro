@@ -1,5 +1,8 @@
 const path = require("path");
-let async = require("async");
+const async = require("async");
+const pm2 = require("pm2");
+const argv = require("yargs").argv;
+let Q = require("q");
 
 const self = this;
 
@@ -22,7 +25,95 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const startApp = function ()
+Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
+let serverListeningPromise = Q.defer();
+
+const reloadPM2Slave = exports.reloadPM2Slave = function (cb)
+{
+    pm2.connect(function (err)
+    {
+        if (err)
+        {
+            console.error(err);
+            process.exit(2);
+        }
+
+        pm2.gracefulReload(function (err)
+        {
+
+        });
+    });
+};
+
+const killPM2InstancesIfRunning = exports.killPM2InstancesIfRunning = function (cb)
+{
+    pm2.connect(function (err)
+    {
+        if (err)
+        {
+            console.error(err);
+            process.exit(2);
+        }
+
+        pm2.delete(Config.pm2AppName, function (err)
+        {
+            cb(err);
+        });
+    });
+};
+
+const startPM2Master = exports.startPM2Master = function (cb)
+{
+    Logger.log_boot_message("PM2 log file path: " + Logger.getLogFilePath());
+    pm2.connect(function (err)
+    {
+        if (err)
+        {
+            console.error(err);
+            process.exit(2);
+        }
+
+        pm2.delete(Config.pm2AppName, function (err)
+        {
+            Logger.log_boot_message("PM2 log file path: " + Logger.getLogFilePath());
+            Logger.log_boot_message("PM2 error file path: " + Logger.getErrorLogFilePath());
+
+            pm2.start({
+                // Script to be run
+                script: path.join(appDir, "src", "app.js"),
+                // Allows your app to be clustered
+                exec_mode: "cluster",
+                name: Config.pm2AppName,
+                // Optional: Scales your app by X
+                instances: (isNull(Config.numCPUs)) ? "max" : Config.numCPUs,
+                // max_memory_restart : '1024M'   // Optional: Restarts your app if it reaches 100Mo
+                args: ["--pm2_slave=1"],
+                logDateFormat: "YYYY-MM-DD HH:mm Z",
+                // we will handle logs on our own with winston. This is necessary so that there are no conflicts
+                out_file: Logger.getLogFilePath(),
+                error_file: Logger.getErrorLogFilePath(),
+                // merge_logs: true,
+                cwd: appDir,
+                pid: path.join(appDir, "running.pid")
+            }, function (err, apps)
+            {
+                // Disconnects from PM2
+                pm2.disconnect();
+                if (err)
+                {
+                    throw err;
+                }
+
+                if (typeof cb === "function")
+                {
+                    cb();
+                }
+            });
+        });
+    });
+};
+
+const initLogger = function ()
 {
     if (global.app_startup_time)
     {
@@ -32,7 +123,10 @@ const startApp = function ()
     {
         Logger.init(new Date());
     }
+};
 
+const startApp = function ()
+{
     Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
 
     if (process.env.NODE_ENV === "test")
@@ -58,13 +152,10 @@ const startApp = function ()
      */
 
     let express = require("express");
-    let Q = require("q");
 
     /**
      * Promise for reporting the bootup operation.
      */
-
-    let serverListeningPromise = Q.defer();
 
     self.app = express();
 
@@ -136,12 +227,10 @@ const startApp = function ()
                 // init_elasticsearch
                 require(Pathfinder.absPathInSrcFolder("bootup/init/init_elasticsearch.js")).initElasticSearch(self.app, callback);
             },
-            function (app, index, callback)
+            function (callback)
             {
-                // save index connection
-                self.index = index;
                 // create search indexes on elasticsearch if needed
-                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(app, self.index, callback);
+                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
             },
             function (callback)
             {
@@ -161,12 +250,12 @@ const startApp = function ()
             function (callback)
             {
                 // init temporary files directory
-                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_folder.js")).initTempFilesFolder, self.app, callback);
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_folder.js")).initTempFilesFolder(self.app, callback);
             },
             function (callback)
             {
                 // init folder for temporary files
-                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder, self.app, callback);
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder(self.app, callback);
             },
             function (callback)
             {
@@ -286,10 +375,28 @@ const startApp = function ()
             {
                 // add graceful closing methods to release connections on server shutdown, for example
                 require(Pathfinder.absPathInSrcFolder("bootup/init/setup_graceful_close.js")).setupGracefulClose(self.app, self.server, callback);
+            },
+            function (callback)
+            {
+                require(Pathfinder.absPathInSrcFolder("bootup/cron_jobs/delete_old_temp_folders.js")).deleteOldTempFolders(self.app, callback);
             }
         ], function (err, result)
         {
-            callback(err, result);
+            if (!isNull(err))
+            {
+                if (err === true)
+                {
+                    throw new Error(JSON.stringify(result));
+                }
+                else
+                {
+                    throw new Error(err);
+                }
+            }
+            else
+            {
+                callback(err, result);
+            }
         });
     };
 
@@ -330,16 +437,15 @@ const startApp = function ()
                 result: result
             });
         }
-    }
-    );
-
-    exports.serverListening = serverListeningPromise.promise;
+    });
 };
 
 if (isNull(process.env.NODE_ENV) && !isNull(Config.environment))
 {
     process.env.NODE_ENV = Config.environment;
 }
+
+initLogger();
 
 if (process.env.NODE_ENV === "production")
 {
@@ -351,58 +457,50 @@ if (process.env.NODE_ENV === "production")
         Config.numCPUs = os.cpus().length;
     }
 
-    // master instance will start the slaves and exit.
-    if (!Config.runningAsSlave)
+    if (!isNull(argv.stop))
     {
-        Logger.log("info", `Starting master process with PID ${process.pid}...`);
-        Logger.log("info", `Using ${Config.numCPUs} app instances...`);
-        const pm2 = require("pm2");
-
-        pm2.connect(function (err)
+        killPM2InstancesIfRunning(function (err)
         {
-            if (err)
+            if (isNull(err))
             {
-                console.error(err);
-                process.exit(2);
+                const msg = "PM2 instances of " + Config.pm2AppName + " ended successfully.";
+                Logger.log("info", msg);
+                process.exit(0);
             }
-
-            const appName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
-
-            pm2.delete(appName, function (err)
+            else
             {
-                pm2.start({
-                    // Script to be run
-                    script: path.join(appDir, "src", "app.js"),
-                    // Allows your app to be clustered
-                    exec_mode: "cluster",
-                    name: appName,
-                    // Optional: Scales your app by X
-                    instances: (isNull(Config.numCPUs)) ? "max" : Config.numCPUs,
-                    // max_memory_restart : '1024M'   // Optional: Restarts your app if it reaches 100Mo
-                    args: ["--pm2_slave=1"],
-                    out_file: Logger.getLogFilePath(),
-                    error_file: Logger.getErrorLogFilePath(),
-                    merge_logs: true,
-                    cwd: appDir
-                }, function (err, apps)
-                {
-                    // Disconnects from PM2
-                    pm2.disconnect();
-                    if (err)
-                    {
-                        throw err;
-                    }
-                });
-            });
+                const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
+                Logger.log("warn", msg);
+            }
         });
     }
     else
     {
-        Logger.log("info", `Starting slave process with PID ${process.pid}...`);
-        startApp();
+        // master instance will start the slaves and exit.
+        if (!Config.runningAsSlave)
+        {
+            Logger.log("info", `Starting master process with PID ${process.pid}...`);
+            Logger.log("info", `Using ${Config.numCPUs} app instances...`);
+            startPM2Master();
+        }
+        else
+        {
+            Logger.log("info", `Starting slave process with PID ${process.pid}...`);
+            startApp();
+        }
     }
 }
 else
 {
-    startApp();
+    killPM2InstancesIfRunning(function (err)
+    {
+        startApp();
+        if (!isNull(err))
+        {
+            const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
+            Logger.log("warn", msg);
+        }
+    });
 }
+
+exports.serverListening = serverListeningPromise.promise;

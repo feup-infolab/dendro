@@ -13,7 +13,11 @@ const projectData = {
     coverage: "Porto",
     handle: privateProjectHandle,
     privacy: "private",
-    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/privateprojecthtmlcreatedbydemouser1.zip")
+    storageConfig: {
+        hasStorageType: "local"
+    },
+    backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/privateprojecthtmlcreatedbydemouser1.zip"),
+    searchTerms: privateProjectHandle
 };
 
 module.exports = projectData;

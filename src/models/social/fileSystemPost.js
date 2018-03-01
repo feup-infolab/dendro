@@ -21,36 +21,11 @@ var async = require("async");
 
 function FileSystemPost (object)
 {
-    /* FileSystemPost.baseConstructor.call(this, object);
-    var self = this;
-
-    if(object.uri != null)
-    {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/posts/" + uuid.v4();
-    }
-
-    self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:FileSystemPost";
-
-    return self; */
-
     const self = this;
     self.addURIAndRDFType(object, "post", FileSystemPost);
     FileSystemPost.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-
-    const newId = uuid.v4();
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
-    }
 
     return self;
 }
@@ -200,11 +175,26 @@ FileSystemPost.prototype.getResourceInfo = function (callback)
         }
         else
         {
-            Logger.log("error", "Error getting resource info from a FileSystemPost");
-            Logger.log("error", resource);
+            Logger.log("warn", "Error getting resource info from a FileSystemPost");
+            Logger.log("warn", resource);
             callback(err, resource);
         }
     }, null, db.graphUri, false, null, null);
+};
+
+FileSystemPost.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        callback(null, "/posts/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
 };
 
 /* FileSystemPost = Class.extend(FileSystemPost, Post); */

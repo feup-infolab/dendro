@@ -284,7 +284,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                     }
                     else
                     {
-                        Logger.log("error", "Error while setting connection settings for running queries");
+                        Logger.log("error", "Error while setting connection for running queries");
                         Logger.log("error", JSON.stringify(err));
                         Logger.log("error", JSON.stringify(results));
                         callback(null, connection);
@@ -293,6 +293,9 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
             }
             else
             {
+                Logger.log("error", "Error while reserving connection for running query");
+                Logger.log("error", JSON.stringify(err));
+                Logger.log("error", JSON.stringify(connection));
                 callback(err, connection);
             }
         });
@@ -362,6 +365,10 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
 
                                 callback(err, results);
                             });
+                        }
+                        else
+                        {
+                            callback(err, results);
                         }
                     });
                 }
@@ -670,14 +677,29 @@ DbConnection.prototype.create = function (callback)
             ]);
         }
 
+        // Working config in Dendro PRD, 22-12-2017
+        /*
+        const timeoutSecs = 10;
         const config = {
             // Required
-            url: "jdbc:virtuoso://" + self.host + ":" + self.port_isql + "/UID=" + self.username + "/PWD=" + self.password + "/PWDTYPE=cleartext" + "/CHARSET=UTF-8",
+            url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
             drivername: "virtuoso.jdbc4.Driver",
-            maxpoolsize: self.maxSimultaneousConnections,
+            maxpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
             minpoolsize: 1,
             // 10 seconds idle time
-            // maxidle: 1000 * 10,
+            maxidle: 1000 * timeoutSecs,
+            properties: {}
+        };*/
+
+        const timeoutSecs = 60;
+        const config = {
+            // Required
+            url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
+            drivername: "virtuoso.jdbc4.Driver",
+            maxpoolsize: self.maxSimultaneousConnections,
+            minpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
+            // 600 seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
+            // maxidle: 1000 * timeoutSecs * 10,
             properties: {}
         };
 
@@ -710,7 +732,7 @@ DbConnection.prototype.create = function (callback)
                 }, queryObject.runAsUpdate);
             },
             {
-                concurrent: self.maxSimultaneousConnections,
+                concurrent: 1,
                 maxTimeout: self.dbOperationTimeout,
                 maxRetries: 10,
                 // retryDelay : 100,
@@ -1114,7 +1136,7 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
                 //     runAsUpdate
                 // );
 
-                // Uncomment to use NodeJS Query queues for concurency control
+                // Uncomment to use NodeJS Query queues for concurrency control
                 self.queue_jdbc.push({
                     queryStartTime: new Date(),
                     query: query,

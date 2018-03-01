@@ -1,5 +1,6 @@
 const path = require("path");
 const Pathfinder = global.Pathfinder;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -110,7 +111,7 @@ exports.recommend_descriptors = function (req, res)
 
             const allowedOntologies = getAllowedOntologies();
 
-            exports.shared.recommend_descriptors(req.params.requestedResourceUri, req.user.uri, req.query.page, allowedOntologies, req.index, function (err, descriptors)
+            exports.shared.recommend_descriptors(req.params.requestedResourceUri, req.user.uri, req.query.page, allowedOntologies, IndexConnection.getDefault(), function (err, descriptors)
             {
                 if (isNull(err))
                 {
@@ -362,7 +363,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     }
                 );
 
-                resource.getTextuallySimilarResources(indexConnection, Config.limits.index.maxResults, function (err, similarResources)
+                resource.getTextuallySimilarResources(function (err, similarResources)
                 {
                     if (!isNull(err) && !isNull(similarResources) && similarResources instanceof Array)
                     {
@@ -391,7 +392,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                         Logger.log("error", error);
                         return callback(1, error);
                     }
-                });
+                }, Config.limits.index.maxResults);
             };
 
             /**

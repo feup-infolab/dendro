@@ -1,31 +1,119 @@
 angular.module("dendroApp.services")
     .service("dendroConfigurationService", ["$http", function ($http)
     {
-        this.getConfiguration = function (current_resource_uri, typed)
+        this.saveConfiguration = function (configuration)
         {
-            if (typeof typed !== "undefined")
-            {
-                return $http({
-                    method: "GET",
-                    params: {
-                        descriptor_autocomplete: typed
-                    },
-                    url: current_resource_uri,
-                    responseType: "json",
-                    headers: {Accept: "application/json"}
+            return $http({
+                method: "POST",
+                url: "/admin/config",
+                data: configuration,
+                responseType: "json",
+                headers: {Accept: "application/json"}
+            })
+                .then(function (response)
+                {
+                    return response.data;
                 })
-                    .then(function (response)
-                    {
-                        return response.data.map(function (item)
-                        {
-                            return item;
-                        });
-                    })
-                    .catch(function (error)
-                    {
-                        console.log("error", error);
-                        throw error;
-                    });
-            }
+                .catch(function (error)
+                {
+                    console.log("error", error);
+                    throw error;
+                });
+        };
+
+        this.nukeOrphanResources = function ()
+        {
+            return $http({
+                method: "POST",
+                url: "/admin/nuke_orphan_resources",
+                responseType: "json",
+                headers: {Accept: "application/json"}
+            })
+                .then(function (response)
+                {
+                    return JSON.stringify(response.data);
+                })
+                .catch(function (error)
+                {
+                    console.log("error", error);
+                    throw error;
+                });
+        };
+
+        this.listOrphanResources = function ()
+        {
+            return $http({
+                method: "GET",
+                url: "/admin/list_orphan_resources",
+                responseType: "json",
+                headers: {Accept: "application/json"}
+            })
+                .then(function (response)
+                {
+                    return JSON.stringify(response.data);
+                })
+                .catch(function (error)
+                {
+                    console.log("error", error);
+                    throw error;
+                });
+        };
+
+        this.getConfiguration = function ()
+        {
+            return $http({
+                method: "GET",
+                url: "/admin/config",
+                responseType: "json",
+                headers: {Accept: "application/json"}
+            })
+                .then(function (response)
+                {
+                    return response.data;
+                })
+                .catch(function (error)
+                {
+                    console.log("error", error);
+                    throw error;
+                });
+        };
+
+        this.getLogs = function (nLines)
+        {
+            return $http({
+                method: "GET",
+                url: "/admin/logs",
+                params: {lines: nLines},
+                responseType: "json",
+                headers: {Accept: "application/json"}
+            })
+                .then(function (response)
+                {
+                    return response.data;
+                })
+                .catch(function (error)
+                {
+                    console.log("error", error);
+                    throw error;
+                });
+        };
+
+        this.restartServer = function ()
+        {
+            return $http({
+                method: "POST",
+                url: "/admin/restart",
+                responseType: "json",
+                headers: {Accept: "application/json"}
+            })
+                .then(function (response)
+                {
+                    return response.data;
+                })
+                .catch(function (error)
+                {
+                    console.log("error", error);
+                    throw error;
+                });
         };
     }]);

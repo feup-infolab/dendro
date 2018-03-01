@@ -1,6 +1,6 @@
-const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
@@ -30,11 +30,14 @@ function HarvestedResource (object)
  * @param callback function to call after the resource is saved
  */
 
-HarvestedResource.prototype.save = function (indexConnection, callback)
+HarvestedResource.prototype.save = function (callback, customGraphUri)
 {
     const self = this;
     let metadataInsertionString = "";
     let argumentCount = 6;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
     const argumentsArray =
     [

@@ -28,15 +28,6 @@ function Folder (object)
     self.addURIAndRDFType(object, "folder", Folder);
     Folder.baseConstructor.call(this, object);
 
-    if (
-        isNull(self.ddr) &&
-        isNull(self.ddr.humanReadableURI) &&
-        !isNull(object.nie)
-    )
-    {
-        self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
-    }
-
     self.ddr.fileExtension = "folder";
     self.ddr.hasFontAwesomeClass = "fa-folder";
 
@@ -659,8 +650,6 @@ Folder.prototype.restoreFromLocalBackupZipFile = function (zipFileAbsLocation, u
         {
             if (exists)
             {
-                const fs = require("fs");
-
                 fs.readdir(unzippedContentsLocation, function (err, files)
                 {
                     files = InformationElement.removeInvalidFileNames(files);
@@ -864,7 +853,9 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     }
                     else
                     {
-                        return cb(1, "Error loading file " + self.uri + " from local file " + localFilePath);
+                        const msg = "Error loading file " + self.uri + " from local file " + localFilePath + " Error reported: " + childFile;
+                        Logger.log("error", msg);
+                        return cb(1, msg);
                     }
                 });
             }
@@ -884,6 +875,10 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
             if (runningOnRoot)
             {
                 files = _.without(files, Config.packageMetadataFileName);
+                if (replaceExistingFolder)
+                {
+                    self.nie.title = path.basename(absolutePathOfLocalFolder);
+                }
             }
 
             if (files.length > 0)
@@ -895,21 +890,30 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     const absPath = path.join(absolutePathOfLocalFolder, fileName);
                     fs.stat(absPath, function (err, stats)
                     {
-                        if (stats.isFile())
+                        if (isNull(err))
                         {
-                            loadChildFile(fileName, function (err, savedChildFile)
+                            if (stats.isFile())
                             {
-                                // Logger.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
-                                return cb(err, savedChildFile);
-                            });
+                                loadChildFile(fileName, function (err, savedChildFile)
+                                {
+                                    // Logger.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
+                                    return cb(err, savedChildFile);
+                                });
+                            }
+                            else if (stats.isDirectory())
+                            {
+                                loadChildFolder(fileName, function (err, savedChildFolder)
+                                {
+                                    // Logger.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
+                                    return cb(err, savedChildFolder);
+                                });
+                            }
                         }
-                        else if (stats.isDirectory())
+                        else
                         {
-                            loadChildFolder(fileName, function (err, savedChildFolder)
-                            {
-                                // Logger.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
-                                return cb(err, savedChildFolder);
-                            });
+                            const msg = "Unable to determine the contents of folder " + self.uri + " when loading a the contents of a folder into it: " + JSON.stringify(err);
+                            Logger.log("error", msg);
+                            return cb(err, stats);
                         }
                     });
                 }, function (err, results)
@@ -944,7 +948,8 @@ Folder.prototype.loadMetadata = function (
     callback,
     entityLoadingTheMetadata,
     excludedDescriptorTypes,
-    exceptionedDescriptorTypes
+    exceptionedDescriptorTypes,
+    restoreIntoTheSameRootFolder
 )
 {
     const self = this;
@@ -984,33 +989,166 @@ Folder.prototype.loadMetadata = function (
 
         const loadMetadataForChildFolder = function (childNode, callback)
         {
+            //Child is a folder
             if (!isNull(childNode.children) && childNode.children instanceof Array)
             {
-                Folder.findByUri(childNode.resource, function (err, folder)
+                //we are restoring a folder into the same original folder
+                //so we can look for the child by uri
+                if(!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder === true)
                 {
-                    if (isNull(err) && !isNull(folder))
+                    Folder.findByUri(childNode.resource, function (err, folder)
                     {
-                        folder.loadMetadata(
-                            childNode,
-                            function (err, result)
-                            {
-                                folderCallback(folder, err, result, callback);
-                            },
-                            entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
-                        );
-                    }
-                    else
-                    {
-                        const titleDescriptor = getDescriptor("nie:title", childNode);
-                        self.findChildWithDescriptor(titleDescriptor, function (err, folder)
+                        if (isNull(err) && !isNull(folder))
                         {
-                            if (isNull(err) && !isNull(folder))
+                            // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                            folder.nie.isLogicalPartOf = self.uri;
+                            folder.loadMetadata(
+                                childNode,
+                                function (err, result)
+                                {
+                                    folderCallback(folder, err, result, callback);
+                                },
+                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes, restoreIntoTheSameRootFolder
+                            );
+                        }
+                        else
+                        {
+                            const titleDescriptor = getDescriptor("nie:title", childNode);
+                            self.findChildWithDescriptor(titleDescriptor, function (err, folder)
                             {
-                                folder.loadMetadata(
+                                if (isNull(err) && !isNull(folder))
+                                {
+                                    // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                                    folder.nie.isLogicalPartOf = self.uri;
+                                    folder.loadMetadata(
+                                        childNode,
+                                        function (err, result)
+                                        {
+                                            folderCallback(folder, err, result, callback);
+                                        },
+                                        entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes, restoreIntoTheSameRootFolder
+                                    );
+                                }
+                                else
+                                {
+                                    const msg = "Unable to find a folder with title " + titleDescriptor.value;
+                                    Logger.log("error", msg);
+                                    callback(404, msg);
+                                }
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    //we are restoring a folder into a folder other than the original folder
+                    //so we cannot look for the child by the uri specified in the metadata.json file
+                    //as it could ruin the original folder if it still exists in Dendro
+                    //so we need to find the child in the current folder but find it by the title descriptor
+                    //as at this point this parent folder already has the metadata restored in Dendro
+                    const titleDescriptor = getDescriptor("nie:title", childNode);
+                    self.findChildWithDescriptor(titleDescriptor, function (err, folder)
+                    {
+                        if (isNull(err) && !isNull(folder))
+                        {
+                            // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                            folder.nie.isLogicalPartOf = self.uri;
+                            folder.loadMetadata(
+                                childNode,
+                                function (err, result)
+                                {
+                                    folderCallback(folder, err, result, callback);
+                                },
+                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes, restoreIntoTheSameRootFolder
+                            );
+                        }
+                        else
+                        {
+                            const msg = "Unable to find a folder with title " + titleDescriptor.value;
+                            Logger.log("error", msg);
+                            callback(404, msg);
+                        }
+                    });
+                }
+            }
+            else
+            {
+                //Child is a file
+                if(!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder == true)
+                {
+                    //we are restoring a file into the same original folder
+                    //so we can look for the child by uri
+                    File.findByUri(childNode.resource, function (err, file)
+                    {
+                        if (isNull(err) && !isNull(file))
+                        {
+                            // Sets the parent as the new folder and not the parent specified in the metadata.json file
+                            file.nie.isLogicalPartOf = self.uri;
+                            file.loadMetadata(
+                                childNode,
+                                function (err, result)
+                                {
+                                    fileCallback(file, err, result, callback);
+                                },
+                                entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                            );
+                        }
+                        else
+                        {
+                            const titleDescriptor = getDescriptor("nie:title", childNode);
+
+                            self.findChildWithDescriptor(titleDescriptor, function (err, file)
+                            {
+                                if (isNull(err))
+                                {
+                                    if (!isNull(file))
+                                    {
+                                        file.loadMetadata(
+                                            childNode,
+                                            function (err, result)
+                                            {
+                                                fileCallback(file, err, result, callback);
+                                            },
+                                            entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
+                                        );
+                                    }
+                                    else
+                                    {
+                                        const msg = "Unable to find a folder with title " + titleDescriptor.value;
+                                        Logger.log("error", msg);
+                                        callback(404, msg);
+                                    }
+                                }
+                                else
+                                {
+                                    const msg = "Error finding a folder with title " + titleDescriptor.value + JSON.stringify(file);
+                                    Logger.log("error", msg);
+                                    callback(500, msg);
+                                }
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    //we are restoring a file into a folder other than the original folder
+                    //so we cannot look for the child by the uri specified in the metadata.json file
+                    //as it could ruin the original file if it still exists in Dendro
+                    //so we need to find the child in the current folder but find it by the title descriptor
+                    //as at this point this parent folder already has the metadata restored in Dendro
+                    const titleDescriptor = getDescriptor("nie:title", childNode);
+
+                    self.findChildWithDescriptor(titleDescriptor, function (err, file)
+                    {
+                        if (isNull(err))
+                        {
+                            if (!isNull(file))
+                            {
+                                file.loadMetadata(
                                     childNode,
                                     function (err, result)
                                     {
-                                        folderCallback(folder, err, result, callback);
+                                        fileCallback(file, err, result, callback);
                                     },
                                     entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
                                 );
@@ -1021,60 +1159,15 @@ Folder.prototype.loadMetadata = function (
                                 Logger.log("error", msg);
                                 callback(404, msg);
                             }
-                        });
-                    }
-                });
-            }
-            else
-            {
-                File.findByUri(childNode.resource, function (err, file)
-                {
-                    if (isNull(err) && !isNull(file))
-                    {
-                        file.loadMetadata(
-                            childNode,
-                            function (err, result)
-                            {
-                                fileCallback(file, err, result, callback);
-                            },
-                            entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
-                        );
-                    }
-                    else
-                    {
-                        const titleDescriptor = getDescriptor("nie:title", childNode);
-
-                        self.findChildWithDescriptor(titleDescriptor, function (err, file)
+                        }
+                        else
                         {
-                            if (isNull(err))
-                            {
-                                if (!isNull(file))
-                                {
-                                    file.loadMetadata(
-                                        childNode,
-                                        function (err, result)
-                                        {
-                                            fileCallback(file, err, result, callback);
-                                        },
-                                        entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
-                                    );
-                                }
-                                else
-                                {
-                                    const msg = "Unable to find a folder with title " + titleDescriptor.value;
-                                    Logger.log("error", msg);
-                                    callback(404, msg);
-                                }
-                            }
-                            else
-                            {
-                                const msg = "Error finding a folder with title " + titleDescriptor.value + JSON.stringify(file);
-                                Logger.log("error", msg);
-                                callback(500, msg);
-                            }
-                        });
-                    }
-                });
+                            const msg = "Error finding a folder with title " + titleDescriptor.value + JSON.stringify(file);
+                            Logger.log("error", msg);
+                            callback(500, msg);
+                        }
+                    });
+                }
             }
         };
 
@@ -1175,14 +1268,12 @@ Folder.prototype.loadMetadata = function (
             {
                 if (!isNull(existingFolder))
                 {
-                    const getTitleDescriptor = _.find(node.metadata, function (descriptor)
-                    {
-                        return descriptor.prefixedForm === "nie:title";
-                    });
-
                     if (node.resource === existingFolder.uri)
                     {
-                        existingFolder.loadMetadata(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                        loadMetadataIntoThisFolder(node, function (err, result)
+                        {
+                            callback(err, result);
+                        });
                     }
                     else
                     {
@@ -1191,6 +1282,8 @@ Folder.prototype.loadMetadata = function (
                 }
                 else
                 {
+                    // Sets the resource as the new folder and not the one specified in the metadata.json file
+                    node.resource = self.uri;
                     loadMetadataIntoThisFolder(node, function (err, result)
                     {
                         callback(err, result);
@@ -1238,7 +1331,6 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                  * Restore metadata values from medatada.json file
                  */
                 const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-                const fs = require("fs");
 
                 fs.exists(metadataFileLocation, function (existsMetadataFile)
                 {
@@ -1253,7 +1345,18 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                             }
 
                             const node = JSON.parse(data);
-
+                            let restoreIntoTheSameRootFolder = false;
+                            if(node.resource === self.uri)
+                            {
+                                Logger.log("info", "This is a restore to the same root folder");
+                                restoreIntoTheSameRootFolder = true;
+                            }
+                            else
+                            {
+                                Logger.log("info", "This is a restore to another root folder");
+                                restoreIntoTheSameRootFolder = false;
+                            }
+                            self.nie.title = path.basename(absPathOfRootFolder);
                             self.loadMetadata(node, function (err, result)
                             {
                                 if (isNull(err))
@@ -1261,7 +1364,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                                     return callback(null, "Data and metadata restored successfully. Result : " + result);
                                 }
                                 return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
-                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable]);
+                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable], restoreIntoTheSameRootFolder);
                         });
                     }
                     else
@@ -1386,18 +1489,20 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
         }
         else
         {
-            self.updateDescriptors(
-                [
-                    new Descriptor({
-                        prefixedForm: "ddr:deleted",
-                        value: true
-                    })
-                ]
-            );
-
+            self.ddr.deleted = true;
             self.save(function (err, result)
             {
-                return callback(err, self);
+                if (isNull(err))
+                {
+                    self.reindex(function (err, result)
+                    {
+                        return callback(err, self);
+                    });
+                }
+                else
+                {
+                    return callback(err, self);
+                }
             }, true, uriOfUserDeletingTheFolder);
         }
     }
@@ -1409,7 +1514,15 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
             {
                 const deleteChild = function (child, cb)
                 {
-                    child.delete(cb, uriOfUserDeletingTheFolder, notRecursive);
+                    // This is necessary because depending on the type the .delete function has different parameters. This was previously creating a bug that prevented child resources to be "really_deleted" when its parent was.
+                    if (child instanceof Folder)
+                    {
+                        child.delete(cb, uriOfUserDeletingTheFolder, notRecursive, reallyDelete);
+                    }
+                    else if (child instanceof File)
+                    {
+                        child.delete(cb, uriOfUserDeletingTheFolder, reallyDelete);
+                    }
                 };
 
                 async.mapSeries(children, deleteChild, function (err, result)
@@ -1420,13 +1533,23 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
                         {
                             if (isNull(err))
                             {
-                                self.unlinkFromParent(function (err, result)
+                                self.unindex(function (err, result)
                                 {
                                     if (isNull(err))
                                     {
-                                        return callback(null, self);
+                                        self.unlinkFromParent(function (err, result)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                return callback(null, self);
+                                            }
+                                            return callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
+                                        });
                                     }
-                                    return callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
+                                    else
+                                    {
+                                        return callback(err, "Error clearing descriptors for deleting folder " + self.uri + ". Error reported : " + result);
+                                    }
                                 });
                             }
                             else
@@ -1471,19 +1594,18 @@ Folder.prototype.undelete = function (callback, uriOfUserUnDeletingTheFolder, no
 
     if (notRecursive)
     {
-        self.updateDescriptors(
-            [
-                new Descriptor({
-                    prefixedForm: "ddr:deleted",
-                    value: null
-                })
-            ]
-        );
-
-        self.save(function (err, result)
+        if (self.ddr.deleted === true)
         {
-            return callback(err, result);
-        }, true, uriOfUserUnDeletingTheFolder);
+            delete self.ddr.deleted;
+            self.save(function (err, result)
+            {
+                return callback(err, result);
+            }, true, uriOfUserUnDeletingTheFolder);
+        }
+        else
+        {
+            return callback(null, self);
+        }
     }
     else
     {
@@ -1528,11 +1650,24 @@ Folder.prototype.save = function (callback)
             {
                 if (isNull(err))
                 {
-                    return callback(null, self);
+                    self.reindex(function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            return callback(err, self);
+                        }
+
+                        const msg = "Error reindexing folder " + self.uri + " : " + result;
+                        Logger.log("error", msg);
+                        return callback(1, msg);
+                    });
                 }
-                let errorMessage = "Error saving a folder: " + JSON.stringify(result);
-                Logger.log("error", errorMessage);
-                return callback(1, errorMessage);
+                else
+                {
+                    let errorMessage = "Error saving a folder: " + JSON.stringify(result);
+                    Logger.log("error", errorMessage);
+                    return callback(1, errorMessage);
+                }
             });
         }
         else
@@ -1567,6 +1702,285 @@ Folder.deleteOnLocalFileSystem = function (absPath, callback)
             {
                 return callback(error, stdout, stderr);
             });
+        }
+    });
+};
+
+Folder.prototype.forAllChildren = function (
+    resourcePageCallback,
+    checkFunction,
+    finalCallback,
+    customGraphUri,
+    descriptorTypesToRemove,
+    descriptorTypesToExemptFromRemoval,
+    includeArchivedResources,
+)
+{
+    const self = this;
+
+    const dummyReq = {
+        query: {
+            currentPage: 0,
+            pageSize: 10000
+        }
+    };
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const queryArguments = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: graphUri
+        },
+        {
+            type: Elements.types.resourceNoEscape,
+            value: self.uri
+        }
+    ];
+
+    let query =
+        "SELECT DISTINCT ?uri \n" +
+        "FROM [0]\n" +
+        "WHERE \n" +
+        "{ \n";
+
+    /*
+    if(getAllDescendentsAndNotJustChildren)
+    {
+        query += "   [1] nie:hasLogicalPart+ ?uri \n"
+    }
+    else
+    {
+        query += "   [1] nie:hasLogicalPart ?uri\n"
+    }
+    */
+
+    query += "   [1] nie:hasLogicalPart+ ?uri\n";
+
+    if (isNull(includeArchivedResources) || !includeArchivedResources)
+    {
+        query = query + "   FILTER NOT EXISTS { ?uri rdf:type ddr:ArchivedResource }";
+    }
+
+    query = query + "} \n";
+
+    query = DbConnection.paginateQuery(
+        dummyReq,
+        query
+    );
+
+    let resultsSize;
+    async.until(
+        function ()
+        {
+            if (!isNull(checkFunction))
+            {
+                if (!checkFunction())
+                {
+                    return false;
+                }
+                // check function failed, stop querying!
+                finalCallback(1, "Validation condition not met when fetching child resources with pagination. Aborting paginated querying...");
+                return true;
+            }
+
+            if (!isNull(resultsSize))
+            {
+                if (resultsSize > 0)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return true;
+        },
+        function (callback)
+        {
+            db.connection.executeViaJDBC(
+                query,
+                queryArguments,
+                function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        dummyReq.query.currentPage++;
+
+                        results = _.without(results, function(result){
+                            return isNull(result);
+                        });
+
+                        async.mapSeries(results,
+                            function (result, callback)
+                            {
+                                InformationElement.findByUri(result.uri, function (err, completeResource)
+                                {
+                                    if(!isNull(completeResource))
+                                    {
+                                        if (!isNull(descriptorTypesToRemove) && descriptorTypesToRemove instanceof Array)
+                                        {
+                                            completeResource.clearDescriptors(descriptorTypesToExemptFromRemoval, descriptorTypesToRemove);
+                                        }
+
+                                        callback(err, completeResource);
+                                    }
+                                    else
+                                    {
+                                        callback(null, completeResource);
+                                    }
+                                });
+                            },
+                            function (err, results)
+                            {
+                                resultsSize = results.length;
+                                return resourcePageCallback(err, results);
+                            });
+                    }
+                    else
+                    {
+                        return callback(1, "Unable to fetch all child resources from the graph, on page " + dummyReq.query.currentPage);
+                    }
+                }
+            );
+        },
+        function (err, results)
+        {
+            finalCallback(err, "All children of resource " + self.uri + " retrieved via pagination query.");
+        }
+    );
+};
+
+Folder.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (!isNull(self.nie))
+    {
+        if (isNull(self.nie.isLogicalPartOf))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.isLogicalPartOf in the object!");
+        }
+        else if (isNull(self.nie.title))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.title in the object!");
+        }
+        else
+        {
+            const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+            Resource.findByUri(self.nie.isLogicalPartOf, function (err, parentResource)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(parentResource))
+                    {
+                        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                        if(parentResource.isA(Project))
+                        {
+                            callback(null, parentResource.ddr.humanReadableURI + "/data");
+                        }
+                        else if(parentResource.isA(Folder))
+                        {
+                            callback(null, parentResource.ddr.humanReadableURI + "/" + self.nie.title);
+                        }
+                        else
+                        {
+                            callback(1, "Invalid parent type detected when trying to get parent human readable URI for folder " + self.uri);
+                        }
+                    }
+                    else
+                    {
+                        callback(1, "Unable to get parent human readable URI for folder " + self.uri);
+                    }
+                }
+                else
+                {
+                    callback(1, "Error getting parent human readable URI for folder " + self.uri);
+                }
+            });
+        }
+    }
+    else
+    {
+        callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
+    }
+};
+
+Folder.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    let failed = null;
+    self.forAllChildren(
+        function (err, resources)
+        {
+            if (isNull(err))
+            {
+                if (resources.length > 0)
+                {
+                    async.mapSeries(resources, function (resource, callback)
+                    {
+                        if (!isNull(resource))
+                        {
+                            resource.refreshHumanReadableUri(callback, graphUri);
+                        }
+                        else
+                        {
+                            callback(false, resource);
+                        }
+                    }, function (err, results)
+                    {
+                        if (err)
+                        {
+                            Logger.log("error", "Errors refreshing human readable URIs of children of " + self.uri + " : " + resources);
+                            failed = true;
+                        }
+
+                        return callback(failed, null);
+                    });
+                }
+                else
+                {
+                    return callback(failed, null);
+                }
+            }
+            else
+            {
+                failed = true;
+                return callback(failed, "Error fetching children of " + self.uri + " for reindexing : " + resources);
+            }
+        },
+        function ()
+        {
+            return failed;
+        },
+        function (err)
+        {
+            return callback(err, null);
+        },
+        true,
+        customGraphUri
+    );
+};
+
+Folder.prototype.rename = function(newTitle, callback)
+{
+    const self = this;
+    InformationElement.prototype.rename.call(self, newTitle, function(err, updatedFolder){
+        if(isNull(err))
+        {
+            self.refreshChildrenHumanReadableUris(function (err, result)
+            {
+                return callback(err, result);
+            });
+        }
+        else
+        {
+            Logger.log("error", "Error occurred while renaming a folder!");
+            Logger.log("error", JSON.stringify(err));
+            Logger.log("error", JSON.stringify(result));
+            return callback(err, result);
         }
     });
 };

@@ -6,6 +6,7 @@ const slug = require("slug");
 const mkdirp = require("mkdirp");
 const path = require("path");
 const winston = require("winston");
+const colors = require("colors");
 
 const Logger = function ()
 {
@@ -38,6 +39,10 @@ Logger.init = function (startTime, app)
     {
         startTime = new Date();
     }
+
+    const moment = require("moment");
+    const fileNameDateSection = moment(startTime).format("YYYY_MM_DD");
+
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     // Setup logging
     if (!isNull(Config.logging))
@@ -61,189 +66,137 @@ Logger.init = function (startTime, app)
                 }
             }
 
-            const logger = winston.createLogger({
+            let logger;
+
+            const { createLogger, format, transports } = require("winston");
+            const { combine, timestamp, label, printf } = format;
+
+            const nonColorizedFormat = printf(function (info)
+            {
+                return `${info.timestamp} [${process.env.NODE_ENV}] ${info.level}: ${info.message}`;
+            });
+
+            const colorizedFormat = printf(function (info)
+            {
+                const timestamp = info.timestamp.grey;
+                let level;
+                switch (info.level)
+                {
+                case "error":
+                {
+                    level = info.level.red.bold;
+                    break;
+                }
+                case "warn":
+                {
+                    level = info.level.yellow.bold;
+                    break;
+                }
+                case "info":
+                {
+                    level = info.level.cyan;
+                    break;
+                }
+                case "verbose":
+                {
+                    level = info.level.grey;
+                    break;
+                }
+                case "debug":
+                {
+                    level = info.level.yellow.bgCyan;
+                    break;
+                }
+                case "silly":
+                {
+                    level = info.level.purple;
+                    break;
+                }
+                default:
+                    break;
+                }
+
+                return `${timestamp} [${process.env.NODE_ENV}] ${level}: ${info.message}`;
+            });
+
+            const env = process.env.NODE_ENV;
+
+            const logFilePath = path.join(absPath, env, fileNameDateSection, `${slug(Config.activeConfiguration)}_${loggerLevel}.log`);
+            const errorLogFilePath = path.join(absPath, env, fileNameDateSection, `${slug(Config.activeConfiguration)}_error.log`);
+
+            mkdirp.sync(path.join(absPath, env, fileNameDateSection));
+
+            const fsExtra = require("fs-extra");
+            fsExtra.ensureFileSync(logFilePath);
+            fsExtra.ensureFileSync(errorLogFilePath);
+
+            Logger.setLogFilePath(logFilePath);
+            const logFile = new winston.transports.File(
+                {
+                    format: combine(
+                        timestamp(),
+                        nonColorizedFormat
+                    ),
+                    filename: Logger.getLogFilePath(),
+                    level: loggerLevel
+                });
+
+            Logger.setErrorLogFilePath(errorLogFilePath);
+            const logFileError = new winston.transports.File(
+                {
+                    format: combine(
+                        timestamp(),
+                        nonColorizedFormat
+                    ),
+                    filename: Logger.getErrorLogFilePath(),
+                    level: "error"
+                });
+
+            const colorizedConsole = new winston.transports.Console({
+                format: combine(
+                    timestamp(),
+                    colorizedFormat
+                ),
                 level: loggerLevel
             });
 
+            const nonColorizedConsole = new winston.transports.Console({
+                format: combine(
+                    timestamp(),
+                    nonColorizedFormat
+                ),
+                level: loggerLevel
+            });
+
+            if (process.env.NODE_ENV === "production")
+            {
+                logger = winston.createLogger({
+                    transports: [
+                        nonColorizedConsole
+                    ]
+                });
+            }
+            else
+            {
+                logger = winston.createLogger({
+                    transports: [
+                        colorizedConsole,
+                        logFileError,
+                        logFile
+                    ]
+                });
+            }
+
             logger.on("error", function (err)
             {
-                Logger.log("error", JSON.stringif(err));
+                Logger.log("error", JSON.stringify(err));
                 process.nextTick(function ()
                 {
                     process.kill(process.pid, "SIGTERM");
                 });
-            }
-            );
+            });
 
-            const { format } = require("winston");
-            const { combine, timestamp, printf } = format;
-            const consoleFormat = printf(info =>
-                `${info.timestamp} ${info.level}: ${info.message}`);
-
-            const jsonFormat = printf(info =>
-                JSON.stringify({
-                    timestamp: info.timestamp,
-                    level: info.level,
-                    message: info.message
-                }));
-
-            const tsFormat = () => (new Date()).toLocaleTimeString();
-
-            if (process.env.NODE_ENV === "development")
-            {
-                mkdirp.sync(path.join(absPath, "development"));
-
-                Logger.setErrorLogFilePath(path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`));
-                const errorLogFile = new winston.transports.File({
-                    timestamp: tsFormat,
-                    filename: Logger.getErrorLogFilePath(),
-                    level: "error",
-                    handleExceptions: true,
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
-                });
-
-                Logger.setLogFilePath(path.join(absPath, "development", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`));
-                const logFile = new winston.transports.File({
-                    timestamp: tsFormat,
-                    filename: Logger.getLogFilePath(),
-                    level: loggerLevel,
-                    handleExceptions: true,
-                    exitOnError: true,
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
-                });
-
-                logger.add(errorLogFile);
-                logger.add(logFile);
-
-                // colorize the output to the console
-                const coloredConsoleOutput = new (winston.transports.Console)(
-                    {
-                        timestamp: tsFormat,
-                        handleExceptions: true,
-                        colorize: true,
-                        format: combine(
-                            timestamp(),
-                            consoleFormat
-                        )
-                    });
-
-                logger.add(coloredConsoleOutput);
-            }
-            else if (process.env.NODE_ENV === "test")
-            {
-                mkdirp.sync(path.join(absPath, "test"));
-
-                Logger.setErrorLogFilePath(path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-error.log`));
-                const errorLogFile = new winston.transports.File({
-                    timestamp: tsFormat,
-                    filename: Logger.getErrorLogFilePath(),
-                    handleExceptions: true,
-                    level: "error",
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
-                });
-
-                Logger.setLogFilePath(path.join(absPath, "test", `${slug(startTime.toISOString() + "_" + Config.activeConfiguration, "_")}-${loggerLevel}.log`));
-                const logFile = new winston.transports.File({
-                    timestamp: tsFormat,
-                    filename: Logger.getLogFilePath(),
-                    level: loggerLevel,
-                    handleExceptions: true,
-                    exitOnError: true,
-                    format: combine(
-                        timestamp(),
-                        jsonFormat
-                    )
-                });
-
-                logger.add(errorLogFile);
-                logger.add(logFile);
-
-                // colorize the output to the console
-                const coloredConsoleOutput = new (winston.transports.Console)(
-                    {
-                        timestamp: tsFormat,
-                        colorize: true,
-                        handleExceptions: true,
-                        format: combine(
-                            timestamp(),
-                            consoleFormat
-                        )
-                    });
-
-                logger.add(coloredConsoleOutput);
-            }
-            else if (process.env.NODE_ENV === "production")
-            {
-                mkdirp.sync(path.join(absPath, "production"));
-                const rotator = require("stream-rotate");
-
-                const logStream = rotator({
-                    path: path.join(absPath, "production"),
-                    name: slug("production_" + Config.activeConfiguration + "_" + loggerLevel, "_"),
-                    size: "5m",
-                    retention: 2,
-                    boundary: "daily"
-                });
-
-                const logFile = new winston.transports.File(
-                    {
-                        timestamp: tsFormat,
-                        stream: logStream,
-                        level: loggerLevel,
-                        handleExceptions: true,
-                        exitOnError: true,
-                        format: combine(
-                            timestamp(),
-                            jsonFormat
-                        )
-                    });
-
-                const logstreamError = rotator({
-                    path: path.join(absPath, "production"),
-                    name: slug("production_" + Config.activeConfiguration + "_error", "_"),
-                    size: "5m",
-                    retention: 2,
-                    boundary: "daily"
-                });
-
-                const logFileError = new winston.transports.File(
-                    {
-                        timestamp: tsFormat,
-                        stream: logstreamError,
-                        level: "error",
-                        handleExceptions: true,
-                        format: combine(
-                            timestamp(),
-                            jsonFormat
-                        )
-                    });
-
-                logger.add(logFile);
-                logger.add(logFileError);
-
-                // do not colorize the output to the console
-                const nonColoredConsoleOutput = new (winston.transports.Console)(
-                    {
-                        timestamp: tsFormat,
-                        handleExceptions: true,
-                        format: combine(
-                            timestamp(),
-                            consoleFormat
-                        )
-                    });
-
-                logger.add(nonColoredConsoleOutput);
-            }
-
+            logger.emitErrs = true;
             Logger.logger = logger;
         }
         else
@@ -273,14 +226,18 @@ Logger.add_middlewares = function (app)
             // optional: allows to skip some log messages based on request and/or response
             ignoreRoute: function (req, res)
             {
+                const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
                 // do not log requests for public assets
-                if (req.url.startsWith("/bower_components") ||
+                if (
+                    Config.logging.do_not_log_requests_to_public_assets &&
+                    req.url.startsWith("/bower_components") ||
                     req.url.startsWith("/stylesheets") ||
                     req.url.startsWith("/app") ||
                     req.url.startsWith("/shared") ||
                     req.url.startsWith("/analytics_tracking_code") ||
                     req.url.startsWith("/images") ||
-                    req.url.startsWith("/js")
+                    req.url.startsWith("/js") ||
+                    req.url.startsWith("/admin/logs")
                 )
                 {
                     return true;
@@ -297,51 +254,47 @@ Logger.log_boot_message = function (message)
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     if (Config.startup.log_bootup_actions)
     {
-        if (Config.runningAsSlave === false)
+        if (!isNull(Logger.logger))
         {
-            if (!isNull(Logger.logger))
-            {
-                Logger.logger.info(message);
-            }
-            else
-            {
-                console.log(message);
-            }
+            Logger.logger.info(message);
         }
         else
         {
-            if (!isNull(Logger.logger))
-            {
-                Logger.logger.info(message);
-            }
-            else
-            {
-                console.log(message);
-            }
+            console.log(message);
         }
     }
 };
 
-Logger.log = function (type, message)
+Logger.log = function (type, message, printStack)
 {
     // special case for when the message is null and we are logging an error
     if (type === "error")
     {
         const stack = new Error().stack;
-        let msg;
+        let msg = message;
 
-        if (isNull(message))
+        if (printStack)
         {
-            msg = "Unspecified error at : " + stack;
-        }
-        else
-        {
-            msg = "Error " + message + " at : " + stack;
+            if (isNull(message))
+            {
+                msg = "Unspecified error at : " + stack;
+            }
+            else
+            {
+                msg = "Error " + message + " at : " + stack;
+            }
         }
 
         if (!isNull(Logger.logger))
         {
-            Logger.logger.error(msg);
+            if (message instanceof Object)
+            {
+                Logger.logger.error(JSON.stringify(msg));
+            }
+            else
+            {
+                Logger.logger.error(msg);
+            }
         }
         else
         {

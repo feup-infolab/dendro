@@ -26,11 +26,6 @@ function ArchivedResource (object)
 
     self.ddr.isVersionOf = object.ddr.isVersionOf;
 
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.humanReadableURI = object.ddr.humanReadableURI + "/version/" + object.ddr.newVersionNumber;
-    }
-
     if (!isNull(object.rdf.type))
     {
         if (object.rdf.type instanceof Array)
@@ -257,6 +252,20 @@ ArchivedResource.prototype.getDetailedInformation = function (callback)
     {
         return callback(err, archivedResource);
     });
+};
+
+ArchivedResource.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.isVersionOf) || isNull(self.ddr.versionNumber))
+    {
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it is missing either the self.ddr.isVersionOf or the self.ddr.versionNumber property.");
+    }
+    else
+    {
+        callback(null, self.ddr.isVersionOf + "/version/" + self.ddr.versionNumber);
+    }
 };
 
 ArchivedResource = Class.extend(ArchivedResource, Resource, "ddr:ArchivedResource");

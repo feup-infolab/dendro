@@ -3,6 +3,20 @@ const chaiHttp = require("chai-http");
 const _ = require("underscore");
 chai.use(chaiHttp);
 
+const binaryParser = function (res, cb)
+{
+    res.setEncoding("binary");
+    res.data = "";
+    res.on("data", function (chunk)
+    {
+        res.data += chunk;
+    });
+    res.on("end", function ()
+    {
+        cb(null, new Buffer(res.data, "binary"));
+    });
+};
+
 module.exports.createFolder = function (jsonOnly, agent, projectHandle, parentFolderName, newFolderName, cb)
 {
     // /project/:handle/data/:foldername?mkdir
@@ -161,6 +175,34 @@ module.exports.getItemMetadataDeep = function (jsonOnly, agent, projectHandle, i
 {
     // http://127.0.0.1:3001/project/testproject1/data/folder1?metadata&deep
     const path = "/project/" + projectHandle + "/data/" + itemPath + "?metadata&deep";
+    if (jsonOnly)
+    {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.getItemMetadataDeepByUri = function (jsonOnly, agent, uri, cb)
+{
+    const path = uri + "?metadata&deep";
+
     if (jsonOnly)
     {
         agent
@@ -539,6 +581,56 @@ module.exports.viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb
             .get(path)
             .set("Accept", "text/html")
             .set("Content-Type", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.backupFolderByUri = function (jsonOnly, agent, folderUri, cb)
+{
+    const path = folderUri + "?backup";
+
+    /*
+    if (jsonOnly)
+    {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }*/
+
+    if (jsonOnly)
+    {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .buffer()
+            .parse(binaryParser)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
             .end(function (err, res)
             {
                 cb(err, res);

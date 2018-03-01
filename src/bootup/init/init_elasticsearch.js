@@ -1,26 +1,26 @@
-const fs = require("fs");
+const async = require("async");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 let IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
 const initElasticSearch = function (app, callback)
 {
     Logger.log_boot_message("Connecting to ElasticSearch Cluster...");
-    const index = new IndexConnection();
 
-    index.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro_graph, function (index)
+    IndexConnection.initAllIndexes(function (err, results)
     {
-        if (index.client)
+        if (isNull(err))
         {
-            Logger.log_boot_message("Created connection to ElasticSearch Cluster on " + Config.elasticSearchHost + ":" + Config.elasticSearchPort + " but did not try to connect yet");
+            Logger.log_boot_message("Created connections to ElasticSearch Clusters but did not try to connect yet...");
+            return callback(null);
         }
-        else
-        {
-            return callback("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro_graph.short_name, app, index);
-        }
-        return callback(null, app, index);
+
+        const msg = "[ERROR] Unable to create connection to indexes!";
+        Logger.log("error", msg);
+        return callback(msg);
     });
 };
 

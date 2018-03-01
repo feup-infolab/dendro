@@ -87,6 +87,11 @@ angular.module("dendroApp.controllers")
             return false;
         };
 
+        $scope.save_to_local_storage = function (key, value, namespace)
+        {
+            storageService.save_to_local_storage(key, value, namespace);
+        };
+
         $scope.set_from_local_storage_and_then_from_value = function (key, value, targetObject, namespace)
         {
             var storedValue = storageService.load_from_local_storage(key, targetObject, namespace);
@@ -139,18 +144,43 @@ angular.module("dendroApp.controllers")
                 }
                 else
                 {
-                    if (namespace != null)
+                    if (targetObject != null)
                     {
-                        if ($scope[namespace] == null)
+                        if (namespace != null)
                         {
-                            $scope[namespace] = {};
+                            if (targetObject[namespace] != null && targetObject[namespace][key] == null)
+                            {
+                                targetObject[namespace][key] = value;
+                            }
+                            else if (targetObject[namespace] == null)
+                            {
+                                targetObject[namespace] = {};
+                                targetObject[namespace][key] = value;
+                            }
                         }
-
-                        $scope[namespace][key] = value;
+                        else
+                        {
+                            if (targetObject[key] == null)
+                            {
+                                targetObject[key] = value;
+                            }
+                        }
                     }
                     else
                     {
-                        $scope[key] = value;
+                        if (namespace != null)
+                        {
+                            if ($scope[namespace] == null)
+                            {
+                                $scope[namespace] = {};
+                            }
+
+                            $scope[namespace][key] = value;
+                        }
+                        else
+                        {
+                            $scope[key] = value;
+                        }
                     }
                 }
             }

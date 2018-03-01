@@ -4,172 +4,382 @@
     System administration page
 </h1>
 
-<!-- Nav tabs -->
-<ul class="nav nav-tabs" role="tablist">
-    <li class="active">
-        <a href="#ontologies" role="tab" data-toggle="tab">Ontologies</a>
-    </li>
-    <li>
-        <a href="#research_domains" role="tab" data-toggle="tab">Research Domains</a>
-    </li>
-    <!-- TODO -->
-    <!-- <li>
-        <a href="#application_profiles" role="tab" data-toggle="tab">Application Profiles</a>
-    </li> -->
-    <!-- TODO -->
-    <li>
-        <a href="#actions" role="tab" data-toggle="tab">Actions</a>
-    </li>
-    <!-- TODO -->
-    <li>
-        <a href="#configuration" role="tab" data-toggle="tab">Config</a>
-    </li>
-</ul>
+<div ng-controller="dendroConfigurationController" ng-init="init()">
 
-<!-- Tab panes -->
-<div class="tab-content">
-    <div class="tab-pane active" id="ontologies" ng-controller="ontologiesCtrl" ng-init="init()">
-        <div class="row">
-            <div class="col-lg-12">
-                <h4 class="page-header">
-                    Editing ontologies
-                </h4>
-                <%- include ../ontologies/edit.ejs %>
-            </div>
-        </div>
-    </div>
-    <!-- TODO -->
-    <!--<div class="tab-pane" id="application_profiles" ng-controller="applicationProfilesCtrl">
-        <div class="row">
-            <div class="col-lg-12">
-                <%- include ../application_profiles/edit.ejs %>
-            </div>
-        </div>
-    </div>-->
-    <div class="tab-pane" id="research_domains" ng-controller="researchDomainsCtrl">
-        <div class="row">
-            <div class="col-lg-12">
-                <h4 class="page-header">
-                    Editing research domains
-                </h4>
-                <%- include ../research_domains/edit.ejs %>
-            </div>
-        </div>
-    </div>
-    <div class="tab-pane" id="actions">
-        <div class="row">
-            <div class="col-lg-12">
-                <h4 class="page-header">
-                    Actions
-                </h4>
-            </div>
-        </div>
-        <div class="tab-pane" id="actions">
-            <!--<div class="well">-->
-                <!--<h4>Load resources from locally stored datasets</h4>-->
-                <!--<form action="/admin/reload" method="get">-->
-                    <!--<p class="help-block">Select the graphs you want to reload</p>-->
-                    <!--<div class="row">-->
-                        <!--<div class="col-lg-3">-->
-                            <!--<label class="checkbox">-->
-                                <!--<input type="checkbox" name="graphs[dbpedia]" value="dbpedia" checked>DBpedia</input>-->
-                            <!--</label>-->
-                        <!--</div>-->
-                        <!--<div class="col-lg-9">-->
-                            <!--<label class="checkbox">-->
-                                <!--<input type="checkbox" name="graphs_to_delete[dbpedia]" value="1" checked>Delete existing</input>-->
-                            <!--</label>-->
-                        <!--</div>-->
-                    <!--</div>-->
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li ng-class="{active : active_tab == 'logs'}" ng-click="clicked_tab('logs')">
+            <a href="#logs" role="tab" data-toggle="tab">Server logs</a>
+        </li>
+        <li ng-class="{active : active_tab == 'ontologies'}" ng-click="clicked_tab('ontologies')">
+            <a href="#ontologies" role="tab" data-toggle="tab">Ontologies</a>
+        </li>
+        <li ng-class="{active : active_tab == 'research_domains'}" ng-click="clicked_tab('research_domains')">
+            <a href="#research_domains" role="tab" data-toggle="tab">Research Domains</a>
+        </li>
+        <!-- TODO -->
+        <!-- <li>
+            <a href="#application_profiles" role="tab" data-toggle="tab">Application Profiles</a>
+        </li> -->
+        <!-- TODO -->
+        <li ng-class="{active : active_tab == 'actions'}" ng-click="clicked_tab('actions')">
+            <a href="#actions" role="tab" data-toggle="tab">Actions</a>
+        </li>
+        <!-- TODO -->
+        <li ng-class="{active : active_tab == 'view_server_configurations'}" ng-click="clicked_tab('view_server_configurations')">
+            <a href="#view_server_configuration" role="tab" data-toggle="tab">Server configuration</a>
+        </li>
+        <li ng-class="{active : active_tab == 'edit_server_configuration'}" ng-click="clicked_tab('edit_server_configuration')">
+            <a href="#edit_server_configuration" role="tab" data-toggle="tab">Edit configuration</a>
+        </li>
+    </ul>
 
-                    <!--<div class="row">-->
-                        <!--<div class="col-lg-3">-->
-                            <!--<label class="checkbox">-->
-                                <!--<input type="checkbox" name="graphs[dryad]" value="dryad" checked>Dryad</input>-->
-                            <!--</label>-->
-                        <!--</div>-->
-                        <!--<div class="col-lg-9">-->
-                            <!--<label class="checkbox">-->
-                                <!--<input type="checkbox" name="graphs_to_delete[dryad]" value="1" checked>Delete existing</input>-->
-                            <!--</label>-->
-                        <!--</div>-->
-                    <!--</div>-->
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane" id="logs" ng-class="{active : active_tab == 'logs'}">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4 class="page-header">
+                        Server Logs <div class="label label-default" ng-show="fetchingLogs" id="fetching_logs_badge">Fetching...<i class="fa fa fa-cog faa-spin animated"></i>
+                    </h4>
 
-                    <!--<div class="row">-->
-                        <!--<div class="col-lg-3">-->
-                            <!--<label class="checkbox">-->
-                                <!--<input type="checkbox" name="graphs[freebase]" value="freebase" checked>Freebase</input>-->
-                            <!--</label>-->
-                        <!--</div>-->
-                        <!--<div class="col-lg-9">-->
-                            <!--<label class="checkbox">-->
-                                <!--<input type="checkbox" name="graphs_to_delete[freebase]" value="1" checked>Delete existing</input>-->
-                            <!--</label>-->
-                        <!--</div>-->
-                    <!--</div>-->
+                    <div class="row">
+                        <div class="col-xs-8">
 
-                    <!--<input type="submit" value="Proceed" class="btn btn-primary">-->
-                <!--</form>-->
-            <!--</div>-->
-            <!--</div>-->
+                            <button ng-click="toggleAutoRefreshLogs()" class="btn btn-sm" ng-class="{'btn-success': autoRefreshLogs, 'btn-default': !autoRefreshLogs}">
+                                Auto refresh
+                                <strong ng-show="autoRefreshLogs">ON</strong>
+                                <strong ng-show="!autoRefreshLogs">OFF</strong>
+                            </button>
 
-            <h3>Reindex all resources from a graph</h3>
-            <div class="help-block">if your search box is not working properly, reindex the resources in the database.</div>
-            <div class="form-group">
-                <form action="/admin/reindex" method="post">
-                    <%
-                        var keys = Object.keys(db);
-                        for (var i = 0; i < keys.length; i++) {
+                            <button ng-click="getLogs()" class="btn btn-sm btn-primary">Refresh logs</button>
+                        </div>
+                        <div class="col-xs-2">
+                            <label for="n_lines_for_log_textbox">Number of lines to fetch</label>
+                            <input type="text" class="form-control" ng-model="nLinesOfLogToFetch" id="n_lines_for_log_textbox"/>
+                        </div>
+                        <div class="col-xs-2">
+                            <label for="n_millisecs_for_log_refresh_textbox">mSec between refreshes</label>
+                            <input type="text" class="form-control" ng-model="millisecsLogRefresh" id="n_millisecs_for_log_refresh_textbox"/>
+                        </div>
+                    </div>
 
-                        var graph = db[keys[i]];
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li>
+                            <a href="#combined_log_tab" role="tab" data-toggle="tab">Combined</a>
+                        </li>
+                        <li class="active">
+                            <a href="#error_log_tab" role="tab" data-toggle="tab">Error</a>
+                        </li>
+                    </ul>
 
-                    %>
-                        <div class="row">
-                            <div class="col-xs-12" class="form-control">
-                                <strong>Graph <%=graph.graphHandle%></strong>
-                            </div>
-                            <div class="col-xs-12" class="form-control">
-                                <label for="reindex_<%=graph.graphHandle%>_graph_checkbox">Reindex</label>
-                                <input type="checkbox" id="reindex_<%=graph.graphHandle%>_graph_checkbox" name="graphs_to_reindex[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>
+                    <div class="tab-content">
+                        <div class="tab-pane" id="combined_log_tab">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="dendro_config_code_editor"
+                                         ng-model="combinedLog" ui-ace="{
+                                  useWrapMode : true,
+                                  theme:'twilight',
+                                  mode: 'text',
+                                  onLoad: setReadOnly,
+                                }"></div>
+                                </div>
                             </div>
                         </div>
+                        <div class="tab-pane active" id="error_log_tab">
+                            <div class="row">
+                                <div class="col-xs-12">
+
+                                    <div class="dendro_config_code_editor"
+                                         ng-model="errorLog" ui-ace="{
+                                  useWrapMode : true,
+                                  theme:'twilight',
+                                  mode: 'text',
+                                  onLoad: setReadOnly,
+                                }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="ontologies" ng-init="init()" ng-class="{active : active_tab == 'ontologies'}" ng-controller="ontologiesCtrl" >
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4 class="page-header">
+                        Editing ontologies
+                    </h4>
+                    <%- include ../ontologies/edit.ejs %>
+                </div>
+            </div>
+        </div>
+        <!-- TODO -->
+        <!--<div class="tab-pane" id="application_profiles" ng-controller="applicationProfilesCtrl">
+            <div class="row">
+                <div class="col-xs-12">
+                    <%- include ../application_profiles/edit.ejs %>
+                </div>
+            </div>
+        </div>-->
+        <div class="tab-pane" id="research_domains" ng-class="{active : active_tab == 'research_domains'}" ng-controller="researchDomainsCtrl" >
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4 class="page-header">
+                        Editing research domains
+                    </h4>
+                    <%- include ../research_domains/edit.ejs %>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="actions" ng-class="{active : active_tab == 'actions'}">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4 class="page-header">
+                        Actions
+                    </h4>
+                </div>
+            </div>
+            <div class="tab-pane" id="actions">
+                <!--<div class="well">-->
+                    <!--<h4>Load resources from locally stored datasets</h4>-->
+                    <!--<form action="/admin/reload" method="get">-->
+                        <!--<p class="help-block">Select the graphs you want to reload</p>-->
+                        <!--<div class="row">-->
+                            <!--<div class="col-lg-3">-->
+                                <!--<label class="checkbox">-->
+                                    <!--<input type="checkbox" name="graphs[dbpedia]" value="dbpedia" checked>DBpedia</input>-->
+                                <!--</label>-->
+                            <!--</div>-->
+                            <!--<div class="col-lg-9">-->
+                                <!--<label class="checkbox">-->
+                                    <!--<input type="checkbox" name="graphs_to_delete[dbpedia]" value="1" checked>Delete existing</input>-->
+                                <!--</label>-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                        <!--<div class="row">-->
+                            <!--<div class="col-lg-3">-->
+                                <!--<label class="checkbox">-->
+                                    <!--<input type="checkbox" name="graphs[dryad]" value="dryad" checked>Dryad</input>-->
+                                <!--</label>-->
+                            <!--</div>-->
+                            <!--<div class="col-lg-9">-->
+                                <!--<label class="checkbox">-->
+                                    <!--<input type="checkbox" name="graphs_to_delete[dryad]" value="1" checked>Delete existing</input>-->
+                                <!--</label>-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                        <!--<div class="row">-->
+                            <!--<div class="col-lg-3">-->
+                                <!--<label class="checkbox">-->
+                                    <!--<input type="checkbox" name="graphs[freebase]" value="freebase" checked>Freebase</input>-->
+                                <!--</label>-->
+                            <!--</div>-->
+                            <!--<div class="col-lg-9">-->
+                                <!--<label class="checkbox">-->
+                                    <!--<input type="checkbox" name="graphs_to_delete[freebase]" value="1" checked>Delete existing</input>-->
+                                <!--</label>-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                        <!--<input type="submit" value="Proceed" class="btn btn-primary">-->
+                    <!--</form>-->
+                <!--</div>-->
+                <!--</div>-->
+
+                <h3>Reindex all resources from a graph</h3>
+                <div class="help-block">if your search box is not working properly, reindex the resources in the database.</div>
+                <div class="form-group">
+                    <form action="/admin/reindex" method="post">
+                        <%
+                            var keys = Object.keys(db);
+                            for (var i = 0; i < keys.length; i++) {
+
+                            var graph = db[keys[i]];
+
+                        %>
+                            <div class="row">
+                                <div class="col-xs-12" class="form-control">
+                                    <strong>Graph <%=graph.graphHandle%></strong>
+                                </div>
+                                <div class="col-xs-12" class="form-control">
+                                    <label for="reindex_<%=graph.graphHandle%>_graph_checkbox">Reindex</label>
+                                    <input type="checkbox" id="reindex_<%=graph.graphHandle%>_graph_checkbox" name="graphs_to_reindex[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <label for="reindex_<%=graph.graphHandle%>_graph_checkbox">Force delete index before reindexing</label>
+                                    <input type="checkbox" id="delete_<%=graph.graphHandle%>_checkbox" name="graphs_to_delete[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <p class="help-block">Select the graphs you want to reindex</p>
+
+                        <br>
                         <div class="row">
                             <div class="col-xs-12">
-                                <label for="reindex_<%=graph.graphHandle%>_graph_checkbox">Force delete index before reindexing</label>
-                                <input type="checkbox" id="delete_<%=graph.graphHandle%>_checkbox" name="graphs_to_delete[<%=graph.graphHandle%>]" value="<%=graph.graphHandle%>" checked>
+                                <label for="index_in_background_checkbox">Run operation in background</label>
+                                <input type="checkbox" id="index_in_background_checkbox" name="background" value="1" checked>
+                                <div class="help-block">Runs the reindexing in the background. You have to refresh this page to know when it is finished, but you can continue working.</div>
                             </div>
                         </div>
-                    <% } %>
-                    <input type="submit" value="Reindex" class="btn btn-primary">
 
-                    <p class="help-block">Select the graphs you want to reindex</p>
-                </form>
+                        <% if(!locals.indexing) { %>
+                            <input type="submit" value="Reindex" class="btn btn-primary">
+                        <% } else { %>
+                            <div class="label label-default" id="indexing_running_badge">Indexing operation already running. Please wait<i class="fa fa fa-cog faa-spin animated"></i></div>
+                            <input type="submit" value="Reindex" class="btn btn-primary" disabled>
+                        <% } %>
+
+                        <br>
+                        <% if(locals.lastIndexingOK === true) { %>
+                        <div class="label label-success" id="indexing_running_badge">Last indexing result: OK</div>
+                        <% } else if(locals.lastIndexingOK === false) { %>
+                        <div class="label label-warning" id="indexing_running_badge">Last indexing result: Failed</div>
+                        <% } else { %>
+                        <div class="label label-default" id="indexing_running_badge">Last indexing result: Unknown</div>
+                        <% }  %>
+
+
+                    </form>
+                </div>
+
+                <!-- nuke orphan resources -->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h4>
+                            Orphan Resources
+                        </h4>
+
+                        <h5>--Resources that no longer exist in the triple store, but for some reason still exist in the Gridfs storage--</h5>
+
+
+                        <button ng-click="listOrphanResources()" class="btn btn-sm btn-warning">List all orphan resources in gridfs</button>
+                        <div class="help-block">List all resources in gridfs that do not exist in triple store graph
+                            <br/>
+                            <strong>Run This before attempting to nuke any orphan resources!!!</strong>
+                        </div>
+
+                        <button ng-click="nukeOrphanResources()" class="btn btn-sm btn-danger">Nuke orphan resources in gridfs</button>
+                        <div class="help-block">Deletes all resources in gridfs that do not exist in triple store graph
+                            <br/>
+                            <strong>Be sure to run 'List all orphan resources in gridfs' first!</strong>
+                        </div>
+
+
+                        <div ng-show="orphanResources">
+                            <h4>
+                                Orphan list:
+                            </h4>
+
+                            <div class="nuke_orphan_resouces_viewer"
+                                 ng-model="orphanResources" ng-readonly="true" ui-ace="{
+                                  useWrapMode : true,
+                                  theme:'twilight',
+                                  mode: 'json',
+                                }">
+                            </div>
+                        </div>
+
+                        <div ng-show="nukedResources">
+                            <h4>
+                                Nuke status:
+                            </h4>
+
+                            <div class="nuke_orphan_resouces_viewer"
+                                 ng-model="nukedResources" ng-readonly="true" ui-ace="{
+                                  useWrapMode : true,
+                                  theme:'twilight',
+                                  mode: 'json',
+                                }">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="view_server_configuration" ng-class="{active : active_tab == 'view_server_configurations'}">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4>
+                        Current server configuration
+                    </h4>
+
+                    <button ng-click="getConfiguration()" class="btn btn-sm btn-primary">Reload configuration</button>
+                    <div class="help-block">Reload the server configuration
+                    </div>
+
+                    <div class="dendro_config_code_editor"
+                         ng-model="runningConfiguration" ui-ace="{
+                          useWrapMode : true,
+                          theme:'twilight',
+                          mode: 'json',
+                          onLoad: setReadOnly,
+                          showGutter: true,
+                        }"></div>
+
+                    <h4>
+                        Process description (PM2)
+                    </h4>
+
+                    <div class="dendro_config_code_editor"
+                         ng-model="pm2Description" ui-ace="{
+                          useWrapMode : true,
+                          theme:'twilight',
+                          mode: 'json',
+                          onLoad: setReadOnly,
+                          showGutter: true,
+                        }"></div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="edit_server_configuration" ng-class="{active : active_tab == 'edit_server_configuration'}">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4>
+                        Save changes
+                    </h4>
+
+                    <button ng-click="saveConfiguration()" class="btn btn-sm btn-danger">Update configuration</button>
+                    <div class="help-block">Updates the server configuration
+                        <br/>
+                        <strong>Be sure to keep a backup to restore in via SSH if your configuration ends up with errors! If there are errors, Dendro will FAIL to start up!</strong>
+                    </div>
+
+                    <button ng-click="restartServer()" class="btn btn-sm btn-primary">Restart server</button>
+                    <div class="help-block">Restarts Dendro. The service will be momentarily unavailable.
+                    </div>
+
+                    <h4>
+                        Edit configuration file
+                    </h4>
+
+                    <div class="dendro_config_code_editor"
+                         ng-model="serverConfiguration" ui-ace="{
+                          useWrapMode : true,
+                          theme:'twilight',
+                          mode: 'json',
+                        }"></div>
+
+                    <!--<div ng-model="serverConfiguration" ui-ace="{
+                          useWrapMode : true,
+                          showGutter: false,
+                          theme:'twilight',
+                          mode: 'json',
+                          onLoad: aceLoaded,
+                          onChange: aceChanged
+                        }"></div>
+                    -->
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="tab-pane active" id="configuration" ng-controller="configurationController" ng-init="init()">
-        <div class="row">
-            <div class="col-lg-12">
-                <h4 class="page-header">
-                    Editing Configuration
-                </h4>
-
-                <div ng-model="serverConfiguration" ui-ace="{
-                      useWrapMode : true,
-                      showGutter: false,
-                      theme:'twilight',
-                      mode: 'json',
-                      firstLineNumber: 5,
-                      onLoad: aceLoaded,
-                      onChange: aceChanged
-                    }"></div>
-
-                <button ng-click="saveConfiguration" class="btn btn-sm btn-primary">Save</button>
-            </div>
-        </div>
-    </div>
 </div>
-
 
 <%- include ../layout/footer.ejs %>

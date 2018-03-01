@@ -1,5 +1,6 @@
 const humanize = require("humanize");
 const Pathfinder = global.Pathfinder;
+const path = require("path");
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -13,6 +14,7 @@ const FileSystemPost = require(Pathfinder.absPathInSrcFolder("/models/social/fil
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const contentDisposition = require("content-disposition");
 
 const async = require("async");
 
@@ -38,7 +40,7 @@ exports.download = function (req, res)
 
                 res.writeHead(200,
                     {
-                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
+                        "Content-Disposition": contentDisposition(fileName),
                         "Content-Type": mimeType
                     }
                 );
@@ -89,20 +91,28 @@ exports.download = function (req, res)
 
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
+                            const parentPath = path.resolve(writtenFilePath, "..");
 
-                            res.on("end", function ()
+                            res.on("finish", function ()
                             {
-                                File.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
+                                if (!isNull(parentPath))
                                 {
-                                    if (err)
+                                    File.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                     {
-                                        Logger.log("error", "Unable to delete " + writtenFilePath);
-                                    }
-                                    else
-                                    {
-                                        Logger.log("Deleted " + writtenFilePath);
-                                    }
-                                });
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + parentPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + parentPath);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
+                                }
                             });
 
                             fileStream.pipe(res);
@@ -155,26 +165,33 @@ exports.download = function (req, res)
                         {
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
-
+                            const parentPath = path.resolve(writtenFilePath, "..");
                             res.writeHead(200,
                                 {
-                                    "Content-disposition": "attachment; filename=\"" + file.nie.title + "\"",
+                                    "Content-Disposition": contentDisposition(file.nie.title),
                                     "Content-type": mimeType
                                 });
 
-                            res.on("end", function ()
+                            res.on("finish", function ()
                             {
-                                Folder.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
+                                if (!isNull(parentPath))
                                 {
-                                    if (err)
+                                    Folder.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                     {
-                                        Logger.log("error", "Unable to delete " + writtenFilePath);
-                                    }
-                                    else
-                                    {
-                                        Logger.log("Deleted " + writtenFilePath);
-                                    }
-                                });
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + parentPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + parentPath);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
+                                }
                             });
 
                             fileStream.pipe(res);
@@ -332,27 +349,35 @@ exports.serve = function (req, res)
 
                                 const mimeType = Config.mimeType("zip");
                                 const fileName = folderToDownload.nie.title + ".zip";
+                                const parentPath = path.resolve(writtenFilePath, "..");
 
                                 res.writeHead(200,
                                     {
-                                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
+                                        "Content-Disposition": contentDisposition(fileName),
                                         "Content-Type": mimeType
                                     }
                                 );
 
-                                res.on("end", function ()
+                                res.on("finish", function ()
                                 {
-                                    Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr)
+                                    if (!isNull(parentPath))
                                     {
-                                        if (err)
+                                        Folder.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                         {
-                                            Logger.log("error", "Unable to delete " + writtenFilePath);
-                                        }
-                                        else
-                                        {
-                                            Logger.log("Deleted " + writtenFilePath);
-                                        }
-                                    });
+                                            if (err)
+                                            {
+                                                Logger.log("error", "Unable to delete " + parentPath);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("Deleted " + parentPath);
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
+                                    }
                                 });
 
                                 fileStream.pipe(res);
@@ -442,12 +467,15 @@ exports.serve = function (req, res)
 
                                             res.writeHead(200,
                                                 {
-                                                    "Content-disposition": "filename=\"" + file.nie.title + "\"",
+                                                    "Content-Disposition": contentDisposition(file.nie.title),
                                                     "Content-type": mimeType
                                                 });
 
-                                            res.on("end", function ()
+                                            res.on("finish", function ()
                                             {
+                                                const path = require("path");
+                                                const parentFolderPath = path.resolve(writtenFilePath, "..");
+
                                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr)
                                                 {
                                                     if (err)
@@ -689,7 +717,7 @@ exports.get_thumbnail = function (req, res)
 
                                                 res.writeHead(200,
                                                     {
-                                                        "Content-disposition": "filename=\"" + filename + "\"",
+                                                        "Content-Disposition": contentDisposition(filename),
                                                         "Content-type": mimeType
                                                     });
 
@@ -773,7 +801,6 @@ exports.get_thumbnail = function (req, res)
 
 exports.upload = function (req, res)
 {
-    const async = require("async");
     const fs = require("fs");
 
     const requestedResourceURI = req.params.requestedResourceUri;
@@ -855,7 +882,16 @@ exports.upload = function (req, res)
             {
                 fs.stat(file.path, function (err, stats)
                 {
-                    callback(err, stats.size);
+                    if (!isNull(stats))
+                    {
+                        callback(err, stats.size);
+                    }
+                    else
+                    {
+                        const msg = "Unable to calculate the stats of file path " + file.path;
+                        Logger.log("error", msg);
+                        callback(1, msg);
+                    }
                 });
             }, function (err, results)
             {
@@ -958,7 +994,9 @@ exports.upload = function (req, res)
                                             {
                                                 if (isNull(err))
                                                 {
-                                                    if (totalSize + storageSize < Config.maxProjectSize)
+                                                    const storageLimit = (project.ddr.hasStorageLimit) ? project.ddr.hasStorageLimit : Config.maxProjectSize;
+
+                                                    if (totalSize + storageSize < storageLimit)
                                                     {
                                                         async.mapSeries(files, function (file, callback)
                                                         {
@@ -975,7 +1013,7 @@ exports.upload = function (req, res)
                                                                     }
                                                                 });
 
-                                                                newFile.saveWithFileAndContents(file.path, req.index, function (err, newFile)
+                                                                newFile.saveWithFileAndContents(file.path, function (err, newFile)
                                                                 {
                                                                     if (isNull(err))
                                                                     {
@@ -1054,7 +1092,7 @@ exports.upload = function (req, res)
                                                     }
                                                     else
                                                     {
-                                                        return callback(403, "By uploading this file you would exceed the limit of " + JSON.stringify(humanize.filesize(Config.maxProjectSize)) + " for this project.");
+                                                        return callback(403, "By uploading this file you would exceed the limit of " + JSON.stringify(humanize.filesize(project.ddr.hasStorageLimit)) + " for this project.");
                                                     }
                                                 }
                                                 else
@@ -1163,6 +1201,8 @@ exports.restore = function (req, res)
                                     uri: requestedResourceUri
                                 });
                             }
+
+                            folder.nie.title = path.basename(restoreInfo[0].name, path.extname(restoreInfo[0].name));
 
                             User.findByUri(req.user, function (err, user)
                             {
@@ -1427,7 +1467,7 @@ exports.rm = function (req, res)
                     }
                     else
                     {
-                        function deleteFolder (callback)
+                        const deleteFolder = function (callback)
                         {
                             Folder.findByUri(resourceToDelete, function (err, folder)
                             {
@@ -1455,7 +1495,7 @@ exports.rm = function (req, res)
                                             return callback(null, msg);
                                         }
                                         return callback(err, result);
-                                    }, userUri, true, req.query.really_delete);
+                                    }, userUri, false, reallyDelete);
                                 }
                                 else
                                 {
@@ -1463,9 +1503,9 @@ exports.rm = function (req, res)
                                     return callback(err, msg);
                                 }
                             });
-                        }
+                        };
 
-                        function deleteFile (callback)
+                        const deleteFile = function (callback)
                         {
                             File.findByUri(resourceToDelete, function (err, file)
                             {
@@ -1496,7 +1536,7 @@ exports.rm = function (req, res)
                                     return callback(err, msg);
                                 }
                             });
-                        }
+                        };
 
                         const sendResponse = function (err, result)
                         {
@@ -1514,15 +1554,16 @@ exports.rm = function (req, res)
                                 Logger.log("error", msg);
                                 res.writeHead(404, msg);
                                 res.end();
-                                return callback(err, msg);
                             }
                             else
                             {
                                 const msg = "Error deleting " + resourceToDelete + ". Error reported : " + result;
+                                Logger.log("error", msg);
                                 res.status(500).json(
                                     {
                                         result: "error",
-                                        message: msg
+                                        message: msg,
+                                        error: result
                                     }
                                 );
                             }
@@ -2139,10 +2180,87 @@ exports.mkdir = function (req, res)
     }
 };
 
-exports.ls = function (req, res)
+exports.ls_by_name = function (req, res)
 {
     const resourceURI = req.params.requestedResourceUri;
     let show_deleted = req.query.show_deleted;
+    let childName = req.query.title;
+
+    if (isNull(childName))
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "The requestedResourceUri parameter is required"
+        });
+    }
+
+    if (isNull(resourceURI))
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "The title query parameter is required"
+        });
+    }
+
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    if (!acceptsJSON && acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message: "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        Folder.findByUri(resourceURI, function (err, containingFolder)
+        {
+            if (isNull(err) && !isNull(containingFolder))
+            {
+                containingFolder.findChildWithDescriptor(new Descriptor({
+                    prefixedForm: "nie:title",
+                    value: childName
+                }), function (err, children)
+                {
+                    if (isNull(err))
+                    {
+                        if (isNull(children))
+                        {
+                            res.status(404).json({
+                                result: "Error",
+                                message: "Child with name : " + childName + " is not a children of " + containingFolder.uri
+                            });
+                        }
+                        else
+                        {
+                            res.json(children);
+                        }
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "Error",
+                            message: JSON.stringify(children)
+                        });
+                    }
+                });
+            }
+            else
+            {
+                res.status(404).json({
+                    result: "Error",
+                    message: "Non-existent folder. Is this a file instead of a folder? : " + resourceURI
+                });
+            }
+        });
+    }
+};
+
+exports.ls = function (req, res)
+{
+    const resourceURI = req.params.requestedResourceUri;
+    let showDeleted = req.query.show_deleted;
 
     if (req.params.is_project_root)
     {
@@ -2156,7 +2274,7 @@ exports.ls = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            if (!show_deleted)
+                            if (!showDeleted)
                             {
                                 const _ = require("underscore");
                                 files = _.reject(files, function (file)
@@ -2203,7 +2321,7 @@ exports.ls = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        if (!show_deleted)
+                        if (!showDeleted)
                         {
                             const _ = require("underscore");
                             children = _.reject(children, function (child)
@@ -2321,7 +2439,7 @@ exports.serve_static = function (req, res, pathOfIntendedFileRelativeToProjectRo
 
         res.writeHead(statusCode,
             {
-                "Content-disposition": "filename=\"" + filename + "\"",
+                "Content-Disposition": contentDisposition(filename),
                 "Content-type": mimeType
             });
 
@@ -2734,10 +2852,23 @@ exports.rename = function (req, res)
                 {
                     if (!isNull(ie))
                     {
-                        let parsePath = require("parse-filepath");
-                        const parsed = parsePath(ie.nie.title);
+                        if (ie.isA(File))
+                        {
+                            ie = new File(ie);
+                        }
+                        else
+                        {
+                            ie = new Folder(ie);
+                        }
 
-                        ie.nie.title = newName + parsed.ext;
+                        if (isNull(ie.ddr.fileExtension) || ie.ddr.fileExtension === "folder" || ie.ddr.fileExtension === "")
+                        {
+                            ie.nie.title = newName;
+                        }
+                        else
+                        {
+                            ie.nie.title = newName + "." + ie.ddr.fileExtension;
+                        }
 
                         ie.needsRenaming(function (err, shouldRename)
                         {
@@ -2745,7 +2876,7 @@ exports.rename = function (req, res)
                             {
                                 if (shouldRename === false)
                                 {
-                                    ie.save(function (err, result)
+                                    ie.rename(ie.nie.title, function (err, result)
                                     {
                                         if (isNull(err))
                                         {

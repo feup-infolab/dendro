@@ -20,34 +20,44 @@ const activeConfigFilePath = Pathfinder.absPathInApp("conf/active_deployment_con
 const configs = JSON.parse(fs.readFileSync(configsFilePath, "utf8"));
 
 let activeConfigKey;
-if (process.env.NODE_ENV === "test")
+
+const argv = require("yargs").argv;
+
+if (argv.config)
+{
+    Logger.log("info", "Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
+    activeConfigKey = argv.config;
+}
+else
 {
     if (process.env.RUNNING_IN_JENKINS)
     {
         activeConfigKey = "jenkins_buildserver_test";
-        Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
+        Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS environment var is " + process.env.RUNNING_IN_JENKINS);
     }
-    else
+    else if (process.env.RUNNING_IN_TRAVIS)
+    {
+        activeConfigKey = "travis_buildserver_test";
+        Logger.log("info", "Running in TRAVIS server detected. RUNNING_IN_TRAVIS environment var is " + process.env.RUNNING_IN_TRAVIS);
+    }
+    else if (process.env.NODE_ENV === "test")
     {
         activeConfigKey = "test";
         Logger.log("info", "Running in test environment detected");
     }
-}
-else
-{
-    const argv = require("yargs").argv;
-
-    if (argv.config)
-    {
-        activeConfigKey = argv.config;
-    }
     else
     {
         activeConfigKey = JSON.parse(fs.readFileSync(activeConfigFilePath, "utf8")).key;
+        Logger.log("info", "Running with deployment config " + activeConfigKey);
     }
 }
 
 const activeConfig = configs[activeConfigKey];
+
+if (isNull(activeConfig))
+{
+    Logger.log("error", "There is no configuration with key " + activeConfigKey + "in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.");
+}
 
 const getConfigParameter = function (parameter, defaultValue)
 {
@@ -75,6 +85,19 @@ Config.port = getConfigParameter("port");
 Config.host = getConfigParameter("host");
 Config.baseUri = getConfigParameter("baseUri");
 Config.environment = getConfigParameter("environment");
+
+if (Config.environment !== "test" &&
+    Config.environment !== "development" &&
+    Config.environment !== "production"
+)
+{
+    throw new Error("Invalid environment configuration set! : " + Config.environment);
+}
+else
+{
+    process.env.NODE_ENV = Config.environment;
+}
+
 Config.eudatBaseUrl = getConfigParameter("eudatBaseUrl");
 Config.eudatToken = getConfigParameter("eudatToken");
 Config.eudatCommunityId = getConfigParameter("eudatCommunityId");
@@ -92,6 +115,7 @@ Config.virtuosoHost = getConfigParameter("virtuosoHost");
 Config.virtuosoPort = getConfigParameter("virtuosoPort");
 Config.virtuosoISQLPort = getConfigParameter("virtuosoISQLPort");
 Config.virtuosoSQLLogLevel = getConfigParameter("virtuosoSQLLogLevel");
+Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation", false);
 
 Config.virtuosoConnector = (function ()
 {
@@ -119,6 +143,9 @@ Config.mongoDbCollectionName = getConfigParameter("mongoDbCollectionName");
 Config.mongoDBSessionStoreCollection = getConfigParameter("mongoDBSessionStoreCollection");
 Config.mongoDbVersion = getConfigParameter("mongoDbVersion");
 Config.mongoDBAuth = getConfigParameter("mongoDBAuth");
+// storage default config
+Config.defaultStorageConfig = getConfigParameter("storageDefaults");
+Config.defaultStorageConfig.port = parseInt(Config.defaultStorageConfig.port);
 
 // mysql database for interaction
 
@@ -178,19 +205,61 @@ Config.crypto = getConfigParameter("crypto");
 Config.recommendation = getConfigParameter("recommendation");
 Config.recommendation.getTargetTable = function ()
 {
+    let tableName = null;
     if (Config.recommendation.modes.dendro_recommender.log_modes.phase_1.active)
     {
-        return Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
+        tableName = Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
     }
     else if (Config.recommendation.modes.dendro_recommender.log_modes.phase_2.active)
     {
-        return Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
+        tableName = Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
+    }
+    else
+    {
+        if (!isNull(Config.recommendations.interactions_recording_table))
+        {
+            tableName = Config.recommendations.interactions_recording_table;
+        }
+    }
+
+    if (isNull(tableName))
+    {
+        throw new Error("Unspecified interactions table name. Check your deployment_configs.json for recommendation/interactions_recording_table field.");
+    }
+    else
+    {
+        return tableName;
     }
 };
 
 Config.exporting = getConfigParameter("exporting");
 
 Config.cache = getConfigParameter("cache");
+
+/**
+ * Database connection (s).
+ * @type {{default: {baseURI: string, graphName: string, graphUri: string}}}
+ */
+
+Config.getDBByHandle = function (dbHandle)
+{
+    if (!isNull(dbHandle))
+    {
+        const key = _.find(Object.keys(Config.db), function (key)
+        {
+            return Config.db[key].graphHandle === dbHandle;
+        });
+
+        if (!isNull(key))
+        {
+            return Config.db[key];
+        }
+
+        return null;
+    }
+
+    return Config.db.default;
+};
 
 /**
  * Database connection (s).
@@ -225,18 +294,19 @@ Config.getDBByGraphUri = function (graphUri)
         {
             if (Config.db.hasOwnProperty(dbKey))
             {
-                if (Config.db.graphUri[graphUri] === graphUri)
+                if (!isNull(Config.db[dbKey]))
                 {
-                    Config.db_by_uri[graphUri] = Config.db[dbKey];
-                    return Config.db_by_uri[graphUri];
+                    if (Config.db[dbKey].graphUri === graphUri)
+                    {
+                        Config.db_by_uri[graphUri] = Config.db[dbKey];
+                        return Config.db_by_uri[graphUri];
+                    }
                 }
             }
         }
     }
-    else
-    {
-        return Config.db.default;
-    }
+
+    return Config.db.default;
 };
 
 Config.getGFSByID = function (gfsID)
@@ -626,7 +696,7 @@ if (isNull(Config.iconableFileExtensions))
 }
 
 Config.thumbnails = {
-    thumbnail_format_extension: "gif",
+    thumbnail_format_extension: "jpg",
     // every attribute of the size_parameters must be listed here for iteration TODO fix later
     sizes: ["big", "medium", "small", "icon"],
     size_parameters:
@@ -650,6 +720,11 @@ Config.thumbnails = {
           description: "icon",
           width: 32,
           height: 32
+      },
+      tiny: {
+          description: "tiny",
+          width: 16,
+          height: 16
       }
   }
 };
@@ -816,8 +891,16 @@ if (process.env.NODE_ENV === "production")
     if (!isNull(argv.pm2_slave))
     {
         Config.runningAsSlave = true;
-        Config.maxSimultaneousConnectionsToDb = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+        const simultaneousConnections = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+        Config.maxSimultaneousConnectionsToDb = (simultaneousConnections >= 1) ? simultaneousConnections : 1;
     }
 }
+
+Config.toJSONObject = function ()
+{
+    const CircularJSON = require("circular-json");
+    const string = CircularJSON.stringify(_.extend({}, Config));
+    return JSON.parse(string);
+};
 
 module.exports.Config = Config;
