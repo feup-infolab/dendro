@@ -26,7 +26,7 @@ const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects
 
 const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
-/*var bodyObj = {
+/*let bodyObj = {
     "prefix": "dcterms",
     "shortName": "abstract",
     "ontology": "http://purl.org/dc/terms/",
@@ -49,7 +49,6 @@ const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder
     "interactionType": "accept_descriptor_from_quick_list",
     "recommendedFor": "/r/folder/403de121-d0fc-4329-a534-e87c997b5596"
 };*/
-let bodyObj = null;
 let projectRootData = null;
 let dctermsDescriptors = null;
 let dctermsPrefix = "dcterms";
@@ -79,9 +78,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
                         should.exist(res);
                         dctermsDescriptors = res.body.descriptors;
                         should.exist(dctermsDescriptors);
-                        // TODO recommendationCallId and recommendedFor must be added after the unit runs
-                        // TODO recommendedFor maybe for a uri of a folder on the root of the project
-                        // TODO recommendationCallId is I think from the descriptor associated to the resource
                         demouser1InteractionObj = dctermsDescriptors[0];
                         demouser1InteractionObj.just_added = true;
                         demouser1InteractionObj.added_from_quick_list = true;
@@ -367,7 +363,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.contain("Invalid ranking position in the request's body. It should be an integer");
+                    res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -390,7 +386,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.contain("Invalid ranking position in the request's body. It should be an integer");
+                    res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -413,7 +409,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.contain("Invalid ranking position in the request's body. It should be an integer");
+                    res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -438,7 +434,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.contain("Invalid ranking position in the request's body. It should be an integer");
+                    res.body.message.should.equal("Invalid page number in the request's body. It should be an integer");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -461,7 +457,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.contain("Invalid ranking position in the request's body. It should be an integer");
+                    res.body.message.should.equal("Invalid page number in the request's body. It should be an integer");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -478,13 +474,13 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
-                delete copyOfDemouser1InteractionObj.pageNumber;
+                copyOfDemouser1InteractionObj.pageNumber = null;
                 interactionsUtils.acceptDescriptorFromQuickList(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.contain("Invalid ranking position in the request's body. It should be an integer");
+                    res.body.message.should.equal("Invalid page number in the request's body. It should be an integer");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -496,19 +492,175 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] accept_descri
             });
         });
 
-        //TODO when the necessary params are missing:
+        it("Should give an error and not accept and register an interaction if the recommendationCallId field is missing, even if logged in as demouser1 (creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
+                delete copyOfDemouser1InteractionObj.recommendationCallId;
+                interactionsUtils.acceptDescriptorFromQuickList(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                {
+                    should.exist(err);
+                    should.exist(res);
+                    res.statusCode.should.equal(500);
+                    res.body.message.should.equal("Interaction type accept_descriptor_from_quick_list requires field recommendationCallId in the request's body.");
+                    //SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        should.equal(err, null);
+                        should.exist(info);
+                        info[0].nInteractions.should.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should give an error and not accept and register an interaction if the recommendationCallId field is null, even if logged in as demouser1 (creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
+                copyOfDemouser1InteractionObj.recommendationCallId = null;
+                interactionsUtils.acceptDescriptorFromQuickList(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                {
+                    should.exist(err);
+                    should.exist(res);
+                    res.statusCode.should.equal(500);
+                    res.body.message.should.equal("Interaction type accept_descriptor_from_quick_list requires field recommendationCallId in the request's body.");
+                    //SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        should.equal(err, null);
+                        should.exist(info);
+                        info[0].nInteractions.should.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should give an error and not accept and register an interaction if the recommendationCallTimeStamp field is invalid, even if logged in as demouser1 (creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
+                copyOfDemouser1InteractionObj.recommendationCallTimeStamp = "This is not a valid timestamp";
+                interactionsUtils.acceptDescriptorFromQuickList(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                {
+                    should.exist(err);
+                    should.exist(res);
+                    res.statusCode.should.equal(500);
+                    res.body.message.should.equal("Invalid recommendationCallTimeStamp in the request's body. It should be an valid date.");
+                    //SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        should.equal(err, null);
+                        should.exist(info);
+                        info[0].nInteractions.should.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should give an error and not accept and register an interaction if the recommendationCallTimeStamp field is missing, even if logged in as demouser1 (creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
+                delete copyOfDemouser1InteractionObj.recommendationCallTimeStamp;
+                interactionsUtils.acceptDescriptorFromQuickList(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                {
+                    should.exist(err);
+                    should.exist(res);
+                    res.statusCode.should.equal(500);
+                    res.body.message.should.equal("Invalid recommendationCallTimeStamp in the request's body. It should be an valid date.");
+                    //SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        should.equal(err, null);
+                        should.exist(info);
+                        info[0].nInteractions.should.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should give an error and not accept and register an interaction if the recommendationCallTimeStamp field is null, even if logged in as demouser1 (creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
+                copyOfDemouser1InteractionObj.recommendationCallTimeStamp = null;
+                interactionsUtils.acceptDescriptorFromQuickList(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                {
+                    should.exist(err);
+                    should.exist(res);
+                    res.statusCode.should.equal(500);
+                    res.body.message.should.equal("Invalid recommendationCallTimeStamp in the request's body. It should be an valid date.");
+                    //SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        should.equal(err, null);
+                        should.exist(info);
+                        info[0].nInteractions.should.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should give an error and not accept and register an interaction if all the required fields are missing, even if logged in as demouser1 (creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
+                delete copyOfDemouser1InteractionObj.recommendationCallTimeStamp;
+                delete copyOfDemouser1InteractionObj.interactionType;
+                delete copyOfDemouser1InteractionObj.uri;
+                delete copyOfDemouser1InteractionObj.recommendedFor;
+                delete copyOfDemouser1InteractionObj.rankingPosition;
+                delete copyOfDemouser1InteractionObj.pageNumber;
+                delete copyOfDemouser1InteractionObj.recommendationCallId;
+                delete copyOfDemouser1InteractionObj.recommendationCallTimeStamp;
+                interactionsUtils.acceptDescriptorFromQuickList(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                {
+                    should.exist(err);
+                    should.exist(res);
+                    res.statusCode.should.equal(500);
+                    //because it is the first validation that fails when checking on the server side, even if all fields are missing
+                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : accept_descriptor_from_quick_list");
+                    //SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        should.equal(err, null);
+                        should.exist(info);
+                        info[0].nInteractions.should.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
 
 
-        /*
-            performedBy: user.uri, -> is already tested when an unauthenticated user tries the request
-            interactionType: req.body.interactionType, -> done
-            executedOver: resource.uri, -> done
-            originallyRecommendedFor: req.body.recommendedFor, -> done
-            rankingPosition: req.body.rankingPosition, -> done
-            pageNumber: req.body.pageNumber,
-            recommendationCallId: req.body.recommendationCallId,
-            recommendationCallTimeStamp: req.body.recommendationCallTimeStamp
-         */
+        it("Should give an error and not accept and register an interaction if the body contents is null, even if logged in as demouser1 (creator of the project)", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                let copyOfDemouser1InteractionObj = null;
+                interactionsUtils.acceptDescriptorFromQuickList(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                {
+                    should.exist(err);
+                    should.exist(res);
+                    res.statusCode.should.equal(500);
+                    //because it is the first validation that fails when checking on the server side, even if all fields are missing
+                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : accept_descriptor_from_quick_list");
+                    //SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        should.equal(err, null);
+                        should.exist(info);
+                        info[0].nInteractions.should.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
     });
 
     describe("[POST] [Valid Cases] /interactions/accept_descriptor_from_quick_list", function ()

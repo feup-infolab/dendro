@@ -205,6 +205,160 @@ const recordInteractionOverAResource = function (user, resource, req, res)
 
 exports.accept_descriptor_from_quick_list = function (req, res)
 {
+    const validateBodyObject = function (req, callback) {
+        async.waterfall([
+                function (callback)
+                {
+                    if (req.body instanceof Object)
+                    {
+                        try
+                        {
+                            JSON.parse(JSON.stringify(req.body));
+                            callback(null);
+                        }
+                        catch (error)
+                        {
+                            let errorObj = {
+                                statusCode: 500,
+                                message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+                            };
+                            callback(errorObj);
+                        }
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if (req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list.key)
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.accept_descriptor_from_quick_list.key
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.rankingPosition) && Number.isInteger(req.body.rankingPosition))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid ranking position in the request's body. It should be an integer"
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.pageNumber) && Number.isInteger(req.body.pageNumber))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid page number in the request's body. It should be an integer"
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.recommendationCallId))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Interaction type " + Interaction.types.accept_descriptor_from_quick_list.key + " requires field recommendationCallId in the request's body."
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback) {
+                    //recommendationCallTimeStamp
+                    if(!isNull(req.body.recommendationCallTimeStamp) && !isNaN(Date.parse(req.body.recommendationCallTimeStamp)))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid recommendationCallTimeStamp in the request's body. It should be an valid date."
+                        };
+                        callback(errorObj);
+                    }
+                }],
+            function (err, results)
+            {
+                if(isNull(err))
+                {
+                    callback(null, null);
+                }
+                else
+                {
+                    callback(true, err);
+                }
+            }
+        );
+    };
+
+    validateBodyObject(req, function (err, result)
+    {
+        if(isNull(err))
+        {
+            const descriptor = new Descriptor({
+                uri: req.body.uri
+            });
+
+            if (descriptor instanceof Descriptor)
+            {
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
+                });
+
+                req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
+
+                recordInteractionOverAResource(req.user, req.body, req, res);
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "Error",
+                    message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
+                });
+            }
+        }
+        else
+        {
+            res.status(result.statusCode).json({
+                result: "Error",
+                message: result.message
+            });
+        }
+    });
+
+    /*
     if (req.body instanceof Object)
     {
         if (req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list.key)
@@ -255,7 +409,7 @@ exports.accept_descriptor_from_quick_list = function (req, res)
             result: "Error",
             message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
-    }
+    }*/
 };
 
 exports.accept_descriptor_from_manual_list = function (req, res)
