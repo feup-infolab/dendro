@@ -380,6 +380,31 @@ exports.favoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, body
     }
 };
 
+exports.unfavoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/unfavorite_descriptor_from_quick_list_for_user";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 exports.getLatestInteractionInDB = function (callback)
 {
     Config.mysql.default.pool.getConnection(function (err, connection)
