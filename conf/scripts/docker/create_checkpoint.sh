@@ -12,7 +12,7 @@ else
     CHECKPOINT_NAME="$1"
 fi
 
-echo "Creating checkpoint $CHECKPOINT_NAME..."
+echo "Running checkpoint create script for $CHECKPOINT_NAME..."
 
 CHECKPOINT_FOLDER=$(pwd)/data/$CHECKPOINT_NAME
 RUNNING_FOLDER=$(pwd)/data/current
@@ -31,4 +31,4 @@ cp -R $RUNNING_FOLDER $CHECKPOINT_FOLDER
 echo "Re-Starting all containers..."
 eval "$DOCKER_SCRIPTS_DIR/start_containers.sh"
 
-echo "Created checkpoint $CHECKPOINT_NAME..."
+echo "Checkpoint create script for checkpoint $CHECKPOINT_NAME finished."

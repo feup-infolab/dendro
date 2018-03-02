@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "Running stop containers script..."
+
 function stop_container_if_running
 {
     container_name=$1
@@ -7,6 +9,8 @@ function stop_container_if_running
     if [[ "$running" == "true" ]]
     then
         echo "Stopping $(docker stop $container_name)"
+    else
+        echo "Container $container_name is not running."
     fi
 }
 
@@ -19,3 +23,5 @@ stop_container_if_running "mongo-dendro"
 #docker stop redis-dendro-default
 #docker stop redis-dendro-social
 #docker stop redis-dendro-notifications
+
+echo "Stopped all containers."

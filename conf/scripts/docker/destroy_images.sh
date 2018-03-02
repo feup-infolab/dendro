@@ -12,5 +12,3 @@ docker rmi -f mongo-dendro || true
 #docker rmi -f redis-dendro-default || true
 #docker rmi -f redis-dendro-social || true
 #docker rmi -f redis-dendro-notifications || true
-
-docker ps
