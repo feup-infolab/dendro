@@ -17,13 +17,38 @@ let dendroInstance;
 
 class BootupUnit extends TestUnit
 {
+    static setup (callback, customCheckpointIdentifier)
+    {
+        const self = this;
+        const loadedCheckpoint = self.loadCheckpoint(customCheckpointIdentifier);
+
+        if (loadedCheckpoint)
+        {
+            Logger.log("Checkpoint " + self.name + "exists and was recovered.");
+            self.init(function (err, result)
+            {
+                Logger.log("Ran only init function of " + self.name);
+                callback(err, result);
+            });
+        }
+        else
+        {
+            Logger.log("Checkpoint " + self.name + " does not exist. Will load database...");
+            self.load(function (err, result)
+            {
+                Logger.log("Ran load function of " + self.name);
+                callback(null);
+            });
+        }
+    }
+
     static init (callback)
     {
+        const self = this;
+        Logger.log("Starting " + self.name + "...");
         super.init(function (err, result)
         {
-            if(!dendroInstance)
-                dendroInstance = new App();
-
+            dendroInstance = new App();
             dendroInstance.startApp(function (err, appInfo)
             {
                 if (isNull(err))
@@ -55,6 +80,7 @@ class BootupUnit extends TestUnit
             Logger.log("debug", "Starting server shutdown at bootup Unit");
             dendroInstance.freeResources(function (err, result)
             {
+                global.tests.app = null;
                 Logger.log("debug", "Server shutdown complete at bootup Unit");
                 callback(err);
             });
@@ -78,15 +104,18 @@ class BootupUnit extends TestUnit
                 {
                     if (isNull(err))
                     {
-                        dendroInstance.seedDatabases(function (err, results)
+                        dendroInstance.seedDatabases(function (err, result)
                         {
                             if (!err)
                             {
-                                callback(null, appInfo);
+                                dendroInstance.startApp(function(err, result){
+                                    global.tests.app = dendroInstance.app;
+                                    callback(err, dendroInstance.app);
+                                });
                             }
                             else
                             {
-                                callback(err, results);
+                                callback(err, result);
                             }
                         });
                     }

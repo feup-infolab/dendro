@@ -29,31 +29,7 @@ class TestUnit
 
     static setup (callback, customCheckpointIdentifier)
     {
-        const self = this;
-        const loadedCheckpoint = self.loadCheckpoint(customCheckpointIdentifier);
-
-        if (loadedCheckpoint)
-        {
-            Logger.log("Checkpoint " + self.name + "exists and was recovered.");
-            self.init(function (err, result)
-            {
-                Logger.log("Ran only init function of " + self.name);
-                callback(err, result);
-            });
-        }
-        else
-        {
-            Logger.log("Checkpoint " + self.name + " does not exist. Will load database...");
-            self.load(function (err, result)
-            {
-                Logger.log("Gracefully starting app again after loading databases in " + self.name);
-                self.init(function (err, result)
-                {
-                    Logger.log("Finished load function of " + self.name);
-                    callback(null);
-                });
-            });
-        }
+        callback(null);
     }
 
     static startLoad (filename)
@@ -79,11 +55,13 @@ class TestUnit
 
         self.shutdown(function (err, result)
         {
-            if(!err)
+            if (!err)
             {
                 Logger.log("Halted app after loading databases in " + self.name + " for creating a checkpoint.");
                 self.createCheckpoint(customCheckpointIdentifier);
-                callback(err, result);
+                self.init(function(err, result){
+                    callback(err, result);
+                });
             }
             else
             {

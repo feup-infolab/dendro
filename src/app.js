@@ -80,5 +80,3 @@ else if (process.env.NODE_ENV !== "test")
         dendroInstance.startApp();
     });
 }
-
-callback(null);

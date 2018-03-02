@@ -476,7 +476,7 @@ DbConnection.finishUpAllConnectionsAndClose = function (callback)
             Logger.log("error", "[TIMEOUT] Virtuoso did not close all connections in time!");
             callback(null);
         }
-    }, Config.dbOperationTimeout);
+    }, Config.dbOperationTimeout * 10);
 
     async.mapSeries(Object.keys(Config.db), function (dbConfigKey, cb)
     {
@@ -505,6 +505,7 @@ DbConnection.finishUpAllConnectionsAndClose = function (callback)
         }
     }, function (err, result)
     {
+        exited = true;
         callback(err, result);
     });
 };

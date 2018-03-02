@@ -21,6 +21,7 @@ Pathfinder.appDir = appDir;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
 
 Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
 
@@ -37,8 +38,9 @@ class App
         self.setupHandlers();
     }
 
-    setupHandlers()
+    setupHandlers ()
     {
+        const self = this;
         // if this fancy cleanup fails, we drop the hammer in 10 secs
         const setupForceKillTimer = function ()
         {
@@ -59,7 +61,7 @@ class App
                 setupForceKillTimer();
                 Logger.log("warn", "Signal " + signal + " received!");
 
-                app.freeResources(function ()
+                self.freeResources(function ()
                 {
                     Logger.log("Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
                     process.exit(0);
@@ -90,7 +92,7 @@ class App
         {
             Logger.log(`Unknown error occurred! About to exit with code ${code}`);
 
-            app.freeResources(function ()
+            self.freeResources(function ()
             {
                 Logger.log("Freed all resources.");
                 Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
@@ -436,11 +438,6 @@ class App
                         Logger.log("Completed initialization in test mode... Units should start to load now.");
                         return callback(null);
                     }
-                },
-                function (callback)
-                {
-                    // add graceful closing methods to release connections on server shutdown, for example
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/setup_graceful_close.js")).setupGracefulClose(self.app, self.server, callback);
                 }
             ], function (err, result)
             {
@@ -542,6 +539,7 @@ class App
 
     freeResources (callback)
     {
+        const self = this;
         if (!isNull(Config.debug) && Config.debug.active && !isNull(Config.debug.memory) && Config.debug.memory.dump_snapshots)
         {
             Logger.log("Dumping heap snapshot!");
@@ -637,9 +635,12 @@ class App
 
         const haltHTTPServer = function (cb)
         {
-            Logger.log("Halting server...");
-            server.close();
-            server.destroy();
+            if (!isNull(self.server))
+            {
+                Logger.log("Halting server...");
+                self.server.close();
+                self.server.destroy();
+            }
             cb(null);
         };
 
@@ -657,7 +658,7 @@ class App
             Logger.log("Removing PID file...");
             if (process.env.NODE_ENV !== "test")
             {
-                app.pid.remove();
+                self.pid.remove();
                 Logger.log("Removed PID");
             }
             else

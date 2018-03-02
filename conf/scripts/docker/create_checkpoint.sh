@@ -12,7 +12,7 @@ else
     CHECKPOINT_NAME="$1"
 fi
 
-echo "$CHECKPOINT_NAME"
+echo "Creating checkpoint $CHECKPOINT_NAME..."
 
 CHECKPOINT_FOLDER=$(pwd)/data/$CHECKPOINT_NAME
 RUNNING_FOLDER=$(pwd)/data/current
@@ -20,15 +20,15 @@ RUNNING_FOLDER=$(pwd)/data/current
 rm -rf $CHECKPOINT_FOLDER
 
 ##stop all containers
-echo "Pausing all containers..."
-eval "$DOCKER_SCRIPTS_DIR/pause_containers.sh"
+echo "Stopping all containers..."
+eval "$DOCKER_SCRIPTS_DIR/stop_containers.sh"
 
 # create copy of folder
 echo "Copying $RUNNING_FOLDER -> $CHECKPOINT_FOLDER"
 cp -R $RUNNING_FOLDER $CHECKPOINT_FOLDER
 
 ## start containers with the volumes mounted
-echo "UnPausing all containers..."
-eval "$DOCKER_SCRIPTS_DIR/unpause_containers.sh"
+echo "Re-Starting all containers..."
+eval "$DOCKER_SCRIPTS_DIR/start_containers.sh"
 
-echo $CHECKPOINT_NAME
+echo "Created checkpoint $CHECKPOINT_NAME..."
