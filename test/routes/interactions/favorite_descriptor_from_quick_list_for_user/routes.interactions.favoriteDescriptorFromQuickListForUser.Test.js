@@ -46,7 +46,7 @@ const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder
     "added_from_quick_list": true,
     "rankingPosition": 2,
     "pageNumber": 0,
-    "interactionType": "hide_descriptor_from_quick_list_for_project",
+    "interactionType": "favorite_descriptor_from_quick_list_for_user",
     "recommendedFor": "/r/folder/403de121-d0fc-4329-a534-e87c997b5596"
 };*/
 let projectRootData = null;
@@ -56,7 +56,7 @@ let dctermsPrefix = "dcterms";
 let demouser1InteractionObj = null;
 let demouser2InteractionObj = null;
 
-describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descriptor_from_quick_list_for_project", function ()
+describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] favorite_descriptor_from_quick_list_for_user", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
@@ -85,7 +85,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
                         demouser1InteractionObj.rankingPosition = 0;
                         //demouser1InteractionObj.pageNumber = $scope.recommendations_page;
                         demouser1InteractionObj.pageNumber = 2;
-                        demouser1InteractionObj.interactionType = "hide_descriptor_from_quick_list_for_project";
+                        demouser1InteractionObj.interactionType = "favorite_descriptor_from_quick_list_for_user";
                         demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
 
                         demouser2InteractionObj = dctermsDescriptors[1];
@@ -93,7 +93,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
                         demouser2InteractionObj.added_from_quick_list = true;
                         demouser2InteractionObj.rankingPosition = 0;
                         demouser2InteractionObj.pageNumber = 2;
-                        demouser2InteractionObj.interactionType = "hide_descriptor_from_quick_list_for_project";
+                        demouser2InteractionObj.interactionType = "favorite_descriptor_from_quick_list_for_user";
                         demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
                         done();
                     });
@@ -103,13 +103,13 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
     });
 
 
-    describe("[POST] [Invalid Cases] /interactions/hide_descriptor_from_quick_list_for_project", function ()
+    describe("[POST] [Invalid Cases] /interactions/favorite_descriptor_from_quick_list_for_user", function ()
     {
-        it("Should give an error and not accept and register an interaction when a descriptor is hidden from the quick list when unauthenticated", function (done)
+        it("Should give an error and not accept and register an interaction when a descriptor is favorited from the quick list when unauthenticated", function (done)
         {
             const app = global.tests.app;
             let agent = chai.request.agent(app);
-            interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, demouser1InteractionObj, function (err, res)
+            interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, demouser1InteractionObj, function (err, res)
             {
                 should.exist(err);
                 res.statusCode.should.equal(401);
@@ -123,11 +123,11 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             });
         });
 
-        it("Should give an error and not accept and register an interaction when a descriptor is hidden from the quick list when logged in as demouser3, who is not a creator or collaborator of the project where the current resource belongs to", function (done)
+        it("Should give an error and not accept and register an interaction when a descriptor is favorited from the quick list when logged in as demouser3, who is not a creator or collaborator of the project where the current resource belongs to", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, demouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, demouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     res.statusCode.should.equal(400);
@@ -149,12 +149,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.interactionType = "invalid_interaction_type";
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : hide_descriptor_from_quick_list_for_project");
+                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : favorite_descriptor_from_quick_list_for_user");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -172,12 +172,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 delete copyOfDemouser1InteractionObj.interactionType;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : hide_descriptor_from_quick_list_for_project");
+                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : favorite_descriptor_from_quick_list_for_user");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -195,12 +195,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.interactionType = null;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : hide_descriptor_from_quick_list_for_project");
+                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : favorite_descriptor_from_quick_list_for_user");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -219,7 +219,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.recommendedFor = "invalid_recomended_for";
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -242,7 +242,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 delete copyOfDemouser1InteractionObj.recommendedFor;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -265,7 +265,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.recommendedFor = null;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -289,7 +289,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.uri = "invalid_executed_over";
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -312,7 +312,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 delete copyOfDemouser1InteractionObj.uri;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -335,7 +335,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.uri = null;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -358,7 +358,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.rankingPosition = "invalid_ranking_position";
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -381,7 +381,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 delete copyOfDemouser1InteractionObj.rankingPosition;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -404,7 +404,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.rankingPosition = null;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -429,7 +429,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.pageNumber = "invalid_page_number";
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -452,7 +452,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 delete copyOfDemouser1InteractionObj.pageNumber;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -475,7 +475,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.pageNumber = null;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -498,12 +498,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 delete copyOfDemouser1InteractionObj.recommendationCallId;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.equal("Interaction type hide_descriptor_from_quick_list_for_project requires field recommendationCallId in the request's body.");
+                    res.body.message.should.equal("Interaction type favorite_descriptor_from_quick_list_for_user requires field recommendationCallId in the request's body.");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -521,12 +521,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.recommendationCallId = null;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    res.body.message.should.equal("Interaction type hide_descriptor_from_quick_list_for_project requires field recommendationCallId in the request's body.");
+                    res.body.message.should.equal("Interaction type favorite_descriptor_from_quick_list_for_user requires field recommendationCallId in the request's body.");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -544,7 +544,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.recommendationCallTimeStamp = "This is not a valid timestamp";
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -567,7 +567,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 delete copyOfDemouser1InteractionObj.recommendationCallTimeStamp;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -590,7 +590,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             {
                 let copyOfDemouser1InteractionObj = JSON.parse(JSON.stringify(demouser1InteractionObj));
                 copyOfDemouser1InteractionObj.recommendationCallTimeStamp = null;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
@@ -620,13 +620,13 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
                 delete copyOfDemouser1InteractionObj.pageNumber;
                 delete copyOfDemouser1InteractionObj.recommendationCallId;
                 delete copyOfDemouser1InteractionObj.recommendationCallTimeStamp;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     //because it is the first validation that fails when checking on the server side, even if all fields are missing
-                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : hide_descriptor_from_quick_list_for_project");
+                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : favorite_descriptor_from_quick_list_for_user");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -644,13 +644,13 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 let copyOfDemouser1InteractionObj = null;
-                interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, copyOfDemouser1InteractionObj, function (err, res)
+                interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, copyOfDemouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     //because it is the first validation that fails when checking on the server side, even if all fields are missing
-                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : hide_descriptor_from_quick_list_for_project");
+                    res.body.message.should.equal("Invalid interaction type in the request's body. It should be : favorite_descriptor_from_quick_list_for_user");
                     //SHOULD NOT BE IN THE MYSQL DATABASE
                     interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
                         should.equal(err, null);
@@ -663,9 +663,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
         });
     });
 
-    describe("[POST] [Valid Cases] /interactions/hide_descriptor_from_quick_list_for_project", function ()
+    describe("[POST] [Valid Cases] /interactions/favorite_descriptor_from_quick_list_for_user", function ()
     {
-        it("Should accept and register an interaction when a descriptor is added from  the manual list while it was a project and user favorite when logged in as demouser1 (the creator of the current project)", function (done)
+        it("Should accept and register an interaction when a descriptor is favorited from the quick list when logged in as demouser1 (the creator of the current project)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -676,7 +676,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
                     should.exist(res.body);
                     should.exist(res.body.uri);
                     let demouser1Uri = res.body.uri;
-                    interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, demouser1InteractionObj, function (err, res)
+                    interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, demouser1InteractionObj, function (err, res)
                     {
                         should.equal(err, null);
                         res.statusCode.should.equal(200);
@@ -707,7 +707,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
             });
         });
 
-        it("Should accept and register an interaction when a descriptor is added from  the manual list while it was a project and user favorite when logged in as demouser2 (a collaborator on the current project)", function (done)
+        it("Should accept and register an interaction when a descriptor is favorited from the quick list when logged in as demouser2 (a collaborator on the current project)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
@@ -718,7 +718,7 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] hide_descript
                     should.exist(res.body);
                     should.exist(res.body.uri);
                     let demouser2Uri = res.body.uri;
-                    interactionsUtils.hideDescriptorFromQuickListForProject(true, agent, demouser2InteractionObj, function (err, res)
+                    interactionsUtils.favoriteDescriptorFromQuickListForUser(true, agent, demouser2InteractionObj, function (err, res)
                     {
                         should.equal(err, null);
                         res.statusCode.should.equal(200);

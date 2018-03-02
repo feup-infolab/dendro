@@ -231,8 +231,132 @@ exports.acceptDescriptorFromManualListWhileItWasAUserAndProjectFavorite = functi
 };
 
 exports.hideDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb) {
-    // hide_descriptor_from_quick_list_for_project
     const path = "/interactions/hide_descriptor_from_quick_list_for_project";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.unhideDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/unhide_descriptor_from_quick_list_for_project";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.hideDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/hide_descriptor_from_quick_list_for_user";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.unhideDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/unhide_descriptor_from_quick_list_for_user";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.favoriteDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/favorite_descriptor_from_quick_list_for_project";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.favoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/favorite_descriptor_from_quick_list_for_user";
     if(jsonOnly)
     {
         agent
