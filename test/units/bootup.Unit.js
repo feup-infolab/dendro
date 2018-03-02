@@ -20,6 +20,12 @@ class BootupUnit extends TestUnit
     static setup (callback, customCheckpointIdentifier)
     {
         const self = this;
+
+        if(isNull(customCheckpointIdentifier))
+        {
+            customCheckpointIdentifier = self.name;
+        }
+
         const loadedCheckpoint = self.loadCheckpoint(customCheckpointIdentifier);
 
         if (loadedCheckpoint)
@@ -78,6 +84,7 @@ class BootupUnit extends TestUnit
         super.shutdown(function (err, result)
         {
             Logger.log("debug", "Starting server shutdown at bootup Unit");
+            // TODO este free resources retorna antes do tempo!
             dendroInstance.freeResources(function (err, result)
             {
                 global.tests.app = null;

@@ -183,11 +183,21 @@ Cache.closeConnections = function (cb)
         {
             if (typeof self.caches[cacheKey].getHitRatio === "function")
             {
-                Logger.log("Cache " + self.caches[cacheKey].id + " HIT RATIO: " + self.caches[cacheKey].getHitRatio());
+                Logger.log("info", "Cache " + self.caches[cacheKey].id + " HIT RATIO: " + self.caches[cacheKey].getHitRatio());
             }
 
             self.caches[cacheKey].close(function (err, result)
             {
+                if(isNull(err))
+                {
+                    Logger.log("info", "Cache " + self.caches[cacheKey].id + " HIT RATIO: " + self.caches[cacheKey].getHitRatio());
+                }
+                else
+                {
+                    Logger.log("error", "Error closing connection to cache" + self.caches[cacheKey].id);
+                    Logger.log("error", JSON.stringify(err));
+                    Logger.log("error", JSON.stringify(result));
+                }
                 cb(err, result);
             });
         }

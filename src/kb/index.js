@@ -530,8 +530,16 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                             }
                             else
                             {
-                                Logger.log("error", "Error creating index : " + JSON.stringify(data));
-                                callback(1);
+                                if(!isNull(data.error) && data.type === "index_already_exists_exception")
+                                {
+                                    Logger.log("Index with name " + indexName + " already exists, no need to create.");
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Error creating index : " + JSON.stringify(data));
+                                    callback(1);
+                                }
                             }
                         });
                     }

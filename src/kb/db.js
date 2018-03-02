@@ -473,8 +473,9 @@ DbConnection.finishUpAllConnectionsAndClose = function (callback)
     {
         if (!exited)
         {
-            Logger.log("error", "[TIMEOUT] Virtuoso did not close all connections in time!");
-            callback(null);
+            const msg = "Virtuoso did not close all connections in time!";
+            Logger.log("error", msg);
+            callback(1, msg);
         }
     }, Config.dbOperationTimeout * 10);
 

@@ -6,13 +6,11 @@ const chai = require("chai");
 chai.use(require("chai-http"));
 const path = require("path");
 
-const TestUnit = require(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
+let BootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
 let loadOntologies = require(Pathfinder.absPathInSrcFolder("/bootup/load/load_ontologies.js")).loadOntologies;
-let initCache = require(Pathfinder.absPathInSrcFolder("/bootup/init/init_cache.js")).initCache;
-let initVirtuoso = require(Pathfinder.absPathInSrcFolder("/bootup/init/init_virtuoso.js")).initVirtuoso;
 
-class LoadOntologies extends TestUnit
+class LoadOntologies extends BootupUnit
 {
     static load (callback)
     {
@@ -26,16 +24,10 @@ class LoadOntologies extends TestUnit
             }
             else
             {
-                initVirtuoso(null, function (err, result)
+                loadOntologies(null, function (err, result)
                 {
-                    initCache(null, function (err, result)
-                    {
-                        loadOntologies(null, function (err, result)
-                        {
-                            self.endLoad(path.basename(__filename), callback);
-                        }, true);
-                    });
-                });
+                    self.endLoad(path.basename(__filename), callback);
+                }, true);
             }
         });
     }
@@ -48,6 +40,11 @@ class LoadOntologies extends TestUnit
     static shutdown (callback)
     {
         super.shutdown(callback);
+    }
+
+    static setup (callback)
+    {
+        super.setup(callback);
     }
 }
 

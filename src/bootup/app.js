@@ -688,7 +688,6 @@ class App
         {
             Logger.log("Destroying logger...");
             Logger.destroy();
-            Logger.log("Logger destroyed");
             cb(null);
         };
 

@@ -127,9 +127,9 @@ DockerCheckpointManager.deleteAll = function (onlyOnce, evenCurrentState)
 {
     if (Config.docker && Config.docker.active)
     {
-        Logger.log("Deleting all Docker containers.");
         const performOperation = function ()
         {
+            Logger.log("Deleting all Docker containers.");
             const del = require("del");
             if (evenCurrentState)
             {
@@ -139,6 +139,7 @@ DockerCheckpointManager.deleteAll = function (onlyOnce, evenCurrentState)
             {
                 del.sync([dataFolder + "/*", "!" + dataFolder + "/current"], {force: true});
             }
+            Logger.log("Deleted all containers.");
         };
 
         if (onlyOnce)
@@ -160,14 +161,16 @@ DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
 {
     if (Config.docker && Config.docker.active)
     {
-        Logger.log("Rebuilding all Docker containers.");
         const performOperation = function ()
         {
+            Logger.log("Rebuilding all Docker containers.");
             const output = childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
                 cwd: Pathfinder.appDir
             });
 
             Logger.log(bufferToString(output));
+
+            Logger.log("Nuked and rebuilt all containers.");
             return bufferToString(output);
         };
 
@@ -183,8 +186,6 @@ DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
         {
             performOperation();
         }
-
-        Logger.log("Nuked and rebuilt all containers.");
     }
 };
 
