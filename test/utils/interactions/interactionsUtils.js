@@ -155,6 +155,107 @@ exports.acceptDescriptorFromManualList = function (jsonOnly, agent, bodyObj, cb)
     }
 };
 
+exports.acceptDescriptorFromManualListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.acceptDescriptorFromManualListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.acceptDescriptorFromManualListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.hideDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb) {
+    // hide_descriptor_from_quick_list_for_project
+    const path = "/interactions/hide_descriptor_from_quick_list_for_project";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 exports.getLatestInteractionInDB = function (callback)
 {
     Config.mysql.default.pool.getConnection(function (err, connection)
