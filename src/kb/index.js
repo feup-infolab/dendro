@@ -241,6 +241,7 @@ IndexConnection.prototype.open = function (callback)
                 self.client.indices.getMapping()
                     .then(function (mapping)
                     {
+                        Logger.log("silly", "Elasticsearch connection ok!");
                         return callback(null, self);
                     },
                     function (error)

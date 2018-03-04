@@ -31,7 +31,7 @@ before_script:
 
 script:
   - nvm use 8.9.0
-  - npm run calculate-coverage
+  - npm run calculate-coverage-travis
 
 after_success:
   - nvm use 8.9.0
