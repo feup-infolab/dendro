@@ -21,7 +21,7 @@ class BootupUnit extends TestUnit
     {
         const self = this;
 
-        if(isNull(customCheckpointIdentifier))
+        if (isNull(customCheckpointIdentifier))
         {
             customCheckpointIdentifier = self.name;
         }
@@ -84,11 +84,11 @@ class BootupUnit extends TestUnit
         super.shutdown(function (err, result)
         {
             Logger.log("debug", "Starting server shutdown at bootup Unit");
-            // TODO este free resources retorna antes do tempo!
+            // TODO @silvae86 este free resources retorna antes do tempo!
             dendroInstance.freeResources(function (err, result)
             {
                 global.tests.app = null;
-                Logger.log("debug", "Server shutdown complete at bootup Unit");
+                Logger.log("debug", "Server shutdown complete.");
                 callback(err);
             });
         });
@@ -97,7 +97,7 @@ class BootupUnit extends TestUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad(path.basename(__filename));
+        self.startLoad(__filename);
         dendroInstance = new App();
         super.load(function (err, results)
         {
@@ -115,7 +115,8 @@ class BootupUnit extends TestUnit
                         {
                             if (!err)
                             {
-                                dendroInstance.startApp(function(err, result){
+                                dendroInstance.startApp(function (err, result)
+                                {
                                     global.tests.app = dendroInstance.app;
                                     callback(err, dendroInstance.app);
                                 });

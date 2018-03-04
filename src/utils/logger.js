@@ -289,17 +289,17 @@ Logger.log_boot_message = function (message)
 
 Logger.log = function (type, message, printStack)
 {
-    if(!isNull(type) && !isNull(message))
+    if (!isNull(type) && !isNull(message))
     {
-        if(type === "error")
+        if (type === "error")
         {
             console.log(`${type.red}: ${message}`);
         }
-        else if(type === "info")
+        else if (type === "info")
         {
             console.log(`${type.cyan}: ${message}`);
         }
-        else if(type === "warn")
+        else if (type === "warn")
         {
             console.log(`${type.yellow}: ${message}`);
         }

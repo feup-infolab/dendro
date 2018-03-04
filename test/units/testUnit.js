@@ -1,3 +1,5 @@
+const path = require("path");
+
 const Pathfinder = global.Pathfinder;
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
@@ -34,13 +36,12 @@ class TestUnit
 
     static startLoad (filename)
     {
-        const self = this;
         if (!filename)
         {
-            filename = self.name;
+            throw new Error("No unit filename specified!");
         }
 
-        unitUtils.start(filename, "Seeding database...");
+        unitUtils.start(path.parse(filename).name, "Seeding database...");
     }
 
     static endLoad (filename, callback, customCheckpointIdentifier)
@@ -48,24 +49,25 @@ class TestUnit
         const self = this;
         if (!customCheckpointIdentifier)
         {
-            customCheckpointIdentifier = self.name;
+            customCheckpointIdentifier = path.parse(filename).name;
         }
 
-        Logger.log("Halting app after loading databases in " + self.name);
+        Logger.log("Halting app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
 
         self.shutdown(function (err, result)
         {
             if (!err)
             {
-                Logger.log("Halted app after loading databases in " + self.name + " for creating a checkpoint.");
+                Logger.log("Halted app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
                 self.createCheckpoint(customCheckpointIdentifier);
-                self.init(function(err, result){
+                self.init(function (err, result)
+                {
                     callback(err, result);
                 });
             }
             else
             {
-                Logger.log("error", "Error halting app after loading databases in " + self.name + " for creating a checkpoint.");
+                Logger.log("error", "Error halting app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
                 callback(err, result);
             }
         });

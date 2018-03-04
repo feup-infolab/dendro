@@ -530,7 +530,7 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
                             }
                             else
                             {
-                                if(!isNull(data.error) && data.type === "index_already_exists_exception")
+                                if (!isNull(data.error) && data.error.type === "index_already_exists_exception")
                                 {
                                     Logger.log("Index with name " + indexName + " already exists, no need to create.");
                                     callback(null);
@@ -660,9 +660,9 @@ IndexConnection.prototype.search = function (
                     return callback(null, response.hits.hits);
                 }, function (error)
                 {
-                    self.client.close();
                     error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
                     Logger.log("error", error);
+                    self.client.close();
                     return callback(1, error);
                 });
         }

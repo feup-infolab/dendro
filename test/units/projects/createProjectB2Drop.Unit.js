@@ -23,7 +23,7 @@ class CreateProjectB2Drop extends CreateUsersUnit
     static load (callback)
     {
 		        const self = this;
-        self.startLoad(path.basename(__filename));
+        self.startLoad(__filename);
         super.load(function (err, results)
         {
             // should.equal(err, null);
@@ -61,7 +61,7 @@ class CreateProjectB2Drop extends CreateUsersUnit
                                 });
                             }, function (err, results)
                             {
-                                self.endLoad(path.basename(__filename), callback);
+                                self.endLoad(__filename, callback);
                             });
                         });
                     }

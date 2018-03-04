@@ -9,14 +9,16 @@ chai.use(require("chai-http"));
 const async = require("async");
 const path = require("path");
 
-let BootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+const BootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
 
 class CreateUsers extends BootupUnit
 {
     static load (callback)
     {
         const self = this;
-        self.startLoad(path.basename(__filename));
+        self.startLoad(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -25,9 +27,6 @@ class CreateUsers extends BootupUnit
             }
             else
             {
-                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-                const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
-
                 const createUser = function (user, callback)
                 {
                     User.createAndInsertFromObject({
@@ -43,7 +42,7 @@ class CreateUsers extends BootupUnit
                     },
                     function (err, newUser)
                     {
-                        if (isNull(err) && newUser != null)
+                        if (isNull(err) && newUser !== null)
                         {
                             callback(null, newUser);
                         }
@@ -162,9 +161,12 @@ class CreateUsers extends BootupUnit
                 {
                     if (!err)
                     {
-                        self.endLoad(path.basename(__filename), callback);
+                        self.endLoad(__filename, callback);
                     }
-                    callback(err, results);
+                    else
+                    {
+                        callback(err, results);
+                    }
                 });
             }
         });

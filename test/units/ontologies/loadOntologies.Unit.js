@@ -15,7 +15,7 @@ class LoadOntologies extends BootupUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad(path.basename(__filename));
+        self.startLoad(__filename);
         super.load(function (err, results)
         {
             if (err)
@@ -26,7 +26,7 @@ class LoadOntologies extends BootupUnit
             {
                 loadOntologies(null, function (err, result)
                 {
-                    self.endLoad(path.basename(__filename), callback);
+                    self.endLoad(__filename, callback);
                 }, true);
             }
         });

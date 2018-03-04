@@ -188,7 +188,7 @@ Cache.closeConnections = function (cb)
 
             self.caches[cacheKey].close(function (err, result)
             {
-                if(isNull(err))
+                if (isNull(err))
                 {
                     Logger.log("info", "Cache " + self.caches[cacheKey].id + " HIT RATIO: " + self.caches[cacheKey].getHitRatio());
                 }
@@ -199,6 +199,7 @@ Cache.closeConnections = function (cb)
                     Logger.log("error", JSON.stringify(result));
                 }
                 cb(err, result);
+                self.caches[cacheKey] = null;
             });
         }
         else

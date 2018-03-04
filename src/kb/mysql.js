@@ -39,13 +39,14 @@ DendroMySQLClient.prototype.getConnection = function (omitDatabase)
 
         connection.on("error", function (err)
         {
-            Logger.log("error", "DB error : " + JSON.stringify(err));
             if (err.code === "PROTOCOL_CONNECTION_LOST")
             {
                 return handleDisconnect();
             }
 
-            throw new Error("[ERROR] Error on MySQL Database server running on " + self.mySQLHost + ":" + self.mySQLPort + "\n Error description : " + err);
+            const msg = "[ERROR] Error on MySQL Database server running on " + self.mySQLHost + ":" + self.mySQLPort + "\n Error description : " + err;
+            Logger.log("error", msg);
+            throw new Error(msg);
         });
 
         return connection;

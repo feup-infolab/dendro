@@ -14,7 +14,7 @@ const initElasticSearch = function (app, callback)
     {
         if (isNull(err))
         {
-            Logger.log_boot_message("Created connections to ElasticSearch Clusters but did not try to connect yet...");
+            Logger.log_boot_message("Created connections to all ElasticSearch clusters!");
             return callback(null);
         }
 
