@@ -43,10 +43,10 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 // END *** THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
 
 // list orphan resources tests /admin/list_orphan_resources
-require(Pathfinder.absPathInTestsFolder("/routes/admin/list_orphan_resources/routes.admin.listOrphanResources.Test.js"));
+// require(Pathfinder.absPathInTestsFolder("/routes/admin/list_orphan_resources/routes.admin.listOrphanResources.Test.js"));
 
 // nuke orphan resources tests /admin/nuke_orphan_resources
-require(Pathfinder.absPathInTestsFolder("/routes/admin/nuke_orphan_resources/routes.admin.nukeOrphanResources.Test.js"));
+// require(Pathfinder.absPathInTestsFolder("/routes/admin/nuke_orphan_resources/routes.admin.nukeOrphanResources.Test.js"));
 
 // test ls_by_name
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__ls_by_name/routes.project.publicProject.data.testFolder1.__ls_by_name.Test.js"));

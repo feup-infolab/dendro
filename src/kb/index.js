@@ -120,38 +120,6 @@ IndexConnection._all = {
     })
 };
 
-IndexConnection.initAllIndexes = function (callback)
-{
-    async.mapSeries(Object.keys(IndexConnection._all), function (key, cb)
-    {
-        const index = new IndexConnection(IndexConnection._all[key]);
-        index.open(function (err, result)
-        {
-            IndexConnection._all[key] = result;
-            if (isNull(err))
-            {
-                const newIndex = IndexConnection.get(key);
-
-                if (!isNull(newIndex))
-                {
-                    cb(null, newIndex);
-                }
-                else
-                {
-                    cb(1, "Unable to get index connection to index " + key + " right after creating it!");
-                }
-            }
-            else
-            {
-                cb(3, "Unable to open index connection to index " + key + ".");
-            }
-        });
-    }, function (err, results)
-    {
-        callback(err, results);
-    });
-};
-
 IndexConnection.get = function (indexKey)
 {
     const index = IndexConnection._all[indexKey];
@@ -205,9 +173,11 @@ IndexConnection.getDefault = function ()
     return IndexConnection.get("dendro_graph");
 };
 
-IndexConnection.prototype.open = function (callback)
+IndexConnection.prototype.ensureConnection = function (callback)
 {
     const self = this;
+    var request = require("request");
+
     const tryToConnect = function (callback)
     {
         let serverOptions = {
@@ -234,23 +204,39 @@ IndexConnection.prototype.open = function (callback)
         {
             if (error)
             {
-                callback(error, "elasticsearch cluster is down!");
+                if(error.message && error.message === "No Living connections")
+                {
+                    callback(null, false);
+                }
+                else
+                {
+                    callback(error, false);
+                }
             }
             else
             {
-                self.client.indices.getMapping()
-                    .then(function (mapping)
+                request.get(`http://${self.host}:${self.port}`, function (err, res, body)
+                {
+                    if (!isNull(err))
                     {
-                        // Logger.log("silly", "Elasticsearch connection ok!");
-                        return callback(null, self);
-                    },
-                    function (error)
-                    {
-                        Logger.log("error", "Error getting elasticSearch mappings");
+                        Logger.log("error", "Error trying to check if ElasticSearch is online.");
                         Logger.log("error", error);
-                        return callback(error, self);
+                        callback(null, false);
                     }
-                    );
+                    else
+                    {
+                        if (res.statusCode !== 200)
+                        {
+                            Logger.log("error", "Elasticsearch server returned error code " + res.statusCode + "trying to check if ElasticSearch is online.");
+                            Logger.log("error", error);
+                            callback(null, false);
+                        }
+                        else
+                        {
+                            callback(null, true);
+                        }
+                    }
+                });
             }
         });
     };
@@ -262,16 +248,18 @@ IndexConnection.prototype.open = function (callback)
         interval: function (retryCount)
         {
             const msecs = 50 * Math.pow(2, retryCount);
-            Logger.log("Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch...");
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch...");
             return msecs;
         }
     }, tryToConnect, function (err, result)
     {
         if (!isNull(err))
         {
-            Logger.log("error", "Unable to establish a connection to ElasticSearch after several retries. This is a fatal error.");
+            const msg = "Unable to establish a connection to ElasticSearch after several retries. This is a fatal error.";
+            Logger.log("error", );
+            throw new Error(msg);
         }
-        callback(err, result);
+        callback(err);
     });
 };
 
@@ -325,7 +313,7 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
     {
         const documentId = document._id;
         delete document._id;
-        self.open(function (err)
+        self.ensureConnection(function (err)
         {
             if (!err)
             {
@@ -357,7 +345,7 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
     }
     else
     {
-        self.open(function (err)
+        self.ensureConnection(function (err)
         {
             if (!err)
             {
@@ -404,7 +392,7 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
         return callback(null, "No document to delete");
     }
 
-    self.open(function (err)
+    self.ensureConnection(function (err)
     {
         if (!err)
         {
@@ -454,6 +442,12 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
     let indexName = self.short_name;
 
     async.waterfall([
+        function(callback)
+        {
+            self.ensureConnection(function(err){
+                callback(err);
+            });
+        },
         function (callback)
         {
             self.check_if_index_exists(
@@ -556,7 +550,7 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
 IndexConnection.prototype.delete_index = function (callback)
 {
     const self = this;
-    self.open(function (err)
+    self.ensureConnection(function (err)
     {
         if (!err)
         {
@@ -593,44 +587,47 @@ IndexConnection.prototype.delete_index = function (callback)
 IndexConnection.prototype.check_if_index_exists = function (callback)
 {
     const self = this;
-    const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-    const xmlHttp = new XMLHttpRequest();
 
-    // var util = require('util');
+    self.ensureConnection(function(err){
+        const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+        const xmlHttp = new XMLHttpRequest();
 
-    // prepare callback
-    xmlHttp.onreadystatechange = function ()
-    {
-        if (xmlHttp.readyState === 4)
+        // var util = require('util');
+
+        // prepare callback
+        xmlHttp.onreadystatechange = function ()
         {
-            if (xmlHttp.status !== 200)
+            if (xmlHttp.readyState === 4)
+            {
+                if (xmlHttp.status !== 200)
+                {
+                    throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: " + self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
+                }
+                else
+                {
+                    const response = JSON.parse(xmlHttp.responseText);
+
+                    if (response.indices.hasOwnProperty(self.short_name))
+                    {
+                        return callback(true);
+                    }
+
+                    return callback(false);
+                }
+            }
+
+            if (xmlHttp.status &&
+                xmlHttp.status !== 200)
             {
                 throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: " + self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
             }
-            else
-            {
-                const response = JSON.parse(xmlHttp.responseText);
+        };
 
-                if (response.indices.hasOwnProperty(self.short_name))
-                {
-                    return callback(true);
-                }
+        const fullUrl = "http://" + self.host + ":" + self.port + "/_stats";
 
-                return callback(false);
-            }
-        }
-
-        if (xmlHttp.status &&
-            xmlHttp.status !== 200)
-        {
-            throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: " + self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
-        }
-    };
-
-    const fullUrl = "http://" + self.host + ":" + self.port + "/_stats";
-
-    xmlHttp.open("GET", fullUrl, true);
-    xmlHttp.send(null);
+        xmlHttp.open("GET", fullUrl, true);
+        xmlHttp.send(null);
+    });
 };
 
 // must specify query fields and words as
@@ -645,7 +642,7 @@ IndexConnection.prototype.search = function (
 {
     let self = this;
 
-    self.open(function (err)
+    self.ensureConnection(function (err)
     {
         if (!err)
         {
@@ -683,7 +680,7 @@ IndexConnection.prototype.moreLikeThis = function (
 
     if (!isNull(documentId))
     {
-        self.open(function (err)
+        self.ensureConnection(function (err)
         {
             if (!err)
             {

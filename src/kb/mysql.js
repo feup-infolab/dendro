@@ -119,7 +119,7 @@ DendroMySQLClient.prototype.connect = function (callback, omitDatabase)
         interval: function (retryCount)
         {
             const msecs = 50 * Math.pow(2, retryCount);
-            Logger.log("Waiting " + msecs / 1000 + " seconds to retry a connection to MySQL...");
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to MySQL...");
             return msecs;
         }
     }, tryToConnect, function (err, result)

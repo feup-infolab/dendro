@@ -1425,10 +1425,10 @@
             "reload_ontologies_on_startup": false,
             "clear_session_store": false,
             "log_bootup_actions": true,
-            "destroy_all_graphs": true,
-            "destroy_all_indexes": true,
-            "destroy_datastore": true,
-            "destroy_files_store": true
+            "destroy_all_graphs": false,
+            "destroy_all_indexes": false,
+            "destroy_datastore": false,
+            "destroy_files_store": false
         },
         "baselines": {},
         "logging": {

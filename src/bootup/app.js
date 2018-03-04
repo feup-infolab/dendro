@@ -210,11 +210,6 @@ class App
                 },
                 function (callback)
                 {
-                    // init_elasticsearch
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_elasticsearch.js")).initElasticSearch(self.app, callback);
-                },
-                function (callback)
-                {
                     // create search indexes on elasticsearch if needed
                     require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
                 },
