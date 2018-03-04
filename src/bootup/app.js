@@ -215,6 +215,11 @@ class App
                 },
                 function (callback)
                 {
+                    // create search indexes on elasticsearch if needed
+                    require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
+                },
+                function (callback)
+                {
                     // init gridfs
                     require(Pathfinder.absPathInSrcFolder("bootup/init/init_gridfs.js")).initGridFS(self.app, callback);
                 },
@@ -518,11 +523,6 @@ class App
             {
                 // load Descriptor Information
                 self.runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/load_descriptor_information.js")).loadDescriptorInformation, self.app, callback);
-            },
-            function (callback)
-            {
-                // create search indexes on elasticsearch if needed
-                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
             },
             function (callback)
             {
