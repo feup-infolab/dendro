@@ -433,7 +433,7 @@ IndexConnection.closeConnections = function (cb)
         cb(null);
     }, function (err, results)
     {
-        callback(err, results);
+        cb(err, results);
     });
 };
 
