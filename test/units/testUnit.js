@@ -52,25 +52,34 @@ class TestUnit
             customCheckpointIdentifier = path.parse(filename).name;
         }
 
-        Logger.log("Halting app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
-
-        self.shutdown(function (err, result)
+        if(Config.docker.active)
         {
-            if (!err)
+            Logger.log("Halting app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
+
+            self.shutdown(function (err, result)
             {
-                Logger.log("Halted app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
-                self.createCheckpoint(customCheckpointIdentifier);
-                self.init(function (err, result)
+                if (!err)
                 {
+                    Logger.log("Halted app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
+                    self.createCheckpoint(customCheckpointIdentifier);
+                    self.init(function (err, result)
+                    {
+                        callback(err, result);
+                        unitUtils.end(path.parse(filename).name, "Ended database seeding.");
+                    });
+                }
+                else
+                {
+                    Logger.log("error", "Error halting app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
                     callback(err, result);
-                });
-            }
-            else
-            {
-                Logger.log("error", "Error halting app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
-                callback(err, result);
-            }
-        });
+                }
+            });
+        }
+        else
+        {
+            unitUtils.end(path.parse(filename).name, "Ended database seeding.");
+            callback(null);
+        }
     }
 
     static createCheckpoint (customIdentifier)

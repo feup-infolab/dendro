@@ -14,35 +14,39 @@ const dbNotifications = Config.getDBByID("notifications");
 const slug = require("slug");
 const elasticsearch = require("elasticsearch");
 
+const getAddress = function(host, port)
+{
+    return (port)? host+ ":" + port: host;
+};
+
 const IndexConnection = function (options)
 {
     const self = this;
     self.host = options.host;
     self.port = options.port;
+
     self.id = options.id;
     self.short_name = options.short_name;
     self.uri = options.uri;
     self.elasticsearchMappings = options.elasticsearchMappings;
 
-    self.defaultClientOptions = {
-        host: self.host + ":" + self.port,
-        maxSockets: 1000000,
-        keepalive: true,
+    self.clientOptions = {
+        host: getAddress(self.host, self.port),
+        maxSockets: Infinity,
+        keepAlive: false,
         maxRetries: 10
     };
 
     if (Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
     {
-        self.defaultClientOptions.log = Config.debug.index.elasticsearch_connection_log_type;
+        self.clientOptions.log = Config.debug.index.elasticsearch_connection_log_type;
     }
 
     if (Config.useElasticSearchAuth)
     {
-        self.defaultClientOptions.secure = Config.useElasticSearchAuth;
-        self.defaultClientOptions.auth = Config.elasticSearchAuthCredentials;
+        self.clientOptions.secure = Config.useElasticSearchAuth;
+        self.clientOptions.auth = Config.elasticSearchAuthCredentials;
     }
-
-    self.client = new elasticsearch.Client(_.clone(self.defaultClientOptions));
 
     return self;
 };
@@ -70,14 +74,14 @@ IndexConnection._all = {
                         properties: {
                             uri:
                                 {
-                                    type: "text",
                                     // we only want exact matches, disable term analysis
+                                    type: "keyword",
                                     index: true
                                 },
                             graph:
                                 {
-                                    type: "text",
                                     // we only want exact matches, disable term analysis
+                                    type: "text",
                                     index: true
                                 },
                             last_indexing_date:
@@ -200,26 +204,46 @@ IndexConnection.getDefault = function ()
 IndexConnection.prototype.ensureConnection = function (callback)
 {
     const self = this;
-    let msecs;
 
     const tryToConnect = function (callback)
     {
-        self.client.ping(function (error)
+        request.get(`http://${getAddress(self.host, self.port)}/_cluster/health`, function (err, res, body)
         {
-            if (error)
+            if (isNull(err))
             {
-                if(error.message && error.message === "No Living connections")
+                if (res.statusCode === 200)
+                {
+                    const client = new elasticsearch.Client(_.clone(self.clientOptions));
+
+                    client.ping(
+                        {
+                            requestTimeout: 3000
+                        },
+                        function(err, result){
+                            if(isNull(err))
+                            {
+                                callback(null, client);
+                            }
+                            else
+                            {
+                                callback(err, false);
+                            }
+                        });
+                }
+                else if (res.statusCode === 404)
                 {
                     callback(null, false);
                 }
                 else
                 {
-                    callback(error, false);
+                    callback(res.body, false);
                 }
             }
             else
             {
-                callback(null, true);
+                Logger.log("error", "Error trying to check if ElasticSearch is online.");
+                Logger.log("error", err);
+                callback(err, false);
             }
         });
     };
@@ -230,19 +254,22 @@ IndexConnection.prototype.ensureConnection = function (callback)
         times: 10,
         interval: function (retryCount)
         {
-            msecs = 50 * Math.pow(2, retryCount);
+            const msecs = 50 * Math.pow(2, retryCount);
             Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch...");
             return msecs;
         }
-    }, tryToConnect, function (err, result)
+    }, tryToConnect, function (err, newClient)
     {
-        if (!isNull(err))
+        if (isNull(err))
+        {
+            callback(null, newClient);
+        }
+        else
         {
             const msg = "Unable to establish a connection to ElasticSearch after several retries. This is a fatal error.";
             Logger.log("error", );
             throw new Error(msg);
         }
-        callback(err);
     });
 };
 
@@ -296,29 +323,31 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
     {
         const documentId = document._id;
         delete document._id;
-        self.ensureConnection(function (err)
+        self.ensureConnection(function (err, client)
         {
-            if (!err)
+            if (isNull(err))
             {
-                self.client.update({
+                client.update({
                     index: self.short_name,
                     type: type,
                     id: documentId,
                     body: {
                         doc: document
                     },
-                    waitForActiveShards: "all",
                     refresh: "true"
                 }, function (err, result)
                 {
                     if (isNull(err))
                     {
-                        return callback(null, result);
+                        callback(null, result);
+                    }
+                    else
+                    {
+                        Logger.log("error", err.stack);
+                        callback(1, "Unable to REindex document " + JSON.stringify(err, null, 4));
                     }
 
-                    Logger.log("error", err.stack);
-                    callback(1, "Unable to REindex document " + JSON.stringify(err, null, 4));
-
+                    client.close();
                 });
             }
             else
@@ -329,16 +358,16 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
     }
     else
     {
-        self.ensureConnection(function (err)
+        self.ensureConnection(function (err, client)
         {
-            if (!err)
+            if (isNull(err))
             {
-                self.client.index({
+                client.index({
                     index: self.short_name,
                     type: type,
                     body: document,
-                    waitForActiveShards: "all",
-                    refresh: "true"
+                    refresh: "true",
+                    timeout: "10s"
                 }, function (err, data)
                 {
                     if (isNull(err))
@@ -353,13 +382,15 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
                         }
 
                         Logger.log("silly", msg);
-                        return callback(null, msg);
+                        callback(null, msg);
                     }
                     else
                     {
                         Logger.log("error", err.stack);
-                        return callback(1, "Unable to index document " + JSON.stringify(document));
+                        callback(1, "Unable to index document " + JSON.stringify(document));
                     }
+
+                    client.close();
                 });
             }
             else
@@ -378,18 +409,17 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
         return callback(null, "No document to delete");
     }
 
-    self.ensureConnection(function (err)
+    self.ensureConnection(function (err, client)
     {
-        if (!err)
+        if (isNull(err))
         {
-            const client = new elasticsearch.Client(_.clone(self.defaultClientOptions));
-            self.client.delete(
+            client.delete(
                 {
                     index: self.short_name,
                     type: type,
                     id: documentID,
                     refresh: "true",
-                    waitForActiveShards: "true"
+                    timeout: "10s"
                 },
                 function (err, result)
                 {
@@ -425,17 +455,17 @@ IndexConnection.createAllIndexes = function (deleteIfExists, callback)
     });
 };
 
-IndexConnection.closeConnections = function (cb)
-{
-    async.mapSeries(Object.keys(IndexConnection._all), function (key, cb)
-    {
-        IndexConnection._all[key].client.close();
-        cb(null);
-    }, function (err, results)
-    {
-        cb(err, results);
-    });
-};
+// IndexConnection.closeConnections = function (cb)
+// {
+//     async.mapSeries(Object.keys(IndexConnection._all), function (key, cb)
+//     {
+//         IndexConnection._all[key].client.close();
+//         cb(null);
+//     }, function (err, results)
+//     {
+//         cb(err, results);
+//     });
+// };
 
 IndexConnection.prototype.create_new_index = function (deleteIfExists, callback)
 {
@@ -443,10 +473,6 @@ IndexConnection.prototype.create_new_index = function (deleteIfExists, callback)
     let indexName = self.short_name;
 
     async.waterfall([
-        function (callback)
-        {
-            self.ensureConnection(callback);
-        },
         function (callback)
         {
             self.check_if_index_exists(
@@ -498,34 +524,43 @@ IndexConnection.prototype.create_new_index = function (deleteIfExists, callback)
                                     mappings: self.elasticsearchMappings
                                 }
                             };
-
-                            self.client.indices.create(settings, function (err, data)
-                            {
-                                if (isNull(err))
+                            self.ensureConnection(function(err, client){
+                                if(isNull(err))
                                 {
-                                    if (isNull(data.error) && data.acknowledged === true)
+                                    client.indices.create(settings, function (err, data)
                                     {
-                                        Logger.log("Index with name " + indexName + " successfully created.");
-                                        callback(null);
-                                    }
-                                    else
-                                    {
-                                        Logger.log("error", "Error creating index "+self.short_name+ ": " + JSON.stringify(data));
-                                        callback(err);
-                                    }
+                                        if (isNull(err))
+                                        {
+                                            if (isNull(data.error) && data.acknowledged === true)
+                                            {
+                                                Logger.log("Index with name " + indexName + " successfully created.");
+                                                callback(null);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("error", "Error creating index "+self.short_name+ ": " + JSON.stringify(data));
+                                                callback(err);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!isNull(data) && !isNull(data.error) && data.error.type === "index_already_exists_exception")
+                                            {
+                                                Logger.log("Index with name " + indexName + " already exists, no need to create.");
+                                                callback(null);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("error", "Error creating index "+self.short_name+ ". Response body was empty. Error was : " + JSON.stringify(err));
+                                                callback(err);
+                                            }
+                                        }
+                                        client.close();
+                                    });
                                 }
                                 else
                                 {
-                                    if (!isNull(data) && !isNull(data.error) && data.error.type === "index_already_exists_exception")
-                                    {
-                                        Logger.log("Index with name " + indexName + " already exists, no need to create.");
-                                        callback(null);
-                                    }
-                                    else
-                                    {
-                                        Logger.log("error", "Error creating index "+self.short_name+ ". Response body was empty. Error was : " + JSON.stringify(err));
-                                        callback(err);
-                                    }
+                                    callback(err, client);
                                 }
                             });
                         }
@@ -549,32 +584,34 @@ IndexConnection.prototype.delete_index = function (callback)
     const self = this;
     self.check_if_index_exists(function (err)
     {
-        if (!err)
+        if (isNull(err))
         {
-            self.ensureConnection(function(err){
-                if(!err)
+            self.ensureConnection(function(err, client){
+                if(isNull(err))
                 {
-                    self.client.indices.delete(
+                    client.indices.delete(
                         {
                             index: self.short_name
                         }, function (err, data)
                         {
                             if (isNull(err) && !data.error)
                             {
-                                return callback(null, "Index with name " + self.short_name + " successfully deleted.");
+                                callback(null, "Index with name " + self.short_name + " successfully deleted.");
                             }
                             else
                             {
                                 const error = "Error deleting index : " + JSON.stringify(data);
                                 Logger.log("error", error);
 
-                                return callback(error, data.error);
+                                callback(error, data.error);
                             }
+
+                            client.close();
                         });
                 }
                 else
                 {
-
+                    callback(err, client);
                 }
             });
         }
@@ -595,28 +632,14 @@ IndexConnection.prototype.delete_index = function (callback)
 IndexConnection.prototype.check_if_index_exists = function (callback)
 {
     const self = this;
-    let msecs;
 
     const tryToConnect = function(callback) {
-        self.ensureConnection(function (err) {
-            if(!err)
+        self.ensureConnection(function (err, client) {
+            if(isNull(err))
             {
-                const fullUrl = "http://" + self.host + ":" + self.port + "/" + self.short_name;
+                const fullUrl = "http://" + getAddress(self.host, self.port) + "/" + self.short_name;
                 request.get(fullUrl, function (err, res, body) {
-                    if (!isNull(err))
-                    {
-                        if (err.code === "ECONNRESET")
-                        {
-                            callback(null, false);
-                        }
-                        else
-                        {
-                            Logger.log("error", "Error trying to check if ElasticSearch index " + self.short_name + " exists.");
-                            Logger.log("error", err);
-                            callback(err, false);
-                        }
-                    }
-                    else
+                    if (isNull(err))
                     {
                         if (res.statusCode === 200)
                         {
@@ -629,11 +652,27 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
                         else
                         {
                             Logger.log("debug", "Elasticsearch server returned error code " + res.statusCode + " trying to check if ElasticSearch index " + self.short_name + " exists.");
-                            Logger.log("debug", error);
+                            Logger.log("debug", body);
                             callback(null, false);
                         }
+
                     }
-                })
+                    else
+                    {
+                        if (err.code === "ECONNRESET")
+                        {
+                            callback(null, false);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error trying to check if ElasticSearch index " + self.short_name + " exists.");
+                            Logger.log("error", err);
+                            callback(err, false);
+                        }
+                    }
+
+                    client.close();
+                });
             }
             else
             {
@@ -648,19 +687,22 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
         times: 10,
         interval: function (retryCount)
         {
-            msecs = 50 * Math.pow(2, retryCount);
+            const msecs = 50 * Math.pow(2, retryCount);
             Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to verify if ElasticSearch index "+self.short_name+"exists...");
             return msecs;
         }
     }, tryToConnect, function (err, result)
     {
-        if (!isNull(err))
+        if (isNull(err))
+        {
+            callback(err, !!result);
+        }
+        else
         {
             const msg = "Unable to verify if ElasticSearch index "+self.short_name+" exists, even after several retries. This is a fatal error.";
             Logger.log("error", result);
             throw new Error(msg);
         }
-        callback(err, !!result);
     });
 };
 
@@ -671,25 +713,27 @@ IndexConnection.prototype.search = function (
 {
     let self = this;
 
-    self.ensureConnection(function (err)
+    self.ensureConnection(function (err, client)
     {
-        if (!err)
+        if (isNull(err))
         {
-            self.client.search(
-                {
-                    index: self.short_name,
-                    type: typeName,
-                    body: queryObject
-                })
-                .then(function (response)
-                {
-                    return callback(null, response.hits.hits);
-                }, function (error)
-                {
-                    error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
-                    Logger.log("error", error);
-                    return callback(1, error);
-                });
+            client.search(
+            {
+                index: self.short_name,
+                type: typeName,
+                body: queryObject
+            })
+            .then(function (response)
+            {
+                callback(null, response.hits.hits);
+                client.close();
+            }, function (error)
+            {
+                error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
+                Logger.log("error", error);
+                callback(1, error);
+                client.close();
+            });
         }
         else
         {
@@ -707,23 +751,26 @@ IndexConnection.prototype.moreLikeThis = function (
 
     if (!isNull(documentId))
     {
-        self.ensureConnection(function (err)
+        self.ensureConnection(function (err, client)
         {
-            if (!err)
+            if (isNull(err))
             {
-                self.client.search(
+                client.search(
                     self.short_name,
                     typeName,
                     {
-                        query: {
-                            more_like_this: {
-                                docs: [
+                        "query": {
+                            "more_like_this" : {
+                                "fields" : ["descriptors.properties.object"],
+                                "like" : [
                                     {
                                         _index: self.short_name,
                                         _type: typeName,
                                         _id: documentId
                                     }
-                                ]
+                                ],
+                                "min_term_freq" : 1,
+                                "max_query_terms" : 12
                             }
                         }
                     })
@@ -741,6 +788,8 @@ IndexConnection.prototype.moreLikeThis = function (
             {
                 callback(err, "Unable to connect to elasticsearch for finding textually similar documents.");
             }
+
+            client.close();
         });
     }
     else

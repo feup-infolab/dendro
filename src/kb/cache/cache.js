@@ -181,7 +181,7 @@ Cache.closeConnections = function (cb)
     {
         if (self.caches.hasOwnProperty(cacheKey))
         {
-            if (typeof self.caches[cacheKey].getHitRatio === "function")
+            if (!isNull(self.caches[cacheKey]) && typeof self.caches[cacheKey].getHitRatio === "function")
             {
                 Logger.log("info", "Cache " + self.caches[cacheKey].id + " HIT RATIO: " + self.caches[cacheKey].getHitRatio());
             }
