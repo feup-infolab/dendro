@@ -10,7 +10,7 @@ const createIndexes = function (app, callback)
 {
     Logger.log_boot_message("Now trying to connect to ElasticSearch Cluster to check if the required indexes exist or need to be created...");
 
-    IndexConnection.create_all_indexes(1, 1, Config.startup.destroy_all_indexes, function (error, result)
+    IndexConnection.createAllIndexes(Config.startup.destroy_all_indexes, function (error, result)
     {
         if (!isNull(error))
         {

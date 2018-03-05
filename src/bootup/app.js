@@ -581,6 +581,23 @@ class App
             });
         };
 
+        const closeIndexConnections = function (cb)
+        {
+            const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+            IndexConnection.closeConnections(function (err, result)
+            {
+                if (!err)
+                {
+                    Logger.log("Closed all ElasticSearch connections");
+                }
+                else
+                {
+                    Logger.log("error", "Error closing all ElasticSearch connections");
+                }
+                cb(err, result);
+            });
+        };
+
         const closeGridFSConnections = function (cb)
         {
             async.mapSeries(global.gfs, function (gridFSConnection, cb)
@@ -689,6 +706,7 @@ class App
         async.series([
             closeVirtuosoConnections,
             closeCacheConnections,
+            closeIndexConnections,
             closeGridFSConnections,
             closeMySQLConnectionPool,
             haltHTTPServer,
