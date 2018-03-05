@@ -33,6 +33,7 @@ function container_running
 if container_running "elasticsearch-dendro" == 0
 then
     ( docker start elasticsearch-dendro 1> /dev/null || \
+    docker pull docker.elastic.co/elasticsearch/elasticsearch:6.2.2 && \
     docker run --name elasticsearch-dendro \
         -p 9200:9200 \
         -p 9300:9300 \
@@ -40,7 +41,7 @@ then
         -e "http.host=0.0.0.0" \
         -e "transport.host=127.0.0.1" \
         -v "$RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch/data" \
-        -d elasticsearch:2.4.6 1> /dev/null ) && \
+        -d docker.elastic.co/elasticsearch/elasticsearch:6.2.2 ) && \
         echo "Container elasticsearch-dendro started."
 fi
 
@@ -53,7 +54,7 @@ then
         -e SPARQL_UPDATE=true \
         -e "NumberOfBuffers=$((32*85000))" \
         -v "$RUNNING_FOLDER/virtuoso:/data" \
-        -d tenforce/virtuoso:1.2.0-virtuoso7.2.4 1> /dev/null ) && \
+        -d tenforce/virtuoso:1.2.0-virtuoso7.2.4 ) && \
         echo "Container virtuoso-dendro started."
 fi
 
@@ -64,7 +65,7 @@ then
       -p 3306:3306 \
       -e MYSQL_ROOT_PASSWORD=r00t \
       -v "$RUNNING_FOLDER/mysql:/var/lib/mysql" \
-      -d mysql:8.0.3 1> /dev/null || docker start mysql-dendro 1> /dev/null ) && \
+      -d mysql:8.0.3 || docker start mysql-dendro 1> /dev/null ) && \
       echo "Container mysql-dendro started."
 fi
 
@@ -74,7 +75,7 @@ then
     docker run --name mongo-dendro \
         -p 27017:27017 \
         -v "$RUNNING_FOLDER/mongo:/data/db" \
-        -d mongo:3.4.10 1> /dev/null ) && \
+        -d mongo:3.4.10 ) && \
     echo "Container mongo-dendro started."
 fi
 

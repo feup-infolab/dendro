@@ -3,6 +3,7 @@ const _ = require("underscore");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const request = require("request");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
@@ -10,7 +11,6 @@ const db = Config.getDBByID();
 const dbSocial = Config.getDBByID("social");
 const dbNotifications = Config.getDBByID("notifications");
 
-const es = require("elasticsearch");
 const slug = require("slug");
 
 const IndexConnection = function (options)
@@ -176,12 +176,17 @@ IndexConnection.getDefault = function ()
 IndexConnection.prototype.ensureConnection = function (callback)
 {
     const self = this;
-    var request = require("request");
+    let msecs;
 
     const tryToConnect = function (callback)
     {
+        const es = require("elasticsearch");
         let serverOptions = {
-            host: self.host + ":" + self.port
+            host: self.host + ":" + self.port,
+            keepalive: false,
+            maxSockets: 50,
+            maxRetries: 10,
+
         };
 
         if (Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
@@ -194,8 +199,7 @@ IndexConnection.prototype.ensureConnection = function (callback)
             serverOptions.secure = Config.useElasticSearchAuth;
             serverOptions.auth = Config.elasticSearchAuthCredentials;
         }
-
-        self.client = new es.Client(JSON.parse(JSON.stringify(serverOptions))).cluster.client;
+        self.client = new es.Client(serverOptions);
 
         self.client.ping({
             // undocumented params are appended to the query string
@@ -215,7 +219,7 @@ IndexConnection.prototype.ensureConnection = function (callback)
             }
             else
             {
-                request.get(`http://${self.host}:${self.port}`, function (err, res, body)
+                request.get(`http://${self.host}:${self.port}/_cluster/health?wait_for_status=green&timeout=${msecs / 1000}s`, function (err, res, body)
                 {
                     if (!isNull(err))
                     {
@@ -227,8 +231,6 @@ IndexConnection.prototype.ensureConnection = function (callback)
                     {
                         if (res.statusCode !== 200)
                         {
-                            Logger.log("error", "Elasticsearch server returned error code " + res.statusCode + "trying to check if ElasticSearch is online.");
-                            Logger.log("error", error);
                             callback(null, false);
                         }
                         else
@@ -247,7 +249,7 @@ IndexConnection.prototype.ensureConnection = function (callback)
         times: 10,
         interval: function (retryCount)
         {
-            const msecs = 50 * Math.pow(2, retryCount);
+            msecs = 50 * Math.pow(2, retryCount);
             Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch...");
             return msecs;
         }
@@ -442,16 +444,14 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
     let indexName = self.short_name;
 
     async.waterfall([
-        function(callback)
+        function (callback)
         {
-            self.ensureConnection(function(err){
-                callback(err);
-            });
+            self.ensureConnection(callback);
         },
         function (callback)
         {
             self.check_if_index_exists(
-                function (indexAlreadyExists)
+                function (err, indexAlreadyExists)
                 {
                     if (indexAlreadyExists)
                     {
@@ -482,61 +482,79 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
         function (callback)
         {
             self.check_if_index_exists(
-                function (indexAlreadyExists)
+                function (err, indexAlreadyExists)
                 {
-                    if (indexAlreadyExists)
+                    if (isNull(err))
                     {
-                        // nothing to do, index is already created
-                        callback(null);
+                        if(indexAlreadyExists)
+                        {
+                            // nothing to do, index is already created
+                            callback(err, null);
+                        }
+                        else
+                        {
+                            const settings = {
+                                body: {}
+                            };
+
+                            if (numberOfShards)
+                            {
+                                settings.number_of_shards = numberOfShards;
+                            }
+
+                            if (numberOfReplicas)
+                            {
+                                settings.number_of_replicas = numberOfReplicas;
+                            }
+
+                            settings.body.mappings = self.elasticsearchMappings;
+                            settings.index = indexName;
+
+                            self.ensureConnection(function(err){
+                                if(!err)
+                                {
+                                    self.client.indices.create(settings, function (err, data)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            if (isNull(data.error) && data.acknowledged === true)
+                                            {
+                                                Logger.log("Index with name " + indexName + " successfully created.");
+                                                callback(null);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("error", "Error creating index "+self.short_name+ ": " + JSON.stringify(data));
+                                                callback(err);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!isNull(data) && !isNull(data.error) && data.error.type === "index_already_exists_exception")
+                                            {
+                                                Logger.log("Index with name " + indexName + " already exists, no need to create.");
+                                                callback(null);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("error", "Error creating index "+self.short_name+ ". Response body was empty. Error was : " + JSON.stringify(err));
+                                                callback(err);
+                                            }
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    callback(err, "Unable to connect to elasticsearch for creating index " + self.short_name);
+                                }
+
+                            });
+                        }
                     }
                     else
                     {
-                        const settings = {
-                            body: {}
-                        };
-
-                        if (numberOfShards)
-                        {
-                            settings.number_of_shards = numberOfShards;
-                        }
-
-                        if (numberOfReplicas)
-                        {
-                            settings.number_of_replicas = numberOfReplicas;
-                        }
-
-                        settings.body.mappings = self.elasticsearchMappings;
-                        settings.index = indexName;
-
-                        self.client.indices.create(settings, function (err, data)
-                        {
-                            if (isNull(err))
-                            {
-                                if (isNull(data.error) && data.acknowledged === true)
-                                {
-                                    Logger.log("Index with name " + indexName + " successfully created.");
-                                    callback(null);
-                                }
-                                else
-                                {
-                                    Logger.log("error", "Error creating index : " + JSON.stringify(data));
-                                    callback(err);
-                                }
-                            }
-                            else
-                            {
-                                if (!isNull(data.error) && data.error.type === "index_already_exists_exception")
-                                {
-                                    Logger.log("Index with name " + indexName + " already exists, no need to create.");
-                                    callback(null);
-                                }
-                                else
-                                {
-                                    Logger.log("error", "Error creating index : " + JSON.stringify(data));
-                                    callback(1);
-                                }
-                            }
-                        });
+                        Logger.log("error", "Error checking existence of index : " + JSON.stringify(err));
+                        callback(err);
                     }
                 }
             );
@@ -550,25 +568,35 @@ IndexConnection.prototype.create_new_index = function (numberOfShards, numberOfR
 IndexConnection.prototype.delete_index = function (callback)
 {
     const self = this;
-    self.ensureConnection(function (err)
+    self.check_if_index_exists(function (err)
     {
         if (!err)
         {
-            self.client.indices.delete(
+            self.ensureConnection(function(err){
+                if(!err)
                 {
-                    index: self.short_name
-                }, function (err, data)
-                {
-                    if (isNull(err) && !data.error)
-                    {
-                        return callback(null, "Index with name " + self.short_name + " successfully deleted.");
-                    }
+                    self.client.indices.delete(
+                        {
+                            index: self.short_name
+                        }, function (err, data)
+                        {
+                            if (isNull(err) && !data.error)
+                            {
+                                return callback(null, "Index with name " + self.short_name + " successfully deleted.");
+                            }
 
-                    const error = "Error deleting index : " + JSON.stringify(data);
-                    Logger.log("error", error);
-                    self.client.close();
-                    return callback(error, data.error);
-                });
+                            const error = "Error deleting index : " + JSON.stringify(data);
+                            Logger.log("error", error);
+                            self.client.close(function(err, result){
+                                return callback(error, data.error);
+                            });
+                        });
+                }
+                else
+                {
+
+                }
+            });
         }
         else
         {
@@ -587,53 +615,74 @@ IndexConnection.prototype.delete_index = function (callback)
 IndexConnection.prototype.check_if_index_exists = function (callback)
 {
     const self = this;
+    let msecs;
 
-    self.ensureConnection(function(err){
-        const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-        const xmlHttp = new XMLHttpRequest();
-
-        // var util = require('util');
-
-        // prepare callback
-        xmlHttp.onreadystatechange = function ()
-        {
-            if (xmlHttp.readyState === 4)
+    const tryToConnect = function(callback) {
+        self.ensureConnection(function (err) {
+            if(!err)
             {
-                if (xmlHttp.status !== 200)
-                {
-                    throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: " + self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
-                }
-                else
-                {
-                    const response = JSON.parse(xmlHttp.responseText);
-
-                    if (response.indices.hasOwnProperty(self.short_name))
+                const fullUrl = "http://" + self.host + ":" + self.port + "/" + self.short_name;
+                request.get(fullUrl, function (err, res, body) {
+                    if (!isNull(err))
                     {
-                        return callback(true);
+                        if (err.code === "ECONNRESET")
+                        {
+                            callback(null, false);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error trying to check if ElasticSearch index " + self.short_name + " exists.");
+                            Logger.log("error", err);
+                            callback(err, false);
+                        }
                     }
-
-                    return callback(false);
-                }
+                    else
+                    {
+                        if (res.statusCode === 200)
+                        {
+                            callback(null, true);
+                        }
+                        else if (res.statusCode === 404)
+                        {
+                            callback(null, false);
+                        }
+                        else
+                        {
+                            Logger.log("debug", "Elasticsearch server returned error code " + res.statusCode + " trying to check if ElasticSearch index " + self.short_name + " exists.");
+                            Logger.log("debug", error);
+                            callback(1, false);
+                        }
+                    }
+                })
             }
-
-            if (xmlHttp.status &&
-                xmlHttp.status !== 200)
+            else
             {
-                throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: " + self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
+                callback(err, "Unable to connect to elasticsearch for checking is index exists");
             }
-        };
+        });
+    };
 
-        const fullUrl = "http://" + self.host + ":" + self.port + "/_stats";
-
-        xmlHttp.open("GET", fullUrl, true);
-        xmlHttp.send(null);
+    // try calling apiMethod 10 times with linear backoff
+    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+    async.retry({
+        times: 10,
+        interval: function (retryCount)
+        {
+            msecs = 50 * Math.pow(2, retryCount);
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to verify if ElasticSearch index "+self.short_name+"exists...");
+            return msecs;
+        }
+    }, tryToConnect, function (err, result)
+    {
+        if (!isNull(err))
+        {
+            const msg = "Unable to verify if ElasticSearch index "+self.short_name+" exists, even after several retries. This is a fatal error.";
+            Logger.log("error", result);
+            throw new Error(msg);
+        }
+        callback(err, !!result);
     });
 };
-
-// must specify query fields and words as
-// var qryObj = {
-//	field : term
-// }
 
 IndexConnection.prototype.search = function (
     typeName,
@@ -654,14 +703,16 @@ IndexConnection.prototype.search = function (
                 })
                 .then(function (response)
                 {
-                    self.client.close();
-                    return callback(null, response.hits.hits);
+                    self.client.close(function(err, result){
+                        return callback(null, response.hits.hits);
+                    });
                 }, function (error)
                 {
                     error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
                     Logger.log("error", error);
-                    self.client.close();
-                    return callback(1, error);
+                    self.client.close(function(err, result){
+                        return callback(1, error);
+                    });
                 });
         }
         else
@@ -702,14 +753,16 @@ IndexConnection.prototype.moreLikeThis = function (
                     })
                     .then(function (data)
                     {
-                        self.client.close();
-                        return callback(null, data.hits.hits);
+                        self.client.close(function(err, result){
+                            return callback(null, data.hits.hits);
+                        });
                     }, function (error)
                     {
-                        self.client.close();
                         error = "Error fetching documents similar to document with ID : " + documentId + ". Reported error : " + JSON.stringify(error);
                         Logger.log("error", error);
-                        return callback(1, error);
+                        self.client.close(function(err, result){
+                            return callback(1, error);
+                        });
                     });
             }
             else
