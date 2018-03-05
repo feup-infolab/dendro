@@ -51,7 +51,20 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_
 //require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_quick_list_for_user/routes.interactions.favoriteDescriptorFromQuickListForUser.Test.js"));
 
 // /interactions/unfavorite_descriptor_from_quick_list_for_user
-require(Pathfinder.absPathInTestsFolder("/routes/interactions/unfavorite_descriptor_from_quick_list_for_user/routes.interactions.unfavoriteDescriptorFromQuickListForUser.Test.js"));
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/unfavorite_descriptor_from_quick_list_for_user/routes.interactions.unfavoriteDescriptorFromQuickListForUser.Test.js"));
+
+// /interactions/unfavorite_descriptor_from_quick_list_for_project
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/unfavorite_descriptor_from_quick_list_for_project/routes.interactions.unfavoriteDescriptorFromQuickListForProject.Test.js"));
+
+// /interactions/accept_descriptor_from_autocomplete
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_autocomplete/routes.interactions.acceptDescriptorFromAutocomplete.Test.js"));
+
+// /interactions/reject_ontology_from_quick_list -> TODO must check with João for this one
+// require(Pathfinder.absPathInTestsFolder("/routes/interactions/reject_ontology_from_quick_list/routes.interactions.rejectOntologyFromQuickList.Test.js"));
+
+// /interactions/select_ontology_manually
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_ontology_manually/routes.interactions.selectOntologyManually.Test.js"));
+
 
 return;
 

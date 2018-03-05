@@ -405,6 +405,106 @@ exports.unfavoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, bo
     }
 };
 
+exports.unfavoriteDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/unfavorite_descriptor_from_quick_list_for_project";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.acceptDescriptorFromAutocomplete = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/accept_descriptor_from_autocomplete";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.rejectOntologyFromQuickList = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/reject_ontology_from_quick_list";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.selectOntologyManually = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/select_ontology_manually";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 exports.getLatestInteractionInDB = function (callback)
 {
     Config.mysql.default.pool.getConnection(function (err, connection)

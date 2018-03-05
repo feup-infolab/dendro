@@ -2353,9 +2353,127 @@ exports.favorite_descriptor_from_quick_list_for_user = function (req, res)
 
 exports.unfavorite_descriptor_from_quick_list_for_project = function (req, res)
 {
-    if (req.body instanceof Object)
+    const validateBodyObject = function (req, callback) {
+        async.waterfall([
+                function (callback)
+                {
+                    if (req.body instanceof Object)
+                    {
+                        try
+                        {
+                            JSON.parse(JSON.stringify(req.body));
+                            callback(null);
+                        }
+                        catch (error)
+                        {
+                            let errorObj = {
+                                statusCode: 500,
+                                message: "Invalid request. Body contents is not a valid JSON when unfavoriting a descriptor from the quick list. Request body is : " + JSON.stringify(req.body)
+                            };
+                            callback(errorObj);
+                        }
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid request. Body contents is not a valid JSON when unfavoriting a descriptor from the quick list. Request body is : " + JSON.stringify(req.body)
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if (req.body.interactionType === Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key)
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.rankingPosition) && Number.isInteger(req.body.rankingPosition))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid ranking position in the request's body. It should be an integer"
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.pageNumber) && Number.isInteger(req.body.pageNumber))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid page number in the request's body. It should be an integer"
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.recommendationCallId))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Interaction type " + Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key + " requires field recommendationCallId in the request's body."
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback) {
+                    //recommendationCallTimeStamp
+                    if(!isNull(req.body.recommendationCallTimeStamp) && !isNaN(Date.parse(req.body.recommendationCallTimeStamp)))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid recommendationCallTimeStamp in the request's body. It should be an valid date."
+                        };
+                        callback(errorObj);
+                    }
+                }],
+            function (err, results)
+            {
+                if(isNull(err))
+                {
+                    callback(null, null);
+                }
+                else
+                {
+                    callback(true, err);
+                }
+            }
+        );
+    };
+
+    validateBodyObject(req, function (err, result)
     {
-        if (req.body.interactionType === Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key)
+        if(isNull(err))
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
@@ -2375,19 +2493,12 @@ exports.unfavorite_descriptor_from_quick_list_for_project = function (req, res)
         }
         else
         {
-            res.status(500).json({
+            res.status(result.statusCode).json({
                 result: "Error",
-                message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key
+                message: result.message
             });
         }
-    }
-    else
-    {
-        res.status(500).json({
-            result: "Error",
-            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
-        });
-    }
+    });
 };
 
 exports.unfavorite_descriptor_from_quick_list_for_user = function (req, res)
@@ -2538,50 +2649,131 @@ exports.unfavorite_descriptor_from_quick_list_for_user = function (req, res)
             });
         }
     });
-    /*
-    if (req.body instanceof Object)
-    {
-        if (req.body.interactionType === Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key)
-        {
-            const descriptor = new Descriptor({
-                uri: req.body.uri
-            });
-
-            if (descriptor instanceof Descriptor)
-            {
-                recordInteractionOverAResource(req.user, req.body, req, res);
-            }
-            else
-            {
-                res.status(500).json({
-                    result: "Error",
-                    message: "Requested Descriptor " + descriptor.uri + " is unknown / not parametrized in this Dendro instance."
-                });
-            }
-        }
-        else
-        {
-            res.status(500).json({
-                result: "Error",
-                message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key
-            });
-        }
-    }
-    else
-    {
-        res.status(500).json({
-            result: "Error",
-            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
-        });
-    }
-    */
 };
 
 exports.accept_descriptor_from_autocomplete = function (req, res)
 {
-    if (req.body instanceof Object)
+    const validateBodyObject = function (req, callback) {
+        async.waterfall([
+                function (callback)
+                {
+                    if (req.body instanceof Object)
+                    {
+                        try
+                        {
+                            JSON.parse(JSON.stringify(req.body));
+                            callback(null);
+                        }
+                        catch (error)
+                        {
+                            let errorObj = {
+                                statusCode: 500,
+                                message: "Invalid request. Body contents is not a valid JSON when accepting a descriptor from the autocomplete feature. Request body is : " + JSON.stringify(req.body)
+                            };
+                            callback(errorObj);
+                        }
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid request. Body contents is not a valid JSON when accepting a descriptor from the autocomplete feature. Request body is : " + JSON.stringify(req.body)
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if (req.body.interactionType === Interaction.types.accept_descriptor_from_autocomplete.key)
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.accept_descriptor_from_autocomplete.key
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.rankingPosition) && Number.isInteger(req.body.rankingPosition))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid ranking position in the request's body. It should be an integer"
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.pageNumber) && Number.isInteger(req.body.pageNumber))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid page number in the request's body. It should be an integer"
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.recommendationCallId))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Interaction type " + Interaction.types.accept_descriptor_from_autocomplete.key + " requires field recommendationCallId in the request's body."
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback) {
+                    //recommendationCallTimeStamp
+                    if(!isNull(req.body.recommendationCallTimeStamp) && !isNaN(Date.parse(req.body.recommendationCallTimeStamp)))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid recommendationCallTimeStamp in the request's body. It should be an valid date."
+                        };
+                        callback(errorObj);
+                    }
+                }],
+            function (err, results)
+            {
+                if(isNull(err))
+                {
+                    callback(null, null);
+                }
+                else
+                {
+                    callback(true, err);
+                }
+            }
+        );
+    };
+
+    validateBodyObject(req, function (err, result)
     {
-        if (req.body.interactionType === Interaction.types.accept_descriptor_from_autocomplete.key)
+        if(isNull(err))
         {
             const descriptor = new Descriptor({
                 uri: req.body.uri
@@ -2607,19 +2799,12 @@ exports.accept_descriptor_from_autocomplete = function (req, res)
         }
         else
         {
-            res.status(500).json({
+            res.status(result.statusCode).json({
                 result: "Error",
-                message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.accept_descriptor_from_autocomplete.key
+                message: result.message
             });
         }
-    }
-    else
-    {
-        res.status(500).json({
-            result: "Error",
-            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
-        });
-    }
+    });
 };
 
 exports.accept_smart_descriptor_in_metadata_editor = function (req, res)
@@ -3119,6 +3304,143 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favor
 
 exports.select_ontology_manually = function (req, res)
 {
+    const validateBodyObject = function (req, callback) {
+        async.waterfall([
+                function (callback)
+                {
+                    if (req.body instanceof Object)
+                    {
+                        try
+                        {
+                            JSON.parse(JSON.stringify(req.body));
+                            callback(null);
+                        }
+                        catch (error)
+                        {
+                            let errorObj = {
+                                statusCode: 500,
+                                message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+                            };
+                            callback(errorObj);
+                        }
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if (req.body.interactionType === Interaction.types.select_ontology_manually.key)
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.select_ontology_manually.key
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback)
+                {
+                    if(!isNull(req.body.rankingPosition) && Number.isInteger(req.body.rankingPosition))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Invalid ranking position in the request's body. It should be an integer"
+                        };
+                        callback(errorObj);
+                    }
+                },
+                function (callback) {
+                    //ontology uri
+                    if(!isNull(req.body.uri))
+                    {
+                        Ontology.findByUri(req.body.uri, function (err, ontology) {
+                            if(isNull(err))
+                            {
+                                if(isNull(ontology))
+                                {
+                                    let errorObj = {
+                                        statusCode: 500,
+                                        message: "Interaction type " + Interaction.types.select_ontology_manually.key + " requires a valid ontology 'uri' in the request's body. It represents the ontology to be selected."
+                                    };
+                                    callback(errorObj);
+                                }
+                                else
+                                {
+                                    callback(null);
+                                }
+                            }
+                            else
+                            {
+                                let errorObj = {
+                                    statusCode: 500,
+                                    message: "Interaction type " + Interaction.types.select_ontology_manually.key + " requires a valid ontology 'uri' in the request's body. It represents the ontology to be selected."
+                                };
+                                callback(errorObj);
+                            }
+                        });
+                        //callback(null);
+                    }
+                    else
+                    {
+                        let errorObj = {
+                            statusCode: 500,
+                            message: "Interaction type " + Interaction.types.select_ontology_manually.key + " requires field uri in the request's body. It represents the ontology to be selected."
+                        };
+                        callback(errorObj);
+                    }
+                }],
+            function (err, results)
+            {
+                if(isNull(err))
+                {
+                    callback(null, null);
+                }
+                else
+                {
+                    callback(true, err);
+                }
+            }
+        );
+    };
+
+    validateBodyObject(req, function (err, result)
+    {
+        if(isNull(err))
+        {
+            if (!isNull(req.user))
+            {
+                const ontology = new Ontology({
+                    uri: req.body.uri
+                });
+
+                req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
+
+                recordInteractionOverAResource(req.user, req.body, req, res);
+            }
+        }
+        else
+        {
+            res.status(result.statusCode).json({
+                result: "Error",
+                message: result.message
+            });
+        }
+    });
+    /*
     if (req.body instanceof Object)
     {
         if (req.body.interactionType === Interaction.types.select_ontology_manually.key)
@@ -3149,6 +3471,7 @@ exports.select_ontology_manually = function (req, res)
             message: "Invalid request. Body contents is not a valid JSON when accepting ontology manually. Request body is : " + JSON.stringify(req.body)
         });
     }
+    */
 };
 
 exports.select_descriptor_manually = function (req, res)
