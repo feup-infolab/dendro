@@ -408,6 +408,10 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
 
 Interaction.types =
 {
+    select_descriptor_from_manual_list: {
+        key: "select_descriptor_from_manual_list",
+        positive: true
+    },
     accept_descriptor_from_quick_list: {
         key: "accept_descriptor_from_quick_list",
         positive: true

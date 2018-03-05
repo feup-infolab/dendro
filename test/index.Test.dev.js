@@ -63,8 +63,19 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_
 // require(Pathfinder.absPathInTestsFolder("/routes/interactions/reject_ontology_from_quick_list/routes.interactions.rejectOntologyFromQuickList.Test.js"));
 
 // /interactions/select_ontology_manually
-require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_ontology_manually/routes.interactions.selectOntologyManually.Test.js"));
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_ontology_manually/routes.interactions.selectOntologyManually.Test.js"));
 
+// /interactions/select_descriptor_from_manual_list
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_descriptor_from_manual_list/routes.interactions.selectDescriptorFromManualList.Test.js"));
+
+// /interactions/accept_smart_descriptor_in_metadata_editor
+// require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_smart_descriptor_in_metadata_editor/routes.interactions.acceptSmartDescriptorInMetadataEditor.Test.js"));
+
+// /interactions/accept_favorite_descriptor_in_metadata_editor
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_favorite_descriptor_in_metadata_editor/routes.interactions.acceptFavoriteDescriptorInMetadataEditor.Test.js"));
+
+// /interactions/delete_descriptor_in_metadata_editor
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/delete_descriptor_in_metadata_editor/routes.interactions.deleteDescriptorInMetadataEditor.Test.js"));
 
 return;
 

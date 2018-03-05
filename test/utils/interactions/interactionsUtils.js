@@ -505,6 +505,106 @@ exports.selectOntologyManually = function (jsonOnly, agent, bodyObj, cb) {
     }
 };
 
+exports.selectDescriptorFromManualList = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/select_descriptor_from_manual_list";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.acceptSmartDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/accept_smart_descriptor_in_metadata_editor";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.acceptFavoriteDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/accept_favorite_descriptor_in_metadata_editor";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.deleteDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/delete_descriptor_in_metadata_editor";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 exports.getLatestInteractionInDB = function (callback)
 {
     Config.mysql.default.pool.getConnection(function (err, connection)
