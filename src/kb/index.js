@@ -429,7 +429,8 @@ IndexConnection.closeConnections = function (cb)
 {
     async.mapSeries(Object.keys(IndexConnection._all), function (key, cb)
     {
-        IndexConnection._all[key].client.close(cb);
+        IndexConnection._all[key].client.close();
+        cb(null);
     }, function (err, results)
     {
         callback(err, results);
