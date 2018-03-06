@@ -57,7 +57,7 @@ exports.preprocessing = function (req, res)
             for (let j = 0; j < text.length; j++)
             {
                 comparision = text[j];
-                if (comparision.pos.charAt(0) === "N")
+                if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                 {
                     if (comparision.lemma.toString().length < 3)
                     {
@@ -69,7 +69,7 @@ exports.preprocessing = function (req, res)
                         for (let index2 = j + 1; index2 < text.length; index2++)
                         {
                             comparision = text[index2];
-                            if (comparision.pos.charAt(0) === "N")
+                            if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                             {
                                 if (comparision.lemma.toString().length < 3)
                                 {
@@ -218,7 +218,6 @@ exports.preprocessing = function (req, res)
             var sentences = [];
             for (var i = 0; i < sent.sentences.length; i++)
             {
-                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
                 for (var j = 0; j < JSON.parse(JSON.stringify(sent.sentences[i])).tokens.length; j++)
                 {
                     comparision = JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j];
@@ -238,7 +237,7 @@ exports.preprocessing = function (req, res)
                         }
                         else
                         {
-                            sentences.push(comparision.lemma);
+                            sentences.push(comparision.word);
                         }
                         // console.log("word: " + comparision.word + " pos: " + comparision.pos); // + " ner: " + comparision.ner + " lemma: " + comparision.lemma);
                         if (comparision.lemma.toString().length > 2)
@@ -247,6 +246,8 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
+              nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -301,6 +302,14 @@ exports.termextraction = function (req, res)
         }
         return n;
     };
+    var termhood = function (input, list) {
+      return 0;
+    }
+
+    var isNested = function (input, list) {
+        return 0;
+    }
+
     function countnestedterms (x, list)
     {
         var nested = 0;
@@ -348,39 +357,48 @@ exports.termextraction = function (req, res)
         }
         return combinationwords;
     }
-    var cvalue = function (input, corpus, ngrams)
+    var cvalue = async function (input, corpus, ngrams)
     {
-        var frequency = [];
+        var words = {frequency: []};
         var threshold = [];
         var substrings = [];
         var frequencysubstrings = [];
         var usedwords = [];
-        var maxthreshold = 1.9799738526561383;
+        var maxthreshold = 1.0;
         var i;
-        for (i = 0; i < input.length && tokenizer.tokenize(input[i]).length === ngrams; i++)
+        // 1st para in async.each() is the array of items
+
+
+        for (i = 0; i < input.length; i++)
         {
-            frequency[i] = 0;
+            var frequency = 0;
             for (var j = 0; j < corpus.length; j++)
             {
-                frequency[i] += occurences(corpus[j].toLowerCase(), input[i]);
+              frequency += occurences(corpus[j].toLowerCase(), input[i]);
             }
-            if (frequency[i] > 1 && Math.log2(frequency[i]) >= maxthreshold)
+            words.frequency.push({word:input[i],frequency:frequency,nested:""});
+            /*if (frequency > 1 && Math.log2(frequency) >= maxthreshold)
             {
-                threshold.push({term: input[i], threshold: Math.log2(frequency[i])});
-                substrings = getcombination(input[i]);
-                console.log(substrings);
-                for (var h = 0; h < substrings.length; h++)
+              threshold.push({term: input[i], threshold: Math.log2(frequency)});
+              substrings = getcombination(input[i]);
+              console.log(substrings);
+              for (var h = 0; h < substrings.length; h++)
+              {
+                var freq = 0;
+                for (var k = 0; k < corpus.length; k++)
                 {
-                    var freq = 0;
-                    for (var k = 0; k < corpus.length; k++)
-                    {
-                        frequency += occurences(corpus[k].toLowerCase(), substrings[h]);
-                        frequencysubstrings = countnestedterms(substrings[h], input);
-                    }
-                    usedwords.push(substrings[h]);
+                  frequency += occurences(corpus[k].toLowerCase(), substrings[h]);
+                  frequencysubstrings = countnestedterms(substrings[h], input);
                 }
-            }
+                usedwords.push(substrings[h]);
+              }
+            }*/
+
         }
+        for(i = 0; i < words.frequency.length; i++) {
+
+        }
+
         /*
 
           double invUniqNestersD = 1D / (double) uniqNesters;
@@ -461,7 +479,6 @@ exports.termextraction = function (req, res)
                     var nounphrasefinal = [];
                     var out = [];
                     var values = [];
-                    // cvalue(out, documents, values);
                     var i = 0;
                     var j = 0;
                     var dbpediaterms = {
@@ -515,18 +532,19 @@ exports.termextraction = function (req, res)
                     {
                         return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
                     });
-                    var trigrams = [];
+                    var ngrams = [];
                     for (i = 0; i < nounphrasesimple.length; i++)
                     {
-                        if (tokenizer.tokenize(nounphrasesimple[i]).length <= 3 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
+                        if (tokenizer.tokenize(nounphrasesimple[i]).length <= 4 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
                         {
-                            trigrams.push(nounphrasesimple[i]);
+                            ngrams.push(nounphrasesimple[i]);
                         }
                     }
-                    console.log("trigrams: " + trigrams.length);
-                    nounphrasesimple = trigrams;
-                    var cvaluetrigrams = cvalue(trigrams, documents, 3);
+                    console.log("ngrams: " + ngrams.length);
+                    nounphrasesimple = ngrams;
+                    var cvaluengrams = cvalue(ngrams, documents, 4);
 
+                    console.log("cvaluetrigrams : " + cvaluengrams);
                     for (var a = 0; a < documents.length; a++)
                     {
                         if (texti.text.length > 1)
