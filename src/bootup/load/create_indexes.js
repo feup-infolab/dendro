@@ -14,11 +14,13 @@ const createIndexes = function (app, callback)
     {
         if (!isNull(error))
         {
-            return callback("[ERROR] Unable to create or link to index " + IndexConnection._all.dendro_graph.short_name);
+            callback("[ERROR] Unable to create or link to index " + IndexConnection._all.dendro_graph.short_name);
         }
-
-        Logger.log_boot_message("Indexes are up and running on " + Config.elasticSearchHost + ":" + Config.elasticSearchPort);
-        return callback(null);
+        else
+        {
+            Logger.log_boot_message("Indexes are up and running on " + Config.elasticSearchHost + ":" + Config.elasticSearchPort);
+            callback(null);
+        }
     });
 };
 

@@ -52,7 +52,7 @@ class TestUnit
             customCheckpointIdentifier = path.parse(filename).name;
         }
 
-        if(Config.docker.active)
+        if (Config.docker.active)
         {
             Logger.log("Halting app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
 

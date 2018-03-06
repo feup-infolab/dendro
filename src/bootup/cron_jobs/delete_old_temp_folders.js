@@ -43,7 +43,16 @@ const deleteOldTempFolders = function (app, callback)
                                 }
                                 else
                                 {
-                                    const msg = "Executed the delete_old_temp_folders job successfully, deleted: " + resourcesToDelete;
+                                    let msg;
+                                    if (resourcesToDelete === "")
+                                    {
+                                        msg = "Executed the delete_old_temp_folders job successfully. No files deleted.";
+                                    }
+                                    else
+                                    {
+                                        msg = "Executed the delete_old_temp_folders job successfully, deleted: " + resourcesToDelete;
+                                    }
+
                                     cb(null, msg);
                                 }
                             });

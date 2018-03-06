@@ -1599,13 +1599,11 @@ Resource.prototype.reindex = function (callback, customGraphUri)
                         Logger.log("debug", msg);
                         return callback(null, self);
                     }
-                    else
-                    {
-                        const msg = "Error indexing document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
-                        errorMessages.push(msg);
-                        Logger.log("error", msg);
-                        return callback(1, errorMessages);
-                    }
+
+                    const msg = "Error indexing document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
+                    errorMessages.push(msg);
+                    Logger.log("error", msg);
+                    return callback(1, errorMessages);
                 });
         }
         else
@@ -1646,12 +1644,10 @@ Resource.prototype.unindex = function (callback, customGraphUri)
                             Logger.log("debug", msg);
                             return callback(null, self);
                         }
-                        else
-                        {
-                            const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4) + " while unindexing it .";
-                            Logger.log("error", msg);
-                            return callback(1, self);
-                        }
+
+                        const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4) + " while unindexing it .";
+                        Logger.log("error", msg);
+                        return callback(1, self);
                     });
             }
             else

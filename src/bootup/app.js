@@ -1,6 +1,7 @@
 const path = require("path");
 const async = require("async");
 const pm2 = require("pm2");
+const npid = require("npid");
 const mkdirp = require("mkdirp");
 const _ = require("underscore");
 let appDir;
@@ -583,21 +584,19 @@ class App
 
         const closeIndexConnections = function (cb)
         {
-            // const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-            // IndexConnection.closeConnections(function (err, result)
-            // {
-            //     if (!err)
-            //     {
-            //         Logger.log("Closed all ElasticSearch connections");
-            //     }
-            //     else
-            //     {
-            //         Logger.log("error", "Error closing all ElasticSearch connections");
-            //     }
-            //     cb(err, result);
-            // });
-
-            cb(null);
+            const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+            IndexConnection.closeConnections(function (err, result)
+            {
+                if (!err)
+                {
+                    Logger.log("Closed all ElasticSearch connections");
+                }
+                else
+                {
+                    Logger.log("error", "Error closing all ElasticSearch connections");
+                }
+                cb(err, result);
+            });
         };
 
         const closeGridFSConnections = function (cb)

@@ -209,10 +209,37 @@ Logger.init = function (startTime)
             logger.on("error", function (err)
             {
                 Logger.log("error", JSON.stringify(err));
-                process.nextTick(function ()
+
+                const exit = function ()
                 {
-                    process.kill(process.pid, "SIGTERM");
+                    process.nextTick(function ()
+                    {
+                        process.kill(process.pid, "SIGTERM");
+                    });
+                };
+
+                let numFlushes = 0;
+                let numFlushed = 0;
+                Object.keys(logger.transports).forEach(function (k)
+                {
+                    if (logger.transports[k]._stream)
+                    {
+                        numFlushes += 1;
+                        logger.transports[k]._stream.once("finish", function ()
+                        {
+                            numFlushed += 1;
+                            if (numFlushes === numFlushed)
+                            {
+                                exit();
+                            }
+                        });
+                        logger.transports[k]._stream.end();
+                    }
                 });
+                if (numFlushes === 0)
+                {
+                    exit();
+                }
             });
 
             logger.emitErrs = true;
