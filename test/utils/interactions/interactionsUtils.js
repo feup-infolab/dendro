@@ -605,6 +605,254 @@ exports.deleteDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, c
     }
 };
 
+exports.fillInDescriptorFromManualListInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.fillInDescriptorFromManualListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.fillInDescriptorFromManualListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.fillInDescriptorFromManualListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.fillInDescriptorFromQuickListInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.fillInDescriptorFromQuickListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.fillInDescriptorFromQuickListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.fillInDescriptorFromQuickListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.fillInInheritedDescriptor = function (jsonOnly, agent, bodyObj, cb) {
+    const path = "/interactions/fill_in_inherited_descriptor";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.deleteAll = function (jsonOnly, agent, cb) {
+    const path = "/interactions/delete_all";
+    if(jsonOnly)
+    {
+        agent
+            .delete(path)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .delete(path)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 exports.getLatestInteractionInDB = function (callback)
 {
     Config.mysql.default.pool.getConnection(function (err, connection)

@@ -75,7 +75,38 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_
 //require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_favorite_descriptor_in_metadata_editor/routes.interactions.acceptFavoriteDescriptorInMetadataEditor.Test.js"));
 
 // /interactions/delete_descriptor_in_metadata_editor
-require(Pathfinder.absPathInTestsFolder("/routes/interactions/delete_descriptor_in_metadata_editor/routes.interactions.deleteDescriptorInMetadataEditor.Test.js"));
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/delete_descriptor_in_metadata_editor/routes.interactions.deleteDescriptorInMetadataEditor.Test.js"));
+
+// /interactions/fill_in_descriptor_from_manual_list_in_metadata_editor
+// require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor/routes.interactions.fillInDescriptorFromManualListInMetadataEditor.Test.js"));
+
+// /interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite/routes.interactions.fillInDescriptorFromManualListWhileItWasAProjectFavorite.Test.js"));
+
+// /interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite/routes.interactions.fillInDescriptorFromManualListWhileItWasAUserFavorite.Test.js"));
+
+// /interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite
+// require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite/routes.interactions.fillInDescriptorFromManualListWhileItWasAUserAndProjectFavorite.Test.js"));
+
+// /interactions/fill_in_descriptor_from_quick_list_in_metadata_editor
+// require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor/routes.interactions.fillInDescriptorFromQuickListInMetadataEditor.Test.js"));
+
+// /interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite
+// require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite/routes.interactions.fillInDescriptorFromQuickListWhileItWasAProjectFavorite.Test.js"));
+
+// /interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite/routes.interactions.fillInDescriptorFromQuickListWhileItWasAUserFavorite.Test.js"));
+
+// /interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite/routes.interactions.fillInDescriptorFromQuickListWhileItWasAUserAndProjectFavorite.Test.js"));
+
+// /interactions/fill_in_inherited_descriptor
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_inherited_descriptor/routes.interactions.fillInInheritedDescriptor.Test.js"));
+
+// /interactions/delete_all
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/delete_all/routes.interactions.deleteAll.Test.js"));
+
 
 return;
 
