@@ -310,16 +310,43 @@ export_to_repository_ckan = function (req, res)
                 }
                 else
                 {
+
                     // The success case
                     // Update the exportedAt property in the ckan package
                     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
                     let packageId = CkanUtils.createPackageID(requestedResourceUri);
+
+                    const user = req.user;
+                      let registryData = {
+                        dcterms: {
+                          title: targetRepository.dcterms.title,
+                          creator: targetRepository.dcterms.creator,
+                          identifier: result,
+                        },
+                        ddr: {
+                          //exportedFromProject: project.uri,
+                          exportedFromFolder: requestedResourceUri,
+                          privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+                          hasOrganization: organization,
+                          exportedToRepository: targetRepository.ddr.hasExternalUri,
+                          exportedToPlatform: "CKAN",
+                        }
+                      };
                     CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result)
                     {
-                        res.json({
-                            result: resultInfo.result,
-                            message: resultInfo.message
+                        Folder.findByUri(requestedResourceUri, function(err, folder){
+                            folder.getOwnerProject(function( err, project){
+                              registryData.ddr.exportedFromProject = project.uri;
+                              Deposit.createDepositRegistry(registryData, function(err, deposit){
+                                res.json({
+                                  result: resultInfo.result,
+                                  message: resultInfo.message
+                                });
+                              })
+
+                            });
                         });
+
                     });
                 }
             });

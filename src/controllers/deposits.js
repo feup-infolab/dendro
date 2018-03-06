@@ -142,6 +142,26 @@ exports.allowed = function (req, callback) {
 
 exports.getDeposit = function(req, res){
 
+    const appendPlatformUrl = function({ ddr : {exportedToPlatform : platform, exportedToRepository : url}}){
+      const https = "https://";
+      switch(platform){
+        case "EUDAT B2Share":
+          return https + url + "/records/";
+          break;
+        case "CKAN":
+          return https + url + "/dataset/";
+          break;
+        case "Figshare":
+          break;
+        case "Zenodo":
+          break;
+        case "EPrints":
+          break;
+        default:
+          return url;
+      }
+    };
+
     let resourceURI = req.params.requestedResourceUri;
     Deposit.findByUri(resourceURI, function(err, deposit){
        if(isNull(err)){
@@ -153,7 +173,7 @@ exports.getDeposit = function(req, res){
            Deposit.validatePlatformUri(deposit, function(deposit){
 
              deposit.dcterms.date = moment(deposit.dcterms.date).format('LLLL');
-             deposit.externalUri = "https://" + deposit.ddr.exportedToRepository + "/records/" + deposit.dcterms.identifier;
+             deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
              viewVars.deposit = deposit;
              res.render("registry/deposit", viewVars);
            });

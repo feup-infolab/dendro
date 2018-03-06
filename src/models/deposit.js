@@ -246,6 +246,26 @@ Deposit.createQuery = function(params, callback){
 };
 
 Deposit.validatePlatformUri = function(deposit, callback){
+
+  const appendPlatformUrl = function({ ddr : {exportedToPlatform : platform, exportedToRepository : url}}){
+    const https = "https://";
+    switch(platform){
+      case "EUDAT B2Share":
+        return https + url + "/api/records/";
+        break;
+      case "CKAN":
+        return https + url + "/dataset/";
+        break;
+      case "Figshare":
+        break;
+      case "Zenodo":
+        break;
+      case "EPrints":
+        break;
+      default:
+        return url;
+    }
+  };
   //if it has external repository uri
   if(deposit.ddr.lastVerifiedDate){
     const now = moment();
@@ -255,7 +275,7 @@ Deposit.validatePlatformUri = function(deposit, callback){
 
     if(difference >= 24){
       //make call to the uri and see if request is 404 or not
-      const uri = "https://" + deposit.ddr.exportedToRepository + "/api/records/" + deposit.dcterms.identifier;
+      const uri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
       request(uri, function (error, response, body) {
         if(error || response.statusCode === 404){
           deposit.ddr.isAvailable = false;
