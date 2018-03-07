@@ -280,34 +280,57 @@ exports.preprocessing = function (req, res)
 
 exports.termextraction = function (req, res)
 {
-    var occurences = function (string, subString, allowOverlapping)
-    {
-        string = String(string);
-        subString = String(subString);
-        if (subString.length <= 0) return (string.length + 1);
-
-        var n = 0,
-            pos = 0,
-            step = allowOverlapping ? 1 : subString.length;
-
-        while (true)
-        {
-            pos = string.indexOf(subString, pos);
-            if (pos >= 0)
-            {
-                ++n;
-                pos += step;
+      function countOcurrences(str, value) {
+        var regExp = new RegExp(value, "gi");
+        return (str.match(regExp) || []).length;
+      }
+    var termhood = function (list) {
+        var i;
+        var j;
+        var current;
+        var freq = 0;
+        var finallist = list ;
+        for(i = 0; i < list.length; i++) {
+            freq = 0;
+            if(list[i].nested === false){
+                finallist[i].termhood = list[i].frequency;
             }
-            else break;
+            else {
+                for(j = 0; j < finallist[i].nestedterms.length; j++) {
+                    freq += finallist[i].nestedterms[j].frequency;
+                }
+                finallist[i].nestedfreq = freq;
+            }
         }
-        return n;
-    };
-    var termhood = function (input, list) {
-      return 0;
+
+        return finallist;
     }
 
-    var isNested = function (input, list) {
-        return 0;
+
+    var isNested = function (list, ngrams) {
+        var nestedlist = list;
+        var i;
+        var j;
+        for( i = 0; i < nestedlist.length; i++) {
+            if(tokenizer.tokenize(nestedlist[i].word).length === ngrams) {
+                nestedlist[i].nested =false;
+            }
+            else {
+                for( j = 0; j < nestedlist.length; j++) {
+
+                    if(nestedlist[j].word.indexOf(nestedlist[i].word) > -1) {
+                        if(nestedlist[j].word === nestedlist[i].word) {
+
+                        }
+                        else {
+                          nestedlist[i].nested = true;
+                          nestedlist[i].nestedterms.push({term:nestedlist[j].word,frequency:nestedlist[j].frequency});
+                        }
+                    }
+                }
+            }
+        }
+        return nestedlist;
     }
 
     function countnestedterms (x, list)
@@ -374,9 +397,9 @@ exports.termextraction = function (req, res)
             var frequency = 0;
             for (var j = 0; j < corpus.length; j++)
             {
-              frequency += occurences(corpus[j].toLowerCase(), input[i]);
+              frequency += countOcurrences(corpus[j], input[i]);
             }
-            words.frequency.push({word:input[i],frequency:frequency,nested:""});
+            words.frequency.push({word:input[i],size: tokenizer.tokenize(input[i]).length,termhood:0, frequency:frequency,nested:false, nestedfreq: 0, nestedterms:[]});
             /*if (frequency > 1 && Math.log2(frequency) >= maxthreshold)
             {
               threshold.push({term: input[i], threshold: Math.log2(frequency)});
@@ -395,10 +418,9 @@ exports.termextraction = function (req, res)
             }*/
 
         }
-        for(i = 0; i < words.frequency.length; i++) {
-
-        }
-
+        words.frequency = isNested(words.frequency,ngrams);
+        words.frequency = termhood(words.frequency);
+        console.log(words.frequency);
         /*
 
           double invUniqNestersD = 1D / (double) uniqNesters;
@@ -535,16 +557,23 @@ exports.termextraction = function (req, res)
                     var ngrams = [];
                     for (i = 0; i < nounphrasesimple.length; i++)
                     {
-                        if (tokenizer.tokenize(nounphrasesimple[i]).length <= 4 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
+                        if (tokenizer.tokenize(nounphrasesimple[i]).length <= 5 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
                         {
                             ngrams.push(nounphrasesimple[i]);
                         }
+                        else {
+                            console.log(nounphrasesimple[i]);
+                        }
                     }
-                    console.log("ngrams: " + ngrams.length);
-                    nounphrasesimple = ngrams;
-                    var cvaluengrams = cvalue(ngrams, documents, 4);
+                  ngrams.sort(function(a, b){
+                    // ASC  -> a.length - b.length
+                    // DESC -> b.length - a.length
+                    return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
+                  });
 
-                    console.log("cvaluetrigrams : " + cvaluengrams);
+                    nounphrasesimple = ngrams;
+                    var cvaluengrams = cvalue(ngrams, documents, tokenizer.tokenize(ngrams[0]).length);
+
                     for (var a = 0; a < documents.length; a++)
                     {
                         if (texti.text.length > 1)
