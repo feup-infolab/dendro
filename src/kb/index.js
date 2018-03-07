@@ -234,14 +234,26 @@ IndexConnection.prototype.ensureIndexIsReady = function (callback)
         const tryToConnect = function (callback)
         {
             self.client.cluster.health({
-                waitForStatus: "yellow",
+                waitForStatus: "green",
                 index: self.short_name
             }, function(err, result){
                 if(isNull(err))
                 {
-                    if(result.acknowledged)
+                    if(result.status === "green")
                     {
-                        callback(null, true);
+                        // try a query to see if it gives 503 error (stupid garbage!)
+                        self.client.count({
+                            index: self.short_name,
+                        }, function (error, response) {
+                            if(isNull(error))
+                            {
+                                callback(null, true);
+                            }
+                            else
+                            {
+                                callback(error, false)
+                            }
+                        });
                     }
                     else
                     {
@@ -353,8 +365,31 @@ IndexConnection.prototype.ensureElasticSearchIsReady = function (callback)
                 function(err, result){
                     if(isNull(err))
                     {
-                        IndexConnection._all[self.id] = self;
-                        callback(null, self.client);
+                        self.client.cluster.putSettings(
+                            {
+                                body: {
+                                    "index" : {
+                                        "number_of_shards" : 1,
+                                        "number_of_replicas" : 0
+                                    },
+                                    "persistent": {
+                                        "cluster.routing.allocation.disk.threshold_enabled": false,
+                                        "cluster.routing.allocation.enable" : "all"
+                                    }
+                                }
+                            }
+                            , function(err, result)
+                            {
+                                if(isNull(err))
+                                {
+                                    IndexConnection._all[self.id] = self;
+                                    callback(null, self.client);
+                                }
+                                else
+                                {
+                                    callback(err, result);
+                                }
+                            });
                     }
                     else
                     {
@@ -571,10 +606,10 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
 
 IndexConnection.prototype.close = function(cb)
 {
-    /*const self = this;
+    const self = this;
     if(!isNull(self.client))
     {
-        self.client.indices.close({
+        self.client.indices.flush({
             index : [self.short_name]
         }, function(err, result){
             cb(err, result);
@@ -583,15 +618,20 @@ IndexConnection.prototype.close = function(cb)
     else
     {
         cb(null);
-    }*/
-
-    cb(null);
+    }
 };
 
-IndexConnection.prototype.create_new_index = function (deleteIfExists, callback)
+IndexConnection.prototype.create_new_index = function (deleteIfExists, callback, numberOfShards, numberOfReplicas)
 {
     let self = this;
     let indexName = self.short_name;
+
+
+    if(isNull(numberOfReplicas))
+        numberOfReplicas = 0;
+
+    if(isNull(numberOfShards))
+        numberOfShards = 1;
 
     async.waterfall([
         function (callback)
@@ -642,7 +682,12 @@ IndexConnection.prototype.create_new_index = function (deleteIfExists, callback)
                             const settings = {
                                 index: indexName,
                                 body: {
-                                    mappings: self.elasticsearchMappings
+                                    mappings: self.elasticsearchMappings,
+                                    settings: {
+                                        number_of_shards: numberOfShards,
+                                        number_of_replicas: numberOfReplicas,
+                                        "index.write.wait_for_active_shards" : numberOfShards
+                                    }
                                 }
                             };
                             self.ensureElasticSearchIsReady(function(err, client){
