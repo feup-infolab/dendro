@@ -294,13 +294,42 @@ angular.module('dendroApp.controllers')
 
             $scope.type = 'pie';
 
-            $scope.labels2 = ['September','October', 'November','December'];
+            $scope.labels2 = ['September','October', 'November','December', 'January', 'February'];
             $scope.data2 = [
-                [5, 3, 7],
-                [5,4,6,8]
+                [5, 3, 7,8,9],
+                [5,4,6,8,10,10]
             ];
 
-            $scope.datasetOverride = [      {
+            $scope.colors = [
+                "#75CAEB",
+                "#397367",
+                "#5da399",
+                "#42858c",
+                "#042a2b",
+                "#05b2dc",
+            ];
+
+            $scope.depositscolors = [
+                "#28B62C",
+                "#05b2dc",
+            ];
+
+
+            $scope.options = {
+                scales: {
+                    yAxes: [
+                        {
+                            ticks: {
+                                min: 0, // it is for ignoring negative step.
+                                beginAtZero: true,
+                            }
+                        }
+                    ]
+                }
+            };
+
+            $scope.datasetOverride = [
+                {
                 label: "Deposits",
                 borderWidth: 1,
                 type: 'bar'
@@ -308,29 +337,8 @@ angular.module('dendroApp.controllers')
                 {
                     label: "Evolution Line",
                     borderWidth: 3,
-                    hoverBackgroundColor: "rgba(255,99,132,0.4)",
-                    hoverBorderColor: "rgba(255,99,132,1)",
+                    hoverBackgroundColor: "rgba(255,0,0,0.4)",
+                    hoverBorderColor: "rgba(255,0,0,1)",
                     type: 'line'
                 }];
-
-
-
-            $scope.colors = [
-                { // grey
-                    backgroundColor: 'rgba(148,159,177,0.2)',
-                    pointBackgroundColor: 'rgba(148,159,177,1)',
-                    pointHoverBackgroundColor: 'rgba(148,159,177,1)',
-                    borderColor: 'rgba(148,159,177,1)',
-                    pointBorderColor: '#fff',
-                    pointHoverBorderColor: 'rgba(148,159,177,0.8)'
-                },
-                { // dark grey
-                    backgroundColor: 'rgba(77,83,96,0.2)',
-                    pointBackgroundColor: 'rgba(77,83,96,1)',
-                    pointHoverBackgroundColor: 'rgba(77,83,96,1)',
-                    borderColor: 'rgba(77,83,96,1)',
-                    pointBorderColor: '#fff',
-                    pointHoverBorderColor: 'rgba(77,83,96,0.8)'
-                }
-            ];
         });

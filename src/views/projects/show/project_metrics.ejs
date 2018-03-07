@@ -1,26 +1,21 @@
 
-<!--<div class="metrics" >
-<canvas id="doughnut" width="200" height="100" class="chart chart-doughnut" chart-data="data1" chart-labels="labels1" chart-colors="colours1">
-</canvas>
-</div>-->
-
-
-
-
 <div class="row">
-    <div class="col-lg-10 col-md-10 col-sm-12 col-xs-12">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
         <div class="metrics" >
-            <canvas id="repos" width="200" height="100" class="chart-base" chart-type= "type" chart-data="data" chart-labels="labels" chart-colors="colours">
+            <canvas id="repos" width="200" height="100" class="chart-base" chart-type= "type" chart-data="data" chart-labels="labels" chart-colors="colors">
             </canvas>
         </div>
-        <button type="button" class="btn btn-primary pull-right" ng-click="updateData()">Toggle</button>
+        <button type="button" class="btn btn-primary pull-left" ng-click="updateData()">Toggle</button>
+    </div>
 
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
         <div class="metrics" >
-            <canvas id="depos" width="200" height="100" class="chart-bar" chart-data="data2" chart-dataset-override="datasetOverride"  chart-labels="labels2" chart-colors="colours">
+            <canvas id="depos" width="200" height="100" class="chart-bar" chart-data="data2" chart-dataset-override="datasetOverride"  chart-labels="labels2" chart-colors="depositscolors" chart-options="options"">
             </canvas>
         </div>
+    </div>
 </div>
-</div>
+
 
 <div class="panel panel-info">
     <div class="panel-heading">
