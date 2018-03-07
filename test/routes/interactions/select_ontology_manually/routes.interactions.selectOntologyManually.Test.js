@@ -30,7 +30,7 @@ let foafUri = "http://xmlns.com/foaf/0.1/";
 let demouser1InteractionObj = {uri: dctermsUri};
 let demouser2InteractionObj = {uri: foafUri};
 
-describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontology_manually", function ()
+describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology_manually", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
@@ -59,7 +59,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
         });
     });
 
-
     describe("[POST] [Invalid Cases] /interactions/select_ontology_manually", function ()
     {
         it("Should give an error and not accept and register an interaction when an ontology is selected manually when unauthenticated", function (done)
@@ -70,8 +69,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
             {
                 should.exist(err);
                 res.statusCode.should.equal(401);
-                //SHOULD NOT BE IN THE MYSQL DATABASE
-                interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                // SHOULD NOT BE IN THE MYSQL DATABASE
+                interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                {
                     should.equal(err, null);
                     should.exist(info);
                     info[0].nInteractions.should.equal(0);
@@ -89,8 +89,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(err);
                     res.statusCode.should.equal(400);
                     res.body.message.should.contain("Unable to record interactions for resources of projects of which you are not a creator or contributor.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -112,8 +113,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : select_ontology_manually");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -135,8 +137,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : select_ontology_manually");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -158,8 +161,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : select_ontology_manually");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -168,7 +172,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                 });
             });
         });
-
 
         it("Should give an error and not accept and register an interaction if the recommendedFor field is invalid, even if logged in as demouser1 (creator of the project)", function (done)
         {
@@ -182,8 +185,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(404);
                     res.body.message.should.equal("Resource with uri invalid_recomended_for not found in this system.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -205,8 +209,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(400);
                     res.body.message.should.equal("Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -228,8 +233,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(400);
                     res.body.message.should.equal("Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -238,7 +244,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                 });
             });
         });
-
 
         it("Should give an error and not accept and register an interaction if the executorOver(ontology uri) field is invalid, even if logged in as demouser1 (creator of the project)", function (done)
         {
@@ -252,8 +257,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Interaction type select_ontology_manually requires a valid ontology 'uri' in the request's body. It represents the ontology to be selected.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -275,8 +281,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Interaction type select_ontology_manually requires field uri in the request's body. It represents the ontology to be selected.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -298,8 +305,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Interaction type select_ontology_manually requires field uri in the request's body. It represents the ontology to be selected.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -321,8 +329,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -344,8 +353,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -367,8 +377,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -396,10 +407,11 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    //because it is the first validation that fails when checking on the server side, even if all fields are missing
+                    // because it is the first validation that fails when checking on the server side, even if all fields are missing
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : select_ontology_manually");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -408,7 +420,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                 });
             });
         });
-
 
         it("Should give an error and not accept and register an interaction if the body contents is null, even if logged in as demouser1 (creator of the project)", function (done)
         {
@@ -420,10 +431,11 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    //because it is the first validation that fails when checking on the server side, even if all fields are missing
+                    // because it is the first validation that fails when checking on the server side, even if all fields are missing
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : select_ontology_manually");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -451,12 +463,14 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     {
                         should.equal(err, null);
                         res.statusCode.should.equal(200);
-                        //SHOULD ALSO BE IN THE MYSQL DATABASE
-                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        // SHOULD ALSO BE IN THE MYSQL DATABASE
+                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                        {
                             should.equal(err, null);
                             should.exist(info);
                             info[0].nInteractions.should.equal(1);
-                            interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                            interactionsUtils.getLatestInteractionInDB(function (err, info)
+                            {
                                 should.equal(err, null);
                                 should.exist(info);
                                 info.length.should.equal(1);
@@ -491,12 +505,14 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] select_ontolo
                     {
                         should.equal(err, null);
                         res.statusCode.should.equal(200);
-                        //SHOULD ALSO BE IN THE MYSQL DATABASE
-                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        // SHOULD ALSO BE IN THE MYSQL DATABASE
+                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                        {
                             should.equal(err, null);
                             should.exist(info);
                             info[0].nInteractions.should.equal(2);
-                            interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                            interactionsUtils.getLatestInteractionInDB(function (err, info)
+                            {
                                 should.equal(err, null);
                                 should.exist(info);
                                 info.length.should.equal(1);

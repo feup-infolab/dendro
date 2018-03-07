@@ -8,8 +8,8 @@ const mysql = require("mysql");
 
 const destroyMySQLDatabase = function (app, callback)
 {
-
-    const destroyDatabase = function (cb) {
+    const destroyDatabase = function (cb)
+    {
         var con = mysql.createConnection({
             host: Config.mySQLHost,
             user: Config.mySQLAuth.user,
@@ -31,7 +31,7 @@ const destroyMySQLDatabase = function (app, callback)
         Logger.log("info", "Will destroy the MySQL database!!");
         destroyDatabase(function (err, info)
         {
-            if(isNull(err))
+            if (isNull(err))
             {
                 Logger.log("info", "MySQL database: " + Config.mySQLDBName + " destroyed successfully!!");
                 callback(err);

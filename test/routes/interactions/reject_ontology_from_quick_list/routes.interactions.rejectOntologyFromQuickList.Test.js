@@ -9,6 +9,7 @@ chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const async = require("async");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
@@ -26,7 +27,7 @@ const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects
 
 const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
-/*let bodyObj = {
+/* let bodyObj = {
     "prefix": "dcterms",
     "shortName": "abstract",
     "ontology": "http://purl.org/dc/terms/",
@@ -56,53 +57,139 @@ let foafPrefix = "foaf";
 
 let demouser1InteractionObj = null;
 let demouser2InteractionObj = null;
+let acceptDescriptorFromQuickListInteractionObj = null;
 
-describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontology_from_quick_list", function ()
+describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] reject_ontology_from_quick_list", function ()
 {
     this.timeout(Config.testsTimeout);
+    // TODO save an interaction of type accept_descriptor_from_quick_list first
+    // TODO THEN try the reject_ontology_from_quick_list interaction
     before(function (done)
     {
         createFilesUnit.setup(function (err, results)
         {
             should.equal(err, null);
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            async.waterfall([
+                function (callback)
+                {
+                    // creates the accept_descriptor_from_quick_list interaction object
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    {
+                        should.equal(err, null);
+                        projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
+                        {
+                            should.equal(err, null);
+                            should.exist(res);
+                            projectRootData = res.body;
+                            should.exist(projectRootData);
+                            descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
+                            {
+                                should.equal(err, null);
+                                should.exist(res);
+                                dctermsDescriptors = res.body.descriptors;
+                                should.exist(dctermsDescriptors);
+                                acceptDescriptorFromQuickListInteractionObj = dctermsDescriptors[0];
+                                acceptDescriptorFromQuickListInteractionObj.just_added = true;
+                                acceptDescriptorFromQuickListInteractionObj.added_from_quick_list = true;
+                                acceptDescriptorFromQuickListInteractionObj.rankingPosition = 0;
+                                acceptDescriptorFromQuickListInteractionObj.pageNumber = 2;
+                                acceptDescriptorFromQuickListInteractionObj.interactionType = "accept_descriptor_from_quick_list";
+                                acceptDescriptorFromQuickListInteractionObj.recommendedFor = projectRootData[0].uri;
+                                callback(null);
+                            });
+                        });
+                    });
+                },
+                function (callback)
+                {
+                    // creates the reject_ontology_from_quick_list interaction object
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    {
+                        should.equal(err, null);
+                        projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
+                        {
+                            should.equal(err, null);
+                            should.exist(res);
+                            projectRootData = res.body;
+                            should.exist(projectRootData);
+                            descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
+                            {
+                                should.equal(err, null);
+                                should.exist(res);
+                                dctermsDescriptors = res.body.descriptors;
+                                should.exist(dctermsDescriptors);
+                                demouser1InteractionObj = dctermsDescriptors[0];
+                                demouser1InteractionObj.just_added = true;
+                                demouser1InteractionObj.added_from_quick_list = true;
+                                // demouser1InteractionObj.rankingPosition = index;
+                                demouser1InteractionObj.rankingPosition = 0;
+                                // demouser1InteractionObj.pageNumber = $scope.recommendations_page;
+                                demouser1InteractionObj.pageNumber = 2;
+                                demouser1InteractionObj.interactionType = "reject_ontology_from_quick_list";
+                                demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
+
+                                demouser2InteractionObj = dctermsDescriptors[1];
+                                demouser2InteractionObj.just_added = true;
+                                demouser2InteractionObj.added_from_quick_list = true;
+                                demouser2InteractionObj.rankingPosition = 0;
+                                demouser2InteractionObj.pageNumber = 2;
+                                demouser2InteractionObj.interactionType = "reject_ontology_from_quick_list";
+                                demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
+                                callback(null);
+                            });
+                        });
+                    });
+                },
+                function (callback)
+                {
+                    // register the accept_descriptor_from_quick_list interaction
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    {
+                        userUtils.getUserInfo(demouser1.username, true, agent, function (err, res)
+                        {
+                            should.equal(err, null);
+                            should.exist(res);
+                            should.exist(res.body);
+                            should.exist(res.body.uri);
+                            let demouser1Uri = res.body.uri;
+                            interactionsUtils.acceptDescriptorFromQuickList(true, agent, acceptDescriptorFromQuickListInteractionObj, function (err, res)
+                            {
+                                should.equal(err, null);
+                                res.statusCode.should.equal(200);
+                                // SHOULD ALSO BE IN THE MYSQL DATABASE
+                                interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                                {
+                                    should.equal(err, null);
+                                    should.exist(info);
+                                    info[0].nInteractions.should.equal(1);
+                                    interactionsUtils.getLatestInteractionInDB(function (err, info)
+                                    {
+                                        should.equal(err, null);
+                                        should.exist(info);
+                                        info.length.should.equal(1);
+                                        info[0].executedOver.should.equal(acceptDescriptorFromQuickListInteractionObj.uri);
+                                        info[0].interactionType.should.equal(acceptDescriptorFromQuickListInteractionObj.interactionType);
+                                        info[0].originallyRecommendedFor.should.equal(acceptDescriptorFromQuickListInteractionObj.recommendedFor);
+                                        info[0].pageNumber.should.equal(acceptDescriptorFromQuickListInteractionObj.pageNumber);
+                                        info[0].performedBy.should.equal(demouser1Uri);
+                                        info[0].rankingPosition.should.equal(acceptDescriptorFromQuickListInteractionObj.rankingPosition);
+                                        info[0].recommendationCallId.should.equal(acceptDescriptorFromQuickListInteractionObj.recommendationCallId);
+                                        should.exist(info[0].uri);
+                                        info[0].uri.should.contain("interaction");
+                                        callback(null);
+                                    });
+                                });
+                            });
+                        });
+                    });
+                }],
+            function (err, results)
             {
                 should.equal(err, null);
-                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
-                {
-                    should.equal(err, null);
-                    should.exist(res);
-                    projectRootData = res.body;
-                    should.exist(projectRootData);
-                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res) {
-                        should.equal(err, null);
-                        should.exist(res);
-                        dctermsDescriptors = res.body.descriptors;
-                        should.exist(dctermsDescriptors);
-                        demouser1InteractionObj = dctermsDescriptors[0];
-                        demouser1InteractionObj.just_added = true;
-                        demouser1InteractionObj.added_from_quick_list = true;
-                        //demouser1InteractionObj.rankingPosition = index;
-                        demouser1InteractionObj.rankingPosition = 0;
-                        //demouser1InteractionObj.pageNumber = $scope.recommendations_page;
-                        demouser1InteractionObj.pageNumber = 2;
-                        demouser1InteractionObj.interactionType = "reject_ontology_from_quick_list";
-                        demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
-
-                        demouser2InteractionObj = dctermsDescriptors[1];
-                        demouser2InteractionObj.just_added = true;
-                        demouser2InteractionObj.added_from_quick_list = true;
-                        demouser2InteractionObj.rankingPosition = 0;
-                        demouser2InteractionObj.pageNumber = 2;
-                        demouser2InteractionObj.interactionType = "reject_ontology_from_quick_list";
-                        demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
-                        done();
-                    });
-                });
+                done();
             });
         });
     });
-
 
     describe("[POST] [Invalid Cases] /interactions/reject_ontology_from_quick_list", function ()
     {
@@ -114,11 +201,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
             {
                 should.exist(err);
                 res.statusCode.should.equal(401);
-                //SHOULD NOT BE IN THE MYSQL DATABASE
-                interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                // SHOULD NOT BE IN THE MYSQL DATABASE
+                interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                {
                     should.equal(err, null);
                     should.exist(info);
-                    info[0].nInteractions.should.equal(0);
+                    info[0].nInteractions.should.equal(1);
                     done();
                 });
             });
@@ -133,11 +221,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(err);
                     res.statusCode.should.equal(400);
                     res.body.message.should.contain("Unable to record interactions for resources of projects of which you are not a creator or contributor.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -156,11 +245,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : reject_ontology_from_quick_list");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -179,11 +269,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : reject_ontology_from_quick_list");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -202,17 +293,17 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : reject_ontology_from_quick_list");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
             });
         });
-
 
         it("Should give an error and not accept and register an interaction if the recommendedFor field is invalid, even if logged in as demouser1 (creator of the project)", function (done)
         {
@@ -226,11 +317,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(404);
                     res.body.message.should.equal("Resource with uri invalid_recomended_for not found in this system.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -249,11 +341,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(400);
                     res.body.message.should.equal("Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -272,17 +365,17 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(400);
                     res.body.message.should.equal("Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
             });
         });
-
 
         it("Should give an error and not accept and register an interaction if the executorOver(descriptor uri) field is invalid, even if logged in as demouser1 (creator of the project)", function (done)
         {
@@ -296,11 +389,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Requested Descriptor undefined is unknown / not parametrized in this Dendro instance.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -319,11 +413,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Requested Descriptor undefined is unknown / not parametrized in this Dendro instance.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -342,11 +437,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Requested Descriptor undefined is unknown / not parametrized in this Dendro instance.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -365,11 +461,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -388,11 +485,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -411,11 +509,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -436,11 +535,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid page number in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -459,11 +559,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid page number in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -482,11 +583,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid page number in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -505,11 +607,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Interaction type reject_ontology_from_quick_list requires field recommendationCallId in the request's body.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -528,11 +631,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Interaction type reject_ontology_from_quick_list requires field recommendationCallId in the request's body.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -551,11 +655,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid recommendationCallTimeStamp in the request's body. It should be an valid date.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -574,11 +679,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid recommendationCallTimeStamp in the request's body. It should be an valid date.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -597,11 +703,12 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid recommendationCallTimeStamp in the request's body. It should be an valid date.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -626,19 +733,19 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    //because it is the first validation that fails when checking on the server side, even if all fields are missing
+                    // because it is the first validation that fails when checking on the server side, even if all fields are missing
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : reject_ontology_from_quick_list");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
             });
         });
-
 
         it("Should give an error and not accept and register an interaction if the body contents is null, even if logged in as demouser1 (creator of the project)", function (done)
         {
@@ -650,13 +757,14 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    //because it is the first validation that fails when checking on the server side, even if all fields are missing
+                    // because it is the first validation that fails when checking on the server side, even if all fields are missing
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : reject_ontology_from_quick_list");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
-                        info[0].nInteractions.should.equal(0);
+                        info[0].nInteractions.should.equal(1);
                         done();
                     });
                 });
@@ -681,12 +789,14 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     {
                         should.equal(err, null);
                         res.statusCode.should.equal(200);
-                        //SHOULD ALSO BE IN THE MYSQL DATABASE
-                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        // SHOULD ALSO BE IN THE MYSQL DATABASE
+                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                        {
                             should.equal(err, null);
                             should.exist(info);
-                            info[0].nInteractions.should.equal(1);
-                            interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                            info[0].nInteractions.should.equal(2);
+                            interactionsUtils.getLatestInteractionInDB(function (err, info)
+                            {
                                 should.equal(err, null);
                                 should.exist(info);
                                 info.length.should.equal(1);
@@ -723,12 +833,14 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] reject_ontolo
                     {
                         should.equal(err, null);
                         res.statusCode.should.equal(200);
-                        //SHOULD ALSO BE IN THE MYSQL DATABASE
-                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        // SHOULD ALSO BE IN THE MYSQL DATABASE
+                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                        {
                             should.equal(err, null);
                             should.exist(info);
-                            info[0].nInteractions.should.equal(2);
-                            interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                            info[0].nInteractions.should.equal(3);
+                            interactionsUtils.getLatestInteractionInDB(function (err, info)
+                            {
                                 should.equal(err, null);
                                 should.exist(info);
                                 info.length.should.equal(1);

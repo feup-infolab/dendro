@@ -32,7 +32,7 @@ exports.recordInteraction = function (jsonOnly, folderUri, projectHandle, intera
 exports.acceptDescriptorFromQuickList = function (jsonOnly, agent, bodyObj, cb)
 {
     const path = "/interactions/accept_descriptor_from_quick_list";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -55,9 +55,10 @@ exports.acceptDescriptorFromQuickList = function (jsonOnly, agent, bodyObj, cb)
     }
 };
 
-exports.acceptDescriptorFromQuickListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptDescriptorFromQuickListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -80,9 +81,10 @@ exports.acceptDescriptorFromQuickListWhileItWasAProjectFavorite = function (json
     }
 };
 
-exports.acceptDescriptorFromQuickListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptDescriptorFromQuickListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -105,9 +107,10 @@ exports.acceptDescriptorFromQuickListWhileItWasAUserFavorite = function (jsonOnl
     }
 };
 
-exports.acceptDescriptorFromQuickListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptDescriptorFromQuickListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -130,9 +133,10 @@ exports.acceptDescriptorFromQuickListWhileItWasAUserAndProjectFavorite = functio
     }
 };
 
-exports.acceptDescriptorFromManualList = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptDescriptorFromManualList = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_descriptor_from_manual_list";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -155,9 +159,10 @@ exports.acceptDescriptorFromManualList = function (jsonOnly, agent, bodyObj, cb)
     }
 };
 
-exports.acceptDescriptorFromManualListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptDescriptorFromManualListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -180,9 +185,10 @@ exports.acceptDescriptorFromManualListWhileItWasAProjectFavorite = function (jso
     }
 };
 
-exports.acceptDescriptorFromManualListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptDescriptorFromManualListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -205,9 +211,10 @@ exports.acceptDescriptorFromManualListWhileItWasAUserFavorite = function (jsonOn
     }
 };
 
-exports.acceptDescriptorFromManualListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptDescriptorFromManualListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -230,9 +237,10 @@ exports.acceptDescriptorFromManualListWhileItWasAUserAndProjectFavorite = functi
     }
 };
 
-exports.hideDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb) {
+exports.hideDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/hide_descriptor_from_quick_list_for_project";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -255,9 +263,10 @@ exports.hideDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyO
     }
 };
 
-exports.unhideDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb) {
+exports.unhideDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/unhide_descriptor_from_quick_list_for_project";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -280,9 +289,10 @@ exports.unhideDescriptorFromQuickListForProject = function (jsonOnly, agent, bod
     }
 };
 
-exports.hideDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb) {
+exports.hideDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/hide_descriptor_from_quick_list_for_user";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -305,9 +315,10 @@ exports.hideDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj,
     }
 };
 
-exports.unhideDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb) {
+exports.unhideDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/unhide_descriptor_from_quick_list_for_user";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -330,9 +341,10 @@ exports.unhideDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyOb
     }
 };
 
-exports.favoriteDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb) {
+exports.favoriteDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/favorite_descriptor_from_quick_list_for_project";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -355,9 +367,10 @@ exports.favoriteDescriptorFromQuickListForProject = function (jsonOnly, agent, b
     }
 };
 
-exports.favoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb) {
+exports.favoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/favorite_descriptor_from_quick_list_for_user";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -380,9 +393,10 @@ exports.favoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, body
     }
 };
 
-exports.unfavoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb) {
+exports.unfavoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/unfavorite_descriptor_from_quick_list_for_user";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -405,9 +419,10 @@ exports.unfavoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, bo
     }
 };
 
-exports.unfavoriteDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb) {
+exports.unfavoriteDescriptorFromQuickListForProject = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/unfavorite_descriptor_from_quick_list_for_project";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -430,9 +445,10 @@ exports.unfavoriteDescriptorFromQuickListForProject = function (jsonOnly, agent,
     }
 };
 
-exports.acceptDescriptorFromAutocomplete = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptDescriptorFromAutocomplete = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_descriptor_from_autocomplete";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -455,9 +471,10 @@ exports.acceptDescriptorFromAutocomplete = function (jsonOnly, agent, bodyObj, c
     }
 };
 
-exports.rejectOntologyFromQuickList = function (jsonOnly, agent, bodyObj, cb) {
+exports.rejectOntologyFromQuickList = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/reject_ontology_from_quick_list";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -480,9 +497,10 @@ exports.rejectOntologyFromQuickList = function (jsonOnly, agent, bodyObj, cb) {
     }
 };
 
-exports.selectOntologyManually = function (jsonOnly, agent, bodyObj, cb) {
+exports.selectOntologyManually = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/select_ontology_manually";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -505,9 +523,10 @@ exports.selectOntologyManually = function (jsonOnly, agent, bodyObj, cb) {
     }
 };
 
-exports.selectDescriptorFromManualList = function (jsonOnly, agent, bodyObj, cb) {
+exports.selectDescriptorFromManualList = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/select_descriptor_from_manual_list";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -530,9 +549,10 @@ exports.selectDescriptorFromManualList = function (jsonOnly, agent, bodyObj, cb)
     }
 };
 
-exports.acceptSmartDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptSmartDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_smart_descriptor_in_metadata_editor";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -555,9 +575,10 @@ exports.acceptSmartDescriptorInMetadataEditor = function (jsonOnly, agent, bodyO
     }
 };
 
-exports.acceptFavoriteDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+exports.acceptFavoriteDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/accept_favorite_descriptor_in_metadata_editor";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -580,9 +601,10 @@ exports.acceptFavoriteDescriptorInMetadataEditor = function (jsonOnly, agent, bo
     }
 };
 
-exports.deleteDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+exports.deleteDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/delete_descriptor_in_metadata_editor";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -605,9 +627,10 @@ exports.deleteDescriptorInMetadataEditor = function (jsonOnly, agent, bodyObj, c
     }
 };
 
-exports.fillInDescriptorFromManualListInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+exports.fillInDescriptorFromManualListInMetadataEditor = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -630,9 +653,10 @@ exports.fillInDescriptorFromManualListInMetadataEditor = function (jsonOnly, age
     }
 };
 
-exports.fillInDescriptorFromManualListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.fillInDescriptorFromManualListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -655,9 +679,10 @@ exports.fillInDescriptorFromManualListWhileItWasAProjectFavorite = function (jso
     }
 };
 
-exports.fillInDescriptorFromManualListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.fillInDescriptorFromManualListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -680,9 +705,10 @@ exports.fillInDescriptorFromManualListWhileItWasAUserFavorite = function (jsonOn
     }
 };
 
-exports.fillInDescriptorFromManualListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.fillInDescriptorFromManualListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -705,9 +731,10 @@ exports.fillInDescriptorFromManualListWhileItWasAUserAndProjectFavorite = functi
     }
 };
 
-exports.fillInDescriptorFromQuickListInMetadataEditor = function (jsonOnly, agent, bodyObj, cb) {
+exports.fillInDescriptorFromQuickListInMetadataEditor = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -730,9 +757,10 @@ exports.fillInDescriptorFromQuickListInMetadataEditor = function (jsonOnly, agen
     }
 };
 
-exports.fillInDescriptorFromQuickListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.fillInDescriptorFromQuickListWhileItWasAProjectFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -755,9 +783,10 @@ exports.fillInDescriptorFromQuickListWhileItWasAProjectFavorite = function (json
     }
 };
 
-exports.fillInDescriptorFromQuickListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.fillInDescriptorFromQuickListWhileItWasAUserFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -780,9 +809,10 @@ exports.fillInDescriptorFromQuickListWhileItWasAUserFavorite = function (jsonOnl
     }
 };
 
-exports.fillInDescriptorFromQuickListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb) {
+exports.fillInDescriptorFromQuickListWhileItWasAUserAndProjectFavorite = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -805,9 +835,10 @@ exports.fillInDescriptorFromQuickListWhileItWasAUserAndProjectFavorite = functio
     }
 };
 
-exports.fillInInheritedDescriptor = function (jsonOnly, agent, bodyObj, cb) {
+exports.fillInInheritedDescriptor = function (jsonOnly, agent, bodyObj, cb)
+{
     const path = "/interactions/fill_in_inherited_descriptor";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .post(path)
@@ -830,9 +861,10 @@ exports.fillInInheritedDescriptor = function (jsonOnly, agent, bodyObj, cb) {
     }
 };
 
-exports.deleteAll = function (jsonOnly, agent, cb) {
+exports.deleteAll = function (jsonOnly, agent, cb)
+{
     const path = "/interactions/delete_all";
-    if(jsonOnly)
+    if (jsonOnly)
     {
         agent
             .delete(path)
@@ -873,7 +905,6 @@ exports.getLatestInteractionInDB = function (callback)
                     {
                         return callback(true, "[ERROR] Unable get the latest interaction info on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                     }
-
                 }
             );
         }
@@ -904,7 +935,6 @@ exports.getNumberOfInteractionsInDB = function (callback)
                     {
                         return callback(true, "[ERROR] Unable to count the number of interations on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                     }
-
                 }
             );
         }

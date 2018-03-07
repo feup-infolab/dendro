@@ -3,9 +3,9 @@ const chaiHttp = require("chai-http");
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const getDescriptorsFromOntology = function (jsonOnly, agent,  ontologyPrefix, cb)
+const getDescriptorsFromOntology = function (jsonOnly, agent, ontologyPrefix, cb)
 {
-    //query.descriptors_from_ontology
+    // query.descriptors_from_ontology
     const path = "/descriptors";
     if (jsonOnly)
     {

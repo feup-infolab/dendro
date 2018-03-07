@@ -28,7 +28,7 @@ const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects
 
 const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
-/*let bodyObj = {
+/* let bodyObj = {
     "prefix": "dcterms",
     "shortName": "abstract",
     "ontology": "http://purl.org/dc/terms/",
@@ -58,7 +58,7 @@ let dctermsPrefix = "dcterms";
 let demouser1InteractionObj = null;
 let demouser2InteractionObj = null;
 
-describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", function ()
+describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_all", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
@@ -75,7 +75,8 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
                     should.exist(res);
                     projectRootData = res.body;
                     should.exist(projectRootData);
-                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res) {
+                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
+                    {
                         should.equal(err, null);
                         should.exist(res);
                         dctermsDescriptors = res.body.descriptors;
@@ -83,9 +84,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
                         demouser1InteractionObj = dctermsDescriptors[0];
                         demouser1InteractionObj.just_added = true;
                         demouser1InteractionObj.added_from_quick_list = true;
-                        //demouser1InteractionObj.rankingPosition = index;
+                        // demouser1InteractionObj.rankingPosition = index;
                         demouser1InteractionObj.rankingPosition = 0;
-                        //demouser1InteractionObj.pageNumber = $scope.recommendations_page;
+                        // demouser1InteractionObj.pageNumber = $scope.recommendations_page;
                         demouser1InteractionObj.pageNumber = 2;
                         demouser1InteractionObj.interactionType = "accept_descriptor_from_quick_list";
                         demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
@@ -111,12 +112,14 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
                                 {
                                     should.equal(err, null);
                                     res.statusCode.should.equal(200);
-                                    //SHOULD ALSO BE IN THE MYSQL DATABASE
-                                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                                    // SHOULD ALSO BE IN THE MYSQL DATABASE
+                                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                                    {
                                         should.equal(err, null);
                                         should.exist(info);
                                         info[0].nInteractions.should.equal(1);
-                                        interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                                        interactionsUtils.getLatestInteractionInDB(function (err, info)
+                                        {
                                             should.equal(err, null);
                                             should.exist(info);
                                             info.length.should.equal(1);
@@ -143,12 +146,14 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
                                                     {
                                                         should.equal(err, null);
                                                         res.statusCode.should.equal(200);
-                                                        //SHOULD ALSO BE IN THE MYSQL DATABASE
-                                                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                                                        // SHOULD ALSO BE IN THE MYSQL DATABASE
+                                                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                                                        {
                                                             should.equal(err, null);
                                                             should.exist(info);
                                                             info[0].nInteractions.should.equal(2);
-                                                            interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                                                            interactionsUtils.getLatestInteractionInDB(function (err, info)
+                                                            {
                                                                 should.equal(err, null);
                                                                 should.exist(info);
                                                                 info.length.should.equal(1);
@@ -179,7 +184,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
         });
     });
 
-
     describe("[POST] [Invalid Cases] /interactions/delete_all", function ()
     {
         it("Should give an error and not delete all interactions when unauthenticated", function (done)
@@ -191,7 +195,8 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
                 should.exist(err);
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be a Dendro administrator.");
-                Interaction.all(function (err, info) {
+                Interaction.all(function (err, info)
+                {
                     should.equal(err, null);
                     should.exist(info);
                     info.length.should.equal(2);
@@ -209,7 +214,8 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
                     should.exist(err);
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be a Dendro administrator.");
-                    Interaction.all(function (err, info) {
+                    Interaction.all(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info.length.should.equal(2);
@@ -230,7 +236,8 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
                     should.exist(err);
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be a Dendro administrator.");
-                    Interaction.all(function (err, info) {
+                    Interaction.all(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info.length.should.equal(2);
@@ -251,7 +258,8 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
                     should.exist(err);
                     res.statusCode.should.equal(401);
                     res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be a Dendro administrator.");
-                    Interaction.all(function (err, info) {
+                    Interaction.all(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info.length.should.equal(2);
@@ -274,7 +282,8 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] delete_all", 
                     should.exist(res);
                     res.statusCode.should.equal(200);
                     res.body.message.should.equal("All interactions successfully deleted.");
-                    Interaction.all(function (err, info) {
+                    Interaction.all(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info.length.should.equal(0);

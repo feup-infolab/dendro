@@ -17,7 +17,7 @@ global.tests = {};
 // uncomment the first time you run the tests after installing dendro
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
-//interaction tests
+// interaction tests
 /*
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list/routes.interactions.acceptDescriptorFromQuickList.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAProjectFavorite.Test.js"));
@@ -59,18 +59,20 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/unfavorite_descrip
 
 // /interactions/accept_descriptor_from_autocomplete
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_autocomplete/routes.interactions.acceptDescriptorFromAutocomplete.Test.js"));
+*/
 
 // /interactions/reject_ontology_from_quick_list -> TODO must check with João for this one
-//require(Pathfinder.absPathInTestsFolder("/routes/interactions/reject_ontology_from_quick_list/routes.interactions.rejectOntologyFromQuickList.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/reject_ontology_from_quick_list/routes.interactions.rejectOntologyFromQuickList.Test.js"));
 
+/*
 // /interactions/select_ontology_manually
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_ontology_manually/routes.interactions.selectOntologyManually.Test.js"));
 
 // /interactions/select_descriptor_from_manual_list
-require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_descriptor_from_manual_list/routes.interactions.selectDescriptorFromManualList.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_descriptor_from_manual_list/routes.interactions.selectDescriptorFromManualList.Test.js"));
 
 // /interactions/accept_smart_descriptor_in_metadata_editor
-require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_smart_descriptor_in_metadata_editor/routes.interactions.acceptSmartDescriptorInMetadataEditor.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_smart_descriptor_in_metadata_editor/routes.interactions.acceptSmartDescriptorInMetadataEditor.Test.js"));
 
 // /interactions/accept_favorite_descriptor_in_metadata_editor
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_favorite_descriptor_in_metadata_editor/routes.interactions.acceptFavoriteDescriptorInMetadataEditor.Test.js"));
@@ -107,7 +109,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_inherited_
 
 // /interactions/delete_all
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/delete_all/routes.interactions.deleteAll.Test.js"));
-
+*/
 
 return;
 

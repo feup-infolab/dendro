@@ -26,7 +26,7 @@ const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects
 
 const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
-/*let bodyObj = {
+/* let bodyObj = {
     "prefix": "dcterms",
     "shortName": "abstract",
     "ontology": "http://purl.org/dc/terms/",
@@ -56,7 +56,7 @@ let dctermsPrefix = "dcterms";
 let demouser1InteractionObj = null;
 let demouser2InteractionObj = null;
 
-describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", function ()
+describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
@@ -73,7 +73,8 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     projectRootData = res.body;
                     should.exist(projectRootData);
-                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res) {
+                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
+                    {
                         should.equal(err, null);
                         should.exist(res);
                         dctermsDescriptors = res.body.descriptors;
@@ -81,9 +82,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                         demouser1InteractionObj = dctermsDescriptors[0];
                         demouser1InteractionObj.just_added = true;
                         demouser1InteractionObj.added_from_quick_list = true;
-                        //demouser1InteractionObj.rankingPosition = index;
+                        // demouser1InteractionObj.rankingPosition = index;
                         demouser1InteractionObj.rankingPosition = 0;
-                        //demouser1InteractionObj.pageNumber = $scope.recommendations_page;
+                        // demouser1InteractionObj.pageNumber = $scope.recommendations_page;
                         demouser1InteractionObj.pageNumber = 2;
                         demouser1InteractionObj.interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite";
                         demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
@@ -102,7 +103,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
         });
     });
 
-
     describe("[POST] [Invalid Cases] /interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", function ()
     {
         it("Should give an error and not accept and register an interaction when a descriptor is filled in from the quick list while it was a user favorite when unauthenticated", function (done)
@@ -113,8 +113,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
             {
                 should.exist(err);
                 res.statusCode.should.equal(401);
-                //SHOULD NOT BE IN THE MYSQL DATABASE
-                interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                // SHOULD NOT BE IN THE MYSQL DATABASE
+                interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                {
                     should.equal(err, null);
                     should.exist(info);
                     info[0].nInteractions.should.equal(0);
@@ -132,8 +133,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(err);
                     res.statusCode.should.equal(400);
                     res.body.message.should.contain("Unable to record interactions for resources of projects of which you are not a creator or contributor.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -155,8 +157,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -178,8 +181,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -201,8 +205,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -211,7 +216,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                 });
             });
         });
-
 
         it("Should give an error and not accept and register an interaction if the recommendedFor field is invalid, even if logged in as demouser1 (creator of the project)", function (done)
         {
@@ -225,8 +229,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(404);
                     res.body.message.should.equal("Resource with uri invalid_recomended_for not found in this system.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -248,8 +253,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(400);
                     res.body.message.should.equal("Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -271,8 +277,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(400);
                     res.body.message.should.equal("Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -281,7 +288,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                 });
             });
         });
-
 
         it("Should give an error and not accept and register an interaction if the executorOver(descriptor uri) field is invalid, even if logged in as demouser1 (creator of the project)", function (done)
         {
@@ -295,8 +301,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Requested Descriptor undefined is unknown / not parametrized in this Dendro instance.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -318,8 +325,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Requested Descriptor undefined is unknown / not parametrized in this Dendro instance.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -341,8 +349,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Requested Descriptor undefined is unknown / not parametrized in this Dendro instance.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -364,8 +373,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -387,8 +397,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -410,8 +421,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid ranking position in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -435,8 +447,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid page number in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -458,8 +471,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid page number in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -481,8 +495,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid page number in the request's body. It should be an integer");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -504,8 +519,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Interaction type fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite requires field recommendationCallId in the request's body.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -527,8 +543,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Interaction type fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite requires field recommendationCallId in the request's body.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -550,8 +567,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid recommendationCallTimeStamp in the request's body. It should be an valid date.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -573,8 +591,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid recommendationCallTimeStamp in the request's body. It should be an valid date.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -596,8 +615,9 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid recommendationCallTimeStamp in the request's body. It should be an valid date.");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -625,10 +645,11 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    //because it is the first validation that fails when checking on the server side, even if all fields are missing
+                    // because it is the first validation that fails when checking on the server side, even if all fields are missing
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -637,7 +658,6 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                 });
             });
         });
-
 
         it("Should give an error and not accept and register an interaction if the body contents is null, even if logged in as demouser1 (creator of the project)", function (done)
         {
@@ -649,10 +669,11 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     should.exist(err);
                     should.exist(res);
                     res.statusCode.should.equal(500);
-                    //because it is the first validation that fails when checking on the server side, even if all fields are missing
+                    // because it is the first validation that fails when checking on the server side, even if all fields are missing
                     res.body.message.should.equal("Invalid interaction type in the request's body. It should be : fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite");
-                    //SHOULD NOT BE IN THE MYSQL DATABASE
-                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                    // SHOULD NOT BE IN THE MYSQL DATABASE
+                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                    {
                         should.equal(err, null);
                         should.exist(info);
                         info[0].nInteractions.should.equal(0);
@@ -680,12 +701,14 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     {
                         should.equal(err, null);
                         res.statusCode.should.equal(200);
-                        //SHOULD ALSO BE IN THE MYSQL DATABASE
-                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        // SHOULD ALSO BE IN THE MYSQL DATABASE
+                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                        {
                             should.equal(err, null);
                             should.exist(info);
                             info[0].nInteractions.should.equal(1);
-                            interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                            interactionsUtils.getLatestInteractionInDB(function (err, info)
+                            {
                                 should.equal(err, null);
                                 should.exist(info);
                                 info.length.should.equal(1);
@@ -722,12 +745,14 @@ describe("[" + publicProject.handle + "]"   + "[INTERACTION TESTS] fill_in_descr
                     {
                         should.equal(err, null);
                         res.statusCode.should.equal(200);
-                        //SHOULD ALSO BE IN THE MYSQL DATABASE
-                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info) {
+                        // SHOULD ALSO BE IN THE MYSQL DATABASE
+                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                        {
                             should.equal(err, null);
                             should.exist(info);
                             info[0].nInteractions.should.equal(2);
-                            interactionsUtils.getLatestInteractionInDB(function (err, info) {
+                            interactionsUtils.getLatestInteractionInDB(function (err, info)
+                            {
                                 should.equal(err, null);
                                 should.exist(info);
                                 info.length.should.equal(1);
