@@ -231,7 +231,53 @@ IndexConnection.prototype.ensureIndexIsReady = function (callback)
 
     if(self._indexIsOpen)
     {
-        callback(null);
+        const tryToConnect = function (callback)
+        {
+            self.client.cluster.health({
+                waitForStatus: "yellow",
+                index: self.short_name
+            }, function(err, result){
+                if(isNull(err))
+                {
+                    if(result.acknowledged)
+                    {
+                        callback(null, true);
+                    }
+                    else
+                    {
+                        callback(null, false);
+                    }
+                }
+                else
+                {
+                    callback(err, false);
+                }
+            });
+        };
+
+        // try calling apiMethod 10 times with linear backoff
+        // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+        async.retry({
+            times: 10,
+            interval: function (retryCount)
+            {
+                const msecs = 50 * Math.pow(2, retryCount);
+                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
+                return msecs;
+            }
+        }, tryToConnect, function (err)
+        {
+            if (isNull(err))
+            {
+                callback(null);
+            }
+            else
+            {
+                const msg = "Unable to determine ElasticSearch cluster health in time. This is a fatal error.";
+                Logger.log("error", );
+                throw new Error(msg);
+            }
+        });
     }
     else
     {
@@ -525,7 +571,7 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
 
 IndexConnection.prototype.close = function(cb)
 {
-    const self = this;
+    /*const self = this;
     if(!isNull(self.client))
     {
         self.client.indices.close({
@@ -537,7 +583,9 @@ IndexConnection.prototype.close = function(cb)
     else
     {
         cb(null);
-    }
+    }*/
+
+    cb(null);
 };
 
 IndexConnection.prototype.create_new_index = function (deleteIfExists, callback)
@@ -770,7 +818,8 @@ IndexConnection.prototype.search = function (
             .then(function (response)
             {
                 callback(null, response.hits.hits);
-            }, function (error)
+            })
+            .catch(function (error)
             {
                 error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
                 Logger.log("error", error);
@@ -819,7 +868,8 @@ IndexConnection.prototype.moreLikeThis = function (
                     .then(function (data)
                     {
                         return callback(null, data.hits.hits);
-                    }, function (error)
+                    })
+                    .catch(function (error)
                     {
                         error = "Error fetching documents similar to document with ID : " + documentId + ". Reported error : " + JSON.stringify(error);
                         Logger.log("error", error);

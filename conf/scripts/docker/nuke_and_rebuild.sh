@@ -50,7 +50,7 @@ wait_for_virtuoso_to_boot
 echo "Setting up virtuoso..."
 docker exec virtuoso-dendro /bin/bash -c "git clone https://github.com/feup-infolab/dendro-install \$HOME/dendro-install"  1> /dev/null
 
-sleep 20
+sleep 30
 
 docker exec virtuoso-dendro /bin/bash -c "isql-v -U dba -P dba < \$HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql && \
                                           echo \"shutdown();\" | isql-v -U dba -P dba" 1> /dev/null
@@ -62,4 +62,3 @@ echo "Restarting virtuoso container..."
 docker restart virtuoso-dendro 1> /dev/null
 wait_for_virtuoso_to_boot
 
-sleep 20
