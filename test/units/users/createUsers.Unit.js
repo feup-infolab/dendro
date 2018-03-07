@@ -7,13 +7,12 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const path = require("path");
 
-const BootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+const LoadOntologies = require(Pathfinder.absPathInTestsFolder("units/ontologies/loadOntologies.Unit.js"));
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
 
-class CreateUsers extends BootupUnit
+class CreateUsers extends LoadOntologies
 {
     static load (callback)
     {

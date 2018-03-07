@@ -4,9 +4,6 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const request = require("request");
-const requestPool = {maxSockets: 1};
-
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const db = Config.getDBByID();
@@ -34,8 +31,7 @@ const IndexConnection = function (options)
 
     self.clientOptions = {
         host: getAddress(self.host, self.port),
-        keepalive: false,
-        maxSockets: 50
+        keepAlive: true
     };
 
     if (Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
@@ -48,6 +44,8 @@ const IndexConnection = function (options)
         self.clientOptions.secure = Config.useElasticSearchAuth;
         self.clientOptions.auth = Config.elasticSearchAuthCredentials;
     }
+
+    self._indexIsOpen = false;
 
     return self;
 };
@@ -231,57 +229,34 @@ IndexConnection.prototype.ensureIndexIsReady = function (callback)
 {
     const self = this;
 
-    if(!isNull(self.client))
+    if(self._indexIsOpen)
     {
-        callback(null, self.client);
+        callback(null);
     }
     else
     {
         const tryToConnect = function (callback)
         {
-            request.get(
+            self.client.indices.open(
                 {
-                    url: `http://${getAddress(self.host, self.port)}/_cluster/health/${self.short_name}??wait_for_status=yellow&timeout=10s&pretty=true`,
-                    pool: requestPool,
-                    timeout: 10 * 1000
+                    index : [self.short_name]
                 },
-                function (err, res, body)
-                {
-                    if (isNull(err))
+                function(err, result){
+
+                    if(isNull(err))
                     {
-                        if (res.statusCode === 200)
+                        if(result.acknowledged)
                         {
-                            self.client.indices.open(
-                                {
-                                    index : [self.short_name]
-                                },
-                                function(err, result){
-
-                                    if(isNull(err))
-                                    {
-                                        callback(null, true);
-                                    }
-                                    else
-                                    {
-                                        callback(err, false);
-                                    }
-                                }
-                            );
-
-                        }
-                        else if (res.statusCode === 404)
-                        {
-                            callback(null, false);
+                            self._indexIsOpen = true;
+                            callback(null, true);
                         }
                         else
                         {
-                            callback(res.body, false);
+                            callback(null, false);
                         }
                     }
                     else
                     {
-                        Logger.log("error", "Error trying to check if ElasticSearch is online while checking if " + self.short_name + " index is ready.");
-                        Logger.log("error", err);
                         callback(err, false);
                     }
                 }
@@ -298,11 +273,11 @@ IndexConnection.prototype.ensureIndexIsReady = function (callback)
                 Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch while checking if index "+ self.short_name+ " is ready...");
                 return msecs;
             }
-        }, tryToConnect, function (err, newClient)
+        }, tryToConnect, function (err)
         {
             if (isNull(err))
             {
-                callback(null, newClient);
+                callback(null);
             }
             else
             {
@@ -329,9 +304,6 @@ IndexConnection.prototype.ensureElasticSearchIsReady = function (callback)
             self.client = new elasticsearch.Client(_.clone(self.clientOptions));
 
             self.client.ping(
-                {
-                    requestTimeout: 10 * 1000
-                },
                 function(err, result){
                     if(isNull(err))
                     {
@@ -652,7 +624,7 @@ IndexConnection.prototype.create_new_index = function (deleteIfExists, callback)
                                             }
                                             else
                                             {
-                                                //TODO This has to retry again!!!! 
+                                                //TODO This has to retry again!!!!
                                                 Logger.log("error", "Error creating index "+self.short_name+ ". Response body was empty. Error was : " + JSON.stringify(err));
                                                 callback(err);
                                             }
@@ -737,45 +709,12 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
         self.ensureElasticSearchIsReady(function (err, client) {
             if(isNull(err))
             {
-                const fullUrl = "http://" + getAddress(self.host, self.port) + "/" + self.short_name;
-                request.get(
+                client.indices.exists(
                     {
-                        url: fullUrl,
-                        pool: requestPool
+                        index: self.short_name
                     },
-                    function (err, res, body) {
-                        if (isNull(err))
-                        {
-                            if (res.statusCode === 200)
-                            {
-                                callback(null, true);
-                            }
-                            else if (res.statusCode === 404)
-                            {
-                                callback(null, false);
-                            }
-                            else
-                            {
-                                Logger.log("debug", "Elasticsearch server returned error code " + res.statusCode + " trying to check if ElasticSearch index " + self.short_name + " exists.");
-                                Logger.log("debug", body);
-                                callback(null, false);
-                            }
-
-                        }
-                        else
-                        {
-                            if (err.code === "ECONNRESET")
-                            {
-                                callback(null, false);
-                            }
-                            else
-                            {
-                                Logger.log("error", "Error trying to check if ElasticSearch index " + self.short_name + " exists.");
-                                Logger.log("error", err);
-                                callback(err, false);
-                            }
-                        }
-
+                    function(err, exists){
+                        callback(err, exists);
                     }
                 );
             }
@@ -793,7 +732,7 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
         interval: function (retryCount)
         {
             const msecs = 50 * Math.pow(2, retryCount);
-            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to verify if ElasticSearch index "+self.short_name+"exists...");
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to verify if ElasticSearch index "+self.short_name+" exists...");
             return msecs;
         }
     }, tryToConnect, function (err, result)

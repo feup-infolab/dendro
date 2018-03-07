@@ -1409,7 +1409,7 @@
                 "ram_usage_report": true
             },
             "index": {
-                "elasticsearch_connection_log_type": "trace"
+                "elasticsearch_connection_log_type": ""
             },
             "tests": {
                 "log_unit_completion_and_startup": true
