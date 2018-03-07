@@ -406,11 +406,11 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
     {
         const documentId = document._id;
         delete document._id;
-        self.ensureIndexIsReady(function (err, client)
+        self.ensureIndexIsReady(function (err)
         {
             if (isNull(err))
             {
-                client.update({
+                self.client.update({
                     index: self.short_name,
                     type: type,
                     id: documentId,
@@ -439,11 +439,11 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
     }
     else
     {
-        self.ensureIndexIsReady(function (err, client)
+        self.ensureIndexIsReady(function (err)
         {
             if (isNull(err))
             {
-                client.index({
+                self.client.index({
                     index: self.short_name,
                     type: type,
                     body: document,
@@ -488,11 +488,11 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
         return callback(null, "No document to delete");
     }
 
-    self.ensureIndexIsReady(function (err, client)
+    self.ensureIndexIsReady(function (err)
     {
         if (isNull(err))
         {
-            client.delete(
+            self.client.delete(
                 {
                     index: self.short_name,
                     type: type,
@@ -600,7 +600,7 @@ IndexConnection.prototype.create_new_index = function (deleteIfExists, callback)
                             self.ensureElasticSearchIsReady(function(err, client){
                                 if(isNull(err))
                                 {
-                                    client.indices.create(settings, function (err, data)
+                                    self.client.indices.create(settings, function (err, data)
                                     {
                                         if (isNull(err))
                                         {
@@ -662,7 +662,7 @@ IndexConnection.prototype.delete_index = function (callback)
             self.ensureElasticSearchIsReady(function(err, client){
                 if(isNull(err))
                 {
-                    client.indices.delete(
+                    self.client.indices.delete(
                         {
                             index: self.short_name
                         }, function (err, data)
@@ -706,10 +706,10 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
     const self = this;
 
     const tryToConnect = function(callback) {
-        self.ensureElasticSearchIsReady(function (err, client) {
+        self.ensureElasticSearchIsReady(function (err) {
             if(isNull(err))
             {
-                client.indices.exists(
+                self.client.indices.exists(
                     {
                         index: self.short_name
                     },
@@ -757,11 +757,11 @@ IndexConnection.prototype.search = function (
 {
     let self = this;
 
-    self.ensureIndexIsReady(function (err, client)
+    self.ensureIndexIsReady(function (err)
     {
         if (isNull(err))
         {
-            client.search(
+            self.client.search(
             {
                 index: self.short_name,
                 type: typeName,
@@ -793,11 +793,11 @@ IndexConnection.prototype.moreLikeThis = function (
 
     if (!isNull(documentId))
     {
-        self.ensureIndexIsReady(function (err, client)
+        self.ensureIndexIsReady(function (err)
         {
             if (isNull(err))
             {
-                client.search(
+                self.client.search(
                     self.short_name,
                     typeName,
                     {
