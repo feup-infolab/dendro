@@ -19,7 +19,8 @@ angular.module('dendroApp.controllers')
                   windowService,
                   filesService,
                   projectsService,
-                  metricsService) {
+                  metricsService,
+                  $interval) {
 
 
             $scope.init = function () {
@@ -283,16 +284,16 @@ angular.module('dendroApp.controllers')
             }
 
 
-
-
+            $interval($scope.updateData, 5000);
 
 
 
             //Chart Block
             $scope.labels = [];
             $scope.data = [];
-
             $scope.type = 'pie';
+
+
 
             $scope.labels2 = ['September','October', 'November','December', 'January', 'February'];
             $scope.data2 = [
@@ -310,8 +311,8 @@ angular.module('dendroApp.controllers')
             ];
 
             $scope.depositscolors = [
-                "#28B62C",
                 "#05b2dc",
+                "#28B62C",
             ];
 
 
@@ -336,9 +337,7 @@ angular.module('dendroApp.controllers')
             },
                 {
                     label: "Evolution Line",
-                    borderWidth: 3,
-                    hoverBackgroundColor: "rgba(255,0,0,0.4)",
-                    hoverBorderColor: "rgba(255,0,0,1)",
+                    borderWidth: 2,
                     type: 'line'
                 }];
         });
