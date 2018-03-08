@@ -59,7 +59,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/unfavorite_descrip
 */
 
 // /interactions/accept_descriptor_from_autocomplete
-require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_autocomplete/routes.interactions.acceptDescriptorFromAutocomplete.Test.js"));
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_autocomplete/routes.interactions.acceptDescriptorFromAutocomplete.Test.js"));
 
 // /interactions/reject_ontology_from_quick_list -> TODO must check with João for this one
 //require(Pathfinder.absPathInTestsFolder("/routes/interactions/reject_ontology_from_quick_list/routes.interactions.rejectOntologyFromQuickList.Test.js"));
@@ -76,10 +76,12 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_descriptor_
 
 // /interactions/accept_favorite_descriptor_in_metadata_editor
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_favorite_descriptor_in_metadata_editor/routes.interactions.acceptFavoriteDescriptorInMetadataEditor.Test.js"));
+*/
 
 // /interactions/delete_descriptor_in_metadata_editor
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/delete_descriptor_in_metadata_editor/routes.interactions.deleteDescriptorInMetadataEditor.Test.js"));
 
+/*
 // /interactions/fill_in_descriptor_from_manual_list_in_metadata_editor
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor/routes.interactions.fillInDescriptorFromManualListInMetadataEditor.Test.js"));
 
