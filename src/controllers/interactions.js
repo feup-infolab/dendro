@@ -4888,52 +4888,6 @@ exports.fill_in_inherited_descriptor = function (req, res)
                     };
                     callback(errorObj);
                 }
-            },
-            function (callback)
-            {
-                if (!isNull(req.body.pageNumber) && Number.isInteger(req.body.pageNumber))
-                {
-                    callback(null);
-                }
-                else
-                {
-                    let errorObj = {
-                        statusCode: 500,
-                        message: "Invalid page number in the request's body. It should be an integer"
-                    };
-                    callback(errorObj);
-                }
-            },
-            function (callback)
-            {
-                if (!isNull(req.body.recommendationCallId))
-                {
-                    callback(null);
-                }
-                else
-                {
-                    let errorObj = {
-                        statusCode: 500,
-                        message: "Interaction type " + Interaction.types.fill_in_inherited_descriptor.key + " requires field recommendationCallId in the request's body."
-                    };
-                    callback(errorObj);
-                }
-            },
-            function (callback)
-            {
-                // recommendationCallTimeStamp
-                if (!isNull(req.body.recommendationCallTimeStamp) && !isNaN(Date.parse(req.body.recommendationCallTimeStamp)))
-                {
-                    callback(null);
-                }
-                else
-                {
-                    let errorObj = {
-                        statusCode: 500,
-                        message: "Invalid recommendationCallTimeStamp in the request's body. It should be an valid date."
-                    };
-                    callback(errorObj);
-                }
             }],
         function (err, results)
         {
