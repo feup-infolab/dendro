@@ -6,6 +6,8 @@
 
 ## What is Dendro?
 
+Dendro is the software powering [INESC TEC](https://dendro.inesctec.pt) and the [University of Porto](https://dendro-rdm.up.pt) data staging platforms. It allows researchers to manage research data in preparation for deposit in any research data repository. "Upload files and fill in metadata once, deposit anywhere you like".
+
 ![dendro UI](https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png "Dendro UI")
 
 Dendro is a collaborative file storage and description platform designed to support users in collecting and describing data, with its roots in research data management. It does not intend to replace existing research data repositories, because it is placed before the moment of deposit in a data repository. 
