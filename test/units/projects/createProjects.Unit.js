@@ -15,6 +15,7 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
 
 const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
@@ -25,7 +26,7 @@ const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("m
 const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
 const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
-const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData, projectCreatedByDemoUser3];
+const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
 
 let CreateUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
@@ -63,7 +64,21 @@ class CreateProjects extends CreateUsersUnit
                 {
                     if (!err)
                     {
-                        self.endLoad(__filename, callback);
+                        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+                        {
+                            if (err)
+                            {
+                                callback(err, agent);
+                            }
+                            else
+                            {
+                                projectUtils.createNewProject(true, agent, projectCreatedByDemoUser3, function (err, res)
+                                {
+                                    callback(err, res);
+                                });
+                            }
+                        });
+
                     }
                     else
                     {

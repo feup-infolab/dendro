@@ -42,8 +42,17 @@ class BootupUnit extends TestUnit
             Logger.log("Checkpoint " + self.name + " does not exist. Will load database...");
             self.load(function (err, result)
             {
-                Logger.log("Ran load function of " + self.name);
-                callback(null);
+                if (isNull(err))
+                {
+                    Logger.log("Ran load function of " + self.name + " succesffully");
+                }
+                else
+                {
+                    Logger.log("error", "Error running load function of " + self.name + " succesfully.");
+                    Logger.log("error", err);
+                    Logger.log("error", JSON.stringify(result));
+                }
+                callback(err);
             });
         }
     }
