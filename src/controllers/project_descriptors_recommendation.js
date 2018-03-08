@@ -57,7 +57,7 @@ exports.recommend_descriptors = function (req, res)
                 res.status(500).json({
                     result: "error",
                     message: "There was an error fetching the descriptors",
-                    error: results
+                    error: descriptors
                 });
             }
         }, {
