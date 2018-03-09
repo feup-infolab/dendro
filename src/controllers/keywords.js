@@ -29,6 +29,8 @@ var baseRequest = request.defaults({
         Connection: "Keep-Alive"
     }
 });
+var dps = require("dbpedia-sparql-client").default;
+
 /*
 exports.loadfiles = function (rec, res)
 {
@@ -246,8 +248,7 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
-              nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
-
+                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -280,23 +281,29 @@ exports.preprocessing = function (req, res)
 
 exports.termextraction = function (req, res)
 {
-      function countOcurrences(str, value) {
+    function countOcurrences (str, value)
+    {
         var regExp = new RegExp(value, "gi");
         return (str.match(regExp) || []).length;
-      }
-    var termhood = function (list) {
+    }
+    var termhood = function (list)
+    {
         var i;
         var j;
         var current;
         var freq = 0;
-        var finallist = list ;
-        for(i = 0; i < list.length; i++) {
+        var finallist = list;
+        for (i = 0; i < list.length; i++)
+        {
             freq = 0;
-            if(list[i].nested === false){
+            if (list[i].nested === false)
+            {
                 finallist[i].termhood = list[i].frequency;
             }
-            else {
-                for(j = 0; j < finallist[i].nestedterms.length; j++) {
+            else
+            {
+                for (j = 0; j < finallist[i].nestedterms.length; j++)
+                {
                     freq += finallist[i].nestedterms[j].frequency;
                 }
                 finallist[i].nestedfreq = freq;
@@ -304,34 +311,40 @@ exports.termextraction = function (req, res)
         }
 
         return finallist;
-    }
+    };
 
-
-    var isNested = function (list, ngrams) {
+    var isNested = function (list, ngrams)
+    {
         var nestedlist = list;
         var i;
         var j;
-        for( i = 0; i < nestedlist.length; i++) {
-            if(tokenizer.tokenize(nestedlist[i].word).length === ngrams) {
-                nestedlist[i].nested =false;
+        for (i = 0; i < nestedlist.length; i++)
+        {
+            if (tokenizer.tokenize(nestedlist[i].word).length === ngrams)
+            {
+                nestedlist[i].nested = false;
             }
-            else {
-                for( j = 0; j < nestedlist.length; j++) {
-
-                    if(nestedlist[j].word.indexOf(nestedlist[i].word) > -1) {
-                        if(nestedlist[j].word === nestedlist[i].word) {
+            else
+            {
+                for (j = 0; j < nestedlist.length; j++)
+                {
+                    if (nestedlist[j].word.indexOf(nestedlist[i].word) > -1)
+                    {
+                        if (nestedlist[j].word === nestedlist[i].word)
+                        {
 
                         }
-                        else {
-                          nestedlist[i].nested = true;
-                          nestedlist[i].nestedterms.push({term:nestedlist[j].word,frequency:nestedlist[j].frequency});
+                        else
+                        {
+                            nestedlist[i].nested = true;
+                            nestedlist[i].nestedterms.push({term: nestedlist[j].word, frequency: nestedlist[j].frequency});
                         }
                     }
                 }
             }
         }
         return nestedlist;
-    }
+    };
 
     function countnestedterms (x, list)
     {
@@ -380,27 +393,21 @@ exports.termextraction = function (req, res)
         }
         return combinationwords;
     }
-    var cvalue = async function (input, corpus, ngrams)
+    var cvalue = function (input, corpus, ngrams)
     {
         var words = {frequency: []};
-        var threshold = [];
-        var substrings = [];
-        var frequencysubstrings = [];
-        var usedwords = [];
-        var maxthreshold = 1.0;
         var i;
         // 1st para in async.each() is the array of items
-
 
         for (i = 0; i < input.length; i++)
         {
             var frequency = 0;
             for (var j = 0; j < corpus.length; j++)
             {
-              frequency += countOcurrences(corpus[j], input[i]);
+                frequency += countOcurrences(corpus[j], input[i]);
             }
-            words.frequency.push({word:input[i],size: tokenizer.tokenize(input[i]).length,termhood:0, frequency:frequency,nested:false, nestedfreq: 0, nestedterms:[]});
-            /*if (frequency > 1 && Math.log2(frequency) >= maxthreshold)
+            words.frequency.push({word: input[i], size: tokenizer.tokenize(input[i]).length, cvalue: 0, termhood: 0, frequency: frequency, nested: false, nestedfreq: 0, nestedterms: []});
+            /* if (frequency > 1 && Math.log2(frequency) >= maxthreshold)
             {
               threshold.push({term: input[i], threshold: Math.log2(frequency)});
               substrings = getcombination(input[i]);
@@ -416,23 +423,101 @@ exports.termextraction = function (req, res)
                 usedwords.push(substrings[h]);
               }
             }*/
-
         }
-        words.frequency = isNested(words.frequency,ngrams);
+        words.frequency = isNested(words.frequency, ngrams);
         words.frequency = termhood(words.frequency);
-        console.log(words.frequency);
-        /*
+        var cv = 0;
+        for (i = 0; i < words.frequency.length; i++)
+        {
+            if (words.frequency[i].nested === false)
+            {
+                words.frequency[i].cvalue = Math.log2(words.frequency[i].size) * words.frequency[i].frequency;
+                cv += words.frequency[i].cvalue;
+            }
+            else
+            {
+                words.frequency[i].cvalue = Math.log2(words.frequency[i].size) * (words.frequency[i].frequency - (1 / words.frequency[i].nestedterms.length) * words.frequency[i].nestedfreq);
+                cv += words.frequency[i].cvalue;
+            }
+        }
+        cv = cv / words.frequency.length;
+        console.log("cvalue average: " + cv);
+        var cvaluethreshold = [];
+        for (i = 0; i < words.frequency.length; i++)
+        {
+            if (words.frequency[i].cvalue >= cv)
+            {
+                cvaluethreshold.push(words.frequency[i]);
+            }
+        }
+        cvaluethreshold.sort(function (a, b)
+        {
+            return b.cvalue - a.cvalue;
+        });
+        console.log("size: " + cvaluethreshold.length);
+        console.log("size: " + words.frequency.length);
 
-          double invUniqNestersD = 1D / (double) uniqNesters;
-          double freqNestedD = (double) freqNested;
+        return cvaluethreshold;
+    };
 
-          if (uniqNesters == 0) {
-              return log_2_lenD * freqD;
-          } else {
-              return log_2_lenD * (freqD - invUniqNestersD * freqNestedD);
-
-       */
-        return 0;
+    var getcontextwords = function (cvalue)
+    {
+        var contextwords = [];
+        for (var i = 0; i < cvalue.length; i++)
+        {
+            contextwords.push(tokenizer.tokenize(cvalue[i].word)[0]);
+        }
+        var contextwordsimple = [...new Set(contextwords.map(obj => JSON.stringify(obj)))]
+            .map(str => JSON.parse(str));
+        return contextwordsimple;
+    };
+    var getWeight = function (cvalue, contextwords, length)
+    {
+        var weight = [];
+        var freq = 0;
+        for (var i = 0; i < cvalue.length; i++)
+        {
+            freq = 0;
+            for (var j = 0; j < cvalue.length; j++)
+            {
+                if (cvalue[j].word.indexOf(contextwords[i]) > -1)
+                {
+                    console.log(cvalue[j].word + " " + contextwords[i]);
+                    freq++;
+                }
+            }
+            weight[i] = (freq / length);
+        }
+        return weight;
+    };
+    var ncvalue = function (cvalue, length)
+    {
+        var ncvaluelist = {frequency: []};
+        var contextwords = getcontextwords(cvalue);
+        var weight = getWeight(cvalue, contextwords, length);
+        var weightsum;
+        var ncvalue;
+        for (var i = 0; i < cvalue.length; i++)
+        {
+            weightsum = 0;
+            for (var j = 0; j < contextwords.length; j++)
+            {
+                if (cvalue[i].word.indexOf(contextwords[j]) > -1)
+                {
+                    weightsum += (cvalue[i].frequency - weight[j]);
+                }
+            }
+            ncvalue = (0.8 * cvalue[i].cvalue) + (0.2 * weightsum);
+            ncvaluelist.frequency.push({word: cvalue[i].word, ncvalue: ncvalue});
+        }
+        ncvaluelist.frequency.sort(function (a, b)
+        {
+            // ASC  -> a.length - b.length
+            // DESC -> b.length - a.length
+            return b.ncvalue - a.ncvalue;
+        });
+        console.log(ncvaluelist.frequency);
+        return ncvaluelist;
     };
 
     const uploader = new Uploader();
@@ -466,7 +551,6 @@ exports.termextraction = function (req, res)
                 {
                     for (var xx = 0; xx < texti.text.length; xx++)
                     {
-                        // console.log(JSON.parse(texti.text[xx]).result);
                         results.push(JSON.parse(texti.text[xx]).result);
                         nounphrase.push(JSON.parse(texti.text[xx]).nounphraselist);
                     }
@@ -561,18 +645,24 @@ exports.termextraction = function (req, res)
                         {
                             ngrams.push(nounphrasesimple[i]);
                         }
-                        else {
-                            console.log(nounphrasesimple[i]);
+                        else
+                        {
+                            // console.log(nounphrasesimple[i]);
                         }
                     }
-                  ngrams.sort(function(a, b){
+                    ngrams.sort(function (a, b)
+                    {
                     // ASC  -> a.length - b.length
                     // DESC -> b.length - a.length
-                    return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
-                  });
+                        return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
+                    });
 
                     nounphrasesimple = ngrams;
                     var cvaluengrams = cvalue(ngrams, documents, tokenizer.tokenize(ngrams[0]).length);
+                    console.log(cvaluengrams.length);
+                    console.log(cvaluengrams);
+                    var ncvaluegrams = ncvalue(cvaluengrams, cvaluengrams.length);
+                    console.log(ncvaluegrams);
 
                     for (var a = 0; a < documents.length; a++)
                     {
@@ -796,7 +886,7 @@ exports.dbpedialookup = function (req, res)
     req.setTimeout(150000);
     var search = function (lookup, cb)
     {
-        console.log("searching : " + lookup.words);
+        // console.log("searching : " + lookup.words);
         baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=10&QueryString=" + lookup.words, function getResponse (error, response, body)
         // baseRequest("http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=&QueryString=" + lookup.words, function getResponse (error, response, body)
         {
@@ -832,6 +922,20 @@ exports.dbpedialookup = function (req, res)
         }
     }
     */
+    const query = "select distinct ?property {\n" +
+    "  { dbr:Suez ?property ?o }\n" +
+    "  union\n" +
+    "  { ?s ?property dbr:Suez }\n" +
+    "\n" +
+    "  filter not exists { ?property rdfs:label ?label }\n" +
+    "}";
+    dps
+        .client()
+        .query(query)
+        .asJson()
+        .then(results => console.log(JSON.stringify(results)))
+        .catch(err => console.error(err));
+
     async.mapSeries(dbpediaresults, search, function (err, results)
     {
         var dbpediauri = {
@@ -852,10 +956,10 @@ exports.dbpedialookup = function (req, res)
             {
                 if (results[i] !== undefined && JSON.parse(results[i]).results[0] != null)
                 {
-                    console.log("searched word: " + dbpediaresults[i].words);
+                    /*                    console.log("searched word: " + dbpediaresults[i].words);
                     console.log("URI: " + JSON.parse(results[i]).results[0].uri);
                     console.log("label: " + JSON.parse(results[i]).results[0].label);
-                    console.log("description: " + JSON.parse(results[i]).results[0].description);
+                    console.log("description: " + JSON.parse(results[i]).results[0].description);*/
                     dbpediauri.result.push({
                         searchterm: dbpediaresults[i].words,
                         uri: JSON.parse(results[i]).results[0].uri,
@@ -872,12 +976,13 @@ exports.dbpedialookup = function (req, res)
                     });
                 }
             }
+
+            res.status(200).json(
+                {
+                    dbpediauri
+                }
+            );
         }
-        res.status(200).json(
-            {
-                dbpediauri
-            }
-        );
     });
 };
 
@@ -886,7 +991,7 @@ exports.clustering = function (rec, res)
 
 };
 
-exports.textowl = function (rec, res)
+exports.text2owl = function (rec, res)
 {
 
 };

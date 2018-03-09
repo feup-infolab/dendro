@@ -339,9 +339,9 @@ describe("Searches DBpedia for important terms", function (done)
             // console.log(agent);
             keywordsUtils.dbpedialookup(dbpediaterms, agent, function (err, db)
             {
-                console.log(err);
+                // console.log(err);
                 db.statusCode.should.equal(200);
-                console.log(db.body.dbpediauri.result);
+                // console.log(db.body.dbpediauri.result);
                 // db.text.should.contain("Google");
                 // db.text.should.contain("Kaggle");
                 done();

@@ -63,6 +63,7 @@
     "crypto": "1.0.1",
     "csurf": "^1.9.0",
     "dateformat": "^3.0.2",
+    "dbpedia-sparql-client": "^0.9.8",
     "deep-diff": "^0.3.8",
     "deep-equal": "^1.0.1",
     "deep-object-diff": "^1.0.4",
