@@ -1308,7 +1308,7 @@
             }
         ],
         "demo_mode": {
-            "active": true,
+            "active": false,
             "users": [
                 {
                     "firstname": "Dendro 1",
@@ -1554,7 +1554,7 @@
         "numCPUs": 1,
         "docker": {
           "active": true,
-          "reuse_checkpoints": false
+          "reuse_checkpoints": true
         }
     }
 }

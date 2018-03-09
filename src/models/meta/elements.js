@@ -66,26 +66,27 @@ Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
     return errorMessagesForTypes[currentDescriptor.type];
 };
 
+Elements.validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue)
+{
+    let typesValidators = {};
+    typesValidators[Elements.types.resourceNoEscape] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+    typesValidators[Elements.types.resource] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+    typesValidators[Elements.types.property] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+    typesValidators[Elements.types.string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+    typesValidators[Elements.types.int] = Number.isInteger(descriptorValue);
+    typesValidators[Elements.types.double] = !isNaN(descriptorValue);
+    typesValidators[Elements.types.boolean] = (descriptorValue === "true" || descriptorValue === "false" || descriptorValue === true || descriptorValue === false);
+    typesValidators[Elements.types.prefixedResource] = Elements.checkIfValidPrefixedResource(descriptorValue);
+    typesValidators[Elements.types.date] = !isNaN(Date.parse(descriptorValue));
+    typesValidators[Elements.types.long_string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+    typesValidators[Elements.types.stringNoEscape] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+
+    return typesValidators[descriptorType];
+};
+
 Elements.validateDescriptorValueTypes = function (currentDescriptor)
 {
     const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-    const validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue)
-    {
-        let typesValidators = {};
-        typesValidators[Elements.types.resourceNoEscape] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
-        typesValidators[Elements.types.resource] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
-        typesValidators[Elements.types.property] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
-        typesValidators[Elements.types.string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
-        typesValidators[Elements.types.int] = Number.isInteger(descriptorValue);
-        typesValidators[Elements.types.double] = !isNaN(descriptorValue);
-        typesValidators[Elements.types.boolean] = (descriptorValue === "true" || descriptorValue === "false" || descriptorValue === true || descriptorValue === false);
-        typesValidators[Elements.types.prefixedResource] = Elements.checkIfValidPrefixedResource(descriptorValue);
-        typesValidators[Elements.types.date] = !isNaN(Date.parse(descriptorValue));
-        typesValidators[Elements.types.long_string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
-        typesValidators[Elements.types.stringNoEscape] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
-
-        return typesValidators[descriptorType];
-    };
 
     if (Config.skipDescriptorValuesValidation === true)
     {
@@ -98,7 +99,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
     {
         for (let i = 0; i !== currentDescriptor.value.length; i++)
         {
-            let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
+            let resultOfValidation = Elements.validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
             if (isNull(resultOfValidation) || resultOfValidation === false)
             {
                 return false;
@@ -108,7 +109,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
     else
     {
         // When there is only one instance of a descriptor (for example only one dcterms:abstract)
-        return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
+        return Elements.validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
     }
     return true;
 
@@ -119,7 +120,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
     {
         for (let i = 0; i !== currentDescriptor.value.length; i++)
         {
-            let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
+            let resultOfValidation = Elements.validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
             if (isNull(resultOfValidation) || resultOfValidation === false)
             {
                 return false;
@@ -129,9 +130,16 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
     else
     {
         // When there is only one instance of a descriptor (for example only one dcterms:abstract)
-        return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
+        return Elements.validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
     }
     return true;*/
+};
+
+Elements.validationFunctions = {
+    stringOrResourceNoEscape: function (value)
+    {
+        return Elements.validateADescriptorValueAgainstItsType(Elements.types.string, value) || Elements.validateADescriptorValueAgainstItsType(Elements.types.resourceNoEscape, value);
+    }
 };
 
 /**
@@ -259,6 +267,7 @@ Elements.ontologies.dcterms =
     creator:
   {
       type: Elements.types.string,
+      validationFunction: Elements.validationFunctions.stringOrResourceNoEscape,
       control: Controls.url_box,
       locked_for_projects: true,
       append_prefix_dendro_baseuri: true

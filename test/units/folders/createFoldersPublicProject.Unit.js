@@ -35,7 +35,7 @@ class CreateFoldersSingleProject extends AddContributorsToProjectsUnit
     static load (callback)
     {
 		        const self = this;
-        self.startLoad(__filename);
+        self.startLoad();
         super.load(function (err, results)
         {
             if (err)
@@ -67,7 +67,7 @@ class CreateFoldersSingleProject extends AddContributorsToProjectsUnit
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(__filename, callback);
+                            self.endLoad(callback);
                         });
                     }
                 });

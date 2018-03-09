@@ -13,6 +13,7 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const CreateProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
@@ -23,7 +24,7 @@ class AddContributorsToProjects extends CreateProjectsUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad(__filename);
+        self.startLoad();
         super.load(function (err, results)
         {
             if (err)
@@ -50,7 +51,26 @@ class AddContributorsToProjects extends CreateProjectsUnit
                     });
                 }, function (err, results)
                 {
-                    callback(err, results);
+                    /*
+                    WITH <http://127.0.0.1:3002/dendro_graph>
+                    SELECT *
+                    {
+                        ?s1 ?p1 ?o1.
+                        ?s1 dcterms:creator ?creator
+                    }
+                    */
+
+                    if (isNull(err))
+                    {
+                        self.endLoad(function (err, results)
+                        {
+                            callback(err, results);
+                        });
+                    }
+                    else
+                    {
+                        callback(err, results);
+                    }
                 });
             }
         });
@@ -63,6 +83,11 @@ class AddContributorsToProjects extends CreateProjectsUnit
     static shutdown (callback)
     {
         super.shutdown(callback);
+    }
+
+    static setup (callback)
+    {
+        super.setup(callback);
     }
 }
 

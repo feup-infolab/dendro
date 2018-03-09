@@ -17,44 +17,39 @@ let dendroInstance;
 
 class BootupUnit extends TestUnit
 {
-    static setup (callback, customCheckpointIdentifier)
+    static setup (callback)
     {
         const self = this;
 
-        if (isNull(customCheckpointIdentifier))
-        {
-            customCheckpointIdentifier = self.name;
-        }
-
-        const loadedCheckpoint = self.loadCheckpoint(customCheckpointIdentifier);
-
-        if (loadedCheckpoint)
-        {
-            Logger.log("Checkpoint " + self.name + "exists and was recovered.");
-            self.init(function (err, result)
+        super.setup(function(err, loadedCheckpoint){
+            if (loadedCheckpoint)
             {
-                Logger.log("Ran only init function of " + self.name);
-                callback(err, result);
-            });
-        }
-        else
-        {
-            Logger.log("Checkpoint " + self.name + " does not exist. Will load database...");
-            self.load(function (err, result)
+                Logger.log("Checkpoint " + checkpointIdentifier + "exists and was recovered.");
+                self.init(function (err, result)
+                {
+                    Logger.log("Ran only init function of " + self.name);
+                    callback(err, result);
+                });
+            }
+            else
             {
-                if (isNull(err))
+                Logger.log("Checkpoint " + checkpointIdentifier + " does not exist. Will load database...");
+                self.load(function (err, result)
                 {
-                    Logger.log("Ran load function of " + self.name + " succesffully");
-                }
-                else
-                {
-                    Logger.log("error", "Error running load function of " + self.name + " succesfully.");
-                    Logger.log("error", err);
-                    Logger.log("error", JSON.stringify(result));
-                }
-                callback(err);
-            });
-        }
+                    if (isNull(err))
+                    {
+                        Logger.log("Ran load function of " + self.name + " succesfully");
+                    }
+                    else
+                    {
+                        Logger.log("error", "Error running load function of " + self.name + " succesfully.");
+                        Logger.log("error", err);
+                        Logger.log("error", JSON.stringify(result));
+                    }
+                    callback(err);
+                });
+            }
+        });
     }
 
     static init (callback)
@@ -106,7 +101,7 @@ class BootupUnit extends TestUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad(__filename);
+        self.startLoad();
         dendroInstance = new App();
         super.load(function (err, results)
         {
@@ -126,12 +121,28 @@ class BootupUnit extends TestUnit
                             {
                                 dendroInstance.startApp(function (err, result)
                                 {
-                                    global.tests.app = dendroInstance.app;
-                                    callback(err, dendroInstance.app);
+                                    if (isNull(err))
+                                    {
+                                        global.tests.app = dendroInstance.app;
+                                        self.endLoad(function (err, results)
+                                        {
+                                            callback(err, dendroInstance.app);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", "Error starting app in bootupUnit.");
+                                        Logger.log("error", err);
+                                        Logger.log("error", result);
+                                        callback(err, result);
+                                    }
                                 });
                             }
                             else
                             {
+                                Logger.log("error", "Error seeding databases in bootupUnit.");
+                                Logger.log("error", err);
+                                Logger.log("error", result);
                                 callback(err, result);
                             }
                         });

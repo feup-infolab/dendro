@@ -21,7 +21,7 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
     static load (callback)
     {
         const self = this;
-        self.startLoad(__filename);
+        self.startLoad();
         super.load(function (err, results)
         {
             if (err)
@@ -46,7 +46,7 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(__filename, callback);
+                            self.endLoad(callback);
                         });
                     }
                 });

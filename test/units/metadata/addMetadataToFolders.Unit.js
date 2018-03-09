@@ -7,6 +7,8 @@ chai.use(require("chai-http"));
 const async = require("async");
 const path = require("path");
 
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
@@ -25,7 +27,7 @@ class AddMetadataToFolders extends CreateFoldersUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad(__filename);
+        self.startLoad();
         super.load(function (err, results)
         {
             if (err)
@@ -56,7 +58,20 @@ class AddMetadataToFolders extends CreateFoldersUnit
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(__filename, callback);
+                            if (isNull(err))
+                            {
+                                self.endLoad(function (err, results)
+                                {
+                                    callback(err, results);
+                                });
+                            }
+                            else
+                            {
+                                Logger.log("error", "Error adding metadata to folders in addMetadataToFolders.Unit.");
+                                Logger.log("error", err);
+                                Logger.log("error", result);
+                                callback(err, result);
+                            }
                         });
                     }
                 });

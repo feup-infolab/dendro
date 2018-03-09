@@ -93,6 +93,11 @@ function Descriptor (object, typeConfigsToRetain)
             self.type = element.type;
             self.control = element.control;
 
+            if (element.validationFunction && typeof element.validationFunction === "function")
+            {
+                self.validationFunction = element.validationFunction;
+            }
+
             if (!isNull(object.label))
             {
                 self.label = object.label;

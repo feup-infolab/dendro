@@ -2090,6 +2090,27 @@ Project.prototype.getHumanReadableUri = function (callback)
     }
 };
 
+Project.prototype.save = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.dcterms.creator) || self.dcterms.creator instanceof Array && self.dcterms.creator.length === 0)
+    {
+        callback(1, "Cannot save project " + self.uri + " because it does not have a dcterms.creator property!");
+    }
+    else if (isNull(self.ddr.handle) || self.dcterms.creator instanceof Array && self.dcterms.creator.length === 0)
+    {
+        callback(1, "Cannot save project " + self.uri + " because it does not have a ddr.handle property!");
+    }
+    else
+    {
+        self.baseConstructor.prototype.save.call(self, function (err, result)
+        {
+            callback(err, result);
+        });
+    }
+};
+
 Project = Class.extend(Project, Resource, "ddr:Project");
 
 module.exports.Project = Project;

@@ -26,7 +26,7 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
     static load (callback)
     {
 		        const self = this;
-        self.startLoad(__filename);
+        self.startLoad();
         super.load(function (err, results)
         {
             if (err)
@@ -53,7 +53,7 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
                     });
                 }, function (err, results)
                 {
-                    self.endLoad(__filename, callback);
+                    self.endLoad(callback);
                 });
             }
         });

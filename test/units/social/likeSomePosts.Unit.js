@@ -16,7 +16,7 @@ class LikeSomePosts extends ShareSomePostsUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad(__filename);
+        self.startLoad();
         super.init(function (err, postURIToLike)
         {
             if (err)
@@ -35,7 +35,7 @@ class LikeSomePosts extends ShareSomePostsUnit
                     {
                         socialDendroUtils.likeAPost(true, agent, postURIToLike, function (err, res)
                         {
-                            self.endLoad(__filename, callback);
+                            self.endLoad(callback);
                         });
                     }
                 });

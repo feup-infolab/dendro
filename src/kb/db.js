@@ -307,17 +307,30 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
     {
         if (!isNull(self.pool))
         {
-            self.pool.release(connection, function (err, connection)
+            connection.conn.commit(function (err, result)
             {
                 if (isNull(err))
                 {
-                    delete self.pendingRequests[queryId];
-                    delete self.pendingRequests[queryId];
-                    callback(null);
+                    self.pool.release(connection, function (err, connection)
+                    {
+                        if (isNull(err))
+                        {
+                            delete self.pendingRequests[queryId];
+                            delete self.pendingRequests[queryId];
+                            callback(null);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error releasing JDBC connection on pool of database " + self.id);
+                            Logger.log("error", JSON.stringify(err));
+                            Logger.log("error", JSON.stringify(connection));
+                            callback(err, connection);
+                        }
+                    });
                 }
                 else
                 {
-                    Logger.log("error", "Error releasing JDBC connection on pool of database " + self.id);
+                    Logger.log("error", "Error committing changes made by JDBC connection on pool of database " + self.id);
                     Logger.log("error", JSON.stringify(err));
                     Logger.log("error", JSON.stringify(connection));
                     callback(err, connection);
@@ -485,16 +498,29 @@ DbConnection.finishUpAllConnectionsAndClose = function (callback)
 
         if (!isNull(dbConfig.connection) && dbConfig.connection instanceof DbConnection)
         {
-            dbConfig.connection.finishUpAndClose(function (err, result)
+            dbConfig.connection.commit(function (err, result)
             {
                 if (isNull(err))
                 {
-                    Logger.log("Virtuoso connection " + dbConfig.connection.databaseName + " closed gracefully.");
-                    cb(null, result);
+                    Logger.log("Virtuoso connection " + dbConfig.connection.databaseName + " committed");
+                    dbConfig.connection.close(function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            Logger.log("Virtuoso connection " + dbConfig.connection.databaseName + " closed gracefully.");
+                            cb(null, result);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error closing Virtuoso connection " + dbConfig.connection.databaseName + ".");
+                            Logger.log("error", err);
+                            cb(err, result);
+                        }
+                    });
                 }
                 else
                 {
-                    Logger.log("error", "Error closing Virtuoso connection " + dbConfig.connection.databaseName + ".");
+                    Logger.log("error", "Error committing pending operations in Virtuoso connection " + dbConfig.connection.databaseName + ".");
                     Logger.log("error", err);
                     cb(err, result);
                 }
@@ -1079,25 +1105,44 @@ DbConnection.prototype.close = function (callback)
 
     const closeClientConnection = function (callback)
     {
-        let fullUrl = "http://" + self.host;
-        if (self.port)
-        {
-            fullUrl = fullUrl + ":" + self.port_isql;
-        }
-
-        rp({
-            method: "POST",
-            uri: fullUrl,
-            form: {
-                query: "disconnect_user ('" + Config.virtuosoAuth.username + "')"
-            },
-            json: true,
-            forever: true
-        })
-            .then(function (err, parsedBody)
+        self.sendQueryViaJDBC(
+            "disconnect_user ('" + Config.virtuosoAuth.username + "')",
+            [],
+            function (err, result)
             {
-                callback(err, parsedBody);
-            });
+                if (!isNull(err))
+                {
+                    Logger.log("error", "Error disconnecting user " + Config.virtuosoAuth.username + " before shutting down virtuoso.");
+                    Logger.log("error", err);
+                    Logger.log("error", result);
+                }
+                callback(err, result);
+            }, null, null, null, true, true
+        );
+    };
+
+    const sendCheckpointCommand = function (callback)
+    {
+        // self.executeViaJDBC(
+        //     "checkpoint;",
+        //     [],
+        //     function (err, result)
+        //     {
+        //         if (!isNull(err))
+        //         {
+        //             Logger.log("error", "Error committing pending transactions via checkpoint; command before shutting down virtuoso.");
+        //             Logger.log("error", err);
+        //             Logger.log("error", result);
+        //             callback(err, result);
+        //         }
+        //         else
+        //         {
+        //             callback(null, result);
+        //         }
+        //     }, null, null, null, true, true
+        // );
+
+        callback(null);
     };
 
     const closeAllJDBCConnections = function (callback)
@@ -1137,9 +1182,11 @@ DbConnection.prototype.close = function (callback)
     };
 
     async.series([
-        closeAllJDBCConnections,
+        sendCheckpointCommand,
         destroyQueues,
-        closePendingConnections
+        closePendingConnections,
+        closeClientConnection,
+        closeAllJDBCConnections
     ], function (err, result)
     {
         callback(err, result);
@@ -1212,7 +1259,7 @@ DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argu
     });
 };
 
-DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsArray, callback, resultsFormat, maxRows, loglevel, runAsUpdate)
+DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsArray, callback, resultsFormat, maxRows, loglevel, runAsUpdate, notSPARQL)
 {
     const self = this;
 
@@ -1223,7 +1270,10 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
             if (!isNull(self.pool))
             {
                 // Add SPARQL keyword at the start of the query
-                query = "SPARQL\n" + query;
+                if (isNull(notSPARQL) || !isNull(notSPARQL) && notSPARQL === false)
+                {
+                    query = "SPARQL\n" + query;
+                }
 
                 // Uncomment to use JDBC-controlled query queuing
                 // self.sendQueryViaJDBC(
@@ -1644,21 +1694,47 @@ DbConnection.prototype.graphExists = function (graphUri, callback)
     );
 };
 
-DbConnection.prototype.finishUpAndClose = function (callback)
+DbConnection.prototype.commit = function (callback)
 {
     const self = this;
-    self.close(function (err, result)
+
+    if (!isNull(self.pool))
     {
-        Logger.log("Virtuoso connections closed gracefully.");
-        if (isNull(err))
+        self.pool.reserve(function (err, connection)
         {
-            callback(null, result);
-        }
-        else
-        {
-            callback(null, result);
-        }
-    });
+            if (isNull(err))
+            {
+                connection.conn.commit(function (err, result)
+                {
+                    self.pool.release(connection, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            callback(err, result);
+                        }
+                        else
+                        {
+                            const msg = "Error releasing Virtuoso connection after committing changes made by connection " + self.id;
+                            Logger.log("error", msg);
+                            callback(2, msg);
+                        }
+                    });
+                });
+            }
+            else
+            {
+                const msg = "Error reserving Virtuoso connection for committing changes made by connection " + self.id;
+                Logger.log("error", msg);
+                callback(2, msg);
+            }
+        });
+    }
+    else
+    {
+        const msg = "No pool open when trying to commit changes to Virtuoso connection " + self.id;
+        Logger.log("error", msg);
+        callback(1, msg);
+    }
 };
 
 module.exports.DbConnection = DbConnection;

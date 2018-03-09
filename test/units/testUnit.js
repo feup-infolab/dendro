@@ -29,55 +29,52 @@ class TestUnit
         callback(null);
     }
 
-    static setup (callback, customCheckpointIdentifier)
-    {
-        callback(null);
-    }
-
-    static startLoad (filename)
-    {
-        if (!filename)
-        {
-            throw new Error("No unit filename specified!");
-        }
-
-        unitUtils.start(path.parse(filename).name, "Seeding database...");
-    }
-
-    static endLoad (filename, callback, customCheckpointIdentifier)
+    static setup (callback)
     {
         const self = this;
-        if (!customCheckpointIdentifier)
-        {
-            customCheckpointIdentifier = path.parse(filename).name;
-        }
+        const checkpointIdentifier = unitUtils.getCallerFunctionFilePath();
+        const loadedCheckpoint = self.loadCheckpoint(checkpointIdentifier);
+
+        callback(null, loadedCheckpoint);
+    }
+
+    static startLoad ()
+    {
+        const checkpointIdentifier = unitUtils.getCallerFunctionFilePath();
+        unitUtils.start(checkpointIdentifier, "Seeding database...");
+    }
+
+    static endLoad (filename, callback)
+    {
+        const self = this;
+        const checkpointIdentifier = unitUtils.getCallerFunctionFilePath();
 
         if (Config.docker.active)
         {
-            Logger.log("Halting app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
+            Logger.log("Halting app after loading databases for creating checkpoint: " + checkpointIdentifier);
 
             self.shutdown(function (err, result)
             {
                 if (!err)
                 {
-                    Logger.log("Halted app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
-                    self.createCheckpoint(customCheckpointIdentifier);
+                    Logger.log("Halted app after loading databases for creating checkpoint: " + checkpointIdentifier);
+                    self.createCheckpoint(checkpointIdentifier);
                     self.init(function (err, result)
                     {
                         callback(err, result);
-                        unitUtils.end(path.parse(filename).name, "Ended database seeding.");
+                        unitUtils.end(checkpointIdentifier, "Ended database seeding.");
                     });
                 }
                 else
                 {
-                    Logger.log("error", "Error halting app after loading databases for creating checkpoint: " + customCheckpointIdentifier);
+                    Logger.log("error", "Error halting app after loading databases for creating checkpoint: " + checkpointIdentifier);
                     callback(err, result);
                 }
             });
         }
         else
         {
-            unitUtils.end(path.parse(filename).name, "Ended database seeding.");
+            unitUtils.end(checkpointIdentifier, "Ended database seeding.");
             callback(null);
         }
     }

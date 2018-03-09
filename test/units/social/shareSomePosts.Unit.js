@@ -21,7 +21,7 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad(__filename);
+        self.startLoad();
         super.load(function (err, results)
         {
             if (err)
@@ -47,7 +47,7 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
                                 let postURI = res.body[0].uri;// para ter acesso nas outras units a seguir
                                 socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
                                 {
-                                    self.endLoad(__filename, callback);
+                                    self.endLoad(callback);
                                 });
                             }
                             else

@@ -1378,7 +1378,7 @@ exports.administer = function (req, res)
             }
             else
             {
-                viewVars.error_messages = ["Project " + requestedResourceUri + " does not exist."];
+                viewVars.error_messages = ["Project " + req.params.requestedResourceUri + " does not exist."];
 
                 sendResponse(
                     "projects/administration/administer",

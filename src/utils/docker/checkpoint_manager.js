@@ -29,7 +29,7 @@ const DockerCheckpointManager = function ()
 {
 };
 
-DockerCheckpointManager._checkpoints = {};
+DockerCheckpointManager._availableCheckpoints = {};
 
 if (Config.docker.reuse_checkpoints)
 {
@@ -43,7 +43,7 @@ if (Config.docker.reuse_checkpoints)
 
     _.map(checkpointFolders, function (folderName)
     {
-        DockerCheckpointManager._checkpoints[folderName] = true;
+        DockerCheckpointManager._availableCheckpoints[folderName] = true;
     });
 }
 
@@ -79,7 +79,7 @@ DockerCheckpointManager.checkpointExists = function (checkpointName)
 {
     if (Config.docker && Config.docker.active)
     {
-        return (!isNull(DockerCheckpointManager._checkpoints[checkpointName]));
+        return DockerCheckpointManager._availableCheckpoints[checkpointName];
     }
 };
 
@@ -88,7 +88,7 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Creating Docker checkpoint " + checkpointName);
-        if (isNull(DockerCheckpointManager._checkpoints[checkpointName]))
+        if (isNull(DockerCheckpointManager._availableCheckpoints[checkpointName]))
         {
             const output = childProcess.execSync(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
                 cwd: Pathfinder.appDir
@@ -96,7 +96,7 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
 
             Logger.log(bufferToString(output));
             Logger.log("Saved checkpoint with name " + checkpointName);
-            DockerCheckpointManager._checkpoints[checkpointName] = true;
+            DockerCheckpointManager._availableCheckpoints[checkpointName] = true;
 
             return bufferToString(output);
         }
@@ -108,7 +108,7 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Restoring Docker checkpoint " + checkpointName);
-        if (DockerCheckpointManager._checkpoints[checkpointName])
+        if (DockerCheckpointManager._availableCheckpoints[checkpointName])
         {
             const output = childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript}" ${checkpointName}`, {
                 cwd: Pathfinder.appDir

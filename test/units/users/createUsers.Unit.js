@@ -17,7 +17,7 @@ class CreateUsers extends LoadOntologies
     static load (callback)
     {
         const self = this;
-        self.startLoad(__filename);
+        self.startLoad();
         super.load(function (err, results)
         {
             if (err)
@@ -28,27 +28,46 @@ class CreateUsers extends LoadOntologies
             {
                 const createUser = function (user, callback)
                 {
-                    User.createAndInsertFromObject({
-                        foaf: {
-                            mbox: user.mbox,
-                            firstName: user.firstname,
-                            surname: user.surname
-                        },
-                        ddr: {
-                            username: user.username,
-                            password: user.password
-                        }
-                    },
-                    function (err, newUser)
+                    User.findByUsername(user.username, function (err, existingUser)
                     {
-                        if (isNull(err) && newUser !== null)
+                        if (isNull(err))
                         {
-                            callback(null, newUser);
+                            if (isNull(existingUser))
+                            {
+                                User.createAndInsertFromObject(
+                                    {
+                                        foaf: {
+                                            mbox: user.mbox,
+                                            firstName: user.firstname,
+                                            surname: user.surname
+                                        },
+                                        ddr: {
+                                            username: user.username,
+                                            password: user.password
+                                        }
+                                    },
+                                    function (err, newUser)
+                                    {
+                                        if (isNull(err) && newUser !== null)
+                                        {
+                                            callback(null, newUser);
+                                        }
+                                        else
+                                        {
+                                            console.log("[ERROR] Error creating new demo User at createUsers.Unit " + JSON.stringify(user));
+                                            callback(err, user);
+                                        }
+                                    });
+                            }
+                            else
+                            {
+                                console.log("[ERROR] Demo User " + user.username + " at createUsers.Unit already exists, skipping creation.");
+                                callback(null);
+                            }
                         }
                         else
                         {
-                            console.log("[ERROR] Error creating new demo User at createUsers.Unit " + JSON.stringify(user));
-                            callback(err, user);
+                            callback(err, existingUser);
                         }
                     });
                 };
@@ -160,7 +179,7 @@ class CreateUsers extends LoadOntologies
                 {
                     if (!err)
                     {
-                        self.endLoad(__filename, callback);
+                        self.endLoad(callback);
                     }
                     else
                     {
@@ -178,6 +197,11 @@ class CreateUsers extends LoadOntologies
     static shutdown (callback)
     {
         super.shutdown(callback);
+    }
+
+    static setup (callback)
+    {
+        super.setup(callback);
     }
 }
 
