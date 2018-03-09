@@ -224,6 +224,195 @@ angular.module("dendroApp.controllers")
             }
         };
 
+        $scope.hide_descriptor_from_quick_list_for_project = function (newDescriptor, index)
+        {
+            var interactionType = "hide_descriptor_from_quick_list_for_project";
+            var uri = "/interactions/hide_descriptor_from_quick_list_for_project";
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.project_hidden = true;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.project_hidden = true;
+            }
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
+        };
+
+
+        $scope.unhide_descriptor_from_quick_list_for_project = function (newDescriptor, index)
+        {
+            var interactionType = "unhide_descriptor_from_quick_list_for_project";
+            var uri = "/interactions/unhide_descriptor_from_quick_list_for_project";
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.project_hidden = false;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.project_hidden = false;
+            }
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
+        };
+
+        $scope.unhide_descriptor_from_quick_list_for_user = function (newDescriptor, index)
+        {
+            var interactionType = "unhide_descriptor_from_quick_list_for_user";
+            var uri = "/interactions/unhide_descriptor_from_quick_list_for_user";
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.user_hidden = false;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.user_hidden = false;
+            }
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
+        };
+
+        $scope.hide_descriptor_from_quick_list_for_user = function (newDescriptor, index)
+        {
+            var interactionType = "hide_descriptor_from_quick_list_for_user";
+            var uri = "/interactions/hide_descriptor_from_quick_list_for_user";
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.user_hidden = true;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.user_hidden = true;
+            }
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
+        };
+
         $scope.favorite_descriptor_from_quick_list_for_project = function (newDescriptor, index)
         {
             var interactionType = "favorite_descriptor_from_quick_list_for_project";
@@ -233,6 +422,16 @@ angular.module("dendroApp.controllers")
             //newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
+
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.project_favorite = true;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.project_favorite = true;
+            }
 
             $scope.add_descriptor(newDescriptor);
 
@@ -272,6 +471,15 @@ angular.module("dendroApp.controllers")
             //newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.project_favorite = true;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.project_favorite = true;
+            }
 
             $scope.add_descriptor(newDescriptor);
 
@@ -311,6 +519,15 @@ angular.module("dendroApp.controllers")
             //newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.user_favorite = true;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.user_favorite = true;
+            }
 
             $scope.add_descriptor(newDescriptor);
 
@@ -350,6 +567,15 @@ angular.module("dendroApp.controllers")
             //newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.user_favorite = true;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.user_favorite = true;
+            }
 
             $scope.add_descriptor(newDescriptor);
 
@@ -378,7 +604,99 @@ angular.module("dendroApp.controllers")
                     }
                 }
             );
+        };
 
+        $scope.unfavorite_descriptor_from_quick_list_for_user = function (newDescriptor, index)
+        {
+            var interactionType = "unfavorite_descriptor_from_quick_list_for_user";
+            var uri = "/interactions/unfavorite_descriptor_from_quick_list_for_user";
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.user_favorite = false;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.user_favorite = false;
+            }
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
+        };
+
+        $scope.unfavorite_descriptor_from_quick_list_for_project = function (newDescriptor, index)
+        {
+            var interactionType = "unfavorite_descriptor_from_quick_list_for_project";
+            var uri = "/interactions/unfavorite_descriptor_from_quick_list_for_project";
+
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+            if(newDescriptor.recommendation_types != null)
+            {
+                newDescriptor.recommendation_types.project_favorite = false;
+            }
+            else
+            {
+                newDescriptor.recommendation_types = {};
+                newDescriptor.recommendation_types.project_favorite = false;
+            }
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
         };
 
         $scope.multiple_accept_descriptor_from_quick_list = function (descriptor, index)
