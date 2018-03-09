@@ -224,6 +224,163 @@ angular.module("dendroApp.controllers")
             }
         };
 
+        $scope.favorite_descriptor_from_quick_list_for_project = function (newDescriptor, index)
+        {
+            var interactionType = "favorite_descriptor_from_quick_list_for_project";
+            var uri = "/interactions/favorite_descriptor_from_quick_list_for_project";
+
+            newDescriptor.just_added = true;
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
+        };
+
+        $scope.favorite_descriptor_from_manual_list_for_project = function (newDescriptor, index)
+        {
+            var interactionType = "favorite_descriptor_from_manual_list_for_project";
+            var uri = "/interactions/favorite_descriptor_from_manual_list_for_project";
+
+            newDescriptor.just_added = true;
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
+        };
+
+        $scope.favorite_descriptor_from_manual_list_for_user = function (newDescriptor, index)
+        {
+            var interactionType = "favorite_descriptor_from_manual_list_for_user";
+            var uri = "/interactions/favorite_descriptor_from_manual_list_for_user";
+
+            newDescriptor.just_added = true;
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
+        };
+
+        $scope.favorite_descriptor_from_quick_list_for_user = function (newDescriptor, index)
+        {
+            var interactionType = "favorite_descriptor_from_quick_list_for_user";
+            var uri = "/interactions/favorite_descriptor_from_quick_list_for_user";
+
+            newDescriptor.just_added = true;
+            //newDescriptor.added_from_quick_list = true;
+            newDescriptor.rankingPosition = index;
+            newDescriptor.pageNumber = $scope.recommendations_page;
+
+            $scope.add_descriptor(newDescriptor);
+
+            interactionsService.register_interaction(
+                uri,
+                newDescriptor,
+                interactionType,
+                index,
+                $scope.get_calling_uri()
+            ).then(
+                function (result)
+                {
+                    // $scope.get_recommendations()
+
+                    if (typeof callback === "function")
+                    {
+                        callback(null);
+                    }
+                }
+            ).catch(
+                function (error)
+                {
+                    if (typeof callback === "function")
+                    {
+                        callback(1);
+                    }
+                }
+            );
+
+        };
+
         $scope.multiple_accept_descriptor_from_quick_list = function (descriptor, index)
         {
             bootbox.prompt("Please enter the number of descriptors of type " + descriptor.label + " that you would like to add (a number from 1 to 15)", function (number_of_times)

@@ -482,6 +482,11 @@ Interaction.types =
         negative: true
     },
 
+    favorite_descriptor_from_manual_list_for_user: {
+        key: "favorite_descriptor_from_manual_list_for_user",
+        positive: true
+    },
+
     favorite_descriptor_from_quick_list_for_user: {
         key: "favorite_descriptor_from_quick_list_for_user",
         positive: true
@@ -489,6 +494,11 @@ Interaction.types =
 
     unfavorite_descriptor_from_quick_list_for_user: {
         key: "unfavorite_descriptor_from_quick_list_for_user",
+        positive: true
+    },
+
+    favorite_descriptor_from_manual_list_for_project: {
+        key: "favorite_descriptor_from_manual_list_for_project",
         positive: true
     },
 

@@ -61,7 +61,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/unfavorite_descrip
 // /interactions/accept_descriptor_from_autocomplete
 //require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_autocomplete/routes.interactions.acceptDescriptorFromAutocomplete.Test.js"));
 
-// /interactions/reject_ontology_from_quick_list -> TODO must check with João for this one
+// /interactions/reject_ontology_from_quick_list -> TODO must check with João for this one -> dont do this for now
 //require(Pathfinder.absPathInTestsFolder("/routes/interactions/reject_ontology_from_quick_list/routes.interactions.rejectOntologyFromQuickList.Test.js"));
 
 /*
@@ -108,7 +108,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor
 
 // /interactions/fill_in_inherited_descriptor
 */
-require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_inherited_descriptor/routes.interactions.fillInInheritedDescriptor.Test.js"));
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_inherited_descriptor/routes.interactions.fillInInheritedDescriptor.Test.js"));
 
 /*
 // /interactions/delete_all
