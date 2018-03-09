@@ -259,12 +259,50 @@ Interaction.getRandomType = function (restrictions)
     return interactionType;
 };
 
-Interaction.prototype.saveToMySQL = function (callback, overwrite)
+Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
 {
     const self = this;
 
-    const targetTable = Config.recommendation.getTargetTable();
+    const insertNewInteraction = function (callback) {
+        let insert = {
+            performedBy: self.ddr.performedBy,
+            interactionType: self.ddr.interactionType,
+            executedOver: self.ddr.executedOver,
+            originallyRecommendedFor: self.ddr.originallyRecommendedFor,
+            rankingPosition: self.ddr.rankingPosition,
+            pageNumber: (isNull(self.ddr.pageNumber) ? -1 : self.ddr.pageNumber),
+            recommendationCallId: self.ddr.recommendationCallId
+        }
 
+        if (!isNull(self.ddr.recommendationCallTimeStamp) && typeof self.ddr.recommendationCallTimeStamp.slice(0, 19) !== "undefined") {
+            insert.recommendationCallTimeStamp = moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss");
+        }
+        else {
+            insert.recommendationCallTimeStamp = null;
+        }
+
+        if (Config.debug.database.log_all_queries) {
+            Logger.log("INSERT INTO interactions table");
+        }
+
+        mysql.sequelize.interactions
+            .findOrCreate({where: {uri: self.uri}, defaults: insert})
+            .spread((interaction, created) => {
+                if (!created)
+                    return callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
+                return callback(null, interaction);
+            }).catch(err => {
+                return callback(err, "Error inserting new interaction to MYSQL with URI " + self.uri);
+        });;
+    }
+
+    insertNewInteraction(function (err, result)
+    {
+        return callback(err);
+    });
+
+    /*
+    const targetTable = Config.recommendation.getTargetTable();
     const insertNewInteraction = function (callback)
     {
         const insertNewInteractionQuery = "INSERT INTO ?? " +
@@ -403,7 +441,7 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
                 return callback(1, msg);
             }
         });
-    }
+    }*/
 };
 
 Interaction.types =
