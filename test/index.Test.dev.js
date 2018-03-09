@@ -18,6 +18,13 @@ global.tests = {};
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 // interaction tests
+
+//favorite_descriptor_from_manual_list_for_user
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_manual_list_for_user/routes.interactions.favoriteDescriptorFromManualListForUser.Test.js"));
+//favorite_descriptor_from_manual_list_for_project
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_manual_list_for_project/routes.interactions.favoriteDescriptorFromManualListForProject.Test.js"));
+
+//
 /*
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list/routes.interactions.acceptDescriptorFromQuickList.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAProjectFavorite.Test.js"));

@@ -393,6 +393,58 @@ exports.favoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, body
     }
 };
 
+exports.favoriteDescriptorFromManualListForProject = function (jsonOnly, agent, bodyObj, cb)
+{
+    const path = "/interactions/favorite_descriptor_from_manual_list_for_project";
+    if (jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+exports.favoriteDescriptorFromManualListForUser = function (jsonOnly, agent, bodyObj, cb)
+{
+    const path = "/interactions/favorite_descriptor_from_manual_list_for_user";
+    if (jsonOnly)
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(bodyObj)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 exports.unfavoriteDescriptorFromQuickListForUser = function (jsonOnly, agent, bodyObj, cb)
 {
     const path = "/interactions/unfavorite_descriptor_from_quick_list_for_user";
