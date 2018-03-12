@@ -93,7 +93,7 @@ exports.registerStopTimeForUnit = function (unitName)
     return global.routesLog;
 };
 
-exports.getCallerFunctionFilePath = function()
+exports.getCallerFunctionFilePath = function ()
 {
     var originalFunc = Error.prepareStackTrace;
 
@@ -103,7 +103,8 @@ exports.getCallerFunctionFilePath = function()
         var err = new Error();
         var currentfile;
 
-        Error.prepareStackTrace = function (err, stack) {
+        Error.prepareStackTrace = function (err, stack)
+        {
             return stack;
         };
 
@@ -115,7 +116,8 @@ exports.getCallerFunctionFilePath = function()
 
             if (currentfile !== callerfile) break;
         }
-    } catch (e)
+    }
+    catch (e)
     {
     }
 

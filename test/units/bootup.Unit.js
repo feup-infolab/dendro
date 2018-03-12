@@ -21,7 +21,8 @@ class BootupUnit extends TestUnit
     {
         const self = this;
 
-        super.setup(function(err, loadedCheckpoint){
+        super.setup(function (err, loadedCheckpoint)
+        {
             if (loadedCheckpoint)
             {
                 Logger.log("Checkpoint " + checkpointIdentifier + "exists and was recovered.");
