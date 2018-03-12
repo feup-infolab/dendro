@@ -19,10 +19,10 @@ class CreateAvatarsForUsers extends createUsersUnit
 {
     static load (callback)
     {
-		        const self = this;
         const usersData = [demouser1, demouser2, demouser3];
 
-        self.startLoad();
+        const self = this;
+        unitUtils.startLoad(self);
         super.init(function (err, results)
         {
             if (isNull(err))
@@ -47,7 +47,7 @@ class CreateAvatarsForUsers extends createUsersUnit
                         return callback(null);
                     }
 
-                    self.endLoad(callback);
+                    unitUtils.endLoad(self, callback);
                 });
             }
             else

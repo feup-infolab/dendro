@@ -1,13 +1,14 @@
+const chai = require("chai");
+chai.use(require("chai-http"));
+const async = require("async");
+
 process.env.NODE_ENV = "test";
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null")).isNull;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const chai = require("chai");
-chai.use(require("chai-http"));
-const async = require("async");
-
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 const LoadOntologies = require(Pathfinder.absPathInTestsFolder("units/ontologies/loadOntologies.Unit.js"));
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
@@ -17,7 +18,7 @@ class CreateUsers extends LoadOntologies
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (err)
@@ -179,7 +180,7 @@ class CreateUsers extends LoadOntologies
                 {
                     if (!err)
                     {
-                        self.endLoad(callback);
+                        unitUtils.endLoad(self, callback);
                     }
                     else
                     {
@@ -201,7 +202,10 @@ class CreateUsers extends LoadOntologies
 
     static setup (callback)
     {
-        super.setup(callback);
+        const self = this;
+        super.setup(function(err, result){
+            unitUtils.setup(self, callback);
+        });
     }
 }
 

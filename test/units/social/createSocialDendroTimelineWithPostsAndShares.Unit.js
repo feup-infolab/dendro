@@ -15,10 +15,10 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
-            self.endLoad(callback);
+            unitUtils.endLoad(self, callback);
         });
     }
     static init (callback)

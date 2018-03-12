@@ -39,8 +39,8 @@ class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends AddMetadataToFol
 {
     static load (callback)
     {
-		        const self = this;
-        self.startLoad();
+        const self = this;
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (err)
@@ -88,7 +88,7 @@ class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends AddMetadataToFol
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(callback);
+                            unitUtils.endLoad(self, callback);
                         });
                     }
                 });

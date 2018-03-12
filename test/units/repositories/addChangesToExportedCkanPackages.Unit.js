@@ -32,7 +32,6 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad();
         super.load(function (err, results)
         {
             if (err)
@@ -93,7 +92,7 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
                                                 {
                                                     repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res)
                                                     {
-                                                        self.endLoad(callback);
+                                                        unitUtils.endLoad(self, callback);
                                                     });
                                                 });
                                             });

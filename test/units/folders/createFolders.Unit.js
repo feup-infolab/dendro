@@ -10,6 +10,7 @@ const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -34,7 +35,7 @@ class CreateFolders extends AddContributorsToProjectsUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (err)
@@ -81,7 +82,7 @@ class CreateFolders extends AddContributorsToProjectsUnit
                         {
                             if (isNull(err))
                             {
-                                self.endLoad(function (err, results)
+                                unitUtils.endLoad(self, function (err, results)
                                 {
                                     callback(err, results);
                                 });

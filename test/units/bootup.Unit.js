@@ -13,46 +13,11 @@ const should = chai.should();
 
 const TestUnit = require(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
 const App = require(Pathfinder.absPathInSrcFolder("bootup/app.js")).App;
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 let dendroInstance;
 
 class BootupUnit extends TestUnit
 {
-    static setup (callback)
-    {
-        const self = this;
-
-        super.setup(function (err, loadedCheckpoint)
-        {
-            if (loadedCheckpoint)
-            {
-                Logger.log("Checkpoint " + checkpointIdentifier + "exists and was recovered.");
-                self.init(function (err, result)
-                {
-                    Logger.log("Ran only init function of " + self.name);
-                    callback(err, result);
-                });
-            }
-            else
-            {
-                Logger.log("Checkpoint " + checkpointIdentifier + " does not exist. Will load database...");
-                self.load(function (err, result)
-                {
-                    if (isNull(err))
-                    {
-                        Logger.log("Ran load function of " + self.name + " succesfully");
-                    }
-                    else
-                    {
-                        Logger.log("error", "Error running load function of " + self.name + " succesfully.");
-                        Logger.log("error", err);
-                        Logger.log("error", JSON.stringify(result));
-                    }
-                    callback(err);
-                });
-            }
-        });
-    }
-
     static init (callback)
     {
         const self = this;
@@ -102,7 +67,7 @@ class BootupUnit extends TestUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         dendroInstance = new App();
         super.load(function (err, results)
         {
@@ -125,7 +90,7 @@ class BootupUnit extends TestUnit
                                     if (isNull(err))
                                     {
                                         global.tests.app = dendroInstance.app;
-                                        self.endLoad(function (err, results)
+                                        unitUtils.endLoad(self, function (err, results)
                                         {
                                             callback(err, dendroInstance.app);
                                         });

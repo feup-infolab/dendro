@@ -25,8 +25,8 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
 {
     static load (callback)
     {
-		        const self = this;
-        self.startLoad();
+        const self = this;
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (err)
@@ -53,7 +53,7 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
                     });
                 }, function (err, results)
                 {
-                    self.endLoad(callback);
+                    unitUtils.endLoad(self, callback);
                 });
             }
         });
@@ -66,6 +66,14 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
     static shutdown (callback)
     {
         super.shutdown(callback);
+    }
+
+    static setup (callback)
+    {
+        const self = this;
+        super.setup(function(err, result){
+            unitUtils.setup(self, callback);
+        });
     }
 }
 

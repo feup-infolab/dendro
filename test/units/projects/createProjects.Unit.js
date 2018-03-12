@@ -36,7 +36,7 @@ class CreateProjects extends CreateUsersUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (err)
@@ -99,7 +99,7 @@ class CreateProjects extends CreateUsersUnit
                 {
                     if (isNull(err))
                     {
-                        self.endLoad(function (err, results)
+                        unitUtils.endLoad(self, function (err, results)
                         {
                             callback(err, results);
                         });
@@ -119,11 +119,6 @@ class CreateProjects extends CreateUsersUnit
     static shutdown (callback)
     {
         super.shutdown(callback);
-    }
-
-    static setup (callback)
-    {
-        super.setup(callback);
     }
 }
 

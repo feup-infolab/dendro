@@ -28,8 +28,8 @@ class CreateFilesB2drop extends CreateFoldersB2DropUnit
 {
     static load (callback)
     {
-		        const self = this;
-        self.startLoad();
+        const self = this;
+        unitUtils.startLoad(self);
         super.init(function (err, results)
         {
             if (err)
@@ -66,7 +66,7 @@ class CreateFilesB2drop extends CreateFoldersB2DropUnit
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(callback);
+                            unitUtils.endLoad(self, callback);
                         });
                     }
                 });

@@ -26,7 +26,7 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (!isNull(err))
@@ -62,7 +62,7 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(callback);
+                            unitUtils.endLoad(self, callback);
                         });
                     }
                 });

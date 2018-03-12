@@ -23,8 +23,8 @@ class DeleteFolders extends CreateFoldersUnit
 {
     static load (callback)
     {
-		        const self = this;
-        self.startLoad();
+        const self = this;
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (err)
@@ -55,7 +55,7 @@ class DeleteFolders extends CreateFoldersUnit
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(callback);
+                            unitUtils.endLoad(self, callback);
                         });
                     }
                 });

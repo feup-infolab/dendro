@@ -29,7 +29,7 @@ class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (err)
@@ -60,7 +60,7 @@ class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(callback);
+                            unitUtils.endLoad(self, callback);
                         });
                     }
                 });

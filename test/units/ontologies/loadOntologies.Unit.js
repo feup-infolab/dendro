@@ -9,13 +9,14 @@ const path = require("path");
 let BootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
 let loadOntologies = require(Pathfinder.absPathInSrcFolder("/bootup/load/load_ontologies.js")).loadOntologies;
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 class LoadOntologies extends BootupUnit
 {
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (err)
@@ -26,7 +27,7 @@ class LoadOntologies extends BootupUnit
             {
                 loadOntologies(null, function (err, result)
                 {
-                    self.endLoad(callback);
+                    unitUtils.endLoad(self, callback);
                 }, true);
             }
         });
@@ -40,11 +41,6 @@ class LoadOntologies extends BootupUnit
     static shutdown (callback)
     {
         super.shutdown(callback);
-    }
-
-    static setup (callback)
-    {
-        super.setup(callback);
     }
 }
 

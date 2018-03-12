@@ -27,7 +27,7 @@ class CreateFilesTestUnit extends CreateFoldersUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         super.init(function (err, results)
         {
             if (err)
@@ -64,7 +64,7 @@ class CreateFilesTestUnit extends CreateFoldersUnit
                             });
                         }, function (err, results)
                         {
-                            self.endLoad(callback);
+                            unitUtils.endLoad(self, callback);
                         });
                     }
                 });

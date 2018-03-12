@@ -27,7 +27,7 @@ class AddMetadataToFolders extends CreateFoldersUnit
     static load (callback)
     {
         const self = this;
-        self.startLoad();
+        unitUtils.startLoad(self);
         super.load(function (err, results)
         {
             if (err)

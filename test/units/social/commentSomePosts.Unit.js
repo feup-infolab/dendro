@@ -18,8 +18,8 @@ class CommentSomePosts extends LikeSomePostsUnit
 {
     static load (callback)
     {
-		        const self = this;
-        self.startLoad();
+        const self = this;
+        unitUtils.startLoad(self);
         super.init(function (err, postURIToShare)
         {
             if (err)
@@ -38,7 +38,7 @@ class CommentSomePosts extends LikeSomePostsUnit
                     {
                         socialDendroUtils.commentAPost(true, agent, postURIToShare, commentMock.commentMsg, function (err, res)
                         {
-                            self.endLoad(callback);
+                            unitUtils.endLoad(self, callback);
                         });
                     }
                 });
