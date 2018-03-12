@@ -7,6 +7,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Event = require(Pathfinder.absPathInSrcFolder("/models/event.js")).Event;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
@@ -1205,6 +1206,23 @@ Resource.prototype.save = function
         );
     };
 
+    const saveEvent = function () {
+        let event = {};
+        let eventType = self.rdf.type[self.rdf.type.length - 1].replace("ddr:", "");
+        console.log(eventType);
+       /* switch (eventType) {
+            default:
+                break;
+        }*/
+
+        /*Event.create({
+        }, function (err, event) {
+            console.log(err);
+            console.log(event);
+            cb(null, null);
+        });*/
+    };
+
     async.waterfall([
         function (cb)
         {
@@ -1234,6 +1252,8 @@ Resource.prototype.save = function
                     {
                         createNewResource(self, function (err, result)
                         {
+                            // create event in MySQL database
+                            saveEvent();
                             // there was no existing resource with same URI, create a new one and exit immediately
                             return callback(err, result);
                         });

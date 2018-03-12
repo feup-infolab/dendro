@@ -866,6 +866,7 @@ exports.new = function (req, res)
                                     {
                                         if (!err)
                                         {
+
                                             res.status(200).json({
                                                 result: "OK",
                                                 message: "Manual Post " + manualPost.uri + " successfully created"

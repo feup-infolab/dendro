@@ -93,35 +93,15 @@ const initMySQL = function (app, callback)
         });
 
         const tableName = Config.recommendation.getTargetTable();
-        sequelize.interactions = sequelize.define(tableName, {
-            id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-            uri: Sequelize.STRING,
-            performedBy: Sequelize.STRING,
-            interactionType: Sequelize.STRING,
-            executedOver: Sequelize.STRING,
-            originallyRecommendedFor: Sequelize.STRING,
-            rankingPosition: { type: Sequelize.INTEGER, defaultValue: null },
-            pageNumber: { type: Sequelize.INTEGER, defaultValue: null },
-            recommendationCallId: { type: Sequelize.TEXT, defaultValue: null },
-            recommendationCallTimeStamp: { type: Sequelize.DATE, defaultValue: null } },
-        {
-            createdAt: 'created',
-            updatedAt: 'modified',
-            indexes: [
-                { fields: ['uri'] },
-                { fields: ['performedBy'] },
-                { fields: ['interactionType'] },
-                { fields: ['executedOver'] },
-                { fields: ['originallyRecommendedFor'] }
-            ]
-        });
+        sequelize.interactions = require('../mysql_models/interactions')(Sequelize, sequelize, tableName);
+        sequelize.events = require('../mysql_models/events')(Sequelize, sequelize);
 
         sequelize.sync().then(() => {
-            Logger.log_boot_message("Interactions table " + tableName + " defined.");
+            Logger.log_boot_message("MySQL tables defined.");
             Config.mysql.default.sequelize = sequelize;
             return callback(null);
         }).catch(err => {
-            return callback("[ERROR] Unable to create the interactions table " + tableName + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+            return callback("[ERROR] Unable to create the tables on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
         });
 
 

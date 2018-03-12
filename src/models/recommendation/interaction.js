@@ -263,7 +263,8 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
 {
     const self = this;
 
-    const insertNewInteraction = function (callback) {
+    const insertNewInteraction = function (callback)
+    {
         let insert = {
             performedBy: self.ddr.performedBy,
             interactionType: self.ddr.interactionType,
@@ -274,14 +275,17 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
             recommendationCallId: self.ddr.recommendationCallId
         }
 
-        if (!isNull(self.ddr.recommendationCallTimeStamp) && typeof self.ddr.recommendationCallTimeStamp.slice(0, 19) !== "undefined") {
+        if (!isNull(self.ddr.recommendationCallTimeStamp) && typeof self.ddr.recommendationCallTimeStamp.slice(0, 19) !== "undefined")
+        {
             insert.recommendationCallTimeStamp = moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss");
         }
-        else {
+        else
+            {
             insert.recommendationCallTimeStamp = null;
         }
 
-        if (Config.debug.database.log_all_queries) {
+        if (Config.debug.database.log_all_queries)
+        {
             Logger.log("INSERT INTO interactions table");
         }
 
@@ -293,8 +297,8 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
                 return callback(null, interaction);
             }).catch(err => {
                 return callback(err, "Error inserting new interaction to MYSQL with URI " + self.uri);
-        });;
-    }
+        });
+    };
 
     insertNewInteraction(function (err, result)
     {
