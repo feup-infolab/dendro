@@ -77,14 +77,17 @@ describe("Administer projects", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                //
-                // SELECT *
-                // FROM
-                // <http://127.0.0.1:3001/dendro_graph>
-                // WHERE
-                // {
-                // <http://127.0.0.1:3001/project/publicprojectcreatedbydemouser1> ?p ?o
-                //     }
+                /*
+                SELECT *
+                FROM
+                <http://127.0.0.1:3002/dendro_graph>
+                WHERE
+                {
+                     ?project dcterms:creator ?user.
+                     ?project rdf:type ddr:Project.
+                     ?project ?p ?o
+                }
+                */
                 projectUtils.administer(agent, false, {}, publicProject.handle, function (err, res)
                 {
                     res.should.have.status(200);

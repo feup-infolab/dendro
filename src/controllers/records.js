@@ -864,7 +864,7 @@ exports.restore_metadata_version = function (req, res)
                                         {
                                             res.status(200).json({
                                                 result: "OK",
-                                                message: "Resource " + requestedResourceURI + " succesfully restored to version " + requestedVersion
+                                                message: "Resource " + requestedResourceURI + " successfully restored to version " + requestedVersion
                                             });
                                         }
                                         else

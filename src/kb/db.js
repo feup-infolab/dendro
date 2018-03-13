@@ -352,6 +352,11 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                 // difference between query and procedure (does not return anything. needed for deletes and inserts)
                 if (!isNull(runAsUpdate))
                 {
+                    if (!isNull(Config.virtuosoSQLLogLevel))
+                    {
+                        query = "log_enable(" + Config.virtuosoSQLLogLevel + ",1) \n" + query + "\n";
+                    }
+                    query = "set AUTOCOMMIT MANUAL;\n" + query + "\nCOMMIT WORK; set AUTOCOMMIT on;";
                     statement.executeUpdate(query, function (err, results)
                     {
                         if (isNull(err))
@@ -1105,44 +1110,79 @@ DbConnection.prototype.close = function (callback)
 
     const closeClientConnection = function (callback)
     {
-        self.sendQueryViaJDBC(
-            "disconnect_user ('" + Config.virtuosoAuth.username + "')",
-            [],
-            function (err, result)
-            {
-                if (!isNull(err))
-                {
-                    Logger.log("error", "Error disconnecting user " + Config.virtuosoAuth.username + " before shutting down virtuoso.");
-                    Logger.log("error", err);
-                    Logger.log("error", result);
-                }
-                callback(err, result);
-            }, null, null, null, true, true
-        );
-    };
-
-    const sendCheckpointCommand = function (callback)
-    {
-        // self.executeViaJDBC(
-        //     "checkpoint;",
+        // self.sendQueryViaJDBC(
+        //     "disconnect_user ('" + Config.virtuosoAuth.username + "')",
         //     [],
         //     function (err, result)
         //     {
         //         if (!isNull(err))
         //         {
-        //             Logger.log("error", "Error committing pending transactions via checkpoint; command before shutting down virtuoso.");
+        //             Logger.log("error", "Error disconnecting user " + Config.virtuosoAuth.username + " before shutting down virtuoso.");
         //             Logger.log("error", err);
         //             Logger.log("error", result);
-        //             callback(err, result);
         //         }
-        //         else
-        //         {
-        //             callback(null, result);
-        //         }
+        //         callback(err, result);
         //     }, null, null, null, true, true
         // );
 
         callback(null);
+    };
+
+    const sendCheckpointCommand = function (callback)
+    {
+        Logger.log("Committing pending transactions via checkpoint; command before shutting down virtuoso....");
+        self.executeViaJDBC(
+            "EXEC=checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;checkpoint;",
+            [],
+            function (err, result)
+            {
+                if (!isNull(err))
+                {
+                    Logger.log("error", "Error committing pending transactions via checkpoint; command before shutting down virtuoso.");
+                    Logger.log("error", err);
+                    Logger.log("error", result);
+                    callback(err, result);
+                }
+                else
+                {
+                    callback(null, result);
+                }
+            }, null, null, null, true, true
+        );
+
+        callback(null);
+    };
+
+    const shutdownVirtuoso = function (callback)
+    {
+        callback(null);
+
+        // if(Config.docker.active && process.env.NODE_ENV === "test")
+        // {
+        //     Logger.log("Shutting down virtuoso....!");
+        //     self.executeViaJDBC(
+        //         "EXEC=shutdown;",
+        //         [],
+        //         function (err, result)
+        //         {
+        //             if (!isNull(err))
+        //             {
+        //                 Logger.log("error", "Error shutting down virtuoso.");
+        //                 Logger.log("error", err);
+        //                 Logger.log("error", result);
+        //                 callback(err, result);
+        //             }
+        //             else
+        //             {
+        //                 callback(null, result);
+        //             }
+        //         }, null, null, null, true, true
+        //     );
+        // }
+        // else
+        // {
+        //     callback(null);
+        // }
     };
 
     const closeAllJDBCConnections = function (callback)
@@ -1186,6 +1226,7 @@ DbConnection.prototype.close = function (callback)
         destroyQueues,
         closePendingConnections,
         closeClientConnection,
+        shutdownVirtuoso,
         closeAllJDBCConnections
     ], function (err, result)
     {

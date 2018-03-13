@@ -131,7 +131,7 @@ describe("Private project testFolder2 level restore_metadata_version", function 
                 itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, testFolder2.name, 0, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.message.should.contain("succesfully restored to version " + 0);
+                    res.body.message.should.contain("successfully restored to version " + 0);
                     done();
                 });
             });
@@ -144,7 +144,7 @@ describe("Private project testFolder2 level restore_metadata_version", function 
                 itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, folderForDemouser2.name, 0, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.message.should.contain("succesfully restored to version " + 0);
+                    res.body.message.should.contain("successfully restored to version " + 0);
                     done();
                 });
             });

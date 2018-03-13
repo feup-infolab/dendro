@@ -562,7 +562,12 @@ class App
         const closeVirtuosoConnections = function (cb)
         {
             const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-            DbConnection.finishUpAllConnectionsAndClose(cb);
+            DbConnection.finishUpAllConnectionsAndClose(function ()
+            {
+                const timeout = 10000;
+                Logger.log("Waiting " + timeout + "ms for virtuoso to flush the toilet...");
+                setTimeout(cb, 10000);
+            });
         };
 
         const closeCacheConnections = function (cb)

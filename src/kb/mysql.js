@@ -175,12 +175,12 @@ DendroMySQLClient.prototype.checkAndCreateInteractionsTable = function (tablenam
                     {
                         if (isNull(err))
                         {
-                            Logger.log("Interactions table " + tablename + " succesfully created in the MySQL database.");
+                            Logger.log("Interactions table " + tablename + " successfully created in the MySQL database.");
 
                             connection.end();
                             if (isNull(err))
                             {
-                                Logger.log("Indexes on table  " + tablename + " succesfully created in the MySQL database.");
+                                Logger.log("Indexes on table  " + tablename + " successfully created in the MySQL database.");
                                 return callback(null);
                             }
 

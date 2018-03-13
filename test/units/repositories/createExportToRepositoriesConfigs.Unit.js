@@ -71,7 +71,8 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
     static setup (callback)
     {
         const self = this;
-        super.setup(function(err, result){
+        super.setup(function (err, result)
+        {
             unitUtils.setup(self, callback);
         });
     }

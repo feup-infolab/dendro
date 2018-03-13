@@ -127,7 +127,6 @@ exports.getCallerFunctionFilePath = function ()
     return callerfile;
 };
 
-
 exports.getTopCallerUnit = function ()
 {
     const bootupUnitClass = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
@@ -259,7 +258,7 @@ exports.setup = function (unit, callback)
         {
             if (isNull(err))
             {
-                Logger.log("Ran load function of " + unit.name + " succesfully");
+                Logger.log("Ran load function of " + unit.name + " successfully");
             }
             else
             {

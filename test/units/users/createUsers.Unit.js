@@ -180,7 +180,10 @@ class CreateUsers extends LoadOntologies
                 {
                     if (!err)
                     {
-                        unitUtils.endLoad(self, callback);
+                        unitUtils.endLoad(self, function (err, results)
+                        {
+                            callback(err, results);
+                        });
                     }
                     else
                     {
@@ -198,14 +201,6 @@ class CreateUsers extends LoadOntologies
     static shutdown (callback)
     {
         super.shutdown(callback);
-    }
-
-    static setup (callback)
-    {
-        const self = this;
-        super.setup(function(err, result){
-            unitUtils.setup(self, callback);
-        });
     }
 }
 

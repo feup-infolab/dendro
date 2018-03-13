@@ -46,29 +46,29 @@ class CreateProjects extends CreateUsersUnit
             else
             {
                 async.series([
-                    function (cb)
+                    function (cb1)
                     {
                         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                         {
                             if (isNull(err))
                             {
-                                async.mapSeries(projectsData, function (projectData, cb)
+                                async.mapSeries(projectsData, function (projectData, cb2)
                                 {
                                     if (err)
                                     {
-                                        cb(err, agent);
+                                        cb2(err, agent);
                                     }
                                     else
                                     {
                                         projectUtils.createNewProject(true, agent, projectData, function (err, res)
                                         {
-                                            cb(err, res);
+                                            cb2(err, res);
                                         });
                                     }
                                 },
                                 function (err, result)
                                 {
-                                    cb(err, result);
+                                    cb1(err, result);
                                 });
                             }
                             else
@@ -77,19 +77,19 @@ class CreateProjects extends CreateUsersUnit
                             }
                         });
                     },
-                    function (cb)
+                    function (cb1)
                     {
                         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
                         {
                             if (err)
                             {
-                                cb(err, agent);
+                                cb1(err, agent);
                             }
                             else
                             {
                                 projectUtils.createNewProject(true, agent, projectCreatedByDemoUser3, function (err, res)
                                 {
-                                    cb(err, res);
+                                    cb1(err, res);
                                 });
                             }
                         });

@@ -32,17 +32,7 @@ class TestUnit
     static setup (callback)
     {
         const self = this;
-
-        if(typeof super.setup === "function")
-        {
-            super.setup(function(err, result){
-                unitUtils.setup(self, callback);
-            });
-        }
-        else
-        {
-            callback(null);
-        }
+        unitUtils.setup(self, callback);
     }
 }
 

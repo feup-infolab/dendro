@@ -52,6 +52,8 @@ then
         -p 8890:8890 \
         -p 1111:1111 \
         -e SPARQL_UPDATE=true \
+        -e "CheckpointSyncMode=2" \
+        -e "CheckpointInterval=0" \
         -e "NumberOfBuffers=$((32*85000))" \
         -v "$RUNNING_FOLDER/virtuoso:/data" \
         -d tenforce/virtuoso:1.2.0-virtuoso7.2.4 ) && \
