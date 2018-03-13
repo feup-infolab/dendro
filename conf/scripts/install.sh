@@ -35,7 +35,7 @@ else
     echo "loaded NVM."
 
     #update npm
-    npm install npm
+    npm install npm@latest -g
 
     #clear npm cache
     npm cache clean --force
