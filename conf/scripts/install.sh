@@ -7,6 +7,7 @@ NODE_VERSION=`cat .nvmrc`
 if [ "$(uname)" == "Darwin" ]; then
     brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    echo "I need your sudo password for installing text extraction dependencies..."
     sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
 fi
 
