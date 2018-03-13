@@ -441,7 +441,6 @@ exports.termextraction = function (req, res)
             }
         }
         cv = cv / words.frequency.length;
-        console.log("cvalue average: " + cv);
         var cvaluethreshold = [];
         for (i = 0; i < words.frequency.length; i++)
         {
@@ -454,8 +453,6 @@ exports.termextraction = function (req, res)
         {
             return b.cvalue - a.cvalue;
         });
-        console.log("size: " + cvaluethreshold.length);
-        console.log("size: " + words.frequency.length);
 
         return cvaluethreshold;
     };
@@ -482,7 +479,6 @@ exports.termextraction = function (req, res)
             {
                 if (cvalue[j].word.indexOf(contextwords[i]) > -1)
                 {
-                    console.log(cvalue[j].word + " " + contextwords[i]);
                     freq++;
                 }
             }
@@ -516,7 +512,6 @@ exports.termextraction = function (req, res)
             // DESC -> b.length - a.length
             return b.ncvalue - a.ncvalue;
         });
-        console.log(ncvaluelist.frequency);
         return ncvaluelist;
     };
 
@@ -659,12 +654,10 @@ exports.termextraction = function (req, res)
 
                     nounphrasesimple = ngrams;
                     var cvaluengrams = cvalue(ngrams, documents, tokenizer.tokenize(ngrams[0]).length);
-                    console.log(cvaluengrams.length);
-                    console.log(cvaluengrams);
                     var ncvaluegrams = ncvalue(cvaluengrams, cvaluengrams.length);
                     console.log(ncvaluegrams);
 
-                    for (var a = 0; a < documents.length; a++)
+                    /* for (var a = 0; a < documents.length; a++)
                     {
                         if (texti.text.length > 1)
                         {
@@ -739,13 +732,13 @@ exports.termextraction = function (req, res)
                         {
                             if (auxiliarname.indexOf(tfidfterms.scores[i].term) > -1)
                             {
-                                /*
+                                /!*
                                 if (tfidfterms.scores[i].score > auxiliarscore[i])
                                 {
                                     updateVal(tfidfterms.scores[i].term, tfidfterms.scores[i].score);
                                     console.log("updated friend");
                                 }
-                                */
+                                *!/
 
                             }
                             else
@@ -824,7 +817,7 @@ exports.termextraction = function (req, res)
                     {
                         return parseFloat(b.score) - parseFloat(a.score);
                     });
-
+*/
                     /* sorted.sort(function (a, b)
                     {
                       return parseFloat(b.score) - parseFloat(a.score);
@@ -840,16 +833,15 @@ exports.termextraction = function (req, res)
                         }
                     }*/
 
-                    /*
                     dbpediaterms = {
                         keywords: []
                     };
-                    for (index = 0; index < posnoumssimple.length; index++)
+                    for (var index = 0; index < cvaluengrams.length; index++)
                     {
                         // console.log(dbsearch[i]);
                         dbpediaterms.keywords.push({
-                            words: posnoumssimple[index],
-                            score: auxiliaryscorearray[index]
+                            words: cvaluengrams[index].word,
+                            score: cvaluengrams[index].cvalue
                         });
                     }
 
@@ -859,7 +851,7 @@ exports.termextraction = function (req, res)
                     });
 
                     console.log(dbpediaterms);
-*/
+
                     res.status(200).json(
                         {
                             dbpediaterms
@@ -904,37 +896,6 @@ exports.dbpedialookup = function (req, res)
         });
     };
     var dbpediaresults = JSON.parse(req.body.keywords).dbpediaterms.keywords;
-    // var lookup = rec.body;
-    /*
-    var sum = scores.reduce(function (a, b)
-    {
-        return a + b;
-    });
-    var avg = sum / scores.length;
-    var bbody;
-
-    for (var i = 0; i < dbsearch.length; i++)
-    {
-        if (scores[i] > (avg + avg))
-        {
-            // console.log(dbsearch[i]);
-            lookup.push(dbsearch[i]);
-        }
-    }
-    */
-    const query = "select distinct ?property {\n" +
-    "  { dbr:Suez ?property ?o }\n" +
-    "  union\n" +
-    "  { ?s ?property dbr:Suez }\n" +
-    "\n" +
-    "  filter not exists { ?property rdfs:label ?label }\n" +
-    "}";
-    dps
-        .client()
-        .query(query)
-        .asJson()
-        .then(results => console.log(JSON.stringify(results)))
-        .catch(err => console.error(err));
 
     async.mapSeries(dbpediaresults, search, function (err, results)
     {
@@ -956,10 +917,10 @@ exports.dbpedialookup = function (req, res)
             {
                 if (results[i] !== undefined && JSON.parse(results[i]).results[0] != null)
                 {
-                    /*                    console.log("searched word: " + dbpediaresults[i].words);
+                    console.log("searched word: " + dbpediaresults[i].words);
                     console.log("URI: " + JSON.parse(results[i]).results[0].uri);
                     console.log("label: " + JSON.parse(results[i]).results[0].label);
-                    console.log("description: " + JSON.parse(results[i]).results[0].description);*/
+                    console.log("description: " + JSON.parse(results[i]).results[0].description);
                     dbpediauri.result.push({
                         searchterm: dbpediaresults[i].words,
                         uri: JSON.parse(results[i]).results[0].uri,
@@ -980,6 +941,136 @@ exports.dbpedialookup = function (req, res)
             res.status(200).json(
                 {
                     dbpediauri
+                }
+            );
+        }
+    });
+};
+
+exports.dbpediaproperties = function (req, res)
+{
+    req.setTimeout(150000);
+    var search = function (lookup, cb)
+    {
+               lookup.label = lookup.label.replace(/\s/g, "_");
+      /*
+              const query = "select distinct ?property {\n" +
+          "  { dbr:" + lookup.label + " ?property ?o }\n" +
+          "  union\n" +
+          "  { ?s ?property dbr:" + lookup.label + " }\n" +
+          "\n" +
+          "  filter not exists { ?property rdfs:label ?label }\n" +
+          "}";*/
+        const query = "select distinct ?property ?label {\n" +
+          "  { dbr:" + lookup.label + " ?property ?o }\n" +
+          "  union\n" +
+          "  { ?s ?property dbr:" + lookup.label + " }\n" +
+          "\n" +
+          "  optional { \n" +
+          "    ?property rdfs:label ?label .\n" +
+          "    filter langMatches(lang(?label), 'en')\n" +
+          "  }\n" +
+          "}";
+        dps
+            .client()
+            .query(query)
+            .asJson()
+            .then(function (r)
+            {
+                cb(null, r);
+            })
+            .catch(function (err)
+            {
+                console.log(lookup.label + " : " + err);
+                cb(null);
+            });
+    };
+
+    var dbpediaconcepts = [];
+    for (var i = 0; i < req.body.concepts.length; i++)
+    {
+        if (!req.body.concepts[i].hasOwnProperty("error"))
+        {
+            dbpediaconcepts.push(req.body.concepts[i]);
+        }
+    }
+
+    async.mapSeries(dbpediaconcepts, search, function (err, results)
+    {
+        var dbpediaproperties = {
+            result: []
+        };
+        if (err)
+        {
+            // console.log(err);
+            res.status(500).json(
+                {
+                    dbpediaproperties
+                }
+            );
+        }
+        else
+        {
+            var j;
+            var h;
+            for (var i = 0; i < results.length; i++)
+            {
+                if (results[i] !== undefined)
+                {
+                    if (dbpediaproperties.result.length === 0)
+                    {
+                        for (j = 0; j < results[i].results.bindings.length; j++)
+                        {
+                            dbpediaproperties.result.push({word: results[i].results.bindings[j].property.value, frequency: 1});
+                        }
+                    }
+                    else
+                    {
+                        // console.log(results[i].results.bindings[0].property.value);
+                        for (j = 0; j < results[i].results.bindings.length; j++)
+                        {
+                            for (h = 0; h < dbpediaproperties.result.length; h++)
+                            {
+                                if (dbpediaproperties.result[h].word === results[i].results.bindings[j].property.value)
+                                {
+                                    dbpediaproperties.result[h].frequency++;
+                                    break;
+                                }
+                            }
+                            if (h === dbpediaproperties.result.length)
+                            {
+                                dbpediaproperties.result.push({word: results[i].results.bindings[j].property.value, frequency: 1});
+                            }
+                        }
+                    }
+                    /*                    console.log("searched word: " + dbpediaresults[i].words);
+                    console.log("URI: " + JSON.parse(results[i]).results[0].uri);
+                    console.log("label: " + JSON.parse(results[i]).results[0].label);
+                    console.log("description: " + JSON.parse(results[i]).results[0].description);
+                    dbpediauri.result.push({
+                        searchterm: dbpediaresults[i].words,
+                        uri: JSON.parse(results[i]).results[0].uri,
+                        label: JSON.parse(results[i]).results[0].label,
+                        description: JSON.parse(results[i]).results[0].description
+                    });*/
+                }
+                else
+                {
+                    /* // console.log("results for word : " + dbpediaresults[i].words + " undefined");
+                    dbpediaproperties.result.push({
+                        searchterm: dbpediaconcepts[i],
+                        error: "failed to extract properties"
+                    });*/
+                }
+            }
+            dbpediaproperties.result.sort(function (a, b)
+            {
+                return b.frequency - a.frequency;
+            });
+
+            res.status(200).json(
+                {
+                    dbpediaproperties
                 }
             );
         }

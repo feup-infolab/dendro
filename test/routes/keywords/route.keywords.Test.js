@@ -333,6 +333,7 @@ describe("Searches DBpedia for important terms", function (done)
                 done();
             });
         });
+        var dbpediaconcepts = [];
         it("Search terms in dbpedia", function (done)
         {
             this.timeout(1500000);
@@ -341,7 +342,23 @@ describe("Searches DBpedia for important terms", function (done)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
-                // console.log(db.body.dbpediauri.result);
+                console.log(db.body.dbpediauri.result);
+                dbpediaconcepts = db.body.dbpediauri.result;
+                done();
+            });
+        });
+        it("Get properties from DBpedia", function (done)
+        {
+            this.timeout(1500000);
+            // console.log(agent);
+            keywordsUtils.dbpediaproperties(dbpediaconcepts, agent, function (err, db)
+            {
+                // console.log(err);
+                db.statusCode.should.equal(200);
+                for (var i = 0; i < db.body.dbpediaproperties.result.length; i++)
+                {
+                    console.log(db.body.dbpediaproperties.result[i]);
+                }
                 // db.text.should.contain("Google");
                 // db.text.should.contain("Kaggle");
                 done();

@@ -5,7 +5,6 @@ chai.use(chaiHttp);
 
 module.exports.loadfiles = function (text, agent, cb)
 {
-
     const path = "/keywords/loadfiles";
     agent
         .get(path)
@@ -101,3 +100,26 @@ module.exports.dbpedialookup = function (text, agent, cb)
         });
 };
 
+module.exports.dbpediaproperties = function (text, agent, cb)
+{
+    const path = "/keywords/dbpediaproperties";
+    agent
+        .get(path)
+        .send({concepts: text})
+        .then(function (response, res)
+        {
+            if (response.ok)
+            {
+                cb(null, response);
+            }
+            else
+            {
+                cb("Error dbpedia properties.", response);
+            }
+        })
+        .catch(function (error)
+        {
+            console.log("Error during dbpedia properties return" + error);
+            // cb(null, error);
+        });
+};
