@@ -60,6 +60,11 @@ Deposit.createDepositRegistry = function (object, callback) {
         return regexp.test(url);
     };
 
+    if(isNull(object.ddr.lastVerifiedDate)){
+      object.ddr.lastVerifiedDate = moment().format();
+    }
+    object.ddr.isAvailable = true;
+
     if(isResource(requestedResourceURI)){
 
       console.log("creating registry from deposit\n" + util.inspect(object));
@@ -72,7 +77,7 @@ Deposit.createDepositRegistry = function (object, callback) {
         }
       });
     }else{
-      return;
+      callback(1);
     }
 };
 

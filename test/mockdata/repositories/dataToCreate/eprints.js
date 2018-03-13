@@ -28,7 +28,7 @@ const newExportRepoData = {
         title: "EPrints"
     },
     ddr: {
-        hasExternalUrl: "http://demoprints.eprints.org",
+        hasExternalUri: "http://demoprints.eprints.org",
         hasUsername: "nelsonpereira1991",
         hasPlatform: {
             uri: "/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a296",

@@ -14,8 +14,9 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const File = require(Pathfinder.absPathInSrcFolder("models/directory_structure/file.js")).File;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Deposit = require(Pathfinder.absPathInSrcFolder("models/deposit.js")).Deposit;
 
-const sendDeposits = function(jsonOnly, params, agent, callback){
+exports.sendDeposits = function(jsonOnly, params, agent, callback){
     const path = "deposits/get_deposits";
     if(jsonOnly){
         agent
@@ -35,7 +36,29 @@ const sendDeposits = function(jsonOnly, params, agent, callback){
     }
 };
 
-
-module.exports = {
-    sendDeposits : sendDeposits,
+exports.createDeposit = function(deposit, callback){
+    Deposit.createDepositRegistry(deposit, function(err, deposit){
+        callback(err, deposit);
+    })
 };
+
+exports.getDeposit = function(jsonOnly, uri, agent, callback){
+    if(jsonOnly){
+        agent
+            .get(uri)
+            .set("Accept", "application/json")
+            .end(function(err, res){
+                callback(err, res);
+            });
+
+    } else {
+        agent
+            .get(uri)
+            .end(function (err, res){
+                callback(err, res);
+            });
+    }
+};
+
+
+module.exports = exports;

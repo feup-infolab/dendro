@@ -32,7 +32,7 @@ const newExportRepoData = {
         title: "b2share_config_2"
     },
     ddr: {
-        hasExternalUrl: "trng-b2share.eudat.eu",
+        hasExternalUri: "trng-b2share.eudat.eu",
         hasAccessToken: "MmGKBzjpdlT382lag38zxhsKttZDw9e7u6zZmzucVFUu1aYM5i55WpeUSgFE",
         hasPlatform: {
             uri: "/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a294",

@@ -162,6 +162,15 @@ exports.getDeposit = function(req, res){
       }
     };
 
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+    let display;
+    if(acceptsJSON && !acceptsHTML){
+      display = "json";
+    }else if(!acceptsJSON && acceptsHTML){
+      display = "render";
+    }
+
     let resourceURI = req.params.requestedResourceUri;
     Deposit.findByUri(resourceURI, function(err, deposit){
        if(isNull(err)){
@@ -174,8 +183,13 @@ exports.getDeposit = function(req, res){
 
              deposit.dcterms.date = moment(deposit.dcterms.date).format('LLLL');
              deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
-             viewVars.deposit = deposit;
-             res.render("registry/deposit", viewVars);
+             if(display === "json"){
+               res.json(deposit);
+             }else{
+               viewVars.deposit = deposit;
+               res.render("registry/deposit", viewVars);
+             }
+
            });
 
        }

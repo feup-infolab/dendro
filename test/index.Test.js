@@ -19,9 +19,13 @@ global.Config = Config;
 
 global.tests = {};
 
-require(Pathfinder.absPathInTestsFolder("/routes/deposits/__project/route.deposits.__project.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/deposits/get_deposits/routes.deposits.get_deposits.Test.js"));
 
 return;
+
+
+require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__copy_paste/routes.project.publicProject.__copy_paste.Test.js"));
+
 
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 

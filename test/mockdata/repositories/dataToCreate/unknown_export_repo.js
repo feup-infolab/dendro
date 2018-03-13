@@ -15,7 +15,7 @@
  */
 const newExportRepoData = {
     ddr: {
-        hasExternalUrl: "errorRepoConfig.com",
+        hasExternalUri: "errorRepoConfig.com",
         hasAccessToken: "blablablaAccessTokeb",
         hasPlatform: {
             uri: "http://127.0.0.1:3001/repository_platform/unknownPlatform",

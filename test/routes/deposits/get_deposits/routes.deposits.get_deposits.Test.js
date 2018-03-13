@@ -28,6 +28,7 @@ let demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 const createFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const createDepositsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/deposits/createDeposits.Unit.js"));
 
 let Project;
 let User;
@@ -42,21 +43,22 @@ const params = {
   uuid : "aerg35tgsrh45h",
   offset : 0,
   page : 10
-};
+}
+
+let depositUri;
 
 //TODO create unit of mock deposits +- 5 6 of different types
 
 describe("Deposits/latest", function (done) {
   before(function (done) {
     this.timeout(60000);
-    createFoldersUnit.setup(function (err, res) {
+    createDepositsUnit.setup(function (err, deposit) {
+      depositUri = deposit.uri;
       should.equal(err, null);
-      Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
-      User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
       done();
     });
   });
-  describe('?get_deposits', function () {
+  /*describe('?get_deposits', function () {
 
     it("should not show private deposits to unauthenticated user", function (done) {
       let app = global.tests.app;
@@ -221,48 +223,55 @@ describe("Deposits/latest", function (done) {
       });
     });
   });
-
+*/
   describe('verifying outside deposits', function () {
     it("should confirm a deposit is still active in a ckan platform", function (done) {
+      const agent = aaa;
+      depositUtils.getDeposit(depositUri, agent, function(err, deposit){
+        if(isNull(deposit)){
+           const outsideUri = "https://" + deposit.ddr.exportedFromProject;
+        }
+        done(1);
+      });
 
     });
 
     it("should confirm a deposit is still active in a dspace platform", function (done) {
-
+      done();
     });
 
     it("should confirm a deposit is still active in a eprints platform", function (done) {
-
+      done();
     });
 
     it("should confirm a deposit is still active in a figshare platform", function (done) {
-
+      done();
     });
 
     it("should confirm a deposit is still active in a zenodo platform", function (done) {
-
+      done();
     });
 
     it("should confirm a deposit is still active in a b2share platform", function (done) {
-
+      done();
     });
 
     it("should report a deposit is non existing in an outside platform", function (done) {
-
+      done();
     });
   });
 
-  describe("copy selected contents from a project to a deposit", function(){
+ /* describe("copy selected contents from a project to a deposit", function(){
 
-  });
+  });*/
 
   after(function (done) {
-    //destroy graphs
-    this.timeout(Config.testsTimeout);
-    db.deleteGraphs(function (err, data) {
+    // destroy graphs
+
+    appUtils.clearAppState(function (err, data)
+    {
       should.equal(err, null);
-      GLOBAL.tests.server.close();
-      done();
+      done(err);
     });
   });
 });

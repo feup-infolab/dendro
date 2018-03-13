@@ -440,6 +440,11 @@ Elements.ontologies.dcterms =
   {
       type: Elements.types.string,
       control: Controls.input_box
+  },
+    socialUpdatedAt: //TODO remove
+  {
+      type: Elements.types.date,
+      control: Controls.input_box
   }
 };
 

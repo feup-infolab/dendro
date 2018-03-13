@@ -28,7 +28,7 @@ const newExportRepoData = {
         title: "Zenodo"
     },
     ddr: {
-        hasExternalUrl: "http://www.zenodo.org/",
+        hasExternalUri: "http://www.zenodo.org/",
         hasAccessToken: "dgOQrI0zzx5tZ1zSTSaBCtmik3SbJmxaJKW1GZV9ZUe7b7EV9Rr4XSTWMcTs",
         hasPlatform: {
             uri: "/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a298",
