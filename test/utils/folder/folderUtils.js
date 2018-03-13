@@ -139,7 +139,8 @@ exports.getFolderContentsByUri = function (jsonOnly, agent, folderURI, cb)
     }
 };
 
-module.exports.ls_by_name = function (jsonOnly, agent, currentFolderURI, childName, cb) {
+module.exports.ls_by_name = function (jsonOnly, agent, currentFolderURI, childName, cb)
+{
     const path = currentFolderURI + "?ls";
     if (jsonOnly)
     {

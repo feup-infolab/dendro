@@ -14,6 +14,7 @@ const FileSystemPost = require(Pathfinder.absPathInSrcFolder("/models/social/fil
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const contentDisposition = require("content-disposition");
 
 const async = require("async");
 
@@ -39,7 +40,7 @@ exports.download = function (req, res)
 
                 res.writeHead(200,
                     {
-                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
+                        "Content-Disposition": contentDisposition(fileName),
                         "Content-Type": mimeType
                     }
                 );
@@ -90,20 +91,28 @@ exports.download = function (req, res)
 
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
+                            const parentPath = path.resolve(writtenFilePath, "..");
 
-                            res.on("end", function ()
+                            res.on("finish", function ()
                             {
-                                File.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
+                                if (!isNull(parentPath))
                                 {
-                                    if (err)
+                                    File.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                     {
-                                        Logger.log("error", "Unable to delete " + writtenFilePath);
-                                    }
-                                    else
-                                    {
-                                        Logger.log("Deleted " + writtenFilePath);
-                                    }
-                                });
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + parentPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + parentPath);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
+                                }
                             });
 
                             fileStream.pipe(res);
@@ -156,26 +165,33 @@ exports.download = function (req, res)
                         {
                             const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
-
+                            const parentPath = path.resolve(writtenFilePath, "..");
                             res.writeHead(200,
                                 {
-                                    "Content-disposition": "attachment; filename=\"" + file.nie.title + "\"",
+                                    "Content-Disposition": contentDisposition(file.nie.title),
                                     "Content-type": mimeType
                                 });
 
-                            res.on("end", function ()
+                            res.on("finish", function ()
                             {
-                                Folder.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
+                                if (!isNull(parentPath))
                                 {
-                                    if (err)
+                                    Folder.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                     {
-                                        Logger.log("error", "Unable to delete " + writtenFilePath);
-                                    }
-                                    else
-                                    {
-                                        Logger.log("Deleted " + writtenFilePath);
-                                    }
-                                });
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + parentPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + parentPath);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
+                                }
                             });
 
                             fileStream.pipe(res);
@@ -333,27 +349,35 @@ exports.serve = function (req, res)
 
                                 const mimeType = Config.mimeType("zip");
                                 const fileName = folderToDownload.nie.title + ".zip";
+                                const parentPath = path.resolve(writtenFilePath, "..");
 
                                 res.writeHead(200,
                                     {
-                                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
+                                        "Content-Disposition": contentDisposition(fileName),
                                         "Content-Type": mimeType
                                     }
                                 );
 
-                                res.on("end", function ()
+                                res.on("finish", function ()
                                 {
-                                    Folder.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr)
+                                    if (!isNull(parentPath))
                                     {
-                                        if (err)
+                                        Folder.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                         {
-                                            Logger.log("error", "Unable to delete " + writtenFilePath);
-                                        }
-                                        else
-                                        {
-                                            Logger.log("Deleted " + writtenFilePath);
-                                        }
-                                    });
+                                            if (err)
+                                            {
+                                                Logger.log("error", "Unable to delete " + parentPath);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("Deleted " + parentPath);
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
+                                    }
                                 });
 
                                 fileStream.pipe(res);
@@ -443,11 +467,11 @@ exports.serve = function (req, res)
 
                                             res.writeHead(200,
                                                 {
-                                                    "Content-disposition": "filename=\"" + file.nie.title + "\"",
+                                                    "Content-Disposition": contentDisposition(file.nie.title),
                                                     "Content-type": mimeType
                                                 });
 
-                                            res.on("end", function ()
+                                            res.on("finish", function ()
                                             {
                                                 const path = require("path");
                                                 const parentFolderPath = path.resolve(writtenFilePath, "..");
@@ -693,7 +717,7 @@ exports.get_thumbnail = function (req, res)
 
                                                 res.writeHead(200,
                                                     {
-                                                        "Content-disposition": "filename=\"" + filename + "\"",
+                                                        "Content-Disposition": contentDisposition(filename),
                                                         "Content-type": mimeType
                                                     });
 
@@ -1471,7 +1495,7 @@ exports.rm = function (req, res)
                                             return callback(null, msg);
                                         }
                                         return callback(err, result);
-                                    }, userUri, false, req.query.really_delete);
+                                    }, userUri, false, reallyDelete);
                                 }
                                 else
                                 {
@@ -2162,7 +2186,7 @@ exports.ls_by_name = function (req, res)
     let show_deleted = req.query.show_deleted;
     let childName = req.query.title;
 
-    if(isNull(childName))
+    if (isNull(childName))
     {
         return res.status(400).json({
             result: "error",
@@ -2170,7 +2194,7 @@ exports.ls_by_name = function (req, res)
         });
     }
 
-    if(isNull(resourceURI))
+    if (isNull(resourceURI))
     {
         return res.status(400).json({
             result: "error",
@@ -2415,7 +2439,7 @@ exports.serve_static = function (req, res, pathOfIntendedFileRelativeToProjectRo
 
         res.writeHead(statusCode,
             {
-                "Content-disposition": "filename=\"" + filename + "\"",
+                "Content-Disposition": contentDisposition(filename),
                 "Content-type": mimeType
             });
 

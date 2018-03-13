@@ -49,7 +49,7 @@ angular.module("dendroApp.services")
                     for (var i = 0; i < keys.length; i++)
                     {
                         var key = keys[i];
-                        if (file.hasOwnProperty(key) && (typeof file[key] === "string"))
+                        if (file.hasOwnProperty(key) && ((typeof file[key] === "string") || typeof file[key] === "boolean"))
                         {
                             url.addSearch(key, file[key]);
                         }

@@ -1159,21 +1159,46 @@ User.prototype.finishPasswordReset = function (newPassword, token, callback)
         {
             if (tokenIsCorrect)
             {
-                const crypto = require("crypto"), shasum = crypto.createHash("sha1");
+                const bcrypt = require("bcryptjs");
 
-                shasum.update(newPassword);
-                self.ddr.password = shasum.digest("hex");
-                self.ddr.password_reset_token = null;
-
-                self.save(function (err, result)
+                bcrypt.genSalt(10, function (error, salt)
                 {
-                    if (isNull(err))
+                    if (isNull(error))
                     {
-                        Logger.log("Successfully set new password for user : " + self.uri + ".");
-                        return callback(err, result);
+                        self.ddr.salt = salt;
+                        bcrypt.hash(newPassword, self.ddr.salt, function (err, hashedPassword)
+                        {
+                            if (!err)
+                            {
+                                self.ddr.password = hashedPassword;
+                                self.ddr.password_reset_token = null;
+
+                                self.save(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Successfully set new password for user : " + self.uri + ".");
+                                        return callback(err, result);
+                                    }
+                                    Logger.log("error", "Error setting new password for user : " + self.uri + ". Error reported: " + result);
+                                    return callback(err, result);
+                                });
+                            }
+                            else
+                            {
+                                let msg = "Error encrypting password";
+                                Logger.log("error", msg);
+                                return callback(true, msg);
+                            }
+                        });
                     }
-                    Logger.log("error", "Error setting new password for user : " + self.uri + ". Error reported: " + result);
-                    return callback(err, result);
+                    else
+                    {
+                        const msg = "Unable to generate salt for user during password reset!";
+                        Logger.log("error", msg);
+                        Logger.log("error", error);
+                        callback(error, msg);
+                    }
                 });
             }
             else
@@ -1199,11 +1224,15 @@ User.prototype.startPasswordReset = function (callback)
 
     const sendConfirmationEmail = function (callback)
     {
-        const nodemailer = require("nodemailer");
-
         // create reusable transporter object using the default SMTP transport
 
         const gmailUsername = Config.email.gmail.username;
+
+        if (gmailUsername.indexOf("@") > -1)
+        {
+            throw new Error("The parametrized gmail username has an @ in it. Did you parametrize the email -> email -> gmail -> username correctly? it is not the full email, just the username.");
+        }
+
         const gmailPassword = Config.email.gmail.password;
 
         const ejs = require("ejs");
@@ -1237,7 +1266,7 @@ User.prototype.startPasswordReset = function (callback)
         const mailer = require("nodemailer");
 
         // Use Smtp Protocol to send Email
-        const smtpTransport = mailer.createTransport("SMTP", {
+        const smtpTransport = mailer.createTransport({
             service: "Gmail",
             auth: {
                 user: gmailUsername + "@gmail.com",
@@ -1247,7 +1276,7 @@ User.prototype.startPasswordReset = function (callback)
 
         const mail = {
             from: "Dendro RDM Platform <from@gmail.com>",
-            to: self.foaf.mbox + "@gmail.com",
+            to: self.foaf.mbox,
             subject: "Dendro Website password reset instructions",
             text: renderedTXT,
             html: rendered
@@ -1384,6 +1413,18 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
                                 readStream,
                                 function (err, result)
                                 {
+                                    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+                                    File.deleteOnLocalFileSystem(tempFolderPath, function (err, stdout, stderr)
+                                    {
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Unable to delete " + tempFolderPath);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Deleted " + tempFolderPath);
+                                        }
+                                    });
                                     if (err)
                                     {
                                         let msg = "Error saving avatar file in GridFS :" + result + " for user " + self.uri;

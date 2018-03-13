@@ -204,6 +204,17 @@ angular.module("dendroApp.services")
                     });
                 };
 
+                this.get_project_info_by_handle = function (projectHandle)
+                {
+                    var requestUri = "/project/" + projectHandle;
+                    return $http({
+                        method: "GET",
+                        url: requestUri,
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
+                    });
+                };
+
                 this.update_project_settings = function (project)
                 {
                     var deferred = $q.defer();
