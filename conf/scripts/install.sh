@@ -18,7 +18,6 @@ then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
 else
-    chown -R "$(whoami)" "$HOME/.avn"
     chown -R "$(whoami)" "$HOME/.nvm"
 
     #install NVM, Node, Node Automatic Version switcher
@@ -33,12 +32,7 @@ else
     echo "Installing Node Version $NODE_VERSION during install script!!"
     nvm install $NODE_VERSION &&
     nvm use $NODE_VERSION &&
-    npm install -g avn avn-nvm avn-n &&
-    avn setup &&
-
-    [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" && # load avn
-
-    echo "loaded NVM and AVN."
+    echo "loaded NVM."
 
     #update npm
     npm install npm
@@ -50,7 +44,6 @@ else
     rm -rf node_modules
     rm -rf package-lock.json
 
-    chown -R "$(whoami)" "$HOME/.avn"
     chown -R "$(whoami)" "$HOME/.nvm"
 
     #install preliminary dependencies
