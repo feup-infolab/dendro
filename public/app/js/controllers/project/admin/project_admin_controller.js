@@ -333,11 +333,11 @@ angular.module("dendroApp.controllers")
             {
                 if (error.data !== null && error.data.message !== null && error.data.title !== null)
                 {
-                    Utils.show_popup("error", error.data.title, error.data.message);
+                    $scope.show_popup("error", error.data.title, error.data.message);
                 }
                 else
                 {
-                    Utils.show_popup("error", "Error occurred while fetching the storage options of the project: ", JSON.stringify(error));
+                    $scope.show_popup("error", "Error occurred while fetching the storage options of the project: ", JSON.stringify(error));
                 }
             });
         };
@@ -354,17 +354,17 @@ angular.module("dendroApp.controllers")
                 headers: {Accept: "application/json"}
             }).then(function (response)
             {
-                Utils.show_popup("success", response.data.title, response.data.message);
+                $scope.show_popup("success", response.data.title, response.data.message);
                 $scope.get_storage();
             }).catch(function (error)
             {
                 if (error.data !== null && error.data.message !== null && error.data.title !== null)
                 {
-                    Utils.show_popup("error", error.data.title, error.data.message);
+                    $scope.show_popup("error", error.data.title, error.data.message);
                 }
                 else
                 {
-                    Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                    $scope.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
                 }
             });
         };

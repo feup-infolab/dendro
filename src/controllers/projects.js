@@ -18,6 +18,7 @@ const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConne
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const B2Drop = require("@feup-infolab/node-b2drop").B2Drop;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
@@ -904,13 +905,27 @@ exports.new = function (req, res)
                     }
                     else if (req.body.storageConfig.hasStorageType === "b2drop")
                     {
-                        storageConf = new StorageConfig({
-                            ddr: {
-                                hasStorageType: req.body.storageConfig.hasStorageType,
-                                username: req.body.storageConfig.username,
-                                password: req.body.storageConfig.password
+
+                        new B2Drop(req.body.storageConfig.username, req.body.storageConfig.password).testConnection(function(err,resp)
+                        {
+                            if (isNull(err))
+                            {
+                                storageConf = new StorageConfig({
+                                    ddr: {
+                                        hasStorageType: req.body.storageConfig.hasStorageType,
+                                        username: req.body.storageConfig.username,
+                                        password: req.body.storageConfig.password
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                throw new Error("Invalid storage credentials");
                             }
                         });
+
+
+
                     }
                     else
                     {
@@ -2299,13 +2314,13 @@ exports.storage = function (req, res)
 {
     const projectUri = req.params.requestedResourceUri;
 
-    const validateB2DropLogin = function (username, password, cb)
+    const validateB2Drop = function (username, password, cb)
     {
         const B2Drop = require("@feup-infolab/node-b2drop").B2Drop;
         const account = new B2Drop(username, password);
-        account.login(function (err, response)
+        account.testConnection(function (err, response)
         {
-            if (isNull(err) && response && response.statusCode === 200)
+            if (isNull(err))
             {
                 return cb(null, null);
             }
@@ -2392,7 +2407,7 @@ exports.storage = function (req, res)
                                 {
                                     const username = req.body.storageConfig.ddr.username;
                                     const password = req.body.storageConfig.ddr.password;
-                                    validateB2DropLogin(username, password, function (err, msg)
+                                    validateB2Drop(username, password, function (err, msg)
                                     {
                                         if (isNull(err))
                                         {
@@ -2475,26 +2490,41 @@ exports.storage = function (req, res)
                                 }
                                 else if (storageType === "b2drop")
                                 {
-                                    currentConfigOfTypeInProject.ddr.password = req.body.storageConfig.password;
-                                    currentConfigOfTypeInProject.ddr.username = req.body.storageConfig.username;
-
-                                    currentConfigOfTypeInProject.save(function (err, result)
+                                    validateB2Drop(req.body.storageConfig.username, req.body.storageConfig.password, function (err, msg)
                                     {
-                                        if (!err)
+                                        if (isNull(err))
                                         {
-                                            updateProjectStorageConfig(project, callback);
+                                            currentConfigOfTypeInProject.ddr.password = req.body.storageConfig.password;
+                                            currentConfigOfTypeInProject.ddr.username = req.body.storageConfig.username;
+
+                                            currentConfigOfTypeInProject.save(function (err, result)
+                                            {
+                                                if (!err)
+                                                {
+                                                    updateProjectStorageConfig(project, callback);
+                                                }
+                                                else
+                                                {
+                                                    const msg = "Error updating storage configuration! " + JSON.stringify(result);
+                                                    Logger.log("error", msg);
+                                                    res.status(500).json({
+                                                        result: "ok",
+                                                        title: "Error",
+                                                        message: msg
+                                                    });
+                                                }
+                                            });
                                         }
                                         else
                                         {
-                                            const msg = "Error updating storage configuration! " + JSON.stringify(result);
-                                            Logger.log("error", msg);
-                                            res.status(500).json({
-                                                result: "ok",
+                                            res.status(400).json({
+                                                result: "error",
                                                 title: "Error",
                                                 message: msg
                                             });
                                         }
-                                    });
+                                    }
+                                    );
                                 }
                             }
                         }

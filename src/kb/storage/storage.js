@@ -22,6 +22,8 @@ class Storage
     {}
     rename ()
     {}
+    getStorageLimit ()
+    {}
 }
 
 module.exports.Storage = Storage;

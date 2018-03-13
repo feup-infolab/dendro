@@ -57,7 +57,7 @@ class StorageB2Drop extends Storage
 
         if (!isNull(self.connection))
         {
-            self.connection.login(function (err, response)
+            self.connection.testConnection(function (err, response)
             {
                 if (isNull(err))
                 {
@@ -127,7 +127,7 @@ class StorageB2Drop extends Storage
                             },
                             function (cb)
                             {
-                                self.connection.put(targetFilePath, inputStream, function (err, result)
+                                self.connection.put(targetFilePath, inputStream, function (err, response)
                                 {
                                     if (isNull(err))
                                     {
@@ -220,6 +220,22 @@ class StorageB2Drop extends Storage
                 }
             });
         });
+    }
+
+    getStorageLimit (callback)
+    {
+        const self = this;
+
+        self.connection.getQuota(function (err, resp)
+        {
+            if (isNull(err))
+            {
+                return callback(err, {limit: resp.avaiable});
+            }
+
+            return callback(err, null);
+        }
+        );
     }
 }
 
