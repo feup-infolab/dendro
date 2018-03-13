@@ -891,124 +891,132 @@ exports.new = function (req, res)
                 }
 
                 let storageConf;
-                try
-                {
-                    // this condition is to prevent user-provided values overriding
-                    // the local storage authentication credentials
 
-                    if (req.body.storageConfig.hasStorageType === "local")
+                async.waterfall([
+                    function (callback)
                     {
-                        storageConf = new StorageConfig({
-                            ddr: {
-                                hasStorageType: req.body.storageConfig.hasStorageType
-                            }
-                        });
-                    }
-                    else if (req.body.storageConfig.hasStorageType === "b2drop")
-                    {
-
-                        new B2Drop(req.body.storageConfig.username, req.body.storageConfig.password).testConnection(function(err,resp)
+                        if (req.body.storageConfig.hasStorageType === "local")
                         {
-                            if (isNull(err))
-                            {
-                                storageConf = new StorageConfig({
-                                    ddr: {
-                                        hasStorageType: req.body.storageConfig.hasStorageType,
-                                        username: req.body.storageConfig.username,
-                                        password: req.body.storageConfig.password
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                throw new Error("Invalid storage credentials");
-                            }
-                        });
-
-
-
-                    }
-                    else
-                    {
-                        throw new Error("Invalid storage type specified : " + req.body.storageConfig.hasStorageType);
-                    }
-                }
-                catch (e)
-                {
-                    const msg = "Invalid parameters provided when setting up the storage for the new project.";
-                    if (acceptsJSON && !acceptsHTML)
-                    {
-                        return res.status(400).json({
-                            result: "error",
-                            message: msg,
-                            error: e
-                        });
-                    }
-
-                    return res.status(400).render("projects/new",
-                        {
-                            // title : "Register on Dendro",
-                            error_messages: [msg]
+                            storageConf = new StorageConfig({
+                                ddr: {
+                                    hasStorageType: req.body.storageConfig.hasStorageType
+                                }
+                            });
+                            callback(null);
                         }
-                    );
-                }
+                        else if (req.body.storageConfig.hasStorageType === "b2drop")
+                        {
+                            new B2Drop(req.body.storageConfig.username, req.body.storageConfig.password).testConnection(function (err, resp)
+                            {
+                                if (isNull(err))
+                                {
+                                    storageConf = new StorageConfig({
+                                        ddr: {
+                                            hasStorageType: req.body.storageConfig.hasStorageType,
+                                            username: req.body.storageConfig.username,
+                                            password: req.body.storageConfig.password
+                                        }
+                                    });
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    callback("Invalid storage credentials", null);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            callback("Invalid storage type specified : " + req.body.storageConfig.hasStorageType);
+                        }
+                    },
 
-                storageConf.save(function (err, savedConfiguration)
-                {
-                    if (isNull(err))
+                    function (callback)
                     {
-                        const projectData = {
-                            dcterms: {
-                                creator: req.user.uri,
-                                title: req.body.title,
-                                description: req.body.description,
-                                publisher: req.body.publisher,
-                                language: req.body.language,
-                                coverage: req.body.coverage
-                            },
-                            ddr: {
-                                handle: req.body.handle,
-                                privacyStatus: req.body.privacy,
-                                hasStorageConfig: savedConfiguration.uri,
-                                hasStorageLimit: Config.maxProjectSize
-                            },
-                            schema: {
-                                provider: req.body.contact_name,
-                                telephone: req.body.contact_phone,
-                                address: req.body.contact_address,
-                                email: req.body.contact_email,
-                                license: req.body.license
-                            }
-                        };
-
-                        Project.createAndInsertFromObject(projectData, function (err, result)
+                        storageConf.save(function (err, savedConfiguration)
                         {
                             if (isNull(err))
                             {
-                                storageConf.ddr.handlesStorageForProject = result.uri;
-                                storageConf.save(function (err, result)
+                                const projectData = {
+                                    dcterms: {
+                                        creator: req.user.uri,
+                                        title: req.body.title,
+                                        description: req.body.description,
+                                        publisher: req.body.publisher,
+                                        language: req.body.language,
+                                        coverage: req.body.coverage
+                                    },
+                                    ddr: {
+                                        handle: req.body.handle,
+                                        privacyStatus: req.body.privacy,
+                                        hasStorageConfig: savedConfiguration.uri,
+                                        hasStorageLimit: Config.maxProjectSize
+                                    },
+                                    schema: {
+                                        provider: req.body.contact_name,
+                                        telephone: req.body.contact_phone,
+                                        address: req.body.contact_address,
+                                        email: req.body.contact_email,
+                                        license: req.body.license
+                                    }
+                                };
+
+                                Project.createAndInsertFromObject(projectData, function (err, result)
                                 {
                                     if (isNull(err))
                                     {
-                                        req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
-                                        return res.redirect("/projects/my");
-                                    }
+                                        storageConf.ddr.handlesStorageForProject = result.uri;
+                                        storageConf.save(function (err, result)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
+                                                callback(null, true);
+                                            }
 
-                                    req.flash("error", "Error updating storage configuration " + storageConf.uri + "for project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
-                                    throw result;
+                                            req.flash("error", "Error updating storage configuration " + storageConf.uri + "for project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
+                                            callback(result, null);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
+                                        callback(result, null);
+                                    }
                                 });
                             }
                             else
                             {
-                                req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
-                                throw result;
+                                req.flash("error", "Error creating storageConfig " + storageConf.ddr.host);
+                                callback(err, null);
                             }
                         });
                     }
-                    else
+                ],
+                function (err, result)
+                {
+                    if (!isNull(err))
                     {
-                        req.flash("error", "Error creating storageConfig " + storageConf.ddr.host);
-                        throw err;
+                        const msg = "Invalid parameters provided when setting up the storage for the new project. ";
+                        if (acceptsJSON && !acceptsHTML)
+                        {
+                            return res.status(400).json({
+                                result: "error",
+                                message: msg + err,
+                                error: err
+                            });
+                        }
+
+                        return res.status(400).render("projects/new",
+                            {
+                                // title : "Register on Dendro",
+                                error_messages: [msg]
+                            }
+                        );
+                    }
+                    if (!isNull(result))
+                    {
+                        res.redirect("/projects/my");
                     }
                 });
             }
