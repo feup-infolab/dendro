@@ -60,7 +60,7 @@ class AddMetadataToFolders extends CreateFoldersUnit
                         {
                             if (isNull(err))
                             {
-                                self.endLoad(function (err, results)
+                                unitUtils.endLoad(function (err, results)
                                 {
                                     callback(err, results);
                                 });

@@ -16,6 +16,18 @@ mkdir -p $RUNNING_FOLDER/mongo
 
 # start containers with the volumes mounted
 
+function wait_for_virtuoso_to_boot()
+{
+    echo "Waiting for virtuoso to boot up..."
+    attempts=0
+    max_attempts=30
+    while ( nc 127.0.0.1 8890 < /dev/null || nc 127.0.0.1 1111 < /dev/null )  && [[ $attempts < $max_attempts ]] ; do
+        attempts=$((attempts+1))
+        sleep 1;
+        echo "waiting... (${attempts}/${max_attempts})"
+    done
+}
+
 function container_running
 {
     container_name=$1
@@ -52,13 +64,17 @@ then
         -p 8890:8890 \
         -p 1111:1111 \
         -e SPARQL_UPDATE=true \
-        -e "CheckpointSyncMode=2" \
-        -e "CheckpointInterval=0" \
-        -e "NumberOfBuffers=$((32*85000))" \
+        -e "VIRT_Parameters_CheckpointSyncMode=2" \
+        -e "VIRT_Parameters_PageMapCheck=1" \
+        -e "VIRT_Parameters_CheckpointInterval=0" \
         -v "$RUNNING_FOLDER/virtuoso:/data" \
-        -d tenforce/virtuoso:1.2.0-virtuoso7.2.4 ) && \
+        -d tenforce/virtuoso:1.3.1-virtuoso7.2.4 ) && \
         echo "Container virtuoso-dendro started."
 fi
+
+# -e "VIRT_Parameters_NumberOfBuffers=$((32*85000))" \
+
+wait_for_virtuoso_to_boot
 
 if container_running "mysql-dendro" == 0
 then

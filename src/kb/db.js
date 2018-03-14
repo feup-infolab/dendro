@@ -352,11 +352,12 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                 // difference between query and procedure (does not return anything. needed for deletes and inserts)
                 if (!isNull(runAsUpdate))
                 {
-                    if (!isNull(Config.virtuosoSQLLogLevel))
-                    {
-                        query = "log_enable(" + Config.virtuosoSQLLogLevel + ",1) \n" + query + "\n";
-                    }
-                    query = "set AUTOCOMMIT MANUAL;\n" + query + "\nCOMMIT WORK; set AUTOCOMMIT on;";
+                    // if (!isNull(Config.virtuosoSQLLogLevel))
+                    // {
+                    //     query = "log_enable(" + Config.virtuosoSQLLogLevel + "); \n" + query + "\n";
+                    // }
+                    // query = "set AUTOCOMMIT MANUAL;\n" + query + "\nCOMMIT WORK;\n set AUTOCOMMIT on;\n";
+
                     statement.executeUpdate(query, function (err, results)
                     {
                         if (isNull(err))

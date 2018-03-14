@@ -564,9 +564,9 @@ class App
             const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
             DbConnection.finishUpAllConnectionsAndClose(function ()
             {
-                const timeout = 10000;
+                const timeout = 0;
                 Logger.log("Waiting " + timeout + "ms for virtuoso to flush the toilet...");
-                setTimeout(cb, 10000);
+                setTimeout(cb, timeout);
             });
         };
 

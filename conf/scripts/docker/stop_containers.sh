@@ -15,10 +15,8 @@ function stop_container_if_running
 }
 
 ## stop all containers
-#echo "Flushing all data to disk on Virtuso server.."
-#echo "Sleeping for 40 seconds because Virtuoso does not know how to flush data properly...."
-#sleep 40
-#echo "OK!"
+echo "Flushing all data to disk on Virtuso server.."
+docker exec virtuoso-dendro /bin/bash -c "/usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba 'EXEC=shutdown();'"
 stop_container_if_running "virtuoso-dendro"
 stop_container_if_running "elasticsearch-dendro"
 stop_container_if_running "mysql-dendro"
