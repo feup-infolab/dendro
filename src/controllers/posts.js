@@ -1202,7 +1202,8 @@ exports.comment = function (req, res)
                         ddr: {
                             userWhoCommented: currentUser.uri,
                             postURI: post.uri,
-                            commentMsg: commentMsg
+                            commentMsg: commentMsg,
+                            projectUri: post.ddr.projectUri
                         }
                     });
 
@@ -1362,7 +1363,8 @@ exports.like = function (req, res)
                             let newLike = new Like({
                                 ddr: {
                                     userWhoLiked: currentUser.uri,
-                                    postURI: post.uri
+                                    postURI: post.uri,
+                                    projectUri: post.ddr.projectUri
                                 }
                             });
 

@@ -1209,12 +1209,37 @@ Resource.prototype.save = function
     const saveEvent = function () {
         let event = {};
         let eventType = self.rdf.type[self.rdf.type.length - 1].replace("ddr:", "");
-        console.log(eventType);
-       /* switch (eventType) {
-            default:
+        switch (eventType) {
+            case "Like":
+                event.type = "like";
+                event.postURI = self.ddr.postURI;
+                event.userURI = self.ddr.userWhoLiked;
+                event.projecttURI = self.ddr.projectUri;
                 break;
-        }*/
-
+            case "Comment":
+                event.type = "comment";
+                event.postURI = self.ddr.postURI;
+                event.userURI = self.ddr.userWhoCommented;
+                event.projectURI = self.ddr.projectUri;
+                break;
+            case "Share":
+                event.type = "share";
+                event.postURI = self.ddr.postURI;
+                event.userURI = self.ddr.userWhoShared;
+                event.projectURI = self.ddr.projectUri;
+                break;
+            case "MetadataChangePost":
+            case "FileSystemPost":
+            case "ManualPost":
+                event.type = "post";
+                event.postURI = self.uri;
+                event.userURI = self.dcterms.creator;
+                event.projectURI = self.ddr.projectUri;
+                break;
+            default:
+                return;
+        }
+        console.log(event);
         /*Event.create({
         }, function (err, event) {
             console.log(err);
