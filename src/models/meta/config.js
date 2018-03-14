@@ -160,6 +160,8 @@ Config.mySQLDBName = getConfigParameter("mySQLDBName");
 Config.maxUploadSize = getConfigParameter("maxUploadSize");
 // 10000MB®
 Config.maxProjectSize = getConfigParameter("maxProjectSize");
+Config.maxB2DropProjectSize = getConfigParameter("maxB2DropProjectSize");
+
 Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
 
 Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
