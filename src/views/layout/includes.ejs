@@ -2,8 +2,8 @@
 <link rel='stylesheet' type="text/css" href='/stylesheets/style.css' />
 <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
 
-<% if (settings.theme != null) { %>
-    <link rel='stylesheet' type="text/css" href='/bower_components/bootswatch/<%=settings.theme%>/bootstrap.min.css' />
+<% if (locals.Config.theme != null) { %>
+    <link rel='stylesheet' type="text/css" href='/bower_components/bootswatch/<%=locals.Config.theme%>/bootstrap.min.css' />
 <% } else { %>
     <link rel='stylesheet' type="text/css" href='/bower_components/bootstrap/dist/css/bootstrap-theme.min.css' />
 <% } %>

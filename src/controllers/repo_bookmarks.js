@@ -27,7 +27,7 @@ const validateNewBookmarkRequest = function (req, res)
         });
         return false;
     }
-    else if (isNull(req.body.ddr.hasUsername) && req.body.ddr.hasPlatform.foaf.nick !== "figshare" && req.body.ddr.hasPlatform.foaf.nick !== "zenodo" && req.body.ddr.hasPlatform.foaf.nick !== "b2share")
+    else if (isNull(req.body.ddr.username) && req.body.ddr.hasPlatform.foaf.nick !== "figshare" && req.body.ddr.hasPlatform.foaf.nick !== "zenodo" && req.body.ddr.hasPlatform.foaf.nick !== "b2share")
     {
         res.status(400).json({
             result: "error",
@@ -224,7 +224,7 @@ exports.new = function (req, res)
                                     creator: req.user.uri
                                 },
                                 ddr: {
-                                    hasUsername: req.body.ddr.hasUsername,
+                                    username: req.body.ddr.username,
                                     hasPlatform: repo_platform.uri,
                                     hasExternalUri: req.body.ddr.hasExternalUri,
                                     hasSwordCollectionLabel: req.body.ddr.hasSwordCollectionLabel,

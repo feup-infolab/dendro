@@ -24,29 +24,11 @@ function ResearchDomain (object)
 ResearchDomain.create = function (object, callback)
 {
     const self = new ResearchDomain(object);
-
-    if (!isNull(self.ddr) && isNull(self.ddr.humanReadableName))
+    self.getHumanReadableUri(function (err, uri)
     {
-        if (!isNull(object.ddr) && !isNull(object.ddr.humanReadableURI))
-        {
-            self.ddr.humanReadableURI = object.ddr.humanReadableURI;
-        }
-        else
-        {
-            if (typeof self.dcterms.title === "string")
-            {
-                const slug = require("slug");
-                const slugifiedTitle = slug(self.dcterms.title);
-                self.ddr.humanReadableURI = Config.baseUri + "/research_domains/" + slugifiedTitle;
-            }
-            else
-            {
-                return callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
-            }
-        }
-    }
-
-    return callback(null, self);
+        self.ddr.humanReadableURI = uri;
+        return callback(null, self);
+    });
 };
 ResearchDomain.findByTitleOrDescription = function (query, callback, maxResults)
 {
@@ -109,6 +91,29 @@ ResearchDomain.findByTitleOrDescription = function (query, callback, maxResults)
                 return callback(err, results);
             }
         });
+};
+
+ResearchDomain.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (!isNull(self.ddr))
+    {
+        if (typeof self.dcterms.title === "string")
+        {
+            const slug = require("slug");
+            const slugifiedTitle = slug(self.dcterms.title);
+            callback(null, "/research_domains/" + slugifiedTitle);
+        }
+        else
+        {
+            callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.title property.");
+        }
+    }
+    else
+    {
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr property.");
+    }
 };
 
 ResearchDomain = Class.extend(ResearchDomain, Resource, "ddr:ResearchDomain");

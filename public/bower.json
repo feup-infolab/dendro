@@ -71,7 +71,7 @@
     "font-awesome-animation": "^0.0.10",
     "angular-google-analytics": "^1.1.9",
     "flint-sparql-editor": "git://github.com/TSO-Openup/FlintSparqlEditor.git",
-    "bootswatch": "https://github.com/thomaspark/bootswatch.git",
+    "bootswatch": "https://github.com/thomaspark/bootswatch.git#4b0d3762f309326a6d66fa4ea18945a7fc11f8ef",
     "angular-image-spinner": "*",
     "spin.js": "~2.0.0",
     "parsleyjs": "^2.7.2",

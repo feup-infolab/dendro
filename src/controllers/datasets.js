@@ -92,8 +92,8 @@ export_to_repository_sword = function (req, res)
                                             files: files,
                                             collectionRef: targetRepository.ddr.hasSwordCollectionUri,
                                             repositoryType: targetRepository.ddr.hasPlatform.foaf.nick,
-                                            user: targetRepository.ddr.hasUsername,
-                                            password: targetRepository.ddr.hasPassword,
+                                            user: targetRepository.ddr.username,
+                                            password: targetRepository.ddr.password,
                                             serviceDocRef: serviceDocumentRef
                                         };
 
@@ -820,34 +820,73 @@ export_to_repository_b2share = function (req, res)
                                             try
                                             {
                                                 const accessToken = targetRepository.ddr.hasAccessToken;
+                                                let title, description, abstract, publisher, language;
+                                                title = generalDatasetUtils.parseDescriptorValue(folder.dcterms.title);
+                                                description = generalDatasetUtils.parseDescriptorValue(folder.dcterms.description);
+                                                abstract = generalDatasetUtils.parseDescriptorValue(folder.dcterms.abstract);
+                                                publisher = generalDatasetUtils.parseDescriptorValue(folder.dcterms.publisher) || generalDatasetUtils.parseDescriptorValue(project.dcterms.publisher) || "http://dendro.fe.up.pt";
+                                                language = generalDatasetUtils.parseDescriptorValue(folder.dcterms.language) || generalDatasetUtils.parseDescriptorValue(project.dcterms.language) || "en";
 
-                                                let title;
-
-                                                if (Array.isArray(folder.dcterms.title))
+                                                let creators = [];
+                                                if (Array.isArray(folder.dcterms.creator))
                                                 {
-                                                    title = folder.dcterms.title[0];
+                                                    for (let i = 0; i != folder.dcterms.creator.length; ++i)
+                                                    {
+                                                        creators.push({creator_name: folder.dcterms.creator[i]});
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    title = folder.dcterms.title;
+                                                    creators.push({creator_name: folder.dcterms.creator});
                                                 }
-                                                let description;
-                                                if (Array.isArray(folder.dcterms.description))
-                                                {
-                                                    description = folder.dcterms.description[0];
-                                                }
-                                                else
-                                                {
-                                                    description = folder.dcterms.description;
-                                                }
-
                                                 const draftData = {
                                                     titles: [{title: title}],
                                                     community: Config.eudatCommunityId,
                                                     open_access: true,
                                                     community_specific: {},
-                                                    creators: [{creator_name: folder.dcterms.creator}]
+                                                    creators: creators
                                                 };
+
+                                                // "descriptions":[{"description":"The abstract of the harem dataset","description_type":"Abstract"}]
+                                                if (!isNull(abstract))
+                                                {
+                                                    if (isNull(draftData.descriptions))
+                                                    {
+                                                        draftData.descriptions = [
+                                                            {
+                                                                description: abstract,
+                                                                description_type: "Abstract"
+                                                            }
+                                                        ];
+                                                    }
+                                                    else
+                                                    {
+                                                        draftData.descriptions.push({
+                                                            description: abstract,
+                                                            description_type: "Abstract"
+                                                        });
+                                                    }
+                                                }
+
+                                                if (!isNull(description))
+                                                {
+                                                    if (isNull(draftData.descriptions))
+                                                    {
+                                                        draftData.descriptions = [
+                                                            {
+                                                                description: description,
+                                                                description_type: "Other"
+                                                            }
+                                                        ];
+                                                    }
+                                                    else
+                                                    {
+                                                        draftData.descriptions.push({
+                                                            description: description,
+                                                            description_type: "Other"
+                                                        });
+                                                    }
+                                                }
 
                                                 if (folder.dcterms.contributor)
                                                 {
@@ -871,17 +910,9 @@ export_to_repository_b2share = function (req, res)
                                                     }
                                                 }
 
-                                                if (folder.dcterms.publisher)
+                                                if (!isNull(publisher))
                                                 {
-                                                    draftData.publisher = folder.dcterms.publisher;
-                                                }
-                                                else if (!isNull(project.dcterms.publisher))
-                                                {
-                                                    draftData.publisher = project.dcterms.publisher;
-                                                }
-                                                else
-                                                {
-                                                    draftData.publisher = "http://dendro.fe.up.pt";
+                                                    draftData.publisher = publisher;
                                                 }
 
                                                 if (folder.dcterms.subject)
@@ -898,17 +929,9 @@ export_to_repository_b2share = function (req, res)
                                                     }
                                                 }
 
-                                                if (folder.dcterms.language)
+                                                if (!isNull(language))
                                                 {
-                                                    draftData.language = folder.dcterms.language;
-                                                }
-                                                else if (!isNull(project.dcterms.language))
-                                                {
-                                                    draftData.language = project.dcterms.language;
-                                                }
-                                                else
-                                                {
-                                                    draftData.language = "en";
+                                                    draftData.language = language;
                                                 }
 
                                                 const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
@@ -1288,8 +1311,8 @@ exports.sword_collections = function (req, res)
         serviceDocumentRef = targetRepository.ddr.hasExternalUri + Config.swordConnection.EprintsServiceDocument;
     }
     const options = {
-        user: targetRepository.ddr.hasUsername,
-        password: targetRepository.ddr.hasPassword,
+        user: targetRepository.ddr.username,
+        password: targetRepository.ddr.password,
         serviceDocRef: serviceDocumentRef
     };
     swordConnection.listCollections(options, function (err, message, collections)

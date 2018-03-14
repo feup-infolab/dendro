@@ -1,6 +1,7 @@
 const XMLWriter = require("xml-writer");
 const self = this;
 const isNull = require("../utils/null.js").isNull;
+const validUrl = require("valid-url");
 
 module.exports.dataToJSON = function (data)
 {
@@ -11,7 +12,6 @@ module.exports.metadataToRDF = function (metadata)
     const xw = new XMLWriter();
     xw.startDocument("1.0", "UTF-8");
     xw.startElementNS("rdf", "RDF");
-    xw.writeAttributeNS("xmlns", "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
     const namespaces = {};
     const tempXML = self.metadataToRDFRec(metadata, namespaces);
@@ -29,6 +29,23 @@ module.exports.metadataToRDF = function (metadata)
 exports.metadataToRDFRec = function (metadata, namespaces)
 {
     const xw = new XMLWriter();
+    const Config = require("../models/meta/config.js").Config;
+
+    const addElement = function (append, prefix, ontology, shortName, value)
+    {
+        namespaces[prefix] = ontology;
+        xw.startElementNS(prefix, shortName);
+
+        if (append == true && !validUrl.isUri(value.toString()))
+        {
+            xw.text(Config.baseUri + value.toString());
+        }
+        else
+        {
+            xw.text(value.toString());
+        }
+        xw.endElement();
+    };
 
     if (!isNull(metadata.title))
     {
@@ -43,10 +60,19 @@ exports.metadataToRDFRec = function (metadata, namespaces)
     {
         metadata.descriptors.forEach(function (descriptor)
         {
-            namespaces[descriptor.prefix] = descriptor.ontology;
-            xw.startElementNS(descriptor.prefix, descriptor.shortName);
-            xw.text(descriptor.value.toString());
-            xw.endElement();
+            // addElement = function (append, prefix, ontology, shortName, value)
+
+            if (descriptor.value instanceof Array)
+            {
+                for (var i = 0; i < descriptor.value.length; i++)
+                {
+                    addElement(descriptor.append_prefix_dendro_baseuri, descriptor.prefix, descriptor.ontology, descriptor.shortName, descriptor.value[i]);
+                }
+            }
+            else
+            {
+                addElement(descriptor.append_prefix_dendro_baseuri, descriptor.prefix, descriptor.ontology, descriptor.shortName, descriptor.value);
+            }
         });
     }
 
@@ -75,20 +101,26 @@ module.exports.metadataToText = function (metadata)
     const tempText = self.metadataToTextRec(metadata, level, namespaces, comments);
 
     let namespacesText = "";
-    for (var prefix in namespaces)
+    for (let prefix in namespaces)
     {
-        namespacesText += prefix + ":" + namespaces[prefix] + "\n";
+        if (namespaces.hasOwnProperty(prefix))
+        {
+            namespacesText += prefix + ":" + namespaces[prefix] + "\n";
+        }
     }
 
     let commentsText = "";
-    for (var prefix in comments)
+    for (let prefix in comments)
     {
-        commentsText += prefix + ":" + "\n";
-        for (let shortName in comments[prefix])
+        if (comments.hasOwnProperty(prefix))
         {
-            if (comments[prefix].hasOwnProperty(shortName))
+            commentsText += prefix + ":" + "\n";
+            for (let shortName in comments[prefix])
             {
-                commentsText += " " + comments[prefix][shortName].label + "(" + shortName + ")" + ": " + comments[prefix][shortName].comment + "\n";
+                if (comments[prefix].hasOwnProperty(shortName))
+                {
+                    commentsText += " " + comments[prefix][shortName].label + "(" + shortName + ")" + ": " + comments[prefix][shortName].comment + "\n";
+                }
             }
         }
     }

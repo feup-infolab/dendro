@@ -17,23 +17,6 @@ function ExternalRepository (object)
     const self = this;
     self.addURIAndRDFType(object, "external_repository", ExternalRepository);
     ExternalRepository.baseConstructor.call(this, object);
-
-    const slug = require("slug");
-
-    if (isNull(self.ddr.humanReadableUri))
-    {
-        if (!isNull(object.dcterms.creator) && !isNull(self.dcterms.title))
-        {
-            self.humanReadableURI = Config.baseUri + "/external_repository/" + object.dcterms.creator + "/" + slug(self.dcterms.title);
-        }
-        else
-        {
-            const error = "Unable to create an external repository resource without specifying its creator and its dcterms:title";
-            Logger.log("error", error);
-            return {error: error};
-        }
-    }
-
     return self;
 }
 
@@ -90,6 +73,26 @@ ExternalRepository.findByCreator = function (creatorUri, callback)
                 return callback(err, [rows]);
             }
         });
+};
+
+ExternalRepository.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableUri))
+    {
+        if (!isNull(self.dcterms.creator) && !isNull(self.dcterms.title))
+        {
+            const slug = require("slug");
+            callback(null, "/external_repository/" + self.dcterms.creator + "/" + slug(self.dcterms.title));
+        }
+        else
+        {
+            const error = "Unable to create an external repository resource without specifying its creator and its dcterms:title";
+            Logger.log("error", error);
+            callback(1, error);
+        }
+    }
 };
 
 ExternalRepository = Class.extend(ExternalRepository, Resource, "ddr:ExternalRepository");

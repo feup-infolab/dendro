@@ -17,64 +17,11 @@ const async = require("async");
 
 function Share (object)
 {
-    /* const self = this;
-    self.addURIAndRDFType(object, "share", Share);
-    Share.baseConstructor.call(this, object);
-
-    self.copyOrInitDescriptors(object);
-
-    let objectType;
-    if(object.ddr.postURI)
-    {
-        Logger.log('is postURI');
-        objectType = "ddr:Post";
-    }
-    else if(object.ddr.fileVersionUri){
-        Logger.log('is fileVersionURI');
-        objectType = "ddr:FileVersion";
-    }
-
-    const newId = uuid.v4();
-
-    if(isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = Config.baseUri + "/shares/" + newId;
-    }
-
-    const descriptor = new Descriptor({
-        prefixedForm: "rdf:type",
-        type: Elements.types.prefixedResource,
-        //value : "ddr:Post"
-        value: objectType
-    });
-
-    /!*var newAdminDescriptor = new Descriptor({
-     prefixedForm : "rdf:type",
-     type : Elements.types.prefixedResource,
-     value : "ddr:Administrator"
-     });*!/
-    self.insertDescriptors([descriptor], function(err, result){
-        //return callback(err, newShare);
-        Logger.log('result:', result);
-        Logger.log('self here is:', self);
-        return self;
-    }, db_social.graphUri);
-
-    //return self; */
-
     const self = this;
     self.addURIAndRDFType(object, "share", Share);
     Share.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-
-    const newId = uuid.v4();
-
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = Config.baseUri + "/shares/" + newId;
-    }
-
     return self;
 }
 
@@ -82,6 +29,21 @@ Share.buildFromInfo = function (info, callback)
 {
     let newShare = new this(info);
     callback(null, newShare);
+};
+
+Share.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.humanReadableURI))
+    {
+        const newId = uuid.v4();
+        callback(null, "/shares/" + newId);
+    }
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
 };
 
 Share = Class.extend(Share, Post, "ddr:Share");

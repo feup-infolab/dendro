@@ -33,11 +33,6 @@ function InformationElement (object)
         {
             self.nie.title = object.nie.title;
         }
-
-        if (isNull(self.ddr.humanReadableURI))
-        {
-            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
-        }
     }
 
     return self;
@@ -116,6 +111,87 @@ InformationElement.prototype.getParent = function (callback)
     );
 };
 
+InformationElement.prototype.calculateHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    const getPathTitles = function (callback)
+    {
+        /**
+         *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+         *    (Recursive querying through inference).
+         *   @type {string}
+         */
+        const query =
+            "SELECT ?uri \n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [1] nie:isLogicalPartOf+ ?uri. \n" +
+            "   ?uri rdf:type ddr:Resource. \n" +
+            "   ?uri rdf:type nfo:Folder \n" +
+            "   ?uri nie:title ?title \n" +
+            "   FILTER NOT EXISTS \n" +
+            "   { \n" +
+            "       ?project ddr:rootFolder ?uri\n" +
+            "   }\n" +
+            "}\n ";
+
+        db.connection.executeViaJDBC(query,
+            [
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: db.graphUri
+                },
+                {
+                    type: Elements.types.resource,
+                    value: self.uri
+                }
+            ],
+            function (err, results)
+            {
+                if (isNull(err))
+                {
+                    if (results instanceof Array)
+                    {
+                        const titlesArray = _.map(results, function (result)
+                        {
+                            return result.title;
+                        });
+
+                        callback(null, titlesArray);
+                    }
+                    else
+                    {
+                        return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
+                    }
+                }
+                else
+                {
+                    return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + results);
+                }
+            }
+        );
+    };
+
+    const getOwnerProjectHandle = function (callback)
+    {
+        self.getOwnerProject(function (err, project)
+        {
+            callback(err, project.ddr.handle);
+        });
+    };
+
+    getOwnerProjectHandle(function (err, handle)
+    {
+        getPathTitles(function (err, titles)
+        {
+            let newHumanReadableUri = [handle].concat(titles).concat([self.nie.title]).join("/");
+            callback(null, newHumanReadableUri);
+        });
+    });
+};
+
 InformationElement.prototype.getAllParentsUntilProject = function (callback)
 {
     const self = this;
@@ -156,7 +232,6 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
             {
                 if (result instanceof Array)
                 {
-                    const async = require("async");
                     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                     async.mapSeries(result, function (result, callback)
                     {
@@ -321,31 +396,31 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
     ], callback);
 };
 
-InformationElement.prototype.rename = function (newTitle, callback)
+InformationElement.prototype.rename = function (newTitle, callback, customGraphUri)
 {
     const self = this;
-    const query =
-        "DELETE DATA \n" +
-        "{ \n" +
-        "   GRAPH [0] \n" +
-        "   { \n" +
-        "       [1] nie:title ?title . " +
-        "   } \n" +
-        "}; \n" +
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-        "INSERT DATA \n" +
+    const query =
+        "WITH [0] \n" +
+        "DELETE \n" +
         "{ \n" +
-        "   GRAPH [0] \n" +
-        "   { " +
-        "       [1] nie:title [2] \n" +
-        "   } \n" +
-        "}; \n";
+        "   [1] nie:title ?title \n" +
+        "} \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:title ?title \n" +
+        "} \n" +
+        "INSERT \n" +
+        "{ \n" +
+        "   [1] nie:title [2] \n" +
+        "} \n";
 
     db.connection.executeViaJDBC(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
-                value: db.graphUri
+                value: graphUri
             },
             {
                 type: Elements.types.resource,
@@ -358,10 +433,56 @@ InformationElement.prototype.rename = function (newTitle, callback)
         ],
         function (err, result)
         {
-            Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+            if (isNull(err))
             {
+                self.nie.title = newTitle;
+                self.refreshHumanReadableUri(function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                self.reindex(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(err, self);
+                                    }
+
+                                    const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(result, null, 4);
+                                    Logger.log("error", msg);
+                                    return callback(1, msg);
+                                });
+                            }
+                            else
+                            {
+                                const msg = "Error invalidating cache for information element : " + self.uri + JSON.stringify(result);
+                                Logger.log("error", msg);
+                                Logger.log("error", JSON.stringify(err));
+                                Logger.log("error", JSON.stringify(result));
+                                return callback(1, msg);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        const msg = "Error refreshing human readable uri of file: " + self.uri + JSON.stringify(result);
+                        Logger.log("error", msg);
+                        Logger.log("error", JSON.stringify(err));
+                        Logger.log("error", JSON.stringify(result));
+                        return callback(1, msg);
+                    }
+                });
+            }
+            else
+            {
+                Logger.log("error", "Error occurred renaming file or folder " + self.uri);
+                Logger.log("error", JSON.stringify(err));
+                Logger.log("error", JSON.stringify(result));
                 return callback(err, result);
-            });
+            }
         }, null, null, null, true
     );
 };
@@ -372,8 +493,8 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
     const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
     const self = this;
 
-    const oldParent = self.nie.isLogicalPartOf;
-    const newParent = newParentFolder.uri;
+    const oldParentUri = self.nie.isLogicalPartOf;
+    const newParentUri = newParentFolder.uri;
 
     const autoRenameIfNeeded = function (callback)
     {
@@ -438,27 +559,13 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
             {
                 return callback(err, needsRename);
             }
-        }, null, newParent);
+        }, null, newParentUri);
     };
 
     async.waterfall([
         autoRenameIfNeeded,
         function (neededRenaming, callback)
         {
-            // "WITH GRAPH [0] \n" +
-            // "DELETE \n" +
-            // "{ \n" +
-            // deleteString + " \n" +
-            // "} \n" +
-            // "WHERE \n" +
-            // "{ \n" +
-            // deleteString + " \n" +
-            // "} \n" +
-            // "INSERT DATA\n" +
-            // "{ \n" +
-            // insertString + " \n" +
-            // "} \n";
-
             const query =
                 "WITH GRAPH [0] \n" +
                 "DELETE \n" +
@@ -480,7 +587,7 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                     },
                     {
                         type: Elements.ontologies.nie.hasLogicalPart.type,
-                        value: oldParent
+                        value: oldParentUri
                     },
                     {
                         type: Elements.ontologies.nie.hasLogicalPart.type,
@@ -488,7 +595,7 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                     },
                     {
                         type: Elements.ontologies.nie.hasLogicalPart.type,
-                        value: newParent
+                        value: newParentUri
                     }
                 ],
                 function (err, result)
@@ -503,11 +610,46 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                             },
                             function (callback)
                             {
-                                Cache.getByGraphUri(db.graphUri).delete(newParent, callback);
+                                Cache.getByGraphUri(db.graphUri).delete(newParentUri, callback);
                             },
                             function (callback)
                             {
-                                Cache.getByGraphUri(db.graphUri).delete(oldParent, callback);
+                                Cache.getByGraphUri(db.graphUri).delete(oldParentUri, callback);
+                            },
+
+                            // refresh all human readable URIs on parent, old parent and child...
+                            function (callback)
+                            {
+                                self.refreshChildrenHumanReadableUris(callback);
+                            },
+                            function (callback)
+                            {
+                                newParentFolder.refreshChildrenHumanReadableUris(callback);
+                            },
+                            function (callback)
+                            {
+                                Folder.findByUri(oldParentUri, function (err, oldParent)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        if (oldParent instanceof Folder)
+                                        {
+                                            oldParent.refreshChildrenHumanReadableUris(callback);
+                                        }
+                                        else
+                                        {
+                                            callback(1, "Old parent folder of information element: " + self.uri + " was not found!");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        const msg = "Error occurred while retrieving old parent folder of information element: " + self.uri;
+                                        Logger.log("error", msg);
+                                        Logger.log("error", err);
+                                        Logger.log("error", oldParent);
+                                        callback(1, msg);
+                                    }
+                                });
                             }
                         ], function (err)
                         {
@@ -570,6 +712,63 @@ InformationElement.prototype.unlinkFromParent = function (callback)
     });
 };
 
+InformationElement.prototype.reindex = function (callback, customGraphUri)
+{
+    const self = this;
+
+    self.canBeIndexed(function (err, canBeIndexed)
+    {
+        if (isNull(err))
+        {
+            if (canBeIndexed)
+            {
+                InformationElement.baseConstructor.prototype.reindex.call(self, callback, customGraphUri);
+            }
+            else
+            {
+                InformationElement.baseConstructor.prototype.unindex.call(self, callback, customGraphUri);
+            }
+        }
+        else
+        {
+            callback(err, canBeIndexed);
+        }
+    });
+};
+
+InformationElement.prototype.canBeIndexed = function (callback)
+{
+    const self = this;
+
+    self.getOwnerProject(function (err, project)
+    {
+        if (isNull(err))
+        {
+            switch (project.ddr.privacyStatus)
+            {
+            case "public":
+                callback(null, true);
+                break;
+            case "private":
+                callback(null, false);
+                break;
+            case "metadata_only":
+                callback(null, true);
+                break;
+            default:
+                callback(null, false);
+                break;
+            }
+        }
+        else
+        {
+            const msg = "Error while checking privacy of project that owns resource " + self.uri;
+            Logger.log("error", msg);
+            callback(1, msg);
+        }
+    });
+};
+
 InformationElement.prototype.isHiddenOrSystem = function ()
 {
     const self = this;
@@ -618,6 +817,12 @@ InformationElement.removeInvalidFileNames = function (fileNamesArray)
 InformationElement.isSafePath = function (absPath, callback)
 {
     let fs = require("fs");
+    if (isNull(absPath))
+    {
+        Logger.log("error", "Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
+        return callback(null, false);
+    }
+
     fs.realpath(absPath, function (err, realPath)
     {
         function b_in_a (b, a)
@@ -829,10 +1034,83 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
                     return callback(null, result);
                 }
 
-                const msg = "Error checking if resource " + self.uri + " is contained in " + anotherResourceUri;
+                const msg = "Error checking if resource " + self.uri + " is contained in " + parentResource.uri;
                 Logger.log("error", msg);
                 return callback(err, msg);
             });
+    }
+};
+
+InformationElement.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (!isNull(self.nie))
+    {
+        if (isNull(self.nie.isLogicalPartOf))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.isLogicalPartOf in the object!");
+        }
+        else if (isNull(self.nie.title))
+        {
+            callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie.title in the object!");
+        }
+        else
+        {
+            Resource.getHumanReadableUriFromUri(self.nie.isLogicalPartOf, function (err, parentHumanReadableUri)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(parentHumanReadableUri))
+                    {
+                        callback(null, parentHumanReadableUri + "/" + self.nie.title);
+                    }
+                    else
+                    {
+                        callback(1, "Unable to get parent human readable URI for information element " + self.uri);
+                    }
+                }
+                else
+                {
+                    callback(1, "Error getting parent human readable URI for information element " + self.uri);
+                }
+            });
+        }
+    }
+    else
+    {
+        callback(1, "Unable to get human readable URI for the resource " + self.uri + ": There is no nie namespace in the object!");
+    }
+};
+
+InformationElement.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
+{
+    const self = this;
+    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+    if (self.isA(Folder))
+    {
+        Folder.findByUri(self.uri, function (err, folder)
+        {
+            if(isNull(err))
+            {
+                if(!isNull(folder))
+                {
+                    folder.refreshChildrenHumanReadableUris(callback, customGraphUri);
+                }
+                else
+                {
+                    callback(true, "There is no folder with uri: " + self.uri);
+                }
+            }
+            else
+            {
+                callback(err, folder);
+            }
+        });
+    }
+    else
+    {
+        callback(null, self);
     }
 };
 

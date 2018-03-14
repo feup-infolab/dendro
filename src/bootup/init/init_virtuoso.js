@@ -1,4 +1,5 @@
 const fs = require("fs");
+const async = require("async");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -21,24 +22,41 @@ const initVirtuoso = function (app, callback)
         Config.dbOperationTimeout
     );
 
-    db.create(function (err, db)
+    const tryToConnect = function (callback)
     {
-        if (isNull(err))
+        db.create(function (err, db)
         {
-            if (isNull(db))
+            if (isNull(err))
             {
-                return callback("[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+                if (isNull(db))
+                {
+                    const msg = "[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
+                    Logger.log_boot_message(msg);
+                    return callback(msg);
+                }
+
+                Logger.log_boot_message("Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+                // set default connection. If you want to add other connections, add them in succession.
+                Config.db.default.connection = db;
+                return callback(null);
             }
-            Logger.log_boot_message("Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+            callback("[ERROR] Error connecting to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+            Logger.log("error", JSON.stringify(err));
+            Logger.log("error", JSON.stringify(db));
+        });
+    };
 
-            // set default connection. If you want to add other connections, add them in succession.
-            Config.db.default.connection = db;
-
-            return callback(null);
+    // try calling apiMethod 10 times with exponential backoff
+    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+    async.retry({
+        times: 10,
+        interval: function (retryCount)
+        {
+            return 50 * Math.pow(2, retryCount);
         }
-        callback("[ERROR] Error connecting to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
-        Logger.log("error", JSON.stringify(err));
-        Logger.log("error", JSON.stringify(db));
+    }, tryToConnect, function (err, result)
+    {
+        callback(err);
     });
 };
 

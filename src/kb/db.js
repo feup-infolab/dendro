@@ -63,7 +63,9 @@ const queryObjectToString = function (query, argumentsArray, callback)
                     transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
                     break;
                 case Elements.types.string:
-                    transformedQuery = transformedQuery.replace(pattern, "'''" + currentArgument.value + "'''");
+                    const findAllQuotationMarksRegex = new RegExp("'", "g");
+                    const stringWithEscapedQuotationMarks = currentArgument.value.replace(findAllQuotationMarksRegex, "\\'");
+                    transformedQuery = transformedQuery.replace(pattern, "'''" + stringWithEscapedQuotationMarks + "'''");
                     break;
                 case Elements.types.int:
                     transformedQuery = transformedQuery.replace(pattern, currentArgument.value);
@@ -284,7 +286,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                     }
                     else
                     {
-                        Logger.log("error", "Error while setting connection settings for running queries");
+                        Logger.log("error", "Error while setting connection for running queries");
                         Logger.log("error", JSON.stringify(err));
                         Logger.log("error", JSON.stringify(results));
                         callback(null, connection);
@@ -293,7 +295,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
             }
             else
             {
-                Logger.log("error", "Error while reserving connection settings for running query");
+                Logger.log("error", "Error while reserving connection for running query");
                 Logger.log("error", JSON.stringify(err));
                 Logger.log("error", JSON.stringify(connection));
                 callback(err, connection);
@@ -365,6 +367,10 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
 
                                 callback(err, results);
                             });
+                        }
+                        else
+                        {
+                            callback(err, results);
                         }
                     });
                 }
@@ -728,7 +734,7 @@ DbConnection.prototype.create = function (callback)
                 }, queryObject.runAsUpdate);
             },
             {
-                concurrent: self.maxSimultaneousConnections,
+                concurrent: 1,
                 maxTimeout: self.dbOperationTimeout,
                 maxRetries: 10,
                 // retryDelay : 100,
@@ -1132,7 +1138,7 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
                 //     runAsUpdate
                 // );
 
-                // Uncomment to use NodeJS Query queues for concurency control
+                // Uncomment to use NodeJS Query queues for concurrency control
                 self.queue_jdbc.push({
                     queryStartTime: new Date(),
                     query: query,

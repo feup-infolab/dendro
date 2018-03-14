@@ -53,7 +53,8 @@
         </div>
 
         <div class="col-xs-10 col-md-12" ng-show="file.has_error">
-            <small><span><i class="fa fa-exclamation-triangle warning"></i>&nbsp;{{file.has_error.error}}</span></small>
+            <small ng-show="file.has_error.message"><span><i class="fa fa-exclamation-triangle warning"></i>{{file.has_error.message}}</span></small>
+            <small ng-show="file.has_error.error"><span><i class="fa fa-exclamation-triangle warning"></i>{{file.has_error.error}}</span></small>
         </div>
         <div class="col-xs-10 col-md-12" ng-show="file.has_success">
             <small><span><i class="fa fa-check-circle-o success"></i>&nbsp;{{file.has_success}}</span></small>
