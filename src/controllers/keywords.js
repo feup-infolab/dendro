@@ -850,7 +850,7 @@ exports.termextraction = function (req, res)
                         return parseFloat(b.score) - parseFloat(a.score);
                     });
 
-                    console.log(dbpediaterms);
+                    //console.log(dbpediaterms);
 
                     res.status(200).json(
                         {
@@ -962,9 +962,7 @@ exports.dbpediaproperties = function (req, res)
           "  filter not exists { ?property rdfs:label ?label }\n" +
           "}";*/
         const query = "select distinct ?property ?label {\n" +
-          "  { dbr:" + lookup.label + " ?property ?o }\n" +
-          "  union\n" +
-          "  { ?s ?property dbr:" + lookup.label + " }\n" +
+          "  { <" + lookup.uri + "> ?property ?o }\n" +
           "\n" +
           "  optional { \n" +
           "    ?property rdfs:label ?label .\n" +

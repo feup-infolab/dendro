@@ -321,7 +321,7 @@ describe("Searches DBpedia for important terms", function (done)
                 dbpediaterms = te.text;
                 keyword = JSON.parse(te.text).dbpediaterms.keywords;
 
-                console.log(keyword);
+                // console.log(keyword);
                 for (var i = 0; i < keyword.length; i++)
                 {
                     if (keyword[i].words.toString() === "aerodynamic" || keyword[i].words.toString() === "drag" || keyword[i].words.toString() === "coefficient" || keyword[i].words.toString() === "air" || keyword[i].words.toString() === "density" || keyword[i].words.toString() === "controller" || keyword[i].words.toString() === "efficiency" || keyword[i].words.toString() === "drive" || keyword[i].words.toString() === "driving" || keyword[i].words.toString() === "cycle" || keyword[i].words.toString() === "gear" || keyword[i].words.toString() === "ratio" || keyword[i].words.toString() === "gravitational" || keyword[i].words.toString() === "acceleration" || keyword[i].words.toString() === "road" || keyword[i].words.toString() === "surface" || keyword[i].words.toString() === "coefficient" || keyword[i].words.toString() === "tire" || keyword[i].words.toString() === "radius" || keyword[i].words.toString() === "vehicle" || keyword[i].words.toString() === "frontal" || keyword[i].words.toString() === "area" || keyword[i].words.toString() === "mass" || keyword[i].words.toString() === "model")
