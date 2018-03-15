@@ -46,6 +46,7 @@ DendroMySQLClient.prototype.getConnection = function (omitDatabase)
 
             const msg = "[ERROR] Error on MySQL Database server running on " + self.mySQLHost + ":" + self.mySQLPort + "\n Error description : " + err;
             Logger.log("error", msg);
+            Logger.log("error", err);
             throw new Error(msg);
         });
 

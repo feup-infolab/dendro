@@ -9,6 +9,7 @@ if [ "$(uname)" == "Darwin" ]; then
     brew tap caskroom/versions
     brew cask install java8
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    echo "I need your sudo password for installing text extraction dependencies..."
     sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
 fi
 
@@ -19,30 +20,22 @@ then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
 else
-    chown -R "$(whoami)" "$HOME/.avn"
     chown -R "$(whoami)" "$HOME/.nvm"
 
     #install NVM, Node, Node Automatic Version switcher
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash &&
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash &&
     export NVM_DIR="$HOME/.nvm" &&
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && # This loads nvm
 
     source $HOME/.bash_profile
-    nvm install "$NODE_VERSION"
-    nvm use "$NODE_VERSION"
 
     echo "Installing Node Version $NODE_VERSION during install script!!"
     nvm install $NODE_VERSION &&
     nvm use $NODE_VERSION &&
-    npm install -g avn avn-nvm avn-n &&
-    avn setup &&
-
-    [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" && # load avn
-
-    echo "loaded NVM and AVN."
+    echo "loaded NVM."
 
     #update npm
-    npm install npm
+    npm i -g npm@5.6.0
 
     #clear npm cache
     npm cache clean --force
@@ -51,7 +44,6 @@ else
     rm -rf node_modules
     rm -rf package-lock.json
 
-    chown -R "$(whoami)" "$HOME/.avn"
     chown -R "$(whoami)" "$HOME/.nvm"
 
     #install preliminary dependencies
