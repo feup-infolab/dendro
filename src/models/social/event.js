@@ -25,7 +25,6 @@ function Event (object)
 /* Event.prototype.save = function (callback) {
  Logger.log('Event save');
  var self = this;
-
  self.baseConstructor.save(function (err, newEvent) {
  return callback(err, newEvent);
  });

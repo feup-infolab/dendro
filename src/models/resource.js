@@ -1208,44 +1208,38 @@ Resource.prototype.save = function
 
     const saveEvent = function () {
         let event = {};
+
         let eventType = self.rdf.type[self.rdf.type.length - 1].replace("ddr:", "");
         switch (eventType) {
             case "Like":
-                event.type = "like";
-                event.postURI = self.ddr.postURI;
-                event.userURI = self.ddr.userWhoLiked;
-                event.projecttURI = self.ddr.projectUri;
+                event = new Event("like", self.ddr.postURI, self.ddr.userWhoLiked, self.ddr.projectUri);
                 break;
             case "Comment":
-                event.type = "comment";
-                event.postURI = self.ddr.postURI;
-                event.userURI = self.ddr.userWhoCommented;
-                event.projectURI = self.ddr.projectUri;
+                event = new Event("comment", self.ddr.postURI, self.ddr.userWhoCommented, self.ddr.projectUri);
                 break;
             case "Share":
-                event.type = "share";
-                event.postURI = self.ddr.postURI;
-                event.userURI = self.ddr.userWhoShared;
-                event.projectURI = self.ddr.projectUri;
+                event = new Event("share", self.ddr.postURI, self.ddr.userWhoShared, self.ddr.projectUri);
                 break;
             case "MetadataChangePost":
             case "FileSystemPost":
             case "ManualPost":
-                event.type = "post";
-                event.postURI = self.uri;
-                event.userURI = self.dcterms.creator;
-                event.projectURI = self.ddr.projectUri;
+                event = new Event("post", self.uri, self.dcterms.creator, self.ddr.projectUri);
                 break;
             default:
                 return;
         }
-        console.log(event);
-        /*Event.create({
-        }, function (err, event) {
-            console.log(err);
-            console.log(event);
-            cb(null, null);
-        });*/
+        event.saveToMySQL(function (err) {
+            if (isNull(err))
+            {
+                Logger.log("Event \"" + eventType + "\" saved to MySQL");
+                return;
+            }
+            else
+            {
+                Logger.log("error", err);
+                return;
+            }
+        });
     };
 
     async.waterfall([
