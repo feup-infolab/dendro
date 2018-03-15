@@ -110,7 +110,7 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
         Logger.log("Restoring Docker checkpoint " + checkpointName);
         if (DockerCheckpointManager._availableCheckpoints[checkpointName])
         {
-            const output = childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript}" ${checkpointName}`, {
+            const output = childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript} ${checkpointName}"`, {
                 cwd: Pathfinder.appDir
             });
 

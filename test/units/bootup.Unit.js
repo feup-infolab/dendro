@@ -34,6 +34,7 @@ class BootupUnit extends TestUnit
                         .end((err, res) =>
                         {
                             global.tests.app = appInfo.app;
+                            global.tests.dendroInstance = dendroInstance;
                             global.tests.server = appInfo.server;
                             should.not.exist(err);
                             callback(err, res);

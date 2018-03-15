@@ -248,7 +248,7 @@ exports.setup = function (unit, callback)
 
     if (loadedCheckpoint)
     {
-        Logger.log("Checkpoint " + loadedCheckpoint + "exists and was recovered.");
+        Logger.log("Checkpoint \"" + loadedCheckpoint + "\" exists and was recovered.");
         unit.init(function (err, result)
         {
             Logger.log("Ran only init function of " + unit.name);

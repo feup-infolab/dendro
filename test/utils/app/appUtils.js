@@ -1,16 +1,7 @@
 const Pathfinder = require("../../../src/models/meta/pathfinder").Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const async = require("async");
-const jsonfile = require("jsonfile");
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const index = require(Pathfinder.absPathInTestsFolder("utils/index/index.Test.js"));
-
-const chai = require("chai");
 const fs = require("fs");
-const should = chai.should();
-const moment = require("moment");
 
 const mkdirp = require("mkdirp");
 const getDirName = require("path").dirname;
@@ -20,6 +11,8 @@ let numberofTestsRun = 0;
 // 10 sec cooldown every 7 test files
 const testsBatchSizeBeforeCooldown = 7;
 const testsCooldownTime = 10;
+
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const applyCooldownToTests = function ()
 {
@@ -47,17 +40,17 @@ exports.clearAppState = function (cb)
     {
         return cb(1, "Server did not start successfully");
     }
-    saveRouteLogsToFile(function (err, info)
+
+    appUtils.saveRouteLogsToFile(function (err, info)
     {
         applyCooldownToTests();
-        global.tests.app.freeResources(function (err, results)
+        const dendroInstance = global.tests.dendroInstance;
+        dendroInstance.freeResources(function (err, results)
         {
-            setTimeout(function ()
-            {
-                delete global.tests.app;
-                delete global.tests.server;
-                return cb(err, results);
-            }, 1000);
+            delete global.tests.app;
+            delete global.tests.server;
+            delete global.tests.dendroInstance;
+            cb(err, results);
         });
     });
 };
@@ -88,7 +81,7 @@ exports.newTestRouteLog = function (routeName)
     return global.routesLog;
 };
 
-const saveRouteLogsToFile = function (callback)
+exports.saveRouteLogsToFile = function (callback)
 {
     if (isNull(global.testingRoute) || isNull(global.routesLog) || isNull(global.routesLog[global.testingRoute]))
     {
