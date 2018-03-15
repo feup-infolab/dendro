@@ -229,7 +229,12 @@ describe("Deposits/latest", function (done) {
       const agent = aaa;
       depositUtils.getDeposit(depositUri, agent, function(err, deposit){
         if(isNull(deposit)){
-           const outsideUri = "https://" + deposit.ddr.exportedFromProject;
+           const outsideUri = "https://" + deposit.ddr.exportedToRepository + "/dataset/" + deposit.dcterms.identifier;
+           request(outsideUri, function(err, response, body){
+              if(response.statusCode === 200){
+                done();
+              }
+           });
         }
         done(1);
       });
