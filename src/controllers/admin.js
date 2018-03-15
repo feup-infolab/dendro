@@ -149,7 +149,7 @@ module.exports.reindex = function (req, res)
                 // delete current index if requested
                 function (callback)
                 {
-                    indexConnection.create_new_index(1, 1, deleteBeforeReindexing, function (err, result)
+                    indexConnection.create_new_index(deleteBeforeReindexing, function (err, result)
                     {
                         if (isNull(err) && isNull(result))
                         {
