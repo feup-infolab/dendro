@@ -105,6 +105,11 @@ class CreateFolders extends AddContributorsToProjectsUnit
     {
         super.shutdown(callback);
     }
+
+    static setup (callback)
+    {
+        super.setup(callback);
+    }
 }
 
 CreateFolders.foldersData = foldersData;

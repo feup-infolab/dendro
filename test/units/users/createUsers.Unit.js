@@ -202,6 +202,11 @@ class CreateUsers extends LoadOntologies
     {
         super.shutdown(callback);
     }
+
+    static setup (callback)
+    {
+        super.setup(callback);
+    }
 }
 
 module.exports = CreateUsers;

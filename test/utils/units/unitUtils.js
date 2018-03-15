@@ -127,11 +127,11 @@ exports.getCallerFunctionFilePath = function ()
     return callerfile;
 };
 
-exports.getTopCallerUnit = function ()
+exports.getTopCallerUnitFile = function ()
 {
     const bootupUnitClass = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
     let originalFunc = Error.prepareStackTrace;
-    let mostSpecificClass;
+    let mostSpecificClassFile;
 
     try
     {
@@ -144,6 +144,7 @@ exports.getTopCallerUnit = function ()
 
         let currentFile = err.stack.shift().getFileName();
         mostSpecificClass = require(currentFile);
+        mostSpecificClassFile = currentFile;
 
         while (err.stack.length)
         {
@@ -153,6 +154,8 @@ exports.getTopCallerUnit = function ()
             if (bootupUnitClass.isPrototypeOf(callerClass))
             {
                 mostSpecificClass = callerClass;
+                mostSpecificClassFile = callerFile;
+
             }
         }
     }
@@ -162,7 +165,7 @@ exports.getTopCallerUnit = function ()
 
     Error.prepareStackTrace = originalFunc;
 
-    return mostSpecificClass.name;
+    return mostSpecificClassFile;
 };
 
 exports.startLoad = function ()
@@ -240,7 +243,8 @@ exports.loadCheckpoint = function (customIdentifier)
 
 exports.setup = function (unit, callback)
 {
-    const loadedCheckpoint = exports.loadCheckpoint(unit.name);
+    const checkpointIdentifier = path.basename(exports.getTopCallerUnitFile());
+    const loadedCheckpoint = exports.loadCheckpoint(checkpointIdentifier);
 
     if (loadedCheckpoint)
     {

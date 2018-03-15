@@ -88,6 +88,11 @@ class AddMetadataToFolders extends CreateFoldersUnit
     {
         super.shutdown(callback);
     }
+
+    static setup (callback)
+    {
+        super.setup(callback);
+    }
 }
 
 AddMetadataToFolders.foldersData = foldersData;

@@ -42,6 +42,11 @@ class LoadOntologies extends BootupUnit
     {
         super.shutdown(callback);
     }
+
+    static setup (callback)
+    {
+        super.setup(callback);
+    }
 }
 
 module.exports = LoadOntologies;

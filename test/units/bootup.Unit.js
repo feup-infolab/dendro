@@ -49,21 +49,6 @@ class BootupUnit extends TestUnit
         });
     }
 
-    static shutdown (callback)
-    {
-        super.shutdown(function (err, result)
-        {
-            Logger.log("debug", "Starting server shutdown at bootup Unit");
-            // TODO @silvae86 este free resources retorna antes do tempo!
-            dendroInstance.freeResources(function (err, result)
-            {
-                global.tests.app = null;
-                Logger.log("debug", "Server shutdown complete.");
-                callback(err);
-            });
-        });
-    }
-
     static load (callback)
     {
         const self = this;
@@ -122,6 +107,26 @@ class BootupUnit extends TestUnit
                 });
             }
         });
+    }
+
+    static shutdown (callback)
+    {
+        super.shutdown(function (err, result)
+        {
+            Logger.log("debug", "Starting server shutdown at bootup Unit");
+            // TODO @silvae86 este free resources retorna antes do tempo!
+            dendroInstance.freeResources(function (err, result)
+            {
+                global.tests.app = null;
+                Logger.log("debug", "Server shutdown complete.");
+                callback(err);
+            });
+        });
+    }
+
+    static setup (callback)
+    {
+        super.setup(callback);
     }
 }
 

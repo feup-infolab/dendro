@@ -84,6 +84,11 @@ class AddContributorsToProjects extends CreateProjectsUnit
     {
         super.shutdown(callback);
     }
+
+    static setup (callback)
+    {
+        super.setup(callback);
+    }
 }
 
 module.exports = AddContributorsToProjects;
