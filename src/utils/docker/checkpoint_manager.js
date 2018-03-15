@@ -53,11 +53,13 @@ DockerCheckpointManager.stopAllContainers = function ()
     {
         Logger.log("Stopping all Docker containers.");
         const output = childProcess.execSync(`/bin/bash -c "${stopContainersScript}"`, {
-            cwd: Pathfinder.appDir
+            cwd: Pathfinder.appDir,
+            stdio: [0, 1, 2]
         });
 
-        Logger.log(bufferToString(output));
-        return bufferToString(output);
+        // Logger.log(bufferToString(output));
+        Logger.log("Stopped all containers");
+        //return bufferToString(output);
     }
 };
 
@@ -67,11 +69,13 @@ DockerCheckpointManager.startAllContainers = function ()
     {
         Logger.log("Starting all Docker containers.");
         const output = childProcess.execSync(`/bin/bash -c "${startContainersScript}"`, {
-            cwd: Pathfinder.appDir
+            cwd: Pathfinder.appDir,
+            stdio: [0, 1, 2]
         });
 
-        Logger.log(bufferToString(output));
-        return bufferToString(output);
+        // Logger.log(bufferToString(output));
+        Logger.log("Started all containers");
+        //return bufferToString(output);
     }
 };
 
@@ -91,14 +95,15 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
         if (isNull(DockerCheckpointManager._availableCheckpoints[checkpointName]))
         {
             const output = childProcess.execSync(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
-                cwd: Pathfinder.appDir
+                cwd: Pathfinder.appDir,
+                stdio: [0, 1, 2]
             });
 
-            Logger.log(bufferToString(output));
+            // Logger.log(bufferToString(output));
             Logger.log("Saved checkpoint with name " + checkpointName);
             DockerCheckpointManager._availableCheckpoints[checkpointName] = true;
 
-            return bufferToString(output);
+            //return bufferToString(output);
         }
     }
 };
@@ -111,10 +116,11 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
         if (DockerCheckpointManager._availableCheckpoints[checkpointName])
         {
             const output = childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript} ${checkpointName}"`, {
-                cwd: Pathfinder.appDir
+                cwd: Pathfinder.appDir,
+                stdio: [0, 1, 2]
             });
 
-            Logger.log(bufferToString(output));
+            // Logger.log(bufferToString(output));
             Logger.log("Restored Docker checkpoint with name " + checkpointName + " of Docker containers.");
             return true;
         }
@@ -165,13 +171,14 @@ DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
         {
             Logger.log("Rebuilding all Docker containers.");
             const output = childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
-                cwd: Pathfinder.appDir
+                cwd: Pathfinder.appDir,
+                stdio: [0, 1, 2]
             });
 
-            Logger.log(bufferToString(output));
+            // Logger.log(bufferToString(output));
 
             Logger.log("Nuked and rebuilt all containers.");
-            return bufferToString(output);
+            // return bufferToString(output);
         };
 
         if (onlyOnce)
@@ -197,11 +204,13 @@ DockerCheckpointManager.restartAllContainers = function (onlyOnce)
         const performOperation = function ()
         {
             const output = childProcess.execSync(`/bin/bash -c "${restartContainersScript}"`, {
-                cwd: Pathfinder.appDir
+                cwd: Pathfinder.appDir,
+                stdio: [0, 1, 2]
             });
 
-            Logger.log(bufferToString(output));
-            return bufferToString(output);
+            // Logger.log(bufferToString(output));
+            Logger.log("Restarted all containers");
+            //return bufferToString(output);
         };
 
         if (onlyOnce)

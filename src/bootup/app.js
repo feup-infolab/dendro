@@ -565,7 +565,7 @@ class App
             DbConnection.finishUpAllConnectionsAndClose(function ()
             {
                 const timeout = 0;
-                Logger.log("Waiting " + timeout + "ms for virtuoso to flush the toilet...");
+                Logger.log("Waiting " + timeout + "ms for virtuoso to flush the buffers...");
                 setTimeout(cb, timeout);
             });
         };

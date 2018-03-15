@@ -9,6 +9,7 @@ const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 let CreateFoldersPublicProject = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersPublicProject.Unit.js"));
 

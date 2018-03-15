@@ -26,11 +26,9 @@ const initMySQL = function (app, callback)
                 {
                     return callback("Unable to create interactions table " + Config.recommendation.getTargetTable() + " in MySQL ");
                 }
-                else
-                {
-                    Logger.log("Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                    return callback(null);
-                }
+
+                Logger.log("Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
+                return callback(null);
             });
         }
         else

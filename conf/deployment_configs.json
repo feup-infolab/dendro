@@ -1168,7 +1168,7 @@
           "active": false
         }
     },
-    "travis_buildserver_test": {
+    "travis": {
         "port": 3002,
         "host": "127.0.0.1:3002",
         "crypto": {
@@ -1554,7 +1554,7 @@
         "numCPUs": 1,
         "docker": {
           "active": true,
-          "reuse_checkpoints": true
+          "reuse_checkpoints": false
         }
     }
 }

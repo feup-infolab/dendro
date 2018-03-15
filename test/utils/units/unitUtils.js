@@ -155,7 +155,6 @@ exports.getTopCallerUnitFile = function ()
             {
                 mostSpecificClass = callerClass;
                 mostSpecificClassFile = callerFile;
-
             }
         }
     }
