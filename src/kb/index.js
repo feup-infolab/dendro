@@ -393,8 +393,8 @@ IndexConnection.prototype.ensureElasticSearchIsReady = function (callback)
                     }
                     else
                     {
-                        Logger.log("error", "Error trying to check if ElasticSearch is online.");
-                        Logger.log("error", err);
+                        Logger.log("warn", "Error trying to check if ElasticSearch is online.");
+                        Logger.log("warn", err);
                         callback(err, false);
                     }
                 });
@@ -901,9 +901,11 @@ IndexConnection.prototype.moreLikeThis = function (
                                 "like" : [
                                     {
                                         _index: self.short_name,
-                                        _type: typeName,
-                                        _id: documentId
+                                        _type: typeName
                                     }
+                                ],
+                                "docs": [
+                                    documentId
                                 ],
                                 "min_term_freq" : 1,
                                 "max_query_terms" : 12
