@@ -1,8 +1,12 @@
 require("babel-polyfill");
+
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+
 
 var async = require("async");
 var natural = require("natural");
@@ -850,7 +854,7 @@ exports.termextraction = function (req, res)
                         return parseFloat(b.score) - parseFloat(a.score);
                     });
 
-                    //console.log(dbpediaterms);
+                    // console.log(dbpediaterms);
 
                     res.status(200).json(
                         {
@@ -918,11 +922,13 @@ exports.dbpedialookup = function (req, res)
                 if (results[i] !== undefined && JSON.parse(results[i]).results[0] != null)
                 {
                     console.log("searched word: " + dbpediaresults[i].words);
+                    console.log("nc value: " + dbpediaresults[i].score);
                     console.log("URI: " + JSON.parse(results[i]).results[0].uri);
                     console.log("label: " + JSON.parse(results[i]).results[0].label);
                     console.log("description: " + JSON.parse(results[i]).results[0].description);
                     dbpediauri.result.push({
                         searchterm: dbpediaresults[i].words,
+                        score: dbpediaresults[i].score,
                         uri: JSON.parse(results[i]).results[0].uri,
                         label: JSON.parse(results[i]).results[0].label,
                         description: JSON.parse(results[i]).results[0].description
@@ -952,8 +958,8 @@ exports.dbpediaproperties = function (req, res)
     req.setTimeout(150000);
     var search = function (lookup, cb)
     {
-               lookup.label = lookup.label.replace(/\s/g, "_");
-      /*
+        lookup.label = lookup.label.replace(/\s/g, "_");
+        /*
               const query = "select distinct ?property {\n" +
           "  { dbr:" + lookup.label + " ?property ?o }\n" +
           "  union\n" +
@@ -984,16 +990,17 @@ exports.dbpediaproperties = function (req, res)
             });
     };
 
-    var dbpediaconcepts = [];
+    var dbpediaconcepts = {
+        concepts: []
+    };
     for (var i = 0; i < req.body.concepts.length; i++)
     {
         if (!req.body.concepts[i].hasOwnProperty("error"))
         {
-            dbpediaconcepts.push(req.body.concepts[i]);
+            dbpediaconcepts.concepts.push(req.body.concepts[i]);
         }
     }
-
-    async.mapSeries(dbpediaconcepts, search, function (err, results)
+    async.mapSeries(dbpediaconcepts.concepts, search, function (err, results)
     {
         var dbpediaproperties = {
             result: []
@@ -1019,7 +1026,7 @@ exports.dbpediaproperties = function (req, res)
                     {
                         for (j = 0; j < results[i].results.bindings.length; j++)
                         {
-                            dbpediaproperties.result.push({word: results[i].results.bindings[j].property.value, frequency: 1});
+                            dbpediaproperties.result.push({word: results[i].results.bindings[j].property.value, frequency: 1 * dbpediaconcepts.concepts[i].score});
                         }
                     }
                     else
@@ -1031,13 +1038,13 @@ exports.dbpediaproperties = function (req, res)
                             {
                                 if (dbpediaproperties.result[h].word === results[i].results.bindings[j].property.value)
                                 {
-                                    dbpediaproperties.result[h].frequency++;
+                                    dbpediaproperties.result[h].frequency = dbpediaproperties.result[h].frequency * dbpediaconcepts.concepts[i].score;
                                     break;
                                 }
                             }
                             if (h === dbpediaproperties.result.length)
                             {
-                                dbpediaproperties.result.push({word: results[i].results.bindings[j].property.value, frequency: 1});
+                                dbpediaproperties.result.push({word: results[i].results.bindings[j].property.value, frequency: 1 * dbpediaconcepts.concepts[i].score});
                             }
                         }
                     }
@@ -1074,7 +1081,49 @@ exports.dbpediaproperties = function (req, res)
         }
     });
 };
+exports.my = function (req, res)
+{
+    let viewVars = {
+    // title: "My projects"
+    };
 
+    Project.findByCreatorOrContributor(req.user.uri, function (err, projects)
+    {
+        if (isNull(err) && !isNull(projects))
+        {
+            let acceptsHTML = req.accepts("html");
+            const acceptsJSON = req.accepts("json");
+
+            if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+            {
+                res.json(
+                    {
+                        projects: projects
+                    }
+                );
+            }
+            else
+            {
+                viewVars = DbConnection.paginate(req,
+                    viewVars
+                );
+
+                viewVars.projects = projects;
+                res.render("keywords/my",
+                    viewVars
+                );
+            }
+        }
+        else
+        {
+            viewVars.projects = [];
+            viewVars.info_messages = ["You have not created any projects"];
+            res.render("projects/my",
+                viewVars
+            );
+        }
+    });
+};
 exports.clustering = function (rec, res)
 {
 

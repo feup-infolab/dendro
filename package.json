@@ -120,7 +120,7 @@
     "node-fs": "0.1.7",
     "nodemailer": "^4.4.0",
     "npid": "^0.4.0",
-    "npm": "^5.6.0",
+    "npm": "^5.7.1",
     "oboe": "^2.1.4",
     "parse-filepath": "^1.0.1",
     "passport": "^0.4.0",
