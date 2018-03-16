@@ -17,20 +17,10 @@ class LoadOntologies extends BootupUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.load(function (err, results)
+        loadOntologies(null, function (err, result)
         {
-            if (err)
-            {
-                callback(err, results);
-            }
-            else
-            {
-                loadOntologies(null, function (err, result)
-                {
-                    unitUtils.endLoad(self, callback);
-                }, true);
-            }
-        });
+            unitUtils.endLoad(self, callback);
+        }, true);
     }
 
     static init (callback)

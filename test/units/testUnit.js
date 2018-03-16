@@ -1,6 +1,3 @@
-const path = require("path");
-const _ = require("underscore");
-
 const Pathfinder = global.Pathfinder;
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 

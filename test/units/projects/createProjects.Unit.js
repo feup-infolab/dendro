@@ -37,78 +37,68 @@ class CreateProjects extends CreateUsersUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.load(function (err, results)
-        {
-            if (err)
+        async.series([
+            function (cb1)
             {
-                callback(err, results);
-            }
-            else
-            {
-                async.series([
-                    function (cb1)
-                    {
-                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-                        {
-                            if (isNull(err))
-                            {
-                                async.mapSeries(projectsData, function (projectData, cb2)
-                                {
-                                    if (err)
-                                    {
-                                        cb2(err, agent);
-                                    }
-                                    else
-                                    {
-                                        projectUtils.createNewProject(true, agent, projectData, function (err, res)
-                                        {
-                                            cb2(err, res);
-                                        });
-                                    }
-                                },
-                                function (err, result)
-                                {
-                                    cb1(err, result);
-                                });
-                            }
-                            else
-                            {
-                                throw new Error(err);
-                            }
-                        });
-                    },
-                    function (cb1)
-                    {
-                        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
-                        {
-                            if (err)
-                            {
-                                cb1(err, agent);
-                            }
-                            else
-                            {
-                                projectUtils.createNewProject(true, agent, projectCreatedByDemoUser3, function (err, res)
-                                {
-                                    cb1(err, res);
-                                });
-                            }
-                        });
-                    }
-
-                ], function (err, results)
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     if (isNull(err))
                     {
-                        unitUtils.endLoad(self, function (err, results)
-                        {
-                            callback(err, results);
-                        });
+                        async.mapSeries(projectsData, function (projectData, cb2)
+                            {
+                                if (err)
+                                {
+                                    cb2(err, agent);
+                                }
+                                else
+                                {
+                                    projectUtils.createNewProject(true, agent, projectData, function (err, res)
+                                    {
+                                        cb2(err, res);
+                                    });
+                                }
+                            },
+                            function (err, result)
+                            {
+                                cb1(err, result);
+                            });
                     }
                     else
                     {
-                        callback(err, results);
+                        throw new Error(err);
                     }
                 });
+            },
+            function (cb1)
+            {
+                userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+                {
+                    if (err)
+                    {
+                        cb1(err, agent);
+                    }
+                    else
+                    {
+                        projectUtils.createNewProject(true, agent, projectCreatedByDemoUser3, function (err, res)
+                        {
+                            cb1(err, res);
+                        });
+                    }
+                });
+            }
+
+        ], function (err, results)
+        {
+            if (isNull(err))
+            {
+                unitUtils.endLoad(self, function (err, results)
+                {
+                    callback(err, results);
+                });
+            }
+            else
+            {
+                callback(err, results);
             }
         });
     }

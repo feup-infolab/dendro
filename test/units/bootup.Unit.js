@@ -55,44 +55,27 @@ class BootupUnit extends TestUnit
         const self = this;
         unitUtils.startLoad(self);
         dendroInstance = new App();
-        super.load(function (err, results)
+        dendroInstance.initConnections(function (err, appInfo)
         {
-            if (err)
+            if (isNull(err))
             {
-                callback(err, results);
-            }
-            else
-            {
-                dendroInstance.initConnections(function (err, appInfo)
+                dendroInstance.seedDatabases(function (err, result)
                 {
-                    if (isNull(err))
+                    if (!err)
                     {
-                        dendroInstance.seedDatabases(function (err, result)
+                        dendroInstance.startApp(function (err, result)
                         {
-                            if (!err)
+                            if (isNull(err))
                             {
-                                dendroInstance.startApp(function (err, result)
+                                global.tests.app = dendroInstance.app;
+                                unitUtils.endLoad(self, function (err, results)
                                 {
-                                    if (isNull(err))
-                                    {
-                                        global.tests.app = dendroInstance.app;
-                                        unitUtils.endLoad(self, function (err, results)
-                                        {
-                                            callback(err, dendroInstance.app);
-                                        });
-                                    }
-                                    else
-                                    {
-                                        Logger.log("error", "Error starting app in bootupUnit.");
-                                        Logger.log("error", err);
-                                        Logger.log("error", result);
-                                        callback(err, result);
-                                    }
+                                    callback(err, dendroInstance.app);
                                 });
                             }
                             else
                             {
-                                Logger.log("error", "Error seeding databases in bootupUnit.");
+                                Logger.log("error", "Error starting app in bootupUnit.");
                                 Logger.log("error", err);
                                 Logger.log("error", result);
                                 callback(err, result);
@@ -101,11 +84,18 @@ class BootupUnit extends TestUnit
                     }
                     else
                     {
-                        Logger.log("error", "Error seeding databases!");
-                        Logger.log("error", JSON.stringify(err));
-                        callback(err);
+                        Logger.log("error", "Error seeding databases in bootupUnit.");
+                        Logger.log("error", err);
+                        Logger.log("error", result);
+                        callback(err, result);
                     }
                 });
+            }
+            else
+            {
+                Logger.log("error", "Error seeding databases!");
+                Logger.log("error", JSON.stringify(err));
+                callback(err);
             }
         });
     }

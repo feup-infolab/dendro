@@ -59,7 +59,7 @@ DockerCheckpointManager.stopAllContainers = function ()
 
         // Logger.log(bufferToString(output));
         Logger.log("Stopped all containers");
-        //return bufferToString(output);
+        // return bufferToString(output);
     }
 };
 
@@ -75,7 +75,7 @@ DockerCheckpointManager.startAllContainers = function ()
 
         // Logger.log(bufferToString(output));
         Logger.log("Started all containers");
-        //return bufferToString(output);
+        // return bufferToString(output);
     }
 };
 
@@ -103,7 +103,7 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
             Logger.log("Saved checkpoint with name " + checkpointName);
             DockerCheckpointManager._availableCheckpoints[checkpointName] = true;
 
-            //return bufferToString(output);
+            // return bufferToString(output);
         }
     }
 };
@@ -210,7 +210,7 @@ DockerCheckpointManager.restartAllContainers = function (onlyOnce)
 
             // Logger.log(bufferToString(output));
             Logger.log("Restarted all containers");
-            //return bufferToString(output);
+            // return bufferToString(output);
         };
 
         if (onlyOnce)

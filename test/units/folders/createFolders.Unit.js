@@ -36,62 +36,52 @@ class CreateFolders extends AddContributorsToProjectsUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.load(function (err, results)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                async.mapSeries(projectsData, function (projectData, cb)
                 {
-                    if (err)
+                    async.mapSeries(foldersData, function (folderData, cb)
                     {
-                        callback(err, agent);
-                    }
-                    else
-                    {
-                        async.mapSeries(projectsData, function (projectData, cb)
+                        itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
                         {
-                            async.mapSeries(foldersData, function (folderData, cb)
+                            if (!isNull(err))
                             {
-                                itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
-                                {
-                                    if (!isNull(err))
-                                    {
-                                        cb(err, results);
-                                    }
-                                    else
-                                    {
-                                        cb(null, results);
-                                    }
-                                });
-                            }, function (err, results)
-                            {
-                                if (!isNull(err))
-                                {
-                                    cb(err, results);
-                                }
-                                else
-                                {
-                                    cb(null, results);
-                                }
-                            });
-                        }, function (err, results)
-                        {
-                            if (isNull(err))
-                            {
-                                unitUtils.endLoad(self, function (err, results)
-                                {
-                                    callback(err, results);
-                                });
+                                cb(err, results);
                             }
                             else
                             {
-                                callback(err, results);
+                                cb(null, results);
                             }
                         });
+                    }, function (err, results)
+                    {
+                        if (!isNull(err))
+                        {
+                            cb(err, results);
+                        }
+                        else
+                        {
+                            cb(null, results);
+                        }
+                    });
+                }, function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        unitUtils.endLoad(self, function (err, results)
+                        {
+                            callback(err, results);
+                        });
+                    }
+                    else
+                    {
+                        callback(err, results);
                     }
                 });
             }

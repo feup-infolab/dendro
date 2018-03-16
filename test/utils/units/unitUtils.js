@@ -240,10 +240,95 @@ exports.loadCheckpoint = function (customIdentifier)
     return false;
 };
 
+exports.loadLastSavedCheckpointInUnitHierarchy = function (unit)
+{
+    const bootupUnitClass = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+    let originalFunc = Error.prepareStackTrace;
+    let lastCheckpointedUnit;
+    let currentCheckpointedUnit;
+    let callerClass;
+    let lastCheckpointClass;
+
+    try
+    {
+        let err = new Error();
+
+        Error.prepareStackTrace = function (err, stack)
+        {
+            return stack;
+        };
+
+        let currentFile = err.stack.shift().getFileName();
+
+        while (err.stack.length)
+        {
+            currentFile = err.stack.shift().getFileName();
+            callerClass = require(currentFile);
+
+            if (bootupUnitClass.isPrototypeOf(callerClass))
+            {
+                currentCheckpointedUnit = path.basename(currentFile);
+                if (DockerCheckpointManager.checkpointExists(current))
+                {
+                    lastCheckpointedUnit = currentCheckpointedUnit;
+                    lastCheckpointClass = callerClass;
+                }
+            }
+        }
+    }
+    catch (e)
+    {
+    }
+
+    Error.prepareStackTrace = originalFunc;
+
+    if (!isNull(lastCheckpointedUnit))
+    {
+        exports.loadCheckpoint(lastCheckpointedUnit);
+        return lastCheckpointClass;
+    }
+
+    return null;
+};
+
+exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (loadedCheckpointUnit, unit, callback)
+{
+    const async = require("async");
+    const bootupUnitClass = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+    let lastCheckpointClass;
+    const unitsToRun = [];
+
+    let currentUnitClass = loadedCheckpointUnit;
+
+    while (currentUnitClass.prototype && bootupUnitClass.isPrototypeOf(currentUnitClass) && currentUnitClass !== unit)
+    {
+        unitsToRun.push(currentUnitClass);
+        currentUnitClass = currentUnitClass.prototype;
+    }
+
+    async.mapSeries(unitsToRun, function (unit, cb)
+    {
+        unit.load(function (err, result)
+        {
+            cb(err, result);
+        });
+    }, function (err, results)
+    {
+        if (isNull(err))
+        {
+            callback(err, lastCheckpointClass);
+        }
+        else
+        {
+            callback(err, results);
+        }
+    });
+};
+
 exports.setup = function (unit, callback)
 {
     const checkpointIdentifier = path.basename(exports.getTopCallerUnitFile());
-    const loadedCheckpoint = exports.loadCheckpoint(checkpointIdentifier);
+    let loadedCheckpoint = exports.loadCheckpoint(checkpointIdentifier);
 
     if (loadedCheckpoint)
     {
@@ -256,20 +341,31 @@ exports.setup = function (unit, callback)
     }
     else
     {
-        Logger.log("Checkpoint does not exist. Will load database...");
-        unit.load(function (err, result)
+        Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
+        exports.loadLastSavedCheckpointInUnitHierarchy(unit, function (err, loadedCheckpoint)
         {
-            if (isNull(err))
+            if (!isNull(loadedCheckpoint))
             {
-                Logger.log("Ran load function of " + unit.name + " successfully");
+                Logger.log("Loaded " + loadedCheckpoint + ", will now run load remaining functions up the unit dependency chain...");
+                exports.runLoadFunctionsFromExistingCheckpointUntilUnit(loadedCheckpoint, unit, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        Logger.log("Ran load functions between " + lastSavedCheckpoint + " and " + unit.name + " successfully");
+                    }
+                    else
+                    {
+                        Logger.log("Error running functions between " + lastSavedCheckpoint + " and " + unit.name + " !");
+                        Logger.log("error", err);
+                        Logger.log("error", JSON.stringify(result));
+                    }
+                    callback(err);
+                });
             }
             else
             {
-                Logger.log("error", "Error running load function of " + unit.name + " successfully.");
-                Logger.log("error", err);
-                Logger.log("error", JSON.stringify(result));
+                callback(err, loadedCheckpoint);
             }
-            callback(err);
         });
     }
 };
