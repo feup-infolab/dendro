@@ -255,6 +255,17 @@ exports.show = function (req, res)
                         {
                             result.is_project_root = true;
                             res.set("Content-Type", contentType);
+                            for (var i = result.descriptors.length - 1; i >= 0; i--)
+                            {
+                                for (var t = result.descriptors[i].length - 1; t >= 0; t--)
+                                {
+                                    if (!isNull(result.descriptors[i][t].locked) && isNull(result.descriptors[i][t].api_writeable))
+                                    {
+                                        result.descriptors.splice(i, 1);
+                                    }
+                                }
+
+                            }
                             res.send(serializer(result));
                         }
                         else
@@ -1218,9 +1229,29 @@ exports.administer = function (req, res)
                                             }
                                             else
                                             {
-                                                project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize);
+                                                project.getActiveStorageConfig(function (err, config)
+                                                {
+                                                    if (isNull(err))
+                                                    {
+                                                        switch (config.ddr.hasStorageType)
+                                                        {
+                                                        case "local":
+                                                            project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize);
+                                                            break;
+                                                        case "b2drop":
+                                                            project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize, Config.maxB2DropProjectSize);
+                                                            break;
+                                                        default:
+                                                            Logger.log("error", "Storage" + config.ddr.hasStorageType + " needs to be configured in update storage limit");
+                                                            return callback(true, "Invalid storaged stored");
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        return callback(true, "No storage configured for this project");
+                                                    }
+                                                });
                                             }
-
                                             return callback(null, project);
                                         });
                                     }

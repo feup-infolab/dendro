@@ -8,6 +8,8 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const B2Drop = require("@feup-infolab/node-b2drop").B2Drop;
 const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 
 class StorageB2Drop extends Storage
 {
@@ -78,7 +80,7 @@ class StorageB2Drop extends Storage
                 }
                 else
                 {
-                    Logger.log("error", "Error opening connection to b2drop storage!");
+                    Logger.log("error", "Error testing connection to b2drop storage!");
                     Logger.log("error", err);
                     Logger.log("error", response);
                     callback(err, self);
@@ -108,51 +110,115 @@ class StorageB2Drop extends Storage
 
             self.open(function ()
             {
-                self.connection.createFolder(parentFolder, function (err, result)
+                if (isNull(err))
                 {
-                    if (isNull(err))
-                    {
-                        const async = require("async");
-                        async.series([
-                            function (cb)
+                    const async = require("async");
+                    async.series([
+                        function (cb)
+                        {
+                            self.connection.createFolder(parentFolder, function (err, result)
                             {
-                                if (isNull(self.connection))
+                                if (isNull(err))
                                 {
-                                    self.open(cb);
+                                    callback(null);
                                 }
                                 else
                                 {
-                                    cb(null);
+                                    callback(err, result);
                                 }
-                            },
-                            function (cb)
+                            });
+                        },
+                        function (cb)
+                        {
+                            if (isNull(self.connection))
                             {
-                                self.connection.put(targetFilePath, inputStream, function (err, response)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        callback(err, self);
-                                        cb(null);
-                                    }
-                                    else
-                                    {
-                                        Logger.log("error", "Error sending file to b2drop storage!");
-                                        Logger.log("error", err);
-                                        Logger.log("error", response);
-                                        callback(err, self);
-                                    }
-                                });
+                                self.open(cb);
                             }
-                        ]);
-                    }
-                    else
-                    {
-                        Logger.log("error", "Error creating base folder in b2drop storage!");
-                        Logger.log("error", err);
-                        Logger.log("error", result);
-                        callback(err, self);
-                    }
-                });
+                            else
+                            {
+                                cb(null);
+                            }
+                        },
+                        function (cb)
+                        {
+                            async.waterfall([
+                                function (callback)
+                                {
+                                    self.connection.put(targetFilePath, inputStream, function (err, response)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            callback(null);
+                                        }
+                                        else
+                                        {
+                                            callback(err, response);
+                                        }
+                                    });
+                                },
+                                function (callback)
+                                {
+                                    Folder.findByUri(file.nie.isLogicalPartOf, function (err, folder)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            folder.findMetadataRecursive(function (err, result)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    const pathRDFfile = parentFolder + "/" + parentFolder.match(/([^\/]*)\/*$/)[1] + ".rdf";
+                                                    const Readable = require("stream").Readable;
+                                                    var inputStreamRDF = new Readable();
+                                                    for (var i = result.descriptors.length - 1; i >= 0; i--)
+                                                    {
+                                                        for (var t = result.descriptors[i].length - 1; t >= 0; t--)
+                                                        {
+                                                            if (!isNull(result.descriptors[i][t].locked) && isNull(result.descriptors[i][t].api_writeable))
+                                                            {
+                                                                result.descriptors.splice(i, 1);
+                                                            }
+                                                        }
+                                                    }
+                                                    inputStreamRDF.push(Serializers.metadataToRDF(result));
+                                                    inputStreamRDF.push(null);
+
+                                                    self.connection.put(pathRDFfile, inputStreamRDF, function (err, response)
+                                                    {
+                                                        if (isNull(err))
+                                                        {
+                                                            callback(null);
+                                                        }
+                                                        else
+                                                        {
+                                                            callback(err, response);
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    callback(err, self);
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            callback(err, self);
+                                        }
+                                    });
+                                }
+                            ], function (err, results)
+                            {
+                                if (!isNull(err))
+                                {
+                                    Logger.log("error", "Error sending file to b2drop storage!");
+                                    Logger.log("error", err);
+                                    Logger.log("error", results);
+                                    callback(err, self);
+                                }
+                            });
+                        }
+                    ]);
+                }
             });
         });
     }
