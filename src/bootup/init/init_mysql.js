@@ -93,6 +93,7 @@ const initMySQL = function (app, callback)
                                     "   `performedBy` text, \n" +
                                     "   `interactionType` text, \n" +
                                     "   `executedOver` text, \n" +
+                                    "   `projectUri` text DEFAULT NULL, \n" +
                                     "   `originallyRecommendedFor` text, \n" +
                                     "   `rankingPosition` int(11) DEFAULT NULL, \n" +
                                     "   `pageNumber` int(11) DEFAULT NULL, \n" +
@@ -105,6 +106,7 @@ const initMySQL = function (app, callback)
                                     "CREATE INDEX " + tablename + "_performedBy_text ON " + tablename + "(performedBy(255)); \n" +
                                     "CREATE INDEX " + tablename + "_interaction_type_text ON " + tablename + "(interactionType(255)); \n" +
                                     "CREATE INDEX " + tablename + "_executedOver_text ON " + tablename + "(executedOver(255)); \n" +
+                                    "CREATE INDEX " + tablename + "_projectUri_text ON " + tablename + "(projectUri(255)); \n" +
                                     "CREATE INDEX " + tablename + "_originallyRecommendedFor_text ON " + tablename + "(originallyRecommendedFor(255)); \n";
 
                                 Logger.log_boot_message("Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);

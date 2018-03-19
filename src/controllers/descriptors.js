@@ -440,6 +440,88 @@ exports.from_ontology_in_project = function (req, res)
                                                         });
                                                     };
 
+                                                    async.map(descriptors, function (descriptor, cb)
+                                                    {
+                                                        descriptor.recommendation_types = {};
+
+                                                        if (typeDetected(results[0], descriptor))
+                                                        {
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.user_favorite.key] = true;
+                                                        }
+
+                                                        if (typeDetected(results[1], descriptor))
+                                                        {
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.project_favorite.key] = true;
+                                                        }
+
+                                                        if (typeDetected(results[2], descriptor))
+                                                        {
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.user_hidden.key] = true;
+                                                        }
+
+                                                        if (typeDetected(results[3], descriptor))
+                                                        {
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.project_hidden.key] = true;
+                                                        }
+
+                                                        if (typeDetected(results[4], descriptor))
+                                                        {
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.dc_element_forced.key] = true;
+                                                        }
+                                                        cb(null, null);
+                                                    }, function (err, results)
+                                                    {
+                                                        /*
+                                                     Sort descriptors alphabetically
+                                                     */
+                                                        descriptors = _.sortBy(descriptors, function (descriptor)
+                                                        {
+                                                            return descriptor.label;
+                                                        });
+
+                                                        const removeDuplicates = function (results)
+                                                        {
+                                                            const uniques = _.uniq(results, false, function (result)
+                                                            {
+                                                                return result.uri;
+                                                            });
+
+                                                            return uniques;
+                                                        };
+
+                                                        const removeLockedAndPrivate = function (results)
+                                                        {
+                                                            const filtered = _.filter(results, function (result)
+                                                            {
+                                                                let isLockedOrPrivate = (result.locked || result.private);
+                                                                return !isLockedOrPrivate;
+                                                            });
+
+                                                            return filtered;
+                                                        };
+
+                                                        descriptors = removeDuplicates(descriptors);
+                                                        descriptors = removeLockedAndPrivate(descriptors);
+
+                                                        const uuid = require("uuid");
+                                                        const recommendation_call_id = uuid.v4();
+                                                        const recommendation_call_timestamp = new Date().toISOString();
+
+                                                        for (let i = 0; i < descriptors.length; i++)
+                                                        {
+                                                            descriptors[i].recommendationCallId = recommendation_call_id;
+                                                            descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
+                                                        }
+
+                                                        res.json(
+                                                            {
+                                                                result: "ok",
+                                                                descriptors: descriptors
+                                                            }
+                                                        );
+                                                    });
+
+                                                    /*
                                                     for (let i = 0; i < descriptors.length; i++)
                                                     {
                                                         descriptors[i].recommendation_types = {};
@@ -468,11 +550,12 @@ exports.from_ontology_in_project = function (req, res)
                                                         {
                                                             descriptors[i].recommendation_types[Descriptor.recommendation_types.dc_element_forced.key] = true;
                                                         }
-                                                    }
+                                                    }*/
 
                                                     /*
                                                      Sort descriptors alphabetically
                                                      */
+                                                    /*
                                                     descriptors = _.sortBy(descriptors, function (descriptor)
                                                     {
                                                         return descriptor.label;
@@ -518,6 +601,7 @@ exports.from_ontology_in_project = function (req, res)
                                                             descriptors: descriptors
                                                         }
                                                     );
+                                                    */
                                                 }
                                                 else
                                                 {

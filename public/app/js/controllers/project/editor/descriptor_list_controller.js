@@ -242,7 +242,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.project_hidden = true;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,
@@ -290,7 +291,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.project_hidden = false;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,
@@ -337,7 +339,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.user_hidden = false;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,
@@ -384,7 +387,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.user_hidden = true;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,
@@ -433,7 +437,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.project_favorite = true;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,
@@ -481,7 +486,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.project_favorite = true;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,
@@ -529,7 +535,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.user_favorite = true;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,
@@ -577,7 +584,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.user_favorite = true;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,
@@ -610,6 +618,8 @@ angular.module("dendroApp.controllers")
         {
             var interactionType = "unfavorite_descriptor_from_quick_list_for_user";
             var uri = "/interactions/unfavorite_descriptor_from_quick_list_for_user";
+
+            newDescriptor.just_added = true;
             //newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
@@ -623,7 +633,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.user_favorite = false;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,
@@ -670,7 +681,8 @@ angular.module("dendroApp.controllers")
                 newDescriptor.recommendation_types.project_favorite = false;
             }
 
-            $scope.add_descriptor(newDescriptor);
+            //TODO This is commented because it cannot be added to the descriptor list at this point
+            //$scope.add_descriptor(newDescriptor);
 
             interactionsService.register_interaction(
                 uri,

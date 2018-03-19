@@ -72,7 +72,8 @@ const recordInteractionOverAResource = function (user, resource, req, res)
                                                         rankingPosition: req.body.rankingPosition,
                                                         pageNumber: req.body.pageNumber,
                                                         recommendationCallId: req.body.recommendationCallId,
-                                                        recommendationCallTimeStamp: req.body.recommendationCallTimeStamp
+                                                        recommendationCallTimeStamp: req.body.recommendationCallTimeStamp,
+                                                        projectUri: project.uri
                                                     }
                                                 }, function (err, interaction)
                                                 {
