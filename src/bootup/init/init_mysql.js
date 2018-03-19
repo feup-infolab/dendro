@@ -95,11 +95,25 @@ const initMySQL = function (app, callback)
         const tableName = Config.recommendation.getTargetTable();
         sequelize.interactions = require('../mysql_models/interactions')(Sequelize, sequelize, tableName);
         sequelize.events = require('../mysql_models/events')(Sequelize, sequelize);
+        sequelize.type = require('../mysql_models/type')(Sequelize, sequelize);
+        sequelize.events.belongsTo(sequelize.type);
 
         sequelize.sync().then(() => {
             Logger.log_boot_message("MySQL tables defined.");
             Config.mysql.default.sequelize = sequelize;
-            return callback(null);
+            return sequelize.type.findAll().then(res => {
+                if (res.length == 0) {
+                    return sequelize.type.bulkCreate([
+                        { name: 'like' },
+                        { name: 'comment' },
+                        { name: 'share'},
+                        { name: 'post'},
+                    ]);
+                }
+                return callback(null);
+            }).catch(err => {
+                return callback(err);
+            });
         }).catch(err => {
             return callback("[ERROR] Unable to create the tables on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
         });

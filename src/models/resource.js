@@ -7,7 +7,6 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Event = require(Pathfinder.absPathInSrcFolder("/models/event.js")).Event;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
@@ -1206,42 +1205,6 @@ Resource.prototype.save = function
         );
     };
 
-    const saveEvent = function () {
-        let event = {};
-
-        let eventType = self.rdf.type[self.rdf.type.length - 1].replace("ddr:", "");
-        switch (eventType) {
-            case "Like":
-                event = new Event("like", self.ddr.postURI, self.ddr.userWhoLiked, self.ddr.projectUri);
-                break;
-            case "Comment":
-                event = new Event("comment", self.ddr.postURI, self.ddr.userWhoCommented, self.ddr.projectUri);
-                break;
-            case "Share":
-                event = new Event("share", self.ddr.postURI, self.ddr.userWhoShared, self.ddr.projectUri);
-                break;
-            case "MetadataChangePost":
-            case "FileSystemPost":
-            case "ManualPost":
-                event = new Event("post", self.uri, self.dcterms.creator, self.ddr.projectUri);
-                break;
-            default:
-                return;
-        }
-        event.saveToMySQL(function (err) {
-            if (isNull(err))
-            {
-                Logger.log("Event \"" + eventType + "\" saved to MySQL");
-                return;
-            }
-            else
-            {
-                Logger.log("error", err);
-                return;
-            }
-        });
-    };
-
     async.waterfall([
         function (cb)
         {
@@ -1271,8 +1234,6 @@ Resource.prototype.save = function
                     {
                         createNewResource(self, function (err, result)
                         {
-                            // create event in MySQL database
-                            saveEvent();
                             // there was no existing resource with same URI, create a new one and exit immediately
                             return callback(err, result);
                         });
