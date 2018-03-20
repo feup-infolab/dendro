@@ -22,57 +22,49 @@ const projectsData = CreateProjectsUnit.projectsData;
 let CreateFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const foldersData = CreateFoldersUnit.foldersData;
 
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+
 class AddMetadataToFolders extends CreateFoldersUnit
 {
     static load (callback)
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.load(function (err, results)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                async.mapSeries(projectsData, function (projectData, cb)
                 {
-                    if (err)
+                    async.mapSeries(foldersData, function (folderData, cb)
                     {
-                        callback(err, agent);
+                        itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, folderData.metadata, function (err, res)
+                        {
+                            cb(err, res);
+                        });
+                    }, function (err, results)
+                    {
+                        cb(err, results);
+                    });
+                }, function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        unitUtils.endLoad(self, function (err, results)
+                        {
+                            callback(err, results);
+                        });
                     }
                     else
                     {
-                        async.mapSeries(projectsData, function (projectData, cb)
-                        {
-                            async.mapSeries(foldersData, function (folderData, cb)
-                            {
-                                itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, folderData.metadata, function (err, res)
-                                {
-                                    cb(err, res);
-                                });
-                            }, function (err, results)
-                            {
-                                cb(err, results);
-                            });
-                        }, function (err, results)
-                        {
-                            if (isNull(err))
-                            {
-                                unitUtils.endLoad(self, function (err, results)
-                                {
-                                    callback(err, results);
-                                });
-                            }
-                            else
-                            {
-                                Logger.log("error", "Error adding metadata to folders in addMetadataToFolders.Unit.");
-                                Logger.log("error", err);
-                                Logger.log("error", result);
-                                callback(err, result);
-                            }
-                        });
+                        Logger.log("error", "Error adding metadata to folders in addMetadataToFolders.Unit.");
+                        Logger.log("error", err);
+                        Logger.log("error", results);
+                        callback(err, result);
                     }
                 });
             }

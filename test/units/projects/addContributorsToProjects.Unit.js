@@ -25,53 +25,43 @@ class AddContributorsToProjects extends CreateProjectsUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.load(function (err, results)
+        async.mapSeries(projectsData, function (projectData, cb)
         {
-            if (err)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                callback(err, results);
+                if (err)
+                {
+                    cb(err, agent);
+                }
+                else
+                {
+                    userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
+                    {
+                        cb(err, res);
+                    });
+                }
+            });
+        }, function (err, results)
+        {
+            /*
+            WITH <http://127.0.0.1:3002/dendro_graph>
+            SELECT *
+            {
+                ?s1 ?p1 ?o1.
+                ?s1 dcterms:creator ?creator
+            }
+            */
+
+            if (isNull(err))
+            {
+                unitUtils.endLoad(self, function (err, results)
+                {
+                    callback(err, results);
+                });
             }
             else
             {
-                async.mapSeries(projectsData, function (projectData, cb)
-                {
-                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-                    {
-                        if (err)
-                        {
-                            cb(err, agent);
-                        }
-                        else
-                        {
-                            userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
-                            {
-                                cb(err, res);
-                            });
-                        }
-                    });
-                }, function (err, results)
-                {
-                    /*
-                    WITH <http://127.0.0.1:3002/dendro_graph>
-                    SELECT *
-                    {
-                        ?s1 ?p1 ?o1.
-                        ?s1 dcterms:creator ?creator
-                    }
-                    */
-
-                    if (isNull(err))
-                    {
-                        unitUtils.endLoad(self, function (err, results)
-                        {
-                            callback(err, results);
-                        });
-                    }
-                    else
-                    {
-                        callback(err, results);
-                    }
-                });
+                callback(err, results);
             }
         });
     }

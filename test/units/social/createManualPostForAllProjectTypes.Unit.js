@@ -27,7 +27,7 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.load(function (err, results)
+        super.setup(function (err, results)
         {
             if (!isNull(err))
             {

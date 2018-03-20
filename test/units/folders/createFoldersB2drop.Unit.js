@@ -31,7 +31,7 @@ class CreateFoldersB2Drop extends CreateProjectB2DropUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.load(function (err, results)
+        super.setup(function (err, results)
         {
             if (err)
             {

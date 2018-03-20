@@ -32,7 +32,7 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
     static load (callback)
     {
         const self = this;
-        super.load(function (err, results)
+        super.setup(function (err, results)
         {
             if (err)
             {

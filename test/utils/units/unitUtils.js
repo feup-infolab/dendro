@@ -257,6 +257,8 @@ exports.setup = function (unit, callback)
     else
     {
         Logger.log("Checkpoint does not exist. Will load database...");
+
+        // TODO load any prior checkpoints!
         unit.load(function (err, result)
         {
             if (isNull(err))

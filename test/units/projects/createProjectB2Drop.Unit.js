@@ -24,7 +24,7 @@ class CreateProjectB2Drop extends CreateUsersUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.load(function (err, results)
+        super.setup(function (err, results)
         {
             // should.equal(err, null);
             if (err)

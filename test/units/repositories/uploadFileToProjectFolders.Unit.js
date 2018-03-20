@@ -20,7 +20,7 @@ class UploadFileToProjectFolders extends AddMetadataToFoldersSingleProjectUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.load(function (err, results)
+        super.setup(function (err, results)
         {
             if (err)
             {
