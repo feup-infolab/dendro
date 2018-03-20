@@ -10,6 +10,7 @@ const Notification = require("../models/notifications/notification.js").Notifica
 const Comment = require("../models/social/comment.js").Comment;
 const Share = require("../models/social/share.js").Share;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const Event = require(Pathfinder.absPathInSrcFolder("/models/event.js")).Event;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Project = require("../models/project.js").Project;
 const DbConnection = require("../kb/db.js").DbConnection;
@@ -866,6 +867,19 @@ exports.new = function (req, res)
                                     {
                                         if (!err)
                                         {
+                                            event = new Event("post", manualPost.uri, currentUserUri, req.body.newPostProjectUri);
+                                            event.saveToMySQL(function (err) {
+                                                if (isNull(err))
+                                                {
+                                                    Logger.log("Event \"post\" saved to MySQL");
+                                                    return;
+                                                }
+                                                else
+                                                {
+                                                    Logger.log("error", err);
+                                                    return;
+                                                }
+                                            });
                                             res.status(200).json({
                                                 result: "OK",
                                                 message: "Manual Post " + manualPost.uri + " successfully created"
@@ -1066,6 +1080,17 @@ exports.share = function (req, res)
                             {
                                 if (isNull(err))
                                 {
+                                    event = new Event("share", post.uri, currentUser.uri, post.ddr.projectUri);
+                                    event.saveToMySQL(function (err) {
+                                        if (isNull(err))
+                                        {
+                                            Logger.log("Event \"share\" saved to MySQL");
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", err);
+                                        }
+                                    });
                                     /*
                                      res.json({
                                      result : "OK",
@@ -1221,6 +1246,17 @@ exports.comment = function (req, res)
                     {
                         if (isNull(err))
                         {
+                            event = new Event("comment", post.uri, currentUser.uri, post.ddr.projectUri);
+                            event.saveToMySQL(function (err) {
+                                if (isNull(err))
+                                {
+                                    Logger.log("Event \"comment\" saved to MySQL");
+                                }
+                                else
+                                {
+                                    Logger.log("error", err);
+                                }
+                            });
                             /*
                              res.json({
                              result : "OK",
@@ -1387,6 +1423,17 @@ exports.like = function (req, res)
                             {
                                 if (isNull(err))
                                 {
+                                    event = new Event("like", post.uri, currentUser.uri, post.ddr.projectUri);
+                                    event.saveToMySQL(function (err) {
+                                        if (isNull(err))
+                                        {
+                                            Logger.log("Event \"like\" saved to MySQL");
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", err);
+                                        }
+                                    });
                                     newNotification.save(function (error, resultNotification)
                                     {
                                         if (isNull(error))

@@ -1,3 +1,4 @@
+/* eslint-disable quotes,indent */
 const path = require("path");
 const async = require("async");
 const pm2 = require("pm2");
