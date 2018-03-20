@@ -511,7 +511,7 @@
             "user": "root",
             "password": "r00t_p4ssw0rd"
         },
-        "mySQLDBName": "dendroVagrantDemo",
+        "mySQLDBName": "dendroVagrantDemoTests",
         "maxUploadSize": 2147483648,
         "maxProjectSize": 5368709120,
         "maxSimultaneousConnectionsToDb": 1,
@@ -649,7 +649,8 @@
             "destroy_all_graphs": true,
             "destroy_all_indexes": true,
             "destroy_datastore": true,
-            "destroy_files_store": true
+            "destroy_files_store": true,
+            "destroy_mysql_database": true
         },
         "baselines": {},
         "logging": {

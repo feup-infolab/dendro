@@ -392,6 +392,90 @@ User.prototype.getInteractions = function (callback)
 User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
+    const mysql = Config.getMySQLByID();
+    const targetTable = Config.recommendation.getTargetTable();
+    let userHiddenDescriptorsList = [];
+
+    let queryUserHiddenDescriptors = "call " + Config.mySQLDBName + ".getUserHiddenDescriptors(?);";
+
+    mysql.pool.getConnection(function (err, connection)
+    {
+        if (isNull(err))
+        {
+            connection.query(queryUserHiddenDescriptors, self.uri, function (err, rows, fields)
+            {
+                connection.release();
+                if (isNull(err))
+                {
+                    //do a query on the graphs for the full info from all the descripts containted in the mysql
+                    if(isNull(rows) || isNull(rows[0]))
+                    {
+                        return callback(err, []);
+                    }
+                    else
+                    {
+                        async.mapSeries(rows[0], function (row, callback)
+                        {
+                            Descriptor.findByUri(row.executedOver, function (err, descriptor) {
+                                if(isNull(err))
+                                {
+                                    if(!isNull(descriptor))
+                                    {
+                                        if(descriptor.recommendation_types != null)
+                                        {
+                                            descriptor.recommendation_types.user_hidden = true;
+                                        }
+                                        else
+                                        {
+                                            descriptor.recommendation_types = {};
+                                            descriptor.recommendation_types.user_hidden = true;
+                                        }
+                                        userHiddenDescriptorsList.push(descriptor);
+                                        callback(null, null);
+                                    }
+                                    else
+                                    {
+                                        const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                                        Logger.log("error", errorMsg);
+                                        callback(true, errorMsg);
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.log("error", JSON.stringify(descriptor));
+                                    callback(true, JSON.stringify(descriptor));
+                                }
+                            });
+                        }, function (err, results)
+                        {
+                            if(isNull(err))
+                            {
+                                return callback(err, userHiddenDescriptorsList);
+                            }
+                            else
+                            {
+                                return callback(err, results);
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+                }
+            });
+        }
+        else
+        {
+            const msg = "Unable to get MYSQL connection when looking for user: " + self.uri  + " hidden descriptors";
+            Logger.log("error", msg);
+            Logger.log("error", err.stack);
+            return callback(1, msg);
+        }
+    });
+
+    /*
+    const self = this;
 
     // TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
 
@@ -428,7 +512,7 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
         {
             if (isNull(err))
             {
-                /** remove nulls (that were unauthorized descriptors)**/
+                // remove nulls (that were unauthorized descriptors)
                 fullDescriptors = _.without(fullDescriptors, null);
 
                 return callback(null, fullDescriptors);
@@ -581,14 +665,178 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
             }
         }
     );
+    */
 };
 
 User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
+    const mysql = Config.getMySQLByID();
+    const targetTable = Config.recommendation.getTargetTable();
+    let userFavoriteDescriptorsList = [];
+
+    //USING THE user uri
+    //query all the interactions of the interactions types "favorite_descriptor_from_manual_list_for_user" and "favorite_descriptor_from_quick_list_for_user" where the performedBy is done by the user
+
+    let queryUserDescriptorFavorites = "call " + Config.mySQLDBName + ".getUserFavoriteDescriptors(?);";
+
+    mysql.pool.getConnection(function (err, connection)
+    {
+        if (isNull(err))
+        {
+            //connection.query("SELECT * from ?? WHERE performedBy = ? AND interaction", [targetTable, self.uri], function (err, rows, fields)
+            connection.query(queryUserDescriptorFavorites, self.uri, function (err, rows, fields)
+            {
+                connection.release();
+                if (isNull(err))
+                {
+                    //do a query on the graphs for the full info from all the descripts containted in the mysql
+                    if(isNull(rows) || isNull(rows[0]))
+                    {
+                        return callback(err, []);
+                    }
+                    else
+                    {
+                        async.mapSeries(rows[0], function (row, callback)
+                        {
+                            Descriptor.findByUri(row.executedOver, function (err, descriptor) {
+                                if(isNull(err))
+                                {
+                                    if(!isNull(descriptor))
+                                    {
+                                        if(descriptor.recommendation_types != null)
+                                        {
+                                            descriptor.recommendation_types.user_favorite = true;
+                                        }
+                                        else
+                                        {
+                                            descriptor.recommendation_types = {};
+                                            descriptor.recommendation_types.user_favorite = true;
+                                        }
+                                        userFavoriteDescriptorsList.push(descriptor);
+                                        callback(null, null);
+                                    }
+                                    else
+                                    {
+                                        const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                                        Logger.log("error", errorMsg);
+                                        callback(true, errorMsg);
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.log("error", JSON.stringify(descriptor));
+                                    callback(true, JSON.stringify(descriptor));
+                                }
+                            });
+                        }, function (err, results)
+                        {
+                            if(isNull(err))
+                            {
+                                return callback(err, userFavoriteDescriptorsList);
+                            }
+                            else
+                            {
+                                return callback(err, results);
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+                }
+            });
+        }
+        else
+        {
+            const msg = "Unable to get MYSQL connection when looking for user: " + self.uri  + " favorite descriptors";
+            Logger.log("error", msg);
+            Logger.log("error", err.stack);
+            return callback(1, msg);
+        }
+    });
+    /*
+    mysql.pool.getConnection(function (err, connection)
+    {
+        if (isNull(err))
+        {
+            //connection.query("SELECT * from ?? WHERE performedBy = ? AND interaction", [targetTable, self.uri], function (err, rows, fields)
+            connection.query("SELECT * from ?? where performedBy = ? AND interactionType in (?,?)", [targetTable, self.uri, "favorite_descriptor_from_manual_list_for_user", "favorite_descriptor_from_quick_list_for_project"], function (err, rows, fields)
+            {
+                connection.release();
+                if (isNull(err))
+                {
+                    //do a query on the graphs for the full info from all the descripts containted in the mysql
+                    if(isNull(rows))
+                    {
+                        return callback(err, []);
+                    }
+                    else
+                    {
+                        async.mapSeries(rows, function (row, callback)
+                        {
+                            Descriptor.findByUri(row.executedOver, function (err, descriptor) {
+                                if(isNull(err))
+                                {
+                                    if(!isNull(descriptor))
+                                    {
+                                        if(descriptor.recommendation_types != null)
+                                        {
+                                            descriptor.recommendation_types.user_favorite = true;
+                                        }
+                                        else
+                                        {
+                                            descriptor.recommendation_types = {};
+                                            descriptor.recommendation_types.user_favorite = true;
+                                        }
+                                        userFavoriteDescriptorsList.push(descriptor);
+                                        callback(null, null);
+                                    }
+                                    else
+                                    {
+                                        const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                                        Logger.log("error", errorMsg);
+                                        callback(true, errorMsg);
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.log("error", JSON.stringify(descriptor));
+                                    callback(true, JSON.stringify(descriptor));
+                                }
+                            });
+                        }, function (err, results)
+                        {
+                            if(isNull(err))
+                            {
+                                return callback(err, userFavoriteDescriptorsList);
+                            }
+                            else
+                            {
+                                return callback(err, results);
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+                }
+            });
+        }
+        else
+        {
+            const msg = "Unable to get MYSQL connection when looking for user: " + self.uri  + " favorite descriptors";
+            Logger.log("error", msg);
+            Logger.log("error", err.stack);
+            return callback(1, msg);
+        }
+    });
+    */
 
     // TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
-
+    /*
     const createDescriptorsList = function (descriptors, callback)
     {
         const createDescriptor = function (result, callback)
@@ -622,7 +870,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
         {
             if (isNull(err))
             {
-                /** remove nulls (that were unauthorized descriptors)**/
+                //remove nulls (that were unauthorized descriptors)
                 fullDescriptors = _.without(fullDescriptors, null);
 
                 return callback(null, fullDescriptors);
@@ -630,7 +878,9 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
             return callback(1, null);
         });
     };
+    */
 
+    /*
     let argumentsArray =
     [
         {
@@ -649,8 +899,9 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
             value: Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key,
             type: Elements.ontologies.ddr.interactionType.type
         }
-    ];
+    ];*/
 
+   /*
     const publicOntologies = Ontology.getPublicOntologiesUris();
     if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
@@ -659,8 +910,9 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
     else
     {
         allowedOntologies = publicOntologies;
-    }
+    }*/
 
+    /*
     let fromString = "";
 
     const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
@@ -774,7 +1026,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
                 return callback(err, favorites);
             }
         }
-    );
+    );*/
 };
 
 User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxResults, callback, allowedOntologies)
