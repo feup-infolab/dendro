@@ -359,8 +359,6 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     console.log(db.body.dbpediaproperties.result[i]);
                 }
-                // db.text.should.contain("Google");
-                // db.text.should.contain("Kaggle");
                 done();
             });
         });

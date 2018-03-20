@@ -1026,7 +1026,7 @@ exports.dbpediaproperties = function (req, res)
                     {
                         for (j = 0; j < results[i].results.bindings.length; j++)
                         {
-                            dbpediaproperties.result.push({word: results[i].results.bindings[j].property.value, frequency: 1 * dbpediaconcepts.concepts[i].score});
+                            dbpediaproperties.result.push({property: results[i].results.bindings[j].property.value, frequency: 1 * dbpediaconcepts.concepts[i].score});
                         }
                     }
                     else
@@ -1036,7 +1036,7 @@ exports.dbpediaproperties = function (req, res)
                         {
                             for (h = 0; h < dbpediaproperties.result.length; h++)
                             {
-                                if (dbpediaproperties.result[h].word === results[i].results.bindings[j].property.value)
+                                if (dbpediaproperties.result[h].property === results[i].results.bindings[j].property.value)
                                 {
                                     dbpediaproperties.result[h].frequency = dbpediaproperties.result[h].frequency * dbpediaconcepts.concepts[i].score;
                                     break;
@@ -1044,7 +1044,7 @@ exports.dbpediaproperties = function (req, res)
                             }
                             if (h === dbpediaproperties.result.length)
                             {
-                                dbpediaproperties.result.push({word: results[i].results.bindings[j].property.value, frequency: 1 * dbpediaconcepts.concepts[i].score});
+                                dbpediaproperties.result.push({property: results[i].results.bindings[j].property.value, frequency: 1 * dbpediaconcepts.concepts[i].score});
                             }
                         }
                     }
