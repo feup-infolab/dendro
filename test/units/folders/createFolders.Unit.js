@@ -52,11 +52,11 @@ class CreateFolders extends AddContributorsToProjectsUnit
                         {
                             if (!isNull(err))
                             {
-                                cb(err, results);
+                                cb(err, res);
                             }
                             else
                             {
-                                cb(null, results);
+                                cb(null, res);
                             }
                         });
                     }, function (err, results)

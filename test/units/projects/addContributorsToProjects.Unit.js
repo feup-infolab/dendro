@@ -5,13 +5,11 @@ const Pathfinder = global.Pathfinder;
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 

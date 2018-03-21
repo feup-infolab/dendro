@@ -81,29 +81,29 @@ class CreateUsers extends LoadOntologies
                 else
                 {
                     Administrator.createAndInsertFromObject({
-                            foaf: {
-                                mbox: mbox,
-                                firstName: firstname,
-                                surname: surname
-                            },
-                            ddr: {
-                                username: username,
-                                password: password
-                            }
+                        foaf: {
+                            mbox: mbox,
+                            firstName: firstname,
+                            surname: surname
                         },
-                        function (err, newUser)
+                        ddr: {
+                            username: username,
+                            password: password
+                        }
+                    },
+                    function (err, newUser)
+                    {
+                        if (isNull(err) && newUser !== null && newUser instanceof Administrator)
                         {
-                            if (isNull(err) && newUser !== null && newUser instanceof Administrator)
-                            {
-                                callback(err, null);
-                            }
-                            else
-                            {
-                                const msg = "Error creating new Administrator at createUsers.Unit" + JSON.stringify(newUser);
-                                Logger.log("error", msg);
-                                callback(err, msg);
-                            }
-                        });
+                            callback(err, null);
+                        }
+                        else
+                        {
+                            const msg = "Error creating new Administrator at createUsers.Unit" + JSON.stringify(newUser);
+                            Logger.log("error", msg);
+                            callback(err, msg);
+                        }
+                    });
                 }
             });
         };
@@ -128,41 +128,41 @@ class CreateUsers extends LoadOntologies
         function createAdministrators (callback)
         {
             async.series([
-                    function (callback)
-                    {
-                        Administrator.deleteAll(callback);
-                    },
-                    function (callback)
-                    {
-                        async.mapSeries(Config.administrators, makeAdmin, function (err)
-                        {
-                            if (isNull(err))
-                            {
-                                Logger.log("Admins successfully loaded at createUsers.Unit.");
-                            }
-                            else
-                            {
-                                Logger.log("error", "[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
-                            }
-
-                            callback(err);
-                        });
-                    }
-                ],
-                function (err, results)
+                function (callback)
                 {
-                    if (isNull(err))
+                    Administrator.deleteAll(callback);
+                },
+                function (callback)
+                {
+                    async.mapSeries(Config.administrators, makeAdmin, function (err)
                     {
-                        callback(err, results);
-                    }
-                    else
-                    {
-                        const msg = "Error creating Admins at createUsers.Unit";
-                        Logger.log("error", msg);
+                        if (isNull(err))
+                        {
+                            Logger.log("Admins successfully loaded at createUsers.Unit.");
+                        }
+                        else
+                        {
+                            Logger.log("error", "[ERROR] Unable to load admins at createUsers.Unit. Error : " + err);
+                        }
 
-                        callback(err, results);
-                    }
-                });
+                        callback(err);
+                    });
+                }
+            ],
+            function (err, results)
+            {
+                if (isNull(err))
+                {
+                    callback(err, results);
+                }
+                else
+                {
+                    const msg = "Error creating Admins at createUsers.Unit";
+                    Logger.log("error", msg);
+
+                    callback(err, results);
+                }
+            });
         }
 
         async.series([

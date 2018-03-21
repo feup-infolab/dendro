@@ -45,23 +45,23 @@ class CreateProjects extends CreateUsersUnit
                     if (isNull(err))
                     {
                         async.mapSeries(projectsData, function (projectData, cb2)
+                        {
+                            if (err)
                             {
-                                if (err)
-                                {
-                                    cb2(err, agent);
-                                }
-                                else
-                                {
-                                    projectUtils.createNewProject(true, agent, projectData, function (err, res)
-                                    {
-                                        cb2(err, res);
-                                    });
-                                }
-                            },
-                            function (err, result)
+                                cb2(err, agent);
+                            }
+                            else
                             {
-                                cb1(err, result);
-                            });
+                                projectUtils.createNewProject(true, agent, projectData, function (err, res)
+                                {
+                                    cb2(err, res);
+                                });
+                            }
+                        },
+                        function (err, result)
+                        {
+                            cb1(err, result);
+                        });
                     }
                     else
                     {

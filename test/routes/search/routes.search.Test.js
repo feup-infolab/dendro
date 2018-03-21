@@ -43,16 +43,8 @@ describe("/search", function ()
     {
         AddMetadataToFoldersUnit.setup(function (err, results)
         {
-            if (!isNull(err))
-            {
-                should.not.exist(err);
-                res.statusCode.should.equal(200);
-                done(null);
-            }
-            else
-            {
-                done(err);
-            }
+            should.not.exist(err);
+            done(err);
         });
     });
     describe("Generic search inside public projects", function ()

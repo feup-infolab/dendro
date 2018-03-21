@@ -1,10 +1,5 @@
-const path = require("path");
-const _ = require("underscore");
-
 const Pathfinder = global.Pathfinder;
 const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
 
 class TestUnit
 {
@@ -20,12 +15,6 @@ class TestUnit
 
     static load (callback)
     {
-        if (!Config.docker.reuse_checkpoints)
-        {
-            DockerCheckpointManager.deleteAll(true, true);
-            DockerCheckpointManager.nukeAndRebuild(true);
-        }
-
         callback(null);
     }
 
