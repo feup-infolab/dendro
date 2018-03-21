@@ -230,22 +230,28 @@ exports.loadLastSavedCheckpointInUnitHierarchy = function ()
             }
         }
     }
-    catch (e) {}
+    catch (e)
+    {}
 
     Error.prepareStackTrace = originalFunc;
-    const unitCheckpointIdentifier = lastCheckpointedUnit.name;
 
-    if (!isNull(lastCheckpointedUnit) && exports.checkpointExists(unitCheckpointIdentifier))
+    if (!isNull(lastCheckpointedUnit))
     {
-        const loadedUnit = exports.loadCheckpoint(unitCheckpointIdentifier);
-
-        if (!isNull(loadedUnit))
+        const unitCheckpointIdentifier = lastCheckpointedUnit.name;
+        if (exports.checkpointExists(unitCheckpointIdentifier))
         {
-            return {
-                filename: lastCheckpointedUnit,
-                filePath: lastCheckpointedUnitAbsolutePath,
-                unit: lastCheckpointClass
-            };
+            const loadedUnit = exports.loadCheckpoint(unitCheckpointIdentifier);
+
+            if (!isNull(loadedUnit))
+            {
+                return {
+                    filename: lastCheckpointedUnit,
+                    filePath: lastCheckpointedUnitAbsolutePath,
+                    unit: lastCheckpointClass
+                };
+            }
+
+            return null;
         }
 
         return null;

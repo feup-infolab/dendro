@@ -24,7 +24,7 @@ const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/fol
 const createFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Public project testFolder2 level delete tests", function ()
+describe("Public project testFolder2 level soft delete tests", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)

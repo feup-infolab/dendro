@@ -93,7 +93,8 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
                     });
                 }
             });
-        }, function(err, result){
+        }, function (err, result)
+        {
             callback(err, result);
         });
     }

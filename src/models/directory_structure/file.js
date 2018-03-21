@@ -725,9 +725,24 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
 
     const markErrorProcessingData = function (err, callback)
     {
+        let processingError;
+        const unknownErrorMessage = "Unknown error occurred while extracting data";
+        if (err instanceof Object)
+        {
+            processingError = (err.message) ? err.message : unknownErrorMessage;
+        }
+        else if (typeof err === "string")
+        {
+            processingError = err;
+        }
+        else
+        {
+            processingError = unknownErrorMessage;
+        }
+
         let hasDataProcessingErrorTrue = new Descriptor({
             prefixedForm: "ddr:hasDataProcessingError",
-            value: (err instanceof Object) ? err.message : err
+            value: processingError
         });
 
         self.insertDescriptors([hasDataProcessingErrorTrue], function (err, result)
@@ -744,7 +759,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         });
     };
 
-    function safe_decode_range (range)
+    function safeDecodingRange (range)
     {
         let o = {s: {c: 0, r: 0}, e: {c: 0, r: 0}};
         let idx = 0, i = 0, cc = 0;
@@ -797,10 +812,10 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         switch (typeof range)
         {
         case "string":
-            r = safe_decode_range(range);
+            r = safeDecodingRange(range);
             break;
         case "number":
-            r = safe_decode_range(sheet["!ref"]);
+            r = safeDecodingRange(sheet["!ref"]);
             r.s.r = range;
             break;
         default:
@@ -878,7 +893,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
     const xlsFileParser = function (filePath, callback)
     {
         let workbook;
-        let formats = ["biff8", "biff5", "biff2", "xlml"];
+        let formats = ["biff8", "biff5", "biff2", "xlml", "xlsx", "xlsm", "xlsb"];
 
         const handleWorkbook = function (workbook, callback)
         {
@@ -925,6 +940,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             catch (error)
             {
                 Logger.log("error", error.message);
+                callback(null, false);
             }
         }, function (err, processedAtLeastOneFormatOK)
         {
@@ -1066,18 +1082,18 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             },
             function (location, callback)
             {
-                parser(location, function (err)
+                parser(location, function (err, result)
                 {
                     if (!isNull(err))
                     {
                         markErrorProcessingData(err, function ()
                         {
-                            callback(err);
+                            callback(err, result);
                         });
                     }
                     else
                     {
-                        callback(err);
+                        callback(err, result);
                     }
                 });
             }

@@ -112,6 +112,41 @@ describe("Upload files into testFolder1 of Private project", function ()
 
     describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function ()
     {
+        it("Should upload a XLS file successfully and extract its data content to the datastore", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, xlsMockFile, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.should.be.instanceof(Object);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
+
+                    const newResourceUri = res.body[0].uri;
+                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
+                    {
+                        xlsMockFile.md5.should.equal(md5(res.body));
+                        res.statusCode.should.equal(200);
+
+                        fileUtils.downloadDataByUri(agent, newResourceUri, function (error, res)
+                        {
+                            should.equal(error, null);
+                            res.statusCode.should.equal(200);
+                            md5(res.text).should.equal(jsonResultMD5);
+
+                            fileUtils.downloadDataByUriInCSV(agent, newResourceUri, function (error, res)
+                            {
+                                res.statusCode.should.equal(200);
+                                md5(res.text).should.equal(csvResultMD5);
+                                done();
+                            }, 0);
+                        }, 0);
+                    });
+                });
+            });
+        });
+
         it("Should upload a ZIP file successfully", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -334,41 +369,6 @@ describe("Upload files into testFolder1 of Private project", function ()
                                 // fs.writeFileSync(downloadCSV, res.text);
                                 // fs.unlinkSync(downloadCSV);
 
-                                md5(res.text).should.equal(csvResultMD5);
-                                done();
-                            }, 0);
-                        }, 0);
-                    });
-                });
-            });
-        });
-
-        it("Should upload a XLS file successfully and extract its data content to the datastore", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, xlsMockFile, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Object);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(1);
-
-                    const newResourceUri = res.body[0].uri;
-                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
-                    {
-                        xlsMockFile.md5.should.equal(md5(res.body));
-                        res.statusCode.should.equal(200);
-
-                        fileUtils.downloadDataByUri(agent, newResourceUri, function (error, res)
-                        {
-                            should.equal(error, null);
-                            res.statusCode.should.equal(200);
-                            md5(res.text).should.equal(jsonResultMD5);
-
-                            fileUtils.downloadDataByUriInCSV(agent, newResourceUri, function (error, res)
-                            {
-                                res.statusCode.should.equal(200);
                                 md5(res.text).should.equal(csvResultMD5);
                                 done();
                             }, 0);
