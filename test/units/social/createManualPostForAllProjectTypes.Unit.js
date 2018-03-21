@@ -11,7 +11,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -27,44 +27,34 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (!isNull(err))
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                async.mapSeries(projectsData, function (projectData, cb)
                 {
-                    if (!isNull(err))
+                    projectUtils.getProjectUriFromHandle(agent, projectData.handle, function (err, res)
                     {
-                        callback(err, agent);
-                    }
-                    else
-                    {
-                        async.mapSeries(projectsData, function (projectData, cb)
+                        if (isNull(err))
                         {
-                            projectUtils.getProjectUriFromHandle(agent, projectData.handle, function (err, res)
+                            let projectUri = res;
+                            socialDendroUtils.createManualPostInProject(true, agent, projectUri, manualPostMockData, function (err, res)
                             {
-                                if (isNull(err))
-                                {
-                                    let projectUri = res;
-                                    socialDendroUtils.createManualPostInProject(true, agent, projectUri, manualPostMockData, function (err, res)
-                                    {
-                                        cb(err, res);
-                                    });
-                                }
-                                else
-                                {
-                                    cb(err, res);
-                                }
+                                cb(err, res);
                             });
-                        }, function (err, results)
+                        }
+                        else
                         {
-                            unitUtils.endLoad(self, callback);
-                        });
-                    }
+                            cb(err, res);
+                        }
+                    });
+                }, function (err, results)
+                {
+                    unitUtils.endLoad(self, callback);
                 });
             }
         });

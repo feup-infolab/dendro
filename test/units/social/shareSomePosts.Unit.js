@@ -1,16 +1,14 @@
 process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const shareMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/shareMock"));
@@ -22,39 +20,29 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+                // TODO do the get posts request obtain a uri of a post then share it
+                let pageNumber = 1;
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
                 {
-                    if (err)
+                    if (isNull(err))
                     {
-                        callback(err, agent);
+                        let postURI = res.body[0].uri;// para ter acesso nas outras units a seguir
+                        socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
+                        {
+                            unitUtils.endLoad(self, callback);
+                        });
                     }
                     else
                     {
-                        // TODO do the get posts request obtain a uri of a post then share it
-                        let pageNumber = 1;
-                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
-                        {
-                            if (isNull(err))
-                            {
-                                let postURI = res.body[0].uri;// para ter acesso nas outras units a seguir
-                                socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
-                                {
-                                    unitUtils.endLoad(self, callback);
-                                });
-                            }
-                            else
-                            {
-                                callback(err, res);
-                            }
-                        });
+                        callback(err, res);
                     }
                 });
             }

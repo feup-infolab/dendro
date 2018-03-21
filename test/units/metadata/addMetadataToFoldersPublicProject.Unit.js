@@ -23,33 +23,23 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                async.mapSeries(foldersData, function (folderData, cb)
                 {
-                    if (err)
+                    itemUtils.updateItemMetadata(true, agent, project.handle, folderData.name, folderData.metadata, function (err, res)
                     {
-                        callback(err, agent);
-                    }
-                    else
-                    {
-                        async.mapSeries(foldersData, function (folderData, cb)
-                        {
-                            itemUtils.updateItemMetadata(true, agent, project.handle, folderData.name, folderData.metadata, function (err, res)
-                            {
-                                cb(err, res);
-                            });
-                        }, function (err, results)
-                        {
-                            unitUtils.endLoad(self, callback);
-                        });
-                    }
+                        cb(err, res);
+                    });
+                }, function (err, results)
+                {
+                    unitUtils.endLoad(self, callback);
                 });
             }
         });

@@ -27,35 +27,25 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        async.mapSeries(dataToCreateExportConfigs, function (dataConfig, cb)
         {
-            if (err)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                callback(err, results);
-            }
-            else
-            {
-                async.mapSeries(dataToCreateExportConfigs, function (dataConfig, cb)
+                if (err)
                 {
-                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    cb(err, agent);
+                }
+                else
+                {
+                    repositoryUtils.createExportConfig(true, agent, dataConfig, function (err, res)
                     {
-                        if (err)
-                        {
-                            cb(err, agent);
-                        }
-                        else
-                        {
-                            repositoryUtils.createExportConfig(true, agent, dataConfig, function (err, res)
-                            {
-                                cb(err, res);
-                            });
-                        }
+                        cb(err, res);
                     });
-                }, function (err, results)
-                {
-                    unitUtils.endLoad(self, callback);
-                });
-            }
+                }
+            });
+        }, function (err, results)
+        {
+            unitUtils.endLoad(self, callback);
         });
     }
     static init (callback)
@@ -70,11 +60,7 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
 
     static setup (callback)
     {
-        const self = this;
-        super.setup(function (err, result)
-        {
-            unitUtils.setup(self, callback);
-        });
+        super.setup(callback);
     }
 }
 

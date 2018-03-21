@@ -10,7 +10,7 @@ const path = require("path");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
@@ -24,47 +24,36 @@ class CreateProjectB2Drop extends CreateUsersUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
-            // should.equal(err, null);
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                projectUtils.createNewProject(true, agent, b2dropProjectData, function (err, res)
                 {
-                    if (err)
+                    async.mapSeries([b2dropProjectData], function (projectData, cb)
                     {
-                        callback(err, agent);
-                    }
-                    else
-                    {
-                        projectUtils.createNewProject(true, agent, b2dropProjectData, function (err, res)
+                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                         {
-                            async.mapSeries([b2dropProjectData], function (projectData, cb)
+                            if (err)
                             {
-                                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                                cb(err, agent);
+                            }
+                            else
+                            {
+                                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
                                 {
-                                    if (err)
-                                    {
-                                        cb(err, agent);
-                                    }
-                                    else
-                                    {
-                                        userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
-                                        {
-                                            cb(err, res);
-                                        });
-                                    }
+                                    cb(err, res);
                                 });
-                            }, function (err, results)
-                            {
-                                unitUtils.endLoad(self, callback);
-                            });
+                            }
                         });
-                    }
+                    }, function (err, results)
+                    {
+                        unitUtils.endLoad(self, callback);
+                    });
                 });
             }
         });

@@ -1,13 +1,13 @@
 process.env.NODE_ENV = "test";
 
 const _ = require("underscore");
-const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const async = require("async");
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -25,80 +25,69 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        console.log("---------- RUNNING UNIT exportFoldersToCkanRepository for: " + project.handle + " ----------");
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                console.log("---------- RUNNING UNIT exportFoldersToCkanRepository for: " + project.handle + " ----------");
-
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)
                 {
-                    if (err)
+                    ckanData = _.find(res.body, function (externalRepo)
                     {
-                        callback(err, agent);
-                    }
-                    else
+                        return externalRepo.dcterms.title === "ckan2";
+                    });
+
+                    // fazer export de apenas algumas pastas, e de seguida adicionar alterações ckandiffs e dendro diffs a algumas delas(de acordo com os nomes)
+                    /* async.mapSeries(projects, function (project, cb) { */
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                     {
-                        repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)
+                        if (err)
                         {
-                            ckanData = _.find(res.body, function (externalRepo)
+                            cb(err, agent);
+                        }
+                        else
+                        {
+                            // export folders folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs folderExportedCkanCkanDiffs
+                            projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res)
                             {
-                                return externalRepo.dcterms.title === "ckan2";
-                            });
+                                let folderExportedCkanNoDiffsData = _.find(res.body, function (folderData)
+                                {
+                                    return folderData.nie.title === folderExportedCkanNoDiffs.name;
+                                });
+                                let folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData)
+                                {
+                                    return folderData.nie.title === folderExportedCkanDendroDiffs.name;
+                                });
+                                let folderExportedCkanCkanDiffsData = _.find(res.body, function (folderData)
+                                {
+                                    return folderData.nie.title === folderExportedCkanCkanDiffs.name;
+                                });
 
-                            // fazer export de apenas algumas pastas, e de seguida adicionar alterações ckandiffs e dendro diffs a algumas delas(de acordo com os nomes)
-                            /* async.mapSeries(projects, function (project, cb) { */
-                            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-                            {
-                                if (err)
+                                foldersToExport.push(folderExportedCkanNoDiffsData);
+                                foldersToExport.push(folderExportedCkanDendroDiffsData);
+                                foldersToExport.push(folderExportedCkanCkanDiffsData);
+
+                                async.mapSeries(foldersToExport, function (folder, cb)
                                 {
-                                    cb(err, agent);
-                                }
-                                else
-                                {
-                                    // export folders folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs folderExportedCkanCkanDiffs
-                                    projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res)
+                                    repositoryUtils.exportFolderByUriToRepository(true, folder.uri, agent, {repository: ckanData}, function (err, res)
                                     {
-                                        let folderExportedCkanNoDiffsData = _.find(res.body, function (folderData)
-                                        {
-                                            return folderData.nie.title === folderExportedCkanNoDiffs.name;
-                                        });
-                                        let folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData)
-                                        {
-                                            return folderData.nie.title === folderExportedCkanDendroDiffs.name;
-                                        });
-                                        let folderExportedCkanCkanDiffsData = _.find(res.body, function (folderData)
-                                        {
-                                            return folderData.nie.title === folderExportedCkanCkanDiffs.name;
-                                        });
-
-                                        foldersToExport.push(folderExportedCkanNoDiffsData);
-                                        foldersToExport.push(folderExportedCkanDendroDiffsData);
-                                        foldersToExport.push(folderExportedCkanCkanDiffsData);
-
-                                        async.mapSeries(foldersToExport, function (folder, cb)
-                                        {
-                                            repositoryUtils.exportFolderByUriToRepository(true, folder.uri, agent, {repository: ckanData}, function (err, res)
-                                            {
-                                                Logger.log("exportFolderByUriToRepository res is: " + JSON.stringify(res));
-                                                cb(err, res);
-                                            });
-                                        }, function (err, results)
-                                        {
-                                            unitUtils.endLoad(self, callback);
-                                        });
+                                        Logger.log("exportFolderByUriToRepository res is: " + JSON.stringify(res));
+                                        cb(err, res);
                                     });
-                                }
+                                }, function (err, results)
+                                {
+                                    unitUtils.endLoad(self, callback);
+                                });
                             });
-                            /* }, function (err, results) {
-                                callback(err, results);
-                            }); */
-                        });
-                    }
+                        }
+                    });
+                    /* }, function (err, results) {
+                        callback(err, results);
+                    }); */
                 });
             }
         });

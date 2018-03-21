@@ -17,57 +17,47 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        console.log("---------- RUNNING UNIT clearCkanOrganizationState for: " + publicProject.handle + " ----------");
+
+        ckanTestUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
         {
             if (err)
             {
-                callback(err, results);
+                Logger.log("error", "Error deleting all packages from ckan organization");
+                callback(err, data);
             }
             else
             {
-                console.log("---------- RUNNING UNIT clearCkanOrganizationState for: " + publicProject.handle + " ----------");
-
-                ckanTestUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
-                {
-                    if (err)
+                /* ckanTestUtils.deleteCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
+                    if(err)
                     {
-                        Logger.log("error", "Error deleting all packages from ckan organization");
                         callback(err, data);
                     }
                     else
                     {
-                        /* ckanTestUtils.deleteCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
-                            if(err)
-                            {
-                                callback(err, data);
-                            }
-                            else
-                            {
-                                ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
-                                    callback(err, data);
-                                })
-                            }
-                        }) */
+                        ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data) {
+                            callback(err, data);
+                        })
+                    }
+                }) */
 
-                        console.log("Deleted all packages from ckan organization successfully");
-                        ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
+                console.log("Deleted all packages from ckan organization successfully");
+                ckanTestUtils.createCkanOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
+                {
+                    if (err)
+                    {
+                        if (data.error.name[0] === "Group name already exists in database")
                         {
-                            if (err)
-                            {
-                                if (data.error.name[0] === "Group name already exists in database")
-                                {
-                                    unitUtils.endLoad(self, callback);
-                                }
-                                else
-                                {
-                                    callback(err, data);
-                                }
-                            }
-                            else
-                            {
-                                unitUtils.endLoad(self, callback);
-                            }
-                        });
+                            unitUtils.endLoad(self, callback);
+                        }
+                        else
+                        {
+                            callback(err, data);
+                        }
+                    }
+                    else
+                    {
+                        unitUtils.endLoad(self, callback);
                     }
                 });
             }

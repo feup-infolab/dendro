@@ -230,9 +230,7 @@ exports.loadLastSavedCheckpointInUnitHierarchy = function ()
             }
         }
     }
-    catch (e)
-    {
-    }
+    catch (e) {}
 
     Error.prepareStackTrace = originalFunc;
     const unitCheckpointIdentifier = lastCheckpointedUnit.name;

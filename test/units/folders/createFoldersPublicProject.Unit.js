@@ -36,40 +36,30 @@ class CreateFoldersSingleProject extends AddContributorsToProjectsUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                async.mapSeries(foldersData, function (folderData, cb)
                 {
-                    if (err)
+                    itemUtils.createFolder(true, agent, publicProject.handle, folderData.pathInProject, folderData.name, function (err, results)
                     {
-                        callback(err, agent);
-                    }
-                    else
-                    {
-                        async.mapSeries(foldersData, function (folderData, cb)
+                        if (!isNull(err))
                         {
-                            itemUtils.createFolder(true, agent, publicProject.handle, folderData.pathInProject, folderData.name, function (err, res)
-                            {
-                                if (!isNull(err))
-                                {
-                                    cb(err, results);
-                                }
-                                else
-                                {
-                                    cb(null, results);
-                                }
-                            });
-                        }, function (err, results)
+                            cb(err, results);
+                        }
+                        else
                         {
-                            unitUtils.endLoad(self, callback);
-                        });
-                    }
+                            cb(null, results);
+                        }
+                    });
+                }, function (err, results)
+                {
+                    unitUtils.endLoad(self, callback);
                 });
             }
         });

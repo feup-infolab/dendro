@@ -25,7 +25,7 @@ const argv = require("yargs").argv;
 
 if (argv.config)
 {
-    Logger.log("Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
+    Logger.log("info","Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
     activeConfigKey = argv.config;
 }
 else

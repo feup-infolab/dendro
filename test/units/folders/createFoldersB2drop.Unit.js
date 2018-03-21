@@ -13,7 +13,7 @@ const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 const CreateProjectB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjectB2Drop.Unit.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
@@ -30,40 +30,30 @@ class CreateFoldersB2Drop extends CreateProjectB2DropUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        unitUtils.startLoad(self, callback);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                async.mapSeries(projectsData, function (projectData, cb)
                 {
-                    if (err)
+                    async.mapSeries(foldersData, function (folderData, cb)
                     {
-                        callback(err, agent);
-                    }
-                    else
-                    {
-                        async.mapSeries(projectsData, function (projectData, cb)
+                        itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
                         {
-                            async.mapSeries(foldersData, function (folderData, cb)
-                            {
-                                itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
-                                {
-                                    cb(err, res);
-                                });
-                            }, function (err, results)
-                            {
-                                cb(err, results);
-                            });
-                        }, function (err, results)
-                        {
-                            unitUtils.endLoad(self, callback);
+                            cb(err, res);
                         });
-                    }
+                    }, function (err, results)
+                    {
+                        cb(err, results);
+                    });
+                }, function (err, results)
+                {
+                    unitUtils.endLoad(self, callback);
                 });
             }
         });

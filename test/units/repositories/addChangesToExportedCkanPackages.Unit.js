@@ -31,79 +31,70 @@ class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
 {
     static load (callback)
     {
-        const self = this;
-        super.setup(function (err, results)
+        async.map([publicProject, privateProject, metadataOnlyProject], function (project, callback)
         {
-            if (err)
+            console.log("---------- RUNNING UNIT addChangesToExportedCkanPackages for: " + project.handle + " ----------");
+
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                callback(err, results);
-            }
-            else
-            {
-                async.map([publicProject, privateProject, metadataOnlyProject], function (project, callback)
+                if (err)
                 {
-                    console.log("---------- RUNNING UNIT addChangesToExportedCkanPackages for: " + project.handle + " ----------");
-
-                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    callback(err, agent);
+                }
+                else
+                {
+                    repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)
                     {
-                        if (err)
+                        ckanData = _.find(res.body, function (externalRepo)
                         {
-                            callback(err, agent);
-                        }
-                        else
+                            return externalRepo.dcterms.title === "ckan2";
+                        });
+
+                        // fazer export de apenas algumas pastas, e de seguida adicionar alterações ckandiffs e dendro diffs a algumas delas(de acordo com os nomes)
+                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                         {
-                            repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)
+                            if (err)
                             {
-                                ckanData = _.find(res.body, function (externalRepo)
+                                cb(err, agent);
+                            }
+                            else
+                            {
+                                // export folders folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs folderExportedCkanCkanDiffs
+                                projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res)
                                 {
-                                    return externalRepo.dcterms.title === "ckan2";
-                                });
+                                    let folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData)
+                                    {
+                                        return folderData.nie.title === folderExportedCkanDendroDiffs.name;
+                                    });
+                                    let folderExportedCkanCkanDiffsData = _.find(res.body, function (folderData)
+                                    {
+                                        return folderData.nie.title === folderExportedCkanCkanDiffs.name;
+                                    });
 
-                                // fazer export de apenas algumas pastas, e de seguida adicionar alterações ckandiffs e dendro diffs a algumas delas(de acordo com os nomes)
-                                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-                                {
-                                    if (err)
+                                    // UPLOAD A FILE TO DENDRO SO THAT THERE EXISTS DENDROCHANGES
+                                    fileUtils.uploadFile(true, agent, project.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedDeletedFileDendroMockFile, function (err, res)
                                     {
-                                        cb(err, agent);
-                                    }
-                                    else
-                                    {
-                                        // export folders folderExportedCkanNoDiffs, folderExportedCkanDendroDiffs folderExportedCkanCkanDiffs
-                                        projectUtils.getProjectRootContent(true, agent, project.handle, function (err, res)
+                                        let packageId = CkanUtils.createPackageID(folderExportedCkanCkanDiffsData.uri);
+                                        let packageInfo = {
+                                            id: packageId
+                                        };
+                                        // UPLOAD A FILE TO CKAN SO THAT THERE EXISTS CKANCHANGES
+                                        ckanTestUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, uploadedFileToCkan, packageInfo, function (err, res)
                                         {
-                                            let folderExportedCkanDendroDiffsData = _.find(res.body, function (folderData)
+                                            repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res)
                                             {
-                                                return folderData.nie.title === folderExportedCkanDendroDiffs.name;
-                                            });
-                                            let folderExportedCkanCkanDiffsData = _.find(res.body, function (folderData)
-                                            {
-                                                return folderData.nie.title === folderExportedCkanCkanDiffs.name;
-                                            });
-
-                                            // UPLOAD A FILE TO DENDRO SO THAT THERE EXISTS DENDROCHANGES
-                                            fileUtils.uploadFile(true, agent, project.handle, folderExportedCkanDendroDiffsData.nie.title, uploadedDeletedFileDendroMockFile, function (err, res)
-                                            {
-                                                let packageId = CkanUtils.createPackageID(folderExportedCkanCkanDiffsData.uri);
-                                                let packageInfo = {
-                                                    id: packageId
-                                                };
-                                                // UPLOAD A FILE TO CKAN SO THAT THERE EXISTS CKANCHANGES
-                                                ckanTestUtils.uploadFileToCkanPackage(true, agent, {repository: ckanData}, uploadedFileToCkan, packageInfo, function (err, res)
-                                                {
-                                                    repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res)
-                                                    {
-                                                        unitUtils.endLoad(self, callback);
-                                                    });
-                                                });
+                                                unitUtils.endLoad(self, callback);
                                             });
                                         });
-                                    }
+                                    });
                                 });
-                            });
-                        }
+                            }
+                        });
                     });
-                });
-            }
+                }
+            });
+        }, function(err, result){
+            callback(err, result);
         });
     }
     static init (callback)

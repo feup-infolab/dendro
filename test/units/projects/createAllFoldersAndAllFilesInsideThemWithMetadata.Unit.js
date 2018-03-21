@@ -41,56 +41,46 @@ class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends AddMetadataToFol
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                async.mapSeries(projectsData, function (projectData, cb)
                 {
-                    if (err)
+                    async.mapSeries(foldersData, function (folderData, cb)
                     {
-                        callback(err, agent);
-                    }
-                    else
-                    {
-                        async.mapSeries(projectsData, function (projectData, cb)
+                        async.mapSeries(filesData, function (fileData, cb)
                         {
-                            async.mapSeries(foldersData, function (folderData, cb)
+                            fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, fileData, function (err, res)
                             {
-                                async.mapSeries(filesData, function (fileData, cb)
+                                if (isNull(err))
                                 {
-                                    fileUtils.uploadFile(true, agent, projectData.handle, folderData.name, fileData, function (err, res)
+                                    const newFileUri = JSON.parse(res.text)[0].uri;
+                                    itemUtils.updateItemMetadataByUri(true, agent, newFileUri, fileData.metadata, function (err, res)
                                     {
-                                        if (isNull(err))
-                                        {
-                                            const newFileUri = JSON.parse(res.text)[0].uri;
-                                            itemUtils.updateItemMetadataByUri(true, agent, newFileUri, fileData.metadata, function (err, res)
-                                            {
-                                                cb(err, res);
-                                            });
-                                        }
-                                        else
-                                        {
-                                            cb(err, res);
-                                        }
+                                        cb(err, res);
                                     });
-                                }, function (err, results)
+                                }
+                                else
                                 {
-                                    cb(err, results);
-                                });
-                            }, function (err, results)
-                            {
-                                cb(err, results);
+                                    cb(err, res);
+                                }
                             });
                         }, function (err, results)
                         {
-                            unitUtils.endLoad(self, callback);
+                            cb(err, results);
                         });
-                    }
+                    }, function (err, results)
+                    {
+                        cb(err, results);
+                    });
+                }, function (err, results)
+                {
+                    unitUtils.endLoad(self, callback);
                 });
             }
         });

@@ -1,16 +1,14 @@
 process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const path = require("path");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
@@ -23,35 +21,25 @@ class DeleteProjects extends CreateProjectsUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        async.mapSeries(projectsData, function (projectData, cb)
         {
-            if (err)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                callback(err, results);
-            }
-            else
-            {
-                async.mapSeries(projectsData, function (projectData, cb)
+                if (err)
                 {
-                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    cb(err, agent);
+                }
+                else
+                {
+                    projectUtils.deleteProject(true, agent, projectData.handle, function (err, res)
                     {
-                        if (err)
-                        {
-                            cb(err, agent);
-                        }
-                        else
-                        {
-                            projectUtils.deleteProject(true, agent, projectData.handle, function (err, res)
-                            {
-                                cb(err, res);
-                            });
-                        }
+                        cb(err, res);
                     });
-                }, function (err, results)
-                {
-                    unitUtils.endLoad(self, callback);
-                });
-            }
+                }
+            });
+        }, function (err, results)
+        {
+            unitUtils.endLoad(self, callback);
         });
     }
     static init (callback)

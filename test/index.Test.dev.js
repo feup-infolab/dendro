@@ -14,6 +14,9 @@ global.Config = Config;
 
 global.tests = {};
 
+
+require(Pathfinder.absPathInTestsFolder("/routes/admin/reindex/routes.admin.reindex.Test.js"));
+
 require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
 
 // // uncomment the first time you run the tests after installing dendro

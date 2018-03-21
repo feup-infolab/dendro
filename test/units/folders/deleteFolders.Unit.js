@@ -5,9 +5,8 @@ const Pathfinder = global.Pathfinder;
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const path = require("path");
 
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
 
@@ -25,39 +24,29 @@ class DeleteFolders extends CreateFoldersUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.setup(function (err, results)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, results);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                async.mapSeries(projectsData, function (projectData, cb)
                 {
-                    if (err)
+                    async.mapSeries(foldersData, function (folderData, cb)
                     {
-                        callback(err, agent);
-                    }
-                    else
-                    {
-                        async.mapSeries(projectsData, function (projectData, cb)
+                        itemUtils.deleteItem(true, agent, projectData.handle, folderData.name, function (err, res)
                         {
-                            async.mapSeries(foldersData, function (folderData, cb)
-                            {
-                                itemUtils.deleteItem(true, agent, projectData.handle, folderData.name, function (err, res)
-                                {
-                                    cb(err, res);
-                                });
-                            }, function (err, results)
-                            {
-                                cb(err, results);
-                            });
-                        }, function (err, results)
-                        {
-                            unitUtils.endLoad(self, callback);
+                            cb(err, res);
                         });
-                    }
+                    }, function (err, results)
+                    {
+                        cb(err, results);
+                    });
+                }, function (err, results)
+                {
+                    unitUtils.endLoad(self, callback);
                 });
             }
         });
