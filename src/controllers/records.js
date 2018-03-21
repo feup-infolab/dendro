@@ -205,7 +205,8 @@ exports.show_parent = function (req, res)
                         {
                             if (!isNull(parent) && parent instanceof Object)
                             {
-                                const descriptors = parent.getDescriptors([Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
+                                //const descriptors = parent.getDescriptors([Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
+                                const descriptors = parent.getDescriptors([Elements.access_types.private, Elements.access_types.locked]);
 
                                 if (!isNull(descriptors) && descriptors instanceof Array)
                                 {

@@ -1031,8 +1031,6 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
      */
 
     const dataFileParsers = {
-        xls: xlsFileParser,
-        xlsx: xlsxFileParser,
         ods: xlsxFileParser,
         csv: csvFileParser
     };

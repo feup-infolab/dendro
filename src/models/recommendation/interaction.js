@@ -319,12 +319,14 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
             "   executedOver," +
             "   originallyRecommendedFor," +
             "   rankingPosition," +
+            "   projectUri," +
             "   pageNumber," +
             "   recommendationCallId," +
             "   recommendationCallTimeStamp" +
             ")" +
             "VALUES " +
             "(" +
+            "   ?," +
             "   ?," +
             "   ?," +
             "   ?," +
@@ -349,6 +351,7 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
           self.ddr.executedOver,
           self.ddr.originallyRecommendedFor,
           self.ddr.rankingPosition,
+          self.ddr.projectUri,
           (isNull(self.ddr.pageNumber) ? -1 : self.ddr.pageNumber),
           self.ddr.recommendationCallId
       ];
@@ -450,12 +453,28 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
 
 Interaction.types =
 {
+    select_descriptor_from_manual_list: {
+        key: "select_descriptor_from_manual_list",
+        positive: true
+    },
     accept_descriptor_from_quick_list: {
         key: "accept_descriptor_from_quick_list",
         positive: true
     },
     accept_descriptor_from_manual_list: {
         key: "accept_descriptor_from_manual_list",
+        positive: true
+    },
+    accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite: {
+        key: "accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite",
+        positive: true
+    },
+    accept_descriptor_from_quick_list_while_it_was_a_user_favorite: {
+        key: "accept_descriptor_from_quick_list_while_it_was_a_user_favorite",
+        positive: true
+    },
+    accept_descriptor_from_quick_list_while_it_was_a_project_favorite: {
+        key: "accept_descriptor_from_quick_list_while_it_was_a_project_favorite",
         positive: true
     },
     accept_descriptor_from_manual_list_while_it_was_a_project_favorite: {
@@ -508,6 +527,11 @@ Interaction.types =
         negative: true
     },
 
+    favorite_descriptor_from_manual_list_for_user: {
+        key: "favorite_descriptor_from_manual_list_for_user",
+        positive: true
+    },
+
     favorite_descriptor_from_quick_list_for_user: {
         key: "favorite_descriptor_from_quick_list_for_user",
         positive: true
@@ -515,6 +539,11 @@ Interaction.types =
 
     unfavorite_descriptor_from_quick_list_for_user: {
         key: "unfavorite_descriptor_from_quick_list_for_user",
+        positive: true
+    },
+
+    favorite_descriptor_from_manual_list_for_project: {
+        key: "favorite_descriptor_from_manual_list_for_project",
         positive: true
     },
 

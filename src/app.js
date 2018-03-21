@@ -205,6 +205,11 @@ const startApp = function ()
             },
             function (callback)
             {
+                // destroy MYSQL database if needed
+                runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_mysql_database.js")).destroyMySQLDatabase, self.app, callback);
+            },
+            function (callback)
+            {
                 // setup passport
                 require(Pathfinder.absPathInSrcFolder("bootup/init/setup_passport.js")).setupPassport(self.app, callback);
             },
@@ -279,6 +284,7 @@ const startApp = function ()
             {
                 Logger.log("error", "There was an error performing preliminary setup operations during Dendro bootup!");
                 Logger.log("error", JSON.stringify(err));
+                throw new Error(JSON.stringify(err));
             }
             return callback(err, results);
         });
