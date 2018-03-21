@@ -79,7 +79,7 @@ const initMySQL = function (app, callback)
             return callback(err, result);
         }
 
-        const sequelize = new Sequelize(Config.mySQLDBName, Config.mySQLAuth.user, Config.mySQLAuth.password, {
+        /*const sequelize = new Sequelize(Config.mySQLDBName, Config.mySQLAuth.user, Config.mySQLAuth.password, {
             dialect: 'mysql',
             host: Config.mySQLHost,
             port: Config.mySQLPort,
@@ -93,9 +93,9 @@ const initMySQL = function (app, callback)
         });
 
         const tableName = Config.recommendation.getTargetTable();
-        sequelize.interactions = require('../mysql_models/interactions')(Sequelize, sequelize, tableName);
-        sequelize.events = require('../mysql_models/events')(Sequelize, sequelize);
-        sequelize.type = require('../mysql_models/type')(Sequelize, sequelize);
+        sequelize.interactions = require('../../mysql_models/interactions')(Sequelize, sequelize, tableName);
+        sequelize.events = require('../../mysql_models/events')(Sequelize, sequelize);
+        sequelize.type = require('../../mysql_models/type')(Sequelize, sequelize);
         sequelize.events.belongsTo(sequelize.type);
 
         sequelize.sync().then(() => {
@@ -116,7 +116,7 @@ const initMySQL = function (app, callback)
             });
         }).catch(err => {
             return callback("[ERROR] Unable to create the tables on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-        });
+        });*/
 
 
         /*const pool = mysql.createPool({
