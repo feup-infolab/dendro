@@ -38,6 +38,44 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const addMetadataToFoldersInPublicProjectUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
 
+const createTempFileFromData = function (fileData, fileName, callback)
+{
+    const tmp = require("tmp");
+    const fs = require("fs");
+    tmp.dir(
+        {
+            mode: Config.tempFilesCreationMode,
+            dir: Config.tempFilesDir
+        },
+        function (err, tempFolderPath)
+        {
+            if (isNull(err))
+            {
+                let filePath = path.join(tempFolderPath, fileName);
+                fs.writeFile(filePath, fileData, "binary", function (err)
+                {
+                    if (isNull(err))
+                    {
+                        callback(err, filePath);
+                    }
+                    else
+                    {
+                        let msg = "Error when creating a temp file for the restore folder tests, error: " + JSON.stringify(err);
+                        Logger.log("error", msg);
+                        callback(err, err);
+                    }
+                });
+            }
+            else
+            {
+                let msg = "Error when creating a temp dir for the restore folder tests, error: " + JSON.stringify(err);
+                Logger.log("error", msg);
+                callback(err, msg);
+            }
+        }
+    );
+};
+
 describe("Public project testFolder1 level restore folder tests", function ()
 {
     this.timeout(Config.testsTimeout);
@@ -53,7 +91,8 @@ describe("Public project testFolder1 level restore folder tests", function ()
         {
             try
             {
-                should.equal(err, null);
+                const app = global.tests.app;
+                const agent = chai.request.agent(app);
                 projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
                 {
                     should.equal(err, null);

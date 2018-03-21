@@ -429,7 +429,7 @@ exports.setup = function (targetUnit, callback)
             {
                 if (startingUnit)
                 {
-                    Logger.log("Ran load functions between " + startingUnit + " and " + targetUnit.name + " successfully");
+                    Logger.log("Ran load functions between " + startingUnit.name + " and " + targetUnit.name + " successfully");
                 }
                 else
                 {

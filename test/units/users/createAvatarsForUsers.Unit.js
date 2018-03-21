@@ -5,7 +5,7 @@ chai.use(require("chai-http"));
 const async = require("async");
 let path = require("path");
 const Pathfinder = global.Pathfinder;
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 const isNull = require(Pathfinder.absPathInSrcFolder(path.join("utils", "null.js"))).isNull;
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -20,40 +20,27 @@ class CreateAvatarsForUsers extends createUsersUnit
     static load (callback)
     {
         const usersData = [demouser1, demouser2, demouser3];
-
-        const self = this;
-        unitUtils.startLoad(self);
-        super.init(function (err, results)
+        async.mapSeries(usersData, function (userData, cb)
+        {
+            userUtils.loginUser(userData.username, userData.password, function (err, agent)
+            {
+                if (err)
+                {
+                    return cb(err, agent);
+                }
+                userUtils.uploadAvatar(false, agent, userData.avatar, function (err, res)
+                {
+                    return cb(err, res);
+                });
+            });
+        }, function (err, results)
         {
             if (isNull(err))
             {
-                async.mapSeries(usersData, function (userData, cb)
-                {
-                    userUtils.loginUser(userData.username, userData.password, function (err, agent)
-                    {
-                        if (err)
-                        {
-                            return cb(err, agent);
-                        }
-                        userUtils.uploadAvatar(false, agent, userData.avatar, function (err, res)
-                        {
-                            return cb(err, res);
-                        });
-                    });
-                }, function (err, results)
-                {
-                    if (isNull(err))
-                    {
-                        return callback(null);
-                    }
+                return callback(null);
+            }
 
-                    unitUtils.endLoad(self, callback);
-                });
-            }
-            else
-            {
-                return callback(err, results);
-            }
+            unitUtils.endLoad(self, callback);
         });
     }
 
