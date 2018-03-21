@@ -19,10 +19,14 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 // interaction tests
 
-//favorite_descriptor_from_manual_list_for_user
-require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_manual_list_for_user/routes.interactions.favoriteDescriptorFromManualListForUser.Test.js"));
+// /interactions/favorite_descriptor_from_quick_list_for_project
+require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_quick_list_for_project/routes.interactions.favoriteDescriptorFromQuickListForProject.Test.js"));
+
 //favorite_descriptor_from_manual_list_for_project
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_manual_list_for_project/routes.interactions.favoriteDescriptorFromManualListForProject.Test.js"));
+
+//favorite_descriptor_from_manual_list_for_user
+//require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_manual_list_for_user/routes.interactions.favoriteDescriptorFromManualListForUser.Test.js"));
 
 //
 /*
@@ -51,9 +55,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/hide_descriptor_fr
 
 // /interactions/unhide_descriptor_from_quick_list_for_user
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/unhide_descriptor_from_quick_list_for_user/routes.interactions.unhideDescriptorFromQuickListForUser.Test.js"));
-
-// /interactions/favorite_descriptor_from_quick_list_for_project
-require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_quick_list_for_project/routes.interactions.favoriteDescriptorFromQuickListForProject.Test.js"));
 
 // favorite_descriptor_from_quick_list_for_user
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_quick_list_for_user/routes.interactions.favoriteDescriptorFromQuickListForUser.Test.js"));

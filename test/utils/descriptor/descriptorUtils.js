@@ -40,6 +40,32 @@ const getDescriptorsFromOntology = function (jsonOnly, agent, ontologyPrefix, cb
     }
 };
 
+const getResourceDescriptorsFromOntology = function (jsonOnly, agent, resourceUri, ontologyPrefix, cb)
+{
+    const path = resourceUri+ "?descriptors_from_ontology=" + ontologyPrefix;
+    if (jsonOnly)
+    {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set("Content-Type", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 const getProjectDescriptorsFromOntology = function (jsonOnly, agent, ontologyPrefix, projectHandle, cb)
 {
     const path = "/project/" + projectHandle + "?descriptors_from_ontology=" + ontologyPrefix;
@@ -108,5 +134,6 @@ module.exports = {
     getProjectDescriptorsFromOntology: getProjectDescriptorsFromOntology,
     noPrivateDescriptors: noPrivateDescriptors,
     containsAllMetadata: containsAllMetadata,
-    getDescriptorsFromOntology: getDescriptorsFromOntology
+    getDescriptorsFromOntology: getDescriptorsFromOntology,
+    getResourceDescriptorsFromOntology: getResourceDescriptorsFromOntology
 };
