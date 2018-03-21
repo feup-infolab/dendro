@@ -14,7 +14,6 @@ const initMySQL = function (app, callback)
     
     const createStoredProcedures = function (pool, callback) {
         const createGetProjectFavoriteDescriptorsProcedure = function (cb) {
-            const mysql = Config.getMySQLByID();
             const dbName = Config.mySQLDBName;
             const targetTable = Config.recommendation.getTargetTable();
             const interactionsTable = dbName + "."+ targetTable;
@@ -64,15 +63,141 @@ const initMySQL = function (app, callback)
         };
 
         const createGetProjectHiddenDescriptorsProcedure = function (cb) {
-            cb(null);
+            const dbName = Config.mySQLDBName;
+            const targetTable = Config.recommendation.getTargetTable();
+            const interactionsTable = dbName + "."+ targetTable;
+            const procedureName = "getProjectHiddenDescriptors";
+            const queryString = "DROP PROCEDURE IF EXISTS " + procedureName + "; \n" +
+                "CREATE PROCEDURE " + procedureName + "(IN projectUri VARCHAR(255))" + " \n" +
+                "BEGIN \n" +
+                "SELECT DISTINCT hiddenInfo.executedOver, hiddenInfo.created, hiddenInfo.interactionType FROM " + interactionsTable  +" AS hiddenInfo \n" +
+                "JOIN "  + interactionsTable  + " AS unhiddenInfo \n"+
+                "ON hiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_project', 'unhide_descriptor_from_quick_list_for_project') AND hiddenInfo.projectUri = projectUri AND unhiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_project', 'unhide_descriptor_from_quick_list_for_project') AND unhiddenInfo.projectUri = projectUri AND unhiddenInfo.projectUri = hiddenInfo.projectUri AND hiddenInfo.executedOver = unhiddenInfo.executedOver \n" +
+                "WHERE \n" +
+                "(hiddenInfo.created = (SELECT MAX(created) FROM " + interactionsTable + " WHERE projectUri = projectUri AND " + interactionsTable +".interactionType in ('hide_descriptor_from_quick_list_for_project', 'unhide_descriptor_from_quick_list_for_project') AND hiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_project') AND unhiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_project') AND unhiddenInfo.executedOver = hiddenInfo.executedOver AND " + interactionsTable +".executedOver = hiddenInfo.executedOver)) \n" +
+                "OR (hiddenInfo.created = (SELECT MAX(created) FROM " + interactionsTable  + " WHERE projectUri = projectUri AND " + interactionsTable  + ".interactionType in ('hide_descriptor_from_quick_list_for_project', 'unhide_descriptor_from_quick_list_for_project') AND hiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_project') AND unhiddenInfo.interactionType in ('unhide_descriptor_from_quick_list_for_project') AND unhiddenInfo.executedOver = hiddenInfo.executedOver AND " + interactionsTable + ".executedOver = hiddenInfo.executedOver AND  unhiddenInfo.created < hiddenInfo.created)); \n" +
+                "END";
+
+            pool.getConnection(function (err, connection)
+            {
+                if (isNull(err))
+                {
+                    connection.query(queryString, function (err, rows, fields)
+                    {
+                        connection.release();
+                        if (isNull(err))
+                        {
+                            Logger.log("info", "Stored procedure: " + procedureName + " created");
+                            return cb(null, rows);
+                        }
+                        else
+                        {
+                            const errorMsg = "Error creating " + procedureName + " stored procedure in the MySQL database, error; " + JSON.stringify(err);
+                            Logger.log("error", errorMsg);
+                            return cb(true, errorMsg);
+                        }
+                    });
+                }
+                else
+                {
+                    const msg = "Unable to get MYSQL connection when looking for project: " + self.uri  + " hidden descriptors";
+                    Logger.log("error", msg);
+                    Logger.log("error", err.stack);
+                    return cb(1, msg);
+                }
+            });
         };
 
         const createGetUserFavoriteDescriptorsProcedure = function (cb) {
-            cb(null);
+            const dbName = Config.mySQLDBName;
+            const targetTable = Config.recommendation.getTargetTable();
+            const interactionsTable = dbName + "."+ targetTable;
+            const procedureName = "getUserFavoriteDescriptors";
+            const queryString = "DROP PROCEDURE IF EXISTS " + procedureName + "; \n" +
+                "CREATE PROCEDURE " + procedureName + "(IN userUri VARCHAR(255))" + " \n" +
+                "BEGIN \n" +
+                "SELECT DISTINCT favoritesInfo.executedOver, favoritesInfo.created, favoritesInfo.interactionType FROM " + interactionsTable  +" AS favoritesInfo \n" +
+                "JOIN " + interactionsTable + " AS unfavoritesInfo \n" +
+                "ON favoritesInfo.interactionType in ('favorite_descriptor_from_manual_list_for_user', 'favorite_descriptor_from_quick_list_for_user', 'unfavorite_descriptor_from_quick_list_for_user') AND favoritesInfo.performedBy = userUri AND unfavoritesInfo.interactionType in ('favorite_descriptor_from_manual_list_for_user', 'favorite_descriptor_from_quick_list_for_user', 'unfavorite_descriptor_from_quick_list_for_user') AND unfavoritesInfo.performedBy = userUri AND unfavoritesInfo.performedBy = favoritesInfo.performedBy AND favoritesInfo.executedOver = unfavoritesInfo.executedOver \n" +
+                "WHERE \n" +
+                "(favoritesInfo.created = (SELECT MAX(created) FROM " + interactionsTable  + " WHERE performedBy = userUri AND " + interactionsTable  + ".interactionType in ('favorite_descriptor_from_manual_list_for_user', 'favorite_descriptor_from_quick_list_for_user', 'unfavorite_descriptor_from_quick_list_for_user') AND favoritesInfo.interactionType in ('favorite_descriptor_from_manual_list_for_user', 'favorite_descriptor_from_quick_list_for_user') AND unfavoritesInfo.interactionType in ('favorite_descriptor_from_manual_list_for_user', 'favorite_descriptor_from_quick_list_for_user') AND unfavoritesInfo.executedOver = favoritesInfo.executedOver AND " + interactionsTable +".executedOver = unfavoritesInfo.executedOver)) \n" +
+                "OR (favoritesInfo.created = (SELECT MAX(created) FROM " + interactionsTable  + " WHERE performedBy = userUri AND " + interactionsTable + ".interactionType in ('favorite_descriptor_from_manual_list_for_user', 'favorite_descriptor_from_quick_list_for_user', 'unfavorite_descriptor_from_quick_list_for_user') AND favoritesInfo.interactionType in ('favorite_descriptor_from_manual_list_for_user', 'favorite_descriptor_from_quick_list_for_user') AND unfavoritesInfo.interactionType = 'unfavorite_descriptor_from_quick_list_for_user' AND unfavoritesInfo.executedOver = favoritesInfo.executedOver AND " + interactionsTable + ".executedOver = unfavoritesInfo.executedOver AND  unfavoritesInfo.created < favoritesInfo.created)); \n" +
+                "END";
+
+            pool.getConnection(function (err, connection)
+            {
+                if (isNull(err))
+                {
+                    connection.query(queryString, function (err, rows, fields)
+                    {
+                        connection.release();
+                        if (isNull(err))
+                        {
+                            Logger.log("info", "Stored procedure: " + procedureName + " created");
+                            return cb(null, rows);
+                        }
+                        else
+                        {
+                            const errorMsg = "Error creating " + procedureName + " stored procedure in the MySQL database, error; " + JSON.stringify(err);
+                            Logger.log("error", errorMsg);
+                            return cb(true, errorMsg);
+                        }
+                    });
+                }
+                else
+                {
+                    const msg = "Unable to get MYSQL connection when looking for user: " + self.uri  + " favorite descriptors";
+                    Logger.log("error", msg);
+                    Logger.log("error", err.stack);
+                    return cb(1, msg);
+                }
+            });
         };
 
         const createGetUserHiddenDescriptorsProcedure = function (cb) {
-            cb(null);
+            const dbName = Config.mySQLDBName;
+            const targetTable = Config.recommendation.getTargetTable();
+            const interactionsTable = dbName + "."+ targetTable;
+            const procedureName = "getUserHiddenDescriptors";
+            const queryString = "DROP PROCEDURE IF EXISTS " + procedureName + "; \n" +
+                "CREATE PROCEDURE " + procedureName + "(IN userUri VARCHAR(255))" + " \n" +
+                "BEGIN \n" +
+                "SELECT DISTINCT hiddenInfo.executedOver, hiddenInfo.created, hiddenInfo.interactionType FROM " + interactionsTable + " AS hiddenInfo \n" +
+                "JOIN "+ interactionsTable + " AS unhiddenInfo \n" +
+                "ON hiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_user', 'unhide_descriptor_from_quick_list_for_user') AND hiddenInfo.performedBy = userUri AND unhiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_user', 'unhide_descriptor_from_quick_list_for_user') AND unhiddenInfo.performedBy = userUri AND unhiddenInfo.performedBy = hiddenInfo.performedBy AND hiddenInfo.executedOver = unhiddenInfo.executedOver \n" +
+                "WHERE \n" +
+                "(hiddenInfo.created = (SELECT MAX(created) FROM " + interactionsTable + " WHERE performedBy = userUri AND " + interactionsTable + ".interactionType in ('hide_descriptor_from_quick_list_for_user', 'unhide_descriptor_from_quick_list_for_user') AND hiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_user') AND unhiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_user')  AND unhiddenInfo.executedOver = hiddenInfo.executedOver AND " + interactionsTable + ".executedOver = hiddenInfo.executedOver)) \n" +
+                "OR (hiddenInfo.created = (SELECT MAX(created) FROM " + interactionsTable + " WHERE performedBy = userUri AND " + interactionsTable  + ".interactionType in ('hide_descriptor_from_quick_list_for_user', 'unhide_descriptor_from_quick_list_for_user') AND hiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_user') AND unhiddenInfo.interactionType in ('unhide_descriptor_from_quick_list_for_user')  AND unhiddenInfo.executedOver = hiddenInfo.executedOver AND " + interactionsTable  + ".executedOver = hiddenInfo.executedOver AND  unhiddenInfo.created < hiddenInfo.created)); \n" +
+                "END";
+
+            pool.getConnection(function (err, connection)
+            {
+                if (isNull(err))
+                {
+                    connection.query(queryString, function (err, rows, fields)
+                    {
+                        connection.release();
+                        if (isNull(err))
+                        {
+                            Logger.log("info", "Stored procedure: " + procedureName + " created");
+                            return cb(null, rows);
+                        }
+                        else
+                        {
+                            const errorMsg = "Error creating " + procedureName + " stored procedure in the MySQL database, error; " + JSON.stringify(err);
+                            Logger.log("error", errorMsg);
+                            return cb(true, errorMsg);
+                        }
+                    });
+                }
+                else
+                {
+                    const msg = "Unable to get MYSQL connection when looking for user: " + self.uri  + " hidden descriptors";
+                    Logger.log("error", msg);
+                    Logger.log("error", err.stack);
+                    return cb(1, msg);
+                }
+            });
         };
 
         async.waterfall([
