@@ -34,11 +34,11 @@ else
     nvm use $NODE_VERSION &&
     echo "loaded NVM."
 
-    #update npm
-    npm i -g npm@5.6.0
-
     #clear npm cache
     npm cache clean --force
+
+    #update npm (force 5.6.0 because of write after end issue: https://github.com/npm/npm/issues/19989)
+    npm i -g npm@5.6.0
 
     #delete node_modules folder
     rm -rf node_modules
@@ -47,7 +47,7 @@ else
     chown -R "$(whoami)" "$HOME/.nvm"
 
     #install preliminary dependencies
-    npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
+    npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
 
     #install dependencies. Will also run bower install whenever needed
     npm install #this is needed when running npm install with sudo to install global modules

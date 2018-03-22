@@ -71,7 +71,7 @@ const loadMiscMiddlewares = function (app, callback)
     //     saveUninitialized: true
     // }));
 
-    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, true, {
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
         docExpansion: "list"
     }));
 

@@ -116,10 +116,10 @@ DendroMySQLClient.prototype.connect = function (callback, omitDatabase)
     // try calling apiMethod 10 times with linear backoff
     // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
     async.retry({
-        times: 10,
+        times: 240,
         interval: function (retryCount)
         {
-            const msecs = 50 * Math.pow(2, retryCount);
+            const msecs = 500;
             Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to MySQL...");
             return msecs;
         }

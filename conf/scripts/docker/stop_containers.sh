@@ -5,6 +5,7 @@ echo "Running stop containers script..."
 function stop_container_if_running
 {
     container_name=$1
+    echo "Received request to stop container $container_name"
     running=$(docker inspect -f "{{.State.Running}}" "$container_name")
     if [[ "$running" == "true" ]]
     then
@@ -17,6 +18,7 @@ function stop_container_if_running
 ## stop all containers
 echo "Flushing all data to disk on Virtuso server.."
 docker exec virtuoso-dendro /bin/bash -c "/usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba 'EXEC=shutdown();'"
+echo "Flushed all data to disk on Virtuso server."
 stop_container_if_running "virtuoso-dendro"
 stop_container_if_running "elasticsearch-dendro"
 stop_container_if_running "mysql-dendro"

@@ -16,16 +16,34 @@ mkdir -p $RUNNING_FOLDER/mongo
 
 # start containers with the volumes mounted
 
-function wait_for_virtuoso_to_boot()
+function wait_for_response_on_port()
 {
-    echo "Waiting for virtuoso to boot up..."
-    attempts=0
-    max_attempts=30
-    while ( nc 127.0.0.1 8890 < /dev/null || nc 127.0.0.1 1111 < /dev/null )  && [[ $attempts < $max_attempts ]] ; do
-        attempts=$((attempts+1))
-        sleep 1;
+    port1=$1
+    port2=$2
+    echo "Waiting for server on ports ${port1} and ${port2} to boot up..."
+    local max_attempts=10
+    local attempts=10
+
+    nc 127.0.0.1 "$port1" < /dev/null || nc 127.0.0.1 "$port2" < /dev/null
+    while (( $? == 1 )) && (( $attempts > 0 ))  ; do
+        attempts=$((attempts-1))
+        sleep 1
         echo "waiting... (${attempts}/${max_attempts})"
+        nc 127.0.0.1 "$port1" < /dev/null || nc 127.0.0.1 "$port2" < /dev/null
     done
+
+    if (( $attempts == 0 ))
+    then
+        echo "No response on port $port1 or $port2 after $max_attempts attempts!"
+        exit 1
+    else
+        if [ "$port2" != "" ]
+        then
+            echo "Received response on port $port1 and $port2."
+        else
+            echo "Received response on port $port1"
+        fi
+    fi
 }
 
 function container_running
@@ -57,6 +75,8 @@ then
         echo "Container elasticsearch-dendro started."
 fi
 
+wait_for_response_on_port 9300 9200
+
 if container_running "virtuoso-dendro" == 0
 then
     ( docker start virtuoso-dendro 1> /dev/null || \
@@ -74,7 +94,7 @@ fi
 
 # -e "VIRT_Parameters_NumberOfBuffers=$((32*85000))" \
 
-wait_for_virtuoso_to_boot
+wait_for_response_on_port 8890 1111
 
 if container_running "mysql-dendro" == 0
 then
@@ -87,6 +107,8 @@ then
       echo "Container mysql-dendro started."
 fi
 
+wait_for_response_on_port 3306
+
 if container_running "mongo-dendro" == 0
 then
     ( docker start mongo-dendro 1> /dev/null || \
@@ -96,6 +118,8 @@ then
         -d mongo:3.4.10 ) && \
     echo "Container mongo-dendro started."
 fi
+
+wait_for_response_on_port 27017
 
 #docker run --name redis-dendro-default \
 #    -p 6781:6780 \
