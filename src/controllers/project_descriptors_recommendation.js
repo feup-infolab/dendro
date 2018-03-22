@@ -89,110 +89,77 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
     const getOwnerProjectUri = function (callback)
     {
-        /*
-        if (req.params.showing_project_root)
-        {
-            callback(null, req.params.requestedResourceUri);
-        }
-        else
-        {*/
-            const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+        const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 
-            Project.findByUri(resourceUri, function (err, projectData)
+        Project.findByUri(resourceUri, function (err, projectData)
+        {
+            if(isNull(err))
             {
-                if(isNull(err))
+                if (!isNull(projectData) && projectData instanceof Project)
                 {
-                    if (!isNull(projectData) && projectData instanceof Project)
-                    {
-                        callback(null, resourceUri);
-                    }
-                    else
-                    {
-                        InformationElement.findByUri(resourceUri, function (err, ie)
-                        {
-                            if (isNull(err))
-                            {
-                                if (!isNull(ie) && ie instanceof InformationElement)
-                                {
-                                    ie.getOwnerProject(function (err, result)
-                                    {
-                                        if (isNull(err))
-                                        {
-                                            if (result instanceof Project)
-                                            {
-                                                callback(err, result.uri);
-                                            }
-                                            else
-                                            {
-                                                const msg = "Result is not a project while getting parent project of information element with uri " + resourceUri + " when fetching recommend_descriptors.";
-                                                Logger.log("error", msg);
-                                                callback(1, msg);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            const msg = "Error while getting parent project of information element with uri " + resourceUri + " when fetching recommend_descriptors.";
-                                            Logger.log("error", msg);
-                                            callback(1, msg);
-                                        }
-                                    });
-                                }
-                                else
-                                {
-                                    const msg = "Unable to retrieve information element with uri " + resourceUri + " when fetching recommend_descriptors.";
-                                    Logger.log("error", msg);
-                                    callback(1, msg);
-                                }
-                            }
-                            else
-                            {
-                                const msg = "Error while retrieving information element with uri " + resourceUri + " when fetching recommend_descriptors.";
-                                Logger.log("error", msg);
-                                callback(1, msg);
-                            }
-                        });
-                    }
+                    callback(null, resourceUri);
                 }
                 else
                 {
-                    const msg = "Error while retrieving Project with uri " + resourceUri + " when fetching recommend_descriptors.";
-                    Logger.log("error", msg);
-                    callback(1, msg);
+                    InformationElement.findByUri(resourceUri, function (err, ie)
+                    {
+                        if (isNull(err))
+                        {
+                            if (!isNull(ie) && ie instanceof InformationElement)
+                            {
+                                ie.getOwnerProject(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        if (result instanceof Project)
+                                        {
+                                            callback(err, result.uri);
+                                        }
+                                        else
+                                        {
+                                            const msg = "Result is not a project while getting parent project of information element with uri " + resourceUri + " when fetching recommend_descriptors.";
+                                            Logger.log("error", msg);
+                                            callback(1, msg);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        const msg = "Error while getting parent project of information element with uri " + resourceUri + " when fetching recommend_descriptors.";
+                                        Logger.log("error", msg);
+                                        callback(1, msg);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                const msg = "Unable to retrieve information element with uri " + resourceUri + " when fetching recommend_descriptors.";
+                                Logger.log("error", msg);
+                                callback(1, msg);
+                            }
+                        }
+                        else
+                        {
+                            const msg = "Error while retrieving information element with uri " + resourceUri + " when fetching recommend_descriptors.";
+                            Logger.log("error", msg);
+                            callback(1, msg);
+                        }
+                    });
                 }
-            });
-        /*}*/
+            }
+            else
+            {
+                const msg = "Error while retrieving Project with uri " + resourceUri + " when fetching recommend_descriptors.";
+                Logger.log("error", msg);
+                callback(1, msg);
+            }
+        });
     };
 
-    /*
     Descriptor.all_in_ontologies(allowedOntologies, function (err, descriptors)
     {
         if (isNull(err))
         {
-            const uuid = require("uuid");
-            const recommendation_call_id = uuid.v4();
-            const recommendation_call_timestamp = new Date().toISOString();
-
-            for (let i = 0; i < descriptors.length; i++)
-            {
-                descriptors[i].recommendation_types = {};
-                descriptors[i].recommendation_types[Descriptor.recommendation_types.project_descriptors.key] = true;
-                descriptors[i].recommendationCallId = recommendation_call_id;
-                descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
-            }
-
-            return callback(null, descriptors);
-        }
-        return callback(err, []);
-    }, options.page_number, options.page_size);
-    */
-
-    Descriptor.all_in_ontologies(allowedOntologies, function (err, descriptors)
-    {
-        if (isNull(err))
-        {
-            //TODO set here the favorite/hidden properties
-            //HERE
             /**
              * Get User's favorite descriptors
              * @param callback
@@ -427,77 +394,29 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
                                     for (let i = 0; i < descriptors.length; i++)
                                     {
-                                        /*
-                                        descriptors[i].recommendationCallId = recommendation_call_id;
-                                        descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
-                                        */
                                         descriptors[i].recommendation_types[Descriptor.recommendation_types.project_descriptors.key] = true;
                                         descriptors[i].recommendationCallId = recommendation_call_id;
                                         descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
                                     }
-
-                                    /*
-                                    res.json(
-                                        {
-                                            result: "ok",
-                                            descriptors: descriptors
-                                        }
-                                    );
-                                    */
                                     return callback(err, descriptors);
                                 });
                             }
                             else
                             {
-                                /*
-                                res.status(500).json(
-                                    {
-                                        result: "error",
-                                        error_messages: [results]
-                                    }
-                                );
-                                */
                                 return callback(err, projectUri);
                             }
                         });
                 }
                 else
                 {
-                    /*
-                    res.status(500).json(
-                        {
-                            result: "error",
-                            error_messages: [projectUri]
-                        }
-                    );
-                    */
                     return callback(err, projectUri);
                 }
             });
-            //END
-
-            //TODO THIS IS THE OLD CODE
-            /*
-            const uuid = require("uuid");
-            const recommendation_call_id = uuid.v4();
-            const recommendation_call_timestamp = new Date().toISOString();
-
-            for (let i = 0; i < descriptors.length; i++)
-            {
-                descriptors[i].recommendation_types = {};
-                descriptors[i].recommendation_types[Descriptor.recommendation_types.project_descriptors.key] = true;
-                descriptors[i].recommendationCallId = recommendation_call_id;
-                descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
-            }
-
-            return callback(null, descriptors);
-            */
         }
         else
         {
 
             callback(err, JSON.stringify(descriptors));
         }
-        //return callback(err, []);
     }, options.page_number, options.page_size);
 };
