@@ -8,7 +8,7 @@ const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 const commentMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/commentMock"));

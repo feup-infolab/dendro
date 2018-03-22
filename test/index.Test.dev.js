@@ -14,50 +14,7 @@ global.Config = Config;
 
 global.tests = {};
 
-// test file moving
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js"));
-
-// Test project backups in BagIt 0.97 Format
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__bagit/routes.project.privateProject.__bagit.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__bagit/routes.project.publicProject.__bagit.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__bagit/routes.project.metadataOnlyProject.__bagit.Test.js"));
-
-// Delete a project
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__delete/routes.project.publicProject.__delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__delete/routes.project.metadataOnlyProject.__delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js"));
-
-// SOCIAL DENDRO TESTS
-
-require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/likes/routes.posts.post.likes.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comment/routes.posts.comment.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comments/routes.posts.comments.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/share/routes.posts.share.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/shares/routes.posts.shares.Test.js"));
-
 require(Pathfinder.absPathInTestsFolder("/routes/posts/count/routes.posts.count.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/posts/_uri/routes.posts._uri.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/shares/_uri/routes.shares._uri.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/all/routes.notifications.all.Test.js"));
 
 require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification.Test.js"));
 

@@ -529,7 +529,7 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
                     type: type,
                     body: document,
                     refresh: "true",
-                    timeout: "10s"
+                    timeout: "40s"
                 }, function (err, data)
                 {
                     if (isNull(err))

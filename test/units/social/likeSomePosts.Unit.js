@@ -3,13 +3,13 @@ process.env.NODE_ENV = "test";
 const Pathfinder = global.Pathfinder;
 
 const chai = require("chai");
-chai.use(require("chai-http"));
-const path = require("path");
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 let ShareSomePostsUnit = require(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
+
+const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
 
 class LikeSomePosts extends ShareSomePostsUnit
 {
