@@ -25,10 +25,11 @@ const init = function (app, callback) {
 
     Config.jobTypes.forEach(function(type) {
         //require('../jobs/' + type)(agenda);
-        require(Pathfinder.absPathInSrcFolder("/jobs/" + type))(agenda);
+        require(Pathfinder.absPathInSrcFolder("/jobs/jobsList/" + type))(agenda);
     });
     Config.agenda = agenda;
-    require(Pathfinder.absPathInSrcFolder("/jobs/lib/agenda.js"));
+    //require(Pathfinder.absPathInSrcFolder("/jobs/lib/agenda.js"));
+    require(Pathfinder.absPathInSrcFolder("/jobs/jobsEvents/mainHandler.js"));
     callback(null);
 };
 

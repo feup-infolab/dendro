@@ -14,11 +14,9 @@ const initJobsDb = function (app, callback)
     {
         if (err)
         {
-            console.log("err:", err);
             return callback("[ERROR] Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + JSON.stringify(db));
         }
         Logger.log_boot_message("Connected to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
-        //Config.gfs.default.connection = gfs;
         Config.jobsStorageClient = db;
         return callback(null);
     });
