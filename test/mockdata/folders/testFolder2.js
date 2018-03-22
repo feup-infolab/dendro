@@ -10,7 +10,6 @@ let folderData = {
     searchTerms: "testFolder2",
     files: [
         require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
         require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"))
     ],
     metadata: [
@@ -33,3 +32,4 @@ let folderData = {
 };
 
 module.exports = folderData;
+

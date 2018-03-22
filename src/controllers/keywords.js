@@ -7,7 +7,6 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 
-
 var async = require("async");
 var natural = require("natural");
 var tokenizer = new natural.WordTokenizer();
@@ -1026,7 +1025,7 @@ exports.dbpediaproperties = function (req, res)
                     {
                         for (j = 0; j < results[i].results.bindings.length; j++)
                         {
-                            dbpediaproperties.result.push({property: results[i].results.bindings[j].property.value, frequency: 1 * dbpediaconcepts.concepts[i].score});
+                            dbpediaproperties.result.push({property: results[i].results.bindings[j].property.value, frequency: Number(dbpediaconcepts.concepts[i].score)});
                         }
                     }
                     else
@@ -1044,7 +1043,7 @@ exports.dbpediaproperties = function (req, res)
                             }
                             if (h === dbpediaproperties.result.length)
                             {
-                                dbpediaproperties.result.push({property: results[i].results.bindings[j].property.value, frequency: 1 * dbpediaconcepts.concepts[i].score});
+                                dbpediaproperties.result.push({property: results[i].results.bindings[j].property.value, frequency: Number(dbpediaconcepts.concepts[i].score)});
                             }
                         }
                     }
