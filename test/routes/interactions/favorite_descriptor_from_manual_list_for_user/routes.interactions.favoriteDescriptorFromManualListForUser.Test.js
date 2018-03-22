@@ -794,7 +794,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] favorite_descri
                                     should.exist(demouser1DescriptorIndex);
                                     expect(demouser1DescriptorIndex).to.be.above(-1);
                                     expect(res.body.descriptors.length).to.be.above(demouser1DescriptorIndex);
-                                    //because this descriptor was only recommended for demouser1
+                                    //because this descriptor was only recommended for demouser1 and the logged in user in this test is the demouser2
                                     should.equal(res.body.descriptors[demouser1DescriptorIndex].recommendation_types.user_favorite, undefined);
 
                                     let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser2InteractionObj.uri; });
@@ -802,7 +802,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] favorite_descri
                                     expect(demouser2DescriptorIndex).to.be.above(-1);
                                     demouser2DescriptorIndex.should.not.equal(demouser1DescriptorIndex);
                                     expect(res.body.descriptors.length).to.be.above(demouser2DescriptorIndex);
-                                    //because this descriptor was recommended only for demouser2
+                                    //because this descriptor was recommended only for demouser2 and the logged in user in this test is the demouser2
                                     res.body.descriptors[demouser2DescriptorIndex].recommendation_types.user_favorite.should.equal(true);
                                     done();
                                 });
