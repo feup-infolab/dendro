@@ -727,7 +727,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
     {
         let hasDataProcessingErrorTrue = new Descriptor({
             prefixedForm: "ddr:hasDataProcessingError",
-            value: err
+            value: (err instanceof Object) ? err.message : err
         });
 
         self.insertDescriptors([hasDataProcessingErrorTrue], function (err, result)
@@ -879,9 +879,8 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
     {
         let workbook;
         let formats = ["biff8", "biff5", "biff2", "xlml"];
-        let failed = true;
 
-        const handleWorkbook = function (workbook)
+        const handleWorkbook = function (workbook, callback)
         {
             const sheetNamesWithIndexes = workbook.SheetNames.map(function (name, index)
             {
@@ -910,45 +909,45 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             });
         };
 
-        for (let i = 0; i < formats.length; i++)
-        {
-            let format = formats[i];
+        async.detectSeries(formats, function(format, callback){
             try
             {
                 workbook = XLSX.readFile(filePath, {
                     format: format
                 });
 
-                handleWorkbook(workbook);
-
-                failed = false;
+                handleWorkbook(workbook, function(err, result){
+                    callback(null, isNull(err));
+                });
             }
             catch (error)
             {
                 Logger.log("error", error.message);
             }
-        }
+        }, function(err, processedAtLeastOneFormatOK){
+            if (!err && processedAtLeastOneFormatOK)
+            {
+                callback(null);
+            }
+            else
+            {
+                callback(1, "Unable to process the data from the XLS file after trying all possible formats.");
+            }
+        });
 
-        if (failed)
-        {
-            const xlsjs = require("xlsjs");
-            workbook = xlsjs.readFile(filePath);
-            handleWorkbook(workbook);
-
-            // const exceltojson = require("xls-to-json-lc");
-            // exceltojson({
-            //     input: filePath,
-            //     output: null
-            //     //sheet: "sheetname",  // specific sheetname inside excel file (if you have multiple sheets)
-            //     //lowerCaseHeaders:true //to convert all excel headers to lowr case in json
-            // }, function(err, result) {
-            //     if(err) {
-            //         console.error(err);
-            //     } else {
-            //         dataStoreWriter.updateDataFromArrayOfObjects(result, callback, "Sheet1", "1", getHeaders(result));
-            //     }
-            // });
-        }
+        // const exceltojson = require("xls-to-json-lc");
+        // exceltojson({
+        //     input: filePath,
+        //     output: null
+        //     //sheet: "sheetname",  // specific sheetname inside excel file (if you have multiple sheets)
+        //     //lowerCaseHeaders:true //to convert all excel headers to lowr case in json
+        // }, function(err, result) {
+        //     if(err) {
+        //         console.error(err);
+        //     } else {
+        //         dataStoreWriter.updateDataFromArrayOfObjects(result, callback, "Sheet1", "1", getHeaders(result));
+        //     }
+        // });
     };
 
     const csvFileParser = function (filePath, callback)
@@ -1032,8 +1031,8 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
      */
 
     const dataFileParsers = {
-        // xls: xlsFileParser,
-        // xlsx: xlsxFileParser,
+        xls: xlsFileParser,
+        xlsx: xlsxFileParser,
         ods: xlsxFileParser,
         csv: csvFileParser
     };
@@ -1144,7 +1143,7 @@ File.prototype.rebuildData = function (callback)
                     {
                         self.extractDataAndSaveIntoDataStore(tempFilePath, function (err, result)
                         {
-                            if (isNull(err) && !isNull(result))
+                            if (isNull(err))
                             {
                                 File.deleteOnLocalFileSystem(tempFilePath, function (err, result)
                                 {
