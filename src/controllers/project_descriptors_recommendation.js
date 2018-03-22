@@ -89,7 +89,6 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
     const getOwnerProjectUri = function (callback)
     {
-        //TODO THIS IS NEW STUFF
         /*
         if (req.params.showing_project_root)
         {
