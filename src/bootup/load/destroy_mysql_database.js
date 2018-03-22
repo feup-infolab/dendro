@@ -26,6 +26,9 @@ const destroyMySQLDatabase = function (app, callback)
         });
     };
 
+    Logger.log("info", "process.env.NODE_ENV is: " + process.env.NODE_ENV);
+    Logger.log("info", "Config.startup.load_databases is: " + Config.startup.load_databases);
+    Logger.log("info", "Config.startup.destroy_mysql_database is: " + Config.startup.destroy_mysql_database);
     if (process.env.NODE_ENV === "test" && !isNull(Config.startup.load_databases) && Config.startup.load_databases && !isNull(Config.startup.destroy_mysql_database) && Config.startup.destroy_mysql_database)
     {
         Logger.log("info", "Will destroy the MySQL database!!");
