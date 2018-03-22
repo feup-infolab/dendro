@@ -87,6 +87,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology
                 interactionsUtils.selectOntologyManually(true, agent, demouser1InteractionObj, function (err, res)
                 {
                     should.exist(err);
+                    console.log("Error message is: " + res.body.message);
                     res.statusCode.should.equal(400);
                     res.body.message.should.contain("Unable to record interactions for resources of projects of which you are not a creator or contributor.");
                     // SHOULD NOT BE IN THE MYSQL DATABASE
