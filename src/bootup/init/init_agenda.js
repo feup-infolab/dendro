@@ -6,7 +6,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 //const mongoConnectionString = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + "agenda";
-const mongoConnectionString = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/jobCollectionName";
+const mongoConnectionString = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoJobCollectionName;
 //let mongoConnectionString = 'mongodb://127.0.0.1/agenda';
 
 //let agenda = new Agenda({db: {address: mongoConnectionString, collection: "jobCollectionName"}});

@@ -102,6 +102,7 @@
         "mongoDbPort": "27017",
         "mongoDbCollectionName": "127.0.0.1:3001_files",
         "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
+        "mongoJobCollectionName": "devJobCollectionName",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",
@@ -492,6 +493,7 @@
         "mongoDbPort": "27017",
         "mongoDbCollectionName": "127.0.0.1:3002_files",
         "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
+        "mongoJobCollectionName": "testJobCollectionName",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",
@@ -877,6 +879,7 @@
         "mongoDbPort": "27017",
         "mongoDbCollectionName": "127.0.0.1:3002_files",
         "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
+        "mongoJobCollectionName": "jenkinsJobCollectionName",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",
@@ -1262,6 +1265,7 @@
         "mongoDbPort": "27017",
         "mongoDbCollectionName": "127.0.0.1:3002_files",
         "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
+        "mongoJobCollectionName": "travisJobCollectionName",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",

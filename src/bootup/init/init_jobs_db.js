@@ -8,12 +8,13 @@ const MongoClient = require("mongodb").MongoClient;
 const initJobsDb = function (app, callback)
 {
     Logger.log_boot_message("Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
-    const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + "jobCollectionName";
+    const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoJobCollectionName;
 
     MongoClient.connect(url, function (err, db)
     {
         if (err)
         {
+            console.log("err:", err);
             return callback("[ERROR] Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + JSON.stringify(db));
         }
         Logger.log_boot_message("Connected to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
