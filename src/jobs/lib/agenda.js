@@ -178,7 +178,7 @@ if(!isNull(Config.jobTypes) && Config.jobTypes.length) {
         }
         else
         {
-            Logger.log("error", "Could not calculate parent path of: " + uploadedBackupAbsPath);
+            Logger.log("error", "Could not calculate parent path of: " + job.attrs.data.uploadedBackupAbsPath);
         }
     });
 }
