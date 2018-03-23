@@ -87,6 +87,7 @@ const canImportProjectJobRestart = function (job, callback) {
 };
 
 Config.agenda.on("ready", function() {
+    Logger.log("info", "Attempting to restart any Import Project job reamining in mongodb");
     Config.agenda.jobs({name: "import project"}, function(err, jobs) {
         // Work with jobs (see below)
         if(!isNull(jobs) && jobs.length > 0)
@@ -125,7 +126,7 @@ Config.agenda.on("ready", function() {
         }
         else
         {
-            Logger.log("info", "No jobs in mongodb!");
+            Logger.log("info", "No import project jobs in mongodb!");
             Logger.log("info", "Agenda will start now!");
             Config.agenda.start();
         }
