@@ -30,14 +30,14 @@ const restoreFolderWithOnlyOneFileInside = require(Pathfinder.absPathInTestsFold
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-//const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
+// const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
 const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-
-const createTempFileFromData = function (fileData, fileName, callback) {
+const createTempFileFromData = function (fileData, fileName, callback)
+{
     const tmp = require("tmp");
     const fs = require("fs");
     tmp.dir(
@@ -50,8 +50,9 @@ const createTempFileFromData = function (fileData, fileName, callback) {
             if (isNull(err))
             {
                 let filePath = path.join(tempFolderPath, fileName);
-                fs.writeFile(filePath, fileData, 'binary', function(err){
-                    if(isNull(err))
+                fs.writeFile(filePath, fileData, "binary", function (err)
+                {
+                    if (isNull(err))
                     {
                         callback(err, filePath);
                     }
@@ -123,7 +124,8 @@ describe("Public project testFolder1 level restore folder tests", function ()
             {
                 try
                 {
-                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                    {
                         should.equal(err, null);
                         projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, res)
                         {
@@ -152,7 +154,6 @@ describe("Public project testFolder1 level restore folder tests", function ()
         {
             done(err);
         });
-
 
         /*
         addMetadataToFoldersSingleProjectUnit.setup(publicProject, function (err, results)
@@ -361,15 +362,18 @@ describe("Public project testFolder1 level restore folder tests", function ()
             });
         });
 
-        it("Should restore restoreFolderWithAZipInside in the metadata_project and the folder should exist in both public and metadata projects independently", function (done) {
+        it("Should restore restoreFolderWithAZipInside in the metadata_project and the folder should exist in both public and metadata projects independently", function (done)
+        {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 let folderDebug3ZipData = {};
                 const md5File = require("md5-file");
-                itemUtils.backupFolderByUri(true, agent, folderDebug3Uri, function (err, res) {
+                itemUtils.backupFolderByUri(true, agent, folderDebug3Uri, function (err, res)
+                {
                     should.equal(err, null);
                     res.statusCode.should.equal(200);
-                    createTempFileFromData(res.body, "folderInProjectMetadata.zip", function (err, filePath) {
+                    createTempFileFromData(res.body, "folderInProjectMetadata.zip", function (err, filePath)
+                    {
                         should.equal(err, null);
                         should.exist(filePath);
                         folderDebug3ZipData.location = filePath;
@@ -378,7 +382,7 @@ describe("Public project testFolder1 level restore folder tests", function ()
                         {
                             res.statusCode.should.equal(200);
                             let folderInProjectMetadataUri = res.body.new_folder.uri;
-                            //itemUtils.itemRestoreFolder(true, agent, folderInProjectMetadataUri, restoreFolderWithAZipInside, function (err, res)
+                            // itemUtils.itemRestoreFolder(true, agent, folderInProjectMetadataUri, restoreFolderWithAZipInside, function (err, res)
                             itemUtils.itemRestoreFolder(true, agent, folderInProjectMetadataUri, folderDebug3ZipData, function (err, res)
                             {
                                 res.statusCode.should.equal(200);
@@ -398,7 +402,6 @@ describe("Public project testFolder1 level restore folder tests", function ()
                                     expect(metadataProjectRestoredFolderData.nie.hasLogicalPart).to.be.an.instanceof(Array);
                                     metadataProjectRestoredFolderData.nie.hasLogicalPart.length.should.equal(3);
 
-
                                     fileUtils.downloadFileByUri(true, agent, folderInProjectMetadataUri, function (error, res)
                                     {
                                         should.equal(error, null);
@@ -407,16 +410,20 @@ describe("Public project testFolder1 level restore folder tests", function ()
                                         {
                                             should.equal(error, null);
                                             res.statusCode.should.equal(200);
-                                            itemUtils.deleteItemByUri(true, agent, folderDebug3Uri, function (err, res) {
+                                            itemUtils.deleteItemByUri(true, agent, folderDebug3Uri, function (err, res)
+                                            {
                                                 should.equal(error, null);
                                                 res.statusCode.should.equal(200);
-                                                //have to delete twice so that the file is really deleted even if the really_delete parameter is set to true
-                                                itemUtils.deleteItemByUri(true, agent, folderDebug3Uri, function (err, res) {
+                                                // have to delete twice so that the file is really deleted even if the really_delete parameter is set to true
+                                                itemUtils.deleteItemByUri(true, agent, folderDebug3Uri, function (err, res)
+                                                {
                                                     should.equal(error, null);
                                                     res.statusCode.should.equal(200);
-                                                    fileUtils.downloadFileByUri(true, agent, folderDebug3Uri, function (error, res) {
+                                                    fileUtils.downloadFileByUri(true, agent, folderDebug3Uri, function (error, res)
+                                                    {
                                                         res.statusCode.should.equal(404);
-                                                        fileUtils.downloadFileByUri(true, agent, folderInProjectMetadataUri, function (error, res) {
+                                                        fileUtils.downloadFileByUri(true, agent, folderInProjectMetadataUri, function (error, res)
+                                                        {
                                                             should.equal(error, null);
                                                             res.statusCode.should.equal(200);
                                                             done();
@@ -426,7 +433,6 @@ describe("Public project testFolder1 level restore folder tests", function ()
                                             }, true);
                                         });
                                     });
-
 
                                     /*
                                     itemUtils.getItemMetadataDeepByUri(true, agent, folderInProjectMetadataUri, function (err, res) {

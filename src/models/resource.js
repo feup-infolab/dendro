@@ -1700,22 +1700,18 @@ Resource.prototype.getIndexDocumentId = function (callback, customGraphUri)
                         Logger.log("error", "Duplicate document in index detected for resource !!! Fix it " + self.uri);
                     }
                     let hit = hits[0];
-                    if(isNull(hit._id))
+                    if (isNull(hit._id))
                     {
                         let message = "_id value is missing when looking for the index document id for " + self.uri;
                         Logger.log("error", message);
                         return callback(1, message);
                     }
-                    else
-                    {
-                        return callback(null, hit._id);
-                    }
+
+                    return callback(null, hit._id);
                 }
-                else
-                {
-                    // Resource was not previously indexed
-                    return callback(null, null);
-                }
+
+                // Resource was not previously indexed
+                return callback(null, null);
             }
             return callback(1, [hits]);
         }

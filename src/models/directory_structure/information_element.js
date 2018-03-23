@@ -817,34 +817,32 @@ InformationElement.removeInvalidFileNames = function (fileNamesArray)
 InformationElement.isSafePath = function (absPath, callback)
 {
     let fs = require("fs");
-    if(isNull(absPath))
+    if (isNull(absPath))
     {
         Logger.log("error", "Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
         return callback(null, false);
     }
-    else
+
+    fs.realpath(absPath, function (err, realPath)
     {
-        fs.realpath(absPath, function (err, realPath)
+        function b_in_a (b, a)
         {
-            function b_in_a (b, a)
+            return (b.indexOf(a) === 0);
+        }
+
+        const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];
+
+        for (let i = 0; i < validDirs.length; i++)
+        {
+            if (b_in_a(realPath, validDirs[i]))
             {
-                return (b.indexOf(a) === 0);
+                return callback(null, true);
             }
+        }
 
-            const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];
-
-            for (let i = 0; i < validDirs.length; i++)
-            {
-                if (b_in_a(realPath, validDirs[i]))
-                {
-                    return callback(null, true);
-                }
-            }
-
-            Logger.log("error", "Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
-            return callback(null, false);
-        });
-    }
+        Logger.log("error", "Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
+        return callback(null, false);
+    });
 };
 
 InformationElement.prototype.findMetadata = function (callback, typeConfigsToRetain, recursive)
@@ -1091,7 +1089,24 @@ InformationElement.prototype.refreshChildrenHumanReadableUris = function (callba
     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
     if (self.isA(Folder))
     {
-        Folder.refreshChildrenHumanReadableUris.call(self, callback, customGraphUri);
+        Folder.findByUri(self.uri, function (err, folder)
+        {
+            if(isNull(err))
+            {
+                if(!isNull(folder))
+                {
+                    folder.refreshChildrenHumanReadableUris(callback, customGraphUri);
+                }
+                else
+                {
+                    callback(true, "There is no folder with uri: " + self.uri);
+                }
+            }
+            else
+            {
+                callback(err, folder);
+            }
+        });
     }
     else
     {

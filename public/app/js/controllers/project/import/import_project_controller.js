@@ -38,7 +38,7 @@ angular.module("dendroApp.controllers")
                     {
                         if (result instanceof Array && result.length === 1)
                         {
-                            //window.location = result[0].data.new_project;
+                            // window.location = result[0].data.new_project;
                             window.location = "/projects/my";
                         }
                     }
@@ -66,7 +66,7 @@ angular.module("dendroApp.controllers")
                         })
                         .catch(function (error)
                         {
-                            if(error.status == 404)
+                            if (error.status == 404)
                             {
                                 $scope.$broadcast(
                                     "new_files_to_upload",

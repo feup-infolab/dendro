@@ -11,28 +11,38 @@ const fs = require("fs");
 const deleteOldTempFolders = function (app, callback)
 {
     Logger.log("info", "Temp folder location is: " + tmpLocation);
-    const deleteTempFoldersOlderThen1Day = function (cb) {
-        //resources older than two hour
+    const deleteTempFoldersOlderThen1Day = function (cb)
+    {
+        // resources older than two hour
         let resourcesToDelete = null;
-        //deletes resources older than two hours inside the temp folder
-        //find /Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/temp/ -not -newermt '-7200 seconds' -mindepth 1 -delete
-        //TODO look for a way to do this using nodejs code only -> so that it runs on machines other than macOs and Ubunto
-        if (fs.existsSync(tmpLocation)) {
-            InformationElement.isSafePath(tmpLocation, function (err, isSafe) {
-                if (!err && isSafe) {
-                    exec("find " + tmpLocation + " -not -newermt '-7200 seconds' -mindepth 1", function (err, stdout, stderr) {
-                        if (!isNull(err)) {
+        // deletes resources older than two hours inside the temp folder
+        // find /Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/temp/ -not -newermt '-7200 seconds' -mindepth 1 -delete
+        // TODO look for a way to do this using nodejs code only -> so that it runs on machines other than macOs and Ubunto
+        if (fs.existsSync(tmpLocation))
+        {
+            InformationElement.isSafePath(tmpLocation, function (err, isSafe)
+            {
+                if (!err && isSafe)
+                {
+                    exec("find " + tmpLocation + " -not -newermt '-7200 seconds' -mindepth 1", function (err, stdout, stderr)
+                    {
+                        if (!isNull(err))
+                        {
                             const errorMsg = "Error finding old resources in the delete_old_temp_folders job: " + err;
                             cb(true, errorMsg);
                         }
-                        else {
+                        else
+                        {
                             resourcesToDelete = stdout;
-                            exec("find " + tmpLocation + " -not -newermt '-7200 seconds' -mindepth 1 -delete", function (err, stdout, stderr) {
-                                if (!isNull(err)) {
+                            exec("find " + tmpLocation + " -not -newermt '-7200 seconds' -mindepth 1 -delete", function (err, stdout, stderr)
+                            {
+                                if (!isNull(err))
+                                {
                                     const errorMsg = "Error executing the delete_old_temp_folders job: " + err;
                                     cb(true, errorMsg);
                                 }
-                                else {
+                                else
+                                {
                                     const msg = "Executed the delete_old_temp_folders job successfully, deleted: " + resourcesToDelete;
                                     cb(null, msg);
                                 }
@@ -53,11 +63,14 @@ const deleteOldTempFolders = function (app, callback)
             cb(true, errorMsg);
         }
     };
-    try {
-        //Every hour
-        let job = new CronJob("0 * * * *", function() {
-            deleteTempFoldersOlderThen1Day(function (err, result) {
-                if(!isNull(err))
+    try
+    {
+        // Every hour
+        let job = new CronJob("0 * * * *", function ()
+        {
+            deleteTempFoldersOlderThen1Day(function (err, result)
+            {
+                if (!isNull(err))
                 {
                     Logger.log("error", result);
                 }
@@ -67,7 +80,8 @@ const deleteOldTempFolders = function (app, callback)
                 }
             });
         }, null, true, "America/Los_Angeles");
-        InformationElement.isSafePath(tmpLocation, function (err, isSafe) {
+        InformationElement.isSafePath(tmpLocation, function (err, isSafe)
+        {
             if (!err && isSafe)
             {
                 job.start();
@@ -81,7 +95,9 @@ const deleteOldTempFolders = function (app, callback)
                 callback(true, errorMsg);
             }
         });
-    } catch(ex) {
+    }
+    catch (ex)
+    {
         const errMsg = "Invalid delete_old_temp_folders job pattern: " + ex.toString();
         Logger.log("error", errMsg);
         callback(true, errMsg);

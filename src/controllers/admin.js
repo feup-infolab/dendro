@@ -605,48 +605,46 @@ module.exports.restartServer = function (req, res)
     }
 };
 
-
-
-listOrphanResourcesAux = function (callback) {
+listOrphanResourcesAux = function (callback)
+{
     let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
     mongoClient.connect(function (err, mongoDb)
     {
         if (isNull(err) && !isNull(mongoDb))
         {
-            mongoClient.getNonAvatarNorThumbnailFiles(mongoDb, function (err, files) {
-                if(isNull(err))
+            mongoClient.getNonAvatarNorThumbnailFiles(mongoDb, function (err, files)
+            {
+                if (isNull(err))
                 {
-                    if(isNull(files))
+                    if (isNull(files))
                     {
                         return callback(null, []);
                     }
-                    else if(files.length <= 0)
+                    else if (files.length <= 0)
                     {
                         return callback(null, []);
                     }
-                    else
+
+                    // Resource.findByUri
+                    // resource.delete -> is not possible because resource is null when it does not exist in the graph
+                    let resourcesToDeleteInStorage = [];
+                    async.mapSeries(files, function (file, cb)
                     {
-                        //Resource.findByUri
-                        //resource.delete -> is not possible because resource is null when it does not exist in the graph
-                        let resourcesToDeleteInStorage = [];
-                        async.mapSeries(files, function (file, cb)
+                        Resource.findByUri(file.filename, function (err, resource)
                         {
-                            Resource.findByUri(file.filename, function (err, resource)
+                            if (isNull(err))
                             {
-                                if(isNull(err))
+                                if (isNull(resource))
                                 {
-                                    if(isNull(resource))
-                                    {
-                                        resourcesToDeleteInStorage.push(file.filename);
-                                    }
+                                    resourcesToDeleteInStorage.push(file.filename);
                                 }
-                                cb(err, resource);
-                            });
-                        }, function (err, result)
-                        {
-                            callback(err, resourcesToDeleteInStorage);
+                            }
+                            cb(err, resource);
                         });
-                    }
+                    }, function (err, result)
+                    {
+                        callback(err, resourcesToDeleteInStorage);
+                    });
                 }
                 else
                 {
@@ -665,22 +663,24 @@ listOrphanResourcesAux = function (callback) {
     });
 };
 
-nukeOrphanResourcesAuxFunction = function (callback) {
-    //look for all resources in gridfs
+nukeOrphanResourcesAuxFunction = function (callback)
+{
+    // look for all resources in gridfs
     // for each see if they are in virtuoso graph
-        //if true -> do nothing
-        //if false -> delete resource in gridfs
+    // if true -> do nothing
+    // if false -> delete resource in gridfs
     listOrphanResourcesAux(function (err, files)
     {
-        if(isNull(err))
+        if (isNull(err))
         {
-            if(!isNull(files) && files.length > 0)
+            if (!isNull(files) && files.length > 0)
             {
-                let constructedQuery = { "filename": { $in: files } };
-                gfs.connection.deleteByQuery(constructedQuery, function (err, result) {
-                    if(isNull(err))
+                let constructedQuery = { filename: { $in: files } };
+                gfs.connection.deleteByQuery(constructedQuery, function (err, result)
+                {
+                    if (isNull(err))
                     {
-                        callback(err, files)
+                        callback(err, files);
                     }
                     else
                     {
@@ -688,7 +688,7 @@ nukeOrphanResourcesAuxFunction = function (callback) {
                         Logger.log("error", message);
                         callback(err, result);
                     }
-                })
+                });
             }
             else
             {
@@ -699,14 +699,14 @@ nukeOrphanResourcesAuxFunction = function (callback) {
         {
             callback(err, files);
         }
-    })
+    });
 };
 
-
-module.exports.listOrphanResources = function (req, res) {
+module.exports.listOrphanResources = function (req, res)
+{
     listOrphanResourcesAux(function (err, files)
     {
-        if(isNull(err))
+        if (isNull(err))
         {
             res.json({
                 result: "ok",
@@ -721,12 +721,14 @@ module.exports.listOrphanResources = function (req, res) {
                 message: JSON.stringify(files)
             });
         }
-    })
+    });
 };
 
-module.exports.nukeOrphanResources = function (req, res) {
-    nukeOrphanResourcesAuxFunction(function (err, files) {
-        if(isNull(err))
+module.exports.nukeOrphanResources = function (req, res)
+{
+    nukeOrphanResourcesAuxFunction(function (err, files)
+    {
+        if (isNull(err))
         {
             res.json({
                 result: "ok",

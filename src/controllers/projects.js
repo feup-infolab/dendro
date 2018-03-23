@@ -1378,7 +1378,7 @@ exports.administer = function (req, res)
             }
             else
             {
-                viewVars.error_messages = ["Project " + requestedResourceUri + " does not exist."];
+                viewVars.error_messages = ["Project " + req.params.requestedResourceUri + " does not exist."];
 
                 sendResponse(
                     "projects/administration/administer",
@@ -1957,11 +1957,11 @@ exports.import = function (req, res)
                             newProject.ddr.hasStorageConfig = newStorageConf.uri;
                             newProject.save(function (err, nProject)
                             {
-                                if(isNull(isAsync) || isAsync === false)
+                                if (isNull(isAsync) || isAsync === false)
                                 {
-                                    if(isNull(err))
+                                    if (isNull(err))
                                     {
-                                        if(isNull(nProject))
+                                        if (isNull(nProject))
                                         {
                                             callback(500, {
                                                 result: "error",
@@ -1983,7 +1983,7 @@ exports.import = function (req, res)
                                 }
                                 else
                                 {
-                                    if(isNull(err))
+                                    if (isNull(err))
                                     {
                                         res.json({
                                             result: "ok",
@@ -2005,7 +2005,7 @@ exports.import = function (req, res)
                         }
                         else
                         {
-                            if(isNull(isAsync) || isAsync === false)
+                            if (isNull(isAsync) || isAsync === false)
                             {
                                 callback(500,
                                     {
@@ -2026,7 +2026,7 @@ exports.import = function (req, res)
                         }
                     });
                 };
-                
+
                 const projectHandleCannotExist = function (callback)
                 {
                     Project.findByHandle(req.query.imported_project_handle, function (err, project)
@@ -2126,7 +2126,7 @@ exports.import = function (req, res)
                             function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
                             {
                                 const parentPath = path.resolve(uploadedBackupAbsPath, "..");
-                                if(!isNull(parentPath))
+                                if (!isNull(parentPath))
                                 {
                                     File.deleteOnLocalFileSystem(parentPath, function (err, result)
                                     {
@@ -2297,7 +2297,7 @@ exports.import = function (req, res)
                     //processImport
                 ], function (err, results)
                 {
-                    if(isNull(isAsync) || isAsync === false)
+                    if (isNull(isAsync) || isAsync === false)
                     {
                         if (isNull(err))
                         {
@@ -2338,21 +2338,19 @@ exports.import = function (req, res)
                             Logger.log("info", "Project with handle: " + req.query.imported_project_handle + " was successfully restored");
                             return;
                         }
-                        else
+
+                        Logger.log("error", "Error restoring a project with handle: " + req.query.imported_project_handle + ", error: " + JSON.stringify(results));
+                        if (!isNull(newProject))
                         {
-                            Logger.log("error", "Error restoring a project with handle: " + req.query.imported_project_handle + ", error: " + JSON.stringify(results));
-                            if(!isNull(newProject))
+                            delete newProject.ddr.is_being_imported;
+                            newProject.ddr.hasErrors = "There was an error during a project restore, error message : " + JSON.stringify(results);
+                            newProject.save(function (err, result)
                             {
-                                delete newProject.ddr.is_being_imported;
-                                newProject.ddr.hasErrors = "There was an error during a project restore, error message : " + JSON.stringify(results);
-                                newProject.save(function (err, result)
+                                if (!isNull(err))
                                 {
-                                    if (!isNull(err))
-                                    {
-                                        Logger.log("error", "Error when saving a project error message from a restore operation, error: " + JSON.stringify(result));
-                                    }
-                                });
-                            }
+                                    Logger.log("error", "Error when saving a project error message from a restore operation, error: " + JSON.stringify(result));
+                                }
+                            });
                         }
                     }*/
                 });

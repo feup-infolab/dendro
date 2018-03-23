@@ -49,7 +49,7 @@ DendroMongoClient.prototype.getNonAvatarNorThumbnailFiles = function (db, callba
 {
     const collection = db.collection("fs.files");
     // db.getCollection('fs.files').find( { $and: [{ "metadata.thumbnail": { $ne: true }} , {"metadata.avatar": { $ne: true }}]})
-    collection.find({ $and: [{ "metadata.thumbnail": { $ne: true }} , {"metadata.avatar": { $ne: true }}]}).sort({uploadDate: -1}).toArray(function (err, files)
+    collection.find({ $and: [{ "metadata.thumbnail": { $ne: true }}, {"metadata.avatar": { $ne: true }}]}).sort({uploadDate: -1}).toArray(function (err, files)
     {
         if (isNull(err))
         {
@@ -59,6 +59,5 @@ DendroMongoClient.prototype.getNonAvatarNorThumbnailFiles = function (db, callba
         return callback(true, msg);
     });
 };
-
 
 module.exports.DendroMongoClient = DendroMongoClient;

@@ -161,7 +161,7 @@
     "validate-node-version": "^1.1.1",
     "validator": "^9.1.1",
     "webworker-threads": "^0.7.13",
-    "winston": "^3.0.0-rc1",
+    "winston": "^3.0.0-rc2",
     "winston-console-formatter": "^1.0.0-beta.0",
     "winston-daily-rotate-file": "^1.7.2",
     "xls-to-json-lc": "^0.3.4",
