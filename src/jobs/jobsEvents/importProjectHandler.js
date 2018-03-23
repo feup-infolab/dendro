@@ -86,7 +86,62 @@ const canImportProjectJobRestart = function (job, callback) {
         });
 };
 
-Config.agenda.on("ready", function() {
+module.exports.init = function (callback) {
+    //TODO this on(ready) could be problematic here
+    //Config.agenda.on("ready", function() {
+        Logger.log("info", "Attempting to restart any Import Project job remaining in mongodb");
+        Config.agenda.jobs({name: "import project"}, function(err, jobs) {
+            // Work with jobs (see below)
+            if(!isNull(jobs) && jobs.length > 0)
+            {
+                let errorMessages = [];
+                jobs.forEach(function (job) {
+                    canImportProjectJobRestart(job, function (err, canIt) {
+                        if(isNull(err) && canIt === true)
+                        {
+                            Logger.log("info", "Will attempt to import project " + job.attrs.data.newProject.uri  + " again");
+                            job.attrs.lockedAt = null;
+                            job.schedule(new Date());
+                            job.save();
+                        }
+                        else
+                        {
+                            const errorMsg = "Cannot attempt to import project " + job.attrs.data.newProject.uri  + "again";
+                            Logger.log("error", errorMsg);
+                            Logger.log("info", "Removing job from mongodb!");
+                            errorMessages.push(errorMsg);
+                            job.remove(function(err) {
+                                if(isNull(err))
+                                {
+                                    Logger.log("info", "Successfully removed job from collection");
+                                }
+                                else
+                                {
+                                    const errorMessage = "Could not remove job from collection";
+                                    Logger.log("error", errorMessage);
+                                    errorMessages.push(errorMessage);
+                                }
+                            });
+                        }
+                    });
+                });
+
+                let hasErrors = errorMessages.length > 0;
+                let message = hasErrors === true ? JSON.stringify(errorMessages) : "There are " + jobs.length + " of type Import Project that will attempt running again!";
+                callback(hasErrors, message);
+            }
+            else
+            {
+                const msg = "No import project jobs in mongodb to attempt running again!";
+                Logger.log("info", msg);
+                //Config.agenda.start();
+                callback(null, msg);
+            }
+        });
+    //});
+};
+
+/*Config.agenda.on("ready", function() {
     Logger.log("info", "Attempting to restart any Import Project job reamining in mongodb");
     Config.agenda.jobs({name: "import project"}, function(err, jobs) {
         // Work with jobs (see below)
@@ -132,6 +187,7 @@ Config.agenda.on("ready", function() {
         }
     });
 });
+*/
 
 Config.agenda.on("success:import project", function(job) {
     Logger.log("info", "Imported project Successfully");

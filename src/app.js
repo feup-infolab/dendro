@@ -384,7 +384,7 @@ const startApp = function ()
             function (callback)
             {
                 // init Job storage
-                Logger.log("info", "Now starting Agenda!");
+                Logger.log("info", "Now initializing Agenda!");
                 //require(Pathfinder.absPathInSrcFolder("/jobs/lib/agenda.js")).init(self.app, callback);
                 require(Pathfinder.absPathInSrcFolder("bootup/init/init_agenda.js")).init(self.app, callback);
             },
