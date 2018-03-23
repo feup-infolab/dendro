@@ -34,10 +34,14 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
                 {
                     if (isNull(err))
                     {
-                        let postURI = res.body[0].uri;// para ter acesso nas outras units a seguir
+                        // para ter acesso nas outras units a seguir
+                        let postURI = res.body[0].uri;
                         socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
                         {
-                            unitUtils.endLoad(self, callback);
+                            unitUtils.endLoad(self, function (err)
+                            {
+                                callback(err, res);
+                            });
                         });
                     }
                     else

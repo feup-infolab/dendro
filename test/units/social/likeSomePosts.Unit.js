@@ -2,8 +2,7 @@ process.env.NODE_ENV = "test";
 
 const Pathfinder = global.Pathfinder;
 
-const chai = require("chai");
-
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
@@ -17,26 +16,33 @@ class LikeSomePosts extends ShareSomePostsUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        super.init(function (err, postURIToLike)
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
             if (err)
             {
-                callback(err, postURIToLike);
+                callback(err, agent);
             }
             else
             {
-                userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+                // TODO do the get posts request obtain a uri of a post then share it
+                let pageNumber = 1;
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
                 {
-                    if (err)
+                    if (isNull(err))
                     {
-                        callback(err, agent);
+                        // para ter acesso nas outras units a seguir
+                        let postURI = res.body[0].uri;
+                        socialDendroUtils.likeAPost(true, agent, postURI, function (err, res)
+                        {
+                            unitUtils.endLoad(self, function (err)
+                            {
+                                callback(err, res);
+                            });
+                        });
                     }
                     else
                     {
-                        socialDendroUtils.likeAPost(true, agent, postURIToLike, function (err, res)
-                        {
-                            unitUtils.endLoad(self, callback);
-                        });
+                        callback(err, res);
                     }
                 });
             }

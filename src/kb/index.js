@@ -766,10 +766,18 @@ IndexConnection.prototype.delete_index = function (callback)
                             }
                             else
                             {
-                                const error = "Error deleting index : " + JSON.stringify(data);
-                                Logger.log("error", error);
-
-                                callback(error, data.error);
+                                if(!isNull(data))
+                                {
+                                    const error = "Error deleting index : " + JSON.stringify(data);
+                                    Logger.log("error", error);
+                                    callback(error, data.error);
+                                }
+                                else
+                                {
+                                    const error = "Error deleting index : " + JSON.stringify(err);
+                                    Logger.log("error", error);
+                                    callback(err, error);
+                                }
                             }
 
                         });

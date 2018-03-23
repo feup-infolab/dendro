@@ -4,14 +4,21 @@ echo "Running stop containers script..."
 
 function stop_container_if_running
 {
-    container_name=$1
+    local container_name=$1
     echo "Received request to stop container $container_name"
-    running=$(docker inspect -f "{{.State.Running}}" "$container_name")
-    if [[ "$running" == "true" ]]
+
+    # container exists
+    if [[ ! $(docker ps -q -f name="$container_name") ]]
     then
-        echo "Stopping $(docker stop $container_name)"
+        if [[ ! $(docker inspect -f "{{.State.Running}}" $container_name) ]]
+        then
+            echo "Stopping ${container_name}"
+            docker stop "$container_name"
+        else
+            echo "Container $container_name is not running. "
+        fi
     else
-        echo "Container $container_name is not running."
+        echo "Container $container_name does not exist. "
     fi
 }
 
