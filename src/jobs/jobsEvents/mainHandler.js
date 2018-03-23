@@ -10,6 +10,7 @@ const getJobsFromMongoDbAndScheduleAgain = function (callback) {
     async.waterfall([
         function (callback)
         {
+            //TODO change name of each require to jobtitle_fetchFromMongo or something like that
             require(Pathfinder.absPathInSrcFolder("/jobs/jobsEvents/importProjectHandler.js")).init(function (err, info) {
                 callback(err, info);
             });
@@ -27,6 +28,7 @@ if(!isNull(Config.jobTypes) && Config.jobTypes.length) {
     Config.agenda.on("ready", function() {
         getJobsFromMongoDbAndScheduleAgain(function (err, info) {
             //TODO register all job events handlers here
+            //remove the init from this
             require(Pathfinder.absPathInSrcFolder("/jobs/jobsEvents/importProjectHandler.js"));
         });
     });
