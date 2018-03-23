@@ -54,7 +54,7 @@ module.exports = {
             queryInterface.addIndex('interactions', ['executedOver']);
             queryInterface.addIndex('interactions', ['originallyRecommendedFor']);
             queryInterface.renameColumn('interactions', 'createdAt', 'created');
-            queryInterface.renameColumn('interactions', 'updatedAt', 'modified');
+            return queryInterface.renameColumn('interactions', 'updatedAt', 'modified');
         });
     },
     down: (queryInterface, Sequelize) => {

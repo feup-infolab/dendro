@@ -5,6 +5,7 @@ const Sequelize = require('sequelize');
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Umzug = require('umzug');
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const initMySQL = function (app, callback)
@@ -33,12 +34,14 @@ const initMySQL = function (app, callback)
                 })
                     .catch(err =>
                     {
+                        console.log(err);
                         Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
                         return callback(err, null);
                     });
             })
             .catch(err =>
             {
+                console.log(err);
                 return callback(err, null);
             });
 
@@ -79,7 +82,7 @@ const initMySQL = function (app, callback)
             return callback(err, result);
         }
 
-        /*const sequelize = new Sequelize(Config.mySQLDBName, Config.mySQLAuth.user, Config.mySQLAuth.password, {
+        const sequelize = new Sequelize(Config.mySQLDBName, Config.mySQLAuth.user, Config.mySQLAuth.password, {
             dialect: 'mysql',
             host: Config.mySQLHost,
             port: Config.mySQLPort,
@@ -92,7 +95,18 @@ const initMySQL = function (app, callback)
             operatorsAliases: false
         });
 
-        const tableName = Config.recommendation.getTargetTable();
+        var umzug = new Umzug({
+            storage: 'sequelize',
+            storageOptions: { sequelize: sequelize },
+            migrations: {
+                params: [sequelize.getQueryInterface(), Sequelize],
+                path: 'src/mysql_migrations'}
+        });
+        return umzug.up().then(function (migrations) {
+            return callback(null);
+        });
+
+        /*const tableName = Config.recommendation.getTargetTable();
         sequelize.interactions = require('../../mysql_models/interactions')(Sequelize, sequelize, tableName);
         sequelize.events = require('../../mysql_models/events')(Sequelize, sequelize);
         sequelize.type = require('../../mysql_models/type')(Sequelize, sequelize);

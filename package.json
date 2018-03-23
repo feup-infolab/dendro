@@ -156,6 +156,7 @@
     "textract": "^2.2.0",
     "tmp": "^0.0.33",
     "ui-router": "^1.0.0-alpha0",
+    "umzug": "^2.1.0",
     "underscore": "1.8.3",
     "uuid": "*",
     "valid-url": "^1.0.9",

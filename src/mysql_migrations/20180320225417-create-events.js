@@ -37,7 +37,7 @@ module.exports = {
             queryInterface.addIndex('events', ['postURI']);
             queryInterface.addIndex('events', ['projectURI']);
             queryInterface.renameColumn('events', 'createdAt', 'timestamp');
-            queryInterface.renameColumn('events', 'updatedAt', 'modified');
+            return queryInterface.renameColumn('events', 'updatedAt', 'modified');
         });
     },
     down: (queryInterface, Sequelize) => {
