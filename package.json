@@ -62,6 +62,7 @@
     "corenlp": "^1.4.2",
     "crypto": "1.0.1",
     "csurf": "^1.9.0",
+    "csv-write-stream": "^2.0.0",
     "dateformat": "^3.0.2",
     "dbpedia-sparql-client": "^0.9.8",
     "deep-diff": "^0.3.8",

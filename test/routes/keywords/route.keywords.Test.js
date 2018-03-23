@@ -4,8 +4,7 @@ const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
 const md5 = require("md5");
-const fs = require("fs");
-
+const fs = require("fs");;
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 

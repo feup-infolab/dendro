@@ -5,6 +5,7 @@ const _ = require("underscore");
 chai.use(chaiHttp);
 const md5 = require("md5");
 const fs = require("fs");
+const csvWriter = require("csv-write-stream");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -52,7 +53,6 @@ const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-
 // Dendro Keywords
 describe("Searches DBpedia for important terms", function (done)
 {
@@ -88,7 +88,6 @@ describe("Searches DBpedia for important terms", function (done)
                         res.body.descriptors.should.be.instanceof(Array);
                         artigo = JSON.parse(res.text).descriptors[7].value;
                         descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
-
                         descriptorUtils.containsAllMetadata(
                             doc1.metadata,
                             JSON.parse(res.text).descriptors
@@ -103,7 +102,6 @@ describe("Searches DBpedia for important terms", function (done)
 
     describe("[GET] Complete path using all 5 files", function ()
     {
-
         var artigos = [];
         var textprocessado = [];
         var preprocessing = [];
@@ -437,6 +435,20 @@ describe("Searches DBpedia for important terms", function (done)
                 db.statusCode.should.equal(200);
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
+                var writer = csvWriter();
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dpbediaconcepts.csv")))
+                {
+                    writer = csvWriter({ separator: ",", headers: ["searchterm", "score", "uri", "label", "description" ]});
+                }
+                else
+                {
+                    writer = csvWriter({sendHeaders: false});
+                }
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dpbediaconcepts.csv"), {flags: "a"}));
+                for( var i = 0; i < dbpediaconcepts.length; i++) {
+                    writer.write(dbpediaconcepts[i]);
+                }
+                writer.end();
                 done();
             });
         });
@@ -447,10 +459,21 @@ describe("Searches DBpedia for important terms", function (done)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
+                var writer = csvWriter();
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dbpediaproperties.csv")))
+                {
+                    writer = csvWriter({ headers: ["property", "frequency"]});
+                }
+                else
+                {
+                    writer = csvWriter({separator: ",", sendHeaders: false});
+                }
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dbpediaproperties.csv"), {flags: "a"}));
                 for (var i = 0; i < db.body.dbpediaproperties.result.length; i++)
                 {
-                    console.log(db.body.dbpediaproperties.result[i]);
+                    writer.write(db.body.dbpediaproperties.result[i]);
                 }
+                writer.end();
                 done();
             });
         });
