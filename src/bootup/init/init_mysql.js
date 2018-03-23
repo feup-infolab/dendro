@@ -82,6 +82,7 @@ const initMySQL = function (app, callback)
             return callback(err, result);
         }
 
+        // run migrations
         const sequelize = new Sequelize(Config.mySQLDBName, Config.mySQLAuth.user, Config.mySQLAuth.password, {
             dialect: 'mysql',
             host: Config.mySQLHost,
