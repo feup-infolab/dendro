@@ -13,7 +13,6 @@ console.log("Running in test mode and the app directory is : " + Pathfinder.appD
 global.Config = Config;
 
 global.tests = {};
-
 // uncomment the first time you run the tests after installing dendro
 // require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
@@ -22,7 +21,7 @@ global.tests = {};
 // Import projects tests
 // require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/keywords/route.keywords.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/keywords/route.keywords.TestTPDL.js"));
 
 // ERROS
 // Delete a project

@@ -10,6 +10,22 @@ let folderData = {
     searchTerms: "testFolder2",
     files: [
         require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc1.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc2.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc3.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc4.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc5.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc6.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc7.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc8.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc9.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc10.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc11.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc12.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc13.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc14.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
         require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"))
     ],
     metadata: [

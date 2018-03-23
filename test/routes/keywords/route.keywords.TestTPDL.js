@@ -32,22 +32,26 @@ const createFoldersUnitKeywords = appUtils.requireUncached(Pathfinder.absPathInT
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
-// const BusPerformance = require(Pathfinder.absPathInTestsFolder("mockdata/files/BusPerformance.js"));
-// const SimulatingVehicle = require(Pathfinder.absPathInTestsFolder("mockdata/files/SimulatingVehicle.js"));
-// const driverattitude = require(Pathfinder.absPathInTestsFolder("mockdata/files/driverattitude.js"));
-// const RegenerativeBraking = require(Pathfinder.absPathInTestsFolder("mockdata/files/RegenerativeBraking.js"));
-// const RoutePlanning = require(Pathfinder.absPathInTestsFolder("mockdata/files/RoutePlanning.js"));
+const doc1 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc1.js"));
+const doc2 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc2.js"));
+const doc3 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc3.js"));
+const doc4 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc4.js"));
+const doc5 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc5.js"));
+const doc6 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc6.js"));
+const doc7 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc7.js"));
+const doc8 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc8.js"));
+const doc9 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc9.js"));
+const doc10 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc10.js"));
+const doc11 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc11.js"));
+const doc12 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc12.js"));
+const doc13 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc13.js"));
+const doc14 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc14.js"));
+const doc15 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-const csvResultMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInCSV.csv"), "utf-8"));
-const jsonResultMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInJSON.json"), "utf-8"));
-
-const csvResultMD5WithPageAndSkip = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInCSV_200_to_250.csv"), "utf-8"));
-const jsonResultMD5WithPageAndSkip = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInJSON_200_to_250.json"), "utf-8"));
-const emptyCSVMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/emptyCSVResult.csv"), "utf-8"));
 
 // Dendro Keywords
 describe("Searches DBpedia for important terms", function (done)
@@ -70,7 +74,7 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, BusPerformance, function (err, res)
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc1, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
@@ -86,7 +90,7 @@ describe("Searches DBpedia for important terms", function (done)
                         descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
 
                         descriptorUtils.containsAllMetadata(
-                            BusPerformance.metadata,
+                            doc1.metadata,
                             JSON.parse(res.text).descriptors
                         );
 
@@ -97,83 +101,9 @@ describe("Searches DBpedia for important terms", function (done)
         });
     });
 
-    // describe("[GET] /keywords/conceptextraction", function ()
-    // {
-    //     it("[HTML] Simple test to extract POS and lemma", function (done)
-    //     {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-    //         {
-    //             keywordsUtils.preprocessing("a really Interesting string with some words", agent, function (err, res)
-    //             {
-    //                 res.statusCode.should.equal(200);
-    //                 // console.log(res.text);
-    //                 res.text.should.contain("interesting");
-    //                 res.text.should.contain("string");
-    //                 res.text.should.contain("word");
-    //                 done();
-    //             });
-    //         });
-    //     });
-    //     it("[GET] single term extraction", function (done)
-    //     {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-    //         {
-    //             // console.log(artigo.toString());
-    //             keywordsUtils.preprocessing(artigo, agent, function (err, res)
-    //             {
-    //                 res.statusCode.should.equal(200);
-    //                 res.text.should.contain("introduction");
-    //                 // console.log(res.text);
-    //                 // res.text.should.contain("science");
-    //                 keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
-    //                 {
-    //                     te.statusCode.should.equal(200);
-    //                     // te.text.should.contain("google");
-    //                     // te.text.should.contain("kaggle");
-    //                     // te.text.should.contain("3.068528194400547");
-    //                     // te.text.should.contain("3.068528194400547");
-    //
-    //                     done();
-    //                 });
-    //             });
-    //         });
-    //     });
-    //     it("[Get] DBpedia lookup higher frequency items", function (done)
-    //     {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-    //         {
-    //             // console.log(artigo.toString());
-    //             keywordsUtils.preprocessing(artigo, agent, function (err, res)
-    //             {
-    //                 res.statusCode.should.equal(200);
-    //                 res.text.should.contain("introduction");
-    //                 // console.log(res.text);
-    //                 // res.text.should.contain("science");
-    //                 keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
-    //                 {
-    //                     te.statusCode.should.equal(200);
-    //                     console.log(te.text);
-    //                     // te.text.should.contain("google");
-    //                     // te.text.should.contain("kaggle");
-    //                     // te.text.should.contain("3.068528194400547");
-    //                     // te.text.should.contain("3.068528194400547");
-    //
-    //                     keywordsUtils.dbpedialookup(te.text, agent, function (err, db)
-    //                     {
-    //                         db.statusCode.should.equal(200);
-    //                         console.log(db.body.dbpediauri.result);
-    //                         // db.text.should.contain("Google");
-    //                         // db.text.should.contain("Kaggle");
-    //                         done();
-    //                     });
-    //                 });
-    //             });
-    //         });
-    //     });
-    // });
-
-    describe("[GET] Complete path using all 4 files", function ()
+    describe("[GET] Complete path using all 5 files", function ()
     {
+
         var artigos = [];
         var textprocessado = [];
         var preprocessing = [];
@@ -181,7 +111,7 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, BusPerformance, function (err, res)
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc1, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Object);
@@ -193,7 +123,7 @@ describe("Searches DBpedia for important terms", function (done)
                         res.statusCode.should.equal(200);
                         res.body.descriptors.should.be.instanceof(Array);
                         artigos.push(JSON.parse(res.text).descriptors[7].value);
-                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, SimulatingVehicle, function (err, res)
+                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc2, function (err, res)
                         {
                             res.statusCode.should.equal(200);
                             res.body.should.be.instanceof(Object);
@@ -205,7 +135,7 @@ describe("Searches DBpedia for important terms", function (done)
                                 res.statusCode.should.equal(200);
                                 res.body.descriptors.should.be.instanceof(Array);
                                 artigos.push(JSON.parse(res.text).descriptors[7].value);
-                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, driverattitude, function (err, res)
+                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc3, function (err, res)
                                 {
                                     res.statusCode.should.equal(200);
                                     res.body.should.be.instanceof(Object);
@@ -217,7 +147,7 @@ describe("Searches DBpedia for important terms", function (done)
                                         res.statusCode.should.equal(200);
                                         res.body.descriptors.should.be.instanceof(Array);
                                         artigos.push(JSON.parse(res.text).descriptors[7].value);
-                                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, RegenerativeBraking, function (err, res)
+                                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc4, function (err, res)
                                         {
                                             res.statusCode.should.equal(200);
                                             res.body.should.be.instanceof(Object);
@@ -229,7 +159,7 @@ describe("Searches DBpedia for important terms", function (done)
                                                 res.statusCode.should.equal(200);
                                                 res.body.descriptors.should.be.instanceof(Array);
                                                 artigos.push(JSON.parse(res.text).descriptors[7].value);
-                                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, RoutePlanning, function (err, res)
+                                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc5, function (err, res)
                                                 {
                                                     res.statusCode.should.equal(200);
                                                     res.body.should.be.instanceof(Object);
@@ -241,7 +171,105 @@ describe("Searches DBpedia for important terms", function (done)
                                                         res.statusCode.should.equal(200);
                                                         res.body.descriptors.should.be.instanceof(Array);
                                                         artigos.push(JSON.parse(res.text).descriptors[7].value);
-                                                        done();
+                                                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc6, function (err, res)
+                                                        {
+                                                            res.statusCode.should.equal(200);
+                                                            res.body.should.be.instanceof(Object);
+                                                            res.body.should.be.instanceof(Array);
+                                                            res.body.length.should.equal(1);
+                                                            const newResourceUri = res.body[0].uri;
+                                                            itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                                            {
+                                                                res.statusCode.should.equal(200);
+                                                                res.body.descriptors.should.be.instanceof(Array);
+                                                                artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc7, function (err, res)
+                                                                {
+                                                                    res.statusCode.should.equal(200);
+                                                                    res.body.should.be.instanceof(Object);
+                                                                    res.body.should.be.instanceof(Array);
+                                                                    res.body.length.should.equal(1);
+                                                                    const newResourceUri = res.body[0].uri;
+                                                                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                                                    {
+                                                                        res.statusCode.should.equal(200);
+                                                                        res.body.descriptors.should.be.instanceof(Array);
+                                                                        artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                                                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc8, function (err, res)
+                                                                        {
+                                                                            res.statusCode.should.equal(200);
+                                                                            res.body.should.be.instanceof(Object);
+                                                                            res.body.should.be.instanceof(Array);
+                                                                            res.body.length.should.equal(1);
+                                                                            const newResourceUri = res.body[0].uri;
+                                                                            itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                                                            {
+                                                                                res.statusCode.should.equal(200);
+                                                                                res.body.descriptors.should.be.instanceof(Array);
+                                                                                artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                                                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc9, function (err, res)
+                                                                                {
+                                                                                    res.statusCode.should.equal(200);
+                                                                                    res.body.should.be.instanceof(Object);
+                                                                                    res.body.should.be.instanceof(Array);
+                                                                                    res.body.length.should.equal(1);
+                                                                                    const newResourceUri = res.body[0].uri;
+                                                                                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                                                                    {
+                                                                                        res.statusCode.should.equal(200);
+                                                                                        res.body.descriptors.should.be.instanceof(Array);
+                                                                                        artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                                                                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc10, function (err, res)
+                                                                                        {
+                                                                                            res.statusCode.should.equal(200);
+                                                                                            res.body.should.be.instanceof(Object);
+                                                                                            res.body.should.be.instanceof(Array);
+                                                                                            res.body.length.should.equal(1);
+                                                                                            const newResourceUri = res.body[0].uri;
+                                                                                            itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                                                                            {
+                                                                                                res.statusCode.should.equal(200);
+                                                                                                res.body.descriptors.should.be.instanceof(Array);
+                                                                                                artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                                                                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc11, function (err, res)
+                                                                                                {
+                                                                                                    res.statusCode.should.equal(200);
+                                                                                                    res.body.should.be.instanceof(Object);
+                                                                                                    res.body.should.be.instanceof(Array);
+                                                                                                    res.body.length.should.equal(1);
+                                                                                                    const newResourceUri = res.body[0].uri;
+                                                                                                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                                                                                    {
+                                                                                                        res.statusCode.should.equal(200);
+                                                                                                        res.body.descriptors.should.be.instanceof(Array);
+                                                                                                        artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                                                                                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, doc12, function (err, res)
+                                                                                                        {
+                                                                                                            res.statusCode.should.equal(200);
+                                                                                                            res.body.should.be.instanceof(Object);
+                                                                                                            res.body.should.be.instanceof(Array);
+                                                                                                            res.body.length.should.equal(1);
+                                                                                                            const newResourceUri = res.body[0].uri;
+                                                                                                            itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                                                                                                            {
+                                                                                                                res.statusCode.should.equal(200);
+                                                                                                                res.body.descriptors.should.be.instanceof(Array);
+                                                                                                                artigos.push(JSON.parse(res.text).descriptors[7].value);
+                                                                                                                done();
+                                                                                                            });
+                                                                                                        });
+                                                                                                    });
+                                                                                                });
+                                                                                            });
+                                                                                        });
+                                                                                    });
+                                                                                });
+                                                                            });
+                                                                        });
+                                                                    });
+                                                                });
+                                                            });
+                                                        });
                                                     });
                                                 });
                                             });
@@ -303,7 +331,77 @@ describe("Searches DBpedia for important terms", function (done)
                                     preprocessing.push(res.text);
                                     textprocessado.push(JSON.parse(res.text).text);
                                     // console.log(artigos[4]);
-                                    done();
+                                    keywordsUtils.preprocessing(artigos[5], agent, function (err, res)
+                                    {
+                                        res.statusCode.should.equal(200);
+                                        // res.text.should.contain("Introduction");
+                                        // console.log(artigos[4]);
+                                        // console.log(res.text);
+                                        preprocessing.push(res.text);
+                                        textprocessado.push(JSON.parse(res.text).text);
+                                        // console.log(artigos[4]);
+                                        keywordsUtils.preprocessing(artigos[6], agent, function (err, res)
+                                        {
+                                            res.statusCode.should.equal(200);
+                                            // res.text.should.contain("Introduction");
+                                            // console.log(artigos[4]);
+                                            // console.log(res.text);
+                                            preprocessing.push(res.text);
+                                            textprocessado.push(JSON.parse(res.text).text);
+                                            // console.log(artigos[4]);
+                                            keywordsUtils.preprocessing(artigos[7], agent, function (err, res)
+                                            {
+                                                res.statusCode.should.equal(200);
+                                                // res.text.should.contain("Introduction");
+                                                // console.log(artigos[4]);
+                                                // console.log(res.text);
+                                                preprocessing.push(res.text);
+                                                textprocessado.push(JSON.parse(res.text).text);
+                                                // console.log(artigos[4]);
+                                                keywordsUtils.preprocessing(artigos[8], agent, function (err, res)
+                                                {
+                                                    res.statusCode.should.equal(200);
+                                                    // res.text.should.contain("Introduction");
+                                                    // console.log(artigos[4]);
+                                                    // console.log(res.text);
+                                                    preprocessing.push(res.text);
+                                                    textprocessado.push(JSON.parse(res.text).text);
+                                                    // console.log(artigos[4]);
+                                                    keywordsUtils.preprocessing(artigos[9], agent, function (err, res)
+                                                    {
+                                                        res.statusCode.should.equal(200);
+                                                        // res.text.should.contain("Introduction");
+                                                        // console.log(artigos[4]);
+                                                        // console.log(res.text);
+                                                        preprocessing.push(res.text);
+                                                        textprocessado.push(JSON.parse(res.text).text);
+                                                        // console.log(artigos[4]);
+                                                        keywordsUtils.preprocessing(artigos[10], agent, function (err, res)
+                                                        {
+                                                            res.statusCode.should.equal(200);
+                                                            // res.text.should.contain("Introduction");
+                                                            // console.log(artigos[4]);
+                                                            // console.log(res.text);
+                                                            preprocessing.push(res.text);
+                                                            textprocessado.push(JSON.parse(res.text).text);
+                                                            // console.log(artigos[4]);
+                                                            keywordsUtils.preprocessing(artigos[11], agent, function (err, res)
+                                                            {
+                                                                res.statusCode.should.equal(200);
+                                                                // res.text.should.contain("Introduction");
+                                                                // console.log(artigos[4]);
+                                                                // console.log(res.text);
+                                                                preprocessing.push(res.text);
+                                                                textprocessado.push(JSON.parse(res.text).text);
+                                                                // console.log(artigos[4]);
+                                                                done();
+                                                            });
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
                                 });
                             });
                         });
@@ -314,6 +412,7 @@ describe("Searches DBpedia for important terms", function (done)
         var dbpediaterms;
         it("Should extract keywords", function (done)
         {
+            this.timeout(1500000);
             keywordsUtils.termextraction(preprocessing, textprocessado, agent, function (err, te)
             {
                 var keyword;
@@ -323,13 +422,6 @@ describe("Searches DBpedia for important terms", function (done)
                 keyword = JSON.parse(te.text).dbpediaterms.keywords;
 
                 // console.log(keyword);
-                for (var i = 0; i < keyword.length; i++)
-                {
-                    if (keyword[i].words.toString() === "aerodynamic" || keyword[i].words.toString() === "drag" || keyword[i].words.toString() === "coefficient" || keyword[i].words.toString() === "air" || keyword[i].words.toString() === "density" || keyword[i].words.toString() === "controller" || keyword[i].words.toString() === "efficiency" || keyword[i].words.toString() === "drive" || keyword[i].words.toString() === "driving" || keyword[i].words.toString() === "cycle" || keyword[i].words.toString() === "gear" || keyword[i].words.toString() === "ratio" || keyword[i].words.toString() === "gravitational" || keyword[i].words.toString() === "acceleration" || keyword[i].words.toString() === "road" || keyword[i].words.toString() === "surface" || keyword[i].words.toString() === "coefficient" || keyword[i].words.toString() === "tire" || keyword[i].words.toString() === "radius" || keyword[i].words.toString() === "vehicle" || keyword[i].words.toString() === "frontal" || keyword[i].words.toString() === "area" || keyword[i].words.toString() === "mass" || keyword[i].words.toString() === "model")
-                    {
-                        console.log(keyword[i].words.toString() + " " + (i + 1) + " score " + keyword[i].score);
-                    }
-                }
 
                 done();
             });
@@ -343,15 +435,14 @@ describe("Searches DBpedia for important terms", function (done)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
-                console.log(db.body.dbpediauri.result);
                 dbpediaconcepts = db.body.dbpediauri.result;
+                console.log(dbpediaconcepts);
                 done();
             });
         });
         it("Get properties from DBpedia", function (done)
         {
             this.timeout(1500000);
-            // console.log(agent);
             keywordsUtils.dbpediaproperties(dbpediaconcepts, agent, function (err, db)
             {
                 // console.log(err);

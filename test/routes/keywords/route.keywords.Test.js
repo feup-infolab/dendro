@@ -171,7 +171,7 @@ describe("Searches DBpedia for important terms", function (done)
     //     });
     // });
 
-    describe("[GET] Complete path using all 4 files", function ()
+    describe("[GET] Complete path using all 5 files", function ()
     {
         var artigos = [];
         var textprocessado = [];
@@ -322,13 +322,6 @@ describe("Searches DBpedia for important terms", function (done)
                 keyword = JSON.parse(te.text).dbpediaterms.keywords;
 
                 // console.log(keyword);
-                for (var i = 0; i < keyword.length; i++)
-                {
-                    if (keyword[i].words.toString() === "aerodynamic" || keyword[i].words.toString() === "drag" || keyword[i].words.toString() === "coefficient" || keyword[i].words.toString() === "air" || keyword[i].words.toString() === "density" || keyword[i].words.toString() === "controller" || keyword[i].words.toString() === "efficiency" || keyword[i].words.toString() === "drive" || keyword[i].words.toString() === "driving" || keyword[i].words.toString() === "cycle" || keyword[i].words.toString() === "gear" || keyword[i].words.toString() === "ratio" || keyword[i].words.toString() === "gravitational" || keyword[i].words.toString() === "acceleration" || keyword[i].words.toString() === "road" || keyword[i].words.toString() === "surface" || keyword[i].words.toString() === "coefficient" || keyword[i].words.toString() === "tire" || keyword[i].words.toString() === "radius" || keyword[i].words.toString() === "vehicle" || keyword[i].words.toString() === "frontal" || keyword[i].words.toString() === "area" || keyword[i].words.toString() === "mass" || keyword[i].words.toString() === "model")
-                    {
-                        console.log(keyword[i].words.toString() + " " + (i + 1) + " score " + keyword[i].score);
-                    }
-                }
 
                 done();
             });
@@ -342,15 +335,14 @@ describe("Searches DBpedia for important terms", function (done)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
-                console.log(db.body.dbpediauri.result);
                 dbpediaconcepts = db.body.dbpediauri.result;
+                console.log(dbpediaconcepts);
                 done();
             });
         });
         it("Get properties from DBpedia", function (done)
         {
             this.timeout(1500000);
-            // console.log(agent);
             keywordsUtils.dbpediaproperties(dbpediaconcepts, agent, function (err, db)
             {
                 // console.log(err);

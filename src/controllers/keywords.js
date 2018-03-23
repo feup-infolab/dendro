@@ -10,9 +10,10 @@ const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Pro
 var async = require("async");
 var natural = require("natural");
 var tokenizer = new natural.WordTokenizer();
+var stringSimilarity = require("string-similarity");
 
 var tm = require("text-miner");
-
+var stopwords = require("stopwords").english;
 const corenlp = require("corenlp");
 const coreNLP = corenlp.default;
 const connector = new corenlp.ConnectorServer({
@@ -64,7 +65,7 @@ exports.preprocessing = function (req, res)
                 comparision = text[j];
                 if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                 {
-                    if (comparision.lemma.toString().length < 3)
+                    if (comparision.lemma.toString().length < 3 && stopwords.indexOf(comparision.lemma.toString() < 0))
                     {
                         // console.log(comparision.word);
                     }
@@ -76,7 +77,7 @@ exports.preprocessing = function (req, res)
                             comparision = text[index2];
                             if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                             {
-                                if (comparision.lemma.toString().length < 3)
+                                if (comparision.lemma.toString().length < 3 && stopwords.indexOf(comparision.lemma.toString() < 0))
                                 {
                                     break;
                                 }
@@ -878,16 +879,15 @@ exports.termextraction = function (req, res)
 
 exports.dbpedialookup = function (req, res)
 {
-    req.setTimeout(150000);
+    req.setTimeout(2500000);
     var search = function (lookup, cb)
     {
         // console.log("searching : " + lookup.words);
-        baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=10&QueryString=" + lookup.words, function getResponse (error, response, body)
+        baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse (error, response, body)
         // baseRequest("http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=&QueryString=" + lookup.words, function getResponse (error, response, body)
         {
             if (!error && response.statusCode === 200)
             {
-                // console.log(body);
                 cb(null, body);
             }
             else
@@ -916,21 +916,33 @@ exports.dbpedialookup = function (req, res)
         }
         else
         {
+            var position ;
             for (var i = 0; i < results.length; i++)
             {
                 if (results[i] !== undefined && JSON.parse(results[i]).results[0] != null)
                 {
+                    position = 0;
+                    let similar = 0;
+                    for (let x = 0; x < JSON.parse(results[i]).results.length; x++)
+                    {
+                        let current = stringSimilarity.compareTwoStrings(dbpediaresults[i].words, JSON.parse(results[i]).results[x].label);
+                        if (current > similar)
+                        {
+                            similar = Number(current);
+                            position = x;
+                        }
+                    }
                     console.log("searched word: " + dbpediaresults[i].words);
                     console.log("nc value: " + dbpediaresults[i].score);
-                    console.log("URI: " + JSON.parse(results[i]).results[0].uri);
-                    console.log("label: " + JSON.parse(results[i]).results[0].label);
-                    console.log("description: " + JSON.parse(results[i]).results[0].description);
+                    console.log("URI: " + JSON.parse(results[i]).results[position].uri);
+                    console.log("label: " + JSON.parse(results[i]).results[position].label);
+                    console.log("description: " + JSON.parse(results[i]).results[position].description);
                     dbpediauri.result.push({
                         searchterm: dbpediaresults[i].words,
                         score: dbpediaresults[i].score,
-                        uri: JSON.parse(results[i]).results[0].uri,
-                        label: JSON.parse(results[i]).results[0].label,
-                        description: JSON.parse(results[i]).results[0].description
+                        uri: JSON.parse(results[i]).results[position].uri,
+                        label: JSON.parse(results[i]).results[position].label,
+                        description: JSON.parse(results[i]).results[position].description
                     });
                 }
                 else
@@ -954,7 +966,7 @@ exports.dbpedialookup = function (req, res)
 
 exports.dbpediaproperties = function (req, res)
 {
-    req.setTimeout(150000);
+    req.setTimeout(2500000);
     var search = function (lookup, cb)
     {
         lookup.label = lookup.label.replace(/\s/g, "_");
@@ -1047,16 +1059,6 @@ exports.dbpediaproperties = function (req, res)
                             }
                         }
                     }
-                    /*                    console.log("searched word: " + dbpediaresults[i].words);
-                    console.log("URI: " + JSON.parse(results[i]).results[0].uri);
-                    console.log("label: " + JSON.parse(results[i]).results[0].label);
-                    console.log("description: " + JSON.parse(results[i]).results[0].description);
-                    dbpediauri.result.push({
-                        searchterm: dbpediaresults[i].words,
-                        uri: JSON.parse(results[i]).results[0].uri,
-                        label: JSON.parse(results[i]).results[0].label,
-                        description: JSON.parse(results[i]).results[0].description
-                    });*/
                 }
                 else
                 {
