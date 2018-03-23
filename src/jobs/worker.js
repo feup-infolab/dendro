@@ -1,1 +1,0 @@
-require("./lib/agenda.js");
