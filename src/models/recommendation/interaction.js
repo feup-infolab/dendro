@@ -325,7 +325,7 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
             Logger.log(insertNewInteractionQuery);
         }
 
-        mysql.pool.getConnection(function (err, connection)
+        mysql.getConnection(function (err, connection)
         {
             if (isNull(err))
             {
@@ -365,7 +365,7 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
     }
     else
     {
-        mysql.pool.getConnection(function (err, connection)
+        mysql.getConnection(function (err, connection)
         {
             if (isNull(err))
             {

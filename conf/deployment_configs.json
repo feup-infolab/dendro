@@ -1553,7 +1553,7 @@
         },
         "numCPUs": 1,
         "docker": {
-          "active": true,
+          "active": false,
           "reuse_checkpoints": true
         }
     }

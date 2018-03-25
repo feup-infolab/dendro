@@ -579,7 +579,7 @@ IndexConnection.prototype.deleteDocument = function (documentID, type, callback)
                     type: type,
                     id: documentID,
                     refresh: "true",
-                    timeout: "10s"
+                    timeout: "40s"
                 },
                 function (err, result)
                 {

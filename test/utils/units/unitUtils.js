@@ -325,6 +325,67 @@ exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointed
             else
             {
                 Logger.log("error", "Error starting app for loading databases for creating checkpoint: " + checkpointIdentifier);
+                cb(err, result);
+            }
+        });
+    }, function (err, results)
+    {
+        if (isNull(err))
+        {
+            callback(err, targetUnit);
+        }
+        else
+        {
+            callback(err, results);
+        }
+    });
+};
+
+exports.runAllLoadFunctionsUpUnitChain = function (targetUnit, callback)
+{
+    const async = require("async");
+    const bootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+    let unitsToRun = [];
+
+    let currentUnit = targetUnit;
+
+    while (!isNull(currentUnit) && bootupUnit.isPrototypeOf(currentUnit))
+    {
+        unitsToRun.push(currentUnit);
+        currentUnit = Object.getPrototypeOf(currentUnit);
+    }
+
+    unitsToRun.push(bootupUnit);
+
+    unitsToRun = unitsToRun.reverse();
+
+    async.mapSeries(unitsToRun, function (unit, cb)
+    {
+        unit.init(function (err, result)
+        {
+            if (isNull(err))
+            {
+                unit.load(function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        cb(null, result);
+                    }
+                    else
+                    {
+                        Logger.log("error", "Error running load function of unit " + unit.name);
+                        Logger.log("error", err);
+                        Logger.log("error", result);
+                        cb(err, result);
+                    }
+                });
+            }
+            else
+            {
+                Logger.log("error", "Error running load function of unit: " + targetUnit.name);
+                Logger.log("error", err);
+                Logger.log("error", result);
+                cb(err, result);
             }
         });
     }, function (err, results)
@@ -416,55 +477,90 @@ exports.setup = function (targetUnit, callback)
     }
     else
     {
-        Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
-        const loadedCheckpointInfo = exports.loadLastSavedCheckpointInUnitHierarchy();
-        let startingUnit;
-        if (!isNull(loadedCheckpointInfo))
+        if (Config.docker.active)
         {
-            Logger.log("Loaded " + loadedCheckpointInfo.unit.name + ", will now run load remaining functions up the unit dependency chain...");
-            startingUnit = loadedCheckpointInfo.unit;
-        }
-        else
-        {
-            startingUnit = null;
-        }
-
-        exports.runLoadFunctionsFromExistingCheckpointUntilUnit(startingUnit, targetUnit, function (err, result)
-        {
-            if (isNull(err))
+            Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
+            const loadedCheckpointInfo = exports.loadLastSavedCheckpointInUnitHierarchy();
+            let startingUnit;
+            if (!isNull(loadedCheckpointInfo))
             {
-                if (startingUnit)
-                {
-                    Logger.log("Ran load functions between " + startingUnit.name + " and " + targetUnit.name + " successfully");
-                }
-                else
-                {
-                    Logger.log("Ran all load functions until " + targetUnit.name + " successfully");
-                }
-
-                exports.init(function (err, result)
-                {
-                    if (!err)
-                    {
-                        Logger.log("Started dendro instance successfully!");
-                    }
-                    else
-                    {
-                        Logger.log("error", "Error starting dendro instance");
-                        Logger.log("error", err);
-                        Logger.log("error", result);
-                    }
-                    callback(err, result);
-                });
+                Logger.log("Loaded " + loadedCheckpointInfo.unit.name + ", will now run load remaining functions up the unit dependency chain...");
+                startingUnit = loadedCheckpointInfo.unit;
             }
             else
             {
-                Logger.log("Error running functions between " + startingUnit + " and " + targetUnit.name + " !");
-                Logger.log("error", err);
-                Logger.log("error", JSON.stringify(result));
-                callback(err, result);
+                startingUnit = null;
             }
-        });
+
+            exports.runLoadFunctionsFromExistingCheckpointUntilUnit(startingUnit, targetUnit, function (err, result)
+            {
+                if (isNull(err))
+                {
+                    if (startingUnit)
+                    {
+                        Logger.log("Ran load functions between " + startingUnit.name + " and " + targetUnit.name + " successfully");
+                    }
+                    else
+                    {
+                        Logger.log("Ran all load functions until " + targetUnit.name + " successfully");
+                    }
+
+                    exports.init(function (err, result)
+                    {
+                        if (!err)
+                        {
+                            Logger.log("Started dendro instance successfully!");
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error starting dendro instance");
+                            Logger.log("error", err);
+                            Logger.log("error", result);
+                        }
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    Logger.log("Error running functions between " + startingUnit + " and " + targetUnit.name + " !");
+                    Logger.log("error", err);
+                    Logger.log("error", JSON.stringify(result));
+                    callback(err, result);
+                }
+            });
+        }
+        else
+        {
+            exports.runAllLoadFunctionsUpUnitChain(targetUnit, function (err, result)
+            {
+                if (isNull(err))
+                {
+                    Logger.log("Ran all load functions until " + targetUnit.name + " successfully");
+
+                    exports.init(function (err, result)
+                    {
+                        if (!err)
+                        {
+                            Logger.log("Started dendro instance successfully!");
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error starting dendro instance");
+                            Logger.log("error", err);
+                            Logger.log("error", result);
+                        }
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    Logger.log("Error running functions until " + targetUnit.name + " !");
+                    Logger.log("error", err);
+                    Logger.log("error", JSON.stringify(result));
+                    callback(err, result);
+                }
+            });
+        }
     }
 };
 

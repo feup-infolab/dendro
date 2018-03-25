@@ -31,7 +31,7 @@ const DockerCheckpointManager = function ()
 
 DockerCheckpointManager._availableCheckpoints = {};
 
-if (Config.docker.reuse_checkpoints)
+if (Config.docker.reuse_checkpoints && Config.docker.active)
 {
     const mkdirp = require("mkdirp");
     mkdirp.sync(dataFolder);
